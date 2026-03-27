@@ -42,9 +42,12 @@ var (
 func TestAccServiceDirectoryNamespaceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"namespace_id":  "tf-test-example-namespace" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -65,9 +68,12 @@ func TestAccServiceDirectoryNamespaceIamBindingGenerated(t *testing.T) {
 func TestAccServiceDirectoryNamespaceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"namespace_id":  "tf-test-example-namespace" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -85,9 +91,12 @@ func TestAccServiceDirectoryNamespaceIamMemberGenerated(t *testing.T) {
 func TestAccServiceDirectoryNamespaceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"namespace_id":  "tf-test-example-namespace" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -108,7 +117,7 @@ func TestAccServiceDirectoryNamespaceIamPolicyGenerated(t *testing.T) {
 func testAccServiceDirectoryNamespaceIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_directory_namespace" "example" {
-  namespace_id = "tf-test-example-namespace%{random_suffix}"
+  namespace_id = "%{namespace_id}"
   location     = "us-central1"
 
   labels = {
@@ -128,7 +137,7 @@ resource "google_service_directory_namespace_iam_member" "foo" {
 func testAccServiceDirectoryNamespaceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_directory_namespace" "example" {
-  namespace_id = "tf-test-example-namespace%{random_suffix}"
+  namespace_id = "%{namespace_id}"
   location     = "us-central1"
 
   labels = {
@@ -161,7 +170,7 @@ data "google_service_directory_namespace_iam_policy" "foo" {
 func testAccServiceDirectoryNamespaceIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_directory_namespace" "example" {
-  namespace_id = "tf-test-example-namespace%{random_suffix}"
+  namespace_id = "%{namespace_id}"
   location     = "us-central1"
 
   labels = {
@@ -183,7 +192,7 @@ resource "google_service_directory_namespace_iam_policy" "foo" {
 func testAccServiceDirectoryNamespaceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_directory_namespace" "example" {
-  namespace_id = "tf-test-example-namespace%{random_suffix}"
+  namespace_id = "%{namespace_id}"
   location     = "us-central1"
 
   labels = {
@@ -203,7 +212,7 @@ resource "google_service_directory_namespace_iam_binding" "foo" {
 func testAccServiceDirectoryNamespaceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_directory_namespace" "example" {
-  namespace_id = "tf-test-example-namespace%{random_suffix}"
+  namespace_id = "%{namespace_id}"
   location     = "us-central1"
 
   labels = {

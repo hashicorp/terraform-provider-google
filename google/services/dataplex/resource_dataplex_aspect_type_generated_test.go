@@ -53,9 +53,12 @@ var (
 func TestAccDataplexAspectType_dataplexAspectTypeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_name":     envvar.GetTestProjectFromEnv(),
+		"aspect_type_name": "tf-test-aspect-type-basic" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccDataplexAspectType_dataplexAspectTypeBasicExample(t *testing.T) {
 func testAccDataplexAspectType_dataplexAspectTypeBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataplex_aspect_type" "test_aspect_type_basic" {
-  aspect_type_id = "tf-test-aspect-type-basic%{random_suffix}"
+  aspect_type_id = "%{aspect_type_name}"
   project = "%{project_name}"
   location = "us-central1"
 
@@ -117,9 +120,12 @@ EOF
 func TestAccDataplexAspectType_dataplexAspectTypeFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_name":     envvar.GetTestProjectFromEnv(),
+		"aspect_type_name": "tf-test-aspect-type-full" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -143,7 +149,7 @@ func TestAccDataplexAspectType_dataplexAspectTypeFullExample(t *testing.T) {
 func testAccDataplexAspectType_dataplexAspectTypeFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataplex_aspect_type" "test_aspect_type_full" {
-  aspect_type_id = "tf-test-aspect-type-full%{random_suffix}"
+  aspect_type_id = "%{aspect_type_name}"
   project = "%{project_name}"
   location = "us-central1"
 

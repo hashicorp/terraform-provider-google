@@ -53,9 +53,15 @@ var (
 func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":    "tf-test-my-account" + randomSuffix,
+		"bucket_name":   "tf-test-appengine-static-content" + randomSuffix,
+		"project_id":    "tf-test-ae-project" + randomSuffix,
+		"service_name":  "tf-test-ae-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +85,7 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 func testAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "custom_service_account" {
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Custom Service Account"
 }
 
@@ -161,7 +167,7 @@ resource "google_app_engine_standard_app_version" "myapp_v2" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "tf-test-appengine-static-content%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 

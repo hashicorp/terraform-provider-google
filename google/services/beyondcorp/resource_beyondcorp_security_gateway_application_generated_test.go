@@ -53,8 +53,12 @@ var (
 func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"application_name":      "tf-test-google-sga" + randomSuffix,
+		"security_gateway_name": "tf-test-default-sg" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,14 +82,14 @@ func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplic
 func testAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_beyondcorp_security_gateway" "default" {
-  security_gateway_id = "tf-test-default-sg%{random_suffix}"
+  security_gateway_id = "%{security_gateway_name}"
   display_name = "My Security Gateway resource"
   hubs { region = "us-central1" }
 }
 
 resource "google_beyondcorp_security_gateway_application" "example" {
   security_gateway_id = google_beyondcorp_security_gateway.default.security_gateway_id
-  application_id = "tf-test-google-sga%{random_suffix}"
+  application_id = "%{application_name}"
   endpoint_matchers {
     hostname = "google.com"
     ports = [80, 443]
@@ -97,8 +101,12 @@ resource "google_beyondcorp_security_gateway_application" "example" {
 func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationVpcExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"application_name":      "tf-test-my-vm-service2" + randomSuffix,
+		"security_gateway_name": "tf-test-default-sg" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -124,14 +132,14 @@ func testAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplic
 data "google_project" "project" {}
 
 resource "google_beyondcorp_security_gateway" "default" {
-  security_gateway_id = "tf-test-default-sg%{random_suffix}"
+  security_gateway_id = "%{security_gateway_name}"
   display_name = "My Security Gateway resource"
   hubs { region = "us-central1" }
 }
 
 resource "google_beyondcorp_security_gateway_application" "example" {
   security_gateway_id = google_beyondcorp_security_gateway.default.security_gateway_id
-  application_id = "tf-test-my-vm-service2%{random_suffix}"
+  application_id = "%{application_name}"
   endpoint_matchers {
     hostname = "my-vm-service.com"
     ports = [80, 443]
@@ -151,8 +159,12 @@ resource "google_beyondcorp_security_gateway_application" "example" {
 func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationSpaApiExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"application_discovery_name": "tf-test-app-discovery" + randomSuffix,
+		"security_gateway_name":      "tf-test-default-sg-spa-api" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -176,13 +188,13 @@ func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplic
 func testAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationSpaApiExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_beyondcorp_security_gateway" "default" {
-  security_gateway_id = "tf-test-default-sg-spa-api%{random_suffix}"
+  security_gateway_id = "%{security_gateway_name}"
   display_name = "My SPA Security Gateway resource"
 }
 
 resource "google_beyondcorp_security_gateway_application" "example-spa" {
   security_gateway_id = google_beyondcorp_security_gateway.default.security_gateway_id
-  application_id = "tf-test-app-discovery%{random_suffix}"
+  application_id = "%{application_discovery_name}"
   upstreams {
     external {
       endpoints {
@@ -202,8 +214,12 @@ resource "google_beyondcorp_security_gateway_application" "example-spa" {
 func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationSpaProxyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"application_proxy_name": "tf-test-app-proxy" + randomSuffix,
+		"security_gateway_name":  "tf-test-default-sg-spa-proxy" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -227,13 +243,13 @@ func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplic
 func testAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationSpaProxyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_beyondcorp_security_gateway" "default" {
-  security_gateway_id = "tf-test-default-sg-spa-proxy%{random_suffix}"
+  security_gateway_id = "%{security_gateway_name}"
   display_name = "My SPA Security Gateway resource"
 }
 
 resource "google_beyondcorp_security_gateway_application" "example-spa" {
   security_gateway_id = google_beyondcorp_security_gateway.default.security_gateway_id
-  application_id = "tf-test-app-proxy%{random_suffix}"
+  application_id = "%{application_proxy_name}"
   endpoint_matchers {
     hostname = "a.site.com"
     ports = [443]

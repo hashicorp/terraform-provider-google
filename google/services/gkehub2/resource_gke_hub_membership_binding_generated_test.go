@@ -53,13 +53,16 @@ var (
 func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"location":            envvar.GetTestRegionFromEnv(),
 		"project":             envvar.GetTestProjectFromEnv(),
+		"cluster_name":        "tf-test-basic-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
-		"random_suffix":       acctest.RandString(t, 10),
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -83,7 +86,7 @@ func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(t *test
 func testAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "tf-test-basic-cluster%{random_suffix}"
+  name               = "%{cluster_name}"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection  = %{deletion_protection}

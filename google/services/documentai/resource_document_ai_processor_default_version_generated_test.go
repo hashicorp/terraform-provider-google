@@ -53,8 +53,11 @@ var (
 func TestAccDocumentAIProcessorDefaultVersion_documentaiDefaultVersionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"processor_name": "tf-test-test-processor" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func testAccDocumentAIProcessorDefaultVersion_documentaiDefaultVersionExample(co
 	return acctest.Nprintf(`
 resource "google_document_ai_processor" "processor" {
   location = "us"
-  display_name = "tf-test-test-processor%{random_suffix}"
+  display_name = "%{processor_name}"
   type = "OCR_PROCESSOR"
 }
 

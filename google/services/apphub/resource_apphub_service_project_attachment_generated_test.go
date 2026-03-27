@@ -53,10 +53,13 @@ var (
 func TestAccApphubServiceProjectAttachment_serviceProjectAttachmentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"host_project":  envvar.GetTestProjectFromEnv(),
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"host_project":                  envvar.GetTestProjectFromEnv(),
+		"org_id":                        envvar.GetTestOrgFromEnv(t),
+		"service_project_attachment_id": "tf-test-project-1" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -89,7 +92,7 @@ resource "google_apphub_service_project_attachment" "example" {
 }
 
 resource "google_project" "service_project" {
-  project_id ="tf-test-project-1%{random_suffix}"
+  project_id ="%{service_project_attachment_id}"
   name = "Service Project"
   org_id = "%{org_id}"
   deletion_policy = "DELETE"
@@ -106,10 +109,13 @@ resource "time_sleep" "wait_120s" {
 func TestAccApphubServiceProjectAttachment_serviceProjectAttachmentFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"host_project":  envvar.GetTestProjectFromEnv(),
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"host_project":                  envvar.GetTestProjectFromEnv(),
+		"org_id":                        envvar.GetTestOrgFromEnv(t),
+		"service_project_attachment_id": "tf-test-project-1" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -143,7 +149,7 @@ resource "google_apphub_service_project_attachment" "example2" {
 }
 
 resource "google_project" "service_project_full" {
-  project_id ="tf-test-project-1%{random_suffix}"
+  project_id ="%{service_project_attachment_id}"
   name = "Service Project Full"
   org_id = "%{org_id}"
   deletion_policy = "DELETE"

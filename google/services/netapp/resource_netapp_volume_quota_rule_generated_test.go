@@ -53,9 +53,14 @@ var (
 func TestAccNetappVolumeQuotaRule_netappVolumeQuotaRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":    acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"pool_name":       "tf-test-test-pool" + randomSuffix,
+		"quota_rule_name": "tf-test-test-volume-quota-rule" + randomSuffix,
+		"volume_name":     "tf-test-test-volume" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +84,7 @@ func TestAccNetappVolumeQuotaRule_netappVolumeQuotaRuleBasicExample(t *testing.T
 func testAccNetappVolumeQuotaRule_netappVolumeQuotaRuleBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_netapp_storage_pool" "default" {
-  name = "tf-test-test-pool%{random_suffix}"
+  name = "%{pool_name}"
   location = "us-west2"
   service_level = "PREMIUM"
   capacity_gib = 2048
@@ -88,9 +93,9 @@ resource "google_netapp_storage_pool" "default" {
 
 resource "google_netapp_volume" "default" {
   location = google_netapp_storage_pool.default.location
-  name = "tf-test-test-volume%{random_suffix}"
+  name = "%{volume_name}"
   capacity_gib = 100
-  share_name = "tf-test-test-volume%{random_suffix}"
+  share_name = "%{volume_name}"
   storage_pool = google_netapp_storage_pool.default.name
   protocols = ["NFSV3"]
 }
@@ -101,7 +106,7 @@ resource "google_netapp_volume_quota_rule" "test_quota_rule" {
   volume_name = google_netapp_volume.default.name
   type = "DEFAULT_USER_QUOTA"
   disk_limit_mib = 50
-  name = "tf-test-test-volume-quota-rule%{random_suffix}"
+  name = "%{quota_rule_name}"
 }
 
 data "google_compute_network" "default" {

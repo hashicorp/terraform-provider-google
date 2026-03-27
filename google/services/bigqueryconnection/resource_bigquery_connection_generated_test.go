@@ -53,8 +53,11 @@ var (
 func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_id": "tf-test-my-connection" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -82,7 +85,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(
 func testAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_connection" "connection" {
-   connection_id = "tf-test-my-connection%{random_suffix}"
+   connection_id = "%{connection_id}"
    location      = "US"
    friendly_name = "👋"
    description   = "a riveting description"
@@ -95,9 +98,13 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionBasicExample(t *testi
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"database_instance_name": "tf-test-my-database-instance" + randomSuffix,
+		"deletion_protection":    false,
+		"username":               "user" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -125,7 +132,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionBasicExample(t *testi
 func testAccBigqueryConnectionConnection_bigqueryConnectionBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sql_database_instance" "instance" {
-    name             = "tf-test-my-database-instance%{random_suffix}"
+    name             = "%{database_instance_name}"
     database_version = "POSTGRES_11"
     region           = "us-central1"
     settings {
@@ -146,7 +153,7 @@ resource "random_password" "pwd" {
 }
 
 resource "google_sql_user" "user" {
-    name = "user%{random_suffix}"
+    name = "%{username}"
     instance = google_sql_database_instance.instance.name
     password = random_password.pwd.result
 }
@@ -172,9 +179,14 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionFullExample(t *testin
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"connection_id":          "tf-test-my-connection" + randomSuffix,
+		"database_instance_name": "tf-test-my-database-instance" + randomSuffix,
+		"deletion_protection":    false,
+		"username":               "user" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -202,7 +214,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionFullExample(t *testin
 func testAccBigqueryConnectionConnection_bigqueryConnectionFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sql_database_instance" "instance" {
-    name             = "tf-test-my-database-instance%{random_suffix}"
+    name             = "%{database_instance_name}"
     database_version = "POSTGRES_11"
     region           = "us-central1"
     settings {
@@ -223,13 +235,13 @@ resource "random_password" "pwd" {
 }
 
 resource "google_sql_user" "user" {
-    name = "user%{random_suffix}"
+    name = "%{username}"
     instance = google_sql_database_instance.instance.name
     password = random_password.pwd.result
 }
 
 resource "google_bigquery_connection" "connection" {
-    connection_id = "tf-test-my-connection%{random_suffix}"
+    connection_id = "%{connection_id}"
     location      = "US"
     friendly_name = "👋"
     description   = "a riveting description"
@@ -249,8 +261,12 @@ resource "google_bigquery_connection" "connection" {
 func TestAccBigqueryConnectionConnection_bigqueryConnectionAwsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_id": "tf-test-my-connection" + randomSuffix,
+		"iam_role_id":   "arn:aws:iam::999999999999:role/omnirole" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -278,13 +294,13 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAwsExample(t *testing
 func testAccBigqueryConnectionConnection_bigqueryConnectionAwsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_connection" "connection" {
-   connection_id = "tf-test-my-connection%{random_suffix}"
+   connection_id = "%{connection_id}"
    location      = "aws-us-east-1"
    friendly_name = "👋"
    description   = "a riveting description"
    aws { 
       access_role {
-         iam_role_id =  "arn:aws:iam::999999999999:role/omnirole%{random_suffix}"
+         iam_role_id =  "%{iam_role_id}"
       }
    }
 }
@@ -294,8 +310,13 @@ resource "google_bigquery_connection" "connection" {
 func TestAccBigqueryConnectionConnection_bigqueryConnectionAzureExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_id":                   "tf-test-my-connection" + randomSuffix,
+		"customer_tenant_id":              "tf-test-customer-tenant-id" + randomSuffix,
+		"federated_application_client_id": "tf-test-b43eeeee-eeee-eeee-eeee-a480155501ce" + randomSuffix,
+		"random_suffix":                   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -323,13 +344,13 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAzureExample(t *testi
 func testAccBigqueryConnectionConnection_bigqueryConnectionAzureExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_connection" "connection" {
-   connection_id = "tf-test-my-connection%{random_suffix}"
+   connection_id = "%{connection_id}"
    location      = "azure-eastus2"
    friendly_name = "👋"
    description   = "a riveting description"
    azure {
-      customer_tenant_id = "tf-test-customer-tenant-id%{random_suffix}"
-      federated_application_client_id = "tf-test-b43eeeee-eeee-eeee-eeee-a480155501ce%{random_suffix}"
+      customer_tenant_id = "%{customer_tenant_id}"
+      federated_application_client_id = "%{federated_application_client_id}"
    }
 }
 `, context)
@@ -338,8 +359,13 @@ resource "google_bigquery_connection" "connection" {
 func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_id": "tf-test-my-connection" + randomSuffix,
+		"database":      "projects/project/instances/instance/databases/database" + randomSuffix,
+		"database_role": "tf_test_database_role" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -367,13 +393,13 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerExample(t
 func testAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_connection" "connection" {
-   connection_id = "tf-test-my-connection%{random_suffix}"
+   connection_id = "%{connection_id}"
    location      = "US"
    friendly_name = "👋"
    description   = "a riveting description"
    cloud_spanner { 
-      database = "projects/project/instances/instance/databases/database%{random_suffix}"
-      database_role = "tf_test_database_role%{random_suffix}"
+      database = "%{database}"
+      database_role = "%{database_role}"
    }
 }
 `, context)
@@ -382,8 +408,12 @@ resource "google_bigquery_connection" "connection" {
 func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerDataboostExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_id": "tf-test-my-connection" + randomSuffix,
+		"database":      "projects/project/instances/instance/databases/database" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -411,12 +441,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerDataboost
 func testAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerDataboostExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_connection" "connection" {
-   connection_id = "tf-test-my-connection%{random_suffix}"
+   connection_id = "%{connection_id}"
    location      = "US"
    friendly_name = "👋"
    description   = "a riveting description"
    cloud_spanner { 
-      database        = "projects/project/instances/instance/databases/database%{random_suffix}"
+      database        = "%{database}"
       use_parallelism = true
       use_data_boost  = true
       max_parallelism = 100
@@ -428,8 +458,11 @@ resource "google_bigquery_connection" "connection" {
 func TestAccBigqueryConnectionConnection_bigqueryConnectionSparkExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_id": "tf-test-my-connection" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -453,7 +486,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSparkExample(t *testi
 func testAccBigqueryConnectionConnection_bigqueryConnectionSparkExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_connection" "connection" {
-   connection_id = "tf-test-my-connection%{random_suffix}"
+   connection_id = "%{connection_id}"
    location      = "US"
    friendly_name = "👋"
    description   = "a riveting description"
@@ -465,7 +498,7 @@ resource "google_bigquery_connection" "connection" {
 }
 
 resource "google_dataproc_cluster" "basic" {
-   name   = "tf-test-my-connection%{random_suffix}"
+   name   = "%{connection_id}"
    region = "us-central1"
 
    cluster_config {
@@ -497,10 +530,14 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(t 
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"kms_key_name":        acctest.BootstrapKMSKey(t).CryptoKey.Name,
-		"random_suffix":       acctest.RandString(t, 10),
+		"database_instance_name": "tf-test-my-database-instance" + randomSuffix,
+		"deletion_protection":    false,
+		"kms_key_name":           acctest.BootstrapKMSKey(t).CryptoKey.Name,
+		"username":               "user" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -524,7 +561,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(t 
 func testAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-my-database-instance%{random_suffix}"
+  name             = "%{database_instance_name}"
   region           = "us-central1"
 
   database_version = "POSTGRES_11"
@@ -541,7 +578,7 @@ resource "google_sql_database" "db" {
 }
 
 resource "google_sql_user" "user" {
-  name = "user%{random_suffix}"
+  name = "%{username}"
   instance = google_sql_database_instance.instance.name
   password = "tf-test-my-password%{random_suffix}"
 }

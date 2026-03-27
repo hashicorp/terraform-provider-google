@@ -54,8 +54,15 @@ func TestAccComputeExternalVpnGateway_externalVpnGatewayExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"external_gateway_name": "tf-test-external-gateway" + randomSuffix,
+		"global_address_name":   "tf-test-global-address" + randomSuffix,
+		"ha_vpn_gateway_name":   "tf-test-ha-vpn" + randomSuffix,
+		"network_name":          "tf-test-network-1" + randomSuffix,
+		"router_name":           "tf-test-ha-vpn-router1" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,12 +87,12 @@ func testAccComputeExternalVpnGateway_externalVpnGatewayExample(context map[stri
 	return acctest.Nprintf(`
 resource "google_compute_ha_vpn_gateway" "ha_gateway" {
   region   = "us-central1"
-  name     = "tf-test-ha-vpn%{random_suffix}"
+  name     = "%{ha_vpn_gateway_name}"
   network  = google_compute_network.network.id
 }
 
 resource "google_compute_external_vpn_gateway" "external_gateway" {
-  name            = "tf-test-external-gateway%{random_suffix}"
+  name            = "%{external_gateway_name}"
   redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
   description     = "An externally managed VPN gateway"
   interface {
@@ -95,7 +102,7 @@ resource "google_compute_external_vpn_gateway" "external_gateway" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_name}"
   routing_mode            = "GLOBAL"
   auto_create_subnetworks = false
 }
@@ -115,7 +122,7 @@ resource "google_compute_subnetwork" "network_subnet2" {
 }
 
 resource "google_compute_router" "router1" {
-  name     = "tf-test-ha-vpn-router1%{random_suffix}"
+  name     = "%{router_name}"
   network  = google_compute_network.network.name
   bgp {
     asn = 64514
@@ -185,8 +192,11 @@ resource "google_compute_router_peer" "router1_peer2" {
 func TestAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"external_gateway_name": "tf-test-external-gateway" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -210,7 +220,7 @@ func TestAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(t *testi
 func testAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_external_vpn_gateway" "external_gateway" {
-  name            = "tf-test-external-gateway%{random_suffix}"
+  name            = "%{external_gateway_name}"
   redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
   description     = "An externally managed VPN gateway"
   interface {

@@ -53,8 +53,15 @@ var (
 func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"region_backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"region_health_check_name":       "tf-test-http-health-check" + randomSuffix,
+		"region_ssl_certificate_name":    "tf-test-my-certificate" + randomSuffix,
+		"region_target_https_proxy_name": "tf-test-test-proxy" + randomSuffix,
+		"region_url_map_name":            "tf-test-url-map" + randomSuffix,
+		"random_suffix":                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,21 +86,21 @@ func testAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyBasicExample(con
 	return acctest.Nprintf(`
 resource "google_compute_region_target_https_proxy" "default" {
   region           = "us-central1"
-  name             = "tf-test-test-proxy%{random_suffix}"
+  name             = "%{region_target_https_proxy_name}"
   url_map          = google_compute_region_url_map.default.id
   ssl_certificates = [google_compute_region_ssl_certificate.default.id]
 }
 
 resource "google_compute_region_ssl_certificate" "default" {
   region      = "us-central1"
-  name        = "tf-test-my-certificate%{random_suffix}"
+  name        = "%{region_ssl_certificate_name}"
   private_key = file("test-fixtures/test.key")
   certificate = file("test-fixtures/test.crt")
 }
 
 resource "google_compute_region_url_map" "default" {
   region      = "us-central1"
-  name        = "tf-test-url-map%{random_suffix}"
+  name        = "%{region_url_map_name}"
   description = "a description"
 
   default_service = google_compute_region_backend_service.default.id
@@ -116,7 +123,7 @@ resource "google_compute_region_url_map" "default" {
 
 resource "google_compute_region_backend_service" "default" {
   region      = "us-central1"
-  name        = "tf-test-backend-service%{random_suffix}"
+  name        = "%{region_backend_service_name}"
   protocol    = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
@@ -126,7 +133,7 @@ resource "google_compute_region_backend_service" "default" {
 
 resource "google_compute_region_health_check" "default" {
   region = "us-central1"
-  name   = "tf-test-http-health-check%{random_suffix}"
+  name   = "%{region_health_check_name}"
   http_health_check {
     port = 80
   }
@@ -137,8 +144,15 @@ resource "google_compute_region_health_check" "default" {
 func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyHttpKeepAliveTimeoutExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"region_backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"region_health_check_name":       "tf-test-http-health-check" + randomSuffix,
+		"region_ssl_certificate_name":    "tf-test-my-certificate" + randomSuffix,
+		"region_target_https_proxy_name": "tf-test-test-http-keep-alive-timeout-proxy" + randomSuffix,
+		"region_url_map_name":            "tf-test-url-map" + randomSuffix,
+		"random_suffix":                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -163,7 +177,7 @@ func testAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyHttpKeepAliveTim
 	return acctest.Nprintf(`
 resource "google_compute_region_target_https_proxy" "default" {
   region                      = "us-central1"
-  name                        = "tf-test-test-http-keep-alive-timeout-proxy%{random_suffix}"
+  name                        = "%{region_target_https_proxy_name}"
   http_keep_alive_timeout_sec = 600
   url_map                     = google_compute_region_url_map.default.id
   ssl_certificates            = [google_compute_region_ssl_certificate.default.id]
@@ -171,14 +185,14 @@ resource "google_compute_region_target_https_proxy" "default" {
 
 resource "google_compute_region_ssl_certificate" "default" {
   region      = "us-central1"
-  name        = "tf-test-my-certificate%{random_suffix}"
+  name        = "%{region_ssl_certificate_name}"
   private_key = file("test-fixtures/test.key")
   certificate = file("test-fixtures/test.crt")
 }
 
 resource "google_compute_region_url_map" "default" {
   region      = "us-central1"
-  name        = "tf-test-url-map%{random_suffix}"
+  name        = "%{region_url_map_name}"
   description = "a description"
 
   default_service = google_compute_region_backend_service.default.id
@@ -201,7 +215,7 @@ resource "google_compute_region_url_map" "default" {
 
 resource "google_compute_region_backend_service" "default" {
   region                = "us-central1"
-  name                  = "tf-test-backend-service%{random_suffix}"
+  name                  = "%{region_backend_service_name}"
   port_name             = "http"
   protocol              = "HTTP"
   timeout_sec           = 10
@@ -212,7 +226,7 @@ resource "google_compute_region_backend_service" "default" {
 
 resource "google_compute_region_health_check" "default" {
   region = "us-central1"
-  name   = "tf-test-http-health-check%{random_suffix}"
+  name   = "%{region_health_check_name}"
 
   http_health_check {
     port = 80
@@ -224,8 +238,14 @@ resource "google_compute_region_health_check" "default" {
 func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyCertificateManagerCertificateExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"certificate_manager_certificate_name": "tf-test-my-certificate" + randomSuffix,
+		"region_backend_service_name":          "tf-test-backend-service" + randomSuffix,
+		"region_target_https_proxy_name":       "tf-test-target-http-proxy" + randomSuffix,
+		"region_url_map_name":                  "tf-test-url-map" + randomSuffix,
+		"random_suffix":                        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -249,13 +269,13 @@ func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyCertificateManag
 func testAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyCertificateManagerCertificateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_target_https_proxy" "default" {
-  name                             = "tf-test-target-http-proxy%{random_suffix}"
+  name                             = "%{region_target_https_proxy_name}"
   url_map                          = google_compute_region_url_map.default.id
   certificate_manager_certificates =  ["//certificatemanager.googleapis.com/${google_certificate_manager_certificate.default.id}"] # [google_certificate_manager_certificate.default.id] is also acceptable
 }
 
 resource "google_certificate_manager_certificate" "default" {
-  name              = "tf-test-my-certificate%{random_suffix}"
+  name              = "%{certificate_manager_certificate_name}"
   location          = "us-central1"
   self_managed {
     pem_certificate = file("test-fixtures/cert.pem")
@@ -264,13 +284,13 @@ resource "google_certificate_manager_certificate" "default" {
 }
 
 resource "google_compute_region_url_map" "default" {
-  name            = "tf-test-url-map%{random_suffix}"
+  name            = "%{region_url_map_name}"
   default_service = google_compute_region_backend_service.default.id
   region          = "us-central1"
 }
 
 resource "google_compute_region_backend_service" "default" {
-  name                  = "tf-test-backend-service%{random_suffix}"
+  name                  = "%{region_backend_service_name}"
   region                = "us-central1"
   protocol              = "HTTPS"
   timeout_sec           = 30

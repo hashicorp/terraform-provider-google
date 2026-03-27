@@ -42,9 +42,13 @@ var (
 func TestAccIapWebBackendServiceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"http_health_check_name":  "tf-test-health-check" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -82,9 +86,13 @@ func TestAccIapWebBackendServiceIamBindingGenerated(t *testing.T) {
 func TestAccIapWebBackendServiceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"http_health_check_name":  "tf-test-health-check" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -113,9 +121,13 @@ func TestAccIapWebBackendServiceIamMemberGenerated(t *testing.T) {
 func TestAccIapWebBackendServiceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"http_health_check_name":  "tf-test-health-check" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -153,9 +165,13 @@ func TestAccIapWebBackendServiceIamPolicyGenerated(t *testing.T) {
 func TestAccIapWebBackendServiceIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"http_health_check_name":  "tf-test-health-check" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -185,9 +201,13 @@ func TestAccIapWebBackendServiceIamBindingGenerated_withAndWithoutCondition(t *t
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"http_health_check_name":  "tf-test-health-check" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -227,9 +247,13 @@ func TestAccIapWebBackendServiceIamBindingGenerated_withAndWithoutCondition(t *t
 func TestAccIapWebBackendServiceIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"http_health_check_name":  "tf-test-health-check" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -259,9 +283,13 @@ func TestAccIapWebBackendServiceIamMemberGenerated_withAndWithoutCondition(t *te
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"http_health_check_name":  "tf-test-health-check" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -301,9 +329,13 @@ func TestAccIapWebBackendServiceIamMemberGenerated_withAndWithoutCondition(t *te
 func TestAccIapWebBackendServiceIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"http_health_check_name":  "tf-test-health-check" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -341,12 +373,12 @@ func TestAccIapWebBackendServiceIamPolicyGenerated_withCondition(t *testing.T) {
 func testAccIapWebBackendServiceIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-backend-service%{random_suffix}"
+  name          = "%{backend_service_name}"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -364,12 +396,12 @@ resource "google_iap_web_backend_service_iam_member" "foo" {
 func testAccIapWebBackendServiceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-backend-service%{random_suffix}"
+  name          = "%{backend_service_name}"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -401,12 +433,12 @@ data "google_iap_web_backend_service_iam_policy" "foo" {
 func testAccIapWebBackendServiceIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-backend-service%{random_suffix}"
+  name          = "%{backend_service_name}"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -426,12 +458,12 @@ resource "google_iap_web_backend_service_iam_policy" "foo" {
 func testAccIapWebBackendServiceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-backend-service%{random_suffix}"
+  name          = "%{backend_service_name}"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -449,12 +481,12 @@ resource "google_iap_web_backend_service_iam_binding" "foo" {
 func testAccIapWebBackendServiceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-backend-service%{random_suffix}"
+  name          = "%{backend_service_name}"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -472,12 +504,12 @@ resource "google_iap_web_backend_service_iam_binding" "foo" {
 func testAccIapWebBackendServiceIamBinding_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-backend-service%{random_suffix}"
+  name          = "%{backend_service_name}"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -500,12 +532,12 @@ resource "google_iap_web_backend_service_iam_binding" "foo" {
 func testAccIapWebBackendServiceIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-backend-service%{random_suffix}"
+  name          = "%{backend_service_name}"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -548,12 +580,12 @@ resource "google_iap_web_backend_service_iam_binding" "foo3" {
 func testAccIapWebBackendServiceIamMember_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-backend-service%{random_suffix}"
+  name          = "%{backend_service_name}"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -576,12 +608,12 @@ resource "google_iap_web_backend_service_iam_member" "foo" {
 func testAccIapWebBackendServiceIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-backend-service%{random_suffix}"
+  name          = "%{backend_service_name}"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -624,12 +656,12 @@ resource "google_iap_web_backend_service_iam_member" "foo3" {
 func testAccIapWebBackendServiceIamPolicy_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-backend-service%{random_suffix}"
+  name          = "%{backend_service_name}"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1

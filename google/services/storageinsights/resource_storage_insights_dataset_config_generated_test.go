@@ -53,8 +53,11 @@ var (
 func TestAccStorageInsightsDatasetConfig_storageInsightsDatasetConfigIncludesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_config_id": "tf_test_my_config_includes" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccStorageInsightsDatasetConfig_storageInsightsDatasetConfigIncludesExa
 	return acctest.Nprintf(`
 resource "google_storage_insights_dataset_config" "config_includes" {
     location = "us-central1"
-    dataset_config_id = "tf_test_my_config_includes%{random_suffix}"
+    dataset_config_id = "%{dataset_config_id}"
     retention_period_days = 1
     source_projects {
         project_numbers = ["123", "456", "789"]
@@ -108,8 +111,11 @@ resource "google_storage_insights_dataset_config" "config_includes" {
 func TestAccStorageInsightsDatasetConfig_storageInsightsDatasetConfigExcludesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_config_id": "tf_test_my_config_excludes" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -134,7 +140,7 @@ func testAccStorageInsightsDatasetConfig_storageInsightsDatasetConfigExcludesExa
 	return acctest.Nprintf(`
 resource "google_storage_insights_dataset_config" "config_excludes" {
     location = "us-central1"
-    dataset_config_id = "tf_test_my_config_excludes%{random_suffix}"
+    dataset_config_id = "%{dataset_config_id}"
     retention_period_days = 1
     activity_data_retention_period_days = 2
     organization_scope = true

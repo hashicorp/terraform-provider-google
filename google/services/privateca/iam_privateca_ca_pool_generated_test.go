@@ -42,9 +42,12 @@ var (
 func TestAccPrivatecaCaPoolIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/privateca.certificateManager",
+		"name":                    "tf-test-my-pool" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -82,9 +85,12 @@ func TestAccPrivatecaCaPoolIamBindingGenerated(t *testing.T) {
 func TestAccPrivatecaCaPoolIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/privateca.certificateManager",
+		"name":                    "tf-test-my-pool" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -113,9 +119,12 @@ func TestAccPrivatecaCaPoolIamMemberGenerated(t *testing.T) {
 func TestAccPrivatecaCaPoolIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/privateca.certificateManager",
+		"name":                    "tf-test-my-pool" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -153,9 +162,12 @@ func TestAccPrivatecaCaPoolIamPolicyGenerated(t *testing.T) {
 func TestAccPrivatecaCaPoolIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/privateca.certificateManager",
+		"name":                    "tf-test-my-pool" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -185,9 +197,12 @@ func TestAccPrivatecaCaPoolIamBindingGenerated_withAndWithoutCondition(t *testin
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/privateca.certificateManager",
+		"name":                    "tf-test-my-pool" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -227,9 +242,12 @@ func TestAccPrivatecaCaPoolIamBindingGenerated_withAndWithoutCondition(t *testin
 func TestAccPrivatecaCaPoolIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/privateca.certificateManager",
+		"name":                    "tf-test-my-pool" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -259,9 +277,12 @@ func TestAccPrivatecaCaPoolIamMemberGenerated_withAndWithoutCondition(t *testing
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/privateca.certificateManager",
+		"name":                    "tf-test-my-pool" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -301,9 +322,12 @@ func TestAccPrivatecaCaPoolIamMemberGenerated_withAndWithoutCondition(t *testing
 func TestAccPrivatecaCaPoolIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/privateca.certificateManager",
+		"name":                    "tf-test-my-pool" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -341,7 +365,7 @@ func TestAccPrivatecaCaPoolIamPolicyGenerated_withCondition(t *testing.T) {
 func testAccPrivatecaCaPoolIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {
@@ -364,7 +388,7 @@ resource "google_privateca_ca_pool_iam_member" "foo" {
 func testAccPrivatecaCaPoolIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {
@@ -400,7 +424,7 @@ data "google_privateca_ca_pool_iam_policy" "foo" {
 func testAccPrivatecaCaPoolIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {
@@ -425,7 +449,7 @@ resource "google_privateca_ca_pool_iam_policy" "foo" {
 func testAccPrivatecaCaPoolIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {
@@ -448,7 +472,7 @@ resource "google_privateca_ca_pool_iam_binding" "foo" {
 func testAccPrivatecaCaPoolIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {
@@ -471,7 +495,7 @@ resource "google_privateca_ca_pool_iam_binding" "foo" {
 func testAccPrivatecaCaPoolIamBinding_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {
@@ -499,7 +523,7 @@ resource "google_privateca_ca_pool_iam_binding" "foo" {
 func testAccPrivatecaCaPoolIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {
@@ -545,7 +569,7 @@ resource "google_privateca_ca_pool_iam_binding" "foo3" {
 func testAccPrivatecaCaPoolIamMember_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {
@@ -573,7 +597,7 @@ resource "google_privateca_ca_pool_iam_member" "foo" {
 func testAccPrivatecaCaPoolIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {
@@ -619,7 +643,7 @@ resource "google_privateca_ca_pool_iam_member" "foo3" {
 func testAccPrivatecaCaPoolIamPolicy_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {

@@ -53,9 +53,13 @@ var (
 func TestAccEventarcPipeline_eventarcPipelineWithTopicDestinationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"pipeline_name": "tf-test-some-pipeline" + randomSuffix,
+		"topic_name":    "tf-test-some-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,12 +83,12 @@ func TestAccEventarcPipeline_eventarcPipelineWithTopicDestinationExample(t *test
 func testAccEventarcPipeline_eventarcPipelineWithTopicDestinationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "topic" {
-  name = "tf-test-some-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_eventarc_pipeline" "primary" {
   location    = "us-central1"
-  pipeline_id = "tf-test-some-pipeline%{random_suffix}"
+  pipeline_id = "%{pipeline_name}"
   destinations {
     topic = google_pubsub_topic.topic.id
   }
@@ -102,10 +106,13 @@ resource "google_eventarc_pipeline" "primary" {
 func TestAccEventarcPipeline_eventarcPipelineWithHttpDestinationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
-		"random_suffix":           acctest.RandString(t, 10),
+		"pipeline_name":           "tf-test-some-pipeline" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -130,7 +137,7 @@ func testAccEventarcPipeline_eventarcPipelineWithHttpDestinationExample(context 
 	return acctest.Nprintf(`
 resource "google_eventarc_pipeline" "primary" {
   location    = "us-central1"
-  pipeline_id = "tf-test-some-pipeline%{random_suffix}"
+  pipeline_id = "%{pipeline_name}"
   destinations {
     http_endpoint {
       uri = "https://10.77.0.0:80/route"
@@ -146,9 +153,13 @@ resource "google_eventarc_pipeline" "primary" {
 func TestAccEventarcPipeline_eventarcPipelineWithWorkflowDestinationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"pipeline_name": "tf-test-some-pipeline" + randomSuffix,
+		"workflow_name": "tf-test-some-workflow" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -172,7 +183,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithWorkflowDestinationExample(t *t
 func testAccEventarcPipeline_eventarcPipelineWithWorkflowDestinationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_workflows_workflow" "workflow" {
-  name                = "tf-test-some-workflow%{random_suffix}"
+  name                = "%{workflow_name}"
   deletion_protection = false
   region              = "us-central1"
   source_contents     = <<-EOF
@@ -206,7 +217,7 @@ EOF
 
 resource "google_eventarc_pipeline" "primary" {
   location    = "us-central1"
-  pipeline_id = "tf-test-some-pipeline%{random_suffix}"
+  pipeline_id = "%{pipeline_name}"
   destinations {
     workflow = google_workflows_workflow.workflow.id
   }
@@ -217,11 +228,14 @@ resource "google_eventarc_pipeline" "primary" {
 func TestAccEventarcPipeline_eventarcPipelineWithOidcAndJsonFormatExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"service_account":         envvar.GetTestServiceAccountFromEnv(t),
 		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
-		"random_suffix":           acctest.RandString(t, 10),
+		"pipeline_name":           "tf-test-some-pipeline" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -246,7 +260,7 @@ func testAccEventarcPipeline_eventarcPipelineWithOidcAndJsonFormatExample(contex
 	return acctest.Nprintf(`
 resource "google_eventarc_pipeline" "primary" {
   location    = "us-central1"
-  pipeline_id = "tf-test-some-pipeline%{random_suffix}"
+  pipeline_id = "%{pipeline_name}"
   destinations {
     http_endpoint {
       uri                      = "https://10.77.0.0:80/route"
@@ -294,11 +308,14 @@ EOF
 func TestAccEventarcPipeline_eventarcPipelineWithOauthAndProtobufFormatExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"service_account":         envvar.GetTestServiceAccountFromEnv(t),
 		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
-		"random_suffix":           acctest.RandString(t, 10),
+		"pipeline_name":           "tf-test-some-pipeline" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -323,7 +340,7 @@ func testAccEventarcPipeline_eventarcPipelineWithOauthAndProtobufFormatExample(c
 	return acctest.Nprintf(`
 resource "google_eventarc_pipeline" "primary" {
   location    = "us-central1"
-  pipeline_id = "tf-test-some-pipeline%{random_suffix}"
+  pipeline_id = "%{pipeline_name}"
   destinations {
     http_endpoint {
       uri                      = "https://10.77.0.0:80/route"
@@ -393,11 +410,14 @@ func TestAccEventarcPipeline_eventarcPipelineWithCmekAndAvroFormatExample(t *tes
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"key_name":                acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-pipeline-key").CryptoKey.Name,
 		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
-		"random_suffix":           acctest.RandString(t, 10),
+		"pipeline_name":           "tf-test-some-pipeline" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -422,7 +442,7 @@ func testAccEventarcPipeline_eventarcPipelineWithCmekAndAvroFormatExample(contex
 	return acctest.Nprintf(`
 resource "google_eventarc_pipeline" "primary" {
   location        = "us-central1"
-  pipeline_id     = "tf-test-some-pipeline%{random_suffix}"
+  pipeline_id     = "%{pipeline_name}"
   crypto_key_name = "%{key_name}"
   destinations {
     http_endpoint {

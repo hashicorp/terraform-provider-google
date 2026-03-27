@@ -53,8 +53,11 @@ var (
 func TestAccDialogflowCXWebhook_dialogflowcxWebhookStandardExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookStandardExample(t *testing.T)
 func testAccDialogflowCXWebhook_dialogflowcxWebhookStandardExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "global"
   default_language_code = "en"
   supported_language_codes = ["it","de","es"]
@@ -125,8 +128,11 @@ resource "google_dialogflow_cx_webhook" "standard_webhook" {
 func TestAccDialogflowCXWebhook_dialogflowcxWebhookFlexibleExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -150,7 +156,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookFlexibleExample(t *testing.T)
 func testAccDialogflowCXWebhook_dialogflowcxWebhookFlexibleExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "global"
   default_language_code = "en"
   supported_language_codes = ["it","de","es"]
@@ -189,8 +195,11 @@ resource "google_dialogflow_cx_webhook" "flexible_webhook" {
 func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryStandardExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -214,7 +223,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryStandardExamp
 func testAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryStandardExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "us-central1"
   default_language_code = "en"
   supported_language_codes = ["it","de","es"]
@@ -264,8 +273,11 @@ resource "google_dialogflow_cx_webhook" "standard_webhook" {
 func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryFlexibleExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -289,7 +301,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryFlexibleExamp
 func testAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryFlexibleExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "us-central1"
   default_language_code = "en"
   supported_language_codes = ["it","de","es"]
@@ -331,9 +343,12 @@ resource "google_dialogflow_cx_webhook" "flexible_webhook" {
 func TestAccDialogflowCXWebhook_dialogflowcxWebhookWithServiceAccountAuthExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"agent_name":      "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -357,7 +372,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookWithServiceAccountAuthExample
 func testAccDialogflowCXWebhook_dialogflowcxWebhookWithServiceAccountAuthExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "global"
   default_language_code = "en"
   supported_language_codes = ["it","de","es"]
@@ -389,9 +404,12 @@ resource "google_dialogflow_cx_webhook" "webhook_use_service_account" {
 func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryWithServiceAccountAuthExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"agent_name":      "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -415,7 +433,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryWithServiceAc
 func testAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryWithServiceAccountAuthExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "us-central1"
   default_language_code = "en"
   supported_language_codes = ["it","de","es"]

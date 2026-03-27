@@ -53,9 +53,13 @@ var (
 func TestAccContactCenterInsightsAssessmentRule_contactCenterInsightsAssessmentRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"id_suffix":     strings.ToLower(acctest.RandString(t, 10)),
-		"random_suffix": acctest.RandString(t, 10),
+		"assessment_rule_id": "assessmentrulebasic" + randomSuffix,
+		"id_suffix":          strings.ToLower(acctest.RandString(t, 10)),
+		"resource_name":      "assessmentrulebasic" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,8 +83,8 @@ func TestAccContactCenterInsightsAssessmentRule_contactCenterInsightsAssessmentR
 func testAccContactCenterInsightsAssessmentRule_contactCenterInsightsAssessmentRuleBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_contact_center_insights_assessment_rule" "assessment_rule_basic" {
-  display_name = "assessmentrulebasic%{random_suffix}"
-  assessment_rule_id = "assessmentrulebasic%{random_suffix}%{id_suffix}"
+  display_name = "%{resource_name}"
+  assessment_rule_id = "%{assessment_rule_id}%{id_suffix}"
   location = "us-central1"
   sample_rule {
     sample_percentage = 0.5
@@ -96,9 +100,13 @@ resource "google_contact_center_insights_assessment_rule" "assessment_rule_basic
 func TestAccContactCenterInsightsAssessmentRule_contactCenterInsightsAssessmentRuleFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"id_suffix":     strings.ToLower(acctest.RandString(t, 10)),
-		"random_suffix": acctest.RandString(t, 10),
+		"assessment_rule_id": "assessmentrulefull" + randomSuffix,
+		"id_suffix":          strings.ToLower(acctest.RandString(t, 10)),
+		"resource_name":      "assessmentrulefull" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -122,8 +130,8 @@ func TestAccContactCenterInsightsAssessmentRule_contactCenterInsightsAssessmentR
 func testAccContactCenterInsightsAssessmentRule_contactCenterInsightsAssessmentRuleFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_contact_center_insights_assessment_rule" "assessment_rule_full" {
-  display_name = "assessmentrulefull%{random_suffix}"
-  assessment_rule_id = "assessmentrulefull%{random_suffix}%{id_suffix}"
+  display_name = "%{resource_name}"
+  assessment_rule_id = "%{assessment_rule_id}%{id_suffix}"
   location = "us-central1"
   sample_rule {
     sample_percentage = 0.5

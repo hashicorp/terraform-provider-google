@@ -53,8 +53,11 @@ var (
 func TestAccComputeInterconnect_computeInterconnectBasicTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"interconnect_name": "tf-test-example-interconnect" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func testAccComputeInterconnect_computeInterconnectBasicTestExample(context map[
 data "google_project" "project" {}
 
 resource "google_compute_interconnect" "example-interconnect" {
-  name                 = "tf-test-example-interconnect%{random_suffix}"
+  name                 = "%{interconnect_name}"
   customer_name        = "internal_customer" # Special customer only available for Google testing.
   interconnect_type    = "DEDICATED"
   link_type            = "LINK_TYPE_ETHERNET_10G_LR"

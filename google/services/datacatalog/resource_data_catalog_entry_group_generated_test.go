@@ -53,8 +53,11 @@ var (
 func TestAccDataCatalogEntryGroup_dataCatalogEntryGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"entry_group_id": "tf_test_my_group" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccDataCatalogEntryGroup_dataCatalogEntryGroupBasicExample(t *testing.T
 func testAccDataCatalogEntryGroup_dataCatalogEntryGroupBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_catalog_entry_group" "basic_entry_group" {
-  entry_group_id = "tf_test_my_group%{random_suffix}"
+  entry_group_id = "%{entry_group_id}"
 }
 `, context)
 }
@@ -86,8 +89,11 @@ resource "google_data_catalog_entry_group" "basic_entry_group" {
 func TestAccDataCatalogEntryGroup_dataCatalogEntryGroupFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"entry_group_id": "tf_test_my_group" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -111,7 +117,7 @@ func TestAccDataCatalogEntryGroup_dataCatalogEntryGroupFullExample(t *testing.T)
 func testAccDataCatalogEntryGroup_dataCatalogEntryGroupFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_catalog_entry_group" "basic_entry_group" {
-  entry_group_id = "tf_test_my_group%{random_suffix}"
+  entry_group_id = "%{entry_group_id}"
 
   display_name = "terraform entry group"
   description = "entry group created by Terraform"

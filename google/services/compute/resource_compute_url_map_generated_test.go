@@ -53,8 +53,15 @@ var (
 func TestAccComputeUrlMap_urlMapBucketAndServiceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_bucket_name":        "tf-test-static-asset-backend-bucket" + randomSuffix,
+		"http_health_check_name":     "tf-test-health-check" + randomSuffix,
+		"login_backend_service_name": "login" + randomSuffix,
+		"storage_bucket_name":        "tf-test-static-asset-bucket" + randomSuffix,
+		"url_map_name":               "urlmap" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +85,7 @@ func TestAccComputeUrlMap_urlMapBucketAndServiceExample(t *testing.T) {
 func testAccComputeUrlMap_urlMapBucketAndServiceExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap%{random_suffix}"
+  name        = "%{url_map_name}"
   description = "a description"
 
   default_service = google_compute_backend_bucket.static.id
@@ -126,7 +133,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "login" {
-  name        = "login%{random_suffix}"
+  name        = "%{login_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -135,20 +142,20 @@ resource "google_compute_backend_service" "login" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_backend_bucket" "static" {
-  name        = "tf-test-static-asset-backend-bucket%{random_suffix}"
+  name        = "%{backend_bucket_name}"
   bucket_name = google_storage_bucket.static.name
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "static" {
-  name     = "tf-test-static-asset-bucket%{random_suffix}"
+  name     = "%{storage_bucket_name}"
   location = "US"
 }
 `, context)
@@ -157,8 +164,13 @@ resource "google_storage_bucket" "static" {
 func TestAccComputeUrlMap_urlMapTrafficDirectorRouteExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name":         "tf-test-health-check" + randomSuffix,
+		"home_backend_service_name": "home" + randomSuffix,
+		"url_map_name":              "urlmap" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -182,7 +194,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRouteExample(t *testing.T) {
 func testAccComputeUrlMap_urlMapTrafficDirectorRouteExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap%{random_suffix}"
+  name        = "%{url_map_name}"
   description = "a description"
   default_service = google_compute_backend_service.home.id
 
@@ -249,7 +261,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "home" {
-  name        = "home%{random_suffix}"
+  name        = "%{home_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -259,7 +271,7 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   http_health_check {
     port = 80
   }
@@ -270,8 +282,13 @@ resource "google_compute_health_check" "default" {
 func TestAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name":         "tf-test-health-check" + randomSuffix,
+		"home_backend_service_name": "home" + randomSuffix,
+		"url_map_name":              "urlmap" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -295,7 +312,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(t *testing.T)
 func testAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap%{random_suffix}"
+  name        = "%{url_map_name}"
   description = "a description"
   default_service = google_compute_backend_service.home.id
 
@@ -333,7 +350,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "home" {
-  name        = "home%{random_suffix}"
+  name        = "%{home_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -343,7 +360,7 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   http_health_check {
     port = 80
   }
@@ -354,8 +371,13 @@ resource "google_compute_health_check" "default" {
 func TestAccComputeUrlMap_urlMapTrafficDirectorPathExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name":         "tf-test-health-check" + randomSuffix,
+		"home_backend_service_name": "home" + randomSuffix,
+		"url_map_name":              "urlmap" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -379,7 +401,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathExample(t *testing.T) {
 func testAccComputeUrlMap_urlMapTrafficDirectorPathExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap%{random_suffix}"
+  name        = "%{url_map_name}"
   description = "a description"
   default_service = google_compute_backend_service.home.id
 
@@ -466,7 +488,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "home" {
-  name        = "home%{random_suffix}"
+  name        = "%{home_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -476,7 +498,7 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   http_health_check {
     port = 80
   }
@@ -487,8 +509,13 @@ resource "google_compute_health_check" "default" {
 func TestAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name":         "tf-test-health-check" + randomSuffix,
+		"home_backend_service_name": "home" + randomSuffix,
+		"url_map_name":              "urlmap" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -512,7 +539,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(t *testing.T) 
 func testAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap%{random_suffix}"
+  name        = "%{url_map_name}"
   description = "a description"
   default_service = google_compute_backend_service.home.id
 
@@ -572,7 +599,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "home" {
-  name        = "home%{random_suffix}"
+  name        = "%{home_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -582,7 +609,7 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   http_health_check {
     port = 80
   }
@@ -593,8 +620,15 @@ resource "google_compute_health_check" "default" {
 func TestAccComputeUrlMap_urlMapHeaderBasedRoutingExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"default_backend_service_name":   "default" + randomSuffix,
+		"health_check_name":              "tf-test-health-check" + randomSuffix,
+		"service_a_backend_service_name": "tf-test-service-a" + randomSuffix,
+		"service_b_backend_service_name": "tf-test-service-b" + randomSuffix,
+		"url_map_name":                   "urlmap" + randomSuffix,
+		"random_suffix":                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -618,7 +652,7 @@ func TestAccComputeUrlMap_urlMapHeaderBasedRoutingExample(t *testing.T) {
 func testAccComputeUrlMap_urlMapHeaderBasedRoutingExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap%{random_suffix}"
+  name        = "%{url_map_name}"
   description = "header-based routing example"
   default_service = google_compute_backend_service.default.id
 
@@ -659,7 +693,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "default%{random_suffix}"
+  name        = "%{default_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -668,7 +702,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_backend_service" "service-a" {
-  name        = "tf-test-service-a%{random_suffix}"
+  name        = "%{service_a_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -677,7 +711,7 @@ resource "google_compute_backend_service" "service-a" {
 }
 
 resource "google_compute_backend_service" "service-b" {
-  name        = "tf-test-service-b%{random_suffix}"
+  name        = "%{service_b_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -686,7 +720,7 @@ resource "google_compute_backend_service" "service-b" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -697,8 +731,15 @@ resource "google_compute_http_health_check" "default" {
 func TestAccComputeUrlMap_urlMapParameterBasedRoutingExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"default_backend_service_name":   "default" + randomSuffix,
+		"health_check_name":              "tf-test-health-check" + randomSuffix,
+		"service_a_backend_service_name": "tf-test-service-a" + randomSuffix,
+		"service_b_backend_service_name": "tf-test-service-b" + randomSuffix,
+		"url_map_name":                   "urlmap" + randomSuffix,
+		"random_suffix":                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -722,7 +763,7 @@ func TestAccComputeUrlMap_urlMapParameterBasedRoutingExample(t *testing.T) {
 func testAccComputeUrlMap_urlMapParameterBasedRoutingExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap%{random_suffix}"
+  name        = "%{url_map_name}"
   description = "parameter-based routing example"
   default_service = google_compute_backend_service.default.id
 
@@ -763,7 +804,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "default%{random_suffix}"
+  name        = "%{default_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -772,7 +813,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_backend_service" "service-a" {
-  name        = "tf-test-service-a%{random_suffix}"
+  name        = "%{service_a_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -781,7 +822,7 @@ resource "google_compute_backend_service" "service-a" {
 }
 
 resource "google_compute_backend_service" "service-b" {
-  name        = "tf-test-service-b%{random_suffix}"
+  name        = "%{service_b_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -790,7 +831,7 @@ resource "google_compute_backend_service" "service-b" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -801,8 +842,13 @@ resource "google_compute_http_health_check" "default" {
 func TestAccComputeUrlMap_urlMapTestHeadersExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name": "backend" + randomSuffix,
+		"health_check_name":    "tf-test-health-check" + randomSuffix,
+		"url_map_name":         "urlmap" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -825,8 +871,8 @@ func TestAccComputeUrlMap_urlMapTestHeadersExample(t *testing.T) {
 
 func testAccComputeUrlMap_urlMapTestHeadersExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_health_check" "tf-test-health-check%{random_suffix}" {
-  name               = "tf-test-health-check%{random_suffix}"
+resource "google_compute_health_check" "%{health_check_name}" {
+  name               = "%{health_check_name}"
   timeout_sec        = 1
   check_interval_sec = 1
 
@@ -835,25 +881,25 @@ resource "google_compute_health_check" "tf-test-health-check%{random_suffix}" {
   }
 }
 
-resource "google_compute_backend_service" "backend%{random_suffix}" {
-  name        = "backend%{random_suffix}"
+resource "google_compute_backend_service" "%{backend_service_name}" {
+  name        = "%{backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_health_check.tf-test-health-check%{random_suffix}.id]
+  health_checks = [google_compute_health_check.%{health_check_name}.id]
 }
 
 resource "google_compute_url_map" "urlmap" {
-  name            = "urlmap%{random_suffix}"
+  name            = "%{url_map_name}"
   description     = "URL map with test headers"
-  default_service = google_compute_backend_service.backend%{random_suffix}.id
+  default_service = google_compute_backend_service.%{backend_service_name}.id
 
   test {
     description = "Test with custom headers"
     host        = "example.com"
     path        = "/"
-    service     = google_compute_backend_service.backend%{random_suffix}.id
+    service     = google_compute_backend_service.%{backend_service_name}.id
     
     headers {
       name  = "User-Agent"
@@ -870,7 +916,7 @@ resource "google_compute_url_map" "urlmap" {
     description = "Test with authorization headers"
     host        = "api.example.com"
     path        = "/v1/test"
-    service     = google_compute_backend_service.backend%{random_suffix}.id
+    service     = google_compute_backend_service.%{backend_service_name}.id
     
     headers {
       name  = "Authorization"
@@ -889,8 +935,13 @@ resource "google_compute_url_map" "urlmap" {
 func TestAccComputeUrlMap_urlMapTestExpectedOutputUrlExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name": "backend" + randomSuffix,
+		"health_check_name":    "tf-test-health-check" + randomSuffix,
+		"url_map_name":         "urlmap" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -913,8 +964,8 @@ func TestAccComputeUrlMap_urlMapTestExpectedOutputUrlExample(t *testing.T) {
 
 func testAccComputeUrlMap_urlMapTestExpectedOutputUrlExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_health_check" "tf-test-health-check%{random_suffix}" {
-  name               = "tf-test-health-check%{random_suffix}"
+resource "google_compute_health_check" "%{health_check_name}" {
+  name               = "%{health_check_name}"
   timeout_sec        = 1
   check_interval_sec = 1
 
@@ -923,25 +974,25 @@ resource "google_compute_health_check" "tf-test-health-check%{random_suffix}" {
   }
 }
 
-resource "google_compute_backend_service" "backend%{random_suffix}" {
-  name        = "backend%{random_suffix}"
+resource "google_compute_backend_service" "%{backend_service_name}" {
+  name        = "%{backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_health_check.tf-test-health-check%{random_suffix}.id]
+  health_checks = [google_compute_health_check.%{health_check_name}.id]
 }
 
 resource "google_compute_url_map" "urlmap" {
-  name            = "urlmap%{random_suffix}"
+  name            = "%{url_map_name}"
   description     = "URL map with expected output URL tests"
-  default_service = google_compute_backend_service.backend%{random_suffix}.id
+  default_service = google_compute_backend_service.%{backend_service_name}.id
 
   test {
     description = "Test with expected output URL"
     host        = "example.com"
     path        = "/"
-    service     = google_compute_backend_service.backend%{random_suffix}.id
+    service     = google_compute_backend_service.%{backend_service_name}.id
     
     headers {
       name  = "User-Agent"
@@ -955,7 +1006,7 @@ resource "google_compute_url_map" "urlmap" {
     description = "Test API routing with expected output URL"
     host        = "api.example.com"
     path        = "/v1/users"
-    service     = google_compute_backend_service.backend%{random_suffix}.id
+    service     = google_compute_backend_service.%{backend_service_name}.id
     
     headers {
       name  = "Authorization"
@@ -971,8 +1022,13 @@ resource "google_compute_url_map" "urlmap" {
 func TestAccComputeUrlMap_urlMapTestRedirectResponseCodeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name": "backend" + randomSuffix,
+		"health_check_name":    "tf-test-health-check" + randomSuffix,
+		"url_map_name":         "urlmap" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -995,8 +1051,8 @@ func TestAccComputeUrlMap_urlMapTestRedirectResponseCodeExample(t *testing.T) {
 
 func testAccComputeUrlMap_urlMapTestRedirectResponseCodeExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_health_check" "tf-test-health-check%{random_suffix}" {
-  name               = "tf-test-health-check%{random_suffix}"
+resource "google_compute_health_check" "%{health_check_name}" {
+  name               = "%{health_check_name}"
   timeout_sec        = 1
   check_interval_sec = 1
 
@@ -1005,19 +1061,19 @@ resource "google_compute_health_check" "tf-test-health-check%{random_suffix}" {
   }
 }
 
-resource "google_compute_backend_service" "backend%{random_suffix}" {
-  name        = "backend%{random_suffix}"
+resource "google_compute_backend_service" "%{backend_service_name}" {
+  name        = "%{backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_health_check.tf-test-health-check%{random_suffix}.id]
+  health_checks = [google_compute_health_check.%{health_check_name}.id]
 }
 
 resource "google_compute_url_map" "urlmap" {
-  name            = "urlmap%{random_suffix}"
+  name            = "%{url_map_name}"
   description     = "URL map with redirect response code tests"
-  default_service = google_compute_backend_service.backend%{random_suffix}.id
+  default_service = google_compute_backend_service.%{backend_service_name}.id
 
   host_rule {
     hosts        = ["example.com"]
@@ -1026,7 +1082,7 @@ resource "google_compute_url_map" "urlmap" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = google_compute_backend_service.backend%{random_suffix}.id
+    default_service = google_compute_backend_service.%{backend_service_name}.id
 
     path_rule {
       paths = ["/redirect/*"]
@@ -1074,8 +1130,16 @@ resource "google_compute_url_map" "urlmap" {
 func TestAccComputeUrlMap_urlMapPathTemplateMatchExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_bucket_name":       "tf-test-static-asset-backend-bucket" + randomSuffix,
+		"cart_backend_service_name": "tf-test-cart-service" + randomSuffix,
+		"http_health_check_name":    "tf-test-health-check" + randomSuffix,
+		"storage_bucket_name":       "tf-test-static-asset-bucket" + randomSuffix,
+		"url_map_name":              "urlmap" + randomSuffix,
+		"user_backend_service_name": "tf-test-user-service" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1099,7 +1163,7 @@ func TestAccComputeUrlMap_urlMapPathTemplateMatchExample(t *testing.T) {
 func testAccComputeUrlMap_urlMapPathTemplateMatchExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap%{random_suffix}"
+  name        = "%{url_map_name}"
   description = "a description"
 
   default_service = google_compute_backend_bucket.static.id
@@ -1137,7 +1201,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "cart-backend" {
-  name        = "tf-test-cart-service%{random_suffix}"
+  name        = "%{cart_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -1147,7 +1211,7 @@ resource "google_compute_backend_service" "cart-backend" {
 }
 
 resource "google_compute_backend_service" "user-backend" {
-  name        = "tf-test-user-service%{random_suffix}"
+  name        = "%{user_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -1157,20 +1221,20 @@ resource "google_compute_backend_service" "user-backend" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_backend_bucket" "static" {
-  name        = "tf-test-static-asset-backend-bucket%{random_suffix}"
+  name        = "%{backend_bucket_name}"
   bucket_name = google_storage_bucket.static.name
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "static" {
-  name     = "tf-test-static-asset-bucket%{random_suffix}"
+  name     = "%{storage_bucket_name}"
   location = "US"
 }
 `, context)
@@ -1179,8 +1243,15 @@ resource "google_storage_bucket" "static" {
 func TestAccComputeUrlMap_urlMapCustomErrorResponsePolicyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name":      "login" + randomSuffix,
+		"error_backend_bucket_name": "tf-test-error-backend-bucket" + randomSuffix,
+		"http_health_check_name":    "tf-test-health-check" + randomSuffix,
+		"storage_bucket_name":       "tf-test-static-asset-bucket" + randomSuffix,
+		"url_map_name":              "urlmap" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1204,7 +1275,7 @@ func TestAccComputeUrlMap_urlMapCustomErrorResponsePolicyExample(t *testing.T) {
 func testAccComputeUrlMap_urlMapCustomErrorResponsePolicyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap%{random_suffix}"
+  name        = "%{url_map_name}"
   description = "a description"
 
   default_service = google_compute_backend_service.example.id
@@ -1258,7 +1329,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "example" {
-  name        = "login%{random_suffix}"
+  name        = "%{backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -1268,20 +1339,20 @@ resource "google_compute_backend_service" "example" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_backend_bucket" "error" {
-  name        = "tf-test-error-backend-bucket%{random_suffix}"
+  name        = "%{error_backend_bucket_name}"
   bucket_name = google_storage_bucket.error.name
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "error" {
-  name        = "tf-test-static-asset-bucket%{random_suffix}"
+  name        = "%{storage_bucket_name}"
   location    = "US"
 }
 `, context)

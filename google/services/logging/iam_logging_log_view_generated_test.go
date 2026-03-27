@@ -42,11 +42,14 @@ var (
 func TestAccLoggingLogViewIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/logging.admin",
 		"project":       envvar.GetTestProjectFromEnv(),
 
+		"log_view_name":           "tf-test-my-view" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -72,11 +75,14 @@ func TestAccLoggingLogViewIamBindingGenerated(t *testing.T) {
 func TestAccLoggingLogViewIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/logging.admin",
 		"project":       envvar.GetTestProjectFromEnv(),
 
+		"log_view_name":           "tf-test-my-view" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -99,11 +105,14 @@ func TestAccLoggingLogViewIamMemberGenerated(t *testing.T) {
 func TestAccLoggingLogViewIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/logging.admin",
 		"project":       envvar.GetTestProjectFromEnv(),
 
+		"log_view_name":           "tf-test-my-view" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -129,11 +138,14 @@ func TestAccLoggingLogViewIamPolicyGenerated(t *testing.T) {
 func TestAccLoggingLogViewIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/logging.admin",
 		"project":       envvar.GetTestProjectFromEnv(),
 
+		"log_view_name":           "tf-test-my-view" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -157,11 +169,14 @@ func TestAccLoggingLogViewIamBindingGenerated_withAndWithoutCondition(t *testing
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/logging.admin",
 		"project":       envvar.GetTestProjectFromEnv(),
 
+		"log_view_name":           "tf-test-my-view" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -183,11 +198,14 @@ func TestAccLoggingLogViewIamBindingGenerated_withAndWithoutCondition(t *testing
 func TestAccLoggingLogViewIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/logging.admin",
 		"project":       envvar.GetTestProjectFromEnv(),
 
+		"log_view_name":           "tf-test-my-view" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -211,11 +229,14 @@ func TestAccLoggingLogViewIamMemberGenerated_withAndWithoutCondition(t *testing.
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/logging.admin",
 		"project":       envvar.GetTestProjectFromEnv(),
 
+		"log_view_name":           "tf-test-my-view" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -237,11 +258,14 @@ func TestAccLoggingLogViewIamMemberGenerated_withAndWithoutCondition(t *testing.
 func TestAccLoggingLogViewIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/logging.admin",
 		"project":       envvar.GetTestProjectFromEnv(),
 
+		"log_view_name":           "tf-test-my-view" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -280,7 +304,7 @@ resource "google_logging_project_bucket_config" "logging_log_view" {
 }
 
 resource "google_logging_log_view" "logging_log_view" {
-  name        = "tf-test-my-view%{random_suffix}"
+  name        = "%{log_view_name}"
   bucket      = google_logging_project_bucket_config.logging_log_view.id
   description = "A logging view configured with Terraform"
   filter      = "SOURCE(\"projects/myproject\") AND resource.type = \"gce_instance\" AND LOG_ID(\"stdout\")"
@@ -307,7 +331,7 @@ resource "google_logging_project_bucket_config" "logging_log_view" {
 }
 
 resource "google_logging_log_view" "logging_log_view" {
-  name        = "tf-test-my-view%{random_suffix}"
+  name        = "%{log_view_name}"
   bucket      = google_logging_project_bucket_config.logging_log_view.id
   description = "A logging view configured with Terraform"
   filter      = "SOURCE(\"projects/myproject\") AND resource.type = \"gce_instance\" AND LOG_ID(\"stdout\")"
@@ -350,7 +374,7 @@ resource "google_logging_project_bucket_config" "logging_log_view" {
 }
 
 resource "google_logging_log_view" "logging_log_view" {
-  name        = "tf-test-my-view%{random_suffix}"
+  name        = "%{log_view_name}"
   bucket      = google_logging_project_bucket_config.logging_log_view.id
   description = "A logging view configured with Terraform"
   filter      = "SOURCE(\"projects/myproject\") AND resource.type = \"gce_instance\" AND LOG_ID(\"stdout\")"
@@ -379,7 +403,7 @@ resource "google_logging_project_bucket_config" "logging_log_view" {
 }
 
 resource "google_logging_log_view" "logging_log_view" {
-  name        = "tf-test-my-view%{random_suffix}"
+  name        = "%{log_view_name}"
   bucket      = google_logging_project_bucket_config.logging_log_view.id
   description = "A logging view configured with Terraform"
   filter      = "SOURCE(\"projects/myproject\") AND resource.type = \"gce_instance\" AND LOG_ID(\"stdout\")"
@@ -406,7 +430,7 @@ resource "google_logging_project_bucket_config" "logging_log_view" {
 }
 
 resource "google_logging_log_view" "logging_log_view" {
-  name        = "tf-test-my-view%{random_suffix}"
+  name        = "%{log_view_name}"
   bucket      = google_logging_project_bucket_config.logging_log_view.id
   description = "A logging view configured with Terraform"
   filter      = "SOURCE(\"projects/myproject\") AND resource.type = \"gce_instance\" AND LOG_ID(\"stdout\")"
@@ -433,7 +457,7 @@ resource "google_logging_project_bucket_config" "logging_log_view" {
 }
 
 resource "google_logging_log_view" "logging_log_view" {
-  name        = "tf-test-my-view%{random_suffix}"
+  name        = "%{log_view_name}"
   bucket      = google_logging_project_bucket_config.logging_log_view.id
   description = "A logging view configured with Terraform"
   filter      = "SOURCE(\"projects/myproject\") AND resource.type = \"gce_instance\" AND LOG_ID(\"stdout\")"
@@ -465,7 +489,7 @@ resource "google_logging_project_bucket_config" "logging_log_view" {
 }
 
 resource "google_logging_log_view" "logging_log_view" {
-  name        = "tf-test-my-view%{random_suffix}"
+  name        = "%{log_view_name}"
   bucket      = google_logging_project_bucket_config.logging_log_view.id
   description = "A logging view configured with Terraform"
   filter      = "SOURCE(\"projects/myproject\") AND resource.type = \"gce_instance\" AND LOG_ID(\"stdout\")"
@@ -521,7 +545,7 @@ resource "google_logging_project_bucket_config" "logging_log_view" {
 }
 
 resource "google_logging_log_view" "logging_log_view" {
-  name        = "tf-test-my-view%{random_suffix}"
+  name        = "%{log_view_name}"
   bucket      = google_logging_project_bucket_config.logging_log_view.id
   description = "A logging view configured with Terraform"
   filter      = "SOURCE(\"projects/myproject\") AND resource.type = \"gce_instance\" AND LOG_ID(\"stdout\")"
@@ -553,7 +577,7 @@ resource "google_logging_project_bucket_config" "logging_log_view" {
 }
 
 resource "google_logging_log_view" "logging_log_view" {
-  name        = "tf-test-my-view%{random_suffix}"
+  name        = "%{log_view_name}"
   bucket      = google_logging_project_bucket_config.logging_log_view.id
   description = "A logging view configured with Terraform"
   filter      = "SOURCE(\"projects/myproject\") AND resource.type = \"gce_instance\" AND LOG_ID(\"stdout\")"
@@ -609,7 +633,7 @@ resource "google_logging_project_bucket_config" "logging_log_view" {
 }
 
 resource "google_logging_log_view" "logging_log_view" {
-  name        = "tf-test-my-view%{random_suffix}"
+  name        = "%{log_view_name}"
   bucket      = google_logging_project_bucket_config.logging_log_view.id
   description = "A logging view configured with Terraform"
   filter      = "SOURCE(\"projects/myproject\") AND resource.type = \"gce_instance\" AND LOG_ID(\"stdout\")"

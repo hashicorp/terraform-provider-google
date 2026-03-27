@@ -53,8 +53,12 @@ var (
 func TestAccPubsubSubscription_pubsubSubscriptionPushExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,11 +82,11 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushExample(t *testing.T) {
 func testAccPubsubSubscription_pubsubSubscriptionPushExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   ack_deadline_seconds = 20
@@ -105,8 +109,12 @@ resource "google_pubsub_subscription" "example" {
 func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -130,11 +138,11 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
 func testAccPubsubSubscription_pubsubSubscriptionPullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   labels = {
@@ -162,8 +170,12 @@ resource "google_pubsub_subscription" "example" {
 func TestAccPubsubSubscription_pubsubSubscriptionPullFilterExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -187,11 +199,11 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullFilterExample(t *testing.T)
 func testAccPubsubSubscription_pubsubSubscriptionPullFilterExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   labels = {
@@ -211,8 +223,12 @@ resource "google_pubsub_subscription" "example" {
 func TestAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -236,15 +252,15 @@ func TestAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(t *testing.T)
 func testAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_topic" "example_dead_letter" {
-  name = "tf-test-example-topic%{random_suffix}-dead-letter"
+  name = "%{topic_name}-dead-letter"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   dead_letter_policy {
@@ -268,8 +284,14 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqExample(t *testing.T) {
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_id":        "tf_test_example_dataset" + randomSuffix,
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"table_id":          "tf_test_example_table" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -293,11 +315,11 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqExample(t *testing.T) {
 func testAccPubsubSubscription_pubsubSubscriptionPushBqExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   bigquery_config {
@@ -308,11 +330,11 @@ resource "google_pubsub_subscription" "example" {
 data "google_project" "project" {}
 
 resource "google_bigquery_dataset" "test" {
-  dataset_id = "tf_test_example_dataset%{random_suffix}"
+  dataset_id = "%{dataset_id}"
 }
 
 resource "google_bigquery_table" "test" {
-  table_id   = "tf_test_example_table%{random_suffix}"
+  table_id   = "%{table_id}"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
   schema = <<EOF
@@ -344,8 +366,14 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqTableSchemaExample(t *tes
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_id":        "tf_test_example_dataset" + randomSuffix,
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"table_id":          "tf_test_example_table" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -369,11 +397,11 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqTableSchemaExample(t *tes
 func testAccPubsubSubscription_pubsubSubscriptionPushBqTableSchemaExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   bigquery_config {
@@ -385,11 +413,11 @@ resource "google_pubsub_subscription" "example" {
 data "google_project" "project" {}
 
 resource "google_bigquery_dataset" "test" {
-  dataset_id = "tf_test_example_dataset%{random_suffix}"
+  dataset_id = "%{dataset_id}"
 }
 
 resource "google_bigquery_table" "test" {
-  table_id   = "tf_test_example_table%{random_suffix}"
+  table_id   = "%{table_id}"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
   schema = <<EOF
@@ -411,8 +439,15 @@ EOF
 func TestAccPubsubSubscription_pubsubSubscriptionPushBqServiceAccountExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_id":         "tf_test_example_dataset" + randomSuffix,
+		"service_account_id": "tf-test-example-bqw" + randomSuffix,
+		"subscription_name":  "tf-test-example-subscription" + randomSuffix,
+		"table_id":           "tf_test_example_table" + randomSuffix,
+		"topic_name":         "tf-test-example-topic" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -436,11 +471,11 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqServiceAccountExample(t *
 func testAccPubsubSubscription_pubsubSubscriptionPushBqServiceAccountExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   bigquery_config {
@@ -458,7 +493,7 @@ resource "google_pubsub_subscription" "example" {
 data "google_project" "project" {}
 
 resource "google_service_account" "bq_write_service_account" {
-  account_id = "tf-test-example-bqw%{random_suffix}"
+  account_id = "%{service_account_id}"
   display_name = "BQ Write Service Account"
 }
 
@@ -475,12 +510,12 @@ resource "google_project_iam_member" "bigquery_data_editor" {
 }
 
 resource "google_bigquery_dataset" "test" {
-  dataset_id = "tf_test_example_dataset%{random_suffix}"
+  dataset_id = "%{dataset_id}"
 }
 
 resource "google_bigquery_table" "test" {
   deletion_protection = false
-  table_id   = "tf_test_example_table%{random_suffix}"
+  table_id   = "%{table_id}"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
   schema = <<EOF
@@ -500,8 +535,13 @@ EOF
 func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":       "tf-test-example-bucket" + randomSuffix,
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -525,17 +565,17 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageExample(t *test
 func testAccPubsubSubscription_pubsubSubscriptionPushCloudstorageExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "example" {
-  name  = "tf-test-example-bucket%{random_suffix}"
+  name  = "%{bucket_name}"
   location = "US"
   uniform_bucket_level_access = true
 }
 
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   cloud_storage_config {
@@ -569,8 +609,13 @@ resource "google_storage_bucket_iam_member" "admin" {
 func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageTextExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":       "tf-test-example-bucket" + randomSuffix,
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -594,17 +639,17 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageTextExample(t *
 func testAccPubsubSubscription_pubsubSubscriptionPushCloudstorageTextExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "example" {
-  name  = "tf-test-example-bucket%{random_suffix}"
+  name  = "%{bucket_name}"
   location = "US"
   uniform_bucket_level_access = true
 }
 
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   cloud_storage_config {
@@ -640,8 +685,13 @@ resource "google_storage_bucket_iam_member" "admin" {
 func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageAvroExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":       "tf-test-example-bucket" + randomSuffix,
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -665,17 +715,17 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageAvroExample(t *
 func testAccPubsubSubscription_pubsubSubscriptionPushCloudstorageAvroExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "example" {
-  name  = "tf-test-example-bucket%{random_suffix}"
+  name  = "%{bucket_name}"
   location = "US"
   uniform_bucket_level_access = true
 }
 
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   cloud_storage_config {
@@ -714,8 +764,14 @@ resource "google_storage_bucket_iam_member" "admin" {
 func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageServiceAccountExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":        "tf-test-example-bucket" + randomSuffix,
+		"service_account_id": "tf-test-example-stw" + randomSuffix,
+		"subscription_name":  "tf-test-example-subscription" + randomSuffix,
+		"topic_name":         "tf-test-example-topic" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -739,17 +795,17 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageServiceAccountE
 func testAccPubsubSubscription_pubsubSubscriptionPushCloudstorageServiceAccountExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "example" {
-  name  = "tf-test-example-bucket%{random_suffix}"
+  name  = "%{bucket_name}"
   location = "US"
   uniform_bucket_level_access = true
 }
 
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   cloud_storage_config {
@@ -775,7 +831,7 @@ data "google_project" "project" {
 }
 
 resource "google_service_account" "storage_write_service_account" {
-  account_id = "tf-test-example-stw%{random_suffix}"
+  account_id = "%{service_account_id}"
   display_name = "Storage Write Service Account"
 }
 
@@ -790,8 +846,12 @@ resource "google_storage_bucket_iam_member" "admin" {
 func TestAccPubsubSubscription_pubsubSubscriptionSingleSmtExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -815,11 +875,11 @@ func TestAccPubsubSubscription_pubsubSubscriptionSingleSmtExample(t *testing.T) 
 func testAccPubsubSubscription_pubsubSubscriptionSingleSmtExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   message_transforms {
@@ -840,8 +900,12 @@ EOF
 func TestAccPubsubSubscription_pubsubSubscriptionMultipleSmtsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -865,11 +929,11 @@ func TestAccPubsubSubscription_pubsubSubscriptionMultipleSmtsExample(t *testing.
 func testAccPubsubSubscription_pubsubSubscriptionMultipleSmtsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
 
   message_transforms {
@@ -911,8 +975,14 @@ EOF
 func TestAccPubsubSubscription_pubsubSubscriptionTagsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"tag_key":           "tf_test_tag_key" + randomSuffix,
+		"tag_value":         "tf_test_tag_value" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -936,11 +1006,11 @@ func TestAccPubsubSubscription_pubsubSubscriptionTagsExample(t *testing.T) {
 func testAccPubsubSubscription_pubsubSubscriptionTagsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
   tags = {
     (google_tags_tag_key.tag_key.namespaced_name) = google_tags_tag_value.tag_value.short_name
@@ -951,13 +1021,13 @@ data "google_project" "project" {}
 
 resource "google_tags_tag_key" "tag_key" {
   parent     = data.google_project.project.id
-  short_name = "tf_test_tag_key%{random_suffix}"
+  short_name = "%{tag_key}"
   depends_on = [google_pubsub_topic.example]
 }
 
 resource "google_tags_tag_value" "tag_value" {
   parent     = google_tags_tag_key.tag_key.id
-  short_name = "tf_test_tag_value%{random_suffix}"
+  short_name = "%{tag_value}"
 }
 `, context)
 }

@@ -42,9 +42,12 @@ var (
 func TestAccNotebooksInstanceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"instance_name": "tf-test-notebooks-instance" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,9 +80,12 @@ func TestAccNotebooksInstanceIamBindingGenerated(t *testing.T) {
 func TestAccNotebooksInstanceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"instance_name": "tf-test-notebooks-instance" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -103,9 +109,12 @@ func TestAccNotebooksInstanceIamMemberGenerated(t *testing.T) {
 func TestAccNotebooksInstanceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"instance_name": "tf-test-notebooks-instance" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +147,7 @@ func TestAccNotebooksInstanceIamPolicyGenerated(t *testing.T) {
 func testAccNotebooksInstanceIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
-  name = "tf-test-notebooks-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
@@ -160,7 +169,7 @@ resource "google_notebooks_instance_iam_member" "foo" {
 func testAccNotebooksInstanceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
-  name = "tf-test-notebooks-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
@@ -197,7 +206,7 @@ data "google_notebooks_instance_iam_policy" "foo" {
 func testAccNotebooksInstanceIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
-  name = "tf-test-notebooks-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
@@ -221,7 +230,7 @@ resource "google_notebooks_instance_iam_policy" "foo" {
 func testAccNotebooksInstanceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
-  name = "tf-test-notebooks-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
@@ -243,7 +252,7 @@ resource "google_notebooks_instance_iam_binding" "foo" {
 func testAccNotebooksInstanceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
-  name = "tf-test-notebooks-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {

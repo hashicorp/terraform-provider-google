@@ -53,8 +53,11 @@ var (
 func TestAccMonitoringGenericService_monitoringServiceExampleExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"service_id":    "tf-test-my-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,8 +81,8 @@ func TestAccMonitoringGenericService_monitoringServiceExampleExample(t *testing.
 func testAccMonitoringGenericService_monitoringServiceExampleExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_service" "my_service" {
-  service_id = "tf-test-my-service%{random_suffix}"
-  display_name = "My Service tf-test-my-service%{random_suffix}"
+  service_id = "%{service_id}"
+  display_name = "My Service %{service_id}"
 
   user_labels = {
     my_key       = "my_value"

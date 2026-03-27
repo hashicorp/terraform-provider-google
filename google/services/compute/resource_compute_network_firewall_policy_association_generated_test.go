@@ -53,9 +53,14 @@ var (
 func TestAccComputeNetworkFirewallPolicyAssociation_networkFirewallPolicyAssociationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_name":     envvar.GetTestProjectFromEnv(),
+		"association_name": "tf-test-my-association" + randomSuffix,
+		"network_name":     "tf-test-my-network" + randomSuffix,
+		"policy_name":      "tf-test-my-policy" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,18 +84,18 @@ func TestAccComputeNetworkFirewallPolicyAssociation_networkFirewallPolicyAssocia
 func testAccComputeNetworkFirewallPolicyAssociation_networkFirewallPolicyAssociationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network_firewall_policy" "policy" {
-  name = "tf-test-my-policy%{random_suffix}"
+  name = "%{policy_name}"
   project = "%{project_name}"
   description = "Sample global network firewall policy"
 }
 
 resource "google_compute_network" "network" {
-  name = "tf-test-my-network%{random_suffix}"
+  name = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network_firewall_policy_association" "default" {
-  name = "tf-test-my-association%{random_suffix}"
+  name = "%{association_name}"
   project = "%{project_name}"
   attachment_target = google_compute_network.network.id
   firewall_policy =  google_compute_network_firewall_policy.policy.id

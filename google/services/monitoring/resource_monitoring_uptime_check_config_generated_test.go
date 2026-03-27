@@ -53,9 +53,12 @@ var (
 func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "tf-test-http-uptime-check" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.
 func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_uptime_check_config" "http" {
-  display_name       = "tf-test-http-uptime-check%{random_suffix}"
+  display_name       = "%{display_name}"
   timeout            = "60s"
   log_check_failures = true
   user_labels  = {
@@ -123,9 +126,12 @@ resource "google_monitoring_uptime_check_config" "http" {
 func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpPasswordWoExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "tf-test-http-uptime-check" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -149,7 +155,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpPasswordWoExample(t
 func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpPasswordWoExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_uptime_check_config" "http" {
-  display_name = "tf-test-http-uptime-check%{random_suffix}"
+  display_name = "%{display_name}"
   timeout      = "60s"
   user_labels  = {
     example-key = "example-value"
@@ -197,9 +203,12 @@ resource "google_monitoring_uptime_check_config" "http" {
 func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigStatusCodeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "tf-test-http-uptime-check" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -223,7 +232,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigStatusCodeExample(t *te
 func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigStatusCodeExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_uptime_check_config" "status_code" {
-  display_name = "tf-test-http-uptime-check%{random_suffix}"
+  display_name = "%{display_name}"
   timeout      = "60s"
 
   http_check {
@@ -269,9 +278,12 @@ resource "google_monitoring_uptime_check_config" "status_code" {
 func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "tf-test-https-uptime-check" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -295,7 +307,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(t *testing
 func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_uptime_check_config" "https" {
-  display_name = "tf-test-https-uptime-check%{random_suffix}"
+  display_name = "%{display_name}"
   timeout = "60s"
 
   http_check {
@@ -328,8 +340,12 @@ resource "google_monitoring_uptime_check_config" "https" {
 func TestAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":       "tf-test-tcp-uptime-check" + randomSuffix,
+		"group_display_name": "tf-test-uptime-check-group" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -353,7 +369,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(t *testing.T) {
 func testAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_uptime_check_config" "tcp_group" {
-  display_name = "tf-test-tcp-uptime-check%{random_suffix}"
+  display_name = "%{display_name}"
   timeout      = "60s"
 
   tcp_check {
@@ -370,7 +386,7 @@ resource "google_monitoring_uptime_check_config" "tcp_group" {
 }
 
 resource "google_monitoring_group" "check" {
-  display_name = "tf-test-uptime-check-group%{random_suffix}"
+  display_name = "%{group_display_name}"
   filter       = "resource.metadata.name=has_substring(\"foo\")"
 }
 `, context)
@@ -379,10 +395,15 @@ resource "google_monitoring_group" "check" {
 func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigSyntheticMonitorExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
+		"bucket_name":   "tf-test-gcf-source" + randomSuffix,
+		"display_name":  "tf_test_synthetic_monitor" + randomSuffix,
+		"function_name": "tf_test_synthetic_function" + randomSuffix,
 		"zip_path":      "./test-fixtures/synthetic-fn-source.zip",
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -406,7 +427,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigSyntheticMonitorExample
 func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigSyntheticMonitorExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "%{project_id}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "%{project_id}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -418,7 +439,7 @@ resource "google_storage_bucket_object" "object" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf_test_synthetic_function%{random_suffix}"
+  name = "%{function_name}"
   location = "us-central1"
  
   build_config {
@@ -440,7 +461,7 @@ resource "google_cloudfunctions2_function" "function" {
 }
 
 resource "google_monitoring_uptime_check_config" "synthetic_monitor" {
-  display_name = "tf_test_synthetic_monitor%{random_suffix}"
+  display_name = "%{display_name}"
   timeout = "60s"
 
   synthetic_monitor {

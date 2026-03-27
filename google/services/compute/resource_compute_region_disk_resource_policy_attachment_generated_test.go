@@ -53,8 +53,14 @@ var (
 func TestAccComputeRegionDiskResourcePolicyAttachment_regionDiskResourcePolicyAttachmentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"base_disk_name": "tf-test-my-base-disk" + randomSuffix,
+		"disk_name":      "tf-test-my-disk" + randomSuffix,
+		"policy_name":    "tf-test-my-resource-policy" + randomSuffix,
+		"snapshot_name":  "tf-test-my-snapshot" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +90,7 @@ resource "google_compute_region_disk_resource_policy_attachment" "attachment" {
 }
 
 resource "google_compute_disk" "disk" {
-  name  = "tf-test-my-base-disk%{random_suffix}"
+  name  = "%{base_disk_name}"
   image = "debian-cloud/debian-11"
   size  = 50
   type  = "pd-ssd"
@@ -92,13 +98,13 @@ resource "google_compute_disk" "disk" {
 }
 
 resource "google_compute_snapshot" "snapdisk" {
-  name  = "tf-test-my-snapshot%{random_suffix}"
+  name  = "%{snapshot_name}"
   source_disk = google_compute_disk.disk.name
   zone        = "us-central1-a"
 }
 
 resource "google_compute_region_disk" "ssd" {
-  name  = "tf-test-my-disk%{random_suffix}"
+  name  = "%{disk_name}"
   replica_zones = ["us-central1-a", "us-central1-f"]
   snapshot = google_compute_snapshot.snapdisk.id
   size  = 50
@@ -107,7 +113,7 @@ resource "google_compute_region_disk" "ssd" {
 }
 
 resource "google_compute_resource_policy" "policy" {
-  name = "tf-test-my-resource-policy%{random_suffix}"
+  name = "%{policy_name}"
   region = "us-central1"
   snapshot_schedule_policy {
     schedule {

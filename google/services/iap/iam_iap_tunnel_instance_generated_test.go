@@ -42,9 +42,12 @@ var (
 func TestAccIapTunnelInstanceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"instance_name":           "tf-test-tunnel-vm" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -82,9 +85,12 @@ func TestAccIapTunnelInstanceIamBindingGenerated(t *testing.T) {
 func TestAccIapTunnelInstanceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"instance_name":           "tf-test-tunnel-vm" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -113,9 +119,12 @@ func TestAccIapTunnelInstanceIamMemberGenerated(t *testing.T) {
 func TestAccIapTunnelInstanceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"instance_name":           "tf-test-tunnel-vm" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -153,9 +162,12 @@ func TestAccIapTunnelInstanceIamPolicyGenerated(t *testing.T) {
 func TestAccIapTunnelInstanceIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"instance_name":           "tf-test-tunnel-vm" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -185,9 +197,12 @@ func TestAccIapTunnelInstanceIamBindingGenerated_withAndWithoutCondition(t *test
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"instance_name":           "tf-test-tunnel-vm" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -227,9 +242,12 @@ func TestAccIapTunnelInstanceIamBindingGenerated_withAndWithoutCondition(t *test
 func TestAccIapTunnelInstanceIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"instance_name":           "tf-test-tunnel-vm" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -259,9 +277,12 @@ func TestAccIapTunnelInstanceIamMemberGenerated_withAndWithoutCondition(t *testi
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"instance_name":           "tf-test-tunnel-vm" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -301,9 +322,12 @@ func TestAccIapTunnelInstanceIamMemberGenerated_withAndWithoutCondition(t *testi
 func TestAccIapTunnelInstanceIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"instance_name":           "tf-test-tunnel-vm" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -341,7 +365,7 @@ func TestAccIapTunnelInstanceIamPolicyGenerated_withCondition(t *testing.T) {
 func testAccIapTunnelInstanceIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel-vm%{random_suffix}"
+  name         = "%{instance_name}"
   zone         = "us-central1-a"
   machine_type = "e2-medium"
 
@@ -369,7 +393,7 @@ resource "google_iap_tunnel_instance_iam_member" "foo" {
 func testAccIapTunnelInstanceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel-vm%{random_suffix}"
+  name         = "%{instance_name}"
   zone         = "us-central1-a"
   machine_type = "e2-medium"
 
@@ -412,7 +436,7 @@ data "google_iap_tunnel_instance_iam_policy" "foo" {
 func testAccIapTunnelInstanceIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel-vm%{random_suffix}"
+  name         = "%{instance_name}"
   zone         = "us-central1-a"
   machine_type = "e2-medium"
 
@@ -442,7 +466,7 @@ resource "google_iap_tunnel_instance_iam_policy" "foo" {
 func testAccIapTunnelInstanceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel-vm%{random_suffix}"
+  name         = "%{instance_name}"
   zone         = "us-central1-a"
   machine_type = "e2-medium"
 
@@ -470,7 +494,7 @@ resource "google_iap_tunnel_instance_iam_binding" "foo" {
 func testAccIapTunnelInstanceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel-vm%{random_suffix}"
+  name         = "%{instance_name}"
   zone         = "us-central1-a"
   machine_type = "e2-medium"
 
@@ -498,7 +522,7 @@ resource "google_iap_tunnel_instance_iam_binding" "foo" {
 func testAccIapTunnelInstanceIamBinding_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel-vm%{random_suffix}"
+  name         = "%{instance_name}"
   zone         = "us-central1-a"
   machine_type = "e2-medium"
 
@@ -531,7 +555,7 @@ resource "google_iap_tunnel_instance_iam_binding" "foo" {
 func testAccIapTunnelInstanceIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel-vm%{random_suffix}"
+  name         = "%{instance_name}"
   zone         = "us-central1-a"
   machine_type = "e2-medium"
 
@@ -586,7 +610,7 @@ resource "google_iap_tunnel_instance_iam_binding" "foo3" {
 func testAccIapTunnelInstanceIamMember_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel-vm%{random_suffix}"
+  name         = "%{instance_name}"
   zone         = "us-central1-a"
   machine_type = "e2-medium"
 
@@ -619,7 +643,7 @@ resource "google_iap_tunnel_instance_iam_member" "foo" {
 func testAccIapTunnelInstanceIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel-vm%{random_suffix}"
+  name         = "%{instance_name}"
   zone         = "us-central1-a"
   machine_type = "e2-medium"
 
@@ -674,7 +698,7 @@ resource "google_iap_tunnel_instance_iam_member" "foo3" {
 func testAccIapTunnelInstanceIamPolicy_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel-vm%{random_suffix}"
+  name         = "%{instance_name}"
   zone         = "us-central1-a"
   machine_type = "e2-medium"
 

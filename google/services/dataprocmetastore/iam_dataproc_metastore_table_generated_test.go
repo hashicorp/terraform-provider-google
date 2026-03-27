@@ -42,8 +42,10 @@ var (
 func TestAccDataprocMetastoreTableIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 	}
 
@@ -77,8 +79,10 @@ func TestAccDataprocMetastoreTableIamBindingGenerated(t *testing.T) {
 func TestAccDataprocMetastoreTableIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 	}
 
@@ -103,8 +107,10 @@ func TestAccDataprocMetastoreTableIamMemberGenerated(t *testing.T) {
 func TestAccDataprocMetastoreTableIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 	}
 

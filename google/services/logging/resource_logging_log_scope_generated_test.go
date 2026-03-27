@@ -53,9 +53,14 @@ var (
 func TestAccLoggingLogScope_loggingLogScopeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"log_scope_name":  "tf-test-my-log-scope" + randomSuffix,
+		"log_view_name_1": "view1" + randomSuffix,
+		"log_view_name_2": "view2" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,11 +86,11 @@ func testAccLoggingLogScope_loggingLogScopeBasicExample(context map[string]inter
 resource "google_logging_log_scope" "logging_log_scope" {
     parent         = "projects/%{project}"
     location       = "global"
-    name           = "projects/%{project}/locations/global/logScopes/tf-test-my-log-scope%{random_suffix}"
+    name           = "projects/%{project}/locations/global/logScopes/%{log_scope_name}"
     resource_names = [
         "projects/%{project}",
-        "projects/%{project}/locations/global/buckets/_Default/views/view1%{random_suffix}",
-        "projects/%{project}/locations/global/buckets/_Default/views/view2%{random_suffix}"
+        "projects/%{project}/locations/global/buckets/_Default/views/%{log_view_name_1}",
+        "projects/%{project}/locations/global/buckets/_Default/views/%{log_view_name_2}"
     ]
     description    = "A log scope configured with Terraform"
 }

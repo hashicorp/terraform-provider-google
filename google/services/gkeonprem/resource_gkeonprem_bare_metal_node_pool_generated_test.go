@@ -53,8 +53,12 @@ var (
 func TestAccGkeonpremBareMetalNodePool_gkeonpremBareMetalNodePoolBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cluster":       "tf-test-my-cluster" + randomSuffix,
+		"name":          "tf-test-my-nodepool" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccGkeonpremBareMetalNodePool_gkeonpremBareMetalNodePoolBasicExample(t 
 func testAccGkeonpremBareMetalNodePool_gkeonpremBareMetalNodePoolBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_bare_metal_cluster" "default-basic" {
-  name = "tf-test-my-cluster%{random_suffix}"
+  name = "%{cluster}"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   bare_metal_version = "1.12.3"
@@ -148,7 +152,7 @@ resource "google_gkeonprem_bare_metal_cluster" "default-basic" {
 }
 
 resource "google_gkeonprem_bare_metal_node_pool" "nodepool-basic" {
-  name =  "tf-test-my-nodepool%{random_suffix}"
+  name =  "%{name}"
   bare_metal_cluster =  google_gkeonprem_bare_metal_cluster.default-basic.name
   location = "us-west1"
   node_pool_config {
@@ -164,8 +168,12 @@ resource "google_gkeonprem_bare_metal_node_pool" "nodepool-basic" {
 func TestAccGkeonpremBareMetalNodePool_gkeonpremBareMetalNodePoolFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cluster":       "tf-test-my-cluster" + randomSuffix,
+		"name":          "tf-test-my-nodepool" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -189,7 +197,7 @@ func TestAccGkeonpremBareMetalNodePool_gkeonpremBareMetalNodePoolFullExample(t *
 func testAccGkeonpremBareMetalNodePool_gkeonpremBareMetalNodePoolFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_bare_metal_cluster" "default-full" {
-  name = "tf-test-my-cluster%{random_suffix}"
+  name = "%{cluster}"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   bare_metal_version = "1.12.3"
@@ -259,7 +267,7 @@ resource "google_gkeonprem_bare_metal_cluster" "default-full" {
 }
 
 resource "google_gkeonprem_bare_metal_node_pool" "nodepool-full" {
-  name =  "tf-test-my-nodepool%{random_suffix}"
+  name =  "%{name}"
   display_name = "test-name"
   bare_metal_cluster =  google_gkeonprem_bare_metal_cluster.default-full.name
   location = "us-west1"

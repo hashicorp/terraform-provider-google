@@ -42,13 +42,17 @@ var (
 func TestAccCloudfunctions2functionIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
-		"location": "us-central1",
-		"zip_path": "./test-fixtures/function-source.zip",
+		"bucket_name": "tf-test-gcf-source" + randomSuffix,
+		"function":    "tf-test-function-v2" + randomSuffix,
+		"location":    "us-central1",
+		"zip_path":    "./test-fixtures/function-source.zip",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,13 +85,17 @@ func TestAccCloudfunctions2functionIamBindingGenerated(t *testing.T) {
 func TestAccCloudfunctions2functionIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
-		"location": "us-central1",
-		"zip_path": "./test-fixtures/function-source.zip",
+		"bucket_name": "tf-test-gcf-source" + randomSuffix,
+		"function":    "tf-test-function-v2" + randomSuffix,
+		"location":    "us-central1",
+		"zip_path":    "./test-fixtures/function-source.zip",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -111,13 +119,17 @@ func TestAccCloudfunctions2functionIamMemberGenerated(t *testing.T) {
 func TestAccCloudfunctions2functionIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
-		"location": "us-central1",
-		"zip_path": "./test-fixtures/function-source.zip",
+		"bucket_name": "tf-test-gcf-source" + randomSuffix,
+		"function":    "tf-test-function-v2" + randomSuffix,
+		"location":    "us-central1",
+		"zip_path":    "./test-fixtures/function-source.zip",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -154,7 +166,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -166,7 +178,7 @@ resource "google_storage_bucket_object" "object" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-function-v2%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
  
@@ -205,7 +217,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -217,7 +229,7 @@ resource "google_storage_bucket_object" "object" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-function-v2%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
  
@@ -271,7 +283,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -283,7 +295,7 @@ resource "google_storage_bucket_object" "object" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-function-v2%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
  
@@ -324,7 +336,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -336,7 +348,7 @@ resource "google_storage_bucket_object" "object" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-function-v2%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
  
@@ -375,7 +387,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -387,7 +399,7 @@ resource "google_storage_bucket_object" "object" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-function-v2%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
  

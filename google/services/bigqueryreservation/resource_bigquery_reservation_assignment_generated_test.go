@@ -53,9 +53,12 @@ var (
 func TestAccBigqueryReservationReservationAssignment_bigqueryReservationAssignmentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":          envvar.GetTestProjectFromEnv(),
+		"reservation_name": "tf-test-example-reservation" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccBigqueryReservationReservationAssignment_bigqueryReservationAssignme
 func testAccBigqueryReservationReservationAssignment_bigqueryReservationAssignmentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_reservation" "basic" {
-  name  = "tf-test-example-reservation%{random_suffix}"
+  name  = "%{reservation_name}"
   project = "%{project}"
   location = "us-central1"
   slot_capacity = 0
@@ -97,9 +100,12 @@ resource "google_bigquery_reservation_assignment" "assignment" {
 func TestAccBigqueryReservationReservationAssignment_bigqueryReservationAssignmentFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":          envvar.GetTestProjectFromEnv(),
+		"reservation_name": "tf-test-example-reservation" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -123,7 +129,7 @@ func TestAccBigqueryReservationReservationAssignment_bigqueryReservationAssignme
 func testAccBigqueryReservationReservationAssignment_bigqueryReservationAssignmentFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_reservation" "basic" {
-  name  = "tf-test-example-reservation%{random_suffix}"
+  name  = "%{reservation_name}"
   project = "%{project}"
   location = "us-central1"
   slot_capacity = 0

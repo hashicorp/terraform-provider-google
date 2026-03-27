@@ -1444,9 +1444,15 @@ resource "google_redis_cluster" "cluster-ms" {
 func TestAccRedisCluster_redisClusterHaWithLabelsUpdate(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"cluster_name":                "tf-test-ha-cluster" + randomSuffix,
 		"deletion_protection_enabled": false,
-		"random_suffix":               acctest.RandString(t, 10),
+		"network_name":                "tf-test-my-network" + randomSuffix,
+		"policy_name":                 "tf-test-my-policy" + randomSuffix,
+		"subnet_name":                 "tf-test-my-subnet" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1484,7 +1490,7 @@ func TestAccRedisCluster_redisClusterHaWithLabelsUpdate(t *testing.T) {
 func testAccRedisCluster_redisClusterHaWithLabelsUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_cluster" "cluster-ha-with-labels" {
-  name           = "tf-test-ha-cluster%{random_suffix}"
+  name           = "%{cluster_name}"
   shard_count    = 3
   labels = {
     my_key = "my_val"
@@ -1501,7 +1507,7 @@ resource "google_redis_cluster" "cluster-ha-with-labels" {
   redis_configs = {
     maxmemory-policy	= "volatile-ttl"
   }
-  deletion_protection_enabled = false
+  deletion_protection_enabled = %{deletion_protection_enabled}
 
   zone_distribution_config {
     mode = "MULTI_ZONE"
@@ -1523,7 +1529,7 @@ resource "google_redis_cluster" "cluster-ha-with-labels" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "tf-test-my-policy%{random_suffix}"
+  name = "%{policy_name}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
@@ -1534,14 +1540,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "consumer_subnet" {
-  name          = "tf-test-my-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.consumer_net.id
 }
 
 resource "google_compute_network" "consumer_net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)

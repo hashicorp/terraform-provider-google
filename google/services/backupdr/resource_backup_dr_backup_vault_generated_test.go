@@ -53,9 +53,12 @@ var (
 func TestAccBackupDRBackupVault_backupDrBackupVaultSimpleExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"backup_vault_id": "tf-test-backup-vault-test" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func testAccBackupDRBackupVault_backupDrBackupVaultSimpleExample(context map[str
 	return acctest.Nprintf(`
 resource "google_backup_dr_backup_vault" "backup-vault-test" {
   location = "us-central1"
-  backup_vault_id    = "tf-test-backup-vault-test%{random_suffix}"
+  backup_vault_id    = "%{backup_vault_id}"
   description = "This is a second backup vault built by Terraform."
   backup_minimum_enforced_retention_duration = "100000s"
   annotations = {
@@ -110,10 +113,13 @@ func TestAccBackupDRBackupVault_backupDrBackupVaultCmekExample(t *testing.T) {
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"backup_vault_id": "tf-test-backup-vault-cmek" + randomSuffix,
+		"kms_key_name":    acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -142,7 +148,7 @@ data "google_project" "test_project" {
 
 resource "google_backup_dr_backup_vault" "backup-vault-cmek" {
   location = "us-central1"
-  backup_vault_id    = "tf-test-backup-vault-cmek%{random_suffix}"
+  backup_vault_id    = "%{backup_vault_id}"
   description = "This is a second backup vault built by Terraform."
   backup_minimum_enforced_retention_duration = "100000s"
   annotations = {

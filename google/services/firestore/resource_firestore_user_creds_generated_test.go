@@ -53,9 +53,12 @@ var (
 func TestAccFirestoreUserCreds_firestoreUserCredsBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"database_id":   "tf-test-database-id-mongodb-compatible" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func testAccFirestoreUserCreds_firestoreUserCredsBasicExample(context map[string
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project                 = "%{project_id}"
-  name                    = "tf-test-database-id-mongodb-compatible%{random_suffix}"
+  name                    = "%{database_id}"
   location_id             = "nam5"
   type                    = "FIRESTORE_NATIVE"
   database_edition        = "ENTERPRISE"
@@ -100,9 +103,12 @@ resource "google_firestore_user_creds" "my-user-creds" {
 func TestAccFirestoreUserCreds_firestoreUserCredsWithSecretManagerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"database_id":   "tf-test-database-id-mongodb-compatible" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,7 +133,7 @@ func testAccFirestoreUserCreds_firestoreUserCredsWithSecretManagerExample(contex
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project                 = "%{project_id}"
-  name                    = "tf-test-database-id-mongodb-compatible%{random_suffix}"
+  name                    = "%{database_id}"
   location_id             = "nam5"
   type                    = "FIRESTORE_NATIVE"
   database_edition        = "ENTERPRISE"

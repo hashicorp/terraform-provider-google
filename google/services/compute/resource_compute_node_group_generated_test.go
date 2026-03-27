@@ -53,8 +53,12 @@ var (
 func TestAccComputeNodeGroup_nodeGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"group_name":    "tf-test-soletenant-group" + randomSuffix,
+		"template_name": "tf-test-soletenant-tmpl" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +82,13 @@ func TestAccComputeNodeGroup_nodeGroupBasicExample(t *testing.T) {
 func testAccComputeNodeGroup_nodeGroupBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_node_template" "soletenant-tmpl" {
-  name      = "tf-test-soletenant-tmpl%{random_suffix}"
+  name      = "%{template_name}"
   region    = "us-central1"
   node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_group" "nodes" {
-  name        = "tf-test-soletenant-group%{random_suffix}"
+  name        = "%{group_name}"
   zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
 
@@ -97,8 +101,12 @@ resource "google_compute_node_group" "nodes" {
 func TestAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"group_name":    "tf-test-soletenant-group" + randomSuffix,
+		"template_name": "tf-test-soletenant-tmpl" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -122,13 +130,13 @@ func TestAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(t *testing.T) {
 func testAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_node_template" "soletenant-tmpl" {
-  name      = "tf-test-soletenant-tmpl%{random_suffix}"
+  name      = "%{template_name}"
   region    = "us-central1"
   node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_group" "nodes" {
-  name        = "tf-test-soletenant-group%{random_suffix}"
+  name        = "%{group_name}"
   zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
   maintenance_policy = "RESTART_IN_PLACE"
@@ -149,9 +157,15 @@ resource "google_compute_node_group" "nodes" {
 func TestAccComputeNodeGroup_nodeGroupShareSettingsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":             envvar.GetTestOrgFromEnv(t),
+		"group_name":         "tf-test-soletenant-group" + randomSuffix,
+		"guest_project_id":   "tf-test-project-id" + randomSuffix,
+		"guest_project_name": "tf-test-project-name" + randomSuffix,
+		"template_name":      "tf-test-soletenant-tmpl" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -175,20 +189,20 @@ func TestAccComputeNodeGroup_nodeGroupShareSettingsExample(t *testing.T) {
 func testAccComputeNodeGroup_nodeGroupShareSettingsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "guest_project" {
-  project_id      = "tf-test-project-id%{random_suffix}"
-  name            = "tf-test-project-name%{random_suffix}"
+  project_id      = "%{guest_project_id}"
+  name            = "%{guest_project_name}"
   org_id          = "%{org_id}"
   deletion_policy = "DELETE"
 }
 
 resource "google_compute_node_template" "soletenant-tmpl" {
-  name      = "tf-test-soletenant-tmpl%{random_suffix}"
+  name      = "%{template_name}"
   region    = "us-central1"
   node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_group" "nodes" {
-  name        = "tf-test-soletenant-group%{random_suffix}"
+  name        = "%{group_name}"
   zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
 

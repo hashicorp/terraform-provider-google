@@ -42,10 +42,14 @@ var (
 func TestAccCloudRunServiceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
+
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,10 +82,14 @@ func TestAccCloudRunServiceIamBindingGenerated(t *testing.T) {
 func TestAccCloudRunServiceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
+
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -105,10 +113,14 @@ func TestAccCloudRunServiceIamMemberGenerated(t *testing.T) {
 func TestAccCloudRunServiceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
+
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -141,7 +153,7 @@ func TestAccCloudRunServiceIamPolicyGenerated(t *testing.T) {
 func testAccCloudRunServiceIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {
@@ -171,7 +183,7 @@ resource "google_cloud_run_service_iam_member" "foo" {
 func testAccCloudRunServiceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {
@@ -216,7 +228,7 @@ data "google_cloud_run_service_iam_policy" "foo" {
 func testAccCloudRunServiceIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {
@@ -248,7 +260,7 @@ resource "google_cloud_run_service_iam_policy" "foo" {
 func testAccCloudRunServiceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {
@@ -278,7 +290,7 @@ resource "google_cloud_run_service_iam_binding" "foo" {
 func testAccCloudRunServiceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {

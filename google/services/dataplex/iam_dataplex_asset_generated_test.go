@@ -42,8 +42,10 @@ var (
 func TestAccDataplexAssetIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project_name":  envvar.GetTestProjectFromEnv(),
 	}
@@ -78,8 +80,10 @@ func TestAccDataplexAssetIamBindingGenerated(t *testing.T) {
 func TestAccDataplexAssetIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project_name":  envvar.GetTestProjectFromEnv(),
 	}
@@ -105,8 +109,10 @@ func TestAccDataplexAssetIamMemberGenerated(t *testing.T) {
 func TestAccDataplexAssetIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project_name":  envvar.GetTestProjectFromEnv(),
 	}

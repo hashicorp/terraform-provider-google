@@ -53,8 +53,12 @@ var (
 func TestAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationengineGenericExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_id": "tf-test-recommendation-datastore-id" + randomSuffix,
+		"engine_id":     "tf-test-recommendation-engine-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +83,7 @@ func testAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationeng
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "generic" {
   location                     = "global"
-  data_store_id                = "tf-test-recommendation-datastore-id%{random_suffix}"
+  data_store_id                = "%{data_store_id}"
   display_name                 = "tf-test-structured-datastore"
   industry_vertical            = "GENERIC"
   content_config               = "NO_CONTENT"
@@ -88,7 +92,7 @@ resource "google_discovery_engine_data_store" "generic" {
   skip_default_schema_creation = false
 }
 resource "google_discovery_engine_recommendation_engine" "generic" {
-  engine_id                    = "tf-test-recommendation-engine-id%{random_suffix}"
+  engine_id                    = "%{engine_id}"
   location                     = google_discovery_engine_data_store.generic.location
   display_name                 = "Example Recommendation Engine"
   data_store_ids               = [google_discovery_engine_data_store.generic.data_store_id]
@@ -103,8 +107,12 @@ resource "google_discovery_engine_recommendation_engine" "generic" {
 func TestAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationengineMediaExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_id": "tf-test-recommendation-datastore-id" + randomSuffix,
+		"engine_id":     "tf-test-recommendation-engine-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -129,7 +137,7 @@ func testAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationeng
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "media" {
   location                     = "global"
-  data_store_id                = "tf-test-recommendation-datastore-id%{random_suffix}"
+  data_store_id                = "%{data_store_id}"
   display_name                 = "tf-test-structured-datastore"
   industry_vertical            = "MEDIA"
   content_config               = "NO_CONTENT"
@@ -138,7 +146,7 @@ resource "google_discovery_engine_data_store" "media" {
   skip_default_schema_creation = false
 }
 resource "google_discovery_engine_recommendation_engine" "media" {
-  engine_id                    = "tf-test-recommendation-engine-id%{random_suffix}"
+  engine_id                    = "%{engine_id}"
   location                     = google_discovery_engine_data_store.media.location
   display_name                 = "Example Media Recommendation Engine"
   data_store_ids               = [google_discovery_engine_data_store.media.data_store_id]

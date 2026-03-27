@@ -42,14 +42,18 @@ var (
 func TestAccIapWebRegionBackendServiceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":               randomSuffix,
+		"role":                        "roles/iap.httpsResourceAccessor",
+		"health_check_name":           "tf-test-health-check" + randomSuffix,
+		"region_backend_service_name": "tf-test-region-backend-service" + randomSuffix,
+		"condition_title":             "expires_after_2019_12_31",
+		"condition_expr":              `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":              "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":     "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":      `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -82,14 +86,18 @@ func TestAccIapWebRegionBackendServiceIamBindingGenerated(t *testing.T) {
 func TestAccIapWebRegionBackendServiceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":               randomSuffix,
+		"role":                        "roles/iap.httpsResourceAccessor",
+		"health_check_name":           "tf-test-health-check" + randomSuffix,
+		"region_backend_service_name": "tf-test-region-backend-service" + randomSuffix,
+		"condition_title":             "expires_after_2019_12_31",
+		"condition_expr":              `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":              "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":     "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":      `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -113,14 +121,18 @@ func TestAccIapWebRegionBackendServiceIamMemberGenerated(t *testing.T) {
 func TestAccIapWebRegionBackendServiceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":               randomSuffix,
+		"role":                        "roles/iap.httpsResourceAccessor",
+		"health_check_name":           "tf-test-health-check" + randomSuffix,
+		"region_backend_service_name": "tf-test-region-backend-service" + randomSuffix,
+		"condition_title":             "expires_after_2019_12_31",
+		"condition_expr":              `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":              "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":     "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":      `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -153,14 +165,18 @@ func TestAccIapWebRegionBackendServiceIamPolicyGenerated(t *testing.T) {
 func TestAccIapWebRegionBackendServiceIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":               randomSuffix,
+		"role":                        "roles/iap.httpsResourceAccessor",
+		"health_check_name":           "tf-test-health-check" + randomSuffix,
+		"region_backend_service_name": "tf-test-region-backend-service" + randomSuffix,
+		"condition_title":             "expires_after_2019_12_31",
+		"condition_expr":              `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":              "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":     "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":      `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -185,14 +201,18 @@ func TestAccIapWebRegionBackendServiceIamBindingGenerated_withAndWithoutConditio
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":               randomSuffix,
+		"role":                        "roles/iap.httpsResourceAccessor",
+		"health_check_name":           "tf-test-health-check" + randomSuffix,
+		"region_backend_service_name": "tf-test-region-backend-service" + randomSuffix,
+		"condition_title":             "expires_after_2019_12_31",
+		"condition_expr":              `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":              "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":     "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":      `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -227,14 +247,18 @@ func TestAccIapWebRegionBackendServiceIamBindingGenerated_withAndWithoutConditio
 func TestAccIapWebRegionBackendServiceIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":               randomSuffix,
+		"role":                        "roles/iap.httpsResourceAccessor",
+		"health_check_name":           "tf-test-health-check" + randomSuffix,
+		"region_backend_service_name": "tf-test-region-backend-service" + randomSuffix,
+		"condition_title":             "expires_after_2019_12_31",
+		"condition_expr":              `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":              "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":     "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":      `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -259,14 +283,18 @@ func TestAccIapWebRegionBackendServiceIamMemberGenerated_withAndWithoutCondition
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":               randomSuffix,
+		"role":                        "roles/iap.httpsResourceAccessor",
+		"health_check_name":           "tf-test-health-check" + randomSuffix,
+		"region_backend_service_name": "tf-test-region-backend-service" + randomSuffix,
+		"condition_title":             "expires_after_2019_12_31",
+		"condition_expr":              `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":              "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":     "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":      `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -301,14 +329,18 @@ func TestAccIapWebRegionBackendServiceIamMemberGenerated_withAndWithoutCondition
 func TestAccIapWebRegionBackendServiceIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":               randomSuffix,
+		"role":                        "roles/iap.httpsResourceAccessor",
+		"health_check_name":           "tf-test-health-check" + randomSuffix,
+		"region_backend_service_name": "tf-test-region-backend-service" + randomSuffix,
+		"condition_title":             "expires_after_2019_12_31",
+		"condition_expr":              `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":              "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":     "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":      `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	// Test should have 2 bindings: one with a description and one without. Any < chars are converted to a unicode character by the API.
@@ -341,7 +373,7 @@ func TestAccIapWebRegionBackendServiceIamPolicyGenerated_withCondition(t *testin
 func testAccIapWebRegionBackendServiceIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-region-backend-service%{random_suffix}"
+  name                            = "%{region_backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -349,7 +381,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -371,7 +403,7 @@ resource "google_iap_web_region_backend_service_iam_member" "foo" {
 func testAccIapWebRegionBackendServiceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-region-backend-service%{random_suffix}"
+  name                            = "%{region_backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -379,7 +411,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -416,7 +448,7 @@ data "google_iap_web_region_backend_service_iam_policy" "foo" {
 func testAccIapWebRegionBackendServiceIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-region-backend-service%{random_suffix}"
+  name                            = "%{region_backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -424,7 +456,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -448,7 +480,7 @@ resource "google_iap_web_region_backend_service_iam_policy" "foo" {
 func testAccIapWebRegionBackendServiceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-region-backend-service%{random_suffix}"
+  name                            = "%{region_backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -456,7 +488,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -478,7 +510,7 @@ resource "google_iap_web_region_backend_service_iam_binding" "foo" {
 func testAccIapWebRegionBackendServiceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-region-backend-service%{random_suffix}"
+  name                            = "%{region_backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -486,7 +518,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -508,7 +540,7 @@ resource "google_iap_web_region_backend_service_iam_binding" "foo" {
 func testAccIapWebRegionBackendServiceIamBinding_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-region-backend-service%{random_suffix}"
+  name                            = "%{region_backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -516,7 +548,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -543,7 +575,7 @@ resource "google_iap_web_region_backend_service_iam_binding" "foo" {
 func testAccIapWebRegionBackendServiceIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-region-backend-service%{random_suffix}"
+  name                            = "%{region_backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -551,7 +583,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -600,7 +632,7 @@ resource "google_iap_web_region_backend_service_iam_binding" "foo3" {
 func testAccIapWebRegionBackendServiceIamMember_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-region-backend-service%{random_suffix}"
+  name                            = "%{region_backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -608,7 +640,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -635,7 +667,7 @@ resource "google_iap_web_region_backend_service_iam_member" "foo" {
 func testAccIapWebRegionBackendServiceIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-region-backend-service%{random_suffix}"
+  name                            = "%{region_backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -643,7 +675,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -692,7 +724,7 @@ resource "google_iap_web_region_backend_service_iam_member" "foo3" {
 func testAccIapWebRegionBackendServiceIamPolicy_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-region-backend-service%{random_suffix}"
+  name                            = "%{region_backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -700,7 +732,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 

@@ -53,8 +53,11 @@ var (
 func TestAccBigqueryReservationReservationGroup_bigqueryReservationGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-reservation-group" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccBigqueryReservationReservationGroup_bigqueryReservationGroupBasicExa
 func testAccBigqueryReservationReservationGroup_bigqueryReservationGroupBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_reservation_group" "reservation_group" {
-  name     = "tf-test-my-reservation-group%{random_suffix}"
+  name     = "%{name}"
   location = "us-west2"
 }
 `, context)

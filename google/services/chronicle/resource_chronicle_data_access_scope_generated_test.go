@@ -53,9 +53,13 @@ var (
 func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithLogtypeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"chronicle_id":         envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"data_access_scope_id": "tf-test-scope-id" + randomSuffix,
+		"description":          "tf-test-scope-description" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,8 +85,8 @@ func testAccChronicleDataAccessScope_chronicleDataaccessscopeWithLogtypeExample(
 resource "google_chronicle_data_access_scope" "example" {
   location = "us"
   instance = "%{chronicle_id}"
-  data_access_scope_id = "tf-test-scope-id%{random_suffix}"
-  description = "tf-test-scope-description%{random_suffix}"
+  data_access_scope_id = "%{data_access_scope_id}"
+  description = "%{description}"
   allowed_data_access_labels {
     log_type = "GCP_CLOUDAUDIT"
   }
@@ -96,9 +100,14 @@ resource "google_chronicle_data_access_scope" "example" {
 func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithDataaccesslabelExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"chronicle_id":         envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"data_access_label_id": "tf-test-label-id" + randomSuffix,
+		"data_access_scope_id": "tf-test-scope-id" + randomSuffix,
+		"description":          "tf-test-scope-description" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -124,15 +133,15 @@ func testAccChronicleDataAccessScope_chronicleDataaccessscopeWithDataaccesslabel
 resource "google_chronicle_data_access_label" "custom_data_access_label" {
   location = "us"
   instance = "%{chronicle_id}"
-  data_access_label_id = "tf-test-label-id%{random_suffix}"
+  data_access_label_id = "%{data_access_label_id}"
   udm_query = "principal.hostname=\"google.com\""
 }
 
 resource "google_chronicle_data_access_scope" "example" {
   location = "us"
   instance = "%{chronicle_id}"
-  data_access_scope_id = "tf-test-scope-id%{random_suffix}"
-  description = "tf-test-scope-description%{random_suffix}"
+  data_access_scope_id = "%{data_access_scope_id}"
+  description = "%{description}"
   allowed_data_access_labels {
     data_access_label = resource.google_chronicle_data_access_label.custom_data_access_label.data_access_label_id
   }
@@ -143,9 +152,13 @@ resource "google_chronicle_data_access_scope" "example" {
 func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithAssetNamespaceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"chronicle_id":         envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"data_access_scope_id": "tf-test-scope-id" + randomSuffix,
+		"description":          "tf-test-scope-description" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -171,8 +184,8 @@ func testAccChronicleDataAccessScope_chronicleDataaccessscopeWithAssetNamespaceE
 resource "google_chronicle_data_access_scope" "example" {
   location = "us"
   instance = "%{chronicle_id}"
-  data_access_scope_id = "tf-test-scope-id%{random_suffix}"
-  description = "tf-test-scope-description%{random_suffix}"
+  data_access_scope_id = "%{data_access_scope_id}"
+  description = "%{description}"
   allowed_data_access_labels {
     asset_namespace = "my-namespace"
   }
@@ -183,9 +196,13 @@ resource "google_chronicle_data_access_scope" "example" {
 func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithIngestionLabelExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"chronicle_id":         envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"data_access_scope_id": "tf-test-scope-id" + randomSuffix,
+		"description":          "tf-test-scope-description" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -211,8 +228,8 @@ func testAccChronicleDataAccessScope_chronicleDataaccessscopeWithIngestionLabelE
 resource "google_chronicle_data_access_scope" "example" {
   location = "us"
   instance = "%{chronicle_id}"
-  data_access_scope_id = "tf-test-scope-id%{random_suffix}"
-  description = "tf-test-scope-description%{random_suffix}"
+  data_access_scope_id = "%{data_access_scope_id}"
+  description = "%{description}"
   allowed_data_access_labels {
     ingestion_label {
 	  ingestion_label_key = "ingestion_key"
@@ -226,9 +243,14 @@ resource "google_chronicle_data_access_scope" "example" {
 func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithDeniedLabelsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"chronicle_id":         envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"data_access_label_id": "tf-test-label-id" + randomSuffix,
+		"data_access_scope_id": "tf-test-scope-id" + randomSuffix,
+		"description":          "tf-test-scope-description" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -254,15 +276,15 @@ func testAccChronicleDataAccessScope_chronicleDataaccessscopeWithDeniedLabelsExa
 resource "google_chronicle_data_access_label" "custom_data_access_label" {
   location = "us"
   instance = "%{chronicle_id}"
-  data_access_label_id = "tf-test-label-id%{random_suffix}"
+  data_access_label_id = "%{data_access_label_id}"
   udm_query = "principal.hostname=\"google.com\""
 }
 
 resource "google_chronicle_data_access_scope" "example" {
   location = "us"
   instance = "%{chronicle_id}"
-  data_access_scope_id = "tf-test-scope-id%{random_suffix}"
-  description = "tf-test-scope-description%{random_suffix}"
+  data_access_scope_id = "%{data_access_scope_id}"
+  description = "%{description}"
   allow_all = true
   denied_data_access_labels {
     log_type = "GCP_CLOUDAUDIT"

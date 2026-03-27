@@ -42,9 +42,12 @@ var (
 func TestAccCloudRunV2WorkerPoolIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"random_suffix":              randomSuffix,
+		"role":                       "roles/viewer",
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,9 +80,12 @@ func TestAccCloudRunV2WorkerPoolIamBindingGenerated(t *testing.T) {
 func TestAccCloudRunV2WorkerPoolIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"random_suffix":              randomSuffix,
+		"role":                       "roles/viewer",
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -103,9 +109,12 @@ func TestAccCloudRunV2WorkerPoolIamMemberGenerated(t *testing.T) {
 func TestAccCloudRunV2WorkerPoolIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"random_suffix":              randomSuffix,
+		"role":                       "roles/viewer",
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +147,7 @@ func TestAccCloudRunV2WorkerPoolIamPolicyGenerated(t *testing.T) {
 func testAccCloudRunV2WorkerPoolIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -163,7 +172,7 @@ resource "google_cloud_run_v2_worker_pool_iam_member" "foo" {
 func testAccCloudRunV2WorkerPoolIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -203,7 +212,7 @@ data "google_cloud_run_v2_worker_pool_iam_policy" "foo" {
 func testAccCloudRunV2WorkerPoolIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -230,7 +239,7 @@ resource "google_cloud_run_v2_worker_pool_iam_policy" "foo" {
 func testAccCloudRunV2WorkerPoolIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -255,7 +264,7 @@ resource "google_cloud_run_v2_worker_pool_iam_binding" "foo" {
 func testAccCloudRunV2WorkerPoolIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"

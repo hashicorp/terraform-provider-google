@@ -53,9 +53,14 @@ var (
 func TestAccLustreInstance_lustreInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "default-vpc"),
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":    "tf-test-my-ip-address-name" + randomSuffix,
+		"name":            "tf-test-my-instance" + randomSuffix,
+		"network_name":    acctest.BootstrapSharedServiceNetworkingConnection(t, "default-vpc"),
+		"subnetwork_name": "tf-test-my-subnetwork" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +84,7 @@ func TestAccLustreInstance_lustreInstanceBasicExample(t *testing.T) {
 func testAccLustreInstance_lustreInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
-  instance_id                 = "tf-test-my-instance%{random_suffix}"
+  instance_id                 = "%{name}"
   location                    = "us-central1-a"
   description                 = "test lustre instance"
   filesystem                  = "testfs"

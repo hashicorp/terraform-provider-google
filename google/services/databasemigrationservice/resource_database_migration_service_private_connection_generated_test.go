@@ -53,8 +53,13 @@ var (
 func TestAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePrivateConnectionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"create_without_validation": "false" + randomSuffix,
+		"network_name":              "tf-test-my-network" + randomSuffix,
+		"private_connection_id":     "tf-test-my-connection" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +85,7 @@ func testAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePr
 resource "google_database_migration_service_private_connection" "default" {
 	display_name          = "dbms_pc"
 	location              = "us-central1"
-	private_connection_id = "tf-test-my-connection%{random_suffix}"
+	private_connection_id = "%{private_connection_id}"
 
 	labels = {
 		key = "value"
@@ -95,7 +100,7 @@ resource "google_database_migration_service_private_connection" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name = "tf-test-my-network%{random_suffix}"
+  name = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)

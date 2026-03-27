@@ -53,8 +53,11 @@ var (
 func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-origin" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicEx
 func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_edge_cache_origin" "default" {
-  name                 = "tf-test-my-origin%{random_suffix}"
+  name                 = "%{resource_name}"
   origin_address       = "gs://media-edge-default"
   description          = "The default bucket for media edge test"
 }
@@ -88,8 +91,12 @@ resource "google_network_services_edge_cache_origin" "default" {
 func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvancedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name":   "tf-test-my-origin" + randomSuffix,
+		"resource_name_2": "tf-test-my-fallback" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -113,7 +120,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvance
 func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvancedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_edge_cache_origin" "fallback" {
-  name                 = "tf-test-my-fallback%{random_suffix}"
+  name                 = "%{resource_name_2}"
   origin_address       = "fallback.example.com"
   description          = "The default bucket for media edge test"
   max_attempts         = 3
@@ -156,7 +163,7 @@ resource "google_network_services_edge_cache_origin" "fallback" {
 }
 
 resource "google_network_services_edge_cache_origin" "default" {
-  name                 = "tf-test-my-origin%{random_suffix}"
+  name                 = "%{resource_name}"
   origin_address       = "gs://media-edge-default"
   failover_origin      = google_network_services_edge_cache_origin.fallback.id
   description          = "The default bucket for media edge test"
@@ -175,8 +182,12 @@ resource "google_network_services_edge_cache_origin" "default" {
 func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-origin" + randomSuffix,
+		"secret_name":   "tf-test-secret-name" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -200,7 +211,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authE
 func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "tf-test-secret-name%{random_suffix}"
+  secret_id = "%{secret_name}"
 
   replication {
     auto {}
@@ -214,7 +225,7 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
 }
 
 resource "google_network_services_edge_cache_origin" "default" {
-  name           = "tf-test-my-origin%{random_suffix}"
+  name           = "%{resource_name}"
   origin_address = "gs://media-edge-default"
   description    = "The default bucket for V4 authentication"
   aws_v4_authentication {

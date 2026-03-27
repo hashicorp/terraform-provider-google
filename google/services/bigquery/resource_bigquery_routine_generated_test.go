@@ -53,8 +53,12 @@ var (
 func TestAccBigQueryRoutine_bigqueryRoutineBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"routine_id":    "tf_test_routine_id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,12 +81,12 @@ func TestAccBigQueryRoutine_bigqueryRoutineBasicExample(t *testing.T) {
 func testAccBigQueryRoutine_bigqueryRoutineBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "tf_test_dataset_id%{random_suffix}"
+	dataset_id = "%{dataset_id}"
 }
 
 resource "google_bigquery_routine" "sproc" {
   dataset_id = google_bigquery_dataset.test.dataset_id
-  routine_id     = "tf_test_routine_id%{random_suffix}"
+  routine_id     = "%{routine_id}"
   routine_type = "PROCEDURE"
   language = "SQL"
   security_mode = "INVOKER"
@@ -94,8 +98,12 @@ resource "google_bigquery_routine" "sproc" {
 func TestAccBigQueryRoutine_bigqueryRoutineJsonExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"routine_id":    "tf_test_routine_id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -118,12 +126,12 @@ func TestAccBigQueryRoutine_bigqueryRoutineJsonExample(t *testing.T) {
 func testAccBigQueryRoutine_bigqueryRoutineJsonExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "tf_test_dataset_id%{random_suffix}"
+	dataset_id = "%{dataset_id}"
 }
 
 resource "google_bigquery_routine" "sproc" {
   dataset_id = google_bigquery_dataset.test.dataset_id
-  routine_id     = "tf_test_routine_id%{random_suffix}"
+  routine_id     = "%{routine_id}"
   routine_type = "SCALAR_FUNCTION"
   language = "JAVASCRIPT"
   definition_body = "CREATE FUNCTION multiplyInputs return x*y;"
@@ -144,8 +152,12 @@ resource "google_bigquery_routine" "sproc" {
 func TestAccBigQueryRoutine_bigqueryRoutineTvfExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"routine_id":    "tf_test_routine_id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -168,12 +180,12 @@ func TestAccBigQueryRoutine_bigqueryRoutineTvfExample(t *testing.T) {
 func testAccBigQueryRoutine_bigqueryRoutineTvfExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "tf_test_dataset_id%{random_suffix}"
+	dataset_id = "%{dataset_id}"
 }
 
 resource "google_bigquery_routine" "sproc" {
   dataset_id      = google_bigquery_dataset.test.dataset_id
-  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_id      = "%{routine_id}"
   routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
   definition_body = <<-EOS
@@ -194,8 +206,13 @@ resource "google_bigquery_routine" "sproc" {
 func TestAccBigQueryRoutine_bigqueryRoutinePysparkExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_id": "tf_test_connection_id" + randomSuffix,
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"routine_id":    "tf_test_routine_id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -218,18 +235,18 @@ func TestAccBigQueryRoutine_bigqueryRoutinePysparkExample(t *testing.T) {
 func testAccBigQueryRoutine_bigqueryRoutinePysparkExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
-  dataset_id = "tf_test_dataset_id%{random_suffix}"
+  dataset_id = "%{dataset_id}"
 }
 
 resource "google_bigquery_connection" "test" {
-  connection_id = "tf_test_connection_id%{random_suffix}"
+  connection_id = "%{connection_id}"
   location      = "US"
   spark { }
 }
 
 resource "google_bigquery_routine" "pyspark" {
   dataset_id      = google_bigquery_dataset.test.dataset_id
-  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_id      = "%{routine_id}"
   routine_type    = "PROCEDURE"
   language        = "PYTHON"
   definition_body = <<-EOS
@@ -264,8 +281,13 @@ resource "google_bigquery_routine" "pyspark" {
 func TestAccBigQueryRoutine_bigqueryRoutinePysparkMainfileExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_id": "tf_test_connection_id" + randomSuffix,
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"routine_id":    "tf_test_routine_id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -288,18 +310,18 @@ func TestAccBigQueryRoutine_bigqueryRoutinePysparkMainfileExample(t *testing.T) 
 func testAccBigQueryRoutine_bigqueryRoutinePysparkMainfileExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
-  dataset_id = "tf_test_dataset_id%{random_suffix}"
+  dataset_id = "%{dataset_id}"
 }
 
 resource "google_bigquery_connection" "test" {
-  connection_id = "tf_test_connection_id%{random_suffix}"
+  connection_id = "%{connection_id}"
   location      = "US"
   spark { }
 }
 
 resource "google_bigquery_routine" "pyspark_mainfile" {
   dataset_id      = google_bigquery_dataset.test.dataset_id
-  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_id      = "%{routine_id}"
   routine_type    = "PROCEDURE"
   language        = "PYTHON"
   definition_body = ""
@@ -318,8 +340,13 @@ resource "google_bigquery_routine" "pyspark_mainfile" {
 func TestAccBigQueryRoutine_bigqueryRoutineSparkJarExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_id": "tf_test_connection_id" + randomSuffix,
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"routine_id":    "tf_test_routine_id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -342,18 +369,18 @@ func TestAccBigQueryRoutine_bigqueryRoutineSparkJarExample(t *testing.T) {
 func testAccBigQueryRoutine_bigqueryRoutineSparkJarExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
-  dataset_id = "tf_test_dataset_id%{random_suffix}"
+  dataset_id = "%{dataset_id}"
 }
 
 resource "google_bigquery_connection" "test" {
-  connection_id = "tf_test_connection_id%{random_suffix}"
+  connection_id = "%{connection_id}"
   location      = "US"
   spark { }
 }
 
 resource "google_bigquery_routine" "spark_jar" {
   dataset_id      = google_bigquery_dataset.test.dataset_id
-  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_id      = "%{routine_id}"
   routine_type    = "PROCEDURE"
   language        = "SCALA"
   definition_body = ""
@@ -375,8 +402,12 @@ resource "google_bigquery_routine" "spark_jar" {
 func TestAccBigQueryRoutine_bigqueryRoutineDataGovernanceTypeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"routine_id":    "tf_test_routine_id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

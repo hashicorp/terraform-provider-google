@@ -28,8 +28,10 @@ func TestAccAlloydbInstance_update(t *testing.T) {
 
 	random_suffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
-		"random_suffix": random_suffix,
+		"network_name":          acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
+		"random_suffix":         random_suffix,
+		"alloydb_cluster_name":  "tf-test-alloydb-cluster" + random_suffix,
+		"alloydb_instance_name": "tf-test-alloydb-instance" + random_suffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -177,8 +179,10 @@ func TestAccAlloydbInstance_stopstart(t *testing.T) {
 	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1")
 
 	context := map[string]interface{}{
-		"random_suffix": suffix,
-		"network_name":  networkName,
+		"random_suffix":         suffix,
+		"network_name":          networkName,
+		"alloydb_cluster_name":  "tf-test-alloydb-cluster" + suffix,
+		"alloydb_instance_name": "tf-test-alloydb-instance" + suffix,
 	}
 
 	contextStop := map[string]interface{}{
@@ -597,16 +601,20 @@ func TestAccAlloydbInstance_clientConnectionConfig(t *testing.T) {
 	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1")
 
 	context := map[string]interface{}{
-		"random_suffix":      suffix,
-		"network_name":       networkName,
-		"require_connectors": true,
-		"ssl_mode":           "ENCRYPTED_ONLY",
+		"random_suffix":         suffix,
+		"network_name":          networkName,
+		"require_connectors":    true,
+		"ssl_mode":              "ENCRYPTED_ONLY",
+		"alloydb_cluster_name":  "tf-test-alloydb-cluster" + suffix,
+		"alloydb_instance_name": "tf-test-alloydb-instance" + suffix,
 	}
 	context2 := map[string]interface{}{
-		"random_suffix":      suffix,
-		"network_name":       networkName,
-		"require_connectors": false,
-		"ssl_mode":           "ALLOW_UNENCRYPTED_AND_ENCRYPTED",
+		"random_suffix":         suffix,
+		"network_name":          networkName,
+		"require_connectors":    false,
+		"ssl_mode":              "ALLOW_UNENCRYPTED_AND_ENCRYPTED",
+		"alloydb_cluster_name":  "tf-test-alloydb-cluster" + suffix,
+		"alloydb_instance_name": "tf-test-alloydb-instance" + suffix,
 	}
 	context3 := map[string]interface{}{
 		"random_suffix":      suffix,

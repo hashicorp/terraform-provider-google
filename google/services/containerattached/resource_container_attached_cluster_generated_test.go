@@ -53,8 +53,11 @@ var (
 func TestAccContainerAttachedCluster_containerAttachedClusterBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -86,7 +89,7 @@ data "google_container_attached_versions" "versions" {
 }
 
 resource "google_container_attached_cluster" "primary" {
-  name     = "basic%{random_suffix}"
+  name     = "%{name}"
   location = "us-west1"
   project = data.google_project.project.project_id
   description = "Test cluster"
@@ -105,8 +108,11 @@ resource "google_container_attached_cluster" "primary" {
 func TestAccContainerAttachedCluster_containerAttachedClusterFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +144,7 @@ data "google_container_attached_versions" "versions" {
 }
 
 resource "google_container_attached_cluster" "primary" {
-  name     = "basic%{random_suffix}"
+  name     = "%{name}"
   project = data.google_project.project.project_id
   location = "us-west1"
   description = "Test cluster"
@@ -184,8 +190,11 @@ resource "google_container_attached_cluster" "primary" {
 func TestAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -217,7 +226,7 @@ data "google_container_attached_versions" "versions" {
 }
 
 resource "google_container_attached_cluster" "primary" {
-  name     = "basic%{random_suffix}"
+  name     = "%{name}"
   location = "us-west1"
   project = data.google_project.project.project_id
   description = "Test cluster"

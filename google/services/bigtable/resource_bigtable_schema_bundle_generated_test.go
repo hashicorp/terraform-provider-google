@@ -54,8 +54,13 @@ func TestAccBigtableSchemaBundle_bigtableSchemaBundleExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name":      "tf-test-bt-instance" + randomSuffix,
+		"schema_bundle_name": "tf-test-bt-schema-bundle" + randomSuffix,
+		"table_name":         "tf-test-bt-table" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +84,7 @@ func TestAccBigtableSchemaBundle_bigtableSchemaBundleExample(t *testing.T) {
 func testAccBigtableSchemaBundle_bigtableSchemaBundleExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigtable_instance" "instance" {
-  name = "tf-test-bt-instance%{random_suffix}"
+  name = "%{instance_name}"
   cluster {
     cluster_id   = "cluster-1"
     zone         = "us-east1-b"
@@ -91,7 +96,7 @@ resource "google_bigtable_instance" "instance" {
 }
 
 resource "google_bigtable_table" "table" {
-  name          = "tf-test-bt-table%{random_suffix}"
+  name          = "%{table_name}"
   instance_name = google_bigtable_instance.instance.name
 
   column_family {
@@ -100,7 +105,7 @@ resource "google_bigtable_table" "table" {
 }
 
 resource "google_bigtable_schema_bundle" "schema_bundle" {
-  schema_bundle_id = "tf-test-bt-schema-bundle%{random_suffix}"
+  schema_bundle_id = "%{schema_bundle_name}"
   instance         = google_bigtable_instance.instance.name
   table            = google_bigtable_table.table.name
 

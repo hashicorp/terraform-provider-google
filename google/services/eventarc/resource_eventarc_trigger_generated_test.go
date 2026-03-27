@@ -53,8 +53,13 @@ var (
 func TestAccEventarcTrigger_eventarcTriggerWithCloudRunDestinationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"service_name":  "tf-test-some-service" + randomSuffix,
+		"topic_name":    "tf-test-some-topic" + randomSuffix,
+		"trigger_name":  "tf-test-some-trigger" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccEventarcTrigger_eventarcTriggerWithCloudRunDestinationExample(t *tes
 func testAccEventarcTrigger_eventarcTriggerWithCloudRunDestinationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_eventarc_trigger" "primary" {
-  name     = "tf-test-some-trigger%{random_suffix}"
+  name     = "%{trigger_name}"
   location = "us-central1"
   matching_criteria {
     attribute = "type"
@@ -104,11 +109,11 @@ resource "google_eventarc_trigger" "primary" {
 }
 
 resource "google_pubsub_topic" "foo" {
-  name = "tf-test-some-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-some-service%{random_suffix}"
+  name     = "%{service_name}"
   location = "us-central1"
 
   template {
@@ -135,11 +140,14 @@ resource "google_cloud_run_service" "default" {
 func TestAccEventarcTrigger_eventarcTriggerWithHttpDestinationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"service_account":         envvar.GetTestServiceAccountFromEnv(t),
 		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-trigger-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-trigger-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-trigger-network"))),
-		"random_suffix":           acctest.RandString(t, 10),
+		"trigger_name":            "tf-test-some-trigger" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -163,7 +171,7 @@ func TestAccEventarcTrigger_eventarcTriggerWithHttpDestinationExample(t *testing
 func testAccEventarcTrigger_eventarcTriggerWithHttpDestinationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_eventarc_trigger" "primary" {
-  name     = "tf-test-some-trigger%{random_suffix}"
+  name     = "%{trigger_name}"
   location = "us-central1"
   matching_criteria {
     attribute = "type"
@@ -191,11 +199,16 @@ func TestAccEventarcTrigger_eventarcTriggerWithChannelCmekExample(t *testing.T) 
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":      envvar.GetTestProjectFromEnv(),
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
+		"channel_name":    "tf-test-some-channel" + randomSuffix,
 		"key_name":        acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-trigger-key").CryptoKey.Name,
-		"random_suffix":   acctest.RandString(t, 10),
+		"service_name":    "tf-test-some-service" + randomSuffix,
+		"trigger_name":    "tf-test-some-trigger" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -220,13 +233,13 @@ func testAccEventarcTrigger_eventarcTriggerWithChannelCmekExample(context map[st
 	return acctest.Nprintf(`
 resource "google_eventarc_channel" "test_channel" {
   location             = "us-central1"
-  name                 = "tf-test-some-channel%{random_suffix}"
+  name                 = "%{channel_name}"
   crypto_key_name      = "%{key_name}"
   third_party_provider = "projects/%{project_id}/locations/us-central1/providers/datadog"
 }
 
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-some-service%{random_suffix}"
+  name     = "%{service_name}"
   location = "us-central1"
 
   template {
@@ -249,7 +262,7 @@ resource "google_cloud_run_service" "default" {
 }
 
 resource "google_eventarc_trigger" "primary" {
-  name     = "tf-test-some-trigger%{random_suffix}"
+  name     = "%{trigger_name}"
   location = "us-central1"
   matching_criteria {
     attribute = "type"
@@ -270,9 +283,13 @@ resource "google_eventarc_trigger" "primary" {
 func TestAccEventarcTrigger_eventarcTriggerWithWorkflowDestinationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"trigger_name":    "tf-test-some-trigger" + randomSuffix,
+		"workflow_name":   "tf-test-some-workflow" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -296,7 +313,7 @@ func TestAccEventarcTrigger_eventarcTriggerWithWorkflowDestinationExample(t *tes
 func testAccEventarcTrigger_eventarcTriggerWithWorkflowDestinationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_eventarc_trigger" "primary" {
-  name     = "tf-test-some-trigger%{random_suffix}"
+  name     = "%{trigger_name}"
   location = "us-central1"
   matching_criteria {
     attribute = "type"
@@ -309,7 +326,7 @@ resource "google_eventarc_trigger" "primary" {
 }
 
 resource "google_workflows_workflow" "workflow" {
-  name                = "tf-test-some-workflow%{random_suffix}"
+  name                = "%{workflow_name}"
   deletion_protection = false
   region              = "us-central1"
   source_contents     = <<-EOF
@@ -346,8 +363,13 @@ EOF
 func TestAccEventarcTrigger_eventarcTriggerWithPathPatternFilterExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"service_account_id": "tf-test-trigger-sa" + randomSuffix,
+		"service_name":       "tf-test-some-service" + randomSuffix,
+		"trigger_name":       "tf-test-some-trigger" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -371,7 +393,7 @@ func TestAccEventarcTrigger_eventarcTriggerWithPathPatternFilterExample(t *testi
 func testAccEventarcTrigger_eventarcTriggerWithPathPatternFilterExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_eventarc_trigger" "primary" {
-  name     = "tf-test-some-trigger%{random_suffix}"
+  name     = "%{trigger_name}"
   location = "us-central1"
   matching_criteria {
     attribute = "type"
@@ -397,7 +419,7 @@ resource "google_eventarc_trigger" "primary" {
 }
 
 resource "google_service_account" "trigger_service_account" {
-  account_id = "tf-test-trigger-sa%{random_suffix}"
+  account_id = "%{service_account_id}"
 }
 
 resource "google_project_iam_member" "event_receiver" {
@@ -407,7 +429,7 @@ resource "google_project_iam_member" "event_receiver" {
 }
 
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-some-service%{random_suffix}"
+  name     = "%{service_name}"
   location = "us-central1"
 
   template {
@@ -434,9 +456,15 @@ resource "google_cloud_run_service" "default" {
 func TestAccEventarcTrigger_eventarcTriggerWithFirestoreSourceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":         envvar.GetTestProjectFromEnv(),
+		"database_id":        "tf-test-some-database" + randomSuffix,
+		"service_account_id": "tf-test-trigger-sa" + randomSuffix,
+		"service_name":       "tf-test-some-service" + randomSuffix,
+		"trigger_name":       "tf-test-some-trigger" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -461,7 +489,7 @@ func testAccEventarcTrigger_eventarcTriggerWithFirestoreSourceExample(context ma
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-some-database%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "us-central1"
   type        = "FIRESTORE_NATIVE"
 
@@ -470,7 +498,7 @@ resource "google_firestore_database" "database" {
 }
 
 resource "google_eventarc_trigger" "primary" {
-  name     = "tf-test-some-trigger%{random_suffix}"
+  name     = "%{trigger_name}"
   location = "us-central1"
   matching_criteria {
     attribute = "type"
@@ -492,7 +520,7 @@ resource "google_eventarc_trigger" "primary" {
 }
 
 resource "google_service_account" "trigger_service_account" {
-  account_id = "tf-test-trigger-sa%{random_suffix}"
+  account_id = "%{service_account_id}"
 }
 
 resource "google_project_iam_member" "event_receiver" {
@@ -502,7 +530,7 @@ resource "google_project_iam_member" "event_receiver" {
 }
 
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-some-service%{random_suffix}"
+  name     = "%{service_name}"
   location = "us-central1"
 
   template {

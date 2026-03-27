@@ -53,8 +53,12 @@ var (
 func TestAccBackupDRBackupPlan_backupDrBackupPlanSimpleExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backup_plan_id":  "tf-test-backup-plan-simple-test" + randomSuffix,
+		"backup_vault_id": "tf-test-backup-vault-simple-test" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,13 +83,13 @@ func testAccBackupDRBackupPlan_backupDrBackupPlanSimpleExample(context map[strin
 	return acctest.Nprintf(`
 resource "google_backup_dr_backup_vault" "my_backup_vault" {
   location                                      = "us-central1"
-  backup_vault_id                               = "tf-test-backup-vault-simple-test%{random_suffix}"
+  backup_vault_id                               = "%{backup_vault_id}"
   backup_minimum_enforced_retention_duration    = "100000s"
 }
 
 resource "google_backup_dr_backup_plan" "my-backup-plan-1" {
   location       = "us-central1"
-  backup_plan_id = "tf-test-backup-plan-simple-test%{random_suffix}"
+  backup_plan_id = "%{backup_plan_id}"
   resource_type  = "compute.googleapis.com/Instance"
   backup_vault   = google_backup_dr_backup_vault.my_backup_vault.id
   max_custom_on_demand_retention_days = 30
@@ -112,8 +116,12 @@ resource "google_backup_dr_backup_plan" "my-backup-plan-1" {
 func TestAccBackupDRBackupPlan_backupDrBackupPlanForDiskResourceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backup_plan_id":  "tf-test-backup-plan-disk-test" + randomSuffix,
+		"backup_vault_id": "tf-test-backup-vault-disk-test" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,13 +146,13 @@ func testAccBackupDRBackupPlan_backupDrBackupPlanForDiskResourceExample(context 
 	return acctest.Nprintf(`
 resource "google_backup_dr_backup_vault" "my_backup_vault" {
   location                                      = "us-central1"
-  backup_vault_id                               = "tf-test-backup-vault-disk-test%{random_suffix}"
+  backup_vault_id                               = "%{backup_vault_id}"
   backup_minimum_enforced_retention_duration    = "100000s"
 }
 
 resource "google_backup_dr_backup_plan" "my-disk-backup-plan-1" {
   location       = "us-central1"
-  backup_plan_id = "tf-test-backup-plan-disk-test%{random_suffix}"
+  backup_plan_id = "%{backup_plan_id}"
   resource_type  = "compute.googleapis.com/Disk"
   backup_vault   = google_backup_dr_backup_vault.my_backup_vault.id
   max_custom_on_demand_retention_days = 30
@@ -174,8 +182,12 @@ resource "google_backup_dr_backup_plan" "my-disk-backup-plan-1" {
 func TestAccBackupDRBackupPlan_backupDrBackupPlanForCsqlResourceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backup_plan_id":  "tf-test-backup-plan-csql-test" + randomSuffix,
+		"backup_vault_id": "tf-test-backup-vault-csql-test" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -200,13 +212,13 @@ func testAccBackupDRBackupPlan_backupDrBackupPlanForCsqlResourceExample(context 
 	return acctest.Nprintf(`
 resource "google_backup_dr_backup_vault" "my_backup_vault" {
   location                                      = "us-central1"
-  backup_vault_id                               = "tf-test-backup-vault-csql-test%{random_suffix}"
+  backup_vault_id                               = "%{backup_vault_id}"
   backup_minimum_enforced_retention_duration    = "100000s"
 }
 
 resource "google_backup_dr_backup_plan" "my-csql-backup-plan-1" {
   location       = "us-central1"
-  backup_plan_id = "tf-test-backup-plan-csql-test%{random_suffix}"
+  backup_plan_id = "%{backup_plan_id}"
   resource_type  = "sqladmin.googleapis.com/Instance"
   backup_vault   = google_backup_dr_backup_vault.my_backup_vault.id
 
@@ -233,8 +245,12 @@ resource "google_backup_dr_backup_plan" "my-csql-backup-plan-1" {
 func TestAccBackupDRBackupPlan_backupDrBackupPlanForFilestoreResourceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backup_plan_id":  "tf-test-backup-plan-filestore-test" + randomSuffix,
+		"backup_vault_id": "tf-test-backup-vault-filestore-test" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -259,13 +275,13 @@ func testAccBackupDRBackupPlan_backupDrBackupPlanForFilestoreResourceExample(con
 	return acctest.Nprintf(`
 resource "google_backup_dr_backup_vault" "my_backup_vault" {
   location = "us-central1"
-  backup_vault_id = "tf-test-backup-vault-filestore-test%{random_suffix}"
+  backup_vault_id = "%{backup_vault_id}"
   backup_minimum_enforced_retention_duration = "100000s"
 }
 
 resource "google_backup_dr_backup_plan" "my-filestore-backup-plan-1" {
   location = "us-central1"
-  backup_plan_id = "tf-test-backup-plan-filestore-test%{random_suffix}"
+  backup_plan_id = "%{backup_plan_id}"
   resource_type = "file.googleapis.com/Instance"
   backup_vault = google_backup_dr_backup_vault.my_backup_vault.id
 

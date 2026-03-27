@@ -42,9 +42,12 @@ var (
 func TestAccContainerAnalysisNoteIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/containeranalysis.notes.occurrences.viewer",
+		"note_name":     "tf-test-attestor-note" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,9 +80,12 @@ func TestAccContainerAnalysisNoteIamBindingGenerated(t *testing.T) {
 func TestAccContainerAnalysisNoteIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/containeranalysis.notes.occurrences.viewer",
+		"note_name":     "tf-test-attestor-note" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -103,9 +109,12 @@ func TestAccContainerAnalysisNoteIamMemberGenerated(t *testing.T) {
 func TestAccContainerAnalysisNoteIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/containeranalysis.notes.occurrences.viewer",
+		"note_name":     "tf-test-attestor-note" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +147,7 @@ func TestAccContainerAnalysisNoteIamPolicyGenerated(t *testing.T) {
 func testAccContainerAnalysisNoteIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
-  name = "tf-test-attestor-note%{random_suffix}"
+  name = "%{note_name}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -158,7 +167,7 @@ resource "google_container_analysis_note_iam_member" "foo" {
 func testAccContainerAnalysisNoteIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
-  name = "tf-test-attestor-note%{random_suffix}"
+  name = "%{note_name}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -192,7 +201,7 @@ data "google_container_analysis_note_iam_policy" "foo" {
 func testAccContainerAnalysisNoteIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
-  name = "tf-test-attestor-note%{random_suffix}"
+  name = "%{note_name}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -214,7 +223,7 @@ resource "google_container_analysis_note_iam_policy" "foo" {
 func testAccContainerAnalysisNoteIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
-  name = "tf-test-attestor-note%{random_suffix}"
+  name = "%{note_name}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -234,7 +243,7 @@ resource "google_container_analysis_note_iam_binding" "foo" {
 func testAccContainerAnalysisNoteIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
-  name = "tf-test-attestor-note%{random_suffix}"
+  name = "%{note_name}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"

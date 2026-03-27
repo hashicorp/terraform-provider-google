@@ -53,8 +53,13 @@ var (
 func TestAccComputeInterconnectAttachment_interconnectAttachmentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"interconnect_attachment_name": "tf-test-on-prem-attachment" + randomSuffix,
+		"network_name":                 "tf-test-network-1" + randomSuffix,
+		"router_name":                  "tf-test-router-1" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccComputeInterconnectAttachment_interconnectAttachmentBasicExample(t *
 func testAccComputeInterconnectAttachment_interconnectAttachmentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_interconnect_attachment" "on_prem" {
-  name                     = "tf-test-on-prem-attachment%{random_suffix}"
+  name                     = "%{interconnect_attachment_name}"
   edge_availability_domain = "AVAILABILITY_DOMAIN_1"
   type                     = "PARTNER"
   router                   = google_compute_router.foobar.id
@@ -87,7 +92,7 @@ resource "google_compute_interconnect_attachment" "on_prem" {
 }
 
 resource "google_compute_router" "foobar" {
-  name    = "tf-test-router-1%{random_suffix}"
+  name    = "%{router_name}"
   network = google_compute_network.foobar.name
   bgp {
     asn = 16550
@@ -95,7 +100,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_network" "foobar" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -104,8 +109,14 @@ resource "google_compute_network" "foobar" {
 func TestAccComputeInterconnectAttachment_interconnectAttachmentDedicatedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"interconnect_attachment_name": "tf-test-on-prem-attachment" + randomSuffix,
+		"interconnect_name":            "tf-test-interconenct-1" + randomSuffix,
+		"network_name":                 "tf-test-network-1" + randomSuffix,
+		"router_name":                  "tf-test-router-1" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -131,7 +142,7 @@ func testAccComputeInterconnectAttachment_interconnectAttachmentDedicatedExample
 data "google_project" "project" {}
 
 resource "google_compute_interconnect" "foobar" {
-  name                 = "tf-test-interconenct-1%{random_suffix}"
+  name                 = "%{interconnect_name}"
   customer_name        = "internal_customer" # Special customer only available for Google testing.
   interconnect_type    = "DEDICATED"
   link_type            = "LINK_TYPE_ETHERNET_10G_LR"
@@ -140,7 +151,7 @@ resource "google_compute_interconnect" "foobar" {
 }
 
 resource "google_compute_interconnect_attachment" "on_prem" {
-  name                     = "tf-test-on-prem-attachment%{random_suffix}"
+  name                     = "%{interconnect_attachment_name}"
   type                     = "DEDICATED"
   interconnect             = google_compute_interconnect.foobar.id
   router                   = google_compute_router.foobar.id
@@ -153,7 +164,7 @@ resource "google_compute_interconnect_attachment" "on_prem" {
 }
 
 resource "google_compute_router" "foobar" {
-  name    = "tf-test-router-1%{random_suffix}"
+  name    = "%{router_name}"
   network = google_compute_network.foobar.name
   region  = "us-east4"
   bgp {
@@ -162,7 +173,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_network" "foobar" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -171,8 +182,14 @@ resource "google_compute_network" "foobar" {
 func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncryptionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":                 "tf-test-test-address" + randomSuffix,
+		"interconnect_attachment_name": "tf-test-test-interconnect-attachment" + randomSuffix,
+		"network_name":                 "tf-test-test-network" + randomSuffix,
+		"router_name":                  "tf-test-test-router" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -196,7 +213,7 @@ func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncr
 func testAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncryptionExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_interconnect_attachment" "ipsec-encrypted-interconnect-attachment" {
-  name                     = "tf-test-test-interconnect-attachment%{random_suffix}"
+  name                     = "%{interconnect_attachment_name}"
   edge_availability_domain = "AVAILABILITY_DOMAIN_1"
   type                     = "PARTNER"
   router                   = google_compute_router.router.id
@@ -207,7 +224,7 @@ resource "google_compute_interconnect_attachment" "ipsec-encrypted-interconnect-
 }
 
 resource "google_compute_address" "address" {
-  name          = "tf-test-test-address%{random_suffix}"
+  name          = "%{address_name}"
   address_type  = "INTERNAL"
   purpose       = "IPSEC_INTERCONNECT"
   address       = "192.168.1.0"
@@ -216,7 +233,7 @@ resource "google_compute_address" "address" {
 }
 
 resource "google_compute_router" "router" {
-  name                          = "tf-test-test-router%{random_suffix}"
+  name                          = "%{router_name}"
   network                       = google_compute_network.network.name
   encrypted_interconnect_router = true
   bgp {
@@ -225,7 +242,7 @@ resource "google_compute_router" "router" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "tf-test-test-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -234,8 +251,13 @@ resource "google_compute_network" "network" {
 func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentCustomRangesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"interconnect_attachment_name": "tf-test-test-custom-ranges-interconnect-attachment" + randomSuffix,
+		"network_name":                 "tf-test-test-network" + randomSuffix,
+		"router_name":                  "tf-test-test-router" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -259,7 +281,7 @@ func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentCustomRan
 func testAccComputeInterconnectAttachment_computeInterconnectAttachmentCustomRangesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_interconnect_attachment" "custom-ranges-interconnect-attachment" {
-  name                                   = "tf-test-test-custom-ranges-interconnect-attachment%{random_suffix}"
+  name                                   = "%{interconnect_attachment_name}"
   edge_availability_domain               = "AVAILABILITY_DOMAIN_1"
   type                                   = "PARTNER"
   router                                 = google_compute_router.foobar.id
@@ -273,7 +295,7 @@ resource "google_compute_interconnect_attachment" "custom-ranges-interconnect-at
 }
 
 resource "google_compute_router" "foobar" {
-  name     = "tf-test-test-router%{random_suffix}"
+  name     = "%{router_name}"
   network  = google_compute_network.foobar.name
   bgp {
     asn = 16550
@@ -281,7 +303,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_network" "foobar" {
-  name                    = "tf-test-test-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)

@@ -42,12 +42,15 @@ var (
 func TestAccGKEBackupRestorePlanIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
 		"deletion_protection": false,
+		"name":                "tf-test-restore-all-ns" + randomSuffix,
 		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
@@ -82,12 +85,15 @@ func TestAccGKEBackupRestorePlanIamBindingGenerated(t *testing.T) {
 func TestAccGKEBackupRestorePlanIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
 		"deletion_protection": false,
+		"name":                "tf-test-restore-all-ns" + randomSuffix,
 		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
@@ -113,12 +119,15 @@ func TestAccGKEBackupRestorePlanIamMemberGenerated(t *testing.T) {
 func TestAccGKEBackupRestorePlanIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
 		"deletion_protection": false,
+		"name":                "tf-test-restore-all-ns" + randomSuffix,
 		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
@@ -153,7 +162,7 @@ func TestAccGKEBackupRestorePlanIamPolicyGenerated(t *testing.T) {
 func testAccGKEBackupRestorePlanIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "tf-test-restore-all-ns%{random_suffix}-cluster"
+  name               = "%{name}-cluster"
   location           = "us-central1"
   initial_node_count = 1
   workload_identity_config {
@@ -170,7 +179,7 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
-  name = "tf-test-restore-all-ns%{random_suffix}"
+  name = "%{name}"
   cluster = google_container_cluster.primary.id
   location = "us-central1"
   backup_config {
@@ -181,7 +190,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 }
 
 resource "google_gke_backup_restore_plan" "all_ns" {
-  name = "tf-test-restore-all-ns%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
@@ -209,7 +218,7 @@ resource "google_gke_backup_restore_plan_iam_member" "foo" {
 func testAccGKEBackupRestorePlanIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "tf-test-restore-all-ns%{random_suffix}-cluster"
+  name               = "%{name}-cluster"
   location           = "us-central1"
   initial_node_count = 1
   workload_identity_config {
@@ -226,7 +235,7 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
-  name = "tf-test-restore-all-ns%{random_suffix}"
+  name = "%{name}"
   cluster = google_container_cluster.primary.id
   location = "us-central1"
   backup_config {
@@ -237,7 +246,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 }
 
 resource "google_gke_backup_restore_plan" "all_ns" {
-  name = "tf-test-restore-all-ns%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
@@ -280,7 +289,7 @@ data "google_gke_backup_restore_plan_iam_policy" "foo" {
 func testAccGKEBackupRestorePlanIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "tf-test-restore-all-ns%{random_suffix}-cluster"
+  name               = "%{name}-cluster"
   location           = "us-central1"
   initial_node_count = 1
   workload_identity_config {
@@ -297,7 +306,7 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
-  name = "tf-test-restore-all-ns%{random_suffix}"
+  name = "%{name}"
   cluster = google_container_cluster.primary.id
   location = "us-central1"
   backup_config {
@@ -308,7 +317,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 }
 
 resource "google_gke_backup_restore_plan" "all_ns" {
-  name = "tf-test-restore-all-ns%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
@@ -338,7 +347,7 @@ resource "google_gke_backup_restore_plan_iam_policy" "foo" {
 func testAccGKEBackupRestorePlanIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "tf-test-restore-all-ns%{random_suffix}-cluster"
+  name               = "%{name}-cluster"
   location           = "us-central1"
   initial_node_count = 1
   workload_identity_config {
@@ -355,7 +364,7 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
-  name = "tf-test-restore-all-ns%{random_suffix}"
+  name = "%{name}"
   cluster = google_container_cluster.primary.id
   location = "us-central1"
   backup_config {
@@ -366,7 +375,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 }
 
 resource "google_gke_backup_restore_plan" "all_ns" {
-  name = "tf-test-restore-all-ns%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
@@ -394,7 +403,7 @@ resource "google_gke_backup_restore_plan_iam_binding" "foo" {
 func testAccGKEBackupRestorePlanIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "tf-test-restore-all-ns%{random_suffix}-cluster"
+  name               = "%{name}-cluster"
   location           = "us-central1"
   initial_node_count = 1
   workload_identity_config {
@@ -411,7 +420,7 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
-  name = "tf-test-restore-all-ns%{random_suffix}"
+  name = "%{name}"
   cluster = google_container_cluster.primary.id
   location = "us-central1"
   backup_config {
@@ -422,7 +431,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 }
 
 resource "google_gke_backup_restore_plan" "all_ns" {
-  name = "tf-test-restore-all-ns%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id

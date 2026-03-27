@@ -54,10 +54,16 @@ func TestAccApigeeKeystoresAliasesSelfSignedCert_apigeeEnvKeystoreAliasSelfSigne
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"billing_account":  envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":           envvar.GetTestOrgFromEnv(t),
+		"environment_name": "tf-test-env-name" + randomSuffix,
+		"keystore_name":    "tf-test-env-keystore" + randomSuffix,
+		"keystores_alias":  "alias" + randomSuffix,
+		"project_id":       "tf-test-my-project" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,8 +90,8 @@ func TestAccApigeeKeystoresAliasesSelfSignedCert_apigeeEnvKeystoreAliasSelfSigne
 func testAccApigeeKeystoresAliasesSelfSignedCert_apigeeEnvKeystoreAliasSelfSignedCertExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "project" {
-  project_id      = "tf-test-my-project%{random_suffix}"
-  name            = "tf-test-my-project%{random_suffix}"
+  project_id      = "%{project_id}"
+  name            = "%{project_id}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_account}"
   deletion_policy = "DELETE"
@@ -147,13 +153,13 @@ resource "google_apigee_organization" "apigee_org" {
 
 resource "google_apigee_environment" "apigee_environment_keystore_ss_alias" {
   org_id       = google_apigee_organization.apigee_org.id
-  name         = "tf-test-env-name%{random_suffix}"
+  name         = "%{environment_name}"
   description  = "Apigee Environment"
   display_name = "environment-1"
 }
 
 resource "google_apigee_env_keystore" "apigee_environment_keystore_alias" {
-  name       = "tf-test-env-keystore%{random_suffix}"
+  name       = "%{keystore_name}"
   env_id     = google_apigee_environment.apigee_environment_keystore_ss_alias.id
 }
 
@@ -161,7 +167,7 @@ resource "google_apigee_keystores_aliases_self_signed_cert" "apigee_environment_
   environment			      = google_apigee_environment.apigee_environment_keystore_ss_alias.name
   org_id				        = google_apigee_organization.apigee_org.name
   keystore				      = google_apigee_env_keystore.apigee_environment_keystore_alias.name
-  alias                 = "alias%{random_suffix}"
+  alias                 = "%{keystores_alias}"
   key_size              = 1024
   sig_alg               = "SHA512withRSA"
   cert_validity_in_days = 4

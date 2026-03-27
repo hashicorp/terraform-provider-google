@@ -53,9 +53,13 @@ var (
 func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"deployment_name": "tf-test-example-deployment" + randomSuffix,
+		"framework_name":  "tf-test-example-framework" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +85,7 @@ func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 resource "google_cloud_security_compliance_framework" "example" {
   organization = "%{org_id}"
   location     = "global"
-  framework_id = "tf-test-example-framework%{random_suffix}"
+  framework_id = "%{framework_name}"
   
   display_name = "Terraform Framework Name"
   description  = "An Terraform description for the framework"
@@ -148,7 +152,7 @@ resource "google_cloud_security_compliance_framework" "example" {
 resource "google_cloud_security_compliance_framework_deployment" "example" {
   organization            = "%{org_id}"
   location                = "global"
-  framework_deployment_id = "tf-test-example-deployment%{random_suffix}"
+  framework_deployment_id = "%{deployment_name}"
   description             = "A framework deployment for cloud security compliance"
   
   framework {
@@ -246,9 +250,14 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
 func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentFolderCreationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":              envvar.GetTestOrgFromEnv(t),
+		"deployment_name":     "tf-test-example-deployment-folder" + randomSuffix,
+		"folder_display_name": "tf-test-cm-folder" + randomSuffix,
+		"framework_name":      "tf-test-example-framework-folder" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -274,7 +283,7 @@ func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 resource "google_cloud_security_compliance_framework" "example" {
   organization = "%{org_id}"
   location     = "global"
-  framework_id = "tf-test-example-framework-folder%{random_suffix}"
+  framework_id = "%{framework_name}"
   
   display_name = "Terraform Framework Name"
   description  = "An Terraform description for the framework"
@@ -295,7 +304,7 @@ resource "google_cloud_security_compliance_framework" "example" {
 resource "google_cloud_security_compliance_framework_deployment" "example" {
   organization            = "%{org_id}"
   location                = "global"
-  framework_deployment_id = "tf-test-example-deployment-folder%{random_suffix}"
+  framework_deployment_id = "%{deployment_name}"
   description             = "A framework deployment with folder creation config"
   
   framework {
@@ -306,7 +315,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
   target_resource_config {
     target_resource_creation_config {
       folder_creation_config {
-        folder_display_name = "tf-test-cm-folder%{random_suffix}"
+        folder_display_name = "%{folder_display_name}"
         parent              = "organizations/%{org_id}"
       }
     }
@@ -334,10 +343,15 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
 func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentProjectCreationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"billing_account":      envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":               envvar.GetTestOrgFromEnv(t),
+		"deployment_name":      "tf-test-example-deployment-project" + randomSuffix,
+		"framework_name":       "tf-test-example-framework-project" + randomSuffix,
+		"project_display_name": "tf-test-cm-project" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -363,7 +377,7 @@ func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 resource "google_cloud_security_compliance_framework" "example" {
   organization = "%{org_id}"
   location     = "global"
-  framework_id = "tf-test-example-framework-project%{random_suffix}"
+  framework_id = "%{framework_name}"
   
   display_name = "Terraform Framework Name"
   description  = "An Terraform description for the framework"
@@ -384,7 +398,7 @@ resource "google_cloud_security_compliance_framework" "example" {
 resource "google_cloud_security_compliance_framework_deployment" "example" {
   organization            = "%{org_id}"
   location                = "global"
-  framework_deployment_id = "tf-test-example-deployment-project%{random_suffix}"
+  framework_deployment_id = "%{deployment_name}"
   description             = "A framework deployment with project creation config"
   
   framework {
@@ -397,7 +411,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
       project_creation_config {
         billing_account_id   = "%{billing_account}"
         parent               = "organizations/%{org_id}"
-        project_display_name = "tf-test-cm-project%{random_suffix}"
+        project_display_name = "%{project_display_name}"
       }
     }
   }

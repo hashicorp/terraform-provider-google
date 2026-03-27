@@ -53,8 +53,12 @@ var (
 func TestAccFilestoreSnapshot_filestoreSnapshotBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-test-instance-for-snapshot" + randomSuffix,
+		"snapshot_name": "tf-test-test-snapshot" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +82,13 @@ func TestAccFilestoreSnapshot_filestoreSnapshotBasicExample(t *testing.T) {
 func testAccFilestoreSnapshot_filestoreSnapshotBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_filestore_snapshot" "snapshot" {
-  name     = "tf-test-test-snapshot%{random_suffix}"
+  name     = "%{snapshot_name}"
   instance = google_filestore_instance.instance.name
   location = "us-east1"
 }
 
 resource "google_filestore_instance" "instance" {
-  name     = "tf-test-test-instance-for-snapshot%{random_suffix}"
+  name     = "%{instance_name}"
   location = "us-east1"
   tier     = "ENTERPRISE"
 
@@ -104,8 +108,12 @@ resource "google_filestore_instance" "instance" {
 func TestAccFilestoreSnapshot_filestoreSnapshotFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-test-instance-for-snapshot" + randomSuffix,
+		"snapshot_name": "tf-test-test-snapshot" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -129,11 +137,11 @@ func TestAccFilestoreSnapshot_filestoreSnapshotFullExample(t *testing.T) {
 func testAccFilestoreSnapshot_filestoreSnapshotFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_filestore_snapshot" "snapshot" {
-  name     = "tf-test-test-snapshot%{random_suffix}"
+  name     = "%{snapshot_name}"
   instance = google_filestore_instance.instance.name
   location = "us-west1"
 
-  description = "Snapshot of tf-test-test-instance-for-snapshot%{random_suffix}"
+  description = "Snapshot of %{instance_name}"
 
   labels = {
     my_label = "value"
@@ -141,7 +149,7 @@ resource "google_filestore_snapshot" "snapshot" {
 }
 
 resource "google_filestore_instance" "instance" {
-  name     = "tf-test-test-instance-for-snapshot%{random_suffix}"
+  name     = "%{instance_name}"
   location = "us-west1"
   tier     = "ENTERPRISE"
 

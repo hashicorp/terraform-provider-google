@@ -53,10 +53,14 @@ var (
 func TestAccCloudAssetFolderFeed_cloudAssetFolderFeedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"feed_id":       "tf-test-network-updates" + randomSuffix,
+		"folder_name":   "Networking" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +88,7 @@ func testAccCloudAssetFolderFeed_cloudAssetFolderFeedExample(context map[string]
 resource "google_cloud_asset_folder_feed" "folder_feed" {
   billing_project  = "%{project}"
   folder           = google_folder.my_folder.folder_id
-  feed_id          = "tf-test-network-updates%{random_suffix}"
+  feed_id          = "%{feed_id}"
   content_type     = "RESOURCE"
 
   asset_types = [
@@ -111,12 +115,12 @@ resource "google_cloud_asset_folder_feed" "folder_feed" {
 # The topic where the resource change notifications will be sent.
 resource "google_pubsub_topic" "feed_output" {
   project  = "%{project}"
-  name     = "tf-test-network-updates%{random_suffix}"
+  name     = "%{feed_id}"
 }
 
 # The folder that will be monitored for resource updates.
 resource "google_folder" "my_folder" {
-  display_name = "Networking%{random_suffix}"
+  display_name = "%{folder_name}"
   parent       = "organizations/%{org_id}"
   deletion_protection = false
 }

@@ -42,9 +42,12 @@ var (
 func TestAccIapWebCloudRunServiceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"cloud_run_service_name":  "tf-test-cloud-run-service" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -82,9 +85,12 @@ func TestAccIapWebCloudRunServiceIamBindingGenerated(t *testing.T) {
 func TestAccIapWebCloudRunServiceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"cloud_run_service_name":  "tf-test-cloud-run-service" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -113,9 +119,12 @@ func TestAccIapWebCloudRunServiceIamMemberGenerated(t *testing.T) {
 func TestAccIapWebCloudRunServiceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"cloud_run_service_name":  "tf-test-cloud-run-service" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -153,9 +162,12 @@ func TestAccIapWebCloudRunServiceIamPolicyGenerated(t *testing.T) {
 func TestAccIapWebCloudRunServiceIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"cloud_run_service_name":  "tf-test-cloud-run-service" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -185,9 +197,12 @@ func TestAccIapWebCloudRunServiceIamBindingGenerated_withAndWithoutCondition(t *
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"cloud_run_service_name":  "tf-test-cloud-run-service" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -227,9 +242,12 @@ func TestAccIapWebCloudRunServiceIamBindingGenerated_withAndWithoutCondition(t *
 func TestAccIapWebCloudRunServiceIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"cloud_run_service_name":  "tf-test-cloud-run-service" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -259,9 +277,12 @@ func TestAccIapWebCloudRunServiceIamMemberGenerated_withAndWithoutCondition(t *t
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"cloud_run_service_name":  "tf-test-cloud-run-service" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -301,9 +322,12 @@ func TestAccIapWebCloudRunServiceIamMemberGenerated_withAndWithoutCondition(t *t
 func TestAccIapWebCloudRunServiceIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"cloud_run_service_name":  "tf-test-cloud-run-service" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -341,7 +365,7 @@ func TestAccIapWebCloudRunServiceIamPolicyGenerated_withCondition(t *testing.T) 
 func testAccIapWebCloudRunServiceIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
-  name     = "tf-test-cloud-run-service%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
@@ -370,7 +394,7 @@ resource "google_iap_web_cloud_run_service_iam_member" "foo" {
 func testAccIapWebCloudRunServiceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
-  name     = "tf-test-cloud-run-service%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
@@ -414,7 +438,7 @@ data "google_iap_web_cloud_run_service_iam_policy" "foo" {
 func testAccIapWebCloudRunServiceIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
-  name     = "tf-test-cloud-run-service%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
@@ -445,7 +469,7 @@ resource "google_iap_web_cloud_run_service_iam_policy" "foo" {
 func testAccIapWebCloudRunServiceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
-  name     = "tf-test-cloud-run-service%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
@@ -474,7 +498,7 @@ resource "google_iap_web_cloud_run_service_iam_binding" "foo" {
 func testAccIapWebCloudRunServiceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
-  name     = "tf-test-cloud-run-service%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
@@ -503,7 +527,7 @@ resource "google_iap_web_cloud_run_service_iam_binding" "foo" {
 func testAccIapWebCloudRunServiceIamBinding_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
-  name     = "tf-test-cloud-run-service%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
@@ -537,7 +561,7 @@ resource "google_iap_web_cloud_run_service_iam_binding" "foo" {
 func testAccIapWebCloudRunServiceIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
-  name     = "tf-test-cloud-run-service%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
@@ -593,7 +617,7 @@ resource "google_iap_web_cloud_run_service_iam_binding" "foo3" {
 func testAccIapWebCloudRunServiceIamMember_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
-  name     = "tf-test-cloud-run-service%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
@@ -627,7 +651,7 @@ resource "google_iap_web_cloud_run_service_iam_member" "foo" {
 func testAccIapWebCloudRunServiceIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
-  name     = "tf-test-cloud-run-service%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
@@ -683,7 +707,7 @@ resource "google_iap_web_cloud_run_service_iam_member" "foo3" {
 func testAccIapWebCloudRunServiceIamPolicy_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
-  name     = "tf-test-cloud-run-service%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"

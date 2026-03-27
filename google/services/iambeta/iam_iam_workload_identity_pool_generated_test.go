@@ -42,14 +42,17 @@ var (
 func TestAccIAMBetaWorkloadIdentityPoolIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iam.workloadIdentityPoolViewer",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":             randomSuffix,
+		"role":                      "roles/iam.workloadIdentityPoolViewer",
+		"workload_identity_pool_id": "tf-test-example-pool" + randomSuffix,
+		"condition_title":           "expires_after_2019_12_31",
+		"condition_expr":            `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":            "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":   "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":    `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -82,14 +85,17 @@ func TestAccIAMBetaWorkloadIdentityPoolIamBindingGenerated(t *testing.T) {
 func TestAccIAMBetaWorkloadIdentityPoolIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iam.workloadIdentityPoolViewer",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":             randomSuffix,
+		"role":                      "roles/iam.workloadIdentityPoolViewer",
+		"workload_identity_pool_id": "tf-test-example-pool" + randomSuffix,
+		"condition_title":           "expires_after_2019_12_31",
+		"condition_expr":            `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":            "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":   "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":    `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -113,14 +119,17 @@ func TestAccIAMBetaWorkloadIdentityPoolIamMemberGenerated(t *testing.T) {
 func TestAccIAMBetaWorkloadIdentityPoolIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iam.workloadIdentityPoolViewer",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":             randomSuffix,
+		"role":                      "roles/iam.workloadIdentityPoolViewer",
+		"workload_identity_pool_id": "tf-test-example-pool" + randomSuffix,
+		"condition_title":           "expires_after_2019_12_31",
+		"condition_expr":            `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":            "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":   "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":    `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -153,14 +162,17 @@ func TestAccIAMBetaWorkloadIdentityPoolIamPolicyGenerated(t *testing.T) {
 func TestAccIAMBetaWorkloadIdentityPoolIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iam.workloadIdentityPoolViewer",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":             randomSuffix,
+		"role":                      "roles/iam.workloadIdentityPoolViewer",
+		"workload_identity_pool_id": "tf-test-example-pool" + randomSuffix,
+		"condition_title":           "expires_after_2019_12_31",
+		"condition_expr":            `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":            "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":   "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":    `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -185,14 +197,17 @@ func TestAccIAMBetaWorkloadIdentityPoolIamBindingGenerated_withAndWithoutConditi
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iam.workloadIdentityPoolViewer",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":             randomSuffix,
+		"role":                      "roles/iam.workloadIdentityPoolViewer",
+		"workload_identity_pool_id": "tf-test-example-pool" + randomSuffix,
+		"condition_title":           "expires_after_2019_12_31",
+		"condition_expr":            `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":            "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":   "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":    `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -227,14 +242,17 @@ func TestAccIAMBetaWorkloadIdentityPoolIamBindingGenerated_withAndWithoutConditi
 func TestAccIAMBetaWorkloadIdentityPoolIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iam.workloadIdentityPoolViewer",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":             randomSuffix,
+		"role":                      "roles/iam.workloadIdentityPoolViewer",
+		"workload_identity_pool_id": "tf-test-example-pool" + randomSuffix,
+		"condition_title":           "expires_after_2019_12_31",
+		"condition_expr":            `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":            "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":   "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":    `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -259,14 +277,17 @@ func TestAccIAMBetaWorkloadIdentityPoolIamMemberGenerated_withAndWithoutConditio
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iam.workloadIdentityPoolViewer",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":             randomSuffix,
+		"role":                      "roles/iam.workloadIdentityPoolViewer",
+		"workload_identity_pool_id": "tf-test-example-pool" + randomSuffix,
+		"condition_title":           "expires_after_2019_12_31",
+		"condition_expr":            `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":            "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":   "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":    `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -301,14 +322,17 @@ func TestAccIAMBetaWorkloadIdentityPoolIamMemberGenerated_withAndWithoutConditio
 func TestAccIAMBetaWorkloadIdentityPoolIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iam.workloadIdentityPoolViewer",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":             randomSuffix,
+		"role":                      "roles/iam.workloadIdentityPoolViewer",
+		"workload_identity_pool_id": "tf-test-example-pool" + randomSuffix,
+		"condition_title":           "expires_after_2019_12_31",
+		"condition_expr":            `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":            "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":   "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":    `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	// Test should have 2 bindings: one with a description and one without. Any < chars are converted to a unicode character by the API.
@@ -341,7 +365,7 @@ func TestAccIAMBetaWorkloadIdentityPoolIamPolicyGenerated_withCondition(t *testi
 func testAccIAMBetaWorkloadIdentityPoolIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_iam_member" "foo" {
@@ -356,7 +380,7 @@ resource "google_iam_workload_identity_pool_iam_member" "foo" {
 func testAccIAMBetaWorkloadIdentityPoolIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 data "google_iam_policy" "foo" {
@@ -385,7 +409,7 @@ data "google_iam_workload_identity_pool_iam_policy" "foo" {
 func testAccIAMBetaWorkloadIdentityPoolIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 data "google_iam_policy" "foo" {
@@ -402,7 +426,7 @@ resource "google_iam_workload_identity_pool_iam_policy" "foo" {
 func testAccIAMBetaWorkloadIdentityPoolIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_iam_binding" "foo" {
@@ -417,7 +441,7 @@ resource "google_iam_workload_identity_pool_iam_binding" "foo" {
 func testAccIAMBetaWorkloadIdentityPoolIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_iam_binding" "foo" {
@@ -432,7 +456,7 @@ resource "google_iam_workload_identity_pool_iam_binding" "foo" {
 func testAccIAMBetaWorkloadIdentityPoolIamBinding_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_iam_binding" "foo" {
@@ -452,7 +476,7 @@ resource "google_iam_workload_identity_pool_iam_binding" "foo" {
 func testAccIAMBetaWorkloadIdentityPoolIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_iam_binding" "foo" {
@@ -492,7 +516,7 @@ resource "google_iam_workload_identity_pool_iam_binding" "foo3" {
 func testAccIAMBetaWorkloadIdentityPoolIamMember_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_iam_member" "foo" {
@@ -512,7 +536,7 @@ resource "google_iam_workload_identity_pool_iam_member" "foo" {
 func testAccIAMBetaWorkloadIdentityPoolIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_iam_member" "foo" {
@@ -552,7 +576,7 @@ resource "google_iam_workload_identity_pool_iam_member" "foo3" {
 func testAccIAMBetaWorkloadIdentityPoolIamPolicy_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 data "google_iam_policy" "foo" {

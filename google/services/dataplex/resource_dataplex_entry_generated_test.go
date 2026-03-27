@@ -53,9 +53,15 @@ var (
 func TestAccDataplexEntry_dataplexEntryBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":  acctest.RandString(t, 10),
+		"project_number":   envvar.GetTestProjectNumberFromEnv(),
+		"aspect_type_name": "tf-test-aspect-type-basic" + randomSuffix,
+		"entry_group_name": "tf-test-entry-group-basic" + randomSuffix,
+		"entry_id":         "tf-test-entry-basic" + randomSuffix,
+		"entry_type_name":  "tf-test-entry-type-basic" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,13 +85,13 @@ func TestAccDataplexEntry_dataplexEntryBasicExample(t *testing.T) {
 func testAccDataplexEntry_dataplexEntryBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataplex_entry_group" "entry-group-basic" {
-  entry_group_id = "tf-test-entry-group-basic%{random_suffix}"
+  entry_group_id = "%{entry_group_name}"
   project = "%{project_number}"
   location = "us-central1"
 }
 
 resource "google_dataplex_entry_type" "entry-type-basic" {
-  entry_type_id = "tf-test-entry-type-basic%{random_suffix}"
+  entry_type_id = "%{entry_type_name}"
   project = "%{project_number}"
   location = "us-central1"
 }
@@ -94,7 +100,7 @@ resource "google_dataplex_entry" "test_basic" {
   entry_group_id = google_dataplex_entry_group.entry-group-basic.entry_group_id
   project = "%{project_number}"
   location = "us-central1"
-  entry_id = "tf-test-entry-basic%{random_suffix}"
+  entry_id = "%{entry_id}"
   entry_type = google_dataplex_entry_type.entry-type-basic.name
 }
 `, context)
@@ -103,9 +109,15 @@ resource "google_dataplex_entry" "test_basic" {
 func TestAccDataplexEntry_dataplexEntryFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":  acctest.RandString(t, 10),
+		"project_number":   envvar.GetTestProjectNumberFromEnv(),
+		"aspect_type_name": "tf-test-aspect-type-full" + randomSuffix,
+		"entry_group_name": "tf-test-entry-group-full" + randomSuffix,
+		"entry_id":         "tf-test-entry-full/has/slashes" + randomSuffix,
+		"entry_type_name":  "tf-test-entry-type-full" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -129,7 +141,7 @@ func TestAccDataplexEntry_dataplexEntryFullExample(t *testing.T) {
 func testAccDataplexEntry_dataplexEntryFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataplex_aspect_type" "aspect-type-full-one" {
-  aspect_type_id         = "tf-test-aspect-type-full%{random_suffix}-one"
+  aspect_type_id         = "%{aspect_type_name}-one"
   location     = "us-central1"
   project      = "%{project_number}"
 
@@ -162,7 +174,7 @@ EOF
 }
 
 resource "google_dataplex_aspect_type" "aspect-type-full-two" {
-  aspect_type_id         = "tf-test-aspect-type-full%{random_suffix}-two"
+  aspect_type_id         = "%{aspect_type_name}-two"
   location     = "us-central1"
   project      = "%{project_number}"
 
@@ -195,13 +207,13 @@ EOF
 }
 
 resource "google_dataplex_entry_group" "entry-group-full" {
-  entry_group_id = "tf-test-entry-group-full%{random_suffix}"
+  entry_group_id = "%{entry_group_name}"
   project = "%{project_number}"
   location = "us-central1"
 }
 
 resource "google_dataplex_entry_type" "entry-type-full" {
-  entry_type_id = "tf-test-entry-type-full%{random_suffix}"
+  entry_type_id = "%{entry_type_name}"
   project = "%{project_number}"
   location = "us-central1"
 
@@ -214,10 +226,10 @@ resource "google_dataplex_entry" "test_entry_full" {
   entry_group_id = google_dataplex_entry_group.entry-group-full.entry_group_id
   project = "%{project_number}"
   location = "us-central1"
-  entry_id = "tf-test-entry-full/has/slashes%{random_suffix}"
+  entry_id = "%{entry_id}"
   entry_type = google_dataplex_entry_type.entry-type-full.name
   fully_qualified_name = "bigquery:%{project_number}.test-dataset"
-  parent_entry = "projects/%{project_number}/locations/us-central1/entryGroups/tf-test-entry-group-full%{random_suffix}/entries/some-other-entry"
+  parent_entry = "projects/%{project_number}/locations/us-central1/entryGroups/%{entry_group_name}/entries/some-other-entry"
   entry_source {
     resource = "bigquery:%{project_number}.test-dataset"
     system = "System III"
@@ -243,7 +255,7 @@ resource "google_dataplex_entry" "test_entry_full" {
   }
 
   aspects {
-    aspect_key = "%{project_number}.us-central1.tf-test-aspect-type-full%{random_suffix}-one"
+    aspect_key = "%{project_number}.us-central1.%{aspect_type_name}-one"
     aspect {
       data = <<EOF
           {"type": "VIEW"    }
@@ -252,7 +264,7 @@ resource "google_dataplex_entry" "test_entry_full" {
   }
 
   aspects {
-    aspect_key = "%{project_number}.us-central1.tf-test-aspect-type-full%{random_suffix}-two"
+    aspect_key = "%{project_number}.us-central1.%{aspect_type_name}-two"
     aspect {
       data = <<EOF
           {"story": "SEQUENCE"    }
@@ -267,10 +279,15 @@ resource "google_dataplex_entry" "test_entry_full" {
 func TestAccDataplexEntry_dataplexEntryBigqueryTableExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_id":     envvar.GetTestProjectFromEnv(),
-		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":  acctest.RandString(t, 10),
+		"project_id":       envvar.GetTestProjectFromEnv(),
+		"project_number":   envvar.GetTestProjectNumberFromEnv(),
+		"aspect_type_name": "tf-test-aspect-type" + randomSuffix,
+		"dataset_id":       "tf_test_dataset_basic" + randomSuffix,
+		"table_id":         "tf-test-table-basic" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -294,7 +311,7 @@ func TestAccDataplexEntry_dataplexEntryBigqueryTableExample(t *testing.T) {
 func testAccDataplexEntry_dataplexEntryBigqueryTableExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataplex_aspect_type" "aspect-type-full-one" {
-  aspect_type_id         = "tf-test-aspect-type%{random_suffix}-one"
+  aspect_type_id         = "%{aspect_type_name}-one"
   location     = "us-central1"
   project      = "%{project_number}"
 
@@ -327,7 +344,7 @@ EOF
 }
 
 resource "google_dataplex_aspect_type" "aspect-type-full-two" {
-  aspect_type_id         = "tf-test-aspect-type%{random_suffix}-two"
+  aspect_type_id         = "%{aspect_type_name}-two"
   location     = "us-central1"
   project      = "%{project_number}"
 
@@ -360,7 +377,7 @@ EOF
 }
 
 resource "google_bigquery_dataset" "example-dataset" {
-  dataset_id                  = "tf_test_dataset_basic%{random_suffix}"
+  dataset_id                  = "%{dataset_id}"
   friendly_name               = "Example Dataset"
   location                    = "us-central1"
   delete_contents_on_destroy  = true
@@ -369,7 +386,7 @@ resource "google_bigquery_dataset" "example-dataset" {
 
 resource "google_bigquery_table" "example-table" {
   dataset_id = google_bigquery_dataset.example-dataset.dataset_id
-  table_id   = "tf-test-table-basic%{random_suffix}"
+  table_id   = "%{table_id}"
   deletion_protection = false
   # Define the table schema
   schema = jsonencode([
@@ -401,7 +418,7 @@ resource "google_dataplex_entry" "tf_test_table" {
   parent_entry = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.example-dataset.dataset_id}"
 
   aspects {
-    aspect_key = "%{project_number}.us-central1.tf-test-aspect-type%{random_suffix}-one"
+    aspect_key = "%{project_number}.us-central1.%{aspect_type_name}-one"
     aspect {
       data = <<EOF
           {"type": "VIEW"    }
@@ -410,7 +427,7 @@ resource "google_dataplex_entry" "tf_test_table" {
   }
 
   aspects {
-    aspect_key = "%{project_number}.us-central1.tf-test-aspect-type%{random_suffix}-two@Schema.event_type"
+    aspect_key = "%{project_number}.us-central1.%{aspect_type_name}-two@Schema.event_type"
     aspect {
       data = <<EOF
           {"story": "SEQUENCE"    }
@@ -425,10 +442,14 @@ resource "google_dataplex_entry" "tf_test_table" {
 func TestAccDataplexEntry_dataplexEntryGlossaryTermExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_id":     envvar.GetTestProjectFromEnv(),
-		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":  acctest.RandString(t, 10),
+		"project_id":       envvar.GetTestProjectFromEnv(),
+		"project_number":   envvar.GetTestProjectNumberFromEnv(),
+		"glossary_id":      "tf-test-glossary-basic" + randomSuffix,
+		"glossary_term_id": "tf-test-glossary-term" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -455,7 +476,7 @@ func TestAccDataplexEntry_dataplexEntryGlossaryTermExample(t *testing.T) {
 func testAccDataplexEntry_dataplexEntryGlossaryTermExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataplex_glossary" "example-glossary" {
-  glossary_id = "tf-test-glossary-basic%{random_suffix}"
+  glossary_id = "%{glossary_id}"
   location    = "us-central1"
 }
 
@@ -463,7 +484,7 @@ resource "google_dataplex_glossary_term" "example-glossary-term" {
   parent = "projects/%{project_id}/locations/us-central1/glossaries/${google_dataplex_glossary.example-glossary.glossary_id}"
   glossary_id = google_dataplex_glossary.example-glossary.glossary_id
   location = "us-central1"
-  term_id = "tf-test-glossary-term%{random_suffix}"
+  term_id = "%{glossary_term_id}"
 }
 
 # Introduce a 45-second wait after the glossary resource creation

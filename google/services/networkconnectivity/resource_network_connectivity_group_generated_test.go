@@ -53,8 +53,13 @@ var (
 func TestAccNetworkConnectivityGroup_networkConnectivityGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"auto_accept_project_1_name": "foo" + randomSuffix,
+		"auto_accept_project_2_name": "bar" + randomSuffix,
+		"hub_name":                   "tf-test-network-connectivity-hub1" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccNetworkConnectivityGroup_networkConnectivityGroupBasicExample(t *tes
 func testAccNetworkConnectivityGroup_networkConnectivityGroupBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_hub" "basic_hub"  {
- name        = "tf-test-network-connectivity-hub1%{random_suffix}"
+ name        = "%{hub_name}"
  description = "A sample hub"
  labels = {
     label-one = "value-one"
@@ -94,8 +99,8 @@ resource "google_network_connectivity_group" "primary"  {
  description = "A sample hub group"
  auto_accept {
     auto_accept_projects = [
-      "foo%{random_suffix}", 
-      "bar%{random_suffix}", 
+      "%{auto_accept_project_1_name}", 
+      "%{auto_accept_project_2_name}", 
     ]
   }
 }

@@ -19,16 +19,18 @@ package workstations_test
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
-
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccWorkstationsWorkstationCluster_update(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -61,8 +63,15 @@ func TestAccWorkstationsWorkstationCluster_update(t *testing.T) {
 func TestAccWorkstationsWorkstationCluster_Private_update(t *testing.T) {
 	t.Parallel()
 
+	// Skip in VCR until the test issue is resolved
+	// TODO(shuyama): Add GH issue link
+	acctest.SkipIfVcr(t)
+
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster-private" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -98,7 +107,7 @@ data "google_project" "project" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location   		     = "us-central1"
@@ -109,12 +118,12 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
@@ -128,7 +137,7 @@ data "google_project" "project" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location   		     = "us-central1"
@@ -144,12 +153,12 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name

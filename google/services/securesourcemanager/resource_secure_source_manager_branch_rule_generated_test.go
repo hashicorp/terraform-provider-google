@@ -53,9 +53,14 @@ var (
 func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"branch_rule_id":  "tf-test-my-basic-branchrule" + randomSuffix,
 		"deletion_policy": "DELETE",
-		"random_suffix":   acctest.RandString(t, 10),
+		"instance_id":     "tf-test-my-basic-instance" + randomSuffix,
+		"repository_id":   "tf-test-my-basic-repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,14 +85,14 @@ func testAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleBasicExam
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
-    instance_id = "tf-test-my-basic-instance%{random_suffix}"
+    instance_id = "%{instance_id}"
     
     # Prevent accidental deletions.
     deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "repository" {
-    repository_id = "tf-test-my-basic-repository%{random_suffix}"
+    repository_id = "%{repository_id}"
     location = google_secure_source_manager_instance.instance.location
     instance = google_secure_source_manager_instance.instance.name
 
@@ -96,7 +101,7 @@ resource "google_secure_source_manager_repository" "repository" {
 }
 
 resource "google_secure_source_manager_branch_rule" "basic" {
-    branch_rule_id = "tf-test-my-basic-branchrule%{random_suffix}"
+    branch_rule_id = "%{branch_rule_id}"
     repository_id = google_secure_source_manager_repository.repository.repository_id
     location = google_secure_source_manager_repository.repository.location
     # This field is required for BranchRule creation
@@ -108,9 +113,14 @@ resource "google_secure_source_manager_branch_rule" "basic" {
 func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithFieldsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"branch_rule_id":  "tf-test-my-initial-branchrule" + randomSuffix,
 		"deletion_policy": "DELETE",
-		"random_suffix":   acctest.RandString(t, 10),
+		"instance_id":     "tf-test-my-initial-instance" + randomSuffix,
+		"repository_id":   "tf-test-my-initial-repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -135,14 +145,14 @@ func testAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithField
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
-    instance_id = "tf-test-my-initial-instance%{random_suffix}"
+    instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
     deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "repository" {
-    repository_id = "tf-test-my-initial-repository%{random_suffix}"
+    repository_id = "%{repository_id}"
     instance = google_secure_source_manager_instance.instance.name
     location = google_secure_source_manager_instance.instance.location
 
@@ -151,7 +161,7 @@ resource "google_secure_source_manager_repository" "repository" {
 }
 
 resource "google_secure_source_manager_branch_rule" "default" {
-    branch_rule_id = "tf-test-my-initial-branchrule%{random_suffix}"
+    branch_rule_id = "%{branch_rule_id}"
     location = google_secure_source_manager_repository.repository.location
     repository_id = google_secure_source_manager_repository.repository.repository_id
     include_pattern = "test"

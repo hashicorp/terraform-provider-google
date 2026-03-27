@@ -53,8 +53,11 @@ var (
 func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGithubExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_connector_name": "tf-test-tf-test-ac" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGit
 	return acctest.Nprintf(`
 resource "google_developer_connect_account_connector" "my-account-connector" {
   location = "us-central1"
-  account_connector_id = "tf-test-tf-test-ac%{random_suffix}"
+  account_connector_id = "%{account_connector_name}"
 
   provider_oauth_config {
     system_provider_id = "GITHUB"
@@ -92,8 +95,11 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGitlabExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_connector_name": "tf-test-tf-test-ac" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -118,7 +124,7 @@ func testAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGit
 	return acctest.Nprintf(`
 resource "google_developer_connect_account_connector" "my-account-connector" {
   location = "us-central1"
-  account_connector_id = "tf-test-tf-test-ac%{random_suffix}"
+  account_connector_id = "%{account_connector_name}"
 
   provider_oauth_config {
     system_provider_id = "GITLAB"

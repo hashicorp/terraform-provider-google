@@ -53,8 +53,11 @@ var (
 func TestAccNetappBackupPolicy_netappBackupPolicyFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backup_policy_full_name": "tf-test-test-backup-policy-full" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetappBackupPolicy_netappBackupPolicyFullExample(t *testing.T) {
 func testAccNetappBackupPolicy_netappBackupPolicyFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_netapp_backup_policy" "test_backup_policy_full" {
-  name          = "tf-test-test-backup-policy-full%{random_suffix}"
+  name          = "%{backup_policy_full_name}"
   location = "us-central1"
   daily_backup_limit   = 2
   weekly_backup_limit  = 1

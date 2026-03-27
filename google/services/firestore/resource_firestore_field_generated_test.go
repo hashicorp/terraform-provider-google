@@ -53,10 +53,13 @@ var (
 func TestAccFirestoreField_firestoreFieldBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
 		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +84,7 @@ func testAccFirestoreField_firestoreFieldBasicExample(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-database-id%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "nam5"
   type        = "FIRESTORE_NATIVE"
 
@@ -111,10 +114,13 @@ resource "google_firestore_field" "basic" {
 func TestAccFirestoreField_firestoreFieldTimestampExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
 		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -139,7 +145,7 @@ func testAccFirestoreField_firestoreFieldTimestampExample(context map[string]int
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-database-id%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "nam5"
   type        = "FIRESTORE_NATIVE"
 
@@ -165,10 +171,13 @@ resource "google_firestore_field" "timestamp" {
 func TestAccFirestoreField_firestoreFieldMatchOverrideExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
 		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -193,7 +202,7 @@ func testAccFirestoreField_firestoreFieldMatchOverrideExample(context map[string
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-database-id%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "nam5"
   type        = "FIRESTORE_NATIVE"
 
@@ -225,10 +234,13 @@ resource "google_firestore_field" "match_override" {
 func TestAccFirestoreField_firestoreFieldWildcardExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
 		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -253,7 +265,7 @@ func testAccFirestoreField_firestoreFieldWildcardExample(context map[string]inte
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
 	project     = "%{project_id}"
-	name        = "tf-test-database-id%{random_suffix}"
+	name        = "%{database_id}"
 	location_id = "nam5"
 	type        = "FIRESTORE_NATIVE"
 

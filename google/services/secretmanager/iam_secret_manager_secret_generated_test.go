@@ -42,9 +42,12 @@ var (
 func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/secretmanager.secretAccessor",
+		"secret_id":               "secret" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -82,9 +85,12 @@ func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
 func TestAccSecretManagerSecretIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/secretmanager.secretAccessor",
+		"secret_id":               "secret" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -113,9 +119,12 @@ func TestAccSecretManagerSecretIamMemberGenerated(t *testing.T) {
 func TestAccSecretManagerSecretIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/secretmanager.secretAccessor",
+		"secret_id":               "secret" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -153,9 +162,12 @@ func TestAccSecretManagerSecretIamPolicyGenerated(t *testing.T) {
 func TestAccSecretManagerSecretIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/secretmanager.secretAccessor",
+		"secret_id":               "secret" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -185,9 +197,12 @@ func TestAccSecretManagerSecretIamBindingGenerated_withAndWithoutCondition(t *te
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/secretmanager.secretAccessor",
+		"secret_id":               "secret" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -227,9 +242,12 @@ func TestAccSecretManagerSecretIamBindingGenerated_withAndWithoutCondition(t *te
 func TestAccSecretManagerSecretIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/secretmanager.secretAccessor",
+		"secret_id":               "secret" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -259,9 +277,12 @@ func TestAccSecretManagerSecretIamMemberGenerated_withAndWithoutCondition(t *tes
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/secretmanager.secretAccessor",
+		"secret_id":               "secret" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -301,9 +322,12 @@ func TestAccSecretManagerSecretIamMemberGenerated_withAndWithoutCondition(t *tes
 func TestAccSecretManagerSecretIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/secretmanager.secretAccessor",
+		"secret_id":               "secret" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -341,7 +365,7 @@ func TestAccSecretManagerSecretIamPolicyGenerated_withCondition(t *testing.T) {
 func testAccSecretManagerSecretIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -372,7 +396,7 @@ resource "google_secret_manager_secret_iam_member" "foo" {
 func testAccSecretManagerSecretIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -417,7 +441,7 @@ data "google_secret_manager_secret_iam_policy" "foo" {
 func testAccSecretManagerSecretIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -450,7 +474,7 @@ resource "google_secret_manager_secret_iam_policy" "foo" {
 func testAccSecretManagerSecretIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -481,7 +505,7 @@ resource "google_secret_manager_secret_iam_binding" "foo" {
 func testAccSecretManagerSecretIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -512,7 +536,7 @@ resource "google_secret_manager_secret_iam_binding" "foo" {
 func testAccSecretManagerSecretIamBinding_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -548,7 +572,7 @@ resource "google_secret_manager_secret_iam_binding" "foo" {
 func testAccSecretManagerSecretIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -604,7 +628,7 @@ resource "google_secret_manager_secret_iam_binding" "foo3" {
 func testAccSecretManagerSecretIamMember_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -640,7 +664,7 @@ resource "google_secret_manager_secret_iam_member" "foo" {
 func testAccSecretManagerSecretIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -696,7 +720,7 @@ resource "google_secret_manager_secret_iam_member" "foo3" {
 func testAccSecretManagerSecretIamPolicy_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"

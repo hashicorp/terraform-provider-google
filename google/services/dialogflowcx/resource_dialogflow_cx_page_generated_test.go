@@ -53,8 +53,12 @@ var (
 func TestAccDialogflowCXPage_dialogflowcxPageFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"data-store":    "tf-test-datastore-page-full" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccDialogflowCXPage_dialogflowcxPageFullExample(t *testing.T) {
 func testAccDialogflowCXPage_dialogflowcxPageFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name               = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name               = "%{agent_name}"
   location                   = "global"
   default_language_code      = "en"
   supported_language_codes   = ["fr", "de", "es"]
@@ -751,7 +755,7 @@ resource "google_dialogflow_cx_page" "my_page2" {
 
 resource "google_discovery_engine_data_store" "my_datastore" {
   location          = "global"
-  data_store_id     = "tf-test-datastore-page-full%{random_suffix}"
+  data_store_id     = "%{data-store}"
   display_name      = "datastore-page-full"
   industry_vertical = "GENERIC"
   content_config    = "NO_CONTENT"

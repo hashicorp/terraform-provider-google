@@ -53,11 +53,15 @@ var (
 func TestAccCloudfunctions2function_cloudfunctions2BasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
+		"bucket_name":   "tf-test-gcf-source" + randomSuffix,
+		"function":      "tf-test-function-v2" + randomSuffix,
 		"location":      "us-central1",
 		"zip_path":      "./test-fixtures/function-source.zip",
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -85,7 +89,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -97,7 +101,7 @@ resource "google_storage_bucket_object" "object" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-function-v2%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
  
@@ -124,12 +128,18 @@ resource "google_cloudfunctions2_function" "function" {
 func TestAccCloudfunctions2function_cloudfunctions2FullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
+		"bucket_name":         "tf-test-gcf-source" + randomSuffix,
+		"function":            "tf-test-gcf-function" + randomSuffix,
 		"location":            "us-central1",
 		"primary_resource_id": "terraform-test",
+		"service_account":     "tf-test-gcf-sa" + randomSuffix,
+		"topic":               "tf-test-functions2-topic" + randomSuffix,
 		"zip_path":            "./test-fixtures/function-source-pubsub.zip",
-		"random_suffix":       acctest.RandString(t, 10),
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -157,16 +167,16 @@ locals {
 }
 
 resource "google_service_account" "account" {
-  account_id = "tf-test-gcf-sa%{random_suffix}"
+  account_id = "%{service_account}"
   display_name = "Test Service Account"
 }
 
 resource "google_pubsub_topic" "topic" {
-  name = "tf-test-functions2-topic%{random_suffix}"
+  name = "%{topic}"
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -178,7 +188,7 @@ resource "google_storage_bucket_object" "object" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-gcf-function%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
  
@@ -231,11 +241,17 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicGcsExample(t *testing.T)
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
+		"bucket_name_source":  "tf-test-gcf-source-bucket" + randomSuffix,
+		"bucket_name_trigger": "tf-test-gcf-trigger-bucket" + randomSuffix,
+		"function_name":       "tf-test-gcf-function" + randomSuffix,
 		"primary_resource_id": "terraform-test",
+		"service_account":     "tf-test-gcf-sa" + randomSuffix,
 		"zip_path":            "./test-fixtures/function-source-eventarc-gcs.zip",
-		"random_suffix":       acctest.RandString(t, 10),
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -259,7 +275,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicGcsExample(t *testing.T)
 func testAccCloudfunctions2function_cloudfunctions2BasicGcsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "source-bucket" {
-  name     = "tf-test-gcf-source-bucket%{random_suffix}"
+  name     = "%{bucket_name_source}"
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -271,7 +287,7 @@ resource "google_storage_bucket_object" "object" {
 }
 
 resource "google_storage_bucket" "trigger-bucket" {
-  name     = "tf-test-gcf-trigger-bucket%{random_suffix}"
+  name     = "%{bucket_name_trigger}"
   location = "us-central1" # The trigger must be in the same location as the bucket
   uniform_bucket_level_access = true
 }
@@ -288,7 +304,7 @@ resource "google_project_iam_member" "gcs-pubsub-publishing" {
 }
 
 resource "google_service_account" "account" {
-  account_id   = "tf-test-gcf-sa%{random_suffix}"
+  account_id   = "%{service_account}"
   display_name = "Test Service Account - used for both the cloud function and eventarc trigger in the test"
 }
 
@@ -319,7 +335,7 @@ resource "google_cloudfunctions2_function" "function" {
     google_project_iam_member.event-receiving,
     google_project_iam_member.artifactregistry-reader,
   ]
-  name = "tf-test-gcf-function%{random_suffix}"
+  name = "%{function_name}"
   location = "us-central1"
   description = "a new function"
  
@@ -372,11 +388,17 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicAuditlogsExample(t *test
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"primary_resource_id": "terraform-test",
-		"zip_path":            "./test-fixtures/function-source-eventarc-gcs.zip",
-		"random_suffix":       acctest.RandString(t, 10),
+		"project":               envvar.GetTestProjectFromEnv(),
+		"bucket_name_auditlogs": "tf-test-gcf-auditlog-bucket" + randomSuffix,
+		"bucket_name_source":    "tf-test-gcf-source-bucket" + randomSuffix,
+		"function_name":         "tf-test-gcf-function" + randomSuffix,
+		"primary_resource_id":   "terraform-test",
+		"service_account":       "tf-test-gcf-sa" + randomSuffix,
+		"zip_path":              "./test-fixtures/function-source-eventarc-gcs.zip",
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -405,7 +427,7 @@ func testAccCloudfunctions2function_cloudfunctions2BasicAuditlogsExample(context
 # https://cloud.google.com/eventarc/docs/path-patterns
 
 resource "google_storage_bucket" "source-bucket" {
-  name     = "tf-test-gcf-source-bucket%{random_suffix}"
+  name     = "%{bucket_name_source}"
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -417,7 +439,7 @@ resource "google_storage_bucket_object" "object" {
 }
 
 resource "google_service_account" "account" {
-  account_id   = "tf-test-gcf-sa%{random_suffix}"
+  account_id   = "%{service_account}"
   display_name = "Test Service Account - used for both the cloud function and eventarc trigger in the test"
 }
 
@@ -425,7 +447,7 @@ resource "google_service_account" "account" {
 # Here we use Audit Logs to monitor the bucket so path patterns can be used in the example of
 # google_cloudfunctions2_function below (Audit Log events have path pattern support)
 resource "google_storage_bucket" "audit-log-bucket" {
-  name     = "tf-test-gcf-auditlog-bucket%{random_suffix}"
+  name     = "%{bucket_name_auditlogs}"
   location = "us-central1"  # The trigger must be in the same location as the bucket
   uniform_bucket_level_access = true
 }
@@ -456,7 +478,7 @@ resource "google_cloudfunctions2_function" "function" {
     google_project_iam_member.event-receiving,
     google_project_iam_member.artifactregistry-reader,
   ]
-  name = "tf-test-gcf-function%{random_suffix}"
+  name = "%{function_name}"
   location = "us-central1"
   description = "a new function"
  
@@ -513,11 +535,16 @@ resource "google_cloudfunctions2_function" "function" {
 func TestAccCloudfunctions2function_cloudfunctions2BasicBuilderExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"location":      "us-central1",
-		"zip_path":      "./test-fixtures/function-source.zip",
-		"random_suffix": acctest.RandString(t, 10),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"bucket_name":     "tf-test-gcf-source" + randomSuffix,
+		"function":        "tf-test-function-v2" + randomSuffix,
+		"location":        "us-central1",
+		"service_account": "tf-test-gcf-sa" + randomSuffix,
+		"zip_path":        "./test-fixtures/function-source.zip",
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -549,7 +576,7 @@ locals {
 }
 
 resource "google_service_account" "account" {
-  account_id = "tf-test-gcf-sa%{random_suffix}"
+  account_id = "%{service_account}"
   display_name = "Test Service Account"
 }
 
@@ -572,7 +599,7 @@ resource "google_project_iam_member" "storage_object_admin" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -595,7 +622,7 @@ resource "time_sleep" "wait_60s" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-function-v2%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
  
@@ -631,11 +658,16 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretEnvExample(t *testing.T
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
+		"bucket_name":   "tf-test-gcf-source" + randomSuffix,
+		"function":      "tf-test-function-secret" + randomSuffix,
 		"location":      "us-central1",
+		"secret":        "secret" + randomSuffix,
 		"zip_path":      "./test-fixtures/function-source.zip",
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -663,7 +695,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -675,7 +707,7 @@ resource "google_storage_bucket_object" "object" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-function-secret%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
  
@@ -706,7 +738,7 @@ resource "google_cloudfunctions2_function" "function" {
 }
 
 resource "google_secret_manager_secret" "secret" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret}"
 
   replication {
     user_managed {
@@ -720,7 +752,7 @@ resource "google_secret_manager_secret" "secret" {
 resource "google_secret_manager_secret_version" "secret" {
   secret = google_secret_manager_secret.secret.name
 
-  secret_data = "secret%{random_suffix}"
+  secret_data = "%{secret}"
   enabled = true
 }
 `, context)
@@ -735,11 +767,16 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretVolumeExample(t *testin
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
+		"bucket_name":   "tf-test-gcf-source" + randomSuffix,
+		"function":      "tf-test-function-secret" + randomSuffix,
 		"location":      "us-central1",
+		"secret":        "secret" + randomSuffix,
 		"zip_path":      "./test-fixtures/function-source.zip",
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -767,7 +804,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -779,7 +816,7 @@ resource "google_storage_bucket_object" "object" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-function-secret%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
  
@@ -809,7 +846,7 @@ resource "google_cloudfunctions2_function" "function" {
 }
 
 resource "google_secret_manager_secret" "secret" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret}"
 
   replication {
     user_managed {
@@ -823,7 +860,7 @@ resource "google_secret_manager_secret" "secret" {
 resource "google_secret_manager_secret_version" "secret" {
   secret = google_secret_manager_secret.secret.name
 
-  secret_data = "secret%{random_suffix}"
+  secret_data = "%{secret}"
   enabled = true
 }
 `, context)
@@ -832,11 +869,16 @@ resource "google_secret_manager_secret_version" "secret" {
 func TestAccCloudfunctions2function_cloudfunctions2PrivateWorkerpoolExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
+		"bucket_name":   "tf-test-gcf-source" + randomSuffix,
+		"function":      "tf-test-function-workerpool" + randomSuffix,
 		"location":      "us-central1",
+		"pool":          "workerpool" + randomSuffix,
 		"zip_path":      "./test-fixtures/function-source.zip",
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -864,7 +906,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -876,7 +918,7 @@ resource "google_storage_bucket_object" "object" {
 }
 
 resource "google_cloudbuild_worker_pool" "pool" {
-  name = "workerpool%{random_suffix}"
+  name = "%{pool}"
   location = "us-central1"
   worker_config {
     disk_size_gb = 100
@@ -886,7 +928,7 @@ resource "google_cloudbuild_worker_pool" "pool" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-function-workerpool%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
  
@@ -914,11 +956,15 @@ resource "google_cloudfunctions2_function" "function" {
 func TestAccCloudfunctions2function_cloudfunctions2DirectvpcExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
+		"bucket_name":   "tf-test-gcf-source" + randomSuffix,
+		"function":      "tf-test-function-v2" + randomSuffix,
 		"location":      "us-central1",
 		"zip_path":      "./test-fixtures/function-source.zip",
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -946,7 +992,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -958,7 +1004,7 @@ resource "google_storage_bucket_object" "object" {
 }
 
 resource "google_cloudfunctions2_function" "function" {
-  name = "tf-test-function-v2%{random_suffix}"
+  name = "%{function}"
   location = "us-central1"
   description = "a new function"
 

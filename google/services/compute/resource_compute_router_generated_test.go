@@ -53,8 +53,12 @@ var (
 func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-my-network" + randomSuffix,
+		"router_name":   "tf-test-my-router" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 func testAccComputeRouter_routerBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_router" "foobar" {
-  name    = "tf-test-my-router%{random_suffix}"
+  name    = "%{router_name}"
   network = google_compute_network.foobar.name
   bgp {
     asn               = 64514
@@ -94,7 +98,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_network" "foobar" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -103,8 +107,12 @@ resource "google_compute_network" "foobar" {
 func TestAccComputeRouter_computeRouterEncryptedInterconnectExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-test-network" + randomSuffix,
+		"router_name":   "tf-test-test-router" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -128,7 +136,7 @@ func TestAccComputeRouter_computeRouterEncryptedInterconnectExample(t *testing.T
 func testAccComputeRouter_computeRouterEncryptedInterconnectExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_router" "encrypted-interconnect-router" {
-  name                          = "tf-test-test-router%{random_suffix}"
+  name                          = "%{router_name}"
   network                       = google_compute_network.network.name
   encrypted_interconnect_router = true
   bgp {
@@ -137,7 +145,7 @@ resource "google_compute_router" "encrypted-interconnect-router" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "tf-test-test-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -146,8 +154,12 @@ resource "google_compute_network" "network" {
 func TestAccComputeRouter_computeRouterMd5encryptedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-test-network" + randomSuffix,
+		"router_name":   "tf-test-test-router" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -171,7 +183,7 @@ func TestAccComputeRouter_computeRouterMd5encryptedExample(t *testing.T) {
 func testAccComputeRouter_computeRouterMd5encryptedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_router" "foobar" {
-  name    = "tf-test-test-router%{random_suffix}"
+  name    = "%{router_name}"
   network = google_compute_network.foobar.name
   bgp {
     asn               = 64514
@@ -191,7 +203,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_network" "foobar" {
-  name                    = "tf-test-test-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)

@@ -53,8 +53,11 @@ var (
 func TestAccDataplexGlossaryTerm_dataplexGlossaryTermBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"term_name":     "tf-test-term-basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -94,8 +97,11 @@ resource "google_dataplex_glossary_term" "term_test_id" {
 func TestAccDataplexGlossaryTerm_dataplexGlossaryTermFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"term_name":     "tf-test-term-full" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

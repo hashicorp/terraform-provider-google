@@ -42,8 +42,10 @@ var (
 func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 		"role":            "roles/viewer",
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
@@ -82,8 +84,10 @@ func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
 func TestAccApigeeEnvironmentIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 		"role":            "roles/viewer",
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
@@ -113,8 +117,10 @@ func TestAccApigeeEnvironmentIamMemberGenerated(t *testing.T) {
 func TestAccApigeeEnvironmentIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 		"role":            "roles/viewer",
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),

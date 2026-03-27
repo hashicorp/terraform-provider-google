@@ -54,9 +54,14 @@ func TestAccBigtableMaterializedView_bigtableMaterializedViewExample(t *testing.
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"deletion_protection":    false,
+		"instance_name":          "tf-test-bt-instance" + randomSuffix,
+		"materialized_view_name": "tf-test-bt-materialized-view" + randomSuffix,
+		"table_name":             "tf-test-bt-table" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +85,7 @@ func TestAccBigtableMaterializedView_bigtableMaterializedViewExample(t *testing.
 func testAccBigtableMaterializedView_bigtableMaterializedViewExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigtable_instance" "instance" {
-  name = "tf-test-bt-instance%{random_suffix}"
+  name = "%{instance_name}"
   cluster {
     cluster_id   = "cluster-1"
     zone         = "us-east1-b"
@@ -92,7 +97,7 @@ resource "google_bigtable_instance" "instance" {
 }
 
 resource "google_bigtable_table" "table" {
-  name          = "tf-test-bt-table%{random_suffix}"
+  name          = "%{table_name}"
   instance_name = google_bigtable_instance.instance.name
 
   column_family {
@@ -101,12 +106,12 @@ resource "google_bigtable_table" "table" {
 }
 
 resource "google_bigtable_materialized_view" "materialized_view" {
-  materialized_view_id = "tf-test-bt-materialized-view%{random_suffix}"
+  materialized_view_id = "%{materialized_view_name}"
   instance             = google_bigtable_instance.instance.name
   deletion_protection  = false
   query = <<EOT
 SELECT _key, COUNT(CF['col1']) as Count
-FROM `+"`tf-test-bt-table%{random_suffix}`"+`
+FROM `+"`%{table_name}`"+`
 GROUP BY _key
 EOT
 

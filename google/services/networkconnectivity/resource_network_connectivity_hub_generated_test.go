@@ -53,8 +53,11 @@ var (
 func TestAccNetworkConnectivityHub_networkConnectivityHubBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetworkConnectivityHub_networkConnectivityHubBasicExample(t *testing
 func testAccNetworkConnectivityHub_networkConnectivityHubBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_hub" "primary"  {
- name        = "basic%{random_suffix}"
+ name        = "%{resource_name}"
  description = "A sample hub"
  labels = {
     label-one = "value-one"
@@ -90,8 +93,11 @@ resource "google_network_connectivity_hub" "primary"  {
 func TestAccNetworkConnectivityHub_networkConnectivityHubWithExportPscExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -115,7 +121,7 @@ func TestAccNetworkConnectivityHub_networkConnectivityHubWithExportPscExample(t 
 func testAccNetworkConnectivityHub_networkConnectivityHubWithExportPscExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_hub" "primary"  {
- name        = "basic%{random_suffix}"
+ name        = "%{resource_name}"
  description = "A sample hub with Private Service Connect transitivity is enabled"
  export_psc = true
 }
@@ -125,8 +131,11 @@ resource "google_network_connectivity_hub" "primary"  {
 func TestAccNetworkConnectivityHub_networkConnectivityHubMeshTopologyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "mesh" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -150,7 +159,7 @@ func TestAccNetworkConnectivityHub_networkConnectivityHubMeshTopologyExample(t *
 func testAccNetworkConnectivityHub_networkConnectivityHubMeshTopologyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_hub" "primary"  {
- name        = "mesh%{random_suffix}"
+ name        = "%{resource_name}"
  description = "A sample mesh hub"
  labels = {
     label-one = "value-one"
@@ -162,8 +171,11 @@ resource "google_network_connectivity_hub" "primary"  {
 func TestAccNetworkConnectivityHub_networkConnectivityHubStarTopologyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "star" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -187,7 +199,7 @@ func TestAccNetworkConnectivityHub_networkConnectivityHubStarTopologyExample(t *
 func testAccNetworkConnectivityHub_networkConnectivityHubStarTopologyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_hub" "primary"  {
- name        = "star%{random_suffix}"
+ name        = "%{resource_name}"
  description = "A sample star hub"
  labels = {
     label-one = "value-one"
@@ -201,8 +213,11 @@ resource "google_network_connectivity_hub" "primary"  {
 func TestAccNetworkConnectivityHub_networkConnectivityHubPolicyModeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -227,7 +242,7 @@ func testAccNetworkConnectivityHub_networkConnectivityHubPolicyModeExample(conte
 	return acctest.Nprintf(`
 
 resource "google_network_connectivity_hub" "primary" {
- name            = "policy%{random_suffix}"
+ name            = "%{resource_name}"
  description     = "A sample hub with PRESET policy_mode and STAR topology"
  policy_mode     = "PRESET"
  preset_topology = "STAR"

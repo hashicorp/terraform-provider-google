@@ -42,9 +42,12 @@ var (
 func TestAccPubsubTopicIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,9 +80,12 @@ func TestAccPubsubTopicIamBindingGenerated(t *testing.T) {
 func TestAccPubsubTopicIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -103,9 +109,12 @@ func TestAccPubsubTopicIamMemberGenerated(t *testing.T) {
 func TestAccPubsubTopicIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +147,7 @@ func TestAccPubsubTopicIamPolicyGenerated(t *testing.T) {
 func testAccPubsubTopicIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   labels = {
     foo = "bar"
@@ -159,7 +168,7 @@ resource "google_pubsub_topic_iam_member" "foo" {
 func testAccPubsubTopicIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   labels = {
     foo = "bar"
@@ -194,7 +203,7 @@ data "google_pubsub_topic_iam_policy" "foo" {
 func testAccPubsubTopicIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   labels = {
     foo = "bar"
@@ -217,7 +226,7 @@ resource "google_pubsub_topic_iam_policy" "foo" {
 func testAccPubsubTopicIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   labels = {
     foo = "bar"
@@ -238,7 +247,7 @@ resource "google_pubsub_topic_iam_binding" "foo" {
 func testAccPubsubTopicIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   labels = {
     foo = "bar"

@@ -53,9 +53,13 @@ var (
 func TestAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":                      envvar.GetTestOrgFromEnv(t),
+		"security_profile_group_name": "tf-test-sec-profile-group" + randomSuffix,
+		"security_profile_name":       "tf-test-sec-profile" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +83,7 @@ func TestAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGr
 func testAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGroupBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_security_profile_group" "default" {
-  name                      = "tf-test-sec-profile-group%{random_suffix}"
+  name                      = "%{security_profile_group_name}"
   parent                    = "organizations/%{org_id}"
   description               = "my description"
   threat_prevention_profile = google_network_security_security_profile.security_profile.id
@@ -90,7 +94,7 @@ resource "google_network_security_security_profile_group" "default" {
 }
 
 resource "google_network_security_security_profile" "security_profile" {
-    name        = "tf-test-sec-profile%{random_suffix}"
+    name        = "%{security_profile_name}"
     type        = "THREAT_PREVENTION"
     parent      = "organizations/%{org_id}"
     location    = "global"
@@ -101,9 +105,13 @@ resource "google_network_security_security_profile" "security_profile" {
 func TestAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGroupUrlFilteringExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":                      envvar.GetTestOrgFromEnv(t),
+		"security_profile_group_name": "tf-test-sec-profile-group" + randomSuffix,
+		"security_profile_name":       "tf-test-sec-profile" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,7 +135,7 @@ func TestAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGr
 func testAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGroupUrlFilteringExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_security_profile_group" "default" {
-  name                      = "tf-test-sec-profile-group%{random_suffix}"
+  name                      = "%{security_profile_group_name}"
   parent                    = "organizations/%{org_id}"
   description               = "my description"
   url_filtering_profile     = google_network_security_security_profile.security_profile.id
@@ -138,7 +146,7 @@ resource "google_network_security_security_profile_group" "default" {
 }
 
 resource "google_network_security_security_profile" "security_profile" {
-  name        = "tf-test-sec-profile%{random_suffix}"
+  name        = "%{security_profile_name}"
   location    = "global"
   type        = "URL_FILTERING"
 

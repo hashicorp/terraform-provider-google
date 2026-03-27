@@ -53,9 +53,14 @@ var (
 func TestAccDataCatalogTag_dataCatalogEntryTagBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"force_delete":  true,
-		"random_suffix": acctest.RandString(t, 10),
+		"entry_group_id":  "tf_test_my_entry_group" + randomSuffix,
+		"entry_id":        "tf_test_my_entry" + randomSuffix,
+		"force_delete":    true,
+		"tag_template_id": "tf_test_my_template" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,18 +85,18 @@ func testAccDataCatalogTag_dataCatalogEntryTagBasicExample(context map[string]in
 	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
-  entry_id = "tf_test_my_entry%{random_suffix}"
+  entry_id = "%{entry_id}"
 
   user_specified_type = "my_custom_type"
   user_specified_system = "SomethingExternal"
 }
 
 resource "google_data_catalog_entry_group" "entry_group" {
-  entry_group_id = "tf_test_my_entry_group%{random_suffix}"
+  entry_group_id = "%{entry_group_id}"
 }
 
 resource "google_data_catalog_tag_template" "tag_template" {
-  tag_template_id = "tf_test_my_template%{random_suffix}"
+  tag_template_id = "%{tag_template_id}"
   region = "us-central1"
   display_name = "Demo Tag Template"
 
@@ -148,9 +153,15 @@ resource "google_data_catalog_tag" "basic_tag" {
 func TestAccDataCatalogTag_dataCatalogEntryGroupTagExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"force_delete":  true,
-		"random_suffix": acctest.RandString(t, 10),
+		"entry_group_id":  "tf_test_my_entry_group" + randomSuffix,
+		"first_entry":     "tf_test_first_entry" + randomSuffix,
+		"force_delete":    true,
+		"second_entry":    "tf_test_second_entry" + randomSuffix,
+		"tag_template_id": "tf_test_my_template" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -175,7 +186,7 @@ func testAccDataCatalogTag_dataCatalogEntryGroupTagExample(context map[string]in
 	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "first_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
-  entry_id = "tf_test_first_entry%{random_suffix}"
+  entry_id = "%{first_entry}"
 
   user_specified_type = "my_custom_type"
   user_specified_system = "SomethingExternal"
@@ -183,18 +194,18 @@ resource "google_data_catalog_entry" "first_entry" {
 
 resource "google_data_catalog_entry" "second_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
-  entry_id = "tf_test_second_entry%{random_suffix}"
+  entry_id = "%{second_entry}"
 
   user_specified_type = "another_custom_type"
   user_specified_system = "SomethingElseExternal"
 }
 
 resource "google_data_catalog_entry_group" "entry_group" {
-  entry_group_id = "tf_test_my_entry_group%{random_suffix}"
+  entry_group_id = "%{entry_group_id}"
 }
 
 resource "google_data_catalog_tag_template" "tag_template" {
-  tag_template_id = "tf_test_my_template%{random_suffix}"
+  tag_template_id = "%{tag_template_id}"
   region = "us-central1"
   display_name = "Demo Tag Template"
 
@@ -252,9 +263,14 @@ func TestAccDataCatalogTag_dataCatalogEntryTagFullExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"force_delete":  true,
-		"random_suffix": acctest.RandString(t, 10),
+		"entry_group_id":  "tf_test_my_entry_group" + randomSuffix,
+		"entry_id":        "tf_test_my_entry" + randomSuffix,
+		"force_delete":    true,
+		"tag_template_id": "tf_test_my_template" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -279,7 +295,7 @@ func testAccDataCatalogTag_dataCatalogEntryTagFullExample(context map[string]int
 	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
-  entry_id = "tf_test_my_entry%{random_suffix}"
+  entry_id = "%{entry_id}"
 
   user_specified_type = "my_custom_type"
   user_specified_system = "SomethingExternal"
@@ -325,11 +341,11 @@ EOF
 }
 
 resource "google_data_catalog_entry_group" "entry_group" {
-  entry_group_id = "tf_test_my_entry_group%{random_suffix}"
+  entry_group_id = "%{entry_group_id}"
 }
 
 resource "google_data_catalog_tag_template" "tag_template" {
-  tag_template_id = "tf_test_my_template%{random_suffix}"
+  tag_template_id = "%{tag_template_id}"
   region = "us-central1"
   display_name = "Demo Tag Template"
 
@@ -415,9 +431,14 @@ resource "google_data_catalog_tag" "second-tag" {
 func TestAccDataCatalogTag_dataCatalogEntryTagFalseExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"force_delete":  true,
-		"random_suffix": acctest.RandString(t, 10),
+		"entry_group_id":  "tf_test_my_entry_group" + randomSuffix,
+		"entry_id":        "tf_test_my_entry" + randomSuffix,
+		"force_delete":    true,
+		"tag_template_id": "tf_test_my_template" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -442,18 +463,18 @@ func testAccDataCatalogTag_dataCatalogEntryTagFalseExample(context map[string]in
 	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
-  entry_id = "tf_test_my_entry%{random_suffix}"
+  entry_id = "%{entry_id}"
 
   user_specified_type = "my_custom_type"
   user_specified_system = "SomethingExternal"
 }
 
 resource "google_data_catalog_entry_group" "entry_group" {
-  entry_group_id = "tf_test_my_entry_group%{random_suffix}"
+  entry_group_id = "%{entry_group_id}"
 }
 
 resource "google_data_catalog_tag_template" "tag_template" {
-  tag_template_id = "tf_test_my_template%{random_suffix}"
+  tag_template_id = "%{tag_template_id}"
   region = "us-central1"
   display_name = "Demo Tag Template"
 

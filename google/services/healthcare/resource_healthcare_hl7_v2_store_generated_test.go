@@ -53,8 +53,13 @@ var (
 func TestAccHealthcareHl7V2Store_healthcareHl7V2StoreBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_name":      "tf-test-example-dataset" + randomSuffix,
+		"hl7_v2_store_name": "tf-test-example-hl7-v2-store" + randomSuffix,
+		"pubsub_topic":      "tf-test-hl7-v2-notifications" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccHealthcareHl7V2Store_healthcareHl7V2StoreBasicExample(t *testing.T) 
 func testAccHealthcareHl7V2Store_healthcareHl7V2StoreBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_healthcare_hl7_v2_store" "store" {
-  name    = "tf-test-example-hl7-v2-store%{random_suffix}"
+  name    = "%{hl7_v2_store_name}"
   dataset = google_healthcare_dataset.dataset.id
   reject_duplicate_message = true
 
@@ -92,11 +97,11 @@ resource "google_healthcare_hl7_v2_store" "store" {
 }
 
 resource "google_pubsub_topic" "topic" {
-  name     = "tf-test-hl7-v2-notifications%{random_suffix}"
+  name     = "%{pubsub_topic}"
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf-test-example-dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 `, context)

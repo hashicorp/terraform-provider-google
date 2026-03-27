@@ -53,10 +53,13 @@ var (
 func TestAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"project_id":      "tf-test-ae-project" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func testAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(context map[
 	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name       = "tf-test-project"
-  project_id = "tf-test-ae-project%{random_suffix}"
+  project_id = "%{project_id}"
   org_id     = "%{org_id}"
   billing_account = "%{billing_account}"
   deletion_policy = "DELETE"

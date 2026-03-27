@@ -54,9 +54,14 @@ func TestAccBigtableLogicalView_bigtableLogicalViewExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"instance_name":       "tf-test-bt-instance" + randomSuffix,
+		"logical_view_name":   "tf-test-bt-logical-view" + randomSuffix,
+		"table_name":          "tf-test-bt-table" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +85,7 @@ func TestAccBigtableLogicalView_bigtableLogicalViewExample(t *testing.T) {
 func testAccBigtableLogicalView_bigtableLogicalViewExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigtable_instance" "instance" {
-  name = "tf-test-bt-instance%{random_suffix}"
+  name = "%{instance_name}"
   cluster {
     cluster_id   = "cluster-1"
     zone         = "us-east1-b"
@@ -92,7 +97,7 @@ resource "google_bigtable_instance" "instance" {
 }
 
 resource "google_bigtable_table" "table" {
-  name          = "tf-test-bt-table%{random_suffix}"
+  name          = "%{table_name}"
   instance_name = google_bigtable_instance.instance.name
 
   column_family {
@@ -101,12 +106,12 @@ resource "google_bigtable_table" "table" {
 }
 
 resource "google_bigtable_logical_view" "logical_view" {
-  logical_view_id = "tf-test-bt-logical-view%{random_suffix}"
+  logical_view_id = "%{logical_view_name}"
   instance        = google_bigtable_instance.instance.name
   deletion_protection  = false
   query = <<EOT
 SELECT _key, CF
-FROM `+"`tf-test-bt-table%{random_suffix}`"+`
+FROM `+"`%{table_name}`"+`
 EOT
 
   depends_on = [

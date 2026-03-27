@@ -53,9 +53,12 @@ var (
 func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"instance_name":   "tf-test-memory-cache" + randomSuffix,
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 func testAccRedisInstance_redisInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_instance" "cache" {
-  name           = "tf-test-memory-cache%{random_suffix}"
+  name           = "%{instance_name}"
   memory_size_gb = 1
   deletion_protection = false
 
@@ -93,10 +96,13 @@ resource "google_redis_instance" "cache" {
 func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"instance_name":   "tf-test-ha-memory-cache" + randomSuffix,
 		"network_name":    acctest.BootstrapSharedTestNetwork(t, "redis-full"),
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -120,7 +126,7 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 func testAccRedisInstance_redisInstanceFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_instance" "cache" {
-  name           = "tf-test-ha-memory-cache%{random_suffix}"
+  name           = "%{instance_name}"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
 
@@ -172,10 +178,13 @@ data "google_compute_network" "redis-network" {
 func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"instance_name":   "tf-test-ha-memory-cache-persis" + randomSuffix,
 		"network_name":    acctest.BootstrapSharedTestNetwork(t, "redis-full-persis"),
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -199,7 +208,7 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 func testAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_instance" "cache-persis" {
-  name           = "tf-test-ha-memory-cache-persis%{random_suffix}"
+  name           = "%{instance_name}"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
   location_id             = "us-central1-a"
@@ -220,10 +229,13 @@ resource "google_redis_instance" "cache-persis" {
 func TestAccRedisInstance_redisInstancePrivateServiceTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"instance_name":   "tf-test-private-cache" + randomSuffix,
 		"network_name":    acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -259,7 +271,7 @@ data "google_compute_network" "redis-network" {
 }
 
 resource "google_redis_instance" "cache" {
-  name           = "tf-test-private-cache%{random_suffix}"
+  name           = "%{instance_name}"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
 
@@ -282,10 +294,13 @@ resource "google_redis_instance" "cache" {
 func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"instance_name":   "tf-test-mrr-memory-cache" + randomSuffix,
 		"network_name":    acctest.BootstrapSharedTestNetwork(t, "redis-mrr"),
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -309,7 +324,7 @@ func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
 func testAccRedisInstance_redisInstanceMrrExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_instance" "cache" {
-  name           = "tf-test-mrr-memory-cache%{random_suffix}"
+  name           = "%{instance_name}"
   tier           = "STANDARD_HA"
   memory_size_gb = 5
 

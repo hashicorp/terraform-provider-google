@@ -53,8 +53,13 @@ var (
 func TestAccHealthcareDicomStore_healthcareDicomStoreBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_name":     "tf-test-example-dataset" + randomSuffix,
+		"dicom_store_name": "tf-test-example-dicom-store" + randomSuffix,
+		"pubsub_topic":     "tf-test-dicom-notifications" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccHealthcareDicomStore_healthcareDicomStoreBasicExample(t *testing.T) 
 func testAccHealthcareDicomStore_healthcareDicomStoreBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_healthcare_dicom_store" "default" {
-  name    = "tf-test-example-dicom-store%{random_suffix}"
+  name    = "%{dicom_store_name}"
   dataset = google_healthcare_dataset.dataset.id
 
   notification_config {
@@ -91,11 +96,11 @@ resource "google_healthcare_dicom_store" "default" {
 }
 
 resource "google_pubsub_topic" "topic" {
-  name     = "tf-test-dicom-notifications%{random_suffix}"
+  name     = "%{pubsub_topic}"
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf-test-example-dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 `, context)

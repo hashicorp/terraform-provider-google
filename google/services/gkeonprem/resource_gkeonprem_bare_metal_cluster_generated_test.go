@@ -53,8 +53,11 @@ var (
 func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-cluster" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterBasicExample(t *t
 func testAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_bare_metal_cluster" "cluster-basic" {
-  name = "tf-test-my-cluster%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   bare_metal_version = "1.12.3"
@@ -154,8 +157,11 @@ resource "google_gkeonprem_bare_metal_cluster" "cluster-basic" {
 func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterManuallbExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-cluster-manuallb" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -179,7 +185,7 @@ func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterManuallbExample(t
 func testAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterManuallbExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_bare_metal_cluster" "cluster-manuallb" {
-  name = "tf-test-cluster-manuallb%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   bare_metal_version = "1.12.3"
@@ -246,8 +252,11 @@ resource "google_gkeonprem_bare_metal_cluster" "cluster-manuallb" {
 func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterBgplbExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-cluster-bgplb" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -271,7 +280,7 @@ func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterBgplbExample(t *t
 func testAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterBgplbExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_bare_metal_cluster" "cluster-bgplb" {
-  name = "tf-test-cluster-bgplb%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   bare_metal_version = "1.12.3"

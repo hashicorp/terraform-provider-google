@@ -53,8 +53,11 @@ var (
 func TestAccDialogflowCXSecuritySettings_dialogflowcxSecuritySettingsBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"settings_name": "tf-test-dialogflowcx-security-settings" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccDialogflowCXSecuritySettings_dialogflowcxSecuritySettingsBasicExampl
 func testAccDialogflowCXSecuritySettings_dialogflowcxSecuritySettingsBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_security_settings" "basic_security_settings" {
-  display_name          = "tf-test-dialogflowcx-security-settings%{random_suffix}"
+  display_name          = "%{settings_name}"
   location              = "global"
   purge_data_types      = []
   retention_window_days = 7
@@ -89,9 +92,15 @@ resource "google_dialogflow_cx_security_settings" "basic_security_settings" {
 func TestAccDialogflowCXSecuritySettings_dialogflowcxSecuritySettingsFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"bucket_name":     "tf-test-dialogflowcx-bucket" + randomSuffix,
+		"deidentify_name": "tf-test-dialogflowcx-deidentify-template" + randomSuffix,
+		"inspect_name":    "tf-test-dialogflowcx-inspect-template" + randomSuffix,
+		"settings_name":   "tf-test-dialogflowcx-security-settings" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -116,7 +125,7 @@ func testAccDialogflowCXSecuritySettings_dialogflowcxSecuritySettingsFullExample
 	return acctest.Nprintf(`
 resource "google_data_loss_prevention_inspect_template" "inspect" {
   parent       = "projects/%{project}/locations/global"
-  display_name = "tf-test-dialogflowcx-inspect-template%{random_suffix}"
+  display_name = "%{inspect_name}"
   inspect_config {
     info_types {
       name = "EMAIL_ADDRESS"
@@ -126,7 +135,7 @@ resource "google_data_loss_prevention_inspect_template" "inspect" {
 
 resource "google_data_loss_prevention_deidentify_template" "deidentify" {
   parent       = "projects/%{project}/locations/global"
-  display_name = "tf-test-dialogflowcx-deidentify-template%{random_suffix}"
+  display_name = "%{deidentify_name}"
   deidentify_config {
     info_type_transformations {
       transformations {
@@ -143,13 +152,13 @@ resource "google_data_loss_prevention_deidentify_template" "deidentify" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name                        = "tf-test-dialogflowcx-bucket%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "US"
   uniform_bucket_level_access = true
 }
 
 resource "google_dialogflow_cx_security_settings" "basic_security_settings" {
-  display_name        = "tf-test-dialogflowcx-security-settings%{random_suffix}"
+  display_name        = "%{settings_name}"
   location            = "global"
   redaction_strategy  = "REDACT_WITH_SERVICE"
   redaction_scope     = "REDACT_DISK_STORAGE"

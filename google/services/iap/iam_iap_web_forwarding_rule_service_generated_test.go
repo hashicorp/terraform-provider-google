@@ -42,14 +42,21 @@ var (
 func TestAccIapWebForwardingRuleServiceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":                randomSuffix,
+		"role":                         "roles/iap.httpsResourceAccessor",
+		"backend_service_name":         "tf-test-backend-service-name" + randomSuffix,
+		"forwarding_rule_service_name": "tf-test-forwarding-rule-service" + randomSuffix,
+		"health_check_name":            "tf-test-health-check-name" + randomSuffix,
+		"target_http_proxy_name":       "tf-test-target-http-proxy-name" + randomSuffix,
+		"url_map_name":                 "tf-test-url-map-name" + randomSuffix,
+		"condition_title":              "expires_after_2019_12_31",
+		"condition_expr":               `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":               "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":      "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":       `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -82,14 +89,21 @@ func TestAccIapWebForwardingRuleServiceIamBindingGenerated(t *testing.T) {
 func TestAccIapWebForwardingRuleServiceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":                randomSuffix,
+		"role":                         "roles/iap.httpsResourceAccessor",
+		"backend_service_name":         "tf-test-backend-service-name" + randomSuffix,
+		"forwarding_rule_service_name": "tf-test-forwarding-rule-service" + randomSuffix,
+		"health_check_name":            "tf-test-health-check-name" + randomSuffix,
+		"target_http_proxy_name":       "tf-test-target-http-proxy-name" + randomSuffix,
+		"url_map_name":                 "tf-test-url-map-name" + randomSuffix,
+		"condition_title":              "expires_after_2019_12_31",
+		"condition_expr":               `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":               "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":      "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":       `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -113,14 +127,21 @@ func TestAccIapWebForwardingRuleServiceIamMemberGenerated(t *testing.T) {
 func TestAccIapWebForwardingRuleServiceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":                randomSuffix,
+		"role":                         "roles/iap.httpsResourceAccessor",
+		"backend_service_name":         "tf-test-backend-service-name" + randomSuffix,
+		"forwarding_rule_service_name": "tf-test-forwarding-rule-service" + randomSuffix,
+		"health_check_name":            "tf-test-health-check-name" + randomSuffix,
+		"target_http_proxy_name":       "tf-test-target-http-proxy-name" + randomSuffix,
+		"url_map_name":                 "tf-test-url-map-name" + randomSuffix,
+		"condition_title":              "expires_after_2019_12_31",
+		"condition_expr":               `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":               "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":      "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":       `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -153,14 +174,21 @@ func TestAccIapWebForwardingRuleServiceIamPolicyGenerated(t *testing.T) {
 func TestAccIapWebForwardingRuleServiceIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":                randomSuffix,
+		"role":                         "roles/iap.httpsResourceAccessor",
+		"backend_service_name":         "tf-test-backend-service-name" + randomSuffix,
+		"forwarding_rule_service_name": "tf-test-forwarding-rule-service" + randomSuffix,
+		"health_check_name":            "tf-test-health-check-name" + randomSuffix,
+		"target_http_proxy_name":       "tf-test-target-http-proxy-name" + randomSuffix,
+		"url_map_name":                 "tf-test-url-map-name" + randomSuffix,
+		"condition_title":              "expires_after_2019_12_31",
+		"condition_expr":               `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":               "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":      "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":       `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -185,14 +213,21 @@ func TestAccIapWebForwardingRuleServiceIamBindingGenerated_withAndWithoutConditi
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":                randomSuffix,
+		"role":                         "roles/iap.httpsResourceAccessor",
+		"backend_service_name":         "tf-test-backend-service-name" + randomSuffix,
+		"forwarding_rule_service_name": "tf-test-forwarding-rule-service" + randomSuffix,
+		"health_check_name":            "tf-test-health-check-name" + randomSuffix,
+		"target_http_proxy_name":       "tf-test-target-http-proxy-name" + randomSuffix,
+		"url_map_name":                 "tf-test-url-map-name" + randomSuffix,
+		"condition_title":              "expires_after_2019_12_31",
+		"condition_expr":               `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":               "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":      "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":       `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -227,14 +262,21 @@ func TestAccIapWebForwardingRuleServiceIamBindingGenerated_withAndWithoutConditi
 func TestAccIapWebForwardingRuleServiceIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":                randomSuffix,
+		"role":                         "roles/iap.httpsResourceAccessor",
+		"backend_service_name":         "tf-test-backend-service-name" + randomSuffix,
+		"forwarding_rule_service_name": "tf-test-forwarding-rule-service" + randomSuffix,
+		"health_check_name":            "tf-test-health-check-name" + randomSuffix,
+		"target_http_proxy_name":       "tf-test-target-http-proxy-name" + randomSuffix,
+		"url_map_name":                 "tf-test-url-map-name" + randomSuffix,
+		"condition_title":              "expires_after_2019_12_31",
+		"condition_expr":               `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":               "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":      "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":       `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -259,14 +301,21 @@ func TestAccIapWebForwardingRuleServiceIamMemberGenerated_withAndWithoutConditio
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":                randomSuffix,
+		"role":                         "roles/iap.httpsResourceAccessor",
+		"backend_service_name":         "tf-test-backend-service-name" + randomSuffix,
+		"forwarding_rule_service_name": "tf-test-forwarding-rule-service" + randomSuffix,
+		"health_check_name":            "tf-test-health-check-name" + randomSuffix,
+		"target_http_proxy_name":       "tf-test-target-http-proxy-name" + randomSuffix,
+		"url_map_name":                 "tf-test-url-map-name" + randomSuffix,
+		"condition_title":              "expires_after_2019_12_31",
+		"condition_expr":               `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":               "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":      "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":       `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -301,14 +350,21 @@ func TestAccIapWebForwardingRuleServiceIamMemberGenerated_withAndWithoutConditio
 func TestAccIapWebForwardingRuleServiceIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
-		"role":                    "roles/iap.httpsResourceAccessor",
-		"condition_title":         "expires_after_2019_12_31",
-		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
-		"condition_desc":          "Expiring at midnight of 2019-12-31",
-		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
-		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"random_suffix":                randomSuffix,
+		"role":                         "roles/iap.httpsResourceAccessor",
+		"backend_service_name":         "tf-test-backend-service-name" + randomSuffix,
+		"forwarding_rule_service_name": "tf-test-forwarding-rule-service" + randomSuffix,
+		"health_check_name":            "tf-test-health-check-name" + randomSuffix,
+		"target_http_proxy_name":       "tf-test-target-http-proxy-name" + randomSuffix,
+		"url_map_name":                 "tf-test-url-map-name" + randomSuffix,
+		"condition_title":              "expires_after_2019_12_31",
+		"condition_expr":               `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":               "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc":      "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":       `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	// Test should have 2 bindings: one with a description and one without. Any < chars are converted to a unicode character by the API.
@@ -341,7 +397,7 @@ func TestAccIapWebForwardingRuleServiceIamPolicyGenerated_withCondition(t *testi
 func testAccIapWebForwardingRuleServiceIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "default" {
-  name    = "tf-test-health-check-name%{random_suffix}"
+  name    = "%{health_check_name}"
   http_health_check {
     port         = 80
     request_path = "/"
@@ -350,7 +406,7 @@ resource "google_compute_health_check" "default" {
 
 
 resource "google_compute_backend_service" "default" {
-  name     = "tf-test-backend-service-name%{random_suffix}"
+  name     = "%{backend_service_name}"
   protocol = "HTTP"
   port_name = "http"
   timeout_sec = 10
@@ -360,19 +416,19 @@ resource "google_compute_backend_service" "default" {
 
 
 resource "google_compute_url_map" "default" {
-  name    = "tf-test-url-map-name%{random_suffix}"
+  name    = "%{url_map_name}"
   default_service = google_compute_backend_service.default.id
 }
 
 
 resource "google_compute_target_http_proxy" "default" {
-  name    = "tf-test-target-http-proxy-name%{random_suffix}"
+  name    = "%{target_http_proxy_name}"
   url_map = google_compute_url_map.default.id
 }
 
 
 resource "google_compute_global_forwarding_rule" "default" {
-  name = "tf-test-forwarding-rule-service%{random_suffix}"
+  name = "%{forwarding_rule_service_name}"
   target = google_compute_target_http_proxy.default.id
   port_range = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -390,7 +446,7 @@ resource "google_iap_web_forwarding_rule_service_iam_member" "foo" {
 func testAccIapWebForwardingRuleServiceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "default" {
-  name    = "tf-test-health-check-name%{random_suffix}"
+  name    = "%{health_check_name}"
   http_health_check {
     port         = 80
     request_path = "/"
@@ -399,7 +455,7 @@ resource "google_compute_health_check" "default" {
 
 
 resource "google_compute_backend_service" "default" {
-  name     = "tf-test-backend-service-name%{random_suffix}"
+  name     = "%{backend_service_name}"
   protocol = "HTTP"
   port_name = "http"
   timeout_sec = 10
@@ -409,19 +465,19 @@ resource "google_compute_backend_service" "default" {
 
 
 resource "google_compute_url_map" "default" {
-  name    = "tf-test-url-map-name%{random_suffix}"
+  name    = "%{url_map_name}"
   default_service = google_compute_backend_service.default.id
 }
 
 
 resource "google_compute_target_http_proxy" "default" {
-  name    = "tf-test-target-http-proxy-name%{random_suffix}"
+  name    = "%{target_http_proxy_name}"
   url_map = google_compute_url_map.default.id
 }
 
 
 resource "google_compute_global_forwarding_rule" "default" {
-  name = "tf-test-forwarding-rule-service%{random_suffix}"
+  name = "%{forwarding_rule_service_name}"
   target = google_compute_target_http_proxy.default.id
   port_range = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -453,7 +509,7 @@ data "google_iap_web_forwarding_rule_service_iam_policy" "foo" {
 func testAccIapWebForwardingRuleServiceIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "default" {
-  name    = "tf-test-health-check-name%{random_suffix}"
+  name    = "%{health_check_name}"
   http_health_check {
     port         = 80
     request_path = "/"
@@ -462,7 +518,7 @@ resource "google_compute_health_check" "default" {
 
 
 resource "google_compute_backend_service" "default" {
-  name     = "tf-test-backend-service-name%{random_suffix}"
+  name     = "%{backend_service_name}"
   protocol = "HTTP"
   port_name = "http"
   timeout_sec = 10
@@ -472,19 +528,19 @@ resource "google_compute_backend_service" "default" {
 
 
 resource "google_compute_url_map" "default" {
-  name    = "tf-test-url-map-name%{random_suffix}"
+  name    = "%{url_map_name}"
   default_service = google_compute_backend_service.default.id
 }
 
 
 resource "google_compute_target_http_proxy" "default" {
-  name    = "tf-test-target-http-proxy-name%{random_suffix}"
+  name    = "%{target_http_proxy_name}"
   url_map = google_compute_url_map.default.id
 }
 
 
 resource "google_compute_global_forwarding_rule" "default" {
-  name = "tf-test-forwarding-rule-service%{random_suffix}"
+  name = "%{forwarding_rule_service_name}"
   target = google_compute_target_http_proxy.default.id
   port_range = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -504,7 +560,7 @@ resource "google_iap_web_forwarding_rule_service_iam_policy" "foo" {
 func testAccIapWebForwardingRuleServiceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "default" {
-  name    = "tf-test-health-check-name%{random_suffix}"
+  name    = "%{health_check_name}"
   http_health_check {
     port         = 80
     request_path = "/"
@@ -513,7 +569,7 @@ resource "google_compute_health_check" "default" {
 
 
 resource "google_compute_backend_service" "default" {
-  name     = "tf-test-backend-service-name%{random_suffix}"
+  name     = "%{backend_service_name}"
   protocol = "HTTP"
   port_name = "http"
   timeout_sec = 10
@@ -523,19 +579,19 @@ resource "google_compute_backend_service" "default" {
 
 
 resource "google_compute_url_map" "default" {
-  name    = "tf-test-url-map-name%{random_suffix}"
+  name    = "%{url_map_name}"
   default_service = google_compute_backend_service.default.id
 }
 
 
 resource "google_compute_target_http_proxy" "default" {
-  name    = "tf-test-target-http-proxy-name%{random_suffix}"
+  name    = "%{target_http_proxy_name}"
   url_map = google_compute_url_map.default.id
 }
 
 
 resource "google_compute_global_forwarding_rule" "default" {
-  name = "tf-test-forwarding-rule-service%{random_suffix}"
+  name = "%{forwarding_rule_service_name}"
   target = google_compute_target_http_proxy.default.id
   port_range = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -553,7 +609,7 @@ resource "google_iap_web_forwarding_rule_service_iam_binding" "foo" {
 func testAccIapWebForwardingRuleServiceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "default" {
-  name    = "tf-test-health-check-name%{random_suffix}"
+  name    = "%{health_check_name}"
   http_health_check {
     port         = 80
     request_path = "/"
@@ -562,7 +618,7 @@ resource "google_compute_health_check" "default" {
 
 
 resource "google_compute_backend_service" "default" {
-  name     = "tf-test-backend-service-name%{random_suffix}"
+  name     = "%{backend_service_name}"
   protocol = "HTTP"
   port_name = "http"
   timeout_sec = 10
@@ -572,19 +628,19 @@ resource "google_compute_backend_service" "default" {
 
 
 resource "google_compute_url_map" "default" {
-  name    = "tf-test-url-map-name%{random_suffix}"
+  name    = "%{url_map_name}"
   default_service = google_compute_backend_service.default.id
 }
 
 
 resource "google_compute_target_http_proxy" "default" {
-  name    = "tf-test-target-http-proxy-name%{random_suffix}"
+  name    = "%{target_http_proxy_name}"
   url_map = google_compute_url_map.default.id
 }
 
 
 resource "google_compute_global_forwarding_rule" "default" {
-  name = "tf-test-forwarding-rule-service%{random_suffix}"
+  name = "%{forwarding_rule_service_name}"
   target = google_compute_target_http_proxy.default.id
   port_range = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -602,7 +658,7 @@ resource "google_iap_web_forwarding_rule_service_iam_binding" "foo" {
 func testAccIapWebForwardingRuleServiceIamBinding_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "default" {
-  name    = "tf-test-health-check-name%{random_suffix}"
+  name    = "%{health_check_name}"
   http_health_check {
     port         = 80
     request_path = "/"
@@ -611,7 +667,7 @@ resource "google_compute_health_check" "default" {
 
 
 resource "google_compute_backend_service" "default" {
-  name     = "tf-test-backend-service-name%{random_suffix}"
+  name     = "%{backend_service_name}"
   protocol = "HTTP"
   port_name = "http"
   timeout_sec = 10
@@ -621,19 +677,19 @@ resource "google_compute_backend_service" "default" {
 
 
 resource "google_compute_url_map" "default" {
-  name    = "tf-test-url-map-name%{random_suffix}"
+  name    = "%{url_map_name}"
   default_service = google_compute_backend_service.default.id
 }
 
 
 resource "google_compute_target_http_proxy" "default" {
-  name    = "tf-test-target-http-proxy-name%{random_suffix}"
+  name    = "%{target_http_proxy_name}"
   url_map = google_compute_url_map.default.id
 }
 
 
 resource "google_compute_global_forwarding_rule" "default" {
-  name = "tf-test-forwarding-rule-service%{random_suffix}"
+  name = "%{forwarding_rule_service_name}"
   target = google_compute_target_http_proxy.default.id
   port_range = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -656,7 +712,7 @@ resource "google_iap_web_forwarding_rule_service_iam_binding" "foo" {
 func testAccIapWebForwardingRuleServiceIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "default" {
-  name    = "tf-test-health-check-name%{random_suffix}"
+  name    = "%{health_check_name}"
   http_health_check {
     port         = 80
     request_path = "/"
@@ -665,7 +721,7 @@ resource "google_compute_health_check" "default" {
 
 
 resource "google_compute_backend_service" "default" {
-  name     = "tf-test-backend-service-name%{random_suffix}"
+  name     = "%{backend_service_name}"
   protocol = "HTTP"
   port_name = "http"
   timeout_sec = 10
@@ -675,19 +731,19 @@ resource "google_compute_backend_service" "default" {
 
 
 resource "google_compute_url_map" "default" {
-  name    = "tf-test-url-map-name%{random_suffix}"
+  name    = "%{url_map_name}"
   default_service = google_compute_backend_service.default.id
 }
 
 
 resource "google_compute_target_http_proxy" "default" {
-  name    = "tf-test-target-http-proxy-name%{random_suffix}"
+  name    = "%{target_http_proxy_name}"
   url_map = google_compute_url_map.default.id
 }
 
 
 resource "google_compute_global_forwarding_rule" "default" {
-  name = "tf-test-forwarding-rule-service%{random_suffix}"
+  name = "%{forwarding_rule_service_name}"
   target = google_compute_target_http_proxy.default.id
   port_range = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -730,7 +786,7 @@ resource "google_iap_web_forwarding_rule_service_iam_binding" "foo3" {
 func testAccIapWebForwardingRuleServiceIamMember_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "default" {
-  name    = "tf-test-health-check-name%{random_suffix}"
+  name    = "%{health_check_name}"
   http_health_check {
     port         = 80
     request_path = "/"
@@ -739,7 +795,7 @@ resource "google_compute_health_check" "default" {
 
 
 resource "google_compute_backend_service" "default" {
-  name     = "tf-test-backend-service-name%{random_suffix}"
+  name     = "%{backend_service_name}"
   protocol = "HTTP"
   port_name = "http"
   timeout_sec = 10
@@ -749,19 +805,19 @@ resource "google_compute_backend_service" "default" {
 
 
 resource "google_compute_url_map" "default" {
-  name    = "tf-test-url-map-name%{random_suffix}"
+  name    = "%{url_map_name}"
   default_service = google_compute_backend_service.default.id
 }
 
 
 resource "google_compute_target_http_proxy" "default" {
-  name    = "tf-test-target-http-proxy-name%{random_suffix}"
+  name    = "%{target_http_proxy_name}"
   url_map = google_compute_url_map.default.id
 }
 
 
 resource "google_compute_global_forwarding_rule" "default" {
-  name = "tf-test-forwarding-rule-service%{random_suffix}"
+  name = "%{forwarding_rule_service_name}"
   target = google_compute_target_http_proxy.default.id
   port_range = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -784,7 +840,7 @@ resource "google_iap_web_forwarding_rule_service_iam_member" "foo" {
 func testAccIapWebForwardingRuleServiceIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "default" {
-  name    = "tf-test-health-check-name%{random_suffix}"
+  name    = "%{health_check_name}"
   http_health_check {
     port         = 80
     request_path = "/"
@@ -793,7 +849,7 @@ resource "google_compute_health_check" "default" {
 
 
 resource "google_compute_backend_service" "default" {
-  name     = "tf-test-backend-service-name%{random_suffix}"
+  name     = "%{backend_service_name}"
   protocol = "HTTP"
   port_name = "http"
   timeout_sec = 10
@@ -803,19 +859,19 @@ resource "google_compute_backend_service" "default" {
 
 
 resource "google_compute_url_map" "default" {
-  name    = "tf-test-url-map-name%{random_suffix}"
+  name    = "%{url_map_name}"
   default_service = google_compute_backend_service.default.id
 }
 
 
 resource "google_compute_target_http_proxy" "default" {
-  name    = "tf-test-target-http-proxy-name%{random_suffix}"
+  name    = "%{target_http_proxy_name}"
   url_map = google_compute_url_map.default.id
 }
 
 
 resource "google_compute_global_forwarding_rule" "default" {
-  name = "tf-test-forwarding-rule-service%{random_suffix}"
+  name = "%{forwarding_rule_service_name}"
   target = google_compute_target_http_proxy.default.id
   port_range = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -858,7 +914,7 @@ resource "google_iap_web_forwarding_rule_service_iam_member" "foo3" {
 func testAccIapWebForwardingRuleServiceIamPolicy_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "default" {
-  name    = "tf-test-health-check-name%{random_suffix}"
+  name    = "%{health_check_name}"
   http_health_check {
     port         = 80
     request_path = "/"
@@ -867,7 +923,7 @@ resource "google_compute_health_check" "default" {
 
 
 resource "google_compute_backend_service" "default" {
-  name     = "tf-test-backend-service-name%{random_suffix}"
+  name     = "%{backend_service_name}"
   protocol = "HTTP"
   port_name = "http"
   timeout_sec = 10
@@ -877,19 +933,19 @@ resource "google_compute_backend_service" "default" {
 
 
 resource "google_compute_url_map" "default" {
-  name    = "tf-test-url-map-name%{random_suffix}"
+  name    = "%{url_map_name}"
   default_service = google_compute_backend_service.default.id
 }
 
 
 resource "google_compute_target_http_proxy" "default" {
-  name    = "tf-test-target-http-proxy-name%{random_suffix}"
+  name    = "%{target_http_proxy_name}"
   url_map = google_compute_url_map.default.id
 }
 
 
 resource "google_compute_global_forwarding_rule" "default" {
-  name = "tf-test-forwarding-rule-service%{random_suffix}"
+  name = "%{forwarding_rule_service_name}"
   target = google_compute_target_http_proxy.default.id
   port_range = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"

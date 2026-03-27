@@ -53,10 +53,12 @@ var (
 func TestAccModelArmorTemplate_modelarmorTemplateBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"location":      "us-central1",
 		"templateId":    "modelarmor1",
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -97,6 +99,8 @@ resource "google_model_armor_template" "template-basic" {
 func TestAccModelArmorTemplate_modelarmorTemplateFilterConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"filter_config_malicious_uri_filter_settings_filter_enforcement":    "ENABLED",
 		"filter_config_pi_and_jailbreak_filter_settings_confidence_level":   "MEDIUM_AND_ABOVE",
@@ -108,7 +112,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateFilterConfigExample(t *testing.
 		"sdp_settings_config_type": "basic_config",
 		"templateId":               "modelarmor2",
 		"template_metadata_multi_language_detection_enable_multi_language_detection": false,
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -167,6 +171,8 @@ resource "google_model_armor_template" "template-filter-config" {
 func TestAccModelArmorTemplate_modelarmorTemplateTemplateMetadataExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"filter_config_rai_settings_rai_filters_0_confidence_level": "MEDIUM_AND_ABOVE",
 		"filter_config_rai_settings_rai_filters_0_filter_type":      "HARASSMENT",
@@ -181,7 +187,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateTemplateMetadataExample(t *test
 		"template_metadata_log_sanitize_operations":                                  false,
 		"template_metadata_log_template_operations":                                  true,
 		"template_metadata_multi_language_detection_enable_multi_language_detection": true,
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -236,6 +242,8 @@ resource "google_model_armor_template" "template-template-metadata" {
 func TestAccModelArmorTemplate_modelarmorTemplateLabelExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"filter_config_rai_settings_rai_filters_0_confidence_level":      "MEDIUM_AND_ABOVE",
 		"filter_config_rai_settings_rai_filters_0_filter_type":           "DANGEROUS",
@@ -247,7 +255,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateLabelExample(t *testing.T) {
 		"sdp_settings_config_type": "advanced_config",
 		"templateId":               "modelarmor4",
 		"template_metadata_multi_language_detection_enable_multi_language_detection": false,
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

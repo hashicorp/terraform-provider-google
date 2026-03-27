@@ -26,8 +26,12 @@ import (
 func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubPublicDataExchangeUpdate(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id": "tf_test_public_data_exchange" + randomSuffix,
+		"desc":             "Example for public data exchange" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -61,9 +65,9 @@ func testAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubPublicDataExcha
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
-  data_exchange_id = "tf_test_public_data_exchange%{random_suffix}"
-  display_name     = "tf_test_public_data_exchange%{random_suffix}"
-  description      = "Example for public data exchange%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{desc}"
   discovery_type   = "DISCOVERY_TYPE_PRIVATE"
 }
 `, context)

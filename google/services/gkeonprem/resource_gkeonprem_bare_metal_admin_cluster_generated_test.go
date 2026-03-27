@@ -53,8 +53,11 @@ var (
 func TestAccGkeonpremBareMetalAdminCluster_gkeonpremBareMetalAdminClusterBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-cluster" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +80,7 @@ func TestAccGkeonpremBareMetalAdminCluster_gkeonpremBareMetalAdminClusterBasicEx
 func testAccGkeonpremBareMetalAdminCluster_gkeonpremBareMetalAdminClusterBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
-  name = "tf-test-my-cluster%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   bare_metal_version = "1.13.4"
   network_config {
@@ -140,8 +143,11 @@ resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
 func TestAccGkeonpremBareMetalAdminCluster_gkeonpremBareMetalAdminClusterFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-cluster" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -164,7 +170,7 @@ func TestAccGkeonpremBareMetalAdminCluster_gkeonpremBareMetalAdminClusterFullExa
 func testAccGkeonpremBareMetalAdminCluster_gkeonpremBareMetalAdminClusterFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
-  name = "tf-test-my-cluster%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   description = "test description"
   bare_metal_version = "1.13.4"

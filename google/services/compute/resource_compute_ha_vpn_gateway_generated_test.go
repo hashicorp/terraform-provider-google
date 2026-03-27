@@ -53,8 +53,12 @@ var (
 func TestAccComputeHaVpnGateway_haVpnGatewayBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"ha_vpn_gateway1_name": "tf-test-ha-vpn-1" + randomSuffix,
+		"network1_name":        "network1" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,12 +83,12 @@ func testAccComputeHaVpnGateway_haVpnGatewayBasicExample(context map[string]inte
 	return acctest.Nprintf(`
 resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
   region   = "us-central1"
-  name     = "tf-test-ha-vpn-1%{random_suffix}"
+  name     = "%{ha_vpn_gateway1_name}"
   network  = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
-  name                    = "network1%{random_suffix}"
+  name                    = "%{network1_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -93,8 +97,12 @@ resource "google_compute_network" "network1" {
 func TestAccComputeHaVpnGateway_haVpnGatewayIpv6Example(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"ha_vpn_gateway1_name": "tf-test-ha-vpn-1" + randomSuffix,
+		"network1_name":        "network1" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -119,7 +127,7 @@ func testAccComputeHaVpnGateway_haVpnGatewayIpv6Example(context map[string]inter
 	return acctest.Nprintf(`
 resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
   region   = "us-central1"
-  name     = "tf-test-ha-vpn-1%{random_suffix}"
+  name     = "%{ha_vpn_gateway1_name}"
   network  = google_compute_network.network1.id
   stack_type = "IPV4_IPV6"
   labels = {
@@ -128,7 +136,7 @@ resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
 }
 
 resource "google_compute_network" "network1" {
-  name                    = "network1%{random_suffix}"
+  name                    = "%{network1_name}"
   auto_create_subnetworks = false
 }
 `, context)

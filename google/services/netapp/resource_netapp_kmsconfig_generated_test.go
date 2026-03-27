@@ -53,9 +53,12 @@ var (
 func TestAccNetappkmsconfig_kmsConfigCreateExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"kms_key_name":  acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-netapp-kmsconfig-key1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"kms_name":      "tf-test-kms-test" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccNetappkmsconfig_kmsConfigCreateExample(t *testing.T) {
 func testAccNetappkmsconfig_kmsConfigCreateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_netapp_kmsconfig" "kmsConfig" {
-  name = "tf-test-kms-test%{random_suffix}"
+  name = "%{kms_name}"
   description="this is a test description"
   crypto_key_name="%{kms_key_name}"
   location="us-central1"

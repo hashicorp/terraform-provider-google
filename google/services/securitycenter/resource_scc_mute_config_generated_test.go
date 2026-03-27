@@ -53,9 +53,12 @@ var (
 func TestAccSecurityCenterMuteConfig_sccMuteConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":         envvar.GetTestOrgFromEnv(t),
+		"mute_config_id": "tf-test-my-config" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccSecurityCenterMuteConfig_sccMuteConfigExample(t *testing.T) {
 func testAccSecurityCenterMuteConfig_sccMuteConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_scc_mute_config" "default" {
-  mute_config_id = "tf-test-my-config%{random_suffix}"
+  mute_config_id = "%{mute_config_id}"
   parent         = "organizations/%{org_id}"
   filter         = "category: \"OS_VULNERABILITY\""
   description    = "My Mute Config"

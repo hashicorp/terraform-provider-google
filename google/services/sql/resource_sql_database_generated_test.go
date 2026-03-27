@@ -53,9 +53,13 @@ var (
 func TestAccSQLDatabase_sqlDatabaseBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"database_instance_name": "tf-test-my-database-instance" + randomSuffix,
+		"database_name":          "tf-test-my-database" + randomSuffix,
+		"deletion_protection":    false,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +82,13 @@ func TestAccSQLDatabase_sqlDatabaseBasicExample(t *testing.T) {
 func testAccSQLDatabase_sqlDatabaseBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sql_database" "database" {
-  name     = "tf-test-my-database%{random_suffix}"
+  name     = "%{database_name}"
   instance = google_sql_database_instance.instance.name
 }
 
 # See versions at https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance#database_version
 resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-my-database-instance%{random_suffix}"
+  name             = "%{database_instance_name}"
   region           = "us-central1"
   database_version = "MYSQL_8_0"
   settings {
@@ -99,9 +103,13 @@ resource "google_sql_database_instance" "instance" {
 func TestAccSQLDatabase_sqlDatabaseDeletionPolicyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"database_instance_name": "tf-test-my-database-instance" + randomSuffix,
+		"database_name":          "tf-test-my-database" + randomSuffix,
+		"deletion_protection":    false,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -125,14 +133,14 @@ func TestAccSQLDatabase_sqlDatabaseDeletionPolicyExample(t *testing.T) {
 func testAccSQLDatabase_sqlDatabaseDeletionPolicyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sql_database" "database_deletion_policy" {
-  name     = "tf-test-my-database%{random_suffix}"
+  name     = "%{database_name}"
   instance = google_sql_database_instance.instance.name
   deletion_policy = "ABANDON"
 }
 
 # See versions at https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance#database_version
 resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-my-database-instance%{random_suffix}"
+  name             = "%{database_instance_name}"
   region           = "us-central1"
   database_version = "POSTGRES_14"
   settings {

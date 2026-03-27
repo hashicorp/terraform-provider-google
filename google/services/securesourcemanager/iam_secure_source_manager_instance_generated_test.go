@@ -42,11 +42,14 @@ var (
 func TestAccSecureSourceManagerInstanceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 		"role":            "roles/securesourcemanager.instanceManager",
 		"admin_role":      "roles/securesourcemanager.instanceOwner",
 		"deletion_policy": "DELETE",
+		"instance_id":     "tf-test-my-instance" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,11 +82,14 @@ func TestAccSecureSourceManagerInstanceIamBindingGenerated(t *testing.T) {
 func TestAccSecureSourceManagerInstanceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 		"role":            "roles/securesourcemanager.instanceManager",
 		"admin_role":      "roles/securesourcemanager.instanceOwner",
 		"deletion_policy": "DELETE",
+		"instance_id":     "tf-test-my-instance" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -109,11 +115,14 @@ func TestAccSecureSourceManagerInstanceIamPolicyGenerated(t *testing.T) {
 
 	// This may skip test, so do it first
 	sa := envvar.GetTestServiceAccountFromEnv(t)
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 		"role":            "roles/securesourcemanager.instanceManager",
 		"admin_role":      "roles/securesourcemanager.instanceOwner",
 		"deletion_policy": "DELETE",
+		"instance_id":     "tf-test-my-instance" + randomSuffix,
 	}
 	context["service_account"] = sa
 
@@ -148,7 +157,7 @@ func testAccSecureSourceManagerInstanceIamMember_basicGenerated(context map[stri
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "default" {
     location = "us-central1"
-    instance_id = "tf-test-my-instance%{random_suffix}"
+    instance_id = "%{instance_id}"
     labels = {
       "foo" = "bar"
     }
@@ -171,7 +180,7 @@ func testAccSecureSourceManagerInstanceIamPolicy_basicGenerated(context map[stri
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "default" {
     location = "us-central1"
-    instance_id = "tf-test-my-instance%{random_suffix}"
+    instance_id = "%{instance_id}"
     labels = {
       "foo" = "bar"
     }
@@ -213,7 +222,7 @@ func testAccSecureSourceManagerInstanceIamPolicy_emptyBinding(context map[string
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "default" {
     location = "us-central1"
-    instance_id = "tf-test-my-instance%{random_suffix}"
+    instance_id = "%{instance_id}"
     labels = {
       "foo" = "bar"
     }
@@ -238,7 +247,7 @@ func testAccSecureSourceManagerInstanceIamBinding_basicGenerated(context map[str
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "default" {
     location = "us-central1"
-    instance_id = "tf-test-my-instance%{random_suffix}"
+    instance_id = "%{instance_id}"
     labels = {
       "foo" = "bar"
     }
@@ -261,7 +270,7 @@ func testAccSecureSourceManagerInstanceIamBinding_updateGenerated(context map[st
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "default" {
     location = "us-central1"
-    instance_id = "tf-test-my-instance%{random_suffix}"
+    instance_id = "%{instance_id}"
     labels = {
       "foo" = "bar"
     }

@@ -53,8 +53,11 @@ var (
 func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasic
 func testAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sql_source_representation_instance" "instance" {
-  name               = "tf-test-my-instance%{random_suffix}"
+  name               = "%{name}"
   region             = "us-central1"
   database_version   = "MYSQL_8_0"
   host               = "10.20.30.40"
@@ -93,8 +96,11 @@ resource "google_sql_source_representation_instance" "instance" {
 func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstancePostgresExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -118,7 +124,7 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstancePostg
 func testAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstancePostgresExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sql_source_representation_instance" "instance" {
-  name               = "tf-test-my-instance%{random_suffix}"
+  name               = "%{name}"
   region             = "us-central1"
   database_version   = "POSTGRES_9_6"
   host               = "10.20.30.40"

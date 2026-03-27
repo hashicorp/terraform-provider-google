@@ -53,8 +53,13 @@ var (
 func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dns_auth_name": "tf-test-dns-auth" + randomSuffix,
+		"subdomain":     "subdomain" + randomSuffix,
+		"zone_name":     "tf-test-my-zone" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,10 +83,10 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 func testAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_dns_authorization" "default" {
-  name        = "tf-test-dns-auth%{random_suffix}"
+  name        = "%{dns_auth_name}"
   location    = "global"
   description = "The default dns"
-  domain      = "subdomain%{random_suffix}.hashicorptest.com"
+  domain      = "%{subdomain}.hashicorptest.com"
 }
 
 output "record_name_to_insert" {
@@ -101,8 +106,13 @@ output "record_data_to_insert" {
 func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizationRegionalExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dns_auth_name": "tf-test-dns-auth" + randomSuffix,
+		"subdomain":     "subdomain" + randomSuffix,
+		"zone_name":     "tf-test-my-zone" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -126,11 +136,11 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 func testAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizationRegionalExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_dns_authorization" "default" {
-  name        = "tf-test-dns-auth%{random_suffix}"
+  name        = "%{dns_auth_name}"
   location    = "us-central1"
   description = "reginal dns"
   type        = "PER_PROJECT_RECORD"
-  domain      = "subdomain%{random_suffix}.hashicorptest.com"
+  domain      = "%{subdomain}.hashicorptest.com"
 }
 `, context)
 }

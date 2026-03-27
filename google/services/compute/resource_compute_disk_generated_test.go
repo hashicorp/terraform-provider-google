@@ -53,8 +53,11 @@ var (
 func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"disk_name":     "tf-test-test-disk" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 func testAccComputeDisk_diskBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_disk" "default" {
-  name  = "tf-test-test-disk%{random_suffix}"
+  name  = "%{disk_name}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
   image = "debian-11-bullseye-v20220719"
@@ -93,8 +96,12 @@ resource "google_compute_disk" "default" {
 func TestAccComputeDisk_diskAsyncExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"disk_name":           "tf-test-async-test-disk" + randomSuffix,
+		"secondary_disk_name": "tf-test-async-secondary-test-disk" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -118,7 +125,7 @@ func TestAccComputeDisk_diskAsyncExample(t *testing.T) {
 func testAccComputeDisk_diskAsyncExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_disk" "primary" {
-  name  = "tf-test-async-test-disk%{random_suffix}"
+  name  = "%{disk_name}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
 
@@ -126,7 +133,7 @@ resource "google_compute_disk" "primary" {
 }
 
 resource "google_compute_disk" "secondary" {
-  name  = "tf-test-async-secondary-test-disk%{random_suffix}"
+  name  = "%{secondary_disk_name}"
   type  = "pd-ssd"
   zone  = "us-east1-c"
 
@@ -142,8 +149,11 @@ resource "google_compute_disk" "secondary" {
 func TestAccComputeDisk_diskFeaturesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"disk_name":     "tf-test-test-disk-features" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -167,7 +177,7 @@ func TestAccComputeDisk_diskFeaturesExample(t *testing.T) {
 func testAccComputeDisk_diskFeaturesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_disk" "default" {
-  name  = "tf-test-test-disk-features%{random_suffix}"
+  name  = "%{disk_name}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
   labels = {
