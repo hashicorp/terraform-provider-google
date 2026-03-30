@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataplex: added `aspects` field to `google_dataplex_entry_link` resource
+```

@@ -138,6 +138,71 @@ resource "google_dataplex_entry_link" "full_entry_link" {
   depends_on = [time_sleep.wait-for-sync]
 }
 ```
+## Example Usage - Dataplex Entry Link With Aspect
+
+
+```hcl
+resource "google_bigquery_dataset" "bq_dataset" {
+  dataset_id = "tf_test_dataset_%{random_suffix}"
+  project    = "1111111111111"
+  location   = "us-central1"
+}
+
+resource "google_bigquery_table" "table1" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
+  table_id   = "table1_%{random_suffix}"
+  project    = "1111111111111"
+  schema = jsonencode([
+    {
+      name        = "col1"
+      type        = "STRING"
+      mode        = "NULLABLE"
+      description = "Column 1"
+    }
+  ])
+}
+
+resource "google_bigquery_table" "table2" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
+  table_id   = "table2_%{random_suffix}"
+  project    = "1111111111111"
+  schema = jsonencode([
+    {
+      name        = "colA"
+      type        = "STRING"
+      mode        = "NULLABLE"
+      description = "Column A"
+    }
+  ])
+}
+
+resource "google_dataplex_entry_link" "full_entry_link_with_aspect" {
+  project = "1111111111111"
+  location = "us-central1"
+  entry_group_id = "@bigquery"
+  entry_link_id = "tf-test-full-entry-link%{random_suffix}"
+  entry_link_type = "projects/655216118709/locations/global/entryLinkTypes/schema-join"
+  entry_references {
+    name = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/my-project-name/datasets/${google_bigquery_dataset.bq_dataset.dataset_id}/tables/${google_bigquery_table.table1.table_id}"
+    type = ""
+  }
+  entry_references {
+    name = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/my-project-name/datasets/${google_bigquery_dataset.bq_dataset.dataset_id}/tables/${google_bigquery_table.table2.table_id}"
+    type = ""
+  }
+  aspects {
+    aspect_key = "655216118709.global.schema-join"
+    aspect {
+      data = jsonencode({
+        joins       = []
+        userManaged = true
+      })
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -167,6 +232,11 @@ The following arguments are supported:
   The location for the entry.
 
 
+* `aspects` -
+  (Optional)
+  The Aspects attached to the Entry Link.
+  Structure is [documented below](#nested_aspects).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -188,6 +258,41 @@ The following arguments are supported:
   (Optional)
   The reference type of the Entry.
   Possible values are: `SOURCE`, `TARGET`.
+
+<a name="nested_aspects"></a>The `aspects` block supports:
+
+* `aspect_key` -
+  (Required)
+  The map keys of the Aspects which the service should modify.
+  It should be the aspect type reference in the format `{project_number}.{location_id}.{aspect_type_id}`.
+
+* `aspect` -
+  (Required)
+  A nested object resource.
+  Structure is [documented below](#nested_aspects_aspect).
+
+
+<a name="nested_aspects_aspect"></a>The `aspect` block supports:
+
+* `aspect_type` -
+  (Output)
+  The resource name of the type used to create this Aspect.
+
+* `path` -
+  (Output)
+  The path in the entry link under which the aspect is attached.
+
+* `create_time` -
+  (Output)
+  The time when the Aspect was created.
+
+* `update_time` -
+  (Output)
+  The time when the Aspect was last modified.
+
+* `data` -
+  (Required)
+  The content of the aspect in JSON form, according to its aspect type schema. The maximum size of the field is 120KB (encoded as UTF-8).
 
 ## Attributes Reference
 
