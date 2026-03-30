@@ -54,10 +54,6 @@ resource "google_biglake_iceberg_table_iam_policy" "policy" {
   catalog = google_biglake_iceberg_table.my_iceberg_table.catalog
   namespace = google_biglake_iceberg_table.my_iceberg_table.namespace
   name = google_biglake_iceberg_table.my_iceberg_table.name
-project = google_biglake_iceberg_table.my_iceberg_table.project
-  catalog = google_biglake_iceberg_table.my_iceberg_table.catalog
-  namespace = google_biglake_iceberg_table.my_iceberg_table.namespace
-  name = google_biglake_iceberg_table.my_iceberg_table.name
   policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
@@ -67,10 +63,6 @@ project = google_biglake_iceberg_table.my_iceberg_table.project
 ```hcl
 resource "google_biglake_iceberg_table_iam_binding" "binding" {
   project = google_biglake_iceberg_table.my_iceberg_table.project
-  catalog = google_biglake_iceberg_table.my_iceberg_table.catalog
-  namespace = google_biglake_iceberg_table.my_iceberg_table.namespace
-  name = google_biglake_iceberg_table.my_iceberg_table.name
-project = google_biglake_iceberg_table.my_iceberg_table.project
   catalog = google_biglake_iceberg_table.my_iceberg_table.catalog
   namespace = google_biglake_iceberg_table.my_iceberg_table.namespace
   name = google_biglake_iceberg_table.my_iceberg_table.name
@@ -86,10 +78,6 @@ project = google_biglake_iceberg_table.my_iceberg_table.project
 ```hcl
 resource "google_biglake_iceberg_table_iam_member" "member" {
   project = google_biglake_iceberg_table.my_iceberg_table.project
-  catalog = google_biglake_iceberg_table.my_iceberg_table.catalog
-  namespace = google_biglake_iceberg_table.my_iceberg_table.namespace
-  name = google_biglake_iceberg_table.my_iceberg_table.name
-project = google_biglake_iceberg_table.my_iceberg_table.project
   catalog = google_biglake_iceberg_table.my_iceberg_table.catalog
   namespace = google_biglake_iceberg_table.my_iceberg_table.namespace
   name = google_biglake_iceberg_table.my_iceberg_table.name
