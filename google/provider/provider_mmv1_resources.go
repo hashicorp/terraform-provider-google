@@ -330,6 +330,8 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_dataplex_data_quality_rules":                         dataplex.DataSourceDataplexDataQualityRules(),
 	"google_dataproc_metastore_service":                          dataprocmetastore.DataSourceDataprocMetastoreService(),
 	"google_datastream_static_ips":                               datastream.DataSourceGoogleDatastreamStaticIps(),
+	"google_discovery_engine_data_store":                         discoveryengine.DataSourceGoogleDiscoveryEngineDataStore(),
+	"google_discovery_engine_data_stores":                        discoveryengine.DataSourceGoogleDiscoveryEngineDataStores(),
 	"google_dns_keys":                                            dns.DataSourceDNSKeys(),
 	"google_dns_managed_zone":                                    dns.DataSourceDnsManagedZone(),
 	"google_dns_managed_zones":                                   dns.DataSourceDnsManagedZones(),

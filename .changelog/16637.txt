@@ -1,0 +1,7 @@
+```release-note:new-datasource
+Added `google_discovery_engine_data_store` data source for reading a single Discovery Engine data store by ID or display name
+```
+
+```release-note:new-datasource
+Added `google_discovery_engine_data_stores` data source for listing all Discovery Engine data stores in a project and location
+```
