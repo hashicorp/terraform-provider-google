@@ -1,0 +1,3 @@
+```release-note:bug
+securityposture_posture: always send value of `enforce` attribute to the api. 
+```
