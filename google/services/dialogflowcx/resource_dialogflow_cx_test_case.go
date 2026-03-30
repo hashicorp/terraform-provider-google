@@ -634,6 +634,7 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/testCase
 			"deletion_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
 When a 'terraform destroy' or 'terraform apply' would delete the instance,
 the command will fail if this field is set to "PREVENT" in Terraform state.
@@ -641,7 +642,6 @@ When set to "ABANDON", the command will remove the resource from Terraform
 management without updating or deleting the resource in the API.
 When set to "DELETE", deleting the resource is allowed.
 `,
-				Default: "DELETE",
 			},
 		},
 		UseJSONNumber: true,
@@ -807,8 +807,15 @@ func resourceDialogflowCXTestCaseRead(d *schema.ResourceData, meta interface{}) 
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
-		if err := d.Set("deletion_policy", "DELETE"); err != nil {
-			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		//prioritize config's value if present
+		if config.DeletionPolicy != "" {
+			if err := d.Set("deletion_policy", config.DeletionPolicy); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		} else {
+			if err := d.Set("deletion_policy", "DELETE"); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
 		}
 	}
 

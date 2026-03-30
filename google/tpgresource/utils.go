@@ -167,6 +167,32 @@ func GetZoneFromDiff(d *schema.ResourceDiff, config *transport_tpg.Config) (stri
 	return "", fmt.Errorf("%s: required field is not set", "zone")
 }
 
+// getDeletionPolicyFromDiff reads the "deletion_policy" field from the given diff and falls
+// back to the provider's value if not given. If the provider's value is not
+// given, an error is returned.
+func GetDeletionPolicyFromDiff(d *schema.ResourceDiff, config *transport_tpg.Config, resourceDefault string) (string, error) {
+	//if IsNull() value, then the value has not been manually configured
+	if d.GetRawConfig().GetAttr("deletion_policy").IsNull() {
+		if config.DeletionPolicy != "" {
+			log.Printf("[DEBUG] `deletion_policy` detected as not set within resource configuration. Falling back to configured provider default, %s", config.DeletionPolicy)
+			return config.DeletionPolicy, nil
+		}
+		//return the provided resource default as the final backup
+		log.Printf("[DEBUG] `deletion_policy` detected as not set within resource or provider configuration. Falling back to resource default, %s", resourceDefault)
+		return resourceDefault, nil
+	}
+	//if not null, then use/maintain usage of manually configured value
+	//
+	//this has to happen after a check for the null is made,
+	//as "GetOk" will always return a value once the resource is set, preventing changes
+	res, ok := d.GetOk("deletion_policy")
+	if ok {
+		return res.(string), nil
+	}
+	return "", fmt.Errorf("An error has occured during %s configuration. Please report this issue to the provider developers.", "`deletion_policy`")
+
+}
+
 func GetRouterLockName(region string, router string) string {
 	return fmt.Sprintf("router/%s/%s", region, router)
 }
@@ -920,6 +946,20 @@ func DefaultProviderZone(_ context.Context, diff *schema.ResourceDiff, meta inte
 	}
 
 	return nil
+}
+
+func DefaultProviderDeletionPolicy(resourceDefault string) schema.CustomizeDiffFunc {
+	return func(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+		config := meta.(*transport_tpg.Config)
+		if dpolicy := diff.Get("deletion_policy"); dpolicy != nil {
+			dpolicy, err := GetDeletionPolicyFromDiff(diff, config, resourceDefault)
+			err = diff.SetNew("deletion_policy", dpolicy)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 }
 
 // id.UniqueId() returns a timestamp + incremental hash

@@ -47,6 +47,7 @@ type ProviderModel struct {
 	RequestTimeout                            types.String               `tfsdk:"request_timeout"`
 	RequestReason                             types.String               `tfsdk:"request_reason"`
 	PollInterval                              types.String               `tfsdk:"poll_interval"`
+	DeletionPolicy                            types.String               `tfsdk:"deletion_policy"`
 	UniverseDomain                            types.String               `tfsdk:"universe_domain"`
 	DefaultLabels                             types.Map                  `tfsdk:"default_labels"`
 	AddTerraformAttributionLabel              types.Bool                 `tfsdk:"add_terraform_attribution_label"`
