@@ -709,3 +709,13 @@ func IsDataplex1PEntryIngestedError(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+// Retry when waiting for a Dataplex target entry to be ingested.
+func IsDataplex1PEntryNotFoundError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 404 && strings.Contains(gerr.Body, "Entry `") && strings.Contains(gerr.Body, "` does not exist.") && (strings.Contains(gerr.Body, "@dataplex/entries/") || strings.Contains(gerr.Body, "@bigquery/entries/")) {
+			return true, fmt.Sprintf("Retry 404s for Dataplex Entry Ingestion")
+		}
+	}
+	return false, ""
+}

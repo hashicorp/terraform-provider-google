@@ -219,6 +219,101 @@ resource "google_dataplex_entry_link" "full_entry_link" {
 `, context)
 }
 
+func TestAccDataplexEntryLink_dataplexEntryLinkWithAspectExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project_id":      envvar.GetTestProjectFromEnv(),
+		"project_number":  envvar.GetTestProjectNumberFromEnv(),
+		"entry_link_name": "tf_test_my_entry_link_full_with_aspect" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexEntryLinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexEntryLink_dataplexEntryLinkWithAspectExample(context),
+			},
+			{
+				ResourceName:            "google_dataplex_entry_link.full_entry_link_with_aspect",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"aspects", "entry_group_id", "entry_link_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccDataplexEntryLink_dataplexEntryLinkWithAspectExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "bq_dataset" {
+  dataset_id = "tf_test_dataset_%{random_suffix}"
+  project    = "%{project_number}"
+  location   = "us-central1"
+}
+
+resource "google_bigquery_table" "table1" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
+  table_id   = "table1_%{random_suffix}"
+  project    = "%{project_number}"
+  schema = jsonencode([
+    {
+      name        = "col1"
+      type        = "STRING"
+      mode        = "NULLABLE"
+      description = "Column 1"
+    }
+  ])
+}
+
+resource "google_bigquery_table" "table2" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
+  table_id   = "table2_%{random_suffix}"
+  project    = "%{project_number}"
+  schema = jsonencode([
+    {
+      name        = "colA"
+      type        = "STRING"
+      mode        = "NULLABLE"
+      description = "Column A"
+    }
+  ])
+}
+
+resource "google_dataplex_entry_link" "full_entry_link_with_aspect" {
+  project = "%{project_number}"
+  location = "us-central1"
+  entry_group_id = "@bigquery"
+  entry_link_id = "tf-test-full-entry-link%{random_suffix}"
+  entry_link_type = "projects/655216118709/locations/global/entryLinkTypes/schema-join"
+  entry_references {
+    name = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.bq_dataset.dataset_id}/tables/${google_bigquery_table.table1.table_id}"
+    type = ""
+  }
+  entry_references {
+    name = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.bq_dataset.dataset_id}/tables/${google_bigquery_table.table2.table_id}"
+    type = ""
+  }
+  aspects {
+    aspect_key = "655216118709.global.schema-join"
+    aspect {
+      data = jsonencode({
+        joins       = []
+        userManaged = true
+      })
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckDataplexEntryLinkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -243,11 +338,12 @@ func testAccCheckDataplexEntryLinkDestroyProducer(t *testing.T) func(s *terrafor
 			}
 
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
+				Config:               config,
+				Method:               "GET",
+				Project:              billingProject,
+				RawURL:               url,
+				UserAgent:            config.UserAgent,
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsDataplex1PEntryNotFoundError},
 			})
 			if err == nil {
 				return fmt.Errorf("DataplexEntryLink still exists at %s", url)
