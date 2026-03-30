@@ -170,6 +170,11 @@ func Provider() *schema.Provider {
 				Optional: true,
 			},
 
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"request_reason": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1069,6 +1074,10 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		if err != nil {
 			return nil, diag.FromErr(fmt.Errorf("could not parse poll_interval value: %w", err))
 		}
+	}
+
+	if v, ok := d.GetOk("deletion_policy"); ok {
+		config.DeletionPolicy = v.(string)
 	}
 
 	if v, ok := d.GetOk("request_reason"); ok {

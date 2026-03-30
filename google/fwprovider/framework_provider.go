@@ -167,6 +167,9 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					fwvalidators.NonNegativeDurationValidator(),
 				},
 			},
+			"deletion_policy": schema.StringAttribute{
+				Optional: true,
+			},
 			"request_reason": schema.StringAttribute{
 				Optional: true,
 			},
