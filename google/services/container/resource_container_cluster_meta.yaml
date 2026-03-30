@@ -35,6 +35,8 @@ fields:
   - api_field: 'anonymousAuthenticationConfig.mode'
   - field: 'allow_net_admin'
     api_field: 'autopilot.workloadPolicyConfig.allowNetAdmin'
+  - field: 'autopilot_privileged_admission'
+    api_field: 'autopilot.privilegedAdmissionConfig.allowlistPaths'
   - api_field: 'authenticatorGroupsConfig.securityGroup'
   - api_field: 'binaryAuthorization.enabled'
   - api_field: 'binaryAuthorization.evaluationMode'
