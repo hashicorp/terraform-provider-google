@@ -1691,6 +1691,37 @@ func TestAccSqlDatabaseInstance_basicClone(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_crossProjectClone(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":      acctest.RandString(t, 10),
+		"orgId":              envvar.GetTestOrgFromEnv(t),
+		"billingAccount":     envvar.GetTestBillingAccountFromEnv(t),
+		"cloneSourceProject": envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_crossProjectClone(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdFunc:       testAccSqlDatabaseInstanceImportStateIdFunc("google_sql_database_instance.instance"),
+				ImportStateVerifyIgnore: []string{"deletion_protection", "clone"},
+			},
+		},
+	})
+}
+
 func testAccSqlDatabaseInstanceImportStateIdFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
@@ -8286,7 +8317,6 @@ data "google_sql_backup_run" "backup" {
 func testAccSqlDatabaseInstance_crossProjectClone(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "project" {
-  provider = google-beta
   name                = "tf-test-cpc-%{random_suffix}"
   project_id          = "tf-test-cpc-%{random_suffix}"
   org_id              = "%{orgId}"
@@ -8300,14 +8330,12 @@ resource "time_sleep" "wait_60_seconds" {
 }
 
 resource "google_project_service" "compute" {
-  provider = google-beta
   project = google_project.project.project_id
   service = "compute.googleapis.com"
   depends_on = [time_sleep.wait_60_seconds]
 }
 
 resource "google_project_service" "servicenetworking" {
-  provider = google-beta
   project = google_project.project.project_id
   service = "servicenetworking.googleapis.com"
   depends_on = [google_project_service.compute]
@@ -8319,14 +8347,12 @@ resource "time_sleep" "wait_300_seconds" {
 }
 
 resource "google_compute_network" "sql_network" {
-  provider = google-beta
   name       = "sql-network"
   project    = google_project.project.project_id
   depends_on = [time_sleep.wait_300_seconds]
 }
 
 resource "google_compute_global_address" "sql_range" {
-  provider = google-beta
   name          = "sql-range"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
@@ -8336,7 +8362,6 @@ resource "google_compute_global_address" "sql_range" {
 }
 
 resource "google_service_networking_connection" "sql_vpc_connection" {
-  provider = google-beta
   network                 = google_compute_network.sql_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.sql_range.name]
@@ -8345,7 +8370,6 @@ resource "google_service_networking_connection" "sql_vpc_connection" {
 }
 
 resource "google_sql_database_instance" "instance" {
-	provider = google-beta
 	name             = "tf-test-cpc-%{random_suffix}"
 	database_version = "POSTGRES_11"
 	region           = "us-central1"
@@ -8378,7 +8402,6 @@ resource "google_sql_database_instance" "instance" {
 }
 
 resource "google_sql_database_instance" "source_instance" {
-	provider = google-beta
 	name = "tf-test-source-%{random_suffix}"
 	database_version = "POSTGRES_11"
 	region           = "us-central1"
