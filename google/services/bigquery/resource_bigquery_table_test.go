@@ -18,13 +18,14 @@ package bigquery_test
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"regexp"
-	"strings"
-	"testing"
 )
 
 func TestAccBigQueryTable_Basic(t *testing.T) {
@@ -2016,7 +2017,7 @@ func TestAccBigQueryTable_schemaColumnDropWithRowAccessPolicy(t *testing.T) {
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns", "etag", "last_modified_time"},
 			},
 			{
 				Config: testAccBigQueryTableWithSchemaColumnDroppedAndRowAccessPolicy(context), // Change column to trigger ForceNew
@@ -2040,7 +2041,7 @@ func TestAccBigQueryTable_schemaColumnDropWithRowAccessPolicy(t *testing.T) {
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns", "etag", "last_modified_time"},
 			},
 		},
 	})

@@ -18,6 +18,7 @@ package resourcemanager
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
@@ -86,7 +87,7 @@ func resourceGoogleProjectIamMemberRemoveCreate(d *schema.ResourceData, meta int
 	}
 
 	if found == false {
-		fmt.Printf("[DEBUG] Could not find Member %s with the corresponding role %s. No removal necessary", member, role)
+		log.Printf("[DEBUG] Could not find Member %s with the corresponding role %s. No removal necessary", member, role)
 	} else {
 		updateRequest := &cloudresourcemanager.SetIamPolicyRequest{
 			Policy:     iamPolicy,
@@ -133,7 +134,7 @@ func resourceGoogleProjectIamMemberRemoveRead(d *schema.ResourceData, meta inter
 	}
 
 	if found {
-		fmt.Printf("[DEBUG] found membership in project's policy  %v, removing from state", d.Id())
+		log.Printf("[DEBUG] found membership in project's policy  %v, removing from state", d.Id())
 		d.SetId("")
 	}
 
@@ -141,7 +142,7 @@ func resourceGoogleProjectIamMemberRemoveRead(d *schema.ResourceData, meta inter
 }
 
 func resourceGoogleProjectIamMemberRemoveDelete(d *schema.ResourceData, meta interface{}) error {
-	fmt.Printf("[DEBUG] clearing resource %v from state", d.Id())
+	log.Printf("[DEBUG] clearing resource %v from state", d.Id())
 	d.SetId("")
 
 	return nil

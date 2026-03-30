@@ -18,10 +18,11 @@ package backupdr
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-	"strings"
 )
 
 func DataSourceGoogleCloudBackupDRService() *schema.Resource {
@@ -35,17 +36,30 @@ func DataSourceGoogleCloudBackupDRService() *schema.Resource {
 	}
 }
 
-func flattenBackupDRManagementServerResourceResp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) map[string]interface{} {
+func flattenBackupDRManagementServerResourceResp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
+	location := d.Get("location").(string)
 	if v == nil {
-		fmt.Printf("Interface is nil: %s\n", v)
+		return nil, fmt.Errorf("no BackupDR ManagementServer found for location %q", location)
 	}
-	fmt.Printf("Interface is : %s\n", v)
-	l := v.([]interface{})
-	for _, raw := range l {
-		// Management server is a singleton resource. It is only present in one location per project. Hence returning only resource present.
-		return flattenBackupDRManagementServerResource(raw, d, config)
+
+	l, ok := v.([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("unexpected managementServers response type %T", v)
 	}
-	return nil
+	if len(l) == 0 {
+		return nil, fmt.Errorf("no BackupDR ManagementServer found for location %q", location)
+	}
+	if _, ok := l[0].(map[string]interface{}); !ok {
+		return nil, fmt.Errorf("unexpected managementServers item type %T", l[0])
+	}
+
+	// Management server is a singleton resource. It is only present in one location per project.
+	resourceResponse := flattenBackupDRManagementServerResource(l[0], d, config)
+	if resourceResponse == nil {
+		return nil, fmt.Errorf("received empty BackupDR ManagementServer response for location %q", location)
+	}
+
+	return resourceResponse, nil
 }
 func flattenBackupDRManagementServerResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) map[string]interface{} {
 	original := v.(map[string]interface{})
@@ -94,7 +108,10 @@ func dataSourceGoogleCloudBackupDRServiceRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading ManagementServer: %s", err)
 	}
 	managementServersResponse := res["managementServers"]
-	resourceResponse := flattenBackupDRManagementServerResourceResp(managementServersResponse, d, config)
+	resourceResponse, err := flattenBackupDRManagementServerResourceResp(managementServersResponse, d, config)
+	if err != nil {
+		return fmt.Errorf("Error reading ManagementServer: %w", err)
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ManagementServer: %s", err)
 	}
