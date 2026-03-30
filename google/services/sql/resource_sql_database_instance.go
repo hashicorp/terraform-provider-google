@@ -1389,6 +1389,11 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Required:    true,
 							Description: `The name of the instance from which the point in time should be restored.`,
 						},
+						"source_project": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The project ID of the source project`,
+						},
 						"point_in_time": {
 							Type:             schema.TypeString,
 							Optional:         true,
@@ -1575,6 +1580,11 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	cloneContext, cloneSourceInstance := expandCloneContext(d.Get("clone").([]interface{}))
+
+	cloneSourceProject := expandCloneSourceProject(d.Get("clone").([]interface{}))
+	if cloneSourceProject == "" {
+		cloneSourceProject = project
+	}
 	pointInTimeRestoreContext := expandPointInTimeRestoreContext(d.Get("point_in_time_restore_context").([]interface{}))
 
 	if valueI, ok := d.GetOk("settings.0.auto_upgrade_enabled"); ok && !(valueI.(bool)) {
@@ -1636,8 +1646,13 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		RetryFunc: func() (operr error) {
 			if cloneContext != nil {
 				cloneContext.DestinationInstanceName = name
+				// if cloneSourceProject isn't equal to the project, then it's a cross project clone request.
+				if cloneSourceProject != project {
+					cloneContext.DestinationProject = project
+					cloneContext.DestinationNetwork = network
+				}
 				clodeReq := sqladmin.InstancesCloneRequest{CloneContext: cloneContext}
-				op, operr = config.NewSqlAdminClient(userAgent).Instances.Clone(project, cloneSourceInstance, &clodeReq).Do()
+				op, operr = config.NewSqlAdminClient(userAgent).Instances.Clone(cloneSourceProject, cloneSourceInstance, &clodeReq).Do()
 			} else if pointInTimeRestoreContext != nil {
 				parent := fmt.Sprintf("projects/%s", project)
 				op, operr = config.NewSqlAdminClient(userAgent).Instances.PointInTimeRestore(parent, pointInTimeRestoreContext).Do()
@@ -1879,6 +1894,14 @@ func expandCloneContext(configured []interface{}) (*sqladmin.CloneContext, strin
 		AllocatedIpRange:           _cloneConfiguration["allocated_ip_range"].(string),
 		SourceInstanceDeletionTime: _cloneConfiguration["source_instance_deletion_time"].(string),
 	}, _cloneConfiguration["source_instance_name"].(string)
+}
+
+func expandCloneSourceProject(configured []interface{}) string {
+	if len(configured) == 0 || configured[0] == nil {
+		return ""
+	}
+	_cloneConfiguration := configured[0].(map[string]interface{})
+	return _cloneConfiguration["source_project"].(string)
 }
 
 func expandMaintenanceWindow(configured []interface{}) *sqladmin.MaintenanceWindow {

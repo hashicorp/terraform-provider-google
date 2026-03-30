@@ -15,6 +15,7 @@ fields:
   - field: 'clone.preferred_zone'
   - field: 'clone.source_instance_deletion_time'
   - field: 'clone.source_instance_name'
+  - field: 'clone.source_project'
   - api_field: 'connectionName'
   - api_field: 'databaseVersion'
   - field: 'deletion_protection'
