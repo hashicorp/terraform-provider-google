@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: Added support for `context_spec` including `memory_bank_config` in google_vertex_ai_reasoning_engine for google-beta provider(beta).
+```
