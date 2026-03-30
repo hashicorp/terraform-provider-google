@@ -473,7 +473,7 @@ resource "google_dataproc_batch" "example_batch_autotuning" {
       properties    = { "spark.dynamicAllocation.enabled": "false", "spark.executor.instances": "2" }
       cohort        = "tf-dataproc-batch-example"
       autotuning_config {
-        scenarios = ["SCALING", "MEMORY"]
+        scenarios = ["AUTO", "SCALING", "MEMORY"]
       }
     }
 
