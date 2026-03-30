@@ -613,9 +613,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 730
+// Generated resources: 731
 // Generated IAM resources: 339
-// Total generated resources: 1069
+// Total generated resources: 1070
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -1262,6 +1262,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_iam_workload_identity_pool_iam_binding":                              registry.Resource("google_iam_workload_identity_pool_iam_binding"),
 	"google_iam_workload_identity_pool_iam_member":                               registry.Resource("google_iam_workload_identity_pool_iam_member"),
 	"google_iam_workload_identity_pool_iam_policy":                               registry.Resource("google_iam_workload_identity_pool_iam_policy"),
+	"google_iam_workload_identity_pool_namespace":                                registry.Resource("google_iam_workload_identity_pool_namespace"),
 	"google_iam_workload_identity_pool_provider":                                 registry.Resource("google_iam_workload_identity_pool_provider"),
 	"google_iam_oauth_client":                                                    registry.Resource("google_iam_oauth_client"),
 	"google_iam_oauth_client_credential":                                         registry.Resource("google_iam_oauth_client_credential"),
