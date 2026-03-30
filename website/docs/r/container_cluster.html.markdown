@@ -147,6 +147,13 @@ state.
 `false`. This field should only be enabled for Autopilot clusters (`enable_autopilot`
 set to `true`).
 
+* `autopilot_privileged_admission` - (Optional) The customer
+allowlist Cloud Storage paths for the cluster. These paths are used with the
+`--autopilot-privileged-admission` flag to authorize privileged workloads in
+Autopilot clusters. See the Cluster API's
+[PrivilegedAdmissionConfig](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters#privilegedadmissionconfig)
+documentation for more details.
+
 * `cluster_ipv4_cidr` - (Optional) The IP address range of the Kubernetes pods
 in this cluster in CIDR notation (e.g. `10.96.0.0/14`). Leave blank to have one
 automatically chosen or specify a `/14` block in `10.0.0.0/8`. This field will

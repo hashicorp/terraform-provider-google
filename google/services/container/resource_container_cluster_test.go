@@ -18,6 +18,7 @@ package container_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"testing"
@@ -6795,6 +6796,91 @@ func TestAccContainerCluster_autopilot_net_admin(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_autopilot_privileged_admission(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// TODO(diamondburned): uncomment and test once upstream cluster
+			// server API fix is rolled out.
+			// {
+			// 	Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, nil),
+			// },
+			// {
+			// 	ResourceName:            "google_container_cluster.primary",
+			// 	ImportState:             true,
+			// 	ImportStateVerify:       true,
+			// 	ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			// },
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, []string{"gke://test-path/*"}),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, []string{""}),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, []string{"gke://*"}),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, []string{"gke://test-path-a/*"}),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, nil),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_privileged_admission.#", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_privileged_admission.0", "gke://*"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, []string{"gke://test-path-b/*"}),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_additional_pod_ranges_config_on_create(t *testing.T) {
 	t.Parallel()
 
@@ -12327,6 +12413,27 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
 }
 `, name, networkName, subnetworkName, enabled)
+}
+
+func testAccContainerCluster_autopilot_privileged_admission(name, networkName, subnetworkName string, allowlistPaths []string) string {
+	var part string
+	if allowlistPaths != nil {
+		allowlistPathsJSON, _ := json.Marshal(allowlistPaths)
+		part = "autopilot_privileged_admission = " + string(allowlistPathsJSON)
+	}
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name             = "%s"
+  location         = "us-central1"
+  network          = "%s"
+  subnetwork       = "%s"
+  enable_autopilot = true
+  %s
+  deletion_protection = false
+  min_master_version = "1.35.1-gke.1396002"
+}
+`, name, networkName, subnetworkName, part)
 }
 
 func TestAccContainerCluster_customPlacementPolicy(t *testing.T) {
