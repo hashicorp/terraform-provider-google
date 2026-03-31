@@ -1658,6 +1658,29 @@ func resourceVertexAIEndpointWithModelGardenDeploymentCreate(d *schema.ResourceD
 		}
 	}
 
+	// Sets the Private Service Connect service attachment
+	if privateEndpoints, ok := deployedModel["privateEndpoints"]; ok && privateEndpoints != nil {
+		if privateEndpointsMap, ok := privateEndpoints.(map[string]interface{}); ok {
+			if serviceAttachment, ok := privateEndpointsMap["serviceAttachment"].(string); ok {
+				log.Printf("[DEBUG] Found serviceAttachment in API response: %s", serviceAttachment)
+				if existingEndpointConfigs, ok := d.Get("endpoint_config").([]interface{}); ok && len(existingEndpointConfigs) > 0 {
+					if existingEndpointMap, ok := existingEndpointConfigs[0].(map[string]interface{}); ok {
+						if existingPscConfigs, ok := existingEndpointMap["private_service_connect_config"].([]interface{}); ok && len(existingPscConfigs) > 0 {
+							if existingPscMap, ok := existingPscConfigs[0].(map[string]interface{}); ok {
+								existingPscMap["service_attachment"] = serviceAttachment
+								if err := d.Set("endpoint_config", existingEndpointConfigs); err != nil {
+									log.Printf("[ERROR] Error setting endpoint_config: %s", err)
+								} else {
+									log.Printf("[DEBUG] Successfully set service_attachment in endpoint_config")
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	log.Printf("[DEBUG] Finished creating EndpointWithModelGardenDeployment %q: %#v", d.Id(), res)
 
 	return resourceVertexAIEndpointWithModelGardenDeploymentRead(d, meta)
