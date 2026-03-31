@@ -20,6 +20,7 @@ fields:
     - api_field: virtualMachinePreferences.commitmentPlan
     - api_field: virtualMachinePreferences.computeEnginePreferences.licenseType
     - api_field: virtualMachinePreferences.computeEnginePreferences.machinePreferences.allowedMachineSeries.code
+    - api_field: virtualMachinePreferences.computeEnginePreferences.persistentDiskType
     - api_field: virtualMachinePreferences.regionPreferences.preferredRegions
     - api_field: virtualMachinePreferences.sizingOptimizationStrategy
     - api_field: virtualMachinePreferences.soleTenancyPreferences.commitmentPlan

@@ -1,0 +1,3 @@
+```release-note:enhancement
+migrationcenter: added `virtual_machine_preferences.compute_engine_preferences.persistent_disk_type` field to `google_migration_center_preference_set` resource
+```
