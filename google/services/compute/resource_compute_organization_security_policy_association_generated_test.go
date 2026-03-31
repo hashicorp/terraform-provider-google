@@ -56,7 +56,7 @@ func TestAccComputeOrganizationSecurityPolicyAssociation_organizationSecurityPol
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 		"short_name":    "tf-test-my-short-name" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}

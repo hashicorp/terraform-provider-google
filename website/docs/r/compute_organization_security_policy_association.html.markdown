@@ -71,6 +71,14 @@ The following arguments are supported:
   The security policy ID of the association.
 
 
+* `excluded_projects` -
+  (Optional)
+  A list of projects to exclude from the security policy.
+
+* `excluded_folders` -
+  (Optional)
+  A list of folders to exclude from the security policy.
+
 
 
 ## Attributes Reference

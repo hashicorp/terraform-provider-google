@@ -11,6 +11,10 @@ fields:
       field: attachment_id
     - api_field: associations.displayName
       field: display_name
+    - api_field: associations.excludedFolders
+      field: excluded_folders
+    - api_field: associations.excludedProjects
+      field: excluded_projects
     - api_field: associations.name
       field: name
     - field: policy_id
