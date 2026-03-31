@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: added `boot_disk_provisioned_iops`  and `boot_disk_provisioned_throughput`  to disk_config.
+```
