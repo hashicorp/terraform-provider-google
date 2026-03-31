@@ -25,7 +25,7 @@ IMPROVEMENTS:
 * colab: added `colab_image` field to `google_colab_runtime_template` resource ([#26582](https://github.com/hashicorp/terraform-provider-google/pull/26582))
 * colab: made `google_colab_runtime_template` resource updatable ([#26582](https://github.com/hashicorp/terraform-provider-google/pull/26582))
 * compute: added `hyperdisk-balanced` as an option for `disk_type` field in `google_container_cluster` resource ([#26581](https://github.com/hashicorp/terraform-provider-google/pull/26581))
-* compute: make `backend_service` field optional for `google_compute_target_tcp_proxy` resource ([#26519](https://github.com/hashicorp/terraform-provider-google/pull/26519))
+* compute: made `backend_service` field optional for `google_compute_target_tcp_proxy` resource ([#26519](https://github.com/hashicorp/terraform-provider-google/pull/26519))
 * compute: promoted `resolve_subnet_field` field in `google_compute_subnetwork` resource to GA ([#26570](https://github.com/hashicorp/terraform-provider-google/pull/26570))
 * iambeta: promoted `mode`, `inline_certificate_issuance_config`, and `inline_trust_config` fields in `google_iam_workload_identity_pool` resource to GA ([#26598](https://github.com/hashicorp/terraform-provider-google/pull/26598))
 * spanner: added autoscaling config for instance partition and missing asymmetric autoscaling override fields to `google_spanner_instance` resource ([#26577](https://github.com/hashicorp/terraform-provider-google/pull/26577))
