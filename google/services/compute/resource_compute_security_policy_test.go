@@ -876,6 +876,53 @@ resource "google_compute_security_policy" "policy" {
 `, project, spName)
 }
 
+func TestAccComputeSecurityPolicy_layer7DdosPermadiff(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project":       envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicy_layer7DdosExplicit(context),
+			},
+			{
+				Config:   testAccComputeSecurityPolicy_layer7DdosOmitted(context),
+				PlanOnly: true,
+			},
+		},
+	})
+}
+
+func testAccComputeSecurityPolicy_layer7DdosExplicit(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "tf-test-sec-policy-%{random_suffix}"
+  description = "Test for layer 7 ddos permadiff"
+
+  adaptive_protection_config {
+    layer_7_ddos_defense_config {
+      enable = false
+    }
+  }
+}
+`, context)
+}
+
+func testAccComputeSecurityPolicy_layer7DdosOmitted(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "tf-test-sec-policy-%{random_suffix}"
+  description = "Test for layer 7 ddos permadiff"
+}
+`, context)
+}
+
 func testAccComputeSecurityPolicy_withEmptyRedirectSiteKey(spName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_security_policy" "policy" {

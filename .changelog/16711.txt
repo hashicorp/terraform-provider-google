@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fix a permadiff on the `adaptive_protection_config` field for `google_compute_security_policy` resource
+```
