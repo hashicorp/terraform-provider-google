@@ -560,10 +560,11 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 			},
 
 			"adaptive_protection_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `Adaptive Protection Config of this security policy.`,
-				MaxItems:    1,
+				Type:             schema.TypeList,
+				Optional:         true,
+				Description:      `Adaptive Protection Config of this security policy.`,
+				MaxItems:         1,
+				DiffSuppressFunc: tpgresource.SuppressLayer7DdosDefenseMissing,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"layer_7_ddos_defense_config": {
