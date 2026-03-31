@@ -1,0 +1,3 @@
+```release-note:bug
+google_biglake_iceberg_catalog: Change the `primary-location` parameter to `primary_location` in the create URL.
+```

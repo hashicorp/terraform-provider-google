@@ -228,7 +228,7 @@ func resourceBiglakeIcebergIcebergCatalogCreate(d *schema.ResourceData, meta int
 		obj["catalog-type"] = catalogTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}&primary-location={{primary_location}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}&primary_location={{primary_location}}")
 	if err != nil {
 		return err
 	}
