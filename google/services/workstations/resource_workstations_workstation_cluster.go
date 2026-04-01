@@ -614,7 +614,7 @@ func resourceWorkstationsWorkstationClusterUpdate(d *schema.ResourceData, meta i
 	}
 
 	if d.HasChange("private_cluster_config") {
-		updateMask = append(updateMask, "privateClusterConfig")
+		updateMask = append(updateMask, "privateClusterConfig.allowedProjects")
 	}
 
 	if d.HasChange("domain_config") {
