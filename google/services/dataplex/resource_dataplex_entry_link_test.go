@@ -21,6 +21,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	dataplex "github.com/hashicorp/terraform-provider-google/google/services/dataplex"
 )
 
@@ -347,4 +351,186 @@ func TestTransformEntryLinkAspects(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestAccDataplexEntryLink_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"project_id":     envvar.GetTestProjectFromEnv(),
+		"random_suffix":  acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexEntryLinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexEntryLink_updatePrepare(context),
+			},
+			{
+				ResourceName:            "google_dataplex_entry_link.full_entry_link_with_aspect",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"aspects", "dataset_id", "table_id", "entry_link_id", "location"},
+			},
+
+			{
+				Config: testAccDataplexEntryLink_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_dataplex_entry_link.full_entry_link_with_aspect", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_dataplex_entry_link.full_entry_link_with_aspect",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"aspects", "dataset_id", "table_id", "entry_link_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccDataplexEntryLink_updatePrepare(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+resource "google_bigquery_dataset" "bq_dataset" {
+  dataset_id = "tf_test_dataset_%{random_suffix}"
+  project    = "%{project_number}"
+  location   = "us-central1"
+}
+
+resource "google_bigquery_table" "tf_test_table1" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
+  table_id   = "tf_test_table1_%{random_suffix}"
+  project    = "%{project_number}"
+  schema     = <<EOF
+[
+  {
+    "name": "col1",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Column 1"
+  }
+]
+EOF
+}
+
+resource "google_bigquery_table" "tf_test_table2" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
+  table_id   = "tf_test_table2_%{random_suffix}"
+  project    = "%{project_number}"
+  schema     = <<EOF
+[
+  {
+    "name": "colA",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Column A"
+  }
+]
+EOF
+}
+
+resource "google_dataplex_entry_link" "full_entry_link_with_aspect" {
+  project = "%{project_number}"
+  location = "us-central1"
+  entry_group_id = "@bigquery"
+  entry_link_id = "tf-test-full-entry-link%{random_suffix}"
+  entry_link_type = "projects/655216118709/locations/global/entryLinkTypes/schema-join"
+  entry_references {
+    name = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.bq_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table1.table_id}"
+    type = ""
+  }
+  entry_references {
+    name = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.bq_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table2.table_id}"
+    type = ""
+  }
+  aspects {
+    aspect_key = "655216118709.global.schema-join"
+	aspect {
+		data = jsonencode({
+			joins       = []
+			userManaged = true
+		})
+	}
+  }
+}
+`, context)
+}
+
+func testAccDataplexEntryLink_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+resource "google_bigquery_dataset" "bq_dataset" {
+  dataset_id = "tf_test_dataset_%{random_suffix}"
+  project    = "%{project_number}"
+  location   = "us-central1"
+}
+
+resource "google_bigquery_table" "tf_test_table1" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
+  table_id   = "tf_test_table1_%{random_suffix}"
+  project    = "%{project_number}"
+  schema     = <<EOF
+[
+  {
+    "name": "col1",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Column 1"
+  }
+]
+EOF
+}
+
+resource "google_bigquery_table" "tf_test_table2" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
+  table_id   = "tf_test_table2_%{random_suffix}"
+  project    = "%{project_number}"
+  schema     = <<EOF
+[
+  {
+    "name": "colA",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Column A"
+  }
+]
+EOF
+}
+
+resource "google_dataplex_entry_link" "full_entry_link_with_aspect" {
+  project = "%{project_number}"
+  location = "us-central1"
+  entry_group_id = "@bigquery"
+  entry_link_id = "tf-test-full-entry-link%{random_suffix}"
+  entry_link_type = "projects/655216118709/locations/global/entryLinkTypes/schema-join"
+  entry_references {
+    name = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.bq_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table1.table_id}"
+    type = ""
+  }
+  entry_references {
+    name = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.bq_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table2.table_id}"
+    type = ""
+  }
+  aspects {
+    aspect_key = "655216118709.global.schema-join"
+	aspect {
+		data = jsonencode({
+			joins       = []
+			userManaged = false
+		})
+	}
+  }
+}
+`, context)
 }

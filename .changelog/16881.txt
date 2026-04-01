@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataplex: supported in-place update for `aspects` field in `google_dataplex_entry_link` resource
+```
