@@ -63,10 +63,6 @@ func TestAccWorkstationsWorkstationCluster_update(t *testing.T) {
 func TestAccWorkstationsWorkstationCluster_Private_update(t *testing.T) {
 	t.Parallel()
 
-	// Skip in VCR until the test issue is resolved
-	// TODO(shuyama): Add GH issue link
-	acctest.SkipIfVcr(t)
-
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
