@@ -253,6 +253,7 @@ func ResourceDataplexEntryLink() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataplexEntryLinkCreate,
 		Read:   resourceDataplexEntryLinkRead,
+		Update: resourceDataplexEntryLinkUpdate,
 		Delete: resourceDataplexEntryLinkDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -261,6 +262,7 @@ func ResourceDataplexEntryLink() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -328,14 +330,12 @@ Empty path denotes that the Entry itself is referenced in the Entry Link.`,
 			"aspects": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `The Aspects attached to the Entry Link.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"aspect": {
 							Type:        schema.TypeList,
 							Required:    true,
-							ForceNew:    true,
 							Description: `A nested object resource.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -343,7 +343,6 @@ Empty path denotes that the Entry itself is referenced in the Entry Link.`,
 									"data": {
 										Type:         schema.TypeString,
 										Required:     true,
-										ForceNew:     true,
 										ValidateFunc: validation.StringIsJSON,
 										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 										Description:  `The content of the aspect in JSON form, according to its aspect type schema. The maximum size of the field is 120KB (encoded as UTF-8).`,
@@ -564,6 +563,68 @@ func resourceDataplexEntryLinkRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	return nil
+}
+
+func resourceDataplexEntryLinkUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for EntryLink: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	aspectsProp, err := expandDataplexEntryLinkAspects(d.Get("aspects"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("aspects"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, aspectsProp)) {
+		obj["aspects"] = aspectsProp
+	}
+
+	obj, err = resourceDataplexEntryLinkEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/entryGroups/{{entry_group_id}}/entryLinks/{{entry_link_id}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating EntryLink %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:               config,
+		Method:               "PATCH",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutUpdate),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsDataplex1PEntryNotFoundError},
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error updating EntryLink %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating EntryLink %q: %#v", d.Id(), res)
+	}
+
+	return resourceDataplexEntryLinkRead(d, meta)
 }
 
 func resourceDataplexEntryLinkDelete(d *schema.ResourceData, meta interface{}) error {
