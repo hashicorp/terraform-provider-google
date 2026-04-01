@@ -132,6 +132,7 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullTrustDomainMo
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"project":                   envvar.GetTestProjectNumberFromEnv(),
 		"workload_identity_pool_id": "tf-test-example-pool" + randomSuffix,
 		"random_suffix":             randomSuffix,
 	}
@@ -191,6 +192,9 @@ resource "google_iam_workload_identity_pool" "example" {
       }
     }
   }
+  attestation_rules {
+    google_cloud_resource = "//run.googleapis.com/projects/%{project}/type/Service/*"
+  }
 }
 `, context)
 }
@@ -201,6 +205,7 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullTrustDomainMo
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"project":                   envvar.GetTestProjectNumberFromEnv(),
 		"workload_identity_pool_id": "tf-test-example-pool" + randomSuffix,
 		"random_suffix":             randomSuffix,
 	}

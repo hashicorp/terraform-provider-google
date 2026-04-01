@@ -63,11 +63,6 @@ resource "google_iam_workload_identity_pool" "example" {
   mode                      = "FEDERATION_ONLY"
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iam_workload_identity_pool_full_trust_domain_mode&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Iam Workload Identity Pool Full Trust Domain Mode
 
 
@@ -107,13 +102,11 @@ resource "google_iam_workload_identity_pool" "example" {
       }
     }
   }
+  attestation_rules {
+    google_cloud_resource = "//run.googleapis.com/projects/1111111111111/type/Service/*"
+  }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iam_workload_identity_pool_full_trust_domain_mode_with_default_shared_ca&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Iam Workload Identity Pool Full Trust Domain Mode With Default Shared Ca
 
 
@@ -222,6 +215,13 @@ The following arguments are supported:
   configuration.
   Structure is [documented below](#nested_inline_trust_config).
 
+* `attestation_rules` -
+  (Optional)
+  Defines which workloads can receive an identity within a pool. When an AttestationRule is
+  defined under a managed identity, matching workloads may receive that identity. A maximum of
+  50 AttestationRules can be set.
+  Structure is [documented below](#nested_attestation_rules).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -306,6 +306,13 @@ The following arguments are supported:
   (Required)
   PEM certificate of the PKI used for validation. Must only contain one ca
   certificate(either root or intermediate cert).
+
+<a name="nested_attestation_rules"></a>The `attestation_rules` block supports:
+
+* `google_cloud_resource` -
+  (Required)
+  A single workload operating on Google Cloud. For example:
+  `//run.googleapis.com/projects/123/type/Service/*`.
 
 ## Attributes Reference
 

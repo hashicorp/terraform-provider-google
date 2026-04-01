@@ -7,6 +7,7 @@ api_service_name: iam.googleapis.com
 api_version: v1
 api_resource_type_kind: WorkloadIdentityPool
 fields:
+    - api_field: attestationRules.googleCloudResource
     - api_field: description
     - api_field: disabled
     - api_field: displayName
