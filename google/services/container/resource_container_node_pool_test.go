@@ -4592,7 +4592,7 @@ data "google_container_engine_versions" "central1a" {
 resource "google_compute_node_template" "soletenant-tmpl" {
   name      = "tf-test-soletenant-tmpl"
   region    = "us-central1"
-  node_type = "n1-node-96-624"
+  node_type = "n4a-node-96-624"
   cpu_overcommit_type = "ENABLED"
 }
 
@@ -4619,7 +4619,7 @@ resource "google_container_node_pool" "with_sole_tenant_config" {
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 1
   node_config {
-    machine_type = "n1-standard-2"
+    machine_type = "n4a-standard-2"
     sole_tenant_config {
       node_affinity {
         key      = "compute.googleapis.com/node-group-name"
