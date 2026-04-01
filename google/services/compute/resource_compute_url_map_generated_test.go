@@ -76,7 +76,7 @@ func TestAccComputeUrlMap_urlMapBucketAndServiceExample(t *testing.T) {
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
@@ -185,7 +185,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRouteExample(t *testing.T) {
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
@@ -303,7 +303,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(t *testing.T)
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
@@ -392,7 +392,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathExample(t *testing.T) {
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
@@ -530,7 +530,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(t *testing.T) 
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
@@ -643,7 +643,7 @@ func TestAccComputeUrlMap_urlMapHeaderBasedRoutingExample(t *testing.T) {
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
@@ -754,7 +754,7 @@ func TestAccComputeUrlMap_urlMapParameterBasedRoutingExample(t *testing.T) {
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
@@ -863,7 +863,7 @@ func TestAccComputeUrlMap_urlMapTestHeadersExample(t *testing.T) {
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
@@ -956,7 +956,7 @@ func TestAccComputeUrlMap_urlMapTestExpectedOutputUrlExample(t *testing.T) {
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
@@ -1043,7 +1043,7 @@ func TestAccComputeUrlMap_urlMapTestRedirectResponseCodeExample(t *testing.T) {
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
@@ -1154,7 +1154,7 @@ func TestAccComputeUrlMap_urlMapPathTemplateMatchExample(t *testing.T) {
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
@@ -1266,7 +1266,7 @@ func TestAccComputeUrlMap_urlMapCustomErrorResponsePolicyExample(t *testing.T) {
 				ResourceName:            "google_compute_url_map.urlmap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"default_service"},
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
 			},
 		},
 	})
