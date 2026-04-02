@@ -5888,7 +5888,7 @@ func expandNotificationConfig(configured interface{}) *container.NotificationCon
 				},
 			}
 
-			if vv, ok := pubsub["filter"]; ok && len(vv.([]interface{})) > 0 {
+			if vv, ok := pubsub["filter"]; ok && len(vv.([]interface{})) > 0 && vv.([]interface{})[0] != nil {
 				filter := vv.([]interface{})[0].(map[string]interface{})
 				eventType := filter["event_type"].([]interface{})
 				nc.Pubsub.Filter = &container.Filter{
