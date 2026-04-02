@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -34,6 +35,7 @@ func ResourceComputeDiskAsyncReplication() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDiskAsyncReplicationCreate,
 		Read:   resourceDiskAsyncReplicationRead,
+		Update: resourceDiskAsyncReplicationUpdate,
 		Delete: resourceDiskAsyncReplicationDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -44,6 +46,10 @@ func ResourceComputeDiskAsyncReplication() *schema.Resource {
 			Create: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"primary_disk": {
@@ -76,6 +82,9 @@ func ResourceComputeDiskAsyncReplication() *schema.Resource {
 					},
 				},
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -187,6 +196,7 @@ func resourceDiskAsyncReplicationCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceDiskAsyncReplicationRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
 	clientCompute, err := asyncReplicationGetComputeClient(d, meta)
 	if err != nil {
 		return err
@@ -238,10 +248,30 @@ func resourceDiskAsyncReplicationRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error setting secondary_disk: %s", err)
 	}
 	d.SetId(resourceId)
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 	return nil
 }
 
+// UDP update start
+func resourceDiskAsyncReplicationUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceDiskAsyncReplicationRead(d, meta)
+}
+
+//UDP update end
+
 func resourceDiskAsyncReplicationDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	clientCompute, err := asyncReplicationGetComputeClient(d, meta)
 	if err != nil {
 		return err

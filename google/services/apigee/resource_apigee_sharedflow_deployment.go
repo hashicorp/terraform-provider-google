@@ -21,6 +21,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -42,6 +43,10 @@ func ResourceApigeeSharedFlowDeployment() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"environment": {
@@ -73,6 +78,9 @@ func ResourceApigeeSharedFlowDeployment() *schema.Resource {
 				ForceNew:    true,
 				Description: `Id of the Sharedflow to be deployed.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -155,6 +163,11 @@ func resourceApigeeSharedflowDeploymentRead(d *schema.ResourceData, meta interfa
 	}
 	log.Printf("[DEBUG] ApigeeSharedflowDeployment deployStartTime %s", res["deployStartTime"])
 
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 	return nil
 }
 
@@ -164,6 +177,11 @@ func resourceApigeeSharedflowDeploymentUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceApigeeSharedFlowDeployment) {
+		return ResourceApigeeSharedFlowDeployment().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments?override=true&serviceAccount={{service_account}}")
 	if err != nil {
@@ -203,6 +221,13 @@ func resourceApigeeSharedflowDeploymentUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceApigeeSharedflowDeploymentDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

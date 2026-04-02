@@ -134,3 +134,5 @@ fields:
   - api_field: 'type'
   - api_field: 'view.query'
   - api_field: 'view.useLegacySql'
+  - field: 'deletion_policy'
+    provider_only: true

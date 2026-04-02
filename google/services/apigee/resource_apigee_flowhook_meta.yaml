@@ -10,3 +10,5 @@ fields:
   - api_field: 'flowHookPoint'
   - field: 'org_id'
   - field: 'sharedflow'
+  - field: 'deletion_policy'
+    provider_only: true

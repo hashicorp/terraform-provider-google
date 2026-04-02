@@ -9,3 +9,5 @@ fields:
     field: 'secondary_disk.disk'
   - api_field: 'resourceStatus.asyncSecondaryDisks'
     field: 'secondary_disk.state'
+  - field: 'deletion_policy'
+    provider_only: true

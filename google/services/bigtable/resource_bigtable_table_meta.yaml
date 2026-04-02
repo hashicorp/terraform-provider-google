@@ -18,3 +18,5 @@ fields:
   - api_field: 'rowKeySchema'
     json: true
   - field: 'split_keys'
+  - field: 'deletion_policy'
+    provider_only: true

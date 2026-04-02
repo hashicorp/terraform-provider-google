@@ -53,3 +53,5 @@ fields:
   - api_field: 'vpcConnectorEgressSettings'
   - field: 'automatic_update_policy'
   - api_field: 'onDeployUpdatePolicy.runtimeVersion'
+  - field: 'deletion_policy'
+    provider_only: true

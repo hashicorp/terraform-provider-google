@@ -69,6 +69,7 @@ func ResourceBigtableTable() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 			abpDiffFunc,
 		),
@@ -183,6 +184,9 @@ func ResourceBigtableTable() *schema.Resource {
 					The schema must be a valid JSON encoded string representing a Type's struct protobuf message. Note that for bytes sequence (like delimited_bytes.delimiter)
 					the delimiter must be base64 encoded. For example, if you want to set a delimiter to a single byte character "#", it should be set to "Iw==", which is the base64 encoding of the byte sequence "#".`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -455,6 +459,11 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 		// String value is default to empty string, so need to set it to nil to specify that the row key schema is not set.
 		d.Set("row_key_schema", nil)
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	return nil
 }
@@ -502,6 +511,11 @@ func familyMapDiffValueTypes(a, b map[string]bigtable.Family) map[string]bigtabl
 }
 
 func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceBigtableTable) {
+		return ResourceBigtableTable().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -647,6 +661,13 @@ func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

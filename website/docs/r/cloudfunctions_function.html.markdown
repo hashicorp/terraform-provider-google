@@ -197,6 +197,13 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 
 * `on_deploy_update_policy` - (Optional) Security patches are only applied when a function is redeployed. This should be specified as an empty block and cannot be set alongside `automatic_update_policy`. Structure is [documented below](#nested_on_deploy_update_policy).
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "ABANDON", the command will remove the resource from Terraform
+    management without updating or deleting the resource in the API.
+    When set to "DELETE", deleting the resource is allowed.
+
 <a name="nested_event_trigger"></a>The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.

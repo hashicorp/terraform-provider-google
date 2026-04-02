@@ -71,6 +71,7 @@ func ResourceBigtableAuthorizedView() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -137,6 +138,9 @@ If not provided, currently deletion protection will be set to UNPROTECTED as it 
 					},
 				},
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -267,11 +271,21 @@ func resourceBigtableAuthorizedViewRead(d *schema.ResourceData, meta interface{}
 	} else {
 		return fmt.Errorf("Error parsing server returned subset_view since it's empty")
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	return nil
 }
 
 func resourceBigtableAuthorizedViewUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceBigtableAuthorizedView) {
+		return ResourceBigtableAuthorizedView().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -335,6 +349,13 @@ func resourceBigtableAuthorizedViewUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceBigtableAuthorizedViewDestroy(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

@@ -9,3 +9,5 @@ fields:
   - api_field: 'revision'
   - field: 'service_account'
   - field: 'sharedflow_id'
+  - field: 'deletion_policy'
+    provider_only: true
