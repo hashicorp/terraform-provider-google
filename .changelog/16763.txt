@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: added `SNP_SVSM_CAPABLE` to `guest_os_features` enum for `google_compute_image` and `google_compute_region_disk` resources
+```
+
+```release-note:enhancement
+compute: added `SEV_LIVE_MIGRATABLE_V2` to `guest_os_features` enum for `google_compute_region_disk` resource
+```
