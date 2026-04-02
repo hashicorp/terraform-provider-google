@@ -47,6 +47,7 @@ func ResourceComposerUserWorkloadsSecret() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderRegion,
 		),
@@ -87,6 +88,9 @@ func ResourceComposerUserWorkloadsSecret() *schema.Resource {
 				Sensitive:   true,
 				Description: `A map of the secret data.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 	}
 }
@@ -155,10 +159,20 @@ func resourceComposerUserWorkloadsSecretRead(d *schema.ResourceData, meta interf
 	if err := d.Set("name", tpgresource.GetResourceNameFromSelfLink(res.Name)); err != nil {
 		return fmt.Errorf("Error setting UserWorkloadsSecret Name: %s", err)
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 	return nil
 }
 
 func resourceComposerUserWorkloadsSecretUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceComposerUserWorkloadsSecret) {
+		return ResourceComposerUserWorkloadsSecret().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -192,6 +206,13 @@ func resourceComposerUserWorkloadsSecretUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceComposerUserWorkloadsSecretDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

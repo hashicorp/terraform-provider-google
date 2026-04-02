@@ -549,6 +549,13 @@ The following arguments are supported:
 * `md5_authentication_key` - (Optional) Configuration for MD5 authentication on the BGP session.
   Structure is [documented below](#nested_md5_authentication_key).
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "ABANDON", the command will remove the resource from Terraform
+    management without updating or deleting the resource in the API.
+    When set to "DELETE", deleting the resource is allowed.
+
 <a name="nested_advertised_ip_ranges"></a>The `advertised_ip_ranges` block supports:
 
 * `range` -

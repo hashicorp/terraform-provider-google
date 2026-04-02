@@ -22,6 +22,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -31,6 +32,7 @@ func ResourceApigeeFlowhook() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeFlowhookCreate,
 		Read:   resourceApigeeFlowhookRead,
+		Update: resourceApigeeFlowhookUpdate,
 		Delete: resourceApigeeFlowhookDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -41,6 +43,10 @@ func ResourceApigeeFlowhook() *schema.Resource {
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"description": {
@@ -80,6 +86,9 @@ func ResourceApigeeFlowhook() *schema.Resource {
 				Default:     true,
 				Description: `Flag that specifies whether execution should continue if the flow hook throws an exception. Set to true to continue execution. Set to false to stop execution if the flow hook throws an exception. Defaults to true.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -193,11 +202,31 @@ func resourceApigeeFlowhookRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("continue_on_error", flattenApigeeFlowhookContinueOnError(res["continueOnError"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Flowhook: %s", err)
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	return nil
 }
 
+// UDP update start
+func resourceApigeeFlowhookUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceApigeeFlowhookRead(d, meta)
+}
+
+//UDP update end
+
 func resourceApigeeFlowhookDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

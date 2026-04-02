@@ -172,6 +172,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderRegion,
 			tpgresource.SetLabelsDiff,
@@ -1081,6 +1082,9 @@ func ResourceComposerEnvironment() *schema.Resource {
 					},
 				},
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -1201,10 +1205,20 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("storage_config", flattenComposerStorageConfig(res.StorageConfig)); err != nil {
 		return fmt.Errorf("Error setting Storage: %s", err)
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 	return nil
 }
 
 func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceComposerEnvironment) {
+		return ResourceComposerEnvironment().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	tfConfig := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, tfConfig.UserAgent)
 	if err != nil {
@@ -1631,6 +1645,13 @@ func resourceComposerEnvironmentPatchField(updateMask, userAgent string, env *co
 }
 
 func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

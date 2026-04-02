@@ -160,6 +160,13 @@ The following arguments are supported:
     fails. Defaults to the network where the instances are in (if neither
     `network` nor `instances` is specified, this field will be blank).
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "ABANDON", the command will remove the resource from Terraform
+    management without updating or deleting the resource in the API.
+    When set to "DELETE", deleting the resource is allowed.
+
 <a name="nested_named_port"></a>The `named_port` block supports:
 
 * `name` - (Required) The name which the port will be mapped to.

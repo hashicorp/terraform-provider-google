@@ -81,3 +81,5 @@ fields:
   - field: 'wait_for_instances_status'
     provider_only: true
   - api_field: 'zone'
+  - field: 'deletion_policy'
+    provider_only: true

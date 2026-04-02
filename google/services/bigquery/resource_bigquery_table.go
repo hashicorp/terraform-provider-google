@@ -680,6 +680,7 @@ func ResourceBigQueryTable() *schema.Resource {
 			State: resourceBigQueryTableImport,
 		},
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 			resourceBigQueryTableSchemaCustomizeDiff,
 			tpgresource.SetLabelsDiff,
@@ -1831,6 +1832,9 @@ func ResourceBigQueryTable() *schema.Resource {
 					},
 				},
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -2376,6 +2380,11 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Error setting external_catalog_table_options: %s", err)
 		}
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	return nil
 }
@@ -2407,7 +2416,7 @@ func addAutoGenSchemaFields(d *schema.ResourceData, table *bigquery.Table) error
 
 func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error {
 	// If only client-side fields were modified, short-circuit the Update function to avoid sending an update API request.
-	clientSideFields := map[string]bool{"deletion_protection": true, "ignore_schema_changes": true, "ignore_auto_generated_schema": true, "table_metadata_view": true}
+	clientSideFields := map[string]bool{"deletion_protection": true, "ignore_schema_changes": true, "ignore_auto_generated_schema": true, "table_metadata_view": true, "deletion_policy": true}
 	clientSideOnly := true
 	for field := range ResourceBigQueryTable().Schema {
 		if d.HasChange(field) && !clientSideFields[field] {
@@ -2547,6 +2556,13 @@ func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent str
 }
 
 func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("cannot destroy table %v without setting deletion_protection=false and running `terraform apply`", d.Id())
 	}

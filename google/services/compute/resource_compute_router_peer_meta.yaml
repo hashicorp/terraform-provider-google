@@ -72,3 +72,5 @@ fields:
     provider_only: true
   - field: 'zero_custom_learned_route_priority'
     provider_only: true
+  - field: 'deletion_policy'
+    provider_only: true

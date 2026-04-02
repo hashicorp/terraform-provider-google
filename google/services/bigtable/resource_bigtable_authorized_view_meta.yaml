@@ -13,3 +13,5 @@ fields:
   - field: 'subset_view.family_subsets.qualifiers'
   - api_field: 'subsetView.rowPrefixes'
   - field: 'table_name'
+  - field: 'deletion_policy'
+    provider_only: true

@@ -18,3 +18,5 @@ fields:
   - api_field: 'selfLink'
   - api_field: 'size'
   - api_field: 'zone'
+  - field: 'deletion_policy'
+    provider_only: true

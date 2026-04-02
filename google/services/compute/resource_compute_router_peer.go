@@ -65,6 +65,7 @@ func ResourceComputeRouterBgpPeer() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -387,6 +388,9 @@ Must be unique within a router. Must be referenced by exactly one bgpPeer. Must 
 					},
 				},
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -783,11 +787,21 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("md5_authentication_key", flattenNestedComputeRouterBgpPeerMd5AuthenticationKey(res["md5AuthenticationKeyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	return nil
 }
 
 func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceComputeRouterBgpPeer) {
+		return ResourceComputeRouterBgpPeer().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -1018,6 +1032,13 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeRouterBgpPeerDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
