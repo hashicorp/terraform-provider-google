@@ -1,0 +1,3 @@
+```release-note:enhancement
+networkconnectivity: added support for new spoke fields `exclude_import_ranges`, `include_export_ranges`, `exclude_export_ranges` and expanded CIDR support for `include_import_ranges` in `google_network_connectivity_spoke` resource
+```

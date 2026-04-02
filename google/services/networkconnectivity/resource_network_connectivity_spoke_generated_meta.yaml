@@ -14,6 +14,9 @@ fields:
     - api_field: group
     - api_field: hub
     - api_field: labels
+    - api_field: linkedInterconnectAttachments.excludeExportRanges
+    - api_field: linkedInterconnectAttachments.excludeImportRanges
+    - api_field: linkedInterconnectAttachments.includeExportRanges
     - api_field: linkedInterconnectAttachments.includeImportRanges
     - api_field: linkedInterconnectAttachments.siteToSiteDataTransfer
     - api_field: linkedInterconnectAttachments.uris
@@ -22,6 +25,9 @@ fields:
     - api_field: linkedProducerVpcNetwork.network
     - api_field: linkedProducerVpcNetwork.peering
     - api_field: linkedProducerVpcNetwork.producerNetwork
+    - api_field: linkedRouterApplianceInstances.excludeExportRanges
+    - api_field: linkedRouterApplianceInstances.excludeImportRanges
+    - api_field: linkedRouterApplianceInstances.includeExportRanges
     - api_field: linkedRouterApplianceInstances.includeImportRanges
     - api_field: linkedRouterApplianceInstances.instances.ipAddress
     - api_field: linkedRouterApplianceInstances.instances.virtualMachine
@@ -29,6 +35,9 @@ fields:
     - api_field: linkedVpcNetwork.excludeExportRanges
     - api_field: linkedVpcNetwork.includeExportRanges
     - api_field: linkedVpcNetwork.uri
+    - api_field: linkedVpnTunnels.excludeExportRanges
+    - api_field: linkedVpnTunnels.excludeImportRanges
+    - api_field: linkedVpnTunnels.includeExportRanges
     - api_field: linkedVpnTunnels.includeImportRanges
     - api_field: linkedVpnTunnels.siteToSiteDataTransfer
     - api_field: linkedVpnTunnels.uris
