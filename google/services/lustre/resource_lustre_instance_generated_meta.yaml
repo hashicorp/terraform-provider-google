@@ -17,6 +17,7 @@ fields:
     - api_field: capacityGib
     - api_field: createTime
     - api_field: description
+    - api_field: dynamicTierOptions.mode
     - field: effective_labels
       provider_only: true
     - api_field: filesystem
@@ -51,4 +52,7 @@ fields:
     - api_field: stateReason
     - field: terraform_labels
       provider_only: true
+    - api_field: uid
+    - api_field: upcomingMaintenanceSchedule.endTime
+    - api_field: upcomingMaintenanceSchedule.startTime
     - api_field: updateTime

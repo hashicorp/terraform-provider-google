@@ -76,7 +76,10 @@ The following arguments are supported:
 * `capacity_gib` -
   (Required)
   The storage capacity of the instance in gibibytes (GiB). Allowed values
-  are from `18000` to `954000`, in increments of 9000.
+  are from `9000` to `7632000`, depending on the `perUnitStorageThroughput`.
+  See [Performance tiers and maximum storage
+  capacities](https://cloud.google.com/managed-lustre/docs/create-instance#performance-tiers)
+  for specific minimums, maximums, and step sizes for each performance tier.
 
 * `filesystem` -
   (Required)
@@ -89,11 +92,6 @@ The following arguments are supported:
   The full name of the VPC network to which the instance is connected.
   Must be in the format
   `projects/{project_id}/global/networks/{network_name}`.
-
-* `per_unit_storage_throughput` -
-  (Required)
-  The throughput of the instance in MB/s/TiB.
-  Valid values are 125, 250, 500, 1000.
 
 * `location` -
   (Required)
@@ -108,14 +106,34 @@ The following arguments are supported:
   * Must end with a number or a letter.
 
 
+* `access_rules_options` -
+  (Optional)
+  IP-based access rules for the Managed Lustre instance. These options
+  define the root user squash configuration.
+  Structure is [documented below](#nested_access_rules_options).
+
+* `description` -
+  (Optional)
+  A user-readable description of the instance.
+
+* `dynamic_tier_options` -
+  (Optional)
+  Dynamic tier options for a Managed Lustre instance.
+  Structure is [documented below](#nested_dynamic_tier_options).
+
 * `gke_support_enabled` -
   (Optional)
   Indicates whether you want to enable support for GKE clients. By default,
   GKE clients are not supported.
 
-* `description` -
+* `kms_key` -
   (Optional)
-  A user-readable description of the instance.
+  The Cloud KMS key name to use for data encryption.
+  If not set, the instance will use Google-managed encryption keys.
+  If set, the instance will use customer-managed encryption keys.
+  The key must be in the same region as the instance.
+  The key format is:
+  projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{key}
 
 * `labels` -
   (Optional)
@@ -123,25 +141,25 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `maintenance_policy` -
+  (Optional)
+  Defines a maintenance policy for a resource.
+  Structure is [documented below](#nested_maintenance_policy).
+
+* `per_unit_storage_throughput` -
+  (Optional)
+  The throughput of the instance in MBps per TiB. Valid values are 125, 250,
+  500, 1000.
+  See [Performance tiers and maximum storage
+  capacities](https://cloud.google.com/managed-lustre/docs/create-instance#performance-tiers)
+  for more information.
+  If the instance is using the Dynamic tier, this field must not be set or
+  must be set to zero.
+
 * `placement_policy` -
   (Optional)
   The placement policy name for the instance in the format of
   projects/{project}/locations/{location}/resourcePolicies/{resource_policy}
-
-* `kms_key` -
-  (Optional)
-  The KMS key id to use for encryption of the Lustre instance.
-
-* `access_rules_options` -
-  (Optional)
-  Access control rules for the Lustre instance. Configures default root
-  squashing behavior and specific access rules based on IP addresses.
-  Structure is [documented below](#nested_access_rules_options).
-
-* `maintenance_policy` -
-  (Optional)
-  The maintenance policy for the instance to determine when to allow or exclude the instance from maintenance updates.
-  Structure is [documented below](#nested_maintenance_policy).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -150,68 +168,199 @@ The following arguments are supported:
 
 <a name="nested_access_rules_options"></a>The `access_rules_options` block supports:
 
-* `default_squash_mode` -
-  (Required)
-  Set to "ROOT_SQUASH" to enable root squashing by default.
-  Other values include "NO_SQUASH".
-  Possible values are: `ROOT_SQUASH`, `NO_SQUASH`.
-
-* `default_squash_uid` -
+* `access_rules` -
   (Optional)
-  The UID to map the root user to when root squashing is enabled
-  (e.g., 65534 for nobody).
+  The access rules for the instance.
+  Structure is [documented below](#nested_access_rules_options_access_rules).
 
 * `default_squash_gid` -
   (Optional)
-  The GID to map the root user to when root squashing is enabled
-  (e.g., 65534 for nobody).
+  The user squash GID for the default access rule.
+  This user squash GID applies to all root users connecting from clients
+  that are not matched by any of the access rules. If not set, the default
+  is 0 (no GID squash).
 
-* `access_rules` -
+* `default_squash_mode` -
+  (Required)
+  The squash mode for the default access rule.
+  Possible values:
+  NO_SQUASH
+  ROOT_SQUASH
+
+* `default_squash_uid` -
   (Optional)
-  An array of access rule exceptions. Each rule defines IP address ranges
-  that should have different squash behavior than the default.
-  Structure is [documented below](#nested_access_rules_options_access_rules).
+  The user squash UID for the default access rule.
+  This user squash UID applies to all root users connecting from clients
+  that are not matched by any of the access rules. If not set, the default
+  is 0 (no UID squash).
 
 
 <a name="nested_access_rules_options_access_rules"></a>The `access_rules` block supports:
 
-* `name` -
-  (Required)
-  A unique identifier for the access rule.
-
 * `ip_address_ranges` -
   (Required)
-  An array of IP address strings or CIDR ranges that this rule applies to.
+  The IP address ranges to which to apply this access rule. Accepts
+  non-overlapping CIDR ranges (e.g., `192.168.1.0/24`) and IP addresses
+  (e.g., `192.168.1.0`).
+
+* `name` -
+  (Required)
+  The name of the access rule policy group.
+  Must be 16 characters or less and include only alphanumeric characters
+  or '_'.
 
 * `squash_mode` -
   (Required)
-  The squash mode for this specific rule. Currently, only "NO_SQUASH"
-  is supported for exceptions.
-  Possible values are: `NO_SQUASH`.
+  Squash mode for the access rule.
+  Possible values:
+  NO_SQUASH
+  ROOT_SQUASH
+
+<a name="nested_dynamic_tier_options"></a>The `dynamic_tier_options` block supports:
+
+* `mode` -
+  (Required)
+  The dynamic tier mode of the instance.
+  Possible values:
+  DISABLED
+  DEFAULT_CACHE
 
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
-
-* `weekly_maintenance_windows` -
-  (Optional)
-  The weekly maintenance windows for the instance. Currently limited to 1 window.
-  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_windows).
 
 * `maintenance_exclusion_window` -
   (Optional)
   The exclusion windows for the instance. Currently limited to 1 window.
   Structure is [documented below](#nested_maintenance_policy_maintenance_exclusion_window).
 
+* `weekly_maintenance_windows` -
+  (Required)
+  The weekly maintenance windows for the instance. Currently limited to 1
+  window.
+  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_windows).
+
+
+<a name="nested_maintenance_policy_maintenance_exclusion_window"></a>The `maintenance_exclusion_window` block supports:
+
+* `end_date` -
+  (Required)
+  Represents a whole or partial calendar date, such as a birthday. The time of
+  day and time zone are either specified elsewhere or are insignificant. The
+  date is relative to the Gregorian Calendar. This can represent one of the
+  following:
+  * A full date, with non-zero year, month, and day values.
+  * A month and day, with a zero year (for example, an anniversary).
+  * A year on its own, with a zero month and a zero day.
+  * A year and month, with a zero day (for example, a credit card expiration
+  date).
+  Related types:
+  * google.type.TimeOfDay
+  * google.type.DateTime
+  * google.protobuf.Timestamp
+  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusion_window_end_date).
+
+* `start_date` -
+  (Required)
+  Represents a whole or partial calendar date, such as a birthday. The time of
+  day and time zone are either specified elsewhere or are insignificant. The
+  date is relative to the Gregorian Calendar. This can represent one of the
+  following:
+  * A full date, with non-zero year, month, and day values.
+  * A month and day, with a zero year (for example, an anniversary).
+  * A year on its own, with a zero month and a zero day.
+  * A year and month, with a zero day (for example, a credit card expiration
+  date).
+  Related types:
+  * google.type.TimeOfDay
+  * google.type.DateTime
+  * google.protobuf.Timestamp
+  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusion_window_start_date).
+
+* `time` -
+  (Required)
+  Represents a time of day. The date and time zone are either not significant
+  or are specified elsewhere. An API may choose to allow leap seconds. Related
+  types are google.type.Date and `google.protobuf.Timestamp`.
+  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusion_window_time).
+
+
+<a name="nested_maintenance_policy_maintenance_exclusion_window_end_date"></a>The `end_date` block supports:
+
+* `day` -
+  (Optional)
+  Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+  to specify a year by itself or a year and month where the day isn't
+  significant.
+
+* `month` -
+  (Optional)
+  Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+  month and day.
+
+* `year` -
+  (Optional)
+  Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+  a year.
+
+<a name="nested_maintenance_policy_maintenance_exclusion_window_start_date"></a>The `start_date` block supports:
+
+* `day` -
+  (Optional)
+  Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+  to specify a year by itself or a year and month where the day isn't
+  significant.
+
+* `month` -
+  (Optional)
+  Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+  month and day.
+
+* `year` -
+  (Optional)
+  Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+  a year.
+
+<a name="nested_maintenance_policy_maintenance_exclusion_window_time"></a>The `time` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of a day in 24 hour format. Must be greater than or equal to 0 and
+  typically must be less than or equal to 23. An API may choose to allow the
+  value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of an hour. Must be greater than or equal to 0 and less than or
+  equal to 59.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds, in nanoseconds. Must be greater than or equal to 0
+  and less than or equal to 999,999,999.
+
+* `seconds` -
+  (Optional)
+  Seconds of a minute. Must be greater than or equal to 0 and typically must
+  be less than or equal to 59. An API may allow the value 60 if it allows
+  leap-seconds.
 
 <a name="nested_maintenance_policy_weekly_maintenance_windows"></a>The `weekly_maintenance_windows` block supports:
 
 * `day_of_week` -
   (Required)
-  Day of the week for the maintenance window.
-  Possible values are: `SUNDAY`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`.
+  Possible values:
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
 
 * `start_time` -
   (Required)
-  Start time of the maintenance window in UTC.
+  Represents a time of day. The date and time zone are either not significant
+  or are specified elsewhere. An API may choose to allow leap seconds. Related
+  types are google.type.Date and `google.protobuf.Timestamp`.
   Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_windows_start_time).
 
 
@@ -219,83 +368,25 @@ The following arguments are supported:
 
 * `hours` -
   (Optional)
-  Hours of day in 24 hour format. Should be from 0 to 23.
+  Hours of a day in 24 hour format. Must be greater than or equal to 0 and
+  typically must be less than or equal to 23. An API may choose to allow the
+  value "24:00:00" for scenarios like business closing time.
 
 * `minutes` -
   (Optional)
-  Minutes of hour of day. Must be from 0 to 59.
-
-* `seconds` -
-  (Optional)
-  Seconds of minutes of the time. Must be from 0 to 59.
+  Minutes of an hour. Must be greater than or equal to 0 and less than or
+  equal to 59.
 
 * `nanos` -
   (Optional)
-  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
-
-<a name="nested_maintenance_policy_maintenance_exclusion_window"></a>The `maintenance_exclusion_window` block supports:
-
-* `start_date` -
-  (Required)
-  Start date of the exclusion period in UTC.
-  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusion_window_start_date).
-
-* `end_date` -
-  (Required)
-  End date of the exclusion period in UTC.
-  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusion_window_end_date).
-
-* `time` -
-  (Required)
-  Time in UTC for the exclusion window.
-  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusion_window_time).
-
-
-<a name="nested_maintenance_policy_maintenance_exclusion_window_start_date"></a>The `start_date` block supports:
-
-* `year` -
-  (Optional)
-  Year of the date. Must be from 1 to 9999, or 0 for recurring.
-
-* `month` -
-  (Optional)
-  Month of a year. Must be from 1 to 12.
-
-* `day` -
-  (Optional)
-  Day of a month. Must be from 1 to 31 and valid for the year and month.
-
-<a name="nested_maintenance_policy_maintenance_exclusion_window_end_date"></a>The `end_date` block supports:
-
-* `year` -
-  (Optional)
-  Year of the date. Must be from 1 to 9999, or 0 for recurring.
-
-* `month` -
-  (Optional)
-  Month of a year. Must be from 1 to 12.
-
-* `day` -
-  (Optional)
-  Day of a month. Must be from 1 to 31 and valid for the year and month.
-
-<a name="nested_maintenance_policy_maintenance_exclusion_window_time"></a>The `time` block supports:
-
-* `hours` -
-  (Optional)
-  Hours of day in 24 hour format. Should be from 0 to 23.
-
-* `minutes` -
-  (Optional)
-  Minutes of hour of day. Must be from 0 to 59.
+  Fractions of seconds, in nanoseconds. Must be greater than or equal to 0
+  and less than or equal to 999,999,999.
 
 * `seconds` -
   (Optional)
-  Seconds of minutes of the time. Must be from 0 to 59.
-
-* `nanos` -
-  (Optional)
-  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+  Seconds of a minute. Must be greater than or equal to 0 and typically must
+  be less than or equal to 59. An API may allow the value 60 if it allows
+  leap-seconds.
 
 ## Attributes Reference
 
@@ -303,24 +394,41 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/instances/{{instance_id}}`
 
-* `update_time` -
-  Timestamp when the instance was last updated.
-
-* `state` -
-  The state of the instance.
-  Please see https://cloud.google.com/managed-lustre/docs/reference/rest/v1/projects.locations.instances#state for values
+* `create_time` -
+  Timestamp when the instance was created.
 
 * `mount_point` -
   Mount point of the instance in the format `IP_ADDRESS@tcp:/FILESYSTEM`.
 
-* `create_time` -
-  Timestamp when the instance was created.
-
 * `name` -
   Identifier. The name of the instance.
 
+* `state` -
+  The state of the instance.
+  Possible values:
+  ACTIVE
+  CREATING
+  DELETING
+  UPGRADING
+  REPAIRING
+  STOPPED
+  UPDATING
+  SUSPENDED
+
 * `state_reason` -
-  The reason why the instance is in a certain state.
+  The reason why the instance is in a certain state (e.g. SUSPENDED).
+
+* `uid` -
+  Unique ID of the resource.
+  This is unrelated to the access rules which allow specifying the root
+  squash uid.
+
+* `upcoming_maintenance_schedule` -
+  Represents a scheduled maintenance event.
+  Structure is [documented below](#nested_upcoming_maintenance_schedule).
+
+* `update_time` -
+  Timestamp when the instance was last updated.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
@@ -329,6 +437,16 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+
+<a name="nested_upcoming_maintenance_schedule"></a>The `upcoming_maintenance_schedule` block contains:
+
+* `end_time` -
+  (Output)
+  The scheduled end time for the maintenance.
+
+* `start_time` -
+  (Output)
+  The scheduled start time for the maintenance.
 
 ## Timeouts
 
