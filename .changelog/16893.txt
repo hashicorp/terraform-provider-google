@@ -1,0 +1,7 @@
+```release-note:enhancement
+lustre: added `dynamic_tier_options` field to `google_lustre_instance` resource
+```
+
+```release-note:breaking-change
+lustre: marked `maintenance_policy.weekly_maintenance_windows` field required in `google_lustre_instance` resource. Configuring `maintenance_policy` without `weekly_maintenance_windows` will cause an API error.
+```
