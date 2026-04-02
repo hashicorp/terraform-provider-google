@@ -922,6 +922,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceEmptydirDiskExample(t *testing.T)
 
 	context := map[string]interface{}{
 		"cloud_run_service_name": "tf-test-cloudrun-service" + randomSuffix,
+		"deletion_protection":    false,
 		"random_suffix":          randomSuffix,
 	}
 
@@ -949,7 +950,7 @@ resource "google_cloud_run_v2_service" "default" {
   name     = "%{cloud_run_service_name}"
   location = "us-central1"
   launch_stage = "ALPHA"
-  deletion_protection = false
+  deletion_protection =  "%{deletion_protection}"
   ingress = "INGRESS_TRAFFIC_ALL"
 
   template {
