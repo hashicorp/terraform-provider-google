@@ -166,6 +166,10 @@ The following arguments are supported:
   maxSlots to 0 and set scalingMode to SCALING_MODE_UNSPECIFIED to disable the maxSlots
   feature.
 
+* `reservation_group` -
+  (Optional)
+  The reservation group that this reservation belongs to.
+
 * `location` -
   (Optional)
   The geographic location where the transfer config should reside.

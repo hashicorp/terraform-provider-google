@@ -53,8 +53,13 @@ var (
 func TestAccManagedKafkaCluster_managedkafkaClusterBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cluster_id":    "tf-test-my-cluster" + randomSuffix,
+		"key_name":      "tf-test-example-key" + randomSuffix,
+		"keyring_name":  "tf-test-example-keyring" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccManagedKafkaCluster_managedkafkaClusterBasicExample(t *testing.T) {
 func testAccManagedKafkaCluster_managedkafkaClusterBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_managed_kafka_cluster" "example" {
-  cluster_id = "tf-test-my-cluster%{random_suffix}"
+  cluster_id = "%{cluster_id}"
   location = "us-central1"
   capacity_config {
     vcpu_count = 3
@@ -107,8 +112,12 @@ data "google_project" "project" {
 func TestAccManagedKafkaCluster_managedkafkaClusterMtlsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"ca_pool_id":    "tf-test-my-ca-pool" + randomSuffix,
+		"cluster_id":    "tf-test-my-cluster" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -132,7 +141,7 @@ func TestAccManagedKafkaCluster_managedkafkaClusterMtlsExample(t *testing.T) {
 func testAccManagedKafkaCluster_managedkafkaClusterMtlsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_managed_kafka_cluster" "example" {
-  cluster_id = "tf-test-my-cluster%{random_suffix}"
+  cluster_id = "%{cluster_id}"
   location = "us-central1"
   capacity_config {
     vcpu_count = 3
@@ -156,7 +165,7 @@ resource "google_managed_kafka_cluster" "example" {
 }
 
 resource "google_privateca_ca_pool" "ca_pool" {
-  name = "tf-test-my-ca-pool%{random_suffix}"
+  name = "%{ca_pool_id}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {

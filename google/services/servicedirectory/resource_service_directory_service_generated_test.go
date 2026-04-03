@@ -53,8 +53,12 @@ var (
 func TestAccServiceDirectoryService_serviceDirectoryServiceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"namespace_id":  "tf-test-example-namespace" + randomSuffix,
+		"service_id":    "tf-test-example-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +82,12 @@ func TestAccServiceDirectoryService_serviceDirectoryServiceBasicExample(t *testi
 func testAccServiceDirectoryService_serviceDirectoryServiceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_directory_namespace" "example" {
-  namespace_id = "tf-test-example-namespace%{random_suffix}"
+  namespace_id = "%{namespace_id}"
   location     = "us-central1"
 }
 
 resource "google_service_directory_service" "example" {
-  service_id = "tf-test-example-service%{random_suffix}"
+  service_id = "%{service_id}"
   namespace  = google_service_directory_namespace.example.id
 
   metadata = {

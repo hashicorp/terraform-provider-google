@@ -251,7 +251,7 @@ resource "google_dataproc_metastore_service" "dpms2_scaling_factor" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "backup" {
-  service_id = "backup"
+  service_id = "backup-1"
   location   = "us-central1"
   port       = 9080
   tier       = "DEVELOPER"
@@ -278,7 +278,7 @@ resource "google_dataproc_metastore_service" "backup" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "backup"
+  name     = "backup-1"
   location = "us-central1"
 }
 ```

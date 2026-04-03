@@ -27,8 +27,6 @@ A composite health check resource specifies the health source resources and
 the health destination resource to which the aggregated health result from
 the health source resources is delivered.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about RegionCompositeHealthCheck, see:
 
@@ -41,7 +39,6 @@ To get more information about RegionCompositeHealthCheck, see:
 
 ```hcl
 resource "google_compute_region_composite_health_check" "example_test_composite_health_check" {
-  provider           = google-beta
   name               = "test-composite-health-check"
   description        = "test regional composite health check resource"
   region             = "us-central1"
@@ -50,7 +47,6 @@ resource "google_compute_region_composite_health_check" "example_test_composite_
 }
 
 resource "google_compute_region_health_source" "default" {
-  provider                  = google-beta
   name                      = "test-composite-health-check-hs"
   region                    = "us-central1"
   source_type               = "BACKEND_SERVICE"
@@ -59,14 +55,12 @@ resource "google_compute_region_health_source" "default" {
 }
 
 resource "google_compute_region_health_aggregation_policy" "hap" {
-  provider    = google-beta
   name        = "test-composite-health-check-hap"
   description = "health aggregation policy for health source"
   region      = "us-central1"
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
   name     = "test-composite-health-check-hc"
   http_health_check {
     port = 80
@@ -74,7 +68,6 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_compute_region_backend_service" "default" {
-  provider              = google-beta
   name                  = "test-composite-health-check-bs"
   region                = "us-central1"
   health_checks         = [google_compute_health_check.default.id]
@@ -82,7 +75,6 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_forwarding_rule" "default" {
-  provider              = google-beta
   name                  = "test-composite-health-check-fr"
   region                = "us-central1"
   load_balancing_scheme = "INTERNAL"
@@ -94,13 +86,11 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "test-composite-health-check-net"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "test-composite-health-check-sub"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"

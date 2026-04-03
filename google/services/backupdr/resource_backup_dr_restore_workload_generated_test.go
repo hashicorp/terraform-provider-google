@@ -54,9 +54,15 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadComputeInstanceBasicE
 	t.Skip("true")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"backup_id":       "backup" + randomSuffix,
+		"backup_vault_id": "tf-test-backup-vault" + randomSuffix,
+		"data_source_id":  "tf-test-data-source" + randomSuffix,
+		"instance_name":   "tf-test-restored-instance" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,9 +87,9 @@ func testAccBackupDRRestoreWorkload_backupDrRestoreWorkloadComputeInstanceBasicE
 	return acctest.Nprintf(`
 resource "google_backup_dr_restore_workload" "restore_compute_basic" {
   location         = "us-central1"
-  backup_vault_id  = "tf-test-backup-vault%{random_suffix}"
-  data_source_id   = "tf-test-data-source%{random_suffix}"
-  backup_id        = "backup%{random_suffix}"
+  backup_vault_id  = "%{backup_vault_id}"
+  data_source_id   = "%{data_source_id}"
+  backup_id        = "%{backup_id}"
 
   compute_instance_target_environment {
     project = "%{project}"
@@ -91,7 +97,7 @@ resource "google_backup_dr_restore_workload" "restore_compute_basic" {
   }
 
   compute_instance_restore_properties {
-    name         = "tf-test-restored-instance%{random_suffix}"
+    name         = "%{instance_name}"
     machine_type = "zones/us-central1-a/machineTypes/e2-medium"
   }
 }
@@ -102,9 +108,15 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadComputeInstanceFullEx
 	t.Skip("true")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"backup_id":       "backup" + randomSuffix,
+		"backup_vault_id": "tf-test-backup-vault" + randomSuffix,
+		"data_source_id":  "tf-test-data-source" + randomSuffix,
+		"instance_name":   "tf-test-restored-instance-full" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -129,9 +141,9 @@ func testAccBackupDRRestoreWorkload_backupDrRestoreWorkloadComputeInstanceFullEx
 	return acctest.Nprintf(`
 resource "google_backup_dr_restore_workload" "restore_compute_full" {
   location         = "us-central1"
-  backup_vault_id  = "tf-test-backup-vault%{random_suffix}"
-  data_source_id   = "tf-test-data-source%{random_suffix}"
-  backup_id        = "backup%{random_suffix}"
+  backup_vault_id  = "%{backup_vault_id}"
+  data_source_id   = "%{data_source_id}"
+  backup_id        = "%{backup_id}"
 
   compute_instance_target_environment {
     project = "%{project}"
@@ -139,7 +151,7 @@ resource "google_backup_dr_restore_workload" "restore_compute_full" {
   }
 
   compute_instance_restore_properties {
-    name         = "tf-test-restored-instance-full%{random_suffix}"
+    name         = "%{instance_name}"
     machine_type = "zones/us-central1-a/machineTypes/e2-medium"
     description  = "Restored compute instance with advanced configuration"
     
@@ -220,9 +232,15 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadDiskBasicExample(t *t
 	t.Skip("true")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"backup_id":       "backup" + randomSuffix,
+		"backup_vault_id": "tf-test-backup-vault" + randomSuffix,
+		"data_source_id":  "tf-test-data-source" + randomSuffix,
+		"disk_name":       "tf-test-restored-disk" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -247,9 +265,9 @@ func testAccBackupDRRestoreWorkload_backupDrRestoreWorkloadDiskBasicExample(cont
 	return acctest.Nprintf(`
 resource "google_backup_dr_restore_workload" "restore_disk_basic" {
   location         = "us-central1"
-  backup_vault_id  = "tf-test-backup-vault%{random_suffix}"
-  data_source_id   = "tf-test-data-source%{random_suffix}"
-  backup_id        = "backup%{random_suffix}"
+  backup_vault_id  = "%{backup_vault_id}"
+  data_source_id   = "%{data_source_id}"
+  backup_id        = "%{backup_id}"
 
   disk_target_environment {
     project = "%{project}"
@@ -257,7 +275,7 @@ resource "google_backup_dr_restore_workload" "restore_disk_basic" {
   }
 
   disk_restore_properties {
-    name    = "tf-test-restored-disk%{random_suffix}"
+    name    = "%{disk_name}"
     size_gb = 100
     type    = "projects/%{project}/zones/us-central1-a/diskTypes/pd-standard"
     
@@ -276,9 +294,15 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadRegionalDiskExample(t
 	t.Skip("true")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"backup_id":       "backup" + randomSuffix,
+		"backup_vault_id": "tf-test-backup-vault" + randomSuffix,
+		"data_source_id":  "tf-test-data-source" + randomSuffix,
+		"disk_name":       "tf-test-restored-regional-disk" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -303,9 +327,9 @@ func testAccBackupDRRestoreWorkload_backupDrRestoreWorkloadRegionalDiskExample(c
 	return acctest.Nprintf(`
 resource "google_backup_dr_restore_workload" "restore_regional_disk" {
   location         = "us-central1"
-  backup_vault_id  = "tf-test-backup-vault%{random_suffix}"
-  data_source_id   = "tf-test-data-source%{random_suffix}"
-  backup_id        = "backup%{random_suffix}"
+  backup_vault_id  = "%{backup_vault_id}"
+  data_source_id   = "%{data_source_id}"
+  backup_id        = "%{backup_id}"
 
   region_disk_target_environment {
     project = "%{project}"
@@ -317,7 +341,7 @@ resource "google_backup_dr_restore_workload" "restore_regional_disk" {
   }
 
   disk_restore_properties {
-    name    = "tf-test-restored-regional-disk%{random_suffix}"
+    name    = "%{disk_name}"
     size_gb = 200
     type    = "pd-balanced"
     
@@ -339,9 +363,15 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadWithoutDeleteExample(
 	t.Skip("true")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"backup_id":       "backup" + randomSuffix,
+		"backup_vault_id": "tf-test-backup-vault" + randomSuffix,
+		"data_source_id":  "tf-test-data-source" + randomSuffix,
+		"disk_name":       "tf-test-persistent-disk" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -366,9 +396,9 @@ func testAccBackupDRRestoreWorkload_backupDrRestoreWorkloadWithoutDeleteExample(
 	return acctest.Nprintf(`
 resource "google_backup_dr_restore_workload" "restore_without_delete" {
   location         = "us-central1"
-  backup_vault_id  = "tf-test-backup-vault%{random_suffix}"
-  data_source_id   = "tf-test-data-source%{random_suffix}"
-  backup_id        = "backup%{random_suffix}"
+  backup_vault_id  = "%{backup_vault_id}"
+  data_source_id   = "%{data_source_id}"
+  backup_id        = "%{backup_id}"
   
   # Set to false to keep the restored resource in GCP after terraform destroy
   delete_restored_instance = false
@@ -379,7 +409,7 @@ resource "google_backup_dr_restore_workload" "restore_without_delete" {
   }
 
   disk_restore_properties {
-    name        = "tf-test-persistent-disk%{random_suffix}"
+    name        = "%{disk_name}"
     size_gb     = 100
     type        = "projects/%{project}/zones/us-central1-a/diskTypes/pd-standard"
   }

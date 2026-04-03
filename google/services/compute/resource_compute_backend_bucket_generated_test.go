@@ -53,8 +53,12 @@ var (
 func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_bucket_name": "tf-test-image-backend-bucket" + randomSuffix,
+		"bucket_name":         "tf-test-image-store-bucket" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,14 +82,14 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 func testAccComputeBackendBucket_backendBucketBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
-  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  name        = "%{backend_bucket_name}"
   description = "Contains beautiful images"
   bucket_name = google_storage_bucket.image_bucket.name
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "image_bucket" {
-  name     = "tf-test-image-store-bucket%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "EU"
 }
 `, context)
@@ -94,8 +98,12 @@ resource "google_storage_bucket" "image_bucket" {
 func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_bucket_name": "tf-test-image-backend-bucket-full" + randomSuffix,
+		"bucket_name":         "tf-test-image-store-bucket-full" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -119,7 +127,7 @@ func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
 func testAccComputeBackendBucket_backendBucketFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend_full" {
-  name        = "tf-test-image-backend-bucket-full%{random_suffix}"
+  name        = "%{backend_bucket_name}"
   description = "Contains beautiful beta mages"
   bucket_name = google_storage_bucket.image_backend_full.name
   enable_cdn  = true
@@ -137,7 +145,7 @@ resource "google_compute_backend_bucket" "image_backend_full" {
 }
 
 resource "google_storage_bucket" "image_backend_full" {
-  name     = "tf-test-image-store-bucket-full%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "EU"
 }
 `, context)
@@ -146,8 +154,12 @@ resource "google_storage_bucket" "image_backend_full" {
 func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_bucket_name": "tf-test-image-backend-bucket" + randomSuffix,
+		"bucket_name":         "tf-test-image-store-bucket" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -171,7 +183,7 @@ func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T
 func testAccComputeBackendBucket_backendBucketSecurityPolicyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
-  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  name        = "%{backend_bucket_name}"
   description = "Contains beautiful images"
   bucket_name = google_storage_bucket.image_backend.name
   enable_cdn  = true
@@ -179,12 +191,12 @@ resource "google_compute_backend_bucket" "image_backend" {
 }
 
 resource "google_storage_bucket" "image_backend" {
-  name     = "tf-test-image-store-bucket%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "EU"
 }
 
 resource "google_compute_security_policy" "policy" {
-  name        = "tf-test-image-store-bucket%{random_suffix}"
+  name        = "%{bucket_name}"
   description = "basic security policy"
 	type = "CLOUD_ARMOR_EDGE"
 }
@@ -194,8 +206,11 @@ resource "google_compute_security_policy" "policy" {
 func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_bucket_name": "tf-test-image-backend-bucket" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -219,7 +234,7 @@ func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *tes
 func testAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
-  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  name        = "%{backend_bucket_name}"
   description = "Contains beautiful images"
   bucket_name = google_storage_bucket.image_bucket.name
   enable_cdn  = true
@@ -231,7 +246,7 @@ resource "google_compute_backend_bucket" "image_backend" {
 }
 
 resource "google_storage_bucket" "image_bucket" {
-  name     = "tf-test-image-backend-bucket%{random_suffix}"
+  name     = "%{backend_bucket_name}"
   location = "EU"
 }
 `, context)
@@ -240,8 +255,11 @@ resource "google_storage_bucket" "image_bucket" {
 func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_bucket_name": "tf-test-image-backend-bucket" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -265,7 +283,7 @@ func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testi
 func testAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
-  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  name        = "%{backend_bucket_name}"
   description = "Contains beautiful images"
   bucket_name = google_storage_bucket.image_bucket.name
   enable_cdn  = true
@@ -277,7 +295,7 @@ resource "google_compute_backend_bucket" "image_backend" {
 }
 
 resource "google_storage_bucket" "image_bucket" {
-  name     = "tf-test-image-backend-bucket%{random_suffix}"
+  name     = "%{backend_bucket_name}"
   location = "EU"
 }
 `, context)
@@ -286,8 +304,19 @@ resource "google_storage_bucket" "image_bucket" {
 func TestAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"404_page":                "tf-test-404-page" + randomSuffix,
+		"cat_backend_bucket":      "tf-test-cat-backend-bucket" + randomSuffix,
+		"example_ip":              "tf-test-example-ip" + randomSuffix,
+		"http_lb":                 "tf-test-http-lb" + randomSuffix,
+		"http_lb_forwarding_rule": "tf-test-http-lb-forwarding-rule" + randomSuffix,
+		"http_lb_proxy":           "tf-test-http-lb-proxy" + randomSuffix,
+		"index_page":              "tf-test-index-page" + randomSuffix,
+		"my_bucket":               "tf-test-my-bucket" + randomSuffix,
+		"test_object":             "tf-test-test-object" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -314,7 +343,7 @@ func testAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(context m
 
 # Cloud Storage bucket
 resource "google_storage_bucket" "default" {
-  name                        = "tf-test-my-bucket%{random_suffix}"
+  name                        = "%{my_bucket}"
   location                    = "us-east1"
   uniform_bucket_level_access = true
   storage_class               = "STANDARD"
@@ -336,7 +365,7 @@ resource "google_storage_bucket_iam_member" "default" {
 }
 
 resource "google_storage_bucket_object" "index_page" {
-  name    = "tf-test-index-page%{random_suffix}"
+  name    = "%{index_page}"
   bucket  = google_storage_bucket.default.name
   content = <<-EOT
     <html><body>
@@ -346,7 +375,7 @@ resource "google_storage_bucket_object" "index_page" {
 }
 
 resource "google_storage_bucket_object" "error_page" {
-  name    = "tf-test-404-page%{random_suffix}"
+  name    = "%{404_page}"
   bucket  = google_storage_bucket.default.name
   content = <<-EOT
     <html><body>
@@ -357,7 +386,7 @@ resource "google_storage_bucket_object" "error_page" {
 
 # image object for testing, try to access http://<your_lb_ip_address>/test.jpg
 resource "google_storage_bucket_object" "test_image" {
-  name = "tf-test-test-object%{random_suffix}"
+  name = "%{test_object}"
   # Uncomment and add valid path to an object.
   #  source       = "/path/to/an/object"
   #  content_type = "image/jpeg"
@@ -371,12 +400,12 @@ resource "google_storage_bucket_object" "test_image" {
 
 # reserve IP address
 resource "google_compute_global_address" "default" {
-  name = "tf-test-example-ip%{random_suffix}"
+  name = "%{example_ip}"
 }
 
 # forwarding rule
 resource "google_compute_global_forwarding_rule" "default" {
-  name                  = "tf-test-http-lb-forwarding-rule%{random_suffix}"
+  name                  = "%{http_lb_forwarding_rule}"
   ip_protocol           = "TCP"
   load_balancing_scheme = "EXTERNAL"
   port_range            = "80"
@@ -386,19 +415,19 @@ resource "google_compute_global_forwarding_rule" "default" {
 
 # http proxy
 resource "google_compute_target_http_proxy" "default" {
-  name    = "tf-test-http-lb-proxy%{random_suffix}"
+  name    = "%{http_lb_proxy}"
   url_map = google_compute_url_map.default.id
 }
 
 # url map
 resource "google_compute_url_map" "default" {
-  name            = "tf-test-http-lb%{random_suffix}"
+  name            = "%{http_lb}"
   default_service = google_compute_backend_bucket.default.id
 }
 
 # backend bucket with CDN policy with default ttl settings
 resource "google_compute_backend_bucket" "default" {
-  name        = "tf-test-cat-backend-bucket%{random_suffix}"
+  name        = "%{cat_backend_bucket}"
   description = "Contains beautiful images"
   bucket_name = google_storage_bucket.default.name
   enable_cdn  = true
@@ -417,8 +446,12 @@ resource "google_compute_backend_bucket" "default" {
 func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_bucket_name": "tf-test-image-backend-bucket" + randomSuffix,
+		"bucket_name":         "tf-test-image-store-bucket" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -442,7 +475,7 @@ func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
 func testAccComputeBackendBucket_backendBucketBypassCacheExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
-  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  name        = "%{backend_bucket_name}"
   description = "Contains beautiful images"
   bucket_name = google_storage_bucket.image_bucket.name
   enable_cdn  = true
@@ -454,7 +487,7 @@ resource "google_compute_backend_bucket" "image_backend" {
 }
 
 resource "google_storage_bucket" "image_bucket" {
-  name     = "tf-test-image-store-bucket%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "EU"
 }
 `, context)
@@ -463,8 +496,12 @@ resource "google_storage_bucket" "image_bucket" {
 func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_bucket_name": "tf-test-image-backend-bucket" + randomSuffix,
+		"bucket_name":         "tf-test-image-store-bucket" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -488,7 +525,7 @@ func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
 func testAccComputeBackendBucket_backendBucketCoalescingExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
-  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  name        = "%{backend_bucket_name}"
   description = "Contains beautiful images"
   bucket_name = google_storage_bucket.image_bucket.name
   enable_cdn  = true
@@ -498,7 +535,7 @@ resource "google_compute_backend_bucket" "image_backend" {
 }
 
 resource "google_storage_bucket" "image_bucket" {
-  name     = "tf-test-image-store-bucket%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "EU"
 }
 `, context)
@@ -508,10 +545,14 @@ func TestAccComputeBackendBucket_backendBucketGlobalIlbExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"billing_account":     envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":              envvar.GetTestOrgFromEnv(t),
+		"backend_bucket_name": "tf-test-global-ilb-backend-bucket" + randomSuffix,
+		"bucket_name":         "tf-test-global-ilb-bucket" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -561,7 +602,7 @@ resource "time_sleep" "wait_120_seconds" {
 }
 
 resource "google_compute_backend_bucket" "global-ilb-backend" {
-  name                  = "tf-test-global-ilb-backend-bucket%{random_suffix}"
+  name                  = "%{backend_bucket_name}"
   project               = google_project.unarmored.number
   bucket_name           = google_storage_bucket.global-ilb-backend.name
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -570,7 +611,7 @@ resource "google_compute_backend_bucket" "global-ilb-backend" {
 }
 
 resource "google_storage_bucket" "global-ilb-backend" {
-  name                        = "tf-test-global-ilb-bucket%{random_suffix}"
+  name                        = "%{bucket_name}"
   project                     = google_project.unarmored.number
   location                    = "US-CENTRAL1"
   force_destroy               = true

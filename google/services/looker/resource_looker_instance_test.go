@@ -22,13 +22,19 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccLookerInstance_update(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"client_id":     "tf-test-my-client-id" + randomSuffix,
+		"client_secret": "tf-test-my-client-secret" + randomSuffix,
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -147,8 +153,14 @@ resource "google_looker_instance" "test" {
 func TestAccLookerInstance_updatePeriodicExport(t *testing.T) {
 	t.Parallel()
 
+	suffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"project":       envvar.GetTestProjectFromEnv(),
+		"region":        "us-central1",
+		"instance_name": "tf-test-looker-" + suffix,
+		"client_id":     "my-client-id",
+		"client_secret": "my-client-secret",
+		"random_suffix": suffix,
 	}
 
 	acctest.BootstrapIamMembers(t, []acctest.IamMember{

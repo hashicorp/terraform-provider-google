@@ -53,10 +53,13 @@ var (
 func TestAccCloudAssetOrganizationFeed_cloudAssetOrganizationFeedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"feed_id":       "tf-test-network-updates" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +87,7 @@ func testAccCloudAssetOrganizationFeed_cloudAssetOrganizationFeedExample(context
 resource "google_cloud_asset_organization_feed" "organization_feed" {
   billing_project = "%{project}"
   org_id          = "%{org_id}"
-  feed_id         = "tf-test-network-updates%{random_suffix}"
+  feed_id         = "%{feed_id}"
   content_type    = "RESOURCE"
 
   asset_types = [
@@ -111,7 +114,7 @@ resource "google_cloud_asset_organization_feed" "organization_feed" {
 # The topic where the resource change notifications will be sent.
 resource "google_pubsub_topic" "feed_output" {
   project  = "%{project}"
-  name     = "tf-test-network-updates%{random_suffix}"
+  name     = "%{feed_id}"
 }
 
 # Find the project number of the project whose identity will be used for sending

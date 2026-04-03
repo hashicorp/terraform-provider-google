@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_vertex_ai_reasoning_engine
 generation_type: mmv1
 source_file: products/vertexai/ReasoningEngine.yaml
@@ -6,6 +8,8 @@ api_version: v1
 api_resource_type_kind: ReasoningEngine
 fields:
     - api_field: createTime
+    - field: deletion_policy
+      provider_only: true
     - api_field: description
     - api_field: displayName
     - api_field: encryptionSpec.kmsKeyName
@@ -42,5 +46,3 @@ fields:
     - api_field: spec.sourceCodeSpec.pythonSpec.requirementsFile
     - api_field: spec.sourceCodeSpec.pythonSpec.version
     - api_field: updateTime
-    - field: deletion_policy
-      provider_only: true

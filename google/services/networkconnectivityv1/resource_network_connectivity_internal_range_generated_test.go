@@ -53,8 +53,12 @@ var (
 func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"internal_range_name": "basic" + randomSuffix,
+		"network_name":        "tf-test-internal-ranges" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "basic%{random_suffix}"
+  name    = "%{internal_range_name}"
   description = "Test internal range"
   network = google_compute_network.default.self_link
   usage   = "FOR_VPC"
@@ -91,7 +95,7 @@ resource "google_network_connectivity_internal_range" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-internal-ranges%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -100,8 +104,12 @@ resource "google_compute_network" "default" {
 func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAutomaticReservationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"internal_range_name": "tf-test-automatic-reservation" + randomSuffix,
+		"network_name":        "tf-test-internal-ranges" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -125,7 +133,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAutomaticReservationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "tf-test-automatic-reservation%{random_suffix}"
+  name    = "%{internal_range_name}"
   network = google_compute_network.default.id
   usage   = "FOR_VPC"
   peering = "FOR_SELF"
@@ -136,7 +144,7 @@ resource "google_network_connectivity_internal_range" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-internal-ranges%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -145,8 +153,12 @@ resource "google_compute_network" "default" {
 func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesExternalRangesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"internal_range_name": "tf-test-external-ranges" + randomSuffix,
+		"network_name":        "tf-test-internal-ranges" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -170,7 +182,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesExternalRangesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "tf-test-external-ranges%{random_suffix}"
+  name    = "%{internal_range_name}"
   network = google_compute_network.default.id
   usage   = "EXTERNAL_TO_VPC"
   peering = "FOR_SELF"
@@ -182,7 +194,7 @@ resource "google_network_connectivity_internal_range" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-internal-ranges%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -191,8 +203,12 @@ resource "google_compute_network" "default" {
 func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesReserveWithOverlapExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"internal_range_name": "tf-test-overlap-range" + randomSuffix,
+		"network_name":        "tf-test-internal-ranges" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -216,7 +232,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesReserveWithOverlapExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "tf-test-overlap-range%{random_suffix}"
+  name    = "%{internal_range_name}"
   description = "Test internal range"
   network = google_compute_network.default.id
   usage   = "FOR_VPC"
@@ -233,7 +249,7 @@ resource "google_network_connectivity_internal_range" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-internal-ranges%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
@@ -249,8 +265,13 @@ resource "google_compute_subnetwork" "default" {
 func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesMigrationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"internal_range_name": "migration" + randomSuffix,
+		"network_name":        "tf-test-internal-ranges" + randomSuffix,
+		"source_subnet_name":  "tf-test-source-subnet" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -274,7 +295,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesMigrationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name          = "migration%{random_suffix}"
+  name          = "%{internal_range_name}"
   description   = "Test internal range"
   network       = google_compute_network.default.self_link
   usage         = "FOR_MIGRATION"
@@ -287,12 +308,12 @@ resource "google_network_connectivity_internal_range" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-internal-ranges%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "source" {
-  name          = "tf-test-source-subnet%{random_suffix}"
+  name          = "%{source_subnet_name}"
   ip_cidr_range = "10.1.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.default.name
@@ -306,8 +327,12 @@ data "google_project" "target_project" {
 func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAllocationAlgoritmsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"internal_range_name": "tf-test-allocation-algorithms" + randomSuffix,
+		"network_name":        "tf-test-internal-ranges" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -331,7 +356,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAllocationAlgoritmsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "tf-test-allocation-algorithms%{random_suffix}"
+  name    = "%{internal_range_name}"
   network = google_compute_network.default.id
   usage   = "FOR_VPC"
   peering = "FOR_SELF"
@@ -345,7 +370,7 @@ resource "google_network_connectivity_internal_range" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-internal-ranges%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -354,8 +379,12 @@ resource "google_compute_network" "default" {
 func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAllocationAlgoritmsRandomFirstNExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"internal_range_name": "tf-test-allocation-algorithms-random-first-n" + randomSuffix,
+		"network_name":        "tf-test-internal-ranges" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -379,7 +408,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAllocationAlgoritmsRandomFirstNExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "tf-test-allocation-algorithms-random-first-n%{random_suffix}"
+  name    = "%{internal_range_name}"
   network = google_compute_network.default.id
   usage   = "FOR_VPC"
   peering = "FOR_SELF"
@@ -394,7 +423,7 @@ resource "google_network_connectivity_internal_range" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-internal-ranges%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)

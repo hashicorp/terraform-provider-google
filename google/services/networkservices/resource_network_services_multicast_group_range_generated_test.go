@@ -53,8 +53,14 @@ var (
 func TestAccNetworkServicesMulticastGroupRange_networkServicesMulticastGroupRangeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"domain_name":         "tf-test-test-mgr-domain" + randomSuffix,
+		"group_range_name":    "tf-test-test-mgr-group-range" + randomSuffix,
+		"internal_range_name": "tf-test-test-mgr-internal-range" + randomSuffix,
+		"network_name":        "tf-test-test-mgr-network" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +84,12 @@ func TestAccNetworkServicesMulticastGroupRange_networkServicesMulticastGroupRang
 func testAccNetworkServicesMulticastGroupRange_networkServicesMulticastGroupRangeBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "tf-test-test-mgr-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_services_multicast_domain" "multicast_domain" {
-  multicast_domain_id                    = "tf-test-test-mgr-domain%{random_suffix}"
+  multicast_domain_id                    = "%{domain_name}"
   location = "global"
   admin_network = google_compute_network.network.id
   connection_config  { connection_type="SAME_VPC"}
@@ -91,7 +97,7 @@ resource "google_network_services_multicast_domain" "multicast_domain" {
 }
 
 resource "google_network_connectivity_internal_range" "internal_range" {
-  name    = "tf-test-test-mgr-internal-range%{random_suffix}"
+  name    = "%{internal_range_name}"
   network = google_compute_network.network.self_link
   usage   = "FOR_VPC"
   peering = "FOR_SELF"
@@ -99,7 +105,7 @@ resource "google_network_connectivity_internal_range" "internal_range" {
 }
 
 resource "google_network_services_multicast_group_range" mgr_test {
-  multicast_group_range_id                   = "tf-test-test-mgr-group-range%{random_suffix}"
+  multicast_group_range_id                   = "%{group_range_name}"
   location = "global"
   reserved_internal_range = google_network_connectivity_internal_range.internal_range.id
   multicast_domain = google_network_services_multicast_domain.multicast_domain.id

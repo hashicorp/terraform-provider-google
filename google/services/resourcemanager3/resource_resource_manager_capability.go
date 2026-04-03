@@ -231,6 +231,8 @@ func resourceResourceManager3CapabilityRead(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ResourceManager3Capability %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ResourceManager3Capability %q: %#v", d.Id(), res)
+
 	if err := d.Set("value", flattenResourceManager3CapabilityValue(res["value"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Capability: %s", err)
 	}

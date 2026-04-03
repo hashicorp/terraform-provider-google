@@ -53,8 +53,12 @@ var (
 func TestAccCESApp_cesAppBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_id":        "tf-test-app-id" + randomSuffix,
+		"display_name":  "tf-test-my-app" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -99,10 +103,10 @@ resource "google_secret_manager_secret_iam_member" "private_key_accessor" {
   }
 
 resource "google_ces_app" "ces_app_basic" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "Basic CES App example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{display_name}"
   pinned = true
 
   language_settings {
@@ -267,8 +271,12 @@ variable_declarations {
 func TestAccCESApp_cesAppAmbientSoundGcsUriExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_id":        "tf-test-app-id" + randomSuffix,
+		"display_name":  "tf-test-my-app-ambient-sound-gcs-uri" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -292,10 +300,10 @@ func TestAccCESApp_cesAppAmbientSoundGcsUriExample(t *testing.T) {
 func testAccCESApp_cesAppAmbientSoundGcsUriExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_ambient_sound_gcs_uri" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "Basic CES App example"
-  display_name = "tf-test-my-app-ambient-sound-gcs-uri%{random_suffix}"
+  display_name = "%{display_name}"
 
   language_settings {
     default_language_code    = "en-US"

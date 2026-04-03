@@ -53,8 +53,11 @@ var (
 func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"patch_deployment_id": "tf-test-patch-deploy" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(t *testi
 func testAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_os_config_patch_deployment" "patch" {
-  patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
+  patch_deployment_id = "%{patch_deployment_id}"
 
   instance_filter {
     all = true
@@ -94,8 +97,11 @@ resource "google_os_config_patch_deployment" "patch" {
 func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"patch_deployment_id": "tf-test-patch-deploy" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -119,7 +125,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(t *testi
 func testAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_os_config_patch_deployment" "patch" {
-  patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
+  patch_deployment_id = "%{patch_deployment_id}"
 
   instance_filter {
     all = true
@@ -144,8 +150,11 @@ resource "google_os_config_patch_deployment" "patch" {
 func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"patch_deployment_id": "tf-test-patch-deploy" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -169,7 +178,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(
 func testAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_os_config_patch_deployment" "patch" {
-  patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
+  patch_deployment_id = "%{patch_deployment_id}"
 
   instance_filter {
     all = true
@@ -194,8 +203,12 @@ resource "google_os_config_patch_deployment" "patch" {
 func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name":       "tf-test-patch-deploy-inst" + randomSuffix,
+		"patch_deployment_id": "tf-test-patch-deploy" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -224,7 +237,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance" "foobar" {
-  name           = "tf-test-patch-deploy-inst%{random_suffix}"
+  name           = "%{instance_name}"
   machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
@@ -246,7 +259,7 @@ resource "google_compute_instance" "foobar" {
 }
 
 resource "google_os_config_patch_deployment" "patch" {
-  patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
+  patch_deployment_id = "%{patch_deployment_id}"
 
   instance_filter {
     instances = [google_compute_instance.foobar.id]
@@ -283,8 +296,11 @@ resource "google_os_config_patch_deployment" "patch" {
 func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"patch_deployment_id": "tf-test-patch-deploy" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -308,7 +324,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(t *testin
 func testAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_os_config_patch_deployment" "patch" {
-  patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
+  patch_deployment_id = "%{patch_deployment_id}"
 
   instance_filter {
     group_labels {

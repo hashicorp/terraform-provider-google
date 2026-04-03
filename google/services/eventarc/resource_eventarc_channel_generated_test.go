@@ -59,11 +59,14 @@ func TestAccEventarcChannel_eventarcChannelWithCmekExample(t *testing.T) {
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":        envvar.GetTestProjectFromEnv(),
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"channel_name":   "tf-test-some-channel" + randomSuffix,
 		"key_name":       acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-channel-key").CryptoKey.Name,
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -88,7 +91,7 @@ func testAccEventarcChannel_eventarcChannelWithCmekExample(context map[string]in
 	return acctest.Nprintf(`
 resource "google_eventarc_channel" "primary" {
   location             = "us-central1"
-  name                 = "tf-test-some-channel%{random_suffix}"
+  name                 = "%{channel_name}"
   crypto_key_name      = "%{key_name}"
   third_party_provider = "projects/%{project}/locations/us-central1/providers/datadog"
 }
@@ -98,8 +101,11 @@ resource "google_eventarc_channel" "primary" {
 func TestAccEventarcChannel_eventarcChannelExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"channel_name":  "tf-test-some-channel" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -124,7 +130,7 @@ func testAccEventarcChannel_eventarcChannelExample(context map[string]interface{
 	return acctest.Nprintf(`
 resource "google_eventarc_channel" "primary" {
   location = "us-central1"
-  name     = "tf-test-some-channel%{random_suffix}"
+  name     = "%{channel_name}"
 }
 `, context)
 }

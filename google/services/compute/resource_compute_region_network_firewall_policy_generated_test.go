@@ -53,8 +53,11 @@ var (
 func TestAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"policy_name":   "tf-test-tf-test-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyFullEx
 func testAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_network_firewall_policy" "policy" {
-  name = "tf-test-tf-test-policy%{random_suffix}"
+  name = "%{policy_name}"
   description = "Terraform test"
 }
 `, context)
@@ -87,8 +90,11 @@ resource "google_compute_region_network_firewall_policy" "policy" {
 func TestAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyRoceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"policy_name":   "tf-test-rnf-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -112,7 +118,7 @@ func TestAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyRoceEx
 func testAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyRoceExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_network_firewall_policy" "policy" {
-  name = "tf-test-rnf-policy%{random_suffix}"
+  name = "%{policy_name}"
   description = "Terraform test"
   policy_type = "RDMA_ROCE_POLICY"
 }

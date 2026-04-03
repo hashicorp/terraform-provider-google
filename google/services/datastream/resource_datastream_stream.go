@@ -2815,6 +2815,8 @@ func resourceDatastreamStreamRead(d *schema.ResourceData, meta interface{}) erro
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DatastreamStream %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DatastreamStream %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("desired_state"); !ok {
 		if err := d.Set("desired_state", "NOT_STARTED"); err != nil {

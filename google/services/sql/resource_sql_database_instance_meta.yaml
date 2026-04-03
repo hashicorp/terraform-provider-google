@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: 'google_sql_database_instance'
 generation_type: 'handwritten'
 api_service_name: 'sqladmin.googleapis.com'
@@ -13,6 +15,7 @@ fields:
   - field: 'clone.preferred_zone'
   - field: 'clone.source_instance_deletion_time'
   - field: 'clone.source_instance_name'
+  - field: 'clone.source_project'
   - api_field: 'connectionName'
   - api_field: 'databaseVersion'
   - field: 'deletion_protection'
@@ -42,6 +45,7 @@ fields:
   - field: 'point_in_time_restore_context.target_instance'
   - field: 'point_in_time_restore_context.point_in_time'
   - field: 'point_in_time_restore_context.preferred_zone'
+  - field: 'point_in_time_restore_context.region'
   - api_field: 'ipAddresses.ipAddress'
     field: 'private_ip_address'
   - api_field: 'project'
@@ -160,6 +164,7 @@ fields:
   - api_field: 'settings.ipConfiguration.pscConfig.pscEnabled'
   - api_field: 'settings.ipConfiguration.serverCaMode'
   - api_field: 'settings.ipConfiguration.serverCaPool'
+  - api_field: 'settings.ipConfiguration.serverCertificateRotationMode'
   - api_field: 'settings.ipConfiguration.sslMode'
   - api_field: 'settings.locationPreference.followGaeApplication'
   - api_field: 'settings.locationPreference.secondaryZone'

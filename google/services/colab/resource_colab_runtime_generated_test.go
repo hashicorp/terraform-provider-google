@@ -53,8 +53,11 @@ var (
 func TestAccColabRuntime_colabRuntimeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"runtime_name":  "tf-test-colab-runtime" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccColabRuntime_colabRuntimeBasicExample(t *testing.T) {
 func testAccColabRuntime_colabRuntimeBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_colab_runtime_template" "my_template" {
-  name = "tf-test-colab-runtime%{random_suffix}"
+  name = "%{runtime_name}"
   display_name = "Runtime template basic"
   location = "us-central1"
 
@@ -92,7 +95,7 @@ resource "google_colab_runtime_template" "my_template" {
 }
 
 resource "google_colab_runtime" "runtime" {
-  name = "tf-test-colab-runtime%{random_suffix}"
+  name = "%{runtime_name}"
   location = "us-central1" 
   
   notebook_runtime_template_ref {
@@ -112,8 +115,11 @@ resource "google_colab_runtime" "runtime" {
 func TestAccColabRuntime_colabRuntimeStoppedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"runtime_name":  "tf-test-colab-runtime" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -137,7 +143,7 @@ func TestAccColabRuntime_colabRuntimeStoppedExample(t *testing.T) {
 func testAccColabRuntime_colabRuntimeStoppedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_colab_runtime_template" "my_template" {
-  name = "tf-test-colab-runtime%{random_suffix}"
+  name = "%{runtime_name}"
   display_name = "Runtime template basic"
   location = "us-central1"
 
@@ -151,7 +157,7 @@ resource "google_colab_runtime_template" "my_template" {
 }
 
 resource "google_colab_runtime" "runtime" {
-  name = "tf-test-colab-runtime%{random_suffix}"
+  name = "%{runtime_name}"
   location = "us-central1" 
   
   notebook_runtime_template_ref {
@@ -173,9 +179,12 @@ resource "google_colab_runtime" "runtime" {
 func TestAccColabRuntime_colabRuntimeFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"key_name":      acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"runtime_name":  "tf-test-colab-runtime" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -199,7 +208,7 @@ func TestAccColabRuntime_colabRuntimeFullExample(t *testing.T) {
 func testAccColabRuntime_colabRuntimeFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_colab_runtime_template" "my_template" {
-  name        = "tf-test-colab-runtime%{random_suffix}"
+  name        = "%{runtime_name}"
   display_name = "Runtime template full"
   location    = "us-central1"
   description = "Full runtime template"
@@ -242,7 +251,7 @@ resource "google_colab_runtime_template" "my_template" {
 }
 
 resource "google_colab_runtime" "runtime" {
-  name = "tf-test-colab-runtime%{random_suffix}"
+  name = "%{runtime_name}"
   location = "us-central1" 
   
   notebook_runtime_template_ref {

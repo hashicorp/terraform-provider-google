@@ -53,11 +53,18 @@ var (
 func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"service_acct":  envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"address_group": "tf-test-address-group" + randomSuffix,
+		"fw_policy":     "tf-test-fw-policy" + randomSuffix,
+		"network":       "network" + randomSuffix,
+		"tag_key":       "tf-test-tag-key" + randomSuffix,
+		"tag_value":     "tf-test-tag-value" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +88,7 @@ func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleExample(t 
 func testAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
-  name        = "tf-test-address-group%{random_suffix}"
+  name        = "%{address_group}"
   parent      = "projects/%{project_name}"
   description = "Sample global networksecurity_address_group"
   location    = "global"
@@ -91,7 +98,7 @@ resource "google_network_security_address_group" "basic_global_networksecurity_a
 }
 
 resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
-  name        = "tf-test-fw-policy%{random_suffix}"
+  name        = "%{fw_policy}"
   description = "Sample global network firewall policy"
   project     = "%{project_name}"
 }
@@ -125,14 +132,14 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
 }
 
 resource "google_compute_network" "basic_network" {
-  name = "network%{random_suffix}"
+  name = "%{network}"
 }
 
 resource "google_tags_tag_key" "basic_key" {
   description = "For keyname resources."
   parent      = "organizations/%{org_id}"
   purpose     = "GCE_FIREWALL"
-  short_name  = "tf-test-tag-key%{random_suffix}"
+  short_name  = "%{tag_key}"
 
   purpose_data = {
     network = "%{project_name}/${google_compute_network.basic_network.name}"
@@ -142,7 +149,7 @@ resource "google_tags_tag_key" "basic_key" {
 resource "google_tags_tag_value" "basic_value" {
   description = "For valuename resources."
   parent      = google_tags_tag_key.basic_key.id
-  short_name  = "tf-test-tag-value%{random_suffix}"
+  short_name  = "%{tag_value}"
 }
 `, context)
 }
@@ -150,9 +157,12 @@ resource "google_tags_tag_value" "basic_value" {
 func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleNetworkContextEgressExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"fw_policy":     "tf-test-fw-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -176,7 +186,7 @@ func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleNetworkCon
 func testAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleNetworkContextEgressExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
-  name        = "tf-test-fw-policy%{random_suffix}"
+  name        = "%{fw_policy}"
   description = "Sample global network firewall policy"
   project     = "%{project_name}"
 }
@@ -206,9 +216,13 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
 func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleNetworkContextIngressExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"fw_policy":     "tf-test-fw-policy" + randomSuffix,
+		"network":       "network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -232,7 +246,7 @@ func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleNetworkCon
 func testAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleNetworkContextIngressExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
-  name        = "tf-test-fw-policy%{random_suffix}"
+  name        = "%{fw_policy}"
   description = "Sample global network firewall policy"
   project     = "%{project_name}"
 }
@@ -259,7 +273,7 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
 }
 
 resource "google_compute_network" "network" {
-  name     = "network%{random_suffix}"
+  name     = "%{network}"
 }
 `, context)
 }

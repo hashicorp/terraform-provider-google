@@ -53,8 +53,13 @@ var (
 func TestAccHealthcareDataset_healthcareDatasetBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_name":  "tf-test-example-dataset" + randomSuffix,
+		"location":      "tf-test-us-central1" + randomSuffix,
+		"time_zone":     "tf_test_America/New_York" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccHealthcareDataset_healthcareDatasetBasicExample(t *testing.T) {
 func testAccHealthcareDataset_healthcareDatasetBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_healthcare_dataset" "default" {
-  name      = "tf-test-example-dataset%{random_suffix}"
+  name      = "%{dataset_name}"
   location  = "us-central1"
   time_zone = "UTC"
 }

@@ -53,8 +53,11 @@ var (
 func TestAccBigqueryReservationReservation_bigqueryReservationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-reservation" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -69,7 +72,7 @@ func TestAccBigqueryReservationReservation_bigqueryReservationBasicExample(t *te
 				ResourceName:            "google_bigquery_reservation.reservation",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"location", "name", "reservation_group"},
 			},
 		},
 	})
@@ -78,7 +81,7 @@ func TestAccBigqueryReservationReservation_bigqueryReservationBasicExample(t *te
 func testAccBigqueryReservationReservation_bigqueryReservationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_reservation" "reservation" {
-	name           = "tf-test-my-reservation%{random_suffix}"
+	name           = "%{name}"
 	location       = "us-west2"
 	// Set to 0 for testing purposes
 	// In reality this would be larger than zero
@@ -96,8 +99,11 @@ resource "google_bigquery_reservation" "reservation" {
 func TestAccBigqueryReservationReservation_bigqueryReservationWithDisasterRecoveryExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-reservation" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -112,7 +118,7 @@ func TestAccBigqueryReservationReservation_bigqueryReservationWithDisasterRecove
 				ResourceName:            "google_bigquery_reservation.reservation",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"location", "name", "reservation_group"},
 			},
 		},
 	})
@@ -121,7 +127,7 @@ func TestAccBigqueryReservationReservation_bigqueryReservationWithDisasterRecove
 func testAccBigqueryReservationReservation_bigqueryReservationWithDisasterRecoveryExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_reservation" "reservation" {
-  name           = "tf-test-my-reservation%{random_suffix}"
+  name           = "%{name}"
   location       = "us-west2"
   secondary_location = "us-west1"
   // Set to 0 for testing purposes

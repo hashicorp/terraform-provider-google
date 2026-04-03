@@ -53,8 +53,11 @@ var (
 func TestAccNetworkSecurityUrlLists_networkSecurityUrlListsBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-url-lists" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetworkSecurityUrlLists_networkSecurityUrlListsBasicExample(t *testi
 func testAccNetworkSecurityUrlLists_networkSecurityUrlListsBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_url_lists" "default" {
-  name        = "tf-test-my-url-lists%{random_suffix}"
+  name        = "%{resource_name}"
   location    = "us-central1"
   values = ["www.example.com"]
 }
@@ -88,8 +91,11 @@ resource "google_network_security_url_lists" "default" {
 func TestAccNetworkSecurityUrlLists_networkSecurityUrlListsAdvancedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-url-lists" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -113,7 +119,7 @@ func TestAccNetworkSecurityUrlLists_networkSecurityUrlListsAdvancedExample(t *te
 func testAccNetworkSecurityUrlLists_networkSecurityUrlListsAdvancedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_url_lists" "default" {
-  name        = "tf-test-my-url-lists%{random_suffix}"
+  name        = "%{resource_name}"
   location    = "us-central1"
   description = "my description"
   values = ["www.example.com", "about.example.com", "github.com/example-org/*"]

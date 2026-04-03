@@ -1137,6 +1137,8 @@ func resourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta inte
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("PrivatecaCertificateAuthority %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading PrivatecaCertificateAuthority %q: %#v", d.Id(), res)
+
 	res, err = resourcePrivatecaCertificateAuthorityDecoder(d, meta, res)
 	if err != nil {
 		return err

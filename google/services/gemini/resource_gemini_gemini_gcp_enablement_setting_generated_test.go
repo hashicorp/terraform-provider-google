@@ -53,8 +53,11 @@ var (
 func TestAccGeminiGeminiGcpEnablementSetting_geminiGeminiGcpEnablementSettingBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"gemini_gcp_enablement_setting_id": "tf-test-ls1-tf" + randomSuffix,
+		"random_suffix":                    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccGeminiGeminiGcpEnablementSetting_geminiGeminiGcpEnablementSettingBas
 func testAccGeminiGeminiGcpEnablementSetting_geminiGeminiGcpEnablementSettingBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gemini_gemini_gcp_enablement_setting" "example" {
-    gemini_gcp_enablement_setting_id = "tf-test-ls1-tf%{random_suffix}"
+    gemini_gcp_enablement_setting_id = "%{gemini_gcp_enablement_setting_id}"
     location = "global"
     labels = {"my_key": "my_value"}
     enable_customer_data_sharing = true

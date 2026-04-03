@@ -700,6 +700,8 @@ func resourceOracleDatabaseCloudVmClusterRead(d *schema.ResourceData, meta inter
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("OracleDatabaseCloudVmCluster %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading OracleDatabaseCloudVmCluster %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_protection"); !ok {
 		if err := d.Set("deletion_protection", true); err != nil {

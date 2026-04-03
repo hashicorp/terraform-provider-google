@@ -53,8 +53,12 @@ var (
 func TestAccPubsubLiteTopic_pubsubLiteTopicBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"reservation_name": "tf-test-example-reservation" + randomSuffix,
+		"topic_name":       "tf-test-example-topic" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +82,13 @@ func TestAccPubsubLiteTopic_pubsubLiteTopicBasicExample(t *testing.T) {
 func testAccPubsubLiteTopic_pubsubLiteTopicBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_lite_reservation" "example" {
-  name = "tf-test-example-reservation%{random_suffix}"
+  name = "%{reservation_name}"
   project = data.google_project.project.number
   throughput_capacity = 2
 }
 
 resource "google_pubsub_lite_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
   project = data.google_project.project.number
 
   partition_config {

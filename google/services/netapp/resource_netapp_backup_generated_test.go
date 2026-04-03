@@ -53,9 +53,15 @@ var (
 func TestAccNetappBackup_netappBackupExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
-		"random_suffix": acctest.RandString(t, 10),
+		"backup_name":       "tf-test-test-backup" + randomSuffix,
+		"backup_vault_name": "tf-test-backup-vault" + randomSuffix,
+		"network_name":      acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"pool_name":         "tf-test-backup-pool" + randomSuffix,
+		"volume_name":       "tf-test-backup-volume" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -83,7 +89,7 @@ data "google_compute_network" "default" {
 }
 
 resource "google_netapp_storage_pool" "default" {
-  name = "tf-test-backup-pool%{random_suffix}"
+  name = "%{pool_name}"
   location = "us-central1"
   service_level = "PREMIUM"
   capacity_gib = "2048"
@@ -91,10 +97,10 @@ resource "google_netapp_storage_pool" "default" {
 }
 
 resource "google_netapp_volume" "default" {
-  name = "tf-test-backup-volume%{random_suffix}"
+  name = "%{volume_name}"
   location = google_netapp_storage_pool.default.location
   capacity_gib = "100"
-  share_name = "tf-test-backup-volume%{random_suffix}"
+  share_name = "%{volume_name}"
   storage_pool = google_netapp_storage_pool.default.name
   protocols = ["NFSV3"]
   deletion_policy = "FORCE"
@@ -104,12 +110,12 @@ resource "google_netapp_volume" "default" {
 }
 
 resource "google_netapp_backup_vault" "default" {
-  name = "tf-test-backup-vault%{random_suffix}"
+  name = "%{backup_vault_name}"
   location = google_netapp_storage_pool.default.location
 }
 
 resource "google_netapp_backup" "test_backup" {
-  name = "tf-test-test-backup%{random_suffix}"
+  name = "%{backup_name}"
   location = google_netapp_backup_vault.default.location
   vault_name = google_netapp_backup_vault.default.name
   source_volume = google_netapp_volume.default.id

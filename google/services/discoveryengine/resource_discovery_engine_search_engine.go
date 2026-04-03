@@ -513,6 +513,8 @@ func resourceDiscoveryEngineSearchEngineRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DiscoveryEngineSearchEngine %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DiscoveryEngineSearchEngine %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present

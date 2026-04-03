@@ -53,9 +53,14 @@ var (
 func TestAccDNSManagedZone_dnsManagedZoneQuickstartExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"dns_name":      "m-z.gcp.tfacc.hashicorptest.com.",
-		"random_suffix": acctest.RandString(t, 10),
+		"allow_http_traffic":              "tf-test-allow-http-traffic" + randomSuffix,
+		"dns_compute_instance":            "tf-test-dns-compute-instance" + randomSuffix,
+		"dns_name":                        "m-z.gcp.tfacc.hashicorptest.com.",
+		"example_zone_googlecloudexample": "tf-test-example-zone-googlecloudexample" + randomSuffix,
+		"random_suffix":                   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +85,7 @@ func testAccDNSManagedZone_dnsManagedZoneQuickstartExample(context map[string]in
 	return acctest.Nprintf(`
 # to setup a web-server
 resource "google_compute_instance" "default" {
-  name         = "tf-test-dns-compute-instance%{random_suffix}"
+  name         = "%{dns_compute_instance}"
   machine_type = "g1-small"
   zone         = "us-central1-b"
 
@@ -105,7 +110,7 @@ resource "google_compute_instance" "default" {
 
 # to allow http traffic
 resource "google_compute_firewall" "default" {
-  name     = "tf-test-allow-http-traffic%{random_suffix}"
+  name     = "%{allow_http_traffic}"
   network  = "default"
   allow {
     ports    = ["80"]
@@ -116,7 +121,7 @@ resource "google_compute_firewall" "default" {
 
 # to create a DNS zone
 resource "google_dns_managed_zone" "default" {
-  name          = "tf-test-example-zone-googlecloudexample%{random_suffix}"
+  name          = "%{example_zone_googlecloudexample}"
   dns_name      = "%{dns_name}"
   description   = "Example DNS zone"
   force_destroy = "true"
@@ -138,8 +143,11 @@ resource "google_dns_record_set" "default" {
 func TestAccDNSManagedZone_dnsRecordSetBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sample_zone":   "tf-test-sample-zone" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -163,14 +171,14 @@ func TestAccDNSManagedZone_dnsRecordSetBasicExample(t *testing.T) {
 func testAccDNSManagedZone_dnsRecordSetBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dns_managed_zone" "parent-zone" {
-  name        = "tf-test-sample-zone%{random_suffix}"
-  dns_name    = "tf-test-sample-zone%{random_suffix}.hashicorptest.com."
+  name        = "%{sample_zone}"
+  dns_name    = "%{sample_zone}.hashicorptest.com."
   description = "Test Description"
 }
 
 resource "google_dns_record_set" "default" {
   managed_zone = google_dns_managed_zone.parent-zone.name
-  name         = "test-record.tf-test-sample-zone%{random_suffix}.hashicorptest.com."
+  name         = "test-record.%{sample_zone}.hashicorptest.com."
   type         = "A"
   rrdatas      = ["10.0.0.1", "10.1.0.1"]
   ttl          = 86400
@@ -182,8 +190,10 @@ func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -228,8 +238,13 @@ resource "random_id" "rnd" {
 func TestAccDNSManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_1_name": "tf-test-network-1" + randomSuffix,
+		"network_2_name": "tf-test-network-2" + randomSuffix,
+		"zone_name":      "tf-test-private-zone" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -253,7 +268,7 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
 func testAccDNSManagedZone_dnsManagedZonePrivateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dns_managed_zone" "private-zone" {
-  name        = "tf-test-private-zone%{random_suffix}"
+  name        = "%{zone_name}"
   dns_name    = "private.example.com."
   description = "Example private DNS zone"
   labels = {
@@ -273,12 +288,12 @@ resource "google_dns_managed_zone" "private-zone" {
 }
 
 resource "google_compute_network" "network-1" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_1_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network-2" {
-  name                    = "tf-test-network-2%{random_suffix}"
+  name                    = "%{network_2_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -287,10 +302,17 @@ resource "google_compute_network" "network-2" {
 func TestAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"network_1_name":  "tf-test-network-1" + randomSuffix,
+		"network_2_name":  "tf-test-network-2" + randomSuffix,
+		"project_1_name":  "tf-test-project-1" + randomSuffix,
+		"project_2_name":  "tf-test-project-2" + randomSuffix,
+		"zone_name":       "tf-test-private-zone" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -314,7 +336,7 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(t *testing.T
 func testAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dns_managed_zone" "private-zone" {
-  name        = "tf-test-private-zone%{random_suffix}"
+  name        = "%{zone_name}"
   dns_name    = "multiproject.private.example.com."
   description = "Example private DNS zone"
   labels = {
@@ -347,23 +369,23 @@ resource "google_dns_managed_zone" "private-zone" {
 }
 
 resource "google_project" "project_1" {
-  name            = "tf-test-project-1%{random_suffix}"
-  project_id      = "tf-test-project-1%{random_suffix}"
+  name            = "%{project_1_name}"
+  project_id      = "%{project_1_name}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_account}"
   deletion_policy = "DELETE"
 }
 
 resource "google_project" "project_2" {
-  name            = "tf-test-project-2%{random_suffix}"
-  project_id      = "tf-test-project-2%{random_suffix}"
+  name            = "%{project_2_name}"
+  project_id      = "%{project_2_name}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_account}"
   deletion_policy = "DELETE"
 }
 
 resource "google_compute_network" "network_1_project_1" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_1_name}"
   project                 = google_project.project_1.project_id
   auto_create_subnetworks = false
   depends_on              = [ 
@@ -373,7 +395,7 @@ resource "google_compute_network" "network_1_project_1" {
 }
 
 resource "google_compute_network" "network_2_project_1" {
-  name                    = "tf-test-network-2%{random_suffix}"
+  name                    = "%{network_2_name}"
   project                 = google_project.project_1.project_id
   auto_create_subnetworks = false
   depends_on              = [ 
@@ -383,7 +405,7 @@ resource "google_compute_network" "network_2_project_1" {
 }
 
 resource "google_compute_network" "network_1_project_2" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_1_name}"
   project                 = google_project.project_2.project_id
   auto_create_subnetworks = false
   depends_on              = [ 
@@ -393,7 +415,7 @@ resource "google_compute_network" "network_1_project_2" {
 }
 
 resource "google_compute_network" "network_2_project_2" {
-  name                    = "tf-test-network-2%{random_suffix}"
+  name                    = "%{network_2_name}"
   project                 = google_project.project_2.project_id
   auto_create_subnetworks = false
   depends_on              = [ 
@@ -439,8 +461,12 @@ resource "google_project_service" "dns_project_2" {
 func TestAccDNSManagedZone_dnsManagedZonePrivateForwardingIpv6Example(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_1_name": "tf-test-network-1" + randomSuffix,
+		"zone_name":      "tf-test-private-zone" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -464,7 +490,7 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateForwardingIpv6Example(t *testing
 func testAccDNSManagedZone_dnsManagedZonePrivateForwardingIpv6Example(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dns_managed_zone" "private-zone" {
-  name        = "tf-test-private-zone%{random_suffix}"
+  name        = "%{zone_name}"
   dns_name    = "private.example.com."
   description = "Example private DNS zone"
   visibility  = "private"
@@ -483,7 +509,7 @@ resource "google_dns_managed_zone" "private-zone" {
 }
 
 resource "google_compute_network" "network_1" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_1_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -492,9 +518,14 @@ resource "google_compute_network" "network_1" {
 func TestAccDNSManagedZone_dnsManagedZonePrivateGkeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"cluster_1_name":      "tf-test-cluster-1" + randomSuffix,
 		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"network_1_name":      "tf-test-network-1" + randomSuffix,
+		"zone_name":           "tf-test-private-zone" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -518,7 +549,7 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateGkeExample(t *testing.T) {
 func testAccDNSManagedZone_dnsManagedZonePrivateGkeExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dns_managed_zone" "private-zone-gke" {
-  name        = "tf-test-private-zone%{random_suffix}"
+  name        = "%{zone_name}"
   dns_name    = "private.example.com."
   description = "Example private DNS zone"
   labels = {
@@ -535,7 +566,7 @@ resource "google_dns_managed_zone" "private-zone-gke" {
 }
 
 resource "google_compute_network" "network-1" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_1_name}"
   auto_create_subnetworks = false
 }
 
@@ -558,7 +589,7 @@ resource "google_compute_subnetwork" "subnetwork-1" {
 }
 
 resource "google_container_cluster" "cluster-1" {
-  name               = "tf-test-cluster-1%{random_suffix}"
+  name               = "%{cluster_1_name}"
   location           = "us-central1-c"
   initial_node_count = 1
 
@@ -591,8 +622,13 @@ resource "google_container_cluster" "cluster-1" {
 func TestAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_source_name": "tf-test-network-source" + randomSuffix,
+		"network_target_name": "tf-test-network-target" + randomSuffix,
+		"zone_name":           "tf-test-peering-zone" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -616,7 +652,7 @@ func TestAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(t *testing.T) {
 func testAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dns_managed_zone" "peering-zone" {
-  name        = "tf-test-peering-zone%{random_suffix}"
+  name        = "%{zone_name}"
   dns_name    = "peering.example.com."
   description = "Example private DNS peering zone"
 
@@ -636,12 +672,12 @@ resource "google_dns_managed_zone" "peering-zone" {
 }
 
 resource "google_compute_network" "network-source" {
-  name                    = "tf-test-network-source%{random_suffix}"
+  name                    = "%{network_source_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network-target" {
-  name                    = "tf-test-network-target%{random_suffix}"
+  name                    = "%{network_target_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -650,9 +686,12 @@ resource "google_compute_network" "network-target" {
 func TestAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"dns_name":      "services.example.com-" + acctest.RandString(t, 10) + ".",
-		"random_suffix": acctest.RandString(t, 10),
+		"zone_name":     "tf-test-cloud-logging-enabled-zone" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -676,7 +715,7 @@ func TestAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(t *testing.T) {
 func testAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dns_managed_zone" "cloud-logging-enabled-zone" {
-  name        = "tf-test-cloud-logging-enabled-zone%{random_suffix}"
+  name        = "%{zone_name}"
   dns_name    = "%{dns_name}"
   description = "Example cloud logging enabled DNS zone"
   labels = {
@@ -685,56 +724,6 @@ resource "google_dns_managed_zone" "cloud-logging-enabled-zone" {
 
   cloud_logging_config {
     enable_logging = true
-  }
-}
-`, context)
-}
-
-func TestAccDNSManagedZone_dnsManagedZoneIamConditionExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"dns_name":      "conditions.example.com-" + acctest.RandString(t, 10) + ".",
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDNSManagedZone_dnsManagedZoneIamConditionExample(context),
-			},
-			{
-				ResourceName:            "google_dns_managed_zone.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
-			},
-		},
-	})
-}
-
-func testAccDNSManagedZone_dnsManagedZoneIamConditionExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_dns_managed_zone" "default" {
-  name        = "tf-test-example-zone%{random_suffix}"
-  dns_name    = "%{dns_name}"
-  description = "Example zone for IAM conditions"
-}
-
-resource "google_dns_managed_zone_iam_member" "condition_test" {
-  project      = google_dns_managed_zone.default.project
-  managed_zone = google_dns_managed_zone.default.name
-  role         = "roles/dns.admin"
-  member       = "user:admin@hashicorptest.com"
-
-  condition {
-    title       = "Exact Record Match"
-    description = "Allow modifying only api.example.com. A records"
-    # Mandatory pass-through clause for parent Managed Zone checks
-    expression = "(resource.type == 'dns.googleapis.com/ResourceRecordSet' && resource.name.endsWith('/rrsets/api.%{dns_name}/A')) || (resource.type != 'dns.googleapis.com/ResourceRecordSet')"
   }
 }
 `, context)

@@ -53,8 +53,12 @@ var (
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":          "example docker repository" + randomSuffix,
+		"repository_id": "tf-test-my-repository" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,8 +83,8 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryBasicExample(co
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-my-repository%{random_suffix}"
-  description   = "example docker repository%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "DOCKER"
 }
 `, context)
@@ -89,8 +93,12 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryMultiRegionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":          "example docker repository" + randomSuffix,
+		"repository_id": "tf-test-my-repository" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -114,8 +122,8 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryMultiRegionExam
 func testAccArtifactRegistryRepository_artifactRegistryRepositoryMultiRegionExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
-  repository_id = "tf-test-my-repository%{random_suffix}"
-  description   = "example docker repository%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   location      = "us"
   format        = "DOCKER"
 }
@@ -125,8 +133,12 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryDockerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":          "example docker repository" + randomSuffix,
+		"repository_id": "tf-test-my-repository" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -151,8 +163,8 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryDockerExample(c
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-my-repository%{random_suffix}"
-  description   = "example docker repository%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "DOCKER"
 
   docker_config {
@@ -165,9 +177,12 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryCmekExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"repository_id": "tf-test-my-repository" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -192,7 +207,7 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryCmekExample(con
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-my-repository%{random_suffix}"
+  repository_id = "%{repository_id}"
   description   = "example docker repository with cmek"
   format        = "DOCKER"
   kms_key_name  = "%{kms_key_name}"
@@ -214,8 +229,15 @@ data "google_project" "project" {}
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryVirtualExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":                   "example virtual docker repository" + randomSuffix,
+		"repository_id":          "tf-test-my-repository" + randomSuffix,
+		"upstream_desc":          "example docker repository (upstream source)" + randomSuffix,
+		"upstream_policy_id":     "tf-test-my-repository-upstream" + randomSuffix,
+		"upstream_repository_id": "tf-test-my-repository-upstream" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -240,33 +262,33 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryVirtualExample(
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo-upstream-1" {
   location      = "us-central1"
-  repository_id = "tf-test-my-repository-upstream%{random_suffix}-1"
-  description   = "example docker repository (upstream source)%{random_suffix} 1"
+  repository_id = "%{upstream_repository_id}-1"
+  description   = "%{upstream_desc} 1"
   format        = "DOCKER"
 }
 
 resource "google_artifact_registry_repository" "my-repo-upstream-2" {
   location      = "us-central1"
-  repository_id = "tf-test-my-repository-upstream%{random_suffix}-2"
-  description   = "example docker repository (upstream source)%{random_suffix} 2"
+  repository_id = "%{upstream_repository_id}-2"
+  description   = "%{upstream_desc} 2"
   format        = "DOCKER"
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
   depends_on    = []
   location      = "us-central1"
-  repository_id = "tf-test-my-repository%{random_suffix}"
-  description   = "example virtual docker repository%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "DOCKER"
   mode          = "VIRTUAL_REPOSITORY"
   virtual_repository_config {
     upstream_policies {
-      id          = "tf-test-my-repository-upstream%{random_suffix}-1"
+      id          = "%{upstream_policy_id}-1"
       repository  = google_artifact_registry_repository.my-repo-upstream-1.id
       priority    = 20
     }
     upstream_policies {
-      id          = "tf-test-my-repository-upstream%{random_suffix}-2"
+      id          = "%{upstream_policy_id}-2"
       repository  = google_artifact_registry_repository.my-repo-upstream-2.id
       priority    = 10
     }
@@ -278,8 +300,12 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":          "example remote docker repository" + randomSuffix,
+		"repository_id": "tf-test-my-repository" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -304,8 +330,8 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteExample(c
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-my-repository%{random_suffix}"
-  description   = "example remote docker repository%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "DOCKER"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
@@ -321,8 +347,12 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteAptExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":          "example remote apt repository" + randomSuffix,
+		"repository_id": "tf-test-debian-stable" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -347,8 +377,8 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteAptExampl
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-debian-stable%{random_suffix}"
-  description   = "example remote apt repository%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "APT"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
@@ -367,8 +397,12 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteYumExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":          "example remote yum repository" + randomSuffix,
+		"repository_id": "tf-test-rocky-9" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -393,8 +427,8 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteYumExampl
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-rocky-9%{random_suffix}"
-  description   = "example remote yum repository%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "YUM"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
@@ -413,8 +447,12 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryCleanupExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":          "example docker repository with cleanup policies" + randomSuffix,
+		"repository_id": "tf-test-my-repository" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -439,8 +477,8 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryCleanupExample(
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-my-repository%{random_suffix}"
-  description   = "example docker repository with cleanup policies%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "DOCKER"
   cleanup_policy_dry_run = false
   cleanup_policies {
@@ -491,8 +529,16 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerhubAuthExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":               "example remote dockerhub repository with credentials" + randomSuffix,
+		"repository_id":      "tf-test-example-dockerhub-remote" + randomSuffix,
+		"secret_data":        "tf-test-remote-password" + randomSuffix,
+		"secret_id":          "tf-test-example-secret" + randomSuffix,
+		"secret_resource_id": "tf-test-example-remote-secret" + randomSuffix,
+		"username":           "tf-test-remote-username" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -517,28 +563,28 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerhub
 	return acctest.Nprintf(`
 data "google_project" "project" {}
 
-resource "google_secret_manager_secret" "tf-test-example-remote-secret%{random_suffix}" {
-  secret_id = "tf-test-example-secret%{random_suffix}"
+resource "google_secret_manager_secret" "%{secret_resource_id}" {
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret_version" "tf-test-example-remote-secret%{random_suffix}_version" {
-  secret = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
-  secret_data = "tf-test-remote-password%{random_suffix}"
+resource "google_secret_manager_secret_version" "%{secret_resource_id}_version" {
+  secret = google_secret_manager_secret.%{secret_resource_id}.id
+  secret_data = "%{secret_data}"
 }
 
 resource "google_secret_manager_secret_iam_member" "secret-access" {
-  secret_id = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  secret_id = google_secret_manager_secret.%{secret_resource_id}.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-example-dockerhub-remote%{random_suffix}"
-  description   = "example remote dockerhub repository with credentials%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "DOCKER"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
@@ -549,8 +595,8 @@ resource "google_artifact_registry_repository" "my-repo" {
     }
     upstream_credentials {
       username_password_credentials {
-        username = "tf-test-remote-username%{random_suffix}"
-        password_secret_version = google_secret_manager_secret_version.tf-test-example-remote-secret%{random_suffix}_version.name
+        username = "%{username}"
+        password_secret_version = google_secret_manager_secret_version.%{secret_resource_id}_version.name
       }
     }
   }
@@ -561,8 +607,16 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerCustomWithAuthExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":               "example remote custom docker repository with credentia" + randomSuffix,
+		"repository_id":      "tf-test-example-docker-custom-remote" + randomSuffix,
+		"secret_data":        "tf-test-remote-password" + randomSuffix,
+		"secret_id":          "tf-test-example-secret" + randomSuffix,
+		"secret_resource_id": "tf-test-example-remote-secret" + randomSuffix,
+		"username":           "tf-test-remote-username" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -587,28 +641,28 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerCus
 	return acctest.Nprintf(`
 data "google_project" "project" {}
 
-resource "google_secret_manager_secret" "tf-test-example-remote-secret%{random_suffix}" {
-  secret_id = "tf-test-example-secret%{random_suffix}"
+resource "google_secret_manager_secret" "%{secret_resource_id}" {
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret_version" "tf-test-example-remote-secret%{random_suffix}_version" {
-  secret = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
-  secret_data = "tf-test-remote-password%{random_suffix}"
+resource "google_secret_manager_secret_version" "%{secret_resource_id}_version" {
+  secret = google_secret_manager_secret.%{secret_resource_id}.id
+  secret_data = "%{secret_data}"
 }
 
 resource "google_secret_manager_secret_iam_member" "secret-access" {
-  secret_id = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  secret_id = google_secret_manager_secret.%{secret_resource_id}.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-example-docker-custom-remote%{random_suffix}"
-  description   = "example remote custom docker repository with credentia%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "DOCKER"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
@@ -621,8 +675,8 @@ resource "google_artifact_registry_repository" "my-repo" {
     }
     upstream_credentials {
       username_password_credentials {
-        username = "tf-test-remote-username%{random_suffix}"
-        password_secret_version = google_secret_manager_secret_version.tf-test-example-remote-secret%{random_suffix}_version.name
+        username = "%{username}"
+        password_secret_version = google_secret_manager_secret_version.%{secret_resource_id}_version.name
       }
     }
   }
@@ -633,8 +687,16 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteMavenCustomWithAuthExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":               "example remote custom maven repository with credential" + randomSuffix,
+		"repository_id":      "tf-test-example-maven-custom-remote" + randomSuffix,
+		"secret_data":        "tf-test-remote-password" + randomSuffix,
+		"secret_id":          "tf-test-example-secret" + randomSuffix,
+		"secret_resource_id": "tf-test-example-remote-secret" + randomSuffix,
+		"username":           "tf-test-remote-username" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -659,28 +721,28 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteMavenCust
 	return acctest.Nprintf(`
 data "google_project" "project" {}
 
-resource "google_secret_manager_secret" "tf-test-example-remote-secret%{random_suffix}" {
-  secret_id = "tf-test-example-secret%{random_suffix}"
+resource "google_secret_manager_secret" "%{secret_resource_id}" {
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret_version" "tf-test-example-remote-secret%{random_suffix}_version" {
-  secret = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
-  secret_data = "tf-test-remote-password%{random_suffix}"
+resource "google_secret_manager_secret_version" "%{secret_resource_id}_version" {
+  secret = google_secret_manager_secret.%{secret_resource_id}.id
+  secret_data = "%{secret_data}"
 }
 
 resource "google_secret_manager_secret_iam_member" "secret-access" {
-  secret_id = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  secret_id = google_secret_manager_secret.%{secret_resource_id}.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-example-maven-custom-remote%{random_suffix}"
-  description   = "example remote custom maven repository with credential%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "MAVEN"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
@@ -693,8 +755,8 @@ resource "google_artifact_registry_repository" "my-repo" {
     }
     upstream_credentials {
       username_password_credentials {
-        username = "tf-test-remote-username%{random_suffix}"
-        password_secret_version = google_secret_manager_secret_version.tf-test-example-remote-secret%{random_suffix}_version.name
+        username = "%{username}"
+        password_secret_version = google_secret_manager_secret_version.%{secret_resource_id}_version.name
       }
     }
   }
@@ -705,8 +767,16 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteNpmCustomWithAuthExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":               "example remote custom npm repository with credentials" + randomSuffix,
+		"repository_id":      "tf-test-example-npm-custom-remote" + randomSuffix,
+		"secret_data":        "tf-test-remote-password" + randomSuffix,
+		"secret_id":          "tf-test-example-secret" + randomSuffix,
+		"secret_resource_id": "tf-test-example-remote-secret" + randomSuffix,
+		"username":           "tf-test-remote-username" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -731,28 +801,28 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteNpmCustom
 	return acctest.Nprintf(`
 data "google_project" "project" {}
 
-resource "google_secret_manager_secret" "tf-test-example-remote-secret%{random_suffix}" {
-  secret_id = "tf-test-example-secret%{random_suffix}"
+resource "google_secret_manager_secret" "%{secret_resource_id}" {
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret_version" "tf-test-example-remote-secret%{random_suffix}_version" {
-  secret = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
-  secret_data = "tf-test-remote-password%{random_suffix}"
+resource "google_secret_manager_secret_version" "%{secret_resource_id}_version" {
+  secret = google_secret_manager_secret.%{secret_resource_id}.id
+  secret_data = "%{secret_data}"
 }
 
 resource "google_secret_manager_secret_iam_member" "secret-access" {
-  secret_id = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  secret_id = google_secret_manager_secret.%{secret_resource_id}.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-example-npm-custom-remote%{random_suffix}"
-  description   = "example remote custom npm repository with credentials%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "NPM"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
@@ -765,8 +835,8 @@ resource "google_artifact_registry_repository" "my-repo" {
     }
     upstream_credentials {
       username_password_credentials {
-        username = "tf-test-remote-username%{random_suffix}"
-        password_secret_version = google_secret_manager_secret_version.tf-test-example-remote-secret%{random_suffix}_version.name
+        username = "%{username}"
+        password_secret_version = google_secret_manager_secret_version.%{secret_resource_id}_version.name
       }
     }
   }
@@ -777,8 +847,16 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemotePythonCustomWithAuthExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":               "example remote custom python repository with credentia" + randomSuffix,
+		"repository_id":      "tf-test-example-python-custom-remote" + randomSuffix,
+		"secret_data":        "tf-test-remote-password" + randomSuffix,
+		"secret_id":          "tf-test-example-secret" + randomSuffix,
+		"secret_resource_id": "tf-test-example-remote-secret" + randomSuffix,
+		"username":           "tf-test-remote-username" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -803,28 +881,28 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemotePythonCus
 	return acctest.Nprintf(`
 data "google_project" "project" {}
 
-resource "google_secret_manager_secret" "tf-test-example-remote-secret%{random_suffix}" {
-  secret_id = "tf-test-example-secret%{random_suffix}"
+resource "google_secret_manager_secret" "%{secret_resource_id}" {
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret_version" "tf-test-example-remote-secret%{random_suffix}_version" {
-  secret = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
-  secret_data = "tf-test-remote-password%{random_suffix}"
+resource "google_secret_manager_secret_version" "%{secret_resource_id}_version" {
+  secret = google_secret_manager_secret.%{secret_resource_id}.id
+  secret_data = "%{secret_data}"
 }
 
 resource "google_secret_manager_secret_iam_member" "secret-access" {
-  secret_id = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  secret_id = google_secret_manager_secret.%{secret_resource_id}.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-example-python-custom-remote%{random_suffix}"
-  description   = "example remote custom python repository with credentia%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "PYTHON"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
@@ -837,8 +915,8 @@ resource "google_artifact_registry_repository" "my-repo" {
     }
     upstream_credentials {
       username_password_credentials {
-        username = "tf-test-remote-username%{random_suffix}"
-        password_secret_version = google_secret_manager_secret_version.tf-test-example-remote-secret%{random_suffix}_version.name
+        username = "%{username}"
+        password_secret_version = google_secret_manager_secret_version.%{secret_resource_id}_version.name
       }
     }
   }
@@ -849,8 +927,14 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCommonRepositoryWithDockerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":                     "example remote common repository with docker upstream" + randomSuffix,
+		"repository_id":            "tf-test-example-common-remote" + randomSuffix,
+		"upstream_repository_desc": "example upstream repository" + randomSuffix,
+		"upstream_repository_id":   "tf-test-example-upstream-repo" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -875,15 +959,15 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCommonRep
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "upstream_repo" {
   location      = "us-central1"
-  repository_id = "tf-test-example-upstream-repo%{random_suffix}"
-  description   = "example upstream repository%{random_suffix}"
+  repository_id = "%{upstream_repository_id}"
+  description   = "%{upstream_repository_desc}"
   format        = "DOCKER"
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-example-common-remote%{random_suffix}"
-  description   = "example remote common repository with docker upstream%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "DOCKER"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
@@ -899,8 +983,14 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCommonRepositoryWithArtifactRegistryUriExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":                     "example remote common repository with docker upstream" + randomSuffix,
+		"repository_id":            "tf-test-example-common-remote" + randomSuffix,
+		"upstream_repository_desc": "example upstream repository" + randomSuffix,
+		"upstream_repository_id":   "tf-test-example-upstream-repo" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -927,21 +1017,21 @@ data "google_project" "project" {}
 
 resource "google_artifact_registry_repository" "upstream_repo" {
   location      = "us-central1"
-  repository_id = "tf-test-example-upstream-repo%{random_suffix}"
-  description   = "example upstream repository%{random_suffix}"
+  repository_id = "%{upstream_repository_id}"
+  description   = "%{upstream_repository_desc}"
   format        = "DOCKER"
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-example-common-remote%{random_suffix}"
-  description   = "example remote common repository with docker upstream%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "DOCKER"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
     description = "pull-through cache of another Artifact Registry repository by URL"
     common_repository {
-      uri         = "https://us-central1-docker.pkg.dev/${data.google_project.project.project_id}/tf-test-example-upstream-repo%{random_suffix}"
+      uri         = "https://us-central1-docker.pkg.dev/${data.google_project.project.project_id}/%{upstream_repository_id}"
     }
   }
   depends_on = [google_artifact_registry_repository.upstream_repo]
@@ -952,8 +1042,16 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCommonRepositoryWithCustomUpstreamExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":               "example remote custom docker repository with credentia" + randomSuffix,
+		"repository_id":      "tf-test-example-docker-custom-remote" + randomSuffix,
+		"secret_data":        "tf-test-remote-password" + randomSuffix,
+		"secret_id":          "tf-test-example-secret" + randomSuffix,
+		"secret_resource_id": "tf-test-example-remote-secret" + randomSuffix,
+		"username":           "tf-test-remote-username" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -978,28 +1076,28 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCommonRep
 	return acctest.Nprintf(`
 data "google_project" "project" {}
 
-resource "google_secret_manager_secret" "tf-test-example-remote-secret%{random_suffix}" {
-  secret_id = "tf-test-example-secret%{random_suffix}"
+resource "google_secret_manager_secret" "%{secret_resource_id}" {
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret_version" "tf-test-example-remote-secret%{random_suffix}_version" {
-  secret = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
-  secret_data = "tf-test-remote-password%{random_suffix}"
+resource "google_secret_manager_secret_version" "%{secret_resource_id}_version" {
+  secret = google_secret_manager_secret.%{secret_resource_id}.id
+  secret_data = "%{secret_data}"
 }
 
 resource "google_secret_manager_secret_iam_member" "secret-access" {
-  secret_id = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  secret_id = google_secret_manager_secret.%{secret_resource_id}.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-example-docker-custom-remote%{random_suffix}"
-  description   = "example remote custom docker repository with credentia%{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "DOCKER"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
@@ -1010,8 +1108,8 @@ resource "google_artifact_registry_repository" "my-repo" {
     }
     upstream_credentials {
       username_password_credentials {
-        username = "tf-test-remote-username%{random_suffix}"
-        password_secret_version = google_secret_manager_secret_version.tf-test-example-remote-secret%{random_suffix}_version.name
+        username = "%{username}"
+        password_secret_version = google_secret_manager_secret_version.%{secret_resource_id}_version.name
       }
     }
   }
@@ -1022,8 +1120,12 @@ resource "google_artifact_registry_repository" "my-repo" {
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryVulnerabilityScanningExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"desc":          "example docker repository with vulnerability scanning " + randomSuffix,
+		"repository_id": "tf-test-my-repository" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1048,8 +1150,8 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryVulnerabilitySc
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-my-repository%{random_suffix}"
-  description   = "example docker repository with vulnerability scanning %{random_suffix}"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
   format        = "DOCKER"
   vulnerability_scanning_config {
     enablement_config = "INHERITED"

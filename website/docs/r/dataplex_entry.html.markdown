@@ -348,6 +348,12 @@ resource "google_dataplex_glossary_term" "example-glossary-term" {
   term_id = "glossary-term"
 }
 
+# Introduce a 45-second wait after the glossary resource creation
+resource "time_sleep" "wait-for-sync" {
+  create_duration = "45s"
+  depends_on = [google_dataplex_glossary_term.example-glossary-term]
+}
+
 resource "google_dataplex_entry" "tf_test_glossary_term" {
   entry_group_id = "@dataplex"
   project = "1111111111111"
@@ -364,7 +370,7 @@ resource "google_dataplex_entry" "tf_test_glossary_term" {
          EOF
      }
    }
-  depends_on = [google_dataplex_glossary_term.example-glossary-term]
+  depends_on = [time_sleep.wait-for-sync]
 }
 ```
 

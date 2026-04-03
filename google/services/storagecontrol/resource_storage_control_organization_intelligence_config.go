@@ -374,6 +374,8 @@ func resourceStorageControlOrganizationIntelligenceConfigRead(d *schema.Resource
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("StorageControlOrganizationIntelligenceConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading StorageControlOrganizationIntelligenceConfig %q: %#v", d.Id(), res)
+
 	if err := d.Set("edition_config", flattenStorageControlOrganizationIntelligenceConfigEditionConfig(res["editionConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationIntelligenceConfig: %s", err)
 	}

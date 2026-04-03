@@ -53,8 +53,11 @@ var (
 func TestAccVertexAIDataset_vertexAiDatasetExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "terraform" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -72,7 +75,7 @@ func TestAccVertexAIDataset_vertexAiDatasetExample(t *testing.T) {
 func testAccVertexAIDataset_vertexAiDatasetExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_dataset" "dataset" {
-  display_name          = "terraform%{random_suffix}"
+  display_name          = "%{display_name}"
   metadata_schema_uri   = "gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml"
   region                = "us-central1"
 

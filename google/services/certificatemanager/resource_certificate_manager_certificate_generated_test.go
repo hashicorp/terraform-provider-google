@@ -53,8 +53,15 @@ var (
 func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateDnsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cert_name":           "tf-test-dns-cert" + randomSuffix,
+		"dns_auth_name":       "tf-test-dns-auth" + randomSuffix,
+		"dns_auth_name2":      "tf-test-dns-auth2" + randomSuffix,
+		"dns_auth_subdomain":  "subdomain" + randomSuffix,
+		"dns_auth_subdomain2": "subdomain2" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +85,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 func testAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateDnsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-dns-cert%{random_suffix}"
+  name        = "%{cert_name}"
   description = "The default cert"
   scope       = "EDGE_CACHE"
   labels = {
@@ -98,15 +105,15 @@ resource "google_certificate_manager_certificate" "default" {
 
 
 resource "google_certificate_manager_dns_authorization" "instance" {
-  name        = "tf-test-dns-auth%{random_suffix}"
+  name        = "%{dns_auth_name}"
   description = "The default dnss"
-  domain      = "subdomain%{random_suffix}.hashicorptest.com"
+  domain      = "%{dns_auth_subdomain}.hashicorptest.com"
 }
 
 resource "google_certificate_manager_dns_authorization" "instance2" {
-  name        = "tf-test-dns-auth2%{random_suffix}"
+  name        = "%{dns_auth_name2}"
   description = "The default dnss"
-  domain      = "subdomain2%{random_suffix}.hashicorptest.com"
+  domain      = "%{dns_auth_subdomain2}.hashicorptest.com"
 }
 `, context)
 }
@@ -114,8 +121,14 @@ resource "google_certificate_manager_dns_authorization" "instance2" {
 func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateIssuanceConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"ca_name":              "tf-test-ca-authority" + randomSuffix,
+		"cert_name":            "tf-test-issuance-config-cert" + randomSuffix,
+		"issuance_config_name": "tf-test-issuance-config" + randomSuffix,
+		"pool_name":            "tf-test-ca-pool" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -139,7 +152,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 func testAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateIssuanceConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-issuance-config-cert%{random_suffix}"
+  name        = "%{cert_name}"
   description = "The default cert"
   scope       = "EDGE_CACHE"
   managed {
@@ -154,7 +167,7 @@ resource "google_certificate_manager_certificate" "default" {
 
 # creating certificate_issuance_config to use it in the managed certificate
 resource "google_certificate_manager_certificate_issuance_config" "issuanceconfig" {
-  name    = "tf-test-issuance-config%{random_suffix}"
+  name    = "%{issuance_config_name}"
   description = "sample description for the certificate issuanceConfigs"
   certificate_authority_config {
     certificate_authority_service_config {
@@ -168,7 +181,7 @@ resource "google_certificate_manager_certificate_issuance_config" "issuanceconfi
 }
   
 resource "google_privateca_ca_pool" "pool" {
-  name     = "tf-test-ca-pool%{random_suffix}"
+  name     = "%{pool_name}"
   location = "us-central1"
   tier     = "ENTERPRISE"
 }
@@ -176,7 +189,7 @@ resource "google_privateca_ca_pool" "pool" {
 resource "google_privateca_certificate_authority" "ca_authority" {
   location = "us-central1"
   pool = google_privateca_ca_pool.pool.name
-  certificate_authority_id = "tf-test-ca-authority%{random_suffix}"
+  certificate_authority_id = "%{ca_name}"
   config {
     subject_config {
       subject {
@@ -217,8 +230,11 @@ resource "google_privateca_certificate_authority" "ca_authority" {
 func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cert_name":     "tf-test-self-managed-cert" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -242,7 +258,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 func testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-self-managed-cert%{random_suffix}"
+  name        = "%{cert_name}"
   description = "Global cert"
   scope       = "ALL_REGIONS"
   self_managed {
@@ -256,8 +272,11 @@ resource "google_certificate_manager_certificate" "default" {
 func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateRegionalExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cert_name":     "tf-test-self-managed-cert" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -281,7 +300,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 func testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateRegionalExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-self-managed-cert%{random_suffix}"
+  name        = "%{cert_name}"
   description = "Regional cert"
   location    = "us-central1"
   self_managed {
@@ -295,8 +314,14 @@ resource "google_certificate_manager_certificate" "default" {
 func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateIssuanceConfigAllRegionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"ca_name":              "tf-test-ca-authority" + randomSuffix,
+		"cert_name":            "tf-test-issuance-config-cert" + randomSuffix,
+		"issuance_config_name": "tf-test-issuance-config" + randomSuffix,
+		"pool_name":            "tf-test-ca-pool" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -320,7 +345,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 func testAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateIssuanceConfigAllRegionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-issuance-config-cert%{random_suffix}"
+  name        = "%{cert_name}"
   description = "sample google managed all_regions certificate with issuance config for terraform"
   scope       = "ALL_REGIONS" 
   managed {
@@ -335,7 +360,7 @@ resource "google_certificate_manager_certificate" "default" {
 
 # creating certificate_issuance_config to use it in the managed certificate
 resource "google_certificate_manager_certificate_issuance_config" "issuanceconfig" {
-  name    = "tf-test-issuance-config%{random_suffix}"
+  name    = "%{issuance_config_name}"
   description = "sample description for the certificate issuanceConfigs"
   certificate_authority_config {
     certificate_authority_service_config {
@@ -349,7 +374,7 @@ resource "google_certificate_manager_certificate_issuance_config" "issuanceconfi
 }
   
 resource "google_privateca_ca_pool" "pool" {
-  name     = "tf-test-ca-pool%{random_suffix}"
+  name     = "%{pool_name}"
   location = "us-central1"
   tier     = "ENTERPRISE"
 }
@@ -357,7 +382,7 @@ resource "google_privateca_ca_pool" "pool" {
 resource "google_privateca_certificate_authority" "ca_authority" {
   location = "us-central1"
   pool = google_privateca_ca_pool.pool.name
-  certificate_authority_id = "tf-test-ca-authority%{random_suffix}"
+  certificate_authority_id = "%{ca_name}"
   config {
     subject_config {
       subject {
@@ -398,8 +423,15 @@ resource "google_privateca_certificate_authority" "ca_authority" {
 func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateDnsAllRegionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cert_name":           "tf-test-dns-cert" + randomSuffix,
+		"dns_auth_name":       "tf-test-dns-auth" + randomSuffix,
+		"dns_auth_name2":      "tf-test-dns-auth2" + randomSuffix,
+		"dns_auth_subdomain":  "subdomain" + randomSuffix,
+		"dns_auth_subdomain2": "subdomain2" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -423,7 +455,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 func testAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateDnsAllRegionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-dns-cert%{random_suffix}"
+  name        = "%{cert_name}"
   description = "The default cert"
   scope       = "ALL_REGIONS"
   managed {
@@ -440,15 +472,15 @@ resource "google_certificate_manager_certificate" "default" {
 
 
 resource "google_certificate_manager_dns_authorization" "instance" {
-  name        = "tf-test-dns-auth%{random_suffix}"
+  name        = "%{dns_auth_name}"
   description = "The default dnss"
-  domain      = "subdomain%{random_suffix}.hashicorptest.com"
+  domain      = "%{dns_auth_subdomain}.hashicorptest.com"
 }
 
 resource "google_certificate_manager_dns_authorization" "instance2" {
-  name        = "tf-test-dns-auth2%{random_suffix}"
+  name        = "%{dns_auth_name2}"
   description = "The default dnss"
-  domain      = "subdomain2%{random_suffix}.hashicorptest.com"
+  domain      = "%{dns_auth_subdomain2}.hashicorptest.com"
 }
 `, context)
 }
@@ -456,8 +488,13 @@ resource "google_certificate_manager_dns_authorization" "instance2" {
 func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedRegionalCertificateDnsAuthExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cert_name":          "tf-test-dns-cert" + randomSuffix,
+		"dns_auth_name":      "tf-test-dns-auth" + randomSuffix,
+		"dns_auth_subdomain": "subdomain" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -481,7 +518,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedRegiona
 func testAccCertificateManagerCertificate_certificateManagerGoogleManagedRegionalCertificateDnsAuthExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-dns-cert%{random_suffix}"
+  name        = "%{cert_name}"
   description = "regional managed certs"
   location = "us-central1"
   managed {
@@ -494,10 +531,10 @@ resource "google_certificate_manager_certificate" "default" {
   }
 }
 resource "google_certificate_manager_dns_authorization" "instance" {
-  name        = "tf-test-dns-auth%{random_suffix}"
+  name        = "%{dns_auth_name}"
   location    = "us-central1"
   description = "The default dnss"
-  domain      = "subdomain%{random_suffix}.hashicorptest.com"
+  domain      = "%{dns_auth_subdomain}.hashicorptest.com"
 }
 `, context)
 }
@@ -505,8 +542,11 @@ resource "google_certificate_manager_dns_authorization" "instance" {
 func TestAccCertificateManagerCertificate_certificateManagerClientAuthCertificateExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cert_name":     "tf-test-client-auth-cert" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -530,7 +570,7 @@ func TestAccCertificateManagerCertificate_certificateManagerClientAuthCertificat
 func testAccCertificateManagerCertificate_certificateManagerClientAuthCertificateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-client-auth-cert%{random_suffix}"
+  name        = "%{cert_name}"
   description = "Global cert"
   scope       = "CLIENT_AUTH"
   self_managed {

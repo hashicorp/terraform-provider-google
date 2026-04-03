@@ -53,8 +53,14 @@ var (
 func TestAccComputeRouterRoutePolicy_routerRoutePolicyExportExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":      "tf-test-my-network" + randomSuffix,
+		"route_policy_name": "tf-test-my-rp1" + randomSuffix,
+		"router_name":       "tf-test-my-router" + randomSuffix,
+		"subnet_name":       "tf-test-my-subnetwork" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,19 +84,19 @@ func TestAccComputeRouterRoutePolicy_routerRoutePolicyExportExample(t *testing.T
 func testAccComputeRouterRoutePolicy_routerRoutePolicyExportExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  name          = "tf-test-my-subnetwork%{random_suffix}"
+  name          = "%{subnet_name}"
   network       = google_compute_network.net.id
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
 
 resource "google_compute_router" "router" {
-  name    = "tf-test-my-router%{random_suffix}"
+  name    = "%{router_name}"
   region  = google_compute_subnetwork.subnet.region
   network = google_compute_network.net.id
 }
@@ -98,7 +104,7 @@ resource "google_compute_router" "router" {
 resource "google_compute_router_route_policy" "rp-export" {
   router = google_compute_router.router.name
   region = google_compute_router.router.region
-	name = "tf-test-my-rp1%{random_suffix}"
+	name = "%{route_policy_name}"
 	type = "ROUTE_POLICY_TYPE_EXPORT"
 	terms {
     priority = 1
@@ -116,8 +122,14 @@ resource "google_compute_router_route_policy" "rp-export" {
 func TestAccComputeRouterRoutePolicy_routerRoutePolicyImportExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":      "tf-test-my-network" + randomSuffix,
+		"route_policy_name": "tf-test-my-rp2" + randomSuffix,
+		"router_name":       "tf-test-my-router" + randomSuffix,
+		"subnet_name":       "tf-test-my-subnetwork" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -141,25 +153,25 @@ func TestAccComputeRouterRoutePolicy_routerRoutePolicyImportExample(t *testing.T
 func testAccComputeRouterRoutePolicy_routerRoutePolicyImportExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  name          = "tf-test-my-subnetwork%{random_suffix}"
+  name          = "%{subnet_name}"
   network       = google_compute_network.net.id
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
 
 resource "google_compute_router" "router" {
-  name    = "tf-test-my-router%{random_suffix}"
+  name    = "%{router_name}"
   region  = google_compute_subnetwork.subnet.region
   network = google_compute_network.net.id
 }
 
 resource "google_compute_router_route_policy" "rp-import" {
-  name = "tf-test-my-rp2%{random_suffix}"
+  name = "%{route_policy_name}"
   router = google_compute_router.router.name
   region = google_compute_router.router.region
 	type = "ROUTE_POLICY_TYPE_IMPORT"

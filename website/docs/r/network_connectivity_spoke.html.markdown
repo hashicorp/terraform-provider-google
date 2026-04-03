@@ -668,8 +668,20 @@ The following arguments are supported:
 
 * `include_import_ranges` -
   (Optional)
-  IP ranges allowed to be included during import from hub (does not control transit connectivity).
-  The only allowed value for now is "ALL_IPV4_RANGES".
+  Hub routes fully encompassed by include import ranges are included during import from hub.
+  "ALL_IPV4_RANGES" or IPv4 CIDR ranges are allowed.
+
+* `exclude_import_ranges` -
+  (Optional)
+  Hub routes overlapped/encompassed by exclude import ranges are excluded during import from hub.
+
+* `include_export_ranges` -
+  (Optional)
+  Dynamic routes fully encompassed by include export ranges are included during export to hub.
+
+* `exclude_export_ranges` -
+  (Optional)
+  Dynamic routes overlapped/encompassed by exclude export ranges are excluded during export to hub.
 
 <a name="nested_linked_interconnect_attachments"></a>The `linked_interconnect_attachments` block supports:
 
@@ -683,8 +695,20 @@ The following arguments are supported:
 
 * `include_import_ranges` -
   (Optional)
-  IP ranges allowed to be included during import from hub (does not control transit connectivity).
-  The only allowed value for now is "ALL_IPV4_RANGES".
+  Hub routes fully encompassed by include import ranges are included during import from hub.
+  "ALL_IPV4_RANGES" or IPv4 CIDR ranges are allowed.
+
+* `exclude_import_ranges` -
+  (Optional)
+  Hub routes overlapped/encompassed by exclude import ranges are excluded during import from hub.
+
+* `include_export_ranges` -
+  (Optional)
+  Dynamic routes fully encompassed by include export ranges are included during export to hub.
+
+* `exclude_export_ranges` -
+  (Optional)
+  Dynamic routes overlapped/encompassed by exclude export ranges are excluded during export to hub.
 
 <a name="nested_linked_router_appliance_instances"></a>The `linked_router_appliance_instances` block supports:
 
@@ -699,8 +723,20 @@ The following arguments are supported:
 
 * `include_import_ranges` -
   (Optional)
-  IP ranges allowed to be included during import from hub (does not control transit connectivity).
-  The only allowed value for now is "ALL_IPV4_RANGES".
+  Hub routes fully encompassed by include import ranges are included during import from hub.
+  "ALL_IPV4_RANGES" or IPv4 CIDR ranges are allowed.
+
+* `exclude_import_ranges` -
+  (Optional)
+  Hub routes overlapped/encompassed by exclude import ranges are excluded during import from hub.
+
+* `include_export_ranges` -
+  (Optional)
+  Dynamic routes fully encompassed by include export ranges are included during export to hub.
+
+* `exclude_export_ranges` -
+  (Optional)
+  Dynamic routes overlapped/encompassed by exclude export ranges are excluded during export to hub.
 
 
 <a name="nested_linked_router_appliance_instances_instances"></a>The `instances` block supports:

@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_migration_center_preference_set
 generation_type: mmv1
 source_file: products/migrationcenter/PreferenceSet.yaml
@@ -18,6 +20,7 @@ fields:
     - api_field: virtualMachinePreferences.commitmentPlan
     - api_field: virtualMachinePreferences.computeEnginePreferences.licenseType
     - api_field: virtualMachinePreferences.computeEnginePreferences.machinePreferences.allowedMachineSeries.code
+    - api_field: virtualMachinePreferences.computeEnginePreferences.persistentDiskType
     - api_field: virtualMachinePreferences.regionPreferences.preferredRegions
     - api_field: virtualMachinePreferences.sizingOptimizationStrategy
     - api_field: virtualMachinePreferences.soleTenancyPreferences.commitmentPlan

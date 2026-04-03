@@ -221,7 +221,6 @@ resource "google_compute_network" "custom-test" {
 
 ```hcl
 resource "google_compute_subnetwork" "subnetwork-resolve-subnet-mask" {
-  provider         = google-beta
 
   name             = "subnet-resolve-subnet-mask-test-subnetwork"
   region           = "us-west2"
@@ -232,7 +231,6 @@ resource "google_compute_subnetwork" "subnetwork-resolve-subnet-mask" {
 }
 
 resource "google_compute_network" "custom-test" {
-  provider                = google-beta
 
   name                    = "subnet-resolve-subnet-mask-test-network"
   auto_create_subnetworks = false
@@ -488,7 +486,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_params).
 
 * `resolve_subnet_mask` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   'Configures subnet mask resolution for this subnetwork.'
   Possible values are: `ARP_ALL_RANGES`, `ARP_PRIMARY_RANGE`.
 

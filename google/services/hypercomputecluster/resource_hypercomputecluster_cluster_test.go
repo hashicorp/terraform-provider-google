@@ -633,3 +633,178 @@ resource "google_hypercomputecluster_cluster" "cluster" {
 }
 `, context)
 }
+
+func TestAccHypercomputeclusterCluster_inPlaceUpdates(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 4),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccHypercomputeclusterCluster_inPlaceBase(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_hypercomputecluster_cluster.cluster", "orchestrator.0.slurm.0.login_nodes.0.boot_disk.0.size_gb", "100"),
+					resource.TestCheckResourceAttr("google_hypercomputecluster_cluster.cluster", "orchestrator.0.slurm.0.login_nodes.0.boot_disk.0.type", "pd-balanced"),
+					resource.TestCheckResourceAttr("google_hypercomputecluster_cluster.cluster", "orchestrator.0.slurm.0.node_sets.0.compute_instance.0.boot_disk.0.size_gb", "100"),
+					resource.TestCheckResourceAttr("google_hypercomputecluster_cluster.cluster", "orchestrator.0.slurm.0.node_sets.0.compute_instance.0.boot_disk.0.type", "pd-balanced"),
+				),
+			},
+			{
+				ResourceName:            "google_hypercomputecluster_cluster.cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				Config: testAccHypercomputeclusterCluster_inPlaceUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(
+							"google_hypercomputecluster_cluster.cluster",
+							plancheck.ResourceActionUpdate, // We HOPE for an update
+						),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_hypercomputecluster_cluster.cluster", "orchestrator.0.slurm.0.login_nodes.0.boot_disk.0.size_gb", "120"),                  // Updated
+					resource.TestCheckResourceAttr("google_hypercomputecluster_cluster.cluster", "orchestrator.0.slurm.0.login_nodes.0.boot_disk.0.type", "pd-ssd"),                  // Updated
+					resource.TestCheckResourceAttr("google_hypercomputecluster_cluster.cluster", "orchestrator.0.slurm.0.node_sets.0.compute_instance.0.boot_disk.0.size_gb", "150"), // Updated
+					resource.TestCheckResourceAttr("google_hypercomputecluster_cluster.cluster", "orchestrator.0.slurm.0.node_sets.0.compute_instance.0.boot_disk.0.type", "pd-ssd"), // Updated
+				),
+			},
+		},
+	})
+}
+
+func testAccHypercomputeclusterCluster_inPlaceBase(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+locals {
+  project_id = data.google_project.project.project_id
+}
+
+resource "google_hypercomputecluster_cluster" "cluster" {
+  cluster_id                  = "tf%{random_suffix}"
+  location                    = "us-central1"
+  description                 = "In-place update test base"
+  network_resources {
+    id = "network-default"
+    config {
+      new_network {
+        network = "projects/${local.project_id}/global/networks/net-ipu-%{random_suffix}"
+      }
+    }
+  }
+  compute_resources {
+    id = "compute-spot"
+    config {
+      new_spot_instances {
+        machine_type = "n2-standard-2"
+        zone = "us-central1-a"
+      }
+    }
+  }
+  orchestrator {
+    slurm {
+      login_nodes {
+        machine_type = "n2-standard-2"
+        count = 1
+        zone = "us-central1-a" # Initial zone
+        boot_disk {
+          size_gb = "100" # Initial size
+          type = "pd-balanced" # Initial type
+        }
+        enable_os_login = "true"
+      }
+      node_sets {
+        id = "nodeset1"
+        compute_id = "compute-spot"
+        static_node_count = 1
+        compute_instance {
+          boot_disk {
+            size_gb = "100" # Initial size
+            type = "pd-balanced" # Initial type
+          }
+        }
+      }
+      partitions {
+        id = "partition"
+        node_set_ids = ["nodeset1"]
+      }
+      default_partition = "partition"
+    }
+  }
+}
+`, context)
+}
+
+func testAccHypercomputeclusterCluster_inPlaceUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+locals {
+  project_id = data.google_project.project.project_id
+}
+
+resource "google_hypercomputecluster_cluster" "cluster" {
+  cluster_id                  = "tf%{random_suffix}"
+  location                    = "us-central1"
+  description                 = "In-place update test updated" # Updated description
+  network_resources {
+    id = "network-default"
+    config {
+      new_network {
+        network = "projects/${local.project_id}/global/networks/net-ipu-%{random_suffix}"
+      }
+    }
+  }
+  compute_resources {
+    id = "compute-spot"
+    config {
+      new_spot_instances {
+        machine_type = "n2-standard-2"
+        zone = "us-central1-a"
+      }
+    }
+  }
+  orchestrator {
+    slurm {
+      login_nodes {
+        machine_type = "n2-standard-2"
+        count = 1
+        zone = "us-central1-a" 
+        boot_disk {
+          size_gb = "120" # Updated size
+          type = "pd-ssd" # Updated type
+        }
+        enable_os_login = "true"
+      }
+      node_sets {
+        id = "nodeset1"
+        compute_id = "compute-spot"
+        static_node_count = 1
+        compute_instance {
+          boot_disk {
+            size_gb = "150" # Updated size
+            type = "pd-ssd" # Updated type
+          }
+        }
+      }
+      partitions {
+        id = "partition"
+        node_set_ids = ["nodeset1"]
+      }
+      default_partition = "partition"
+    }
+  }
+}
+`, context)
+}

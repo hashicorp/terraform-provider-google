@@ -447,6 +447,8 @@ func resourceCloudBuildBitbucketServerConfigRead(d *schema.ResourceData, meta in
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudBuildBitbucketServerConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading CloudBuildBitbucketServerConfig %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present

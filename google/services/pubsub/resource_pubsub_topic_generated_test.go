@@ -53,8 +53,11 @@ var (
 func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   labels = {
     foo = "bar"
@@ -92,8 +95,11 @@ resource "google_pubsub_topic" "example" {
 func TestAccPubsubTopic_pubsubTopicGeoRestrictedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -117,7 +123,7 @@ func TestAccPubsubTopic_pubsubTopicGeoRestrictedExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicGeoRestrictedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   message_storage_policy {
     allowed_persistence_regions = [
@@ -132,9 +138,13 @@ resource "google_pubsub_topic" "example" {
 func TestAccPubsubTopic_pubsubTopicSchemaSettingsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"schema_name":   "example" + randomSuffix,
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -158,17 +168,17 @@ func TestAccPubsubTopic_pubsubTopicSchemaSettingsExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicSchemaSettingsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_schema" "example" {
-  name = "example%{random_suffix}"
+  name = "%{schema_name}"
   type = "AVRO"
   definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
 }
 
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   depends_on = [google_pubsub_schema.example]
   schema_settings {
-    schema = "projects/%{project_name}/schemas/example%{random_suffix}"
+    schema = "projects/%{project_name}/schemas/%{schema_name}"
     encoding = "JSON"
   }
 }
@@ -178,8 +188,11 @@ resource "google_pubsub_topic" "example" {
 func TestAccPubsubTopic_pubsubTopicIngestionKinesisExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -203,7 +216,7 @@ func TestAccPubsubTopic_pubsubTopicIngestionKinesisExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicIngestionKinesisExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   # Outside of automated terraform-provider-google CI tests, these values must be of actual AWS resources for the test to pass.
   ingestion_data_source_settings {
@@ -221,8 +234,11 @@ resource "google_pubsub_topic" "example" {
 func TestAccPubsubTopic_pubsubTopicIngestionCloudStorageExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -246,7 +262,7 @@ func TestAccPubsubTopic_pubsubTopicIngestionCloudStorageExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicIngestionCloudStorageExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   # Outside of automated terraform-provider-google CI tests, these values must be of actual Cloud Storage resources for the test to pass.
   ingestion_data_source_settings {
@@ -269,8 +285,11 @@ resource "google_pubsub_topic" "example" {
 func TestAccPubsubTopic_pubsubTopicIngestionAzureEventHubsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -294,7 +313,7 @@ func TestAccPubsubTopic_pubsubTopicIngestionAzureEventHubsExample(t *testing.T) 
 func testAccPubsubTopic_pubsubTopicIngestionAzureEventHubsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   # Outside of automated terraform-provider-google CI tests, these values must be of actual Azure resources for the test to pass.
   ingestion_data_source_settings {
@@ -315,8 +334,11 @@ resource "google_pubsub_topic" "example" {
 func TestAccPubsubTopic_pubsubTopicIngestionAwsMskExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -340,7 +362,7 @@ func TestAccPubsubTopic_pubsubTopicIngestionAwsMskExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicIngestionAwsMskExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   # Outside of automated terraform-provider-google CI tests, these values must be of actual AWS resources for the test to pass.
   ingestion_data_source_settings {
@@ -358,8 +380,11 @@ resource "google_pubsub_topic" "example" {
 func TestAccPubsubTopic_pubsubTopicIngestionConfluentCloudExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -383,7 +408,7 @@ func TestAccPubsubTopic_pubsubTopicIngestionConfluentCloudExample(t *testing.T) 
 func testAccPubsubTopic_pubsubTopicIngestionConfluentCloudExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   # Outside of automated terraform-provider-google CI tests, these values must be of actual Confluent Cloud resources for the test to pass.
   ingestion_data_source_settings {
@@ -402,8 +427,11 @@ resource "google_pubsub_topic" "example" {
 func TestAccPubsubTopic_pubsubTopicSingleSmtExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -427,7 +455,7 @@ func TestAccPubsubTopic_pubsubTopicSingleSmtExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicSingleSmtExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   message_transforms {
     javascript_udf {
@@ -447,8 +475,11 @@ EOF
 func TestAccPubsubTopic_pubsubTopicMultipleSmtsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -472,7 +503,7 @@ func TestAccPubsubTopic_pubsubTopicMultipleSmtsExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicMultipleSmtsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 
   message_transforms {
     javascript_udf {
@@ -513,8 +544,13 @@ EOF
 func TestAccPubsubTopic_pubsubTopicTagsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"tag_key":       "tf_test_tag_key" + randomSuffix,
+		"tag_value":     "tf_test_tag_value" + randomSuffix,
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -538,7 +574,7 @@ func TestAccPubsubTopic_pubsubTopicTagsExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicTagsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
   project = data.google_project.project.project_id
 }
 
@@ -546,17 +582,87 @@ data "google_project" "project" {}
 
 resource "google_tags_tag_key" "tag_key" {
   parent     = data.google_project.project.id
-  short_name = "tf_test_tag_key%{random_suffix}"
+  short_name = "%{tag_key}"
 }
 
 resource "google_tags_tag_value" "tag_value" {
   parent     = google_tags_tag_key.tag_key.id
-  short_name = "tf_test_tag_value%{random_suffix}"
+  short_name = "%{tag_value}"
 }
 
 resource "google_tags_tag_binding" "binding" {
   parent    = "//pubsub.googleapis.com/projects/${data.google_project.project.number}/topics/${google_pubsub_topic.example.name}"
   tag_value = google_tags_tag_value.tag_value.id
+}
+`, context)
+}
+
+func TestAccPubsubTopic_pubsubTopicAiInferenceExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project_name":       envvar.GetTestProjectFromEnv(),
+		"service_account_id": "tf-test-example-sa" + randomSuffix,
+		"topic_name":         "tf-test-example-topic" + randomSuffix,
+		"random_suffix":      randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubTopic_pubsubTopicAiInferenceExample(context),
+			},
+			{
+				ResourceName:            "google_pubsub_topic.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccPubsubTopic_pubsubTopicAiInferenceExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_service_account" "gemini_query_service_account" {
+  account_id   = "%{service_account_id}"
+  display_name = "Gemini Query Service Account"
+}
+
+resource "google_project_iam_member" "gemini_inference_get" {
+  project = "%{project_name}"
+  role   = "roles/aiplatform.user"
+  member = "serviceAccount:${google_service_account.gemini_query_service_account.email}"
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_iam_member.gemini_inference_get]
+}
+
+resource "google_pubsub_topic" "example" {
+  name = "%{topic_name}"
+  depends_on = [time_sleep.wait_120_seconds]
+
+  message_transforms {
+    ai_inference {
+      endpoint = "projects/%{project_name}/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+      unstructured_inference {
+        parameters = {
+          "max_tokens" = 25000
+        }
+      }
+      service_account_email = google_service_account.gemini_query_service_account.email
+    }
+  }
 }
 `, context)
 }

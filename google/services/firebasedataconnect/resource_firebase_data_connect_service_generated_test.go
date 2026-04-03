@@ -53,9 +53,12 @@ var (
 func TestAccFirebaseDataConnectService_firebasedataconnectServiceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"service_id":    "tf-test-example-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -88,7 +91,7 @@ resource "google_project_service" "fdc" {
 resource "google_firebase_data_connect_service" "default" {
   project = "%{project_id}"
   location = "us-central1"
-  service_id = "tf-test-example-service%{random_suffix}"
+  service_id = "%{service_id}"
   deletion_policy = "DEFAULT"
 
   labels = {
@@ -108,9 +111,12 @@ resource "google_firebase_data_connect_service" "default" {
 func TestAccFirebaseDataConnectService_firebasedataconnectServiceWithForceDeletionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"service_id":    "tf-test-example-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -143,7 +149,7 @@ resource "google_project_service" "fdc" {
 resource "google_firebase_data_connect_service" "default" {
   project = "%{project_id}"
   location = "us-central1"
-  service_id = "tf-test-example-service%{random_suffix}"
+  service_id = "%{service_id}"
   deletion_policy = "FORCE"
 
   depends_on = [google_project_service.fdc]

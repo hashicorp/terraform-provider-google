@@ -1404,9 +1404,9 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				},
 			}
 			if config != nil && config.PrivateEnvironmentConfig != nil {
-				patchObj.Config.PrivateEnvironmentConfig.EnablePrivateEnvironment = config.PrivateEnvironmentConfig.EnablePrivateEnvironment
+				patchObj.Config.PrivateEnvironmentConfig.NetworkingType = config.PrivateEnvironmentConfig.NetworkingType
 			}
-			err = resourceComposerEnvironmentPatchField("config.PrivateEnvironmentConfig.EnablePrivateEnvironment", userAgent, patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.PrivateEnvironmentConfig.NetworkingType", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
@@ -1723,7 +1723,11 @@ func flattenComposerEnvironmentConfig(envCfg *composer.EnvironmentConfig) interf
 		transformed["private_environment_config"] = flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg.PrivateEnvironmentConfig)
 	}
 	if isComposer3(imageVersion) && envCfg.PrivateEnvironmentConfig != nil {
-		transformed["enable_private_environment"] = envCfg.PrivateEnvironmentConfig.EnablePrivateEnvironment
+		if envCfg.PrivateEnvironmentConfig.NetworkingType == "PRIVATE" {
+			transformed["enable_private_environment"] = true
+		} else {
+			transformed["enable_private_environment"] = false
+		}
 		transformed["enable_private_builds_only"] = envCfg.PrivateEnvironmentConfig.EnablePrivateBuildsOnly
 	}
 	transformed["web_server_network_access_control"] = flattenComposerEnvironmentConfigWebServerNetworkAccessControl(envCfg.WebServerNetworkAccessControl)
@@ -2106,14 +2110,18 @@ func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, conf
 
 	/*
 		config.enable_private_environment in terraform maps to
-		composer.PrivateEnvironmentConfig.EnablePrivateEnvironment in API.
-		Check image version to avoid overriding EnablePrivateEnvironment in case of other versions.
+		composer.PrivateEnvironmentConfig.NetworkingType in API.
+		Check image version to avoid overriding NetworkingType in case of other versions.
 	*/
 	imageVersion := d.Get("config.0.software_config.0.image_version").(string)
 	if isComposer3(imageVersion) {
 		transformed.PrivateEnvironmentConfig = &composer.PrivateEnvironmentConfig{}
 		if enablePrivateEnvironmentRaw, ok := original["enable_private_environment"]; ok {
-			transformed.PrivateEnvironmentConfig.EnablePrivateEnvironment = enablePrivateEnvironmentRaw.(bool)
+			if enablePrivateEnvironmentRaw.(bool) {
+				transformed.PrivateEnvironmentConfig.NetworkingType = "PRIVATE"
+			} else {
+				transformed.PrivateEnvironmentConfig.NetworkingType = "PUBLIC"
+			}
 		}
 		if enablePrivateBuildsOnlyRaw, ok := original["enable_private_builds_only"]; ok {
 			transformed.PrivateEnvironmentConfig.EnablePrivateBuildsOnly = enablePrivateBuildsOnlyRaw.(bool)
@@ -2502,7 +2510,7 @@ func expandComposerEnvironmentConfigPrivateEnvironmentConfig(v interface{}, d *s
 	raw := l[0]
 	original := raw.(map[string]interface{})
 	transformed := &composer.PrivateEnvironmentConfig{
-		EnablePrivateEnvironment: true,
+		NetworkingType: "PRIVATE",
 	}
 
 	subBlock := &composer.PrivateClusterConfig{}

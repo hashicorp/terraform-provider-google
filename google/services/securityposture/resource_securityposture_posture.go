@@ -825,6 +825,8 @@ func resourceSecurityposturePostureRead(d *schema.ResourceData, meta interface{}
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityposturePosture %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityposturePosture %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
@@ -1952,7 +1954,7 @@ func expandSecurityposturePosturePolicySetsPoliciesConstraintOrgPolicyConstraint
 		transformedEnforce, err := expandSecurityposturePosturePolicySetsPoliciesConstraintOrgPolicyConstraintPolicyRulesEnforce(original["enforce"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedEnforce); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		} else {
 			transformed["enforce"] = transformedEnforce
 		}
 

@@ -53,8 +53,11 @@ var (
 func TestAccMonitoringGroup_monitoringGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "MonitoringGroup" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +80,7 @@ func TestAccMonitoringGroup_monitoringGroupBasicExample(t *testing.T) {
 func testAccMonitoringGroup_monitoringGroupBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_group" "basic" {
-  display_name = "tf-test MonitoringGroup%{random_suffix}"
+  display_name = "tf-test %{display_name}"
 
   filter = "resource.metadata.region=\"europe-west2\""
 }
@@ -87,8 +90,12 @@ resource "google_monitoring_group" "basic" {
 func TestAccMonitoringGroup_monitoringGroupSubgroupExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "MonitoringParentGroup" + randomSuffix,
+		"display_name2": "MonitoringSubGroup" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -111,12 +118,12 @@ func TestAccMonitoringGroup_monitoringGroupSubgroupExample(t *testing.T) {
 func testAccMonitoringGroup_monitoringGroupSubgroupExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_group" "parent" {
-  display_name = "tf-test MonitoringParentGroup%{random_suffix}"
+  display_name = "tf-test %{display_name}"
   filter       = "resource.metadata.region=\"europe-west2\""
 }
 
 resource "google_monitoring_group" "subgroup" {
-  display_name = "tf-test MonitoringSubGroup%{random_suffix}"
+  display_name = "tf-test %{display_name2}"
   filter       = "resource.metadata.region=\"europe-west2\""
   parent_name  =  google_monitoring_group.parent.name
 }

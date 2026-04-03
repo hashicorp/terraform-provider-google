@@ -32,6 +32,7 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 data "google_compute_region_backend_bucket_iam_policy" "policy" {
+  provider = google-beta
   project = google_compute_region_backend_bucket.image_backend.project
   region = google_compute_region_backend_bucket.image_backend.region
   name = google_compute_region_backend_bucket.image_backend.name

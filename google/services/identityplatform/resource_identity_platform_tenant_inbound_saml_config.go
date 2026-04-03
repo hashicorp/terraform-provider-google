@@ -363,6 +363,8 @@ func resourceIdentityPlatformTenantInboundSamlConfigRead(d *schema.ResourceData,
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IdentityPlatformTenantInboundSamlConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IdentityPlatformTenantInboundSamlConfig %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present

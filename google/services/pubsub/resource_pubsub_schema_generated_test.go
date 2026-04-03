@@ -53,8 +53,11 @@ var (
 func TestAccPubsubSchema_pubsubSchemaBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"schema_name":   "tf-test-example-schema" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +80,7 @@ func TestAccPubsubSchema_pubsubSchemaBasicExample(t *testing.T) {
 func testAccPubsubSchema_pubsubSchemaBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_schema" "example" {
-  name = "tf-test-example-schema%{random_suffix}"
+  name = "%{schema_name}"
   type = "AVRO"
   definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
 }
@@ -87,9 +90,12 @@ resource "google_pubsub_schema" "example" {
 func TestAccPubsubSchema_pubsubSchemaProtobufExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"schema_name":   "example" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -112,17 +118,17 @@ func TestAccPubsubSchema_pubsubSchemaProtobufExample(t *testing.T) {
 func testAccPubsubSchema_pubsubSchemaProtobufExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_schema" "example" {
-  name = "example%{random_suffix}"
+  name = "%{schema_name}"
   type = "PROTOCOL_BUFFER"
   definition = "syntax = \"proto3\";\nmessage Results {\nstring message_request = 1;\nstring message_response = 2;\nstring timestamp_request = 3;\nstring timestamp_response = 4;\n}"
 }
 
 resource "google_pubsub_topic" "example" {
-  name = "example%{random_suffix}-topic"
+  name = "%{schema_name}-topic"
 
   depends_on = [google_pubsub_schema.example]
   schema_settings {
-    schema = "projects/%{project_name}/schemas/example%{random_suffix}"
+    schema = "projects/%{project_name}/schemas/%{schema_name}"
     encoding = "JSON"
   }
 }

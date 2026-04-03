@@ -53,8 +53,18 @@ var (
 func TestAccNetworkServicesMulticastGroupConsumerActivation_networkServicesMulticastGroupConsumerActivationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"consumer_association_name":      "tf-test-test-consumer-association-mgca" + randomSuffix,
+		"domain_activation_name":         "tf-test-test-domain-activation-mgca" + randomSuffix,
+		"domain_name":                    "tf-test-test-domain-mgca" + randomSuffix,
+		"group_consumer_activation_name": "tf-test-test-mgca-mgca" + randomSuffix,
+		"group_range_activation_name":    "tf-test-test-mgra-mgca" + randomSuffix,
+		"group_range_name":               "tf-test-test-group-range-mgca" + randomSuffix,
+		"internal_range_name":            "tf-test-test-internal-range-mgca" + randomSuffix,
+		"network_name":                   "tf-test-test-network-mgca" + randomSuffix,
+		"random_suffix":                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +88,12 @@ func TestAccNetworkServicesMulticastGroupConsumerActivation_networkServicesMulti
 func testAccNetworkServicesMulticastGroupConsumerActivation_networkServicesMulticastGroupConsumerActivationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "tf-test-test-network-mgca%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_services_multicast_domain" "multicast_domain" {
-  multicast_domain_id                    = "tf-test-test-domain-mgca%{random_suffix}"
+  multicast_domain_id                    = "%{domain_name}"
   location = "global"
   admin_network = google_compute_network.network.id
   connection_config  { connection_type="SAME_VPC"}
@@ -91,13 +101,13 @@ resource "google_network_services_multicast_domain" "multicast_domain" {
 }
 
 resource "google_network_services_multicast_domain_activation" "multicast_domain_activation" {
-  multicast_domain_activation_id                    = "tf-test-test-domain-activation-mgca%{random_suffix}"
+  multicast_domain_activation_id                    = "%{domain_activation_name}"
   location = "us-central1-b"
   multicast_domain = google_network_services_multicast_domain.multicast_domain.id
 }
 
 resource "google_network_services_multicast_consumer_association" "consumer_association" {
-  multicast_consumer_association_id              = "tf-test-test-consumer-association-mgca%{random_suffix}"
+  multicast_consumer_association_id              = "%{consumer_association_name}"
   location = "us-central1-b"
   network = google_compute_network.network.id
   multicast_domain_activation = google_network_services_multicast_domain_activation.multicast_domain_activation.id
@@ -106,7 +116,7 @@ resource "google_network_services_multicast_consumer_association" "consumer_asso
 
 
 resource "google_network_connectivity_internal_range" "internal_range" {
-  name    = "tf-test-test-internal-range-mgca%{random_suffix}"
+  name    = "%{internal_range_name}"
   network = google_compute_network.network.self_link
   usage   = "FOR_VPC"
   peering = "FOR_SELF"
@@ -114,21 +124,21 @@ resource "google_network_connectivity_internal_range" "internal_range" {
 }
 
 resource "google_network_services_multicast_group_range" "group_range" {
-  multicast_group_range_id                   = "tf-test-test-group-range-mgca%{random_suffix}"
+  multicast_group_range_id                   = "%{group_range_name}"
   location = "global"
   reserved_internal_range = google_network_connectivity_internal_range.internal_range.id
   multicast_domain = google_network_services_multicast_domain.multicast_domain.id
 }
 
 resource "google_network_services_multicast_group_range_activation" "group_range_activation" {
-  multicast_group_range_activation_id                   = "tf-test-test-mgra-mgca%{random_suffix}"
+  multicast_group_range_activation_id                   = "%{group_range_activation_name}"
   location = "us-central1-b"
   multicast_group_range = google_network_services_multicast_group_range.group_range.id
   multicast_domain_activation = google_network_services_multicast_domain_activation.multicast_domain_activation.id
 }
 
 resource "google_network_services_multicast_group_consumer_activation" mgca_test {
-  multicast_group_consumer_activation_id                   = "tf-test-test-mgca-mgca%{random_suffix}"
+  multicast_group_consumer_activation_id                   = "%{group_consumer_activation_name}"
   location = "us-central1-b"
   multicast_group_range_activation = google_network_services_multicast_group_range_activation.group_range_activation.id
   multicast_consumer_association = google_network_services_multicast_consumer_association.consumer_association.id

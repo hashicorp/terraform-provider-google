@@ -53,8 +53,12 @@ var (
 func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionOpenApiExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent-open-api" + randomSuffix,
+		"tool_name":     "tf-test-open-api-tool" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionOpenApiExample(t *tes
 func testAccDialogflowCXToolVersion_dialogflowcxToolVersionOpenApiExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-dialogflowcx-agent-open-api%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "global"
   default_language_code = "en"
   time_zone = "America/New_York"
@@ -87,7 +91,7 @@ resource "google_dialogflow_cx_agent" "agent" {
 
 resource "google_dialogflow_cx_tool" "tool" {
   parent       = google_dialogflow_cx_agent.agent.id
-  display_name = "tf-test-open-api-tool%{random_suffix}"
+  display_name = "%{tool_name}"
   description  = "Example Description"
   open_api_spec {
     authentication {
@@ -160,7 +164,7 @@ resource "google_dialogflow_cx_tool_version" "open_api_tool_version" {
   parent       = google_dialogflow_cx_tool.tool.id
   display_name = "Example Open API Tool Version"
   tool {
-    display_name = "tf-test-open-api-tool%{random_suffix}"
+    display_name = "%{tool_name}"
     description  = "Example Description"
     open_api_spec {
       authentication {
@@ -235,8 +239,13 @@ resource "google_dialogflow_cx_tool_version" "open_api_tool_version" {
 func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionDataStoreExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent-data-store" + randomSuffix,
+		"data_store":    "tf-test-datastore-tool-version" + randomSuffix,
+		"tool_name":     "tf-test-datastore-tool" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -260,7 +269,7 @@ func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionDataStoreExample(t *t
 func testAccDialogflowCXToolVersion_dialogflowcxToolVersionDataStoreExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-dialogflowcx-agent-data-store%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "global"
   default_language_code = "en"
   time_zone = "America/New_York"
@@ -273,7 +282,7 @@ resource "google_dialogflow_cx_agent" "agent" {
 
 resource "google_dialogflow_cx_tool" "tool" {
   parent       = google_dialogflow_cx_agent.agent.id
-  display_name = "tf-test-datastore-tool%{random_suffix}"
+  display_name = "%{tool_name}"
   description  = "Example Description"
   data_store_spec {
     data_store_connections {
@@ -291,7 +300,7 @@ resource "google_dialogflow_cx_tool" "tool" {
 
 resource "google_discovery_engine_data_store" "my_datastore" {
   location          = "global"
-  data_store_id     = "tf-test-datastore-tool-version%{random_suffix}"
+  data_store_id     = "%{data_store}"
   display_name      = "datastore for Tool test"
   industry_vertical = "GENERIC"
   content_config    = "NO_CONTENT"
@@ -302,7 +311,7 @@ resource "google_dialogflow_cx_tool_version" "data_store_tool_version" {
   parent       = google_dialogflow_cx_tool.tool.id
   display_name = "Example Data Store Tool Version"
   tool {
-    display_name = "tf-test-datastore-tool%{random_suffix}"
+    display_name = "%{tool_name}"
     description  = "Example Description"
     data_store_spec {
       data_store_connections {
@@ -327,8 +336,12 @@ data "google_project" "project" {
 func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionFunctionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent-fucntion" + randomSuffix,
+		"tool_name":     "tf-test-function-tool" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -352,7 +365,7 @@ func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionFunctionExample(t *te
 func testAccDialogflowCXToolVersion_dialogflowcxToolVersionFunctionExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-dialogflowcx-agent-fucntion%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "global"
   default_language_code = "en"
   time_zone = "America/New_York"
@@ -361,7 +374,7 @@ resource "google_dialogflow_cx_agent" "agent" {
 
 resource "google_dialogflow_cx_tool" "tool" {
   parent       = google_dialogflow_cx_agent.agent.id
-  display_name = "tf-test-function-tool%{random_suffix}"
+  display_name = "%{tool_name}"
   description  = "Example Description"
   function_spec {
     input_schema  = <<EOF
@@ -396,7 +409,7 @@ resource "google_dialogflow_cx_tool_version" "function_tool_version" {
   parent       = google_dialogflow_cx_tool.tool.id
   display_name = "Example Function Tool Version"
   tool {
-    display_name = "tf-test-function-tool%{random_suffix}"
+    display_name = "%{tool_name}"
     description  = "Example Description"
     function_spec {
       input_schema  = <<EOF

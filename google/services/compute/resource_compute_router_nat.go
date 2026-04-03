@@ -966,6 +966,8 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRouterNat %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeRouterNat %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedComputeRouterNat(d, meta, res)
 	if err != nil {
 		return err

@@ -53,9 +53,12 @@ var (
 func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":         envvar.GetTestOrgFromEnv(t),
+		"framework_name": "tf-test-example-framework" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +84,7 @@ func testAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkBas
 resource "google_cloud_security_compliance_framework" "example" {
   organization = "%{org_id}"
   location     = "global"
-  framework_id = "tf-test-example-framework%{random_suffix}"
+  framework_id = "%{framework_name}"
   
   display_name = "Terraform Framework Name"
   description  = "An Terraform description for the framework"

@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_blockchain_node_engine_blockchain_nodes
 generation_type: mmv1
 source_file: products/blockchainnodeengine/BlockchainNodes.yaml
@@ -24,6 +26,7 @@ fields:
     - api_field: ethereumDetails.gethDetails.garbageCollectionMode
     - api_field: ethereumDetails.network
     - api_field: ethereumDetails.nodeType
+    - api_field: ethereumDetails.validatorConfig.beaconFeeRecipient
     - api_field: ethereumDetails.validatorConfig.mevRelayUrls
     - api_field: labels
     - field: location

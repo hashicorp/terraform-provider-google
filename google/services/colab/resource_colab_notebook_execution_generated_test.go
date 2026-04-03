@@ -53,10 +53,14 @@ var (
 func TestAccColabNotebookExecution_colabNotebookExecutionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_id":      envvar.GetTestProjectFromEnv(),
-		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"project_id":            envvar.GetTestProjectFromEnv(),
+		"service_account":       envvar.GetTestServiceAccountFromEnv(t),
+		"bucket":                "tf_test_my_bucket" + randomSuffix,
+		"runtime_template_name": "tf-test-runtime-template-name" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +84,7 @@ func TestAccColabNotebookExecution_colabNotebookExecutionBasicExample(t *testing
 func testAccColabNotebookExecution_colabNotebookExecutionBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_colab_runtime_template" "my_runtime_template" {
-  name = "tf-test-runtime-template-name%{random_suffix}"
+  name = "%{runtime_template_name}"
   display_name = "Runtime template"
   location = "us-central1"
 
@@ -94,7 +98,7 @@ resource "google_colab_runtime_template" "my_runtime_template" {
 }
 
 resource "google_storage_bucket" "output_bucket" {
-  name          = "tf_test_my_bucket%{random_suffix}"
+  name          = "%{bucket}"
   location      = "US"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -162,10 +166,14 @@ resource "google_colab_notebook_execution" "notebook-execution" {
 func TestAccColabNotebookExecution_colabNotebookExecutionCustomEnvExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":      envvar.GetTestProjectFromEnv(),
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"bucket":          "tf_test_my_bucket" + randomSuffix,
+		"network_name":    "tf-test-colab-test-default" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -189,19 +197,19 @@ func TestAccColabNotebookExecution_colabNotebookExecutionCustomEnvExample(t *tes
 func testAccColabNotebookExecution_colabNotebookExecutionCustomEnvExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "my_network" {
-  name = "tf-test-colab-test-default%{random_suffix}"
+  name = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "my_subnetwork" {
-  name   = "tf-test-colab-test-default%{random_suffix}"
+  name   = "%{network_name}"
   network = google_compute_network.my_network.id
   region = "us-central1"
   ip_cidr_range = "10.0.1.0/24"
 }
 
 resource "google_storage_bucket" "output_bucket" {
-  name          = "tf_test_my_bucket%{random_suffix}"
+  name          = "%{bucket}"
   location      = "US"
   force_destroy = true
   uniform_bucket_level_access = true

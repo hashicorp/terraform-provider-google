@@ -53,9 +53,13 @@ var (
 func TestAccIAM3PrincipalAccessBoundaryPolicy_iamPrincipalAccessBoundaryPolicyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "PAB policy for Organization" + randomSuffix,
+		"pab_id":        "tf-test-pab-policy-for-org" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,8 +88,8 @@ func testAccIAM3PrincipalAccessBoundaryPolicy_iamPrincipalAccessBoundaryPolicyEx
 resource "google_iam_principal_access_boundary_policy" "pab-policy-for-org" {
   organization   = "%{org_id}"
   location       = "global"
-  display_name   = "PAB policy for Organization%{random_suffix}"
-  principal_access_boundary_policy_id = "tf-test-pab-policy-for-org%{random_suffix}"
+  display_name   = "%{display_name}"
+  principal_access_boundary_policy_id = "%{pab_id}"
 }
 `, context)
 }

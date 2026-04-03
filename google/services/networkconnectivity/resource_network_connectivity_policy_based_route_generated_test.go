@@ -53,8 +53,12 @@ var (
 func TestAccNetworkConnectivityPolicyBasedRoute_networkConnectivityPolicyBasedRouteBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-my-network" + randomSuffix,
+		"pbr_name":      "tf-test-my-pbr" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccNetworkConnectivityPolicyBasedRoute_networkConnectivityPolicyBasedRo
 func testAccNetworkConnectivityPolicyBasedRoute_networkConnectivityPolicyBasedRouteBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_policy_based_route" "default" {
-  name = "tf-test-my-pbr%{random_suffix}"
+  name = "%{pbr_name}"
   network = google_compute_network.my_network.id
   filter {
     protocol_version = "IPV4"
@@ -87,7 +91,7 @@ resource "google_network_connectivity_policy_based_route" "default" {
 }
 
 resource "google_compute_network" "my_network" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -96,8 +100,13 @@ resource "google_compute_network" "my_network" {
 func TestAccNetworkConnectivityPolicyBasedRoute_networkConnectivityPolicyBasedRouteFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"ilb_name":      "tf-test-my-ilb" + randomSuffix,
+		"network_name":  "tf-test-my-network" + randomSuffix,
+		"pbr_name":      "tf-test-my-pbr" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -121,7 +130,7 @@ func TestAccNetworkConnectivityPolicyBasedRoute_networkConnectivityPolicyBasedRo
 func testAccNetworkConnectivityPolicyBasedRoute_networkConnectivityPolicyBasedRouteFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_policy_based_route" "default" {
-  name = "tf-test-my-pbr%{random_suffix}"
+  name = "%{pbr_name}"
   description = "My routing policy"
   network = google_compute_network.my_network.id
   priority = 2302
@@ -144,7 +153,7 @@ resource "google_network_connectivity_policy_based_route" "default" {
 }
 
 resource "google_compute_network" "my_network" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
@@ -152,7 +161,7 @@ resource "google_compute_network" "my_network" {
 # load balancer for brevity. Consult https://cloud.google.com/load-balancing/docs/internal
 # to set one up.
 resource "google_compute_global_address" "ilb" {
-  name = "tf-test-my-ilb%{random_suffix}"
+  name = "%{ilb_name}"
 }
 `, context)
 }

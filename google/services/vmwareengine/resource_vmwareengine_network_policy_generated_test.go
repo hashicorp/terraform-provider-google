@@ -54,9 +54,13 @@ func TestAccVmwareengineNetworkPolicy_vmwareEngineNetworkPolicyBasicExample(t *t
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20719")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"region":        envvar.GetTestRegionFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"region":              envvar.GetTestRegionFromEnv(),
+		"network_name":        "tf-test-sample-network" + randomSuffix,
+		"network_policy_name": "tf-test-sample-network-policy" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +84,7 @@ func TestAccVmwareengineNetworkPolicy_vmwareEngineNetworkPolicyBasicExample(t *t
 func testAccVmwareengineNetworkPolicy_vmwareEngineNetworkPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vmwareengine_network" "network-policy-nw" {
-    name              = "tf-test-sample-network%{random_suffix}"
+    name              = "%{network_name}"
     location          = "global" 
     type              = "STANDARD"
     description       = "VMwareEngine standard network sample"
@@ -88,7 +92,7 @@ resource "google_vmwareengine_network" "network-policy-nw" {
 
 resource "google_vmwareengine_network_policy" "vmw-engine-network-policy" {
     location = "%{region}"
-    name = "tf-test-sample-network-policy%{random_suffix}"
+    name = "%{network_policy_name}"
     edge_services_cidr = "192.168.30.0/26"
     vmware_engine_network = google_vmwareengine_network.network-policy-nw.id
 }
@@ -99,9 +103,13 @@ func TestAccVmwareengineNetworkPolicy_vmwareEngineNetworkPolicyFullExample(t *te
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20719")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"region":        envvar.GetTestRegionFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"region":              envvar.GetTestRegionFromEnv(),
+		"network_name":        "tf-test-sample-network" + randomSuffix,
+		"network_policy_name": "tf-test-sample-network-policy" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -125,7 +133,7 @@ func TestAccVmwareengineNetworkPolicy_vmwareEngineNetworkPolicyFullExample(t *te
 func testAccVmwareengineNetworkPolicy_vmwareEngineNetworkPolicyFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vmwareengine_network" "network-policy-nw" {
-    name              = "tf-test-sample-network%{random_suffix}"
+    name              = "%{network_name}"
     location          = "global" 
     type              = "STANDARD"
     description       = "VMwareEngine standard network sample"
@@ -133,7 +141,7 @@ resource "google_vmwareengine_network" "network-policy-nw" {
 
 resource "google_vmwareengine_network_policy" "vmw-engine-network-policy" {
     location = "%{region}"
-    name = "tf-test-sample-network-policy%{random_suffix}"
+    name = "%{network_policy_name}"
     edge_services_cidr = "192.168.30.0/26"
     vmware_engine_network = google_vmwareengine_network.network-policy-nw.id
     description = "Sample Network Policy"

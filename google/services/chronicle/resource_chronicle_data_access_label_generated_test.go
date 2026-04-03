@@ -53,9 +53,13 @@ var (
 func TestAccChronicleDataAccessLabel_chronicleDataaccesslabelBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"chronicle_id":         envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"data_access_label_id": "tf-test-label-id" + randomSuffix,
+		"description":          "tf-test-label-description" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,9 +85,9 @@ func testAccChronicleDataAccessLabel_chronicleDataaccesslabelBasicExample(contex
 resource "google_chronicle_data_access_label" "example" {
   location = "us" 
   instance = "%{chronicle_id}"
-  data_access_label_id = "tf-test-label-id%{random_suffix}"
+  data_access_label_id = "%{data_access_label_id}"
   udm_query = "principal.hostname=\"google.com\""
-  description = "tf-test-label-description%{random_suffix}"
+  description = "%{description}"
 }
 `, context)
 }

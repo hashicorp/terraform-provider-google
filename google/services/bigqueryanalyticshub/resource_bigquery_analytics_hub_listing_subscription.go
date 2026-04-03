@@ -457,6 +457,8 @@ func resourceBigqueryAnalyticsHubListingSubscriptionRead(d *schema.ResourceData,
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigqueryAnalyticsHubListingSubscription %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading BigqueryAnalyticsHubListingSubscription %q: %#v", d.Id(), res)
 	// Set data_exchange_id and listing_id from res["listing"]
 	listing := res["listing"].(string)
 	parts := strings.Split(listing, "/")

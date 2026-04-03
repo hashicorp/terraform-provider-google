@@ -53,8 +53,12 @@ var (
 func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":          "tf-test-my-network" + randomSuffix,
+		"private_connection_id": "tf-test-my-connection" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +84,7 @@ func testAccDatastreamPrivateConnection_datastreamPrivateConnectionFullExample(c
 resource "google_datastream_private_connection" "default" {
 	display_name          = "Connection profile"
 	location              = "us-central1"
-	private_connection_id = "tf-test-my-connection%{random_suffix}"
+	private_connection_id = "%{private_connection_id}"
 
 	labels = {
 		key = "value"
@@ -93,7 +97,7 @@ resource "google_datastream_private_connection" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name = "tf-test-my-network%{random_suffix}"
+  name = "%{network_name}"
 }
 `, context)
 }
@@ -101,12 +105,18 @@ resource "google_compute_network" "default" {
 func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionPscInterfaceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"project":         envvar.GetTestProjectFromEnv(),
-		"project_number":  envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":   acctest.RandString(t, 10),
+		"billing_account":         envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":                  envvar.GetTestOrgFromEnv(t),
+		"project":                 envvar.GetTestProjectFromEnv(),
+		"project_number":          envvar.GetTestProjectNumberFromEnv(),
+		"network_attachment_name": "tf-test-my-network-attachment" + randomSuffix,
+		"network_name":            "tf-test-my-network" + randomSuffix,
+		"private_connection_id":   "tf-test-my-connection" + randomSuffix,
+		"subnetwork_name":         "tf-test-my-subnetwork" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -132,7 +142,7 @@ func testAccDatastreamPrivateConnection_datastreamPrivateConnectionPscInterfaceE
 resource "google_datastream_private_connection" "default" {
     display_name          = "Connection profile"
     location              = "us-central1"
-    private_connection_id = "tf-test-my-connection%{random_suffix}"
+    private_connection_id = "%{private_connection_id}"
 
     labels = {
         key = "value"
@@ -144,7 +154,7 @@ resource "google_datastream_private_connection" "default" {
 }
 
 resource "google_compute_network_attachment" "default" {
-    name                  = "tf-test-my-network-attachment%{random_suffix}"
+    name                  = "%{network_attachment_name}"
     region                = "us-central1"
     description           = "basic network attachment description"
     connection_preference = "ACCEPT_AUTOMATIC"
@@ -155,12 +165,12 @@ resource "google_compute_network_attachment" "default" {
 }
 
 resource "google_compute_network" "default" {
-    name                    = "tf-test-my-network%{random_suffix}"
+    name                    = "%{network_name}"
     auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-    name   = "tf-test-my-subnetwork%{random_suffix}"
+    name   = "%{subnetwork_name}"
     region = "us-central1"
 
     network       = google_compute_network.default.id

@@ -467,6 +467,7 @@ supplied the value is interpreted as bytes.`,
 									},
 								},
 							},
+							ConflictsWith: []string{"service_config.0.vpc_connector"},
 						},
 						"environment_variables": {
 							Type:             schema.TypeMap,
@@ -590,9 +591,10 @@ can be terminated if the function is not completed at the end of the
 timeout period. Defaults to 60 seconds.`,
 						},
 						"vpc_connector": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `The Serverless VPC Access connector that this cloud function can connect to.`,
+							Type:          schema.TypeString,
+							Optional:      true,
+							Description:   `The Serverless VPC Access connector that this cloud function can connect to.`,
+							ConflictsWith: []string{"service_config.0.direct_vpc_network_interface"},
 						},
 						"vpc_connector_egress_settings": {
 							Type:         schema.TypeString,
@@ -851,6 +853,8 @@ func resourceCloudfunctions2functionRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Cloudfunctions2function %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading Cloudfunctions2function %q: %#v", d.Id(), res)
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {

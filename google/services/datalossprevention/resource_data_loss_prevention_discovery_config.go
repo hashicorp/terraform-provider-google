@@ -1582,6 +1582,8 @@ func resourceDataLossPreventionDiscoveryConfigRead(d *schema.ResourceData, meta 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataLossPreventionDiscoveryConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DataLossPreventionDiscoveryConfig %q: %#v", d.Id(), res)
+
 	res, err = resourceDataLossPreventionDiscoveryConfigDecoder(d, meta, res)
 	if err != nil {
 		return err

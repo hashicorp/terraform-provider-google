@@ -35,7 +35,7 @@ IcebergTables are the primary objects in an IcebergCatalog.
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
-  name          = "my-bucket-%{random_suffix}"
+  name          = "my-bucket"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -48,14 +48,14 @@ resource "google_biglake_iceberg_catalog" "catalog" {
 
 resource "google_biglake_iceberg_namespace" "namespace" {
   catalog = google_biglake_iceberg_catalog.catalog.name
-  namespace_id = "my_namespace_%{random_suffix}"
+  namespace_id = "my_namespace"
 }
 
 resource "google_biglake_iceberg_table" "my_iceberg_table" {
   catalog   = google_biglake_iceberg_catalog.catalog.name
   namespace = google_biglake_iceberg_namespace.namespace.namespace_id
-  name      = "my_table_%{random_suffix}"
-  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/my_table_%{random_suffix}"
+  name      = "my_table"
+  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/my_table"
   schema {
     type = "struct"
     fields {
@@ -92,7 +92,7 @@ resource "google_biglake_iceberg_table" "my_iceberg_table" {
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
-  name          = "my-bucket-%{random_suffix}"
+  name          = "my-bucket"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -105,13 +105,13 @@ resource "google_biglake_iceberg_catalog" "catalog" {
 
 resource "google_biglake_iceberg_namespace" "namespace" {
   catalog = google_biglake_iceberg_catalog.catalog.name
-  namespace_id = "my_namespace_%{random_suffix}"
+  namespace_id = "my_namespace"
 }
 
 resource "google_biglake_iceberg_table" "my_iceberg_table" {
   catalog   = google_biglake_iceberg_catalog.catalog.name
   namespace = google_biglake_iceberg_namespace.namespace.namespace_id
-  name      = "my_table_%{random_suffix}"
+  name      = "my_table"
   schema {
     type = "struct"
     fields {

@@ -1319,6 +1319,8 @@ func resourceMemorystoreInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("MemorystoreInstance %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading MemorystoreInstance %q: %#v", d.Id(), res)
+
 	res, err = resourceMemorystoreInstanceDecoder(d, meta, res)
 	if err != nil {
 		return err

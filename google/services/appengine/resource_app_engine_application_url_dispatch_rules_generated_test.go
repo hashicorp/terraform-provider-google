@@ -53,8 +53,11 @@ var (
 func TestAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatchRulesBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":   "tf-test-appengine-test-bucket" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -113,7 +116,7 @@ resource "google_app_engine_standard_app_version" "admin_v3" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "tf-test-appengine-test-bucket%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 

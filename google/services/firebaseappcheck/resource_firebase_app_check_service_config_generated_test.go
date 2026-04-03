@@ -53,10 +53,12 @@ var (
 func TestAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigOffExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
 		"service_id":    "firestore.googleapis.com",
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -96,10 +98,12 @@ resource "google_firebase_app_check_service_config" "default" {
 func TestAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigEnforcedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
 		"service_id":    "firebasestorage.googleapis.com",
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -140,10 +144,12 @@ resource "google_firebase_app_check_service_config" "default" {
 func TestAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigUnenforcedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
 		"service_id":    "identitytoolkit.googleapis.com",
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

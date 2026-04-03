@@ -180,6 +180,12 @@ capacity specified above at most.`,
 Examples: US, EU, asia-northeast1. The default value is US.`,
 				Default: "US",
 			},
+			"reservation_group": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      `The reservation group that this reservation belongs to.`,
+			},
 			"secondary_location": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -315,6 +321,12 @@ func resourceBigqueryReservationReservationCreate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("secondary_location"); !tpgresource.IsEmptyValue(reflect.ValueOf(secondaryLocationProp)) && (ok || !reflect.DeepEqual(v, secondaryLocationProp)) {
 		obj["secondaryLocation"] = secondaryLocationProp
 	}
+	reservationGroupProp, err := expandBigqueryReservationReservationReservationGroup(d.Get("reservation_group"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("reservation_group"); !tpgresource.IsEmptyValue(reflect.ValueOf(reservationGroupProp)) && (ok || !reflect.DeepEqual(v, reservationGroupProp)) {
+		obj["reservationGroup"] = reservationGroupProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations?reservationId={{name}}")
 	if err != nil {
@@ -400,6 +412,8 @@ func resourceBigqueryReservationReservationRead(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigqueryReservationReservation %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading BigqueryReservationReservation %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
@@ -442,6 +456,9 @@ func resourceBigqueryReservationReservationRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 	if err := d.Set("replication_status", flattenBigqueryReservationReservationReplicationStatus(res["replicationStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
+	if err := d.Set("reservation_group", flattenBigqueryReservationReservationReservationGroup(res["reservationGroup"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 
@@ -507,6 +524,12 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("secondary_location"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, secondaryLocationProp)) {
 		obj["secondaryLocation"] = secondaryLocationProp
 	}
+	reservationGroupProp, err := expandBigqueryReservationReservationReservationGroup(d.Get("reservation_group"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("reservation_group"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, reservationGroupProp)) {
+		obj["reservationGroup"] = reservationGroupProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
 	if err != nil {
@@ -535,6 +558,10 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("secondary_location") {
 		updateMask = append(updateMask, "secondaryLocation")
+	}
+
+	if d.HasChange("reservation_group") {
+		updateMask = append(updateMask, "reservationGroup")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -811,6 +838,13 @@ func flattenBigqueryReservationReservationReplicationStatusLastReplicationTime(v
 	return v
 }
 
+func flattenBigqueryReservationReservationReservationGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
 func expandBigqueryReservationReservationSlotCapacity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -865,5 +899,9 @@ func expandBigqueryReservationReservationAutoscaleMaxSlots(v interface{}, d tpgr
 }
 
 func expandBigqueryReservationReservationSecondaryLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryReservationReservationReservationGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

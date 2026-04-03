@@ -54,10 +54,17 @@ func TestAccApigeeDeveloperApp_apigeeDeveloperAppBasicTestExample(t *testing.T) 
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"billing_account":    envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":             envvar.GetTestOrgFromEnv(t),
+		"api_product_name":   "tf-test-sample-api" + randomSuffix,
+		"developer_app_name": "tf-test-sample-app" + randomSuffix,
+		"developer_email":    "john.doe@acme.com" + randomSuffix,
+		"instance_name":      "instance" + randomSuffix,
+		"project_name":       "prj" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +91,7 @@ func TestAccApigeeDeveloperApp_apigeeDeveloperAppBasicTestExample(t *testing.T) 
 func testAccApigeeDeveloperApp_apigeeDeveloperAppBasicTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_apigee_developer_app" "apigee_developer_app" {
-  name            = "tf-test-sample-app%{random_suffix}"
+  name            = "%{developer_app_name}"
   app_family      = "default"
   developer_email = google_apigee_developer.developer.email
   org_id          = google_apigee_organization.apigee_org.id
@@ -105,7 +112,7 @@ resource "google_apigee_developer_app" "apigee_developer_app" {
 }
 
 resource "google_apigee_api_product" "api_product" {
-  name          = "tf-test-sample-api%{random_suffix}"
+  name          = "%{api_product_name}"
   org_id        = google_apigee_organization.apigee_org.id
   display_name  = "A sample API Product"
   approval_type = "auto"
@@ -123,7 +130,7 @@ resource "google_apigee_api_product" "api_product" {
 }
 
 resource "google_apigee_developer" "developer" {
-  email      = "john.doe@acme.com%{random_suffix}"
+  email      = "%{developer_email}"
   first_name = "John"
   last_name  = "Doe"
   user_name  = "john.doe"
@@ -135,7 +142,7 @@ resource "google_apigee_developer" "developer" {
 }
 
 resource "google_apigee_instance" "apigee_instance" {
-  name     = "instance%{random_suffix}"
+  name     = "%{instance_name}"
   location = "us-central1"
   org_id   = google_apigee_organization.apigee_org.id
 }
@@ -164,8 +171,8 @@ resource "time_sleep" "wait_60_seconds" {
 }
 
 resource "google_project" "project" {
-  project_id      = "prj%{random_suffix}"
-  name            = "prj%{random_suffix}"
+  project_id      = "%{project_name}"
+  name            = "%{project_name}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_account}"
   deletion_policy = "DELETE"

@@ -53,8 +53,11 @@ var (
 func TestAccComputeHttpsHealthCheck_httpsHealthCheckBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"https_health_check_name": "tf-test-authentication-health-check" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +80,7 @@ func TestAccComputeHttpsHealthCheck_httpsHealthCheckBasicExample(t *testing.T) {
 func testAccComputeHttpsHealthCheck_httpsHealthCheckBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_https_health_check" "default" {
-  name         = "tf-test-authentication-health-check%{random_suffix}"
+  name         = "%{https_health_check_name}"
   request_path = "/health_check"
 
   timeout_sec        = 1

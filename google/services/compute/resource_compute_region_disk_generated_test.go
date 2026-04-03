@@ -53,8 +53,13 @@ var (
 func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"disk_name":        "tf-test-my-disk" + randomSuffix,
+		"region_disk_name": "tf-test-my-region-disk" + randomSuffix,
+		"snapshot_name":    "tf-test-my-snapshot" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 func testAccComputeRegionDisk_regionDiskBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
-  name                      = "tf-test-my-region-disk%{random_suffix}"
+  name                      = "%{region_disk_name}"
   snapshot                  = google_compute_snapshot.snapdisk.id
   type                      = "pd-ssd"
   region                    = "us-central1"
@@ -88,7 +93,7 @@ resource "google_compute_region_disk" "regiondisk" {
 }
 
 resource "google_compute_disk" "disk" {
-  name  = "tf-test-my-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = "debian-cloud/debian-11"
   size  = 50
   type  = "pd-ssd"
@@ -96,7 +101,7 @@ resource "google_compute_disk" "disk" {
 }
 
 resource "google_compute_snapshot" "snapdisk" {
-  name        = "tf-test-my-snapshot%{random_suffix}"
+  name        = "%{snapshot_name}"
   source_disk = google_compute_disk.disk.name
   zone        = "us-central1-a"
 }
@@ -106,8 +111,12 @@ resource "google_compute_snapshot" "snapdisk" {
 func TestAccComputeRegionDisk_regionDiskAsyncExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"region_disk_name":           "tf-test-primary-region-disk" + randomSuffix,
+		"secondary_region_disk_name": "tf-test-secondary-region-disk" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -131,7 +140,7 @@ func TestAccComputeRegionDisk_regionDiskAsyncExample(t *testing.T) {
 func testAccComputeRegionDisk_regionDiskAsyncExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_disk" "primary" {
-  name                      = "tf-test-primary-region-disk%{random_suffix}"
+  name                      = "%{region_disk_name}"
   type                      = "pd-ssd"
   region                    = "us-central1"
   physical_block_size_bytes = 4096
@@ -140,7 +149,7 @@ resource "google_compute_region_disk" "primary" {
 }
 
 resource "google_compute_region_disk" "secondary" {
-  name                      = "tf-test-secondary-region-disk%{random_suffix}"
+  name                      = "%{secondary_region_disk_name}"
   type                      = "pd-ssd"
   region                    = "us-east1"
   physical_block_size_bytes = 4096
@@ -157,8 +166,11 @@ resource "google_compute_region_disk" "secondary" {
 func TestAccComputeRegionDisk_regionDiskFeaturesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"region_disk_name": "tf-test-my-region-features-disk" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -182,7 +194,7 @@ func TestAccComputeRegionDisk_regionDiskFeaturesExample(t *testing.T) {
 func testAccComputeRegionDisk_regionDiskFeaturesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
-  name                      = "tf-test-my-region-features-disk%{random_suffix}"
+  name                      = "%{region_disk_name}"
   type                      = "pd-ssd"
   region                    = "us-central1"
   physical_block_size_bytes = 4096
@@ -209,8 +221,11 @@ resource "google_compute_region_disk" "regiondisk" {
 func TestAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"region_disk_name": "tf-test-my-region-hyperdisk" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -234,7 +249,7 @@ func TestAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(t *t
 func testAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_disk" "primary" {
-  name                      = "tf-test-my-region-hyperdisk%{random_suffix}"
+  name                      = "%{region_disk_name}"
   type                      = "hyperdisk-balanced-high-availability"
   region                    = "us-central1"
   replica_zones = ["us-central1-a", "us-central1-f"]

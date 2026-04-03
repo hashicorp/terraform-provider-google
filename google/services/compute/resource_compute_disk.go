@@ -1264,6 +1264,8 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeDisk %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeDisk %q: %#v", d.Id(), res)
+
 	res, err = resourceComputeDiskDecoder(d, meta, res)
 	if err != nil {
 		return err

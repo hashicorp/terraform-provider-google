@@ -300,6 +300,8 @@ func resourceDiscoveryEngineSitemapRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DiscoveryEngineSitemap %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading DiscoveryEngineSitemap %q: %#v", d.Id(), res)
 	// Extract the resource name from the ID to match against the sitemap entries
 	resourceName := d.Get("name").(string)
 

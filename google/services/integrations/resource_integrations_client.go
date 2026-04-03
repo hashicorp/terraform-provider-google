@@ -334,6 +334,8 @@ func resourceIntegrationsClientRead(d *schema.ResourceData, meta interface{}) er
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IntegrationsClient %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IntegrationsClient %q: %#v", d.Id(), res)
+
 	res, err = resourceIntegrationsClientDecoder(d, meta, res)
 	if err != nil {
 		return err

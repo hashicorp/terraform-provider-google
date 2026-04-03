@@ -53,9 +53,12 @@ var (
 func TestAccDataplexEntryType_dataplexEntryTypeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_name":    envvar.GetTestProjectFromEnv(),
+		"entry_type_name": "tf-test-entry-type-basic" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccDataplexEntryType_dataplexEntryTypeBasicExample(t *testing.T) {
 func testAccDataplexEntryType_dataplexEntryTypeBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataplex_entry_type" "test_entry_type_basic" {
-  entry_type_id = "tf-test-entry-type-basic%{random_suffix}"
+  entry_type_id = "%{entry_type_name}"
   project = "%{project_name}"
   location = "us-central1"
 }
@@ -89,9 +92,12 @@ resource "google_dataplex_entry_type" "test_entry_type_basic" {
 func TestAccDataplexEntryType_dataplexEntryTypeFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_name":    envvar.GetTestProjectFromEnv(),
+		"entry_type_name": "tf-test-entry-type-full" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -148,7 +154,7 @@ EOF
 }
 
 resource "google_dataplex_entry_type" "test_entry_type_full" {
-  entry_type_id = "tf-test-entry-type-full%{random_suffix}"
+  entry_type_id = "%{entry_type_name}"
   project = "%{project_name}"
   location = "us-central1"
 

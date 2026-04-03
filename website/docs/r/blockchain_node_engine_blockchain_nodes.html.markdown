@@ -93,6 +93,36 @@ resource "google_blockchain_node_engine_blockchain_nodes" "default_node_geth" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=blockchain_nodes_beacon_fee_recipient&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Blockchain Nodes Beacon Fee Recipient
+
+
+```hcl
+resource "google_blockchain_node_engine_blockchain_nodes" "default_node_beacon_fee" {
+  location = "us-central1"
+  blockchain_type = "ETHEREUM"
+  blockchain_node_id = "beacon_fee_node"
+  ethereum_details {
+    api_enable_admin = true
+    api_enable_debug = true
+    validator_config {
+      beacon_fee_recipient = "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7"
+    }
+    node_type = "ARCHIVE"
+    consensus_client = "LIGHTHOUSE"
+    execution_client = "ERIGON"
+    network = "MAINNET"
+  }
+  
+  labels = {
+    environment = "dev"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -187,6 +217,10 @@ The following arguments are supported:
 * `mev_relay_urls` -
   (Optional)
   URLs for MEV-relay services to use for block building. When set, a managed MEV-boost service is configured on the beacon client.
+
+* `beacon_fee_recipient` -
+  (Optional)
+  An Ethereum address which the beacon client will send fee rewards to if no recipient is configured in the validator client. See https://lighthouse-book.sigmaprime.io/suggested-fee-recipient.html or https://docs.prylabs.network/docs/execution-node/fee-recipient for examples of how this is used. Note that while this is often described as "suggested", as we run the execution node we can trust the execution node, and therefore this is considered enforced.
 
 <a name="nested_ethereum_details_geth_details"></a>The `geth_details` block supports:
 

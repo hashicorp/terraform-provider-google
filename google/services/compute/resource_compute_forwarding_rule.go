@@ -1029,6 +1029,8 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeForwardingRule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeForwardingRule %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("recreate_closed_psc"); !ok {
 		if err := d.Set("recreate_closed_psc", false); err != nil {

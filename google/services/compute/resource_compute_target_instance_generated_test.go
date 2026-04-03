@@ -53,8 +53,12 @@ var (
 func TestAccComputeTargetInstance_targetInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-target-vm" + randomSuffix,
+		"target_name":   "target" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccComputeTargetInstance_targetInstanceBasicExample(t *testing.T) {
 func testAccComputeTargetInstance_targetInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_target_instance" "default" {
-  name     = "target%{random_suffix}"
+  name     = "%{target_name}"
   instance = google_compute_instance.target-vm.id
 }
 
@@ -88,7 +92,7 @@ data "google_compute_image" "vmimage" {
 }
 
 resource "google_compute_instance" "target-vm" {
-  name         = "tf-test-target-vm%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
   zone         = "us-central1-a"
 

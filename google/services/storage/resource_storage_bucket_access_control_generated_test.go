@@ -53,8 +53,11 @@ var (
 func TestAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":   "tf-test-static-content-bucket" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +87,7 @@ resource "google_storage_bucket_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "tf-test-static-content-bucket%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 `, context)

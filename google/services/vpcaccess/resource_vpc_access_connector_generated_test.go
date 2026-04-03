@@ -53,9 +53,12 @@ var (
 func TestAccVPCAccessConnector_vpcAccessConnectorExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"name":          "tf-test-vpc-con" + randomSuffix,
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-access-connector"),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorExample(t *testing.T) {
 func testAccVPCAccessConnector_vpcAccessConnectorExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vpc_access_connector" "connector" {
-  name          = "tf-test-vpc-con%{random_suffix}"
+  name          = "%{name}"
   ip_cidr_range = "10.8.0.0/28"
   network       = "%{network_name}"
   min_instances = 2
@@ -91,9 +94,12 @@ resource "google_vpc_access_connector" "connector" {
 func TestAccVPCAccessConnector_vpcAccessConnectorSharedVpcExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"name":          "tf-test-vpc-con" + randomSuffix,
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-access-connector"),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -117,7 +123,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorSharedVpcExample(t *testing.T) 
 func testAccVPCAccessConnector_vpcAccessConnectorSharedVpcExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vpc_access_connector" "connector" {
-  name          = "tf-test-vpc-con%{random_suffix}"
+  name          = "%{name}"
   subnet {
     name = google_compute_subnetwork.custom_test.name
   }
@@ -127,7 +133,7 @@ resource "google_vpc_access_connector" "connector" {
 }
 
 resource "google_compute_subnetwork" "custom_test" {
-  name          = "tf-test-vpc-con%{random_suffix}"
+  name          = "%{name}"
   ip_cidr_range = "10.2.0.0/28"
   region        = "us-central1"
   network       = "%{network_name}"

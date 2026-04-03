@@ -316,6 +316,8 @@ func resourceIapBrandRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IapBrand %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IapBrand %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Brand: %s", err)
 	}

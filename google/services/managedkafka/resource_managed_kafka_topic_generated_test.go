@@ -53,8 +53,12 @@ var (
 func TestAccManagedKafkaTopic_managedkafkaTopicBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cluster_id":    "tf-test-my-cluster" + randomSuffix,
+		"topic_id":      "tf-test-my-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccManagedKafkaTopic_managedkafkaTopicBasicExample(t *testing.T) {
 func testAccManagedKafkaTopic_managedkafkaTopicBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_managed_kafka_cluster" "cluster" {
-  cluster_id = "tf-test-my-cluster%{random_suffix}"
+  cluster_id = "%{cluster_id}"
   location = "us-central1"
   capacity_config {
     vcpu_count = 3
@@ -94,7 +98,7 @@ resource "google_managed_kafka_cluster" "cluster" {
 }
 
 resource "google_managed_kafka_topic" "example" {
-  topic_id = "tf-test-my-topic%{random_suffix}"
+  topic_id = "%{topic_id}"
   cluster = google_managed_kafka_cluster.cluster.cluster_id
   location = "us-central1"
   partition_count = 2

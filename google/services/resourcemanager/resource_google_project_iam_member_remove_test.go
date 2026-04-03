@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 )
 
 func TestAccProjectIamMemberRemove_basic(t *testing.T) {
@@ -40,13 +41,21 @@ func TestAccProjectIamMemberRemove_basic(t *testing.T) {
 			"time": {},
 		},
 		Steps: []resource.TestStep{
+			// Binding adds the member; member_remove removes them from IAM. After refresh the
+			// binding still declares that member, so Terraform correctly plans an update to
+			// re-add them — empty plan is not expected on this step.
 			{
 				Config:             testAccCheckGoogleProjectIamMemberRemove_basic(randomSuffix, org),
-				ExpectNonEmptyPlan: true, // Due to adding in binding, then removing in remove resource
+				ExpectNonEmptyPlan: true, // Binding vs API drift after member_remove
 			},
+			// Align binding with post-remove IAM so the stack is stable.
 			{
-				Config:   testAccCheckGoogleProjectIamMemberRemove_basic2(randomSuffix, org),
-				PlanOnly: true, // binding expects the membership to be removed. Any diff will fail the test due to PlanOnly.
+				Config: testAccCheckGoogleProjectIamMemberRemove_basic2(randomSuffix, org),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PostApplyPostRefresh: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})
@@ -71,8 +80,12 @@ func TestAccProjectIamMemberRemove_multipleMembersInBinding(t *testing.T) {
 				ExpectNonEmptyPlan: true, // Due to adding in binding, then removing in remove resource
 			},
 			{
-				Config:   testAccCheckGoogleProjectIamMemberRemove_multipleMemberBinding2(randomSuffix, org),
-				PlanOnly: true, // binding expects the membership to be removed. Any diff will fail the test due to PlanOnly.
+				Config: testAccCheckGoogleProjectIamMemberRemove_multipleMemberBinding2(randomSuffix, org),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PostApplyPostRefresh: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})
@@ -93,12 +106,16 @@ func TestAccProjectIamMemberRemove_memberInMultipleBindings(t *testing.T) {
 		},
 		Steps: []resource.TestStep{
 			{
-				Config:             testAccCheckGoogleProjectIamMemberRemove_multipleMemberBinding(randomSuffix, org),
-				ExpectNonEmptyPlan: true, // Due to adding in binding, then removing in remove resource
+				Config:             testAccProjectIamMemberRemove_memberInMultipleBindings(randomSuffix, org),
+				ExpectNonEmptyPlan: true, // Editor binding vs API after member_remove on editor role
 			},
 			{
-				Config:   testAccCheckGoogleProjectIamMemberRemove_multipleMemberBinding2(randomSuffix, org),
-				PlanOnly: true, // binding expects the membership to be removed. Any diff will fail the test due to PlanOnly.
+				Config: testAccProjectIamMemberRemove_memberInMultipleBindings2(randomSuffix, org),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PostApplyPostRefresh: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})

@@ -254,6 +254,8 @@ func resourceApigeeControlPlaneAccessRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeControlPlaneAccess %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeControlPlaneAccess %q: %#v", d.Id(), res)
+
 	if err := d.Set("synchronizer_identities", flattenApigeeControlPlaneAccessSynchronizerIdentities(res["synchronizerIdentities"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ControlPlaneAccess: %s", err)
 	}

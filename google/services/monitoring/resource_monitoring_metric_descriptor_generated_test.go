@@ -53,8 +53,12 @@ var (
 func TestAccMonitoringMetricDescriptor_monitoringMetricDescriptorBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "tf-test-metric-descriptor" + randomSuffix,
+		"type":          "tf_test_daily_sales" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,8 +83,8 @@ func testAccMonitoringMetricDescriptor_monitoringMetricDescriptorBasicExample(co
 	return acctest.Nprintf(`
 resource "google_monitoring_metric_descriptor" "basic" {
   description = "Daily sales records from all branch stores."
-  display_name = "tf-test-metric-descriptor%{random_suffix}"
-  type = "custom.googleapis.com/stores/tf_test_daily_sales%{random_suffix}"
+  display_name = "%{display_name}"
+  type = "custom.googleapis.com/stores/%{type}"
   metric_kind = "GAUGE"
   value_type = "DOUBLE"
   unit = "{USD}"
@@ -101,8 +105,12 @@ resource "google_monitoring_metric_descriptor" "basic" {
 func TestAccMonitoringMetricDescriptor_monitoringMetricDescriptorAlertExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "tf-test-metric-descriptor" + randomSuffix,
+		"type":          "tf_test_daily_sales" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,15 +135,15 @@ func testAccMonitoringMetricDescriptor_monitoringMetricDescriptorAlertExample(co
 	return acctest.Nprintf(`
 resource "google_monitoring_metric_descriptor" "with_alert" {
   description = "Daily sales records from all branch stores."
-  display_name = "tf-test-metric-descriptor%{random_suffix}"
-  type = "custom.googleapis.com/stores/tf_test_daily_sales%{random_suffix}"
+  display_name = "%{display_name}"
+  type = "custom.googleapis.com/stores/%{type}"
   metric_kind = "GAUGE"
   value_type = "DOUBLE"
   unit = "{USD}"
 }
 
 resource "google_monitoring_alert_policy" "alert_policy" {
-  display_name = "tf-test-metric-descriptor%{random_suffix}"
+  display_name = "%{display_name}"
   combiner     = "OR"
   conditions {
     display_name = "test condition"

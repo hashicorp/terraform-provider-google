@@ -387,6 +387,8 @@ func resourceContainerAnalysisOccurrenceRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ContainerAnalysisOccurrence %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ContainerAnalysisOccurrence %q: %#v", d.Id(), res)
+
 	res, err = resourceContainerAnalysisOccurrenceDecoder(d, meta, res)
 	if err != nil {
 		return err

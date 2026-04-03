@@ -56,13 +56,16 @@ import (
 )
 
 var icebergTableIgnoredProperties = map[string]bool{
-	"location": true,
+	"location":                              true,
+	"gcp.biglake.bigquery-advanced.enabled": true,
+	"gcp.biglake.bigquery-dml.enabled":      true,
+	"gcp.biglake.table-management.enabled":  true,
 }
 
 func icebergTablePropertiesDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// properties.KEY
-	parts := strings.Split(k, ".")
-	if len(parts) == 2 && icebergTableIgnoredProperties[parts[1]] {
+	parts := strings.SplitN(k, ".", 2)
+	if len(parts) == 2 && icebergTableIgnoredProperties[parts[1]] && new == "" {
 		return true
 	}
 	return false
@@ -427,6 +430,8 @@ func resourceBiglakeIcebergIcebergTableRead(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BiglakeIcebergIcebergTable %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading BiglakeIcebergIcebergTable %q: %#v", d.Id(), res)
 	if metadata, ok := res["metadata"].(map[string]interface{}); ok {
 		// Find current schema
 		if schemas, ok := metadata["schemas"].([]interface{}); ok {

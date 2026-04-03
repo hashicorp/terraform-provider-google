@@ -267,20 +267,53 @@ This must be set to true if you created a backup manually in the console.
 <a name="nested_autoscaling_config_asymmetric_autoscaling_options_overrides"></a>The `overrides` block supports:
 
 * `autoscaling_limits` -
-  (Required)
+  (Optional)
   A nested object resource.
   Structure is [documented below](#nested_autoscaling_config_asymmetric_autoscaling_options_overrides_autoscaling_limits).
+
+* `autoscaling_target_high_priority_cpu_utilization_percent` -
+  (Optional)
+  The target high priority cpu utilization percentage that the autoscaler
+  should be trying to achieve for this replica.
+  This number is on a scale from 0 (no utilization) to 100 (full utilization).
+
+* `autoscaling_target_total_cpu_utilization_percent` -
+  (Optional)
+  The target total cpu utilization percentage that the autoscaler
+  should be trying to achieve for this replica.
+  This number is on a scale from 0 (no utilization) to 100 (full utilization).
+
+* `disable_high_priority_cpu_autoscaling` -
+  (Optional)
+  If true, disables high priority CPU autoscaling for this replica and ignores
+  high_priority_cpu_utilization_percent in the top-level autoscaling configuration.
+
+* `disable_total_cpu_autoscaling` -
+  (Optional)
+  If true, disables total CPU autoscaling for this replica and ignores
+  total_cpu_utilization_percent in the top-level autoscaling configuration.
 
 
 <a name="nested_autoscaling_config_asymmetric_autoscaling_options_overrides_autoscaling_limits"></a>The `autoscaling_limits` block supports:
 
 * `min_nodes` -
-  (Required)
+  (Optional)
   The minimum number of nodes for this specific replica.
 
 * `max_nodes` -
-  (Required)
+  (Optional)
   The maximum number of nodes for this specific replica.
+
+* `min_processing_units` -
+  (Optional)
+  The minimum number of processing units for this specific replica.
+  If set, this number should be multiples of 1000.
+
+* `max_processing_units` -
+  (Optional)
+  The maximum number of processing units for this specific replica.
+  If set, this number should be multiples of 1000 and be greater than or equal to
+  min_processing_units.
 
 ## Attributes Reference
 

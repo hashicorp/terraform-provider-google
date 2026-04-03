@@ -413,6 +413,8 @@ func resourceComputeRegionTargetHttpsProxyRead(d *schema.ResourceData, meta inte
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRegionTargetHttpsProxy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeRegionTargetHttpsProxy %q: %#v", d.Id(), res)
+
 	res, err = resourceComputeRegionTargetHttpsProxyDecoder(d, meta, res)
 	if err != nil {
 		return err

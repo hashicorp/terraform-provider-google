@@ -53,9 +53,18 @@ var (
 func TestAccComputeNetworkFirewallPolicyWithRules_computeNetworkFirewallPolicyWithRulesFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":                 envvar.GetTestOrgFromEnv(t),
+		"address_group":          "tf-test-address-group" + randomSuffix,
+		"fw_policy":              "tf-test-fw-policy" + randomSuffix,
+		"network":                "network" + randomSuffix,
+		"security_profile":       "sp" + randomSuffix,
+		"security_profile_group": "spg" + randomSuffix,
+		"tag_key":                "tf-test-tag-key" + randomSuffix,
+		"tag_value":              "tf-test-tag-value" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +90,7 @@ data "google_project" "project" {
 }
 
 resource "google_compute_network_firewall_policy_with_rules" "primary" {
-  name = "tf-test-fw-policy%{random_suffix}"
+  name = "%{fw_policy}"
   description = "Terraform test"
 
   rule {
@@ -156,7 +165,7 @@ resource "google_compute_network_firewall_policy_with_rules" "primary" {
 }
 
 resource "google_network_security_address_group" "address_group_1" {
-  name        = "tf-test-address-group%{random_suffix}"
+  name        = "%{address_group}"
   parent      = data.google_project.project.id
   description = "Global address group"
   location    = "global"
@@ -169,7 +178,7 @@ resource "google_tags_tag_key" "secure_tag_key_1" {
   description = "Tag key"
   parent      = data.google_project.project.id
   purpose     = "GCE_FIREWALL"
-  short_name  = "tf-test-tag-key%{random_suffix}"
+  short_name  = "%{tag_key}"
 
   purpose_data = {
     network = "${data.google_project.project.name}/default"
@@ -179,18 +188,18 @@ resource "google_tags_tag_key" "secure_tag_key_1" {
 resource "google_tags_tag_value" "secure_tag_value_1" {
   description = "Tag value"
   parent      = google_tags_tag_key.secure_tag_key_1.id
-  short_name  = "tf-test-tag-value%{random_suffix}"
+  short_name  = "%{tag_value}"
 }
 
 resource "google_network_security_security_profile_group" "security_profile_group_1" {
-  name                      = "spg%{random_suffix}"
+  name                      = "%{security_profile_group}"
   parent                    = "organizations/%{org_id}"
   description               = "my description"
   threat_prevention_profile = google_network_security_security_profile.security_profile_1.id
 }
 
 resource "google_network_security_security_profile" "security_profile_1" {
-  name        = "sp%{random_suffix}"
+  name        = "%{security_profile}"
   type        = "THREAT_PREVENTION"
   parent      = "organizations/%{org_id}"
   location    = "global"

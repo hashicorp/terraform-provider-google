@@ -53,9 +53,11 @@ var (
 func TestAccSpannerInstanceConfig_spannerInstanceConfigBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"instance_config_name": "custom-tf-test-nam11-config",
-		"random_suffix":        acctest.RandString(t, 10),
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

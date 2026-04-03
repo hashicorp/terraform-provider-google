@@ -53,10 +53,15 @@ var (
 func TestAccManagedKafkaConnectCluster_managedkafkaConnectClusterBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"billing_account":     envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":              envvar.GetTestOrgFromEnv(t),
+		"cluster_id":          "tf-test-my-cluster" + randomSuffix,
+		"connect_cluster_id":  "tf-test-my-connect-cluster" + randomSuffix,
+		"secondary_subnet_id": "tf-test-my-secondary-subnetwork" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -87,14 +92,14 @@ data "google_project" "project" {
 
 resource "google_compute_subnetwork" "mkc_secondary_subnet" {
   project       = data.google_project.project.project_id
-  name          = "tf-test-my-secondary-subnetwork%{random_suffix}"
+  name          = "%{secondary_subnet_id}"
   ip_cidr_range = "10.3.0.0/16"
   region        = "us-central1"
   network       = "default"
 }
 
 resource "google_managed_kafka_cluster" "cluster" {
-  cluster_id = "tf-test-my-cluster%{random_suffix}"
+  cluster_id = "%{cluster_id}"
   location   = "us-central1"
   capacity_config {
     vcpu_count   = 3
@@ -110,7 +115,7 @@ resource "google_managed_kafka_cluster" "cluster" {
 }
 
 resource "google_managed_kafka_connect_cluster" "example" {
-  connect_cluster_id = "tf-test-my-connect-cluster%{random_suffix}"
+  connect_cluster_id = "%{connect_cluster_id}"
   kafka_cluster      = "projects/${data.google_project.project.project_id}/locations/us-central1/clusters/${google_managed_kafka_cluster.cluster.cluster_id}"
   location           = "us-central1"
 

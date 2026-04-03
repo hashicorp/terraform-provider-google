@@ -53,8 +53,12 @@ var (
 func TestAccPubsubLiteSubscription_pubsubLiteSubscriptionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccPubsubLiteSubscription_pubsubLiteSubscriptionBasicExample(t *testing
 func testAccPubsubLiteSubscription_pubsubLiteSubscriptionBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_lite_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
   project = data.google_project.project.number
   partition_config {
     count = 1
@@ -94,7 +98,7 @@ resource "google_pubsub_lite_topic" "example" {
 }
 
 resource "google_pubsub_lite_subscription" "example" {
-  name  = "tf-test-example-subscription%{random_suffix}"
+  name  = "%{subscription_name}"
   topic = google_pubsub_lite_topic.example.name
   delivery_config {
     delivery_requirement = "DELIVER_AFTER_STORED"

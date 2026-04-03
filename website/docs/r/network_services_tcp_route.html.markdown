@@ -40,15 +40,17 @@ To get more information about TcpRoute, see:
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  name          = "my-backend-service"
-  health_checks = [google_compute_http_health_check.default.id]
+  name                  = "my-backend-service"
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
 }
 
-resource "google_compute_http_health_check" "default" {
-  name               = "backend-service-health-check"
-  request_path       = "/"
-  check_interval_sec = 1
-  timeout_sec        = 1
+resource "google_compute_health_check" "default" {
+  name = "backend-service-health-check"
+
+  tcp_health_check {
+    port = 80
+  }
 }
 
 resource "google_network_services_tcp_route" "default" {
@@ -82,15 +84,17 @@ resource "google_network_services_tcp_route" "default" {
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  name          = "my-backend-service"
-  health_checks = [google_compute_http_health_check.default.id]
+  name                  = "my-backend-service"
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
 }
 
-resource "google_compute_http_health_check" "default" {
-  name               = "backend-service-health-check"
-  request_path       = "/"
-  check_interval_sec = 1
-  timeout_sec        = 1
+resource "google_compute_health_check" "default" {
+  name = "backend-service-health-check"
+
+  tcp_health_check {
+    port = 80
+  }
 }
 
 resource "google_network_services_tcp_route" "default" {
@@ -121,15 +125,17 @@ resource "google_network_services_tcp_route" "default" {
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  name          = "my-backend-service"
-  health_checks = [google_compute_http_health_check.default.id]
+  name                  = "my-backend-service"
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
 }
 
-resource "google_compute_http_health_check" "default" {
-  name               = "backend-service-health-check"
-  request_path       = "/"
-  check_interval_sec = 1
-  timeout_sec        = 1
+resource "google_compute_health_check" "default" {
+  name = "backend-service-health-check"
+
+  tcp_health_check {
+    port = 80
+  }
 }
 
 resource "google_network_services_mesh" "default" {
@@ -175,15 +181,17 @@ resource "google_network_services_tcp_route" "default" {
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  name          = "my-backend-service"
-  health_checks = [google_compute_http_health_check.default.id]
+  name                  = "my-backend-service"
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
 }
 
-resource "google_compute_http_health_check" "default" {
-  name               = "backend-service-health-check"
-  request_path       = "/"
-  check_interval_sec = 1
-  timeout_sec        = 1
+resource "google_compute_health_check" "default" {
+  name = "backend-service-health-check"
+
+  tcp_health_check {
+    port = 80
+  }
 }
 
 resource "google_network_services_gateway" "default" {

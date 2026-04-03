@@ -53,9 +53,12 @@ var (
 func TestAccBiglakeIcebergIcebergNamespace_biglakeIcebergNamespaceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"GOOGLE_BILLING_PROJECT": envvar.GetTestProjectFromEnv(),
-		"random_suffix":          acctest.RandString(t, 10),
+		"bucket_name":            "tf-test-example-bucket" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccBiglakeIcebergIcebergNamespace_biglakeIcebergNamespaceExample(t *tes
 func testAccBiglakeIcebergIcebergNamespace_biglakeIcebergNamespaceExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "tf-test-example-bucket%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true

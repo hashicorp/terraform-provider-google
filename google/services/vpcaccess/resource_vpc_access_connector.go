@@ -437,6 +437,8 @@ func resourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) er
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VPCAccessConnector %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading VPCAccessConnector %q: %#v", d.Id(), res)
+
 	res, err = resourceVPCAccessConnectorDecoder(d, meta, res)
 	if err != nil {
 		return err

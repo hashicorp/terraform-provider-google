@@ -53,8 +53,11 @@ var (
 func TestAccBeyondcorpAppGateway_beyondcorpAppGatewayBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_gateway_name": "tf-test-my-app-gateway" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccBeyondcorpAppGateway_beyondcorpAppGatewayBasicExample(t *testing.T) 
 func testAccBeyondcorpAppGateway_beyondcorpAppGatewayBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_beyondcorp_app_gateway" "app_gateway" {
-  name = "tf-test-my-app-gateway%{random_suffix}"
+  name = "%{app_gateway_name}"
   type = "TCP_PROXY"
   region = "us-central1"
   host_type = "GCP_REGIONAL_MIG"
@@ -89,8 +92,12 @@ resource "google_beyondcorp_app_gateway" "app_gateway" {
 func TestAccBeyondcorpAppGateway_beyondcorpAppGatewayFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_gateway_name": "tf-test-my-app-gateway" + randomSuffix,
+		"display_name":     "some display name" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -114,10 +121,10 @@ func TestAccBeyondcorpAppGateway_beyondcorpAppGatewayFullExample(t *testing.T) {
 func testAccBeyondcorpAppGateway_beyondcorpAppGatewayFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_beyondcorp_app_gateway" "app_gateway" {
-  name = "tf-test-my-app-gateway%{random_suffix}"
+  name = "%{app_gateway_name}"
   type = "TCP_PROXY"
   region = "us-central1"
-  display_name = "some display name%{random_suffix}"
+  display_name = "%{display_name}"
   labels = {
     foo = "bar"
     bar = "baz"

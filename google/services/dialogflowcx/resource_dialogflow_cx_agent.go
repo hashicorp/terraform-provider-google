@@ -764,6 +764,8 @@ func resourceDialogflowCXAgentRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXAgent %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DialogflowCXAgent %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("delete_chat_engine_on_destroy"); !ok {
 		if err := d.Set("delete_chat_engine_on_destroy", false); err != nil {

@@ -301,6 +301,8 @@ func resourceMonitoringMonitoredProjectRead(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("MonitoringMonitoredProject %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading MonitoringMonitoredProject %q: %#v", d.Id(), res)
+
 	res, err = resourceMonitoringMonitoredProjectDecoder(d, meta, res)
 	if err != nil {
 		return err

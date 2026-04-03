@@ -583,6 +583,8 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecretManagerSecret %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecretManagerSecret %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_protection"); !ok {
 		if err := d.Set("deletion_protection", false); err != nil {

@@ -53,8 +53,7 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
       python_spec {
         entrypoint_module = "simple_agent"
         entrypoint_object = "fixed_name_generator"
-        requirements_file = "./test-fixtures/requirements.txt"
-        version           = "3.11"
+        version           = "3.14"
       }
     }
   }
@@ -381,6 +380,81 @@ resource "google_project_iam_member" "sa_iam_viewer" {
 data "google_project" "project" {
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_reasoning_engine_context_spec&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Reasoning Engine Context Spec
+
+
+```hcl
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "re-ctx-spec"
+  description  = "Reasoning engine with context spec"
+  region       = "us-central1"
+  provider     = google-beta
+
+  context_spec {
+    memory_bank_config {
+      generation_config {
+        model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+      }
+      similarity_search_config {
+        embedding_model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/text-embedding-005"
+      }
+      disable_memory_revisions = false
+      ttl_config {
+        default_ttl = "86400s"
+      }
+    }
+  }
+}
+
+data "google_project" "project" {
+  provider = google-beta
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_reasoning_engine_granular_ttl&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Reasoning Engine Granular Ttl
+
+
+```hcl
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "re-gran-ttl"
+  description  = "Reasoning engine with granular ttl"
+  region       = "us-central1"
+  provider     = google-beta
+
+  context_spec {
+    memory_bank_config {
+      generation_config {
+        model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+      }
+      similarity_search_config {
+        embedding_model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/text-embedding-005"
+      }
+      disable_memory_revisions = false
+      ttl_config {
+        memory_revision_default_ttl = "86400s"
+        granular_ttl_config {
+          create_ttl = "86400s"
+          generate_created_ttl = "86400s"
+          generate_updated_ttl = "86400s"
+        }
+      }
+    }
+  }
+}
+
+data "google_project" "project" {
+  provider = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -408,6 +482,11 @@ The following arguments are supported:
   Optional. Configurations of the ReasoningEngine.
   Structure is [documented below](#nested_spec).
 
+* `context_spec` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Optional. Configuration for how Agent Engine sub-resources should manage context.
+  Structure is [documented below](#nested_context_spec).
+
 * `region` -
   (Optional)
   The region of the reasoning engine. eg us-central1
@@ -415,12 +494,8 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
-	When a 'terraform destroy' or 'terraform apply' would delete the resource,
-	the command will fail if this field is set to "PREVENT" in Terraform state.
-	When set to "ABANDON", the command will remove the resource from Terraform
-	management without updating or deleting the resource in the API.
-	When set to "DELETE", deleting the resource is allowed.
+* `deletion_policy` - (Optional) Optional. The deletion policy for the reasoning engine. Setting this to FORCE allows the reasoning engine to be deleted regardless of child undeleted resources.
+
 
 
 <a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
@@ -715,6 +790,78 @@ The following arguments are supported:
 * `revision` -
   (Required)
   The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref.
+
+<a name="nested_context_spec"></a>The `context_spec` block supports:
+
+* `memory_bank_config` -
+  (Optional)
+  Specification for a Memory Bank, which manages memories for the Agent Engine.
+  Structure is [documented below](#nested_context_spec_memory_bank_config).
+
+
+<a name="nested_context_spec_memory_bank_config"></a>The `memory_bank_config` block supports:
+
+* `generation_config` -
+  (Optional)
+  Configuration for how to generate memories for the Memory Bank.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_generation_config).
+
+* `similarity_search_config` -
+  (Optional)
+  Configuration for how to perform similarity search on memories.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_similarity_search_config).
+
+* `ttl_config` -
+  (Optional)
+  Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_ttl_config).
+
+* `disable_memory_revisions` -
+  (Optional)
+  If true, no memory revisions will be created for any requests to the Memory Bank.
+
+
+<a name="nested_context_spec_memory_bank_config_generation_config"></a>The `generation_config` block supports:
+
+* `model` -
+  (Required)
+  The model used to generate memories. Format: projects/{project}/locations/{location}/publishers/google/models/{model}.
+
+<a name="nested_context_spec_memory_bank_config_similarity_search_config"></a>The `similarity_search_config` block supports:
+
+* `embedding_model` -
+  (Required)
+  The model used to generate embeddings to lookup similar memories. Format: projects/{project}/locations/{location}/publishers/google/models/{model}.
+
+<a name="nested_context_spec_memory_bank_config_ttl_config"></a>The `ttl_config` block supports:
+
+* `default_ttl` -
+  (Optional)
+  The default TTL duration of the memories in the Memory Bank.
+
+* `granular_ttl_config` -
+  (Optional)
+  The granular TTL configuration of the memories in the Memory Bank.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_ttl_config_granular_ttl_config).
+
+* `memory_revision_default_ttl` -
+  (Optional)
+  The default TTL duration of the memory revisions in the Memory Bank.
+
+
+<a name="nested_context_spec_memory_bank_config_ttl_config_granular_ttl_config"></a>The `granular_ttl_config` block supports:
+
+* `create_ttl` -
+  (Optional)
+  The TTL duration for memories uploaded via CreateMemory.
+
+* `generate_created_ttl` -
+  (Optional)
+  The TTL duration for memories newly generated via GenerateMemories.
+
+* `generate_updated_ttl` -
+  (Optional)
+  The TTL duration for memories updated via GenerateMemories.
 
 ## Attributes Reference
 

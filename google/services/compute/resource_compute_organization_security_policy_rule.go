@@ -129,7 +129,7 @@ func ResourceComputeOrganizationSecurityPolicyRule() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"config": {
 							Type:        schema.TypeList,
-							Required:    true,
+							Optional:    true,
 							Description: `The configuration options for matching the rule.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -151,6 +151,21 @@ INGRESS rules.`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `A description of the rule.`,
+						},
+						"expr": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `User defined CEVAL expression. A CEVAL expression is used to specify match criteria such as origin.ip, source.region_code and contents in the request header.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"expression": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Textual representation of an expression in Common Expression Language syntax. The application context of the containing message determines which well-known feature set of CEL is supported.`,
+									},
+								},
+							},
 						},
 						"versioned_expr": {
 							Type:     schema.TypeString,
@@ -345,6 +360,8 @@ func resourceComputeOrganizationSecurityPolicyRuleRead(d *schema.ResourceData, m
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeOrganizationSecurityPolicyRule %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading ComputeOrganizationSecurityPolicyRule %q: %#v", d.Id(), res)
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
@@ -626,6 +643,8 @@ func flattenComputeOrganizationSecurityPolicyRuleMatch(v interface{}, d *schema.
 		flattenComputeOrganizationSecurityPolicyRuleMatchDescription(original["description"], d, config)
 	transformed["versioned_expr"] =
 		flattenComputeOrganizationSecurityPolicyRuleMatchVersionedExpr(original["versionedExpr"], d, config)
+	transformed["expr"] =
+		flattenComputeOrganizationSecurityPolicyRuleMatchExpr(original["expr"], d, config)
 	transformed["config"] =
 		flattenComputeOrganizationSecurityPolicyRuleMatchConfig(original["config"], d, config)
 	return []interface{}{transformed}
@@ -635,6 +654,23 @@ func flattenComputeOrganizationSecurityPolicyRuleMatchDescription(v interface{},
 }
 
 func flattenComputeOrganizationSecurityPolicyRuleMatchVersionedExpr(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeOrganizationSecurityPolicyRuleMatchExpr(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["expression"] =
+		flattenComputeOrganizationSecurityPolicyRuleMatchExprExpression(original["expression"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeOrganizationSecurityPolicyRuleMatchExprExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -697,6 +733,13 @@ func expandComputeOrganizationSecurityPolicyRuleMatch(v interface{}, d tpgresour
 		transformed["versionedExpr"] = transformedVersionedExpr
 	}
 
+	transformedExpr, err := expandComputeOrganizationSecurityPolicyRuleMatchExpr(original["expr"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExpr); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["expr"] = transformedExpr
+	}
+
 	transformedConfig, err := expandComputeOrganizationSecurityPolicyRuleMatchConfig(original["config"], d, config)
 	if err != nil {
 		return nil, err
@@ -712,6 +755,32 @@ func expandComputeOrganizationSecurityPolicyRuleMatchDescription(v interface{}, 
 }
 
 func expandComputeOrganizationSecurityPolicyRuleMatchVersionedExpr(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeOrganizationSecurityPolicyRuleMatchExpr(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExpression, err := expandComputeOrganizationSecurityPolicyRuleMatchExprExpression(original["expression"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExpression); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["expression"] = transformedExpression
+	}
+
+	return transformed, nil
+}
+
+func expandComputeOrganizationSecurityPolicyRuleMatchExprExpression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

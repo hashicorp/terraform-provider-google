@@ -53,8 +53,14 @@ var (
 func TestAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingSubscriptionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id":       "tf_test_my_data_exchange" + randomSuffix,
+		"description":            "example data exchange" + randomSuffix,
+		"destination_dataset_id": "tf_test_destination_dataset" + randomSuffix,
+		"listing_id":             "tf_test_my_listing" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,16 +85,16 @@ func testAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingS
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
   location         = "US"
-  data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
-  display_name     = "tf_test_my_data_exchange%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
   description      = "Test Description"
 }
 
 resource "google_bigquery_analytics_hub_listing" "subscription" {
   location         = "US"
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
-  listing_id       = "tf_test_my_listing%{random_suffix}"
-  display_name     = "tf_test_my_listing%{random_suffix}"
+  listing_id       = "%{listing_id}"
+  display_name     = "%{listing_id}"
   description      = "Test Description"
 
   bigquery_dataset {
@@ -97,8 +103,8 @@ resource "google_bigquery_analytics_hub_listing" "subscription" {
 }
 
 resource "google_bigquery_dataset" "subscription" {
-  dataset_id                  = "tf_test_my_listing%{random_suffix}"
-  friendly_name               = "tf_test_my_listing%{random_suffix}"
+  dataset_id                  = "%{listing_id}"
+  friendly_name               = "%{listing_id}"
   description                 = "Test Description"
   location                    = "US"
 }
@@ -115,7 +121,7 @@ resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
     }
     location = "US"
     dataset_reference {
-      dataset_id = "tf_test_destination_dataset%{random_suffix}"
+      dataset_id = "%{destination_dataset_id}"
       project_id = google_bigquery_dataset.subscription.project
     }
   }

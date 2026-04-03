@@ -53,8 +53,19 @@ var (
 func TestAccComputeServiceAttachment_serviceAttachmentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"consumer_address_name":         "tf-test-psc-ilb-consumer-address" + randomSuffix,
+		"consumer_forwarding_rule_name": "tf-test-psc-ilb-consumer-forwarding-rule" + randomSuffix,
+		"nat_subnetwork_name":           "tf-test-psc-ilb-nat" + randomSuffix,
+		"network_name":                  "tf-test-psc-ilb-network" + randomSuffix,
+		"producer_forwarding_rule_name": "tf-test-producer-forwarding-rule" + randomSuffix,
+		"producer_health_check_name":    "tf-test-producer-service-health-check" + randomSuffix,
+		"producer_service_name":         "tf-test-producer-service" + randomSuffix,
+		"producer_subnetwork_name":      "tf-test-psc-ilb-producer-subnetwork" + randomSuffix,
+		"service_attachment_name":       "tf-test-my-psc-ilb" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +89,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExample(t *testing.T)
 func testAccComputeServiceAttachment_serviceAttachmentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
-  name        = "tf-test-my-psc-ilb%{random_suffix}"
+  name        = "%{service_attachment_name}"
   region      = "us-west2"
   description = "A service attachment configured with Terraform"
 
@@ -90,7 +101,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
 }
 
 resource "google_compute_address" "psc_ilb_consumer_address" {
-  name   = "tf-test-psc-ilb-consumer-address%{random_suffix}"
+  name   = "%{consumer_address_name}"
   region = "us-west2"
 
   subnetwork   = "default"
@@ -98,7 +109,7 @@ resource "google_compute_address" "psc_ilb_consumer_address" {
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
-  name   = "tf-test-psc-ilb-consumer-forwarding-rule%{random_suffix}"
+  name   = "%{consumer_forwarding_rule_name}"
   region = "us-west2"
 
   target                = google_compute_service_attachment.psc_ilb_service_attachment.id
@@ -108,7 +119,7 @@ resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
-  name   = "tf-test-producer-forwarding-rule%{random_suffix}"
+  name   = "%{producer_forwarding_rule_name}"
   region = "us-west2"
 
   load_balancing_scheme = "INTERNAL"
@@ -119,14 +130,14 @@ resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
 }
 
 resource "google_compute_region_backend_service" "producer_service_backend" {
-  name   = "tf-test-producer-service%{random_suffix}"
+  name   = "%{producer_service_name}"
   region = "us-west2"
 
   health_checks = [google_compute_health_check.producer_service_health_check.id]
 }
 
 resource "google_compute_health_check" "producer_service_health_check" {
-  name = "tf-test-producer-service-health-check%{random_suffix}"
+  name = "%{producer_health_check_name}"
 
   check_interval_sec = 1
   timeout_sec        = 1
@@ -136,12 +147,12 @@ resource "google_compute_health_check" "producer_service_health_check" {
 }
 
 resource "google_compute_network" "psc_ilb_network" {
-  name = "tf-test-psc-ilb-network%{random_suffix}"
+  name = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
-  name   = "tf-test-psc-ilb-producer-subnetwork%{random_suffix}"
+  name   = "%{producer_subnetwork_name}"
   region = "us-west2"
 
   network       = google_compute_network.psc_ilb_network.id
@@ -149,7 +160,7 @@ resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
 }
 
 resource "google_compute_subnetwork" "psc_ilb_nat" {
-  name   = "tf-test-psc-ilb-nat%{random_suffix}"
+  name   = "%{nat_subnetwork_name}"
   region = "us-west2"
 
   network       = google_compute_network.psc_ilb_network.id
@@ -162,8 +173,19 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 func TestAccComputeServiceAttachment_serviceAttachmentExplicitProjectsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"consumer_address_name":         "tf-test-psc-ilb-consumer-address" + randomSuffix,
+		"consumer_forwarding_rule_name": "tf-test-psc-ilb-consumer-forwarding-rule" + randomSuffix,
+		"nat_subnetwork_name":           "tf-test-psc-ilb-nat" + randomSuffix,
+		"network_name":                  "tf-test-psc-ilb-network" + randomSuffix,
+		"producer_forwarding_rule_name": "tf-test-producer-forwarding-rule" + randomSuffix,
+		"producer_health_check_name":    "tf-test-producer-service-health-check" + randomSuffix,
+		"producer_service_name":         "tf-test-producer-service" + randomSuffix,
+		"producer_subnetwork_name":      "tf-test-psc-ilb-producer-subnetwork" + randomSuffix,
+		"service_attachment_name":       "tf-test-my-psc-ilb" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -187,7 +209,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitProjectsExample(t 
 func testAccComputeServiceAttachment_serviceAttachmentExplicitProjectsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
-  name        = "tf-test-my-psc-ilb%{random_suffix}"
+  name        = "%{service_attachment_name}"
   region      = "us-west2"
   description = "A service attachment configured with Terraform"
 
@@ -206,7 +228,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
 }
 
 resource "google_compute_address" "psc_ilb_consumer_address" {
-  name   = "tf-test-psc-ilb-consumer-address%{random_suffix}"
+  name   = "%{consumer_address_name}"
   region = "us-west2"
 
   subnetwork   = "default"
@@ -214,7 +236,7 @@ resource "google_compute_address" "psc_ilb_consumer_address" {
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
-  name   = "tf-test-psc-ilb-consumer-forwarding-rule%{random_suffix}"
+  name   = "%{consumer_forwarding_rule_name}"
   region = "us-west2"
 
   target                = google_compute_service_attachment.psc_ilb_service_attachment.id
@@ -224,7 +246,7 @@ resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
-  name   = "tf-test-producer-forwarding-rule%{random_suffix}"
+  name   = "%{producer_forwarding_rule_name}"
   region = "us-west2"
 
   load_balancing_scheme = "INTERNAL"
@@ -235,14 +257,14 @@ resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
 }
 
 resource "google_compute_region_backend_service" "producer_service_backend" {
-  name   = "tf-test-producer-service%{random_suffix}"
+  name   = "%{producer_service_name}"
   region = "us-west2"
 
   health_checks = [google_compute_health_check.producer_service_health_check.id]
 }
 
 resource "google_compute_health_check" "producer_service_health_check" {
-  name = "tf-test-producer-service-health-check%{random_suffix}"
+  name = "%{producer_health_check_name}"
 
   check_interval_sec = 1
   timeout_sec        = 1
@@ -252,12 +274,12 @@ resource "google_compute_health_check" "producer_service_health_check" {
 }
 
 resource "google_compute_network" "psc_ilb_network" {
-  name = "tf-test-psc-ilb-network%{random_suffix}"
+  name = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
-  name   = "tf-test-psc-ilb-producer-subnetwork%{random_suffix}"
+  name   = "%{producer_subnetwork_name}"
   region = "us-west2"
 
   network       = google_compute_network.psc_ilb_network.id
@@ -265,7 +287,7 @@ resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
 }
 
 resource "google_compute_subnetwork" "psc_ilb_nat" {
-  name   = "tf-test-psc-ilb-nat%{random_suffix}"
+  name   = "%{nat_subnetwork_name}"
   region = "us-west2"
 
   network       = google_compute_network.psc_ilb_network.id
@@ -278,8 +300,20 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 func TestAccComputeServiceAttachment_serviceAttachmentExplicitNetworksExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"consumer_address_name":         "tf-test-psc-ilb-consumer-address" + randomSuffix,
+		"consumer_forwarding_rule_name": "tf-test-psc-ilb-consumer-forwarding-rule" + randomSuffix,
+		"consumer_network_name":         "tf-test-psc-ilb-consumer-network" + randomSuffix,
+		"nat_subnetwork_name":           "tf-test-psc-ilb-nat" + randomSuffix,
+		"network_name":                  "tf-test-psc-ilb-network" + randomSuffix,
+		"producer_forwarding_rule_name": "tf-test-producer-forwarding-rule" + randomSuffix,
+		"producer_health_check_name":    "tf-test-producer-service-health-check" + randomSuffix,
+		"producer_service_name":         "tf-test-producer-service" + randomSuffix,
+		"producer_subnetwork_name":      "tf-test-psc-ilb-producer-subnetwork" + randomSuffix,
+		"service_attachment_name":       "tf-test-my-psc-ilb" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -303,7 +337,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitNetworksExample(t 
 func testAccComputeServiceAttachment_serviceAttachmentExplicitNetworksExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
-  name        = "tf-test-my-psc-ilb%{random_suffix}"
+  name        = "%{service_attachment_name}"
   region      = "us-west2"
   description = "A service attachment configured with Terraform"
 
@@ -320,19 +354,19 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
 }
 
 resource "google_compute_network" "psc_ilb_consumer_network" {
-  name                    = "tf-test-psc-ilb-consumer-network%{random_suffix}"
+  name                    = "%{consumer_network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "psc_ilb_consumer_subnetwork" {
-  name          = "tf-test-psc-ilb-consumer-network%{random_suffix}"
+  name          = "%{consumer_network_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-west2"
   network       = google_compute_network.psc_ilb_consumer_network.id
 }
 
 resource "google_compute_address" "psc_ilb_consumer_address" {
-  name   = "tf-test-psc-ilb-consumer-address%{random_suffix}"
+  name   = "%{consumer_address_name}"
   region = "us-west2"
 
   subnetwork   = google_compute_subnetwork.psc_ilb_consumer_subnetwork.id
@@ -340,7 +374,7 @@ resource "google_compute_address" "psc_ilb_consumer_address" {
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
-  name   = "tf-test-psc-ilb-consumer-forwarding-rule%{random_suffix}"
+  name   = "%{consumer_forwarding_rule_name}"
   region = "us-west2"
 
   target                = google_compute_service_attachment.psc_ilb_service_attachment.id
@@ -351,7 +385,7 @@ resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
-  name   = "tf-test-producer-forwarding-rule%{random_suffix}"
+  name   = "%{producer_forwarding_rule_name}"
   region = "us-west2"
 
   load_balancing_scheme = "INTERNAL"
@@ -362,14 +396,14 @@ resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
 }
 
 resource "google_compute_region_backend_service" "producer_service_backend" {
-  name   = "tf-test-producer-service%{random_suffix}"
+  name   = "%{producer_service_name}"
   region = "us-west2"
 
   health_checks = [google_compute_health_check.producer_service_health_check.id]
 }
 
 resource "google_compute_health_check" "producer_service_health_check" {
-  name = "tf-test-producer-service-health-check%{random_suffix}"
+  name = "%{producer_health_check_name}"
 
   check_interval_sec = 1
   timeout_sec        = 1
@@ -379,12 +413,12 @@ resource "google_compute_health_check" "producer_service_health_check" {
 }
 
 resource "google_compute_network" "psc_ilb_network" {
-  name = "tf-test-psc-ilb-network%{random_suffix}"
+  name = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
-  name   = "tf-test-psc-ilb-producer-subnetwork%{random_suffix}"
+  name   = "%{producer_subnetwork_name}"
   region = "us-west2"
 
   network       = google_compute_network.psc_ilb_network.id
@@ -392,7 +426,7 @@ resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
 }
 
 resource "google_compute_subnetwork" "psc_ilb_nat" {
-  name   = "tf-test-psc-ilb-nat%{random_suffix}"
+  name   = "%{nat_subnetwork_name}"
   region = "us-west2"
 
   network       = google_compute_network.psc_ilb_network.id
@@ -405,8 +439,19 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 func TestAccComputeServiceAttachment_serviceAttachmentReconcileConnectionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"consumer_address_name":         "tf-test-psc-ilb-consumer-address" + randomSuffix,
+		"consumer_forwarding_rule_name": "tf-test-psc-ilb-consumer-forwarding-rule" + randomSuffix,
+		"nat_subnetwork_name":           "tf-test-psc-ilb-nat" + randomSuffix,
+		"network_name":                  "tf-test-psc-ilb-network" + randomSuffix,
+		"producer_forwarding_rule_name": "tf-test-producer-forwarding-rule" + randomSuffix,
+		"producer_health_check_name":    "tf-test-producer-service-health-check" + randomSuffix,
+		"producer_service_name":         "tf-test-producer-service" + randomSuffix,
+		"producer_subnetwork_name":      "tf-test-psc-ilb-producer-subnetwork" + randomSuffix,
+		"service_attachment_name":       "tf-test-my-psc-ilb" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -430,7 +475,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentReconcileConnectionsExampl
 func testAccComputeServiceAttachment_serviceAttachmentReconcileConnectionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
-  name        = "tf-test-my-psc-ilb%{random_suffix}"
+  name        = "%{service_attachment_name}"
   region      = "us-west2"
   description = "A service attachment configured with Terraform"
 
@@ -451,7 +496,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
-  name   = "tf-test-producer-forwarding-rule%{random_suffix}"
+  name   = "%{producer_forwarding_rule_name}"
   region = "us-west2"
 
   load_balancing_scheme = "INTERNAL"
@@ -462,14 +507,14 @@ resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
 }
 
 resource "google_compute_region_backend_service" "producer_service_backend" {
-  name   = "tf-test-producer-service%{random_suffix}"
+  name   = "%{producer_service_name}"
   region = "us-west2"
 
   health_checks = [google_compute_health_check.producer_service_health_check.id]
 }
 
 resource "google_compute_health_check" "producer_service_health_check" {
-  name = "tf-test-producer-service-health-check%{random_suffix}"
+  name = "%{producer_health_check_name}"
 
   check_interval_sec = 1
   timeout_sec        = 1
@@ -479,12 +524,12 @@ resource "google_compute_health_check" "producer_service_health_check" {
 }
 
 resource "google_compute_network" "psc_ilb_network" {
-  name = "tf-test-psc-ilb-network%{random_suffix}"
+  name = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
-  name   = "tf-test-psc-ilb-producer-subnetwork%{random_suffix}"
+  name   = "%{producer_subnetwork_name}"
   region = "us-west2"
 
   network       = google_compute_network.psc_ilb_network.id
@@ -492,7 +537,7 @@ resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
 }
 
 resource "google_compute_subnetwork" "psc_ilb_nat" {
-  name   = "tf-test-psc-ilb-nat%{random_suffix}"
+  name   = "%{nat_subnetwork_name}"
   region = "us-west2"
 
   network       = google_compute_network.psc_ilb_network.id
@@ -505,8 +550,11 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 func TestAccComputeServiceAttachment_serviceAttachmentCrossRegionIlbExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "sa" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -530,7 +578,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentCrossRegionIlbExample(t *t
 func testAccComputeServiceAttachment_serviceAttachmentCrossRegionIlbExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
-  name                  = "sa%{random_suffix}"
+  name                  = "%{name}"
   region                = "us-central1"
   description           = "A service attachment configured with Terraform"
   connection_preference = "ACCEPT_AUTOMATIC"
@@ -540,7 +588,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
 }
 
 resource "google_compute_global_forwarding_rule" "forwarding_rule" {
-  name                  = "sa%{random_suffix}"
+  name                  = "%{name}"
   target                = google_compute_target_http_proxy.http_proxy.id
   network               = google_compute_network.network.id
   subnetwork            = google_compute_subnetwork.subnetwork.id
@@ -551,25 +599,25 @@ resource "google_compute_global_forwarding_rule" "forwarding_rule" {
 }
 
 resource "google_compute_target_http_proxy" "http_proxy" {
-  name        = "sa%{random_suffix}"
+  name        = "%{name}"
   description = "a description"
   url_map     = google_compute_url_map.url_map.id
 }
 
 resource "google_compute_url_map" "url_map" {
-  name            = "sa%{random_suffix}"
+  name            = "%{name}"
   description     = "Url map."
   default_service = google_compute_backend_service.backend_service.id
 }
 
 resource "google_compute_backend_service" "backend_service" {
-  name                  = "sa%{random_suffix}"
+  name                  = "%{name}"
   load_balancing_scheme = "INTERNAL_MANAGED"
   health_checks         = [google_compute_health_check.health_check.id]
 }
 
 resource "google_compute_health_check" "health_check" {
-  name               = "sa%{random_suffix}"
+  name               = "%{name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -579,7 +627,7 @@ resource "google_compute_health_check" "health_check" {
 }
 
 resource "google_compute_subnetwork" "subnetwork_psc" {
-  name          = "sa%{random_suffix}-psc"
+  name          = "%{name}-psc"
   region        = "us-central1"
   network       = google_compute_network.network.id
   purpose       =  "PRIVATE_SERVICE_CONNECT"
@@ -587,7 +635,7 @@ resource "google_compute_subnetwork" "subnetwork_psc" {
 }
 
 resource "google_compute_subnetwork" "subnetwork_proxy" {
-  name          = "sa%{random_suffix}-proxy"
+  name          = "%{name}-proxy"
   region        = "us-central1"
   network       = google_compute_network.network.id
   purpose       =  "GLOBAL_MANAGED_PROXY"
@@ -596,14 +644,14 @@ resource "google_compute_subnetwork" "subnetwork_proxy" {
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name          = "sa%{random_suffix}"
+  name          = "%{name}"
   region        = "us-central1"
   network       = google_compute_network.network.id
   ip_cidr_range = "10.0.0.0/16"
 }
 
 resource "google_compute_network" "network" {
-  name                    = "sa%{random_suffix}"
+  name                    = "%{name}"
   auto_create_subnetworks = false
 }
 `, context)

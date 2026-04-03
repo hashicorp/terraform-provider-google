@@ -454,6 +454,8 @@ func resourceApigeeDeveloperAppRead(d *schema.ResourceData, meta interface{}) er
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeDeveloperApp %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeDeveloperApp %q: %#v", d.Id(), res)
+
 	res, err = resourceApigeeDeveloperAppDecoder(d, meta, res)
 	if err != nil {
 		return err

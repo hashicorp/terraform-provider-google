@@ -53,9 +53,12 @@ var (
 func TestAccManagedKafkaAcl_managedkafkaAclBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"acl_id":        "topic/mytopic",
-		"random_suffix": acctest.RandString(t, 10),
+		"cluster_id":    "tf-test-my-cluster" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccManagedKafkaAcl_managedkafkaAclBasicExample(t *testing.T) {
 func testAccManagedKafkaAcl_managedkafkaAclBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_managed_kafka_cluster" "cluster" {
-  cluster_id = "tf-test-my-cluster%{random_suffix}"
+  cluster_id = "%{cluster_id}"
   location = "us-central1"
   capacity_config {
     vcpu_count = 3

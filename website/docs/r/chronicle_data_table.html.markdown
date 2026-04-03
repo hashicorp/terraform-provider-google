@@ -78,11 +78,6 @@ output "data_table_create_time" {
   description = "The creation time of the data table."
   value = google_chronicle_data_table.example.create_time
 }
-
-output "data_table_ttl" {
-  description = "The row time to live for the data table."
-  value = google_chronicle_data_table.example.row_time_to_live
-}
 ```
 ## Example Usage - Chronicle Data Table With Optional Fields
 
@@ -126,26 +121,6 @@ resource "google_chronicle_data_table" "example_dt" {
     data_access_scopes = [google_chronicle_data_access_scope.test_scope_allow_everyone.name]
   }
   depends_on = [google_chronicle_data_access_scope.test_scope_allow_everyone]
-}
-
-output "data_table_name" {
-  description = "The resource name of the created data table."
-  value       = google_chronicle_data_table.example_dt.name
-}
-
-output "data_table_id" {
-  description = "The ID of the created data table."
-  value       = google_chronicle_data_table.example_dt.id
-}
-
-output "data_table_create_time" {
-  description = "The creation time of the data table."
-  value       = google_chronicle_data_table.example_dt.create_time
-}
-
-output "data_table_column_info" {
-  description = "The column info of the data table."
-  value       = google_chronicle_data_table.example_dt.column_info
 }
 ```
 

@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_cloud_security_compliance_framework_deployment
 generation_type: mmv1
 source_file: products/cloudsecuritycompliance/FrameworkDeployment.yaml

@@ -824,6 +824,8 @@ func resourceVmwareenginePrivateCloudRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VmwareenginePrivateCloud %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading VmwareenginePrivateCloud %q: %#v", d.Id(), res)
+
 	res, err = resourceVmwareenginePrivateCloudDecoder(d, meta, res)
 	if err != nil {
 		return err

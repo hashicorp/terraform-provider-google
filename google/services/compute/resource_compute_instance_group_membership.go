@@ -283,6 +283,8 @@ func resourceComputeInstanceGroupMembershipRead(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeInstanceGroupMembership %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeInstanceGroupMembership %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedComputeInstanceGroupMembership(d, meta, res)
 	if err != nil {
 		return err

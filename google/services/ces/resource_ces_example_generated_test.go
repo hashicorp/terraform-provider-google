@@ -53,8 +53,17 @@ var (
 func TestAccCESExample_cesExampleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name":     "tf-test-my-app" + randomSuffix,
+		"app_id":               "tf-test-app-id" + randomSuffix,
+		"base_agent_id":        "tf-test-base-agent-id" + randomSuffix,
+		"child_agent_id":       "tf-test-child-agent-id" + randomSuffix,
+		"example_display_name": "tf-test-my-example" + randomSuffix,
+		"example_id":           "tf-test-example-id" + randomSuffix,
+		"toolset_id":           "tf-test-toolset-id" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,8 +88,8 @@ func testAccCESExample_cesExampleBasicExample(context map[string]interface{}) st
 	return acctest.Nprintf(`
 resource "google_ces_app" "my-app" {
     location     = "us"
-    display_name = "tf-test-my-app%{random_suffix}"
-    app_id       = "tf-test-app-id%{random_suffix}"
+    display_name = "%{app_display_name}"
+    app_id       = "%{app_id}"
     time_zone_settings {
         time_zone = "America/Los_Angeles"
     }
@@ -98,7 +107,7 @@ resource "google_ces_tool" "ces_tool" {
 }
 
 resource "google_ces_toolset" "ces_toolset" {
-    toolset_id   = "tf-test-toolset-id%{random_suffix}"
+    toolset_id   = "%{toolset_id}"
 
     location     = "us"
     app          = google_ces_app.my-app.app_id
@@ -133,7 +142,7 @@ resource "google_ces_toolset" "ces_toolset" {
 }
 
 resource "google_ces_agent" "ces_base_agent" {
-    agent_id = "tf-test-base-agent-id%{random_suffix}"
+    agent_id = "%{base_agent_id}"
     location = "us"
     app      = google_ces_app.my-app.app_id
     display_name = "base agent"
@@ -150,7 +159,7 @@ resource "google_ces_agent" "ces_base_agent" {
 }
 
 resource "google_ces_agent" "ces_child_agent" {
-    agent_id = "tf-test-child-agent-id%{random_suffix}"
+    agent_id = "%{child_agent_id}"
     location = "us"
     app      = google_ces_app.my-app.app_id
     display_name = "child agent"
@@ -168,9 +177,9 @@ resource "google_ces_agent" "ces_child_agent" {
 
 resource "google_ces_example" "my-example" {
     location     = "us"
-    display_name = "tf-test-my-example%{random_suffix}"
+    display_name = "%{example_display_name}"
     app          = google_ces_app.my-app.name
-    example_id   = "tf-test-example-id%{random_suffix}"
+    example_id   = "%{example_id}"
     description  = "example description"
     entry_agent  = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/agents/${google_ces_agent.ces_base_agent.agent_id}"
     messages {

@@ -53,8 +53,11 @@ var (
 func TestAccSecretManagerRegionalRegionalSecret_regionalSecretConfigBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"secret_id":     "tf-test-tf-reg-secret" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretConfigBasicExample
 func testAccSecretManagerRegionalRegionalSecret_regionalSecretConfigBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_regional_secret" "regional-secret-basic" {
-  secret_id = "tf-test-tf-reg-secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   location = "us-central1"
 
   labels = {
@@ -98,9 +101,12 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
 func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithCmekExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"secret_id":     "tf-test-tf-reg-secret" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -132,7 +138,7 @@ resource "google_kms_crypto_key_iam_member" "kms-secret-binding" {
 }
 
 resource "google_secret_manager_regional_secret" "regional-secret-with-cmek" {
-  secret_id = "tf-test-tf-reg-secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   location = "us-central1"
 
   customer_managed_encryption {
@@ -147,9 +153,13 @@ resource "google_secret_manager_regional_secret" "regional-secret-with-cmek" {
 func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithRotationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"secret_id":     "tf-test-tf-reg-secret" + randomSuffix,
 		"timestamp":     "2122-11-30T00:00:00Z",
-		"random_suffix": acctest.RandString(t, 10),
+		"topic_id":      "tf-test-tf-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -175,7 +185,7 @@ func testAccSecretManagerRegionalRegionalSecret_regionalSecretWithRotationExampl
 data "google_project" "project" {}
 
 resource "google_pubsub_topic" "topic" {
-  name = "tf-test-tf-topic%{random_suffix}"
+  name = "%{topic_id}"
 }
 
 resource "google_pubsub_topic_iam_member" "secrets_manager_access" {
@@ -185,7 +195,7 @@ resource "google_pubsub_topic_iam_member" "secrets_manager_access" {
 }
 
 resource "google_secret_manager_regional_secret" "regional-secret-with-rotation" {
-  secret_id = "tf-test-tf-reg-secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   location = "us-central1"
 
   topics {
@@ -207,8 +217,11 @@ resource "google_secret_manager_regional_secret" "regional-secret-with-rotation"
 func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithTtlExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"secret_id":     "tf-test-tf-reg-secret" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -232,7 +245,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithTtlExample(t *
 func testAccSecretManagerRegionalRegionalSecret_regionalSecretWithTtlExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_regional_secret" "regional-secret-with-ttl" {
-  secret_id = "tf-test-tf-reg-secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   location = "us-central1"
 
   labels = {
@@ -253,9 +266,12 @@ resource "google_secret_manager_regional_secret" "regional-secret-with-ttl" {
 func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithExpireTimeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"secret_id":     "tf-test-tf-reg-secret" + randomSuffix,
 		"timestamp":     "2122-11-30T00:00:00Z",
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -279,7 +295,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithExpireTimeExam
 func testAccSecretManagerRegionalRegionalSecret_regionalSecretWithExpireTimeExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_regional_secret" "regional-secret-with-expire-time" {
-  secret_id = "tf-test-tf-reg-secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   location = "us-central1"
 
   labels = {
@@ -300,8 +316,11 @@ resource "google_secret_manager_regional_secret" "regional-secret-with-expire-ti
 func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithVersionDestroyTtlExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"secret_id":     "tf-test-tf-reg-secret" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -325,7 +344,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithVersionDestroy
 func testAccSecretManagerRegionalRegionalSecret_regionalSecretWithVersionDestroyTtlExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_regional_secret" "regional-secret-with-version-destroy-ttl" {
-  secret_id = "tf-test-tf-reg-secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   location = "us-central1"
 
   labels = {

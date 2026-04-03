@@ -53,9 +53,11 @@ var (
 func TestAccChronicleRule_chronicleRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -86,9 +88,11 @@ resource "google_chronicle_rule" "example" {
 func TestAccChronicleRule_chronicleRuleWithForceDeletionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -119,9 +123,12 @@ resource "google_chronicle_rule" "example" {
 func TestAccChronicleRule_chronicleRuleWithDataAccessScopeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"chronicle_id":         envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"data_access_scope_id": "tf-test-scope-name" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -141,7 +148,7 @@ func testAccChronicleRule_chronicleRuleWithDataAccessScopeExample(context map[st
 resource "google_chronicle_data_access_scope" "data_access_scope_test" {
  location = "us"
  instance = "%{chronicle_id}"
- data_access_scope_id = "tf-test-scope-name%{random_suffix}"
+ data_access_scope_id = "%{data_access_scope_id}"
  description = "scope-description"
  allowed_data_access_labels {
    log_type = "GCP_CLOUDAUDIT"

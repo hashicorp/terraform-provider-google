@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_compute_organization_security_policy_rule
 generation_type: mmv1
 source_file: products/compute/OrganizationSecurityPolicyRule.yaml
@@ -13,6 +15,8 @@ fields:
       field: match.config.src_ip_ranges
     - api_field: rules.match.description
       field: match.description
+    - api_field: rules.match.expr.expression
+      field: match.expr.expression
     - api_field: rules.match.versionedExpr
       field: match.versioned_expr
     - field: policy_id

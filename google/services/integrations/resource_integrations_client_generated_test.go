@@ -53,8 +53,10 @@ var (
 func TestAccIntegrationsClient_integrationsClientBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -93,11 +95,13 @@ func TestAccIntegrationsClient_integrationsClientFullExample(t *testing.T) {
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"crypto_key_name": "tftest-shared-key-1",
 		"key_ring_name":   "tftest-shared-keyring-1",
 		"kms_key":         acctest.BootstrapKMSKeyInLocation(t, "us-east1"),
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -154,8 +158,11 @@ resource "google_integrations_client" "example" {
 func TestAccIntegrationsClient_integrationsClientServiceAccountExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"service_account_id": "tf-test-service-acc" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -182,7 +189,7 @@ data "google_project" "default" {
 }
 
 resource "google_service_account" "service_account" {
-  account_id   = "tf-test-service-acc%{random_suffix}"
+  account_id   = "%{service_account_id}"
   display_name = "Service Account"
 }
 

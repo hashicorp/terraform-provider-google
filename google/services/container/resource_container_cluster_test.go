@@ -18,6 +18,7 @@ package container_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"testing"
@@ -6795,6 +6796,91 @@ func TestAccContainerCluster_autopilot_net_admin(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_autopilot_privileged_admission(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// TODO(diamondburned): uncomment and test once upstream cluster
+			// server API fix is rolled out.
+			// {
+			// 	Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, nil),
+			// },
+			// {
+			// 	ResourceName:            "google_container_cluster.primary",
+			// 	ImportState:             true,
+			// 	ImportStateVerify:       true,
+			// 	ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			// },
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, []string{"gke://test-path/*"}),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, []string{""}),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, []string{"gke://*"}),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, []string{"gke://test-path-a/*"}),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, nil),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_privileged_admission.#", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_privileged_admission.0", "gke://*"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_autopilot_privileged_admission(clusterName, networkName, subnetworkName, []string{"gke://test-path-b/*"}),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_additional_pod_ranges_config_on_create(t *testing.T) {
 	t.Parallel()
 
@@ -12329,6 +12415,27 @@ resource "google_container_cluster" "primary" {
 `, name, networkName, subnetworkName, enabled)
 }
 
+func testAccContainerCluster_autopilot_privileged_admission(name, networkName, subnetworkName string, allowlistPaths []string) string {
+	var part string
+	if allowlistPaths != nil {
+		allowlistPathsJSON, _ := json.Marshal(allowlistPaths)
+		part = "autopilot_privileged_admission = " + string(allowlistPathsJSON)
+	}
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name             = "%s"
+  location         = "us-central1"
+  network          = "%s"
+  subnetwork       = "%s"
+  enable_autopilot = true
+  %s
+  deletion_protection = false
+  min_master_version = "1.35.1-gke.1396002"
+}
+`, name, networkName, subnetworkName, part)
+}
+
 func TestAccContainerCluster_customPlacementPolicy(t *testing.T) {
 	t.Parallel()
 
@@ -15967,4 +16074,110 @@ resource "google_container_cluster" "cluster" {
 }
 
 `, network, network, network, network, network, network, cluster)
+}
+
+func TestAccContainerCluster_custom_subnet(t *testing.T) {
+	t.Parallel()
+
+	testName := "gke-msc-custom-subnet"
+	network, sri := bootstrapAdditionalIpRangesNetworkConfig(t, testName, 2, 2)
+
+	// Ensure we received at least 3(main + 2 additional) subnet/secondary-range set after bootstrapping
+	if len(sri) < 3 {
+		t.Fatalf("bootstrapAdditionalIpRangesNetworkConfig returned empty sri slice")
+	}
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_custom_subnet(clusterName, network, sri),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "node_pool.0.network_config.subnetwork"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "network_config.0.subnetwork", sri[1].SubnetName),
+				),
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_custom_subnet(clusterName string, networkName string, sri []subnetRangeInfo) string {
+	var additionalIpRangesStr string
+
+	for _, si := range sri[1:] {
+		var podIpv4RangeStr string
+		for i, rn := range si.RangeNames {
+			podIpv4RangeStr += fmt.Sprintf("\"%s\"", rn)
+			if i != len(si.RangeNames)-1 {
+				podIpv4RangeStr += ", "
+			}
+		}
+		additionalIpRangesStr += fmt.Sprintf(`
+			additional_ip_ranges_config {
+				subnetwork  = "%s"
+				pod_ipv4_range_names = [%s]
+			}
+		`, si.SubnetName, podIpv4RangeStr)
+	}
+
+	// capture the 1st subnet and 1st pod range into variables to use with node pool creation
+	firstSubnet := ""
+	if len(sri) > 1 {
+		firstSubnet = sri[1].SubnetName
+	}
+
+	// Create 2 node pools with a custom subnet specified. This tests that the logic
+	// to use the specified subnet works. If no subnet was specified, multi subnet cluster
+	// logic would select the subnet with least pod utilization.
+	return fmt.Sprintf(`
+	resource "google_container_cluster" "primary" {
+	  name     = "%s"
+	  location = "us-central1-a"
+	  network    = "%s"
+	  subnetwork = "%s"
+          initial_node_count = 1
+
+	  ip_allocation_policy {
+	    cluster_secondary_range_name  = "pods"
+	    services_secondary_range_name = "services"
+	    %s
+	  }
+
+	  deletion_protection = false
+	}
+	
+	resource "google_container_node_pool" "np" {
+	  name     = "custom-node-pool"
+	  cluster  = google_container_cluster.primary.id
+	  location = "us-central1-a"
+	  node_count = 2
+  	  max_pods_per_node = 30
+
+	  network_config {
+  	    subnetwork = "%s"
+	  }
+	}
+
+	resource "google_container_node_pool" "np1" {
+	  name     = "custom-node-pool1"
+	  cluster  = google_container_cluster.primary.id
+	  location = "us-central1-a"
+	  node_count = 2
+  	  max_pods_per_node = 30
+
+	  network_config {
+  	    subnetwork = "%s"
+	  }
+	}
+
+	`, clusterName, networkName, sri[0].SubnetName, additionalIpRangesStr, firstSubnet, firstSubnet)
 }

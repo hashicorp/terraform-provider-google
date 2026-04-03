@@ -53,8 +53,11 @@ var (
 func TestAccNetworkServicesGrpcRoute_networkServicesGrpcRouteBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-grpc-route" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetworkServicesGrpcRoute_networkServicesGrpcRouteBasicExample(t *tes
 func testAccNetworkServicesGrpcRoute_networkServicesGrpcRouteBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_grpc_route" "default" {
-  name                   = "tf-test-my-grpc-route%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }
@@ -105,8 +108,11 @@ resource "google_network_services_grpc_route" "default" {
 func TestAccNetworkServicesGrpcRoute_networkServicesGrpcRouteMatchesAndActionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-grpc-route" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -130,7 +136,7 @@ func TestAccNetworkServicesGrpcRoute_networkServicesGrpcRouteMatchesAndActionsEx
 func testAccNetworkServicesGrpcRoute_networkServicesGrpcRouteMatchesAndActionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_grpc_route" "default" {
-  name                   = "tf-test-my-grpc-route%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }
@@ -178,8 +184,11 @@ resource "google_network_services_grpc_route" "default" {
 func TestAccNetworkServicesGrpcRoute_networkServicesGrpcRouteActionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-grpc-route" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -203,7 +212,7 @@ func TestAccNetworkServicesGrpcRoute_networkServicesGrpcRouteActionsExample(t *t
 func testAccNetworkServicesGrpcRoute_networkServicesGrpcRouteActionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_grpc_route" "default" {
-  name                   = "tf-test-my-grpc-route%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }

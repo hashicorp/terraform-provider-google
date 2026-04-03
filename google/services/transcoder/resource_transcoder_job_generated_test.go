@@ -53,8 +53,12 @@ var (
 func TestAccTranscoderJob_transcoderJobBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":     "tf-test-transcoder-job" + randomSuffix,
+		"job_template_id": "tf-test-example-job-template" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccTranscoderJob_transcoderJobBasicExample(t *testing.T) {
 func testAccTranscoderJob_transcoderJobBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
-  name          = "tf-test-transcoder-job%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "US"
   force_destroy = true
 
@@ -102,7 +106,7 @@ resource "google_transcoder_job" "default" {
 }
 
 resource "google_transcoder_job_template" "default" {
-  job_template_id = "tf-test-example-job-template%{random_suffix}"
+  job_template_id = "%{job_template_id}"
   location = "us-central1"
   config {
     inputs {
@@ -191,8 +195,13 @@ resource "google_transcoder_job_template" "default" {
 func TestAccTranscoderJob_transcoderJobPubsubExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":        "tf-test-transcoder-job" + randomSuffix,
+		"job_template_id":    "tf-test-example-job-template" + randomSuffix,
+		"pub_sub_topic_name": "tf-test-transcoder-notifications" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -216,7 +225,7 @@ func TestAccTranscoderJob_transcoderJobPubsubExample(t *testing.T) {
 func testAccTranscoderJob_transcoderJobPubsubExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
-  name          = "tf-test-transcoder-job%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "US"
   force_destroy = true
 
@@ -231,7 +240,7 @@ resource "google_storage_bucket_object" "example_mp4" {
 }
 
 resource "google_pubsub_topic" "transcoder_notifications" {
-  name = "tf-test-transcoder-notifications%{random_suffix}"
+  name = "%{pub_sub_topic_name}"
 }
 
 resource "google_transcoder_job" "default" {
@@ -330,8 +339,12 @@ resource "google_transcoder_job" "default" {
 func TestAccTranscoderJob_transcoderJobOverlaysExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":     "tf-test-transcoder-job" + randomSuffix,
+		"job_template_id": "tf-test-example-job-template" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -355,7 +368,7 @@ func TestAccTranscoderJob_transcoderJobOverlaysExample(t *testing.T) {
 func testAccTranscoderJob_transcoderJobOverlaysExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
-  name          = "tf-test-transcoder-job%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "US"
   force_destroy = true
 
@@ -484,8 +497,12 @@ resource "google_transcoder_job" "default" {
 func TestAccTranscoderJob_transcoderJobManifestsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":     "tf-test-transcoder-job" + randomSuffix,
+		"job_template_id": "tf-test-example-job-template" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -509,7 +526,7 @@ func TestAccTranscoderJob_transcoderJobManifestsExample(t *testing.T) {
 func testAccTranscoderJob_transcoderJobManifestsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
-  name          = "tf-test-transcoder-job%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "US"
   force_destroy = true
 

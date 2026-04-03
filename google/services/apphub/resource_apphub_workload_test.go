@@ -28,10 +28,26 @@ import (
 func TestAccApphubWorkload_apphubWorkloadUpdate(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"billing_account":               envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":                        envvar.GetTestOrgFromEnv(t),
+		"application_id":                "tf-test-example-application-1" + randomSuffix,
+		"business_email":                "alice@google.com" + randomSuffix,
+		"business_name":                 "Alice" + randomSuffix,
+		"desc":                          "Register service for testing" + randomSuffix,
+		"developer_email":               "bob@google.com" + randomSuffix,
+		"developer_name":                "Bob" + randomSuffix,
+		"display_name":                  "Example Service Full" + randomSuffix,
+		"ilb_network":                   "tf-test-l7-ilb-network" + randomSuffix,
+		"ilb_subnet":                    "tf-test-l7-ilb-subnet" + randomSuffix,
+		"instance_template":             "tf-test-l7-ilb-mig-template" + randomSuffix,
+		"mig":                           "tf-test-l7-ilb-mig1" + randomSuffix,
+		"operator_email":                "charlie@google.com" + randomSuffix,
+		"operator_name":                 "Charlie" + randomSuffix,
+		"service_project_attachment_id": "tf-test-project-1" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -69,14 +85,14 @@ func testAccApphubWorkload_apphubWorkloadUpdate(context map[string]interface{}) 
 	return acctest.Nprintf(`
 resource "google_apphub_application" "application" {
   location = "us-central1"
-  application_id = "tf-test-example-application-1%{random_suffix}"
+  application_id = "%{application_id}"
   scope {
     type = "REGIONAL"
   }
 }
 
 resource "google_project" "service_project" {
-  project_id ="tf-test-project-1%{random_suffix}"
+  project_id = "%{service_project_attachment_id}"
   name = "Service Project"
   org_id = "%{org_id}"
   billing_account = "%{billing_account}"
@@ -124,7 +140,7 @@ resource "google_apphub_workload" "example" {
 
 # VPC network
 resource "google_compute_network" "ilb_network" {
-  name                    = "tf-test-l7-ilb-network%{random_suffix}"
+  name                    = "%{ilb_network}"
   project                 = google_project.service_project.project_id
   auto_create_subnetworks = false
   depends_on = [time_sleep.wait_120s]
@@ -132,7 +148,7 @@ resource "google_compute_network" "ilb_network" {
 
 # backend subnet
 resource "google_compute_subnetwork" "ilb_subnet" {
-  name          = "tf-test-l7-ilb-subnet%{random_suffix}"
+  name          = "%{ilb_subnet}"
   project       = google_project.service_project.project_id
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
@@ -141,7 +157,7 @@ resource "google_compute_subnetwork" "ilb_subnet" {
 
 # instance template
 resource "google_compute_instance_template" "instance_template" {
-  name         = "tf-test-l7-ilb-mig-template%{random_suffix}"
+  name         = "%{instance_template}"
   project      = google_project.service_project.project_id
   machine_type = "e2-small"
   tags         = ["http-server"]
@@ -183,7 +199,7 @@ resource "google_compute_instance_template" "instance_template" {
 }
 
 resource "google_compute_region_instance_group_manager" "mig" {
-  name     = "tf-test-l7-ilb-mig1%{random_suffix}"
+  name     = "%{mig}"
   project  = google_project.service_project.project_id
   region   = "us-central1"
   version {

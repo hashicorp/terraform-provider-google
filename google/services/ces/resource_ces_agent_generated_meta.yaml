@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_ces_agent
 generation_type: mmv1
 source_file: products/ces/Agent.yaml
@@ -46,6 +48,7 @@ fields:
     - api_field: remoteDialogflowAgent.flowId
     - api_field: remoteDialogflowAgent.inputVariableMapping
     - api_field: remoteDialogflowAgent.outputVariableMapping
+    - api_field: remoteDialogflowAgent.respectResponseInterruptionSettings
     - api_field: tools
     - api_field: toolsets.toolIds
     - api_field: toolsets.toolset

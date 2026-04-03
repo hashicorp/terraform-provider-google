@@ -124,7 +124,10 @@ func ResourceLustreInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: `The storage capacity of the instance in gibibytes (GiB). Allowed values
-are from '18000' to '954000', in increments of 9000.`,
+are from '9000' to '7632000', depending on the 'perUnitStorageThroughput'.
+See [Performance tiers and maximum storage
+capacities](https://cloud.google.com/managed-lustre/docs/create-instance#performance-tiers)
+for specific minimums, maximums, and step sizes for each performance tier.`,
 			},
 			"filesystem": {
 				Type:     schema.TypeString,
@@ -159,54 +162,52 @@ less and can only contain letters and numbers.`,
 Must be in the format
 'projects/{project_id}/global/networks/{network_name}'.`,
 			},
-			"per_unit_storage_throughput": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The throughput of the instance in MB/s/TiB.
-Valid values are 125, 250, 500, 1000.`,
-			},
 			"access_rules_options": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `Access control rules for the Lustre instance. Configures default root
-squashing behavior and specific access rules based on IP addresses.`,
+				Description: `IP-based access rules for the Managed Lustre instance. These options
+define the root user squash configuration.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"default_squash_mode": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"ROOT_SQUASH", "NO_SQUASH"}),
-							Description: `Set to "ROOT_SQUASH" to enable root squashing by default.
-Other values include "NO_SQUASH". Possible values: ["ROOT_SQUASH", "NO_SQUASH"]`,
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The squash mode for the default access rule.
+Possible values:
+NO_SQUASH
+ROOT_SQUASH`,
 						},
 						"access_rules": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `An array of access rule exceptions. Each rule defines IP address ranges
-that should have different squash behavior than the default.`,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The access rules for the instance.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"ip_address_ranges": {
-										Type:        schema.TypeList,
-										Required:    true,
-										Description: `An array of IP address strings or CIDR ranges that this rule applies to.`,
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `The IP address ranges to which to apply this access rule. Accepts
+non-overlapping CIDR ranges (e.g., '192.168.1.0/24') and IP addresses
+(e.g., '192.168.1.0').`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 									},
 									"name": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `A unique identifier for the access rule.`,
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The name of the access rule policy group.
+Must be 16 characters or less and include only alphanumeric characters
+or '_'.`,
 									},
 									"squash_mode": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"NO_SQUASH"}),
-										Description: `The squash mode for this specific rule. Currently, only "NO_SQUASH"
-is supported for exceptions. Possible values: ["NO_SQUASH"]`,
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `Squash mode for the access rule.
+Possible values:
+NO_SQUASH
+ROOT_SQUASH`,
 									},
 								},
 							},
@@ -214,14 +215,18 @@ is supported for exceptions. Possible values: ["NO_SQUASH"]`,
 						"default_squash_gid": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Description: `The GID to map the root user to when root squashing is enabled
-(e.g., 65534 for nobody).`,
+							Description: `The user squash GID for the default access rule.
+This user squash GID applies to all root users connecting from clients
+that are not matched by any of the access rules. If not set, the default
+is 0 (no GID squash).`,
 						},
 						"default_squash_uid": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Description: `The UID to map the root user to when root squashing is enabled
-(e.g., 65534 for nobody).`,
+							Description: `The user squash UID for the default access rule.
+This user squash UID applies to all root users connecting from clients
+that are not matched by any of the access rules. If not set, the default
+is 0 (no UID squash).`,
 						},
 					},
 				},
@@ -231,6 +236,26 @@ is supported for exceptions. Possible values: ["NO_SQUASH"]`,
 				Optional:    true,
 				Description: `A user-readable description of the instance.`,
 			},
+			"dynamic_tier_options": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Dynamic tier options for a Managed Lustre instance.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mode": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `The dynamic tier mode of the instance.
+Possible values:
+DISABLED
+DEFAULT_CACHE`,
+						},
+					},
+				},
+			},
 			"gke_support_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -238,10 +263,15 @@ is supported for exceptions. Possible values: ["NO_SQUASH"]`,
 GKE clients are not supported.`,
 			},
 			"kms_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The KMS key id to use for encryption of the Lustre instance.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The Cloud KMS key name to use for data encryption.
+If not set, the instance will use Google-managed encryption keys.
+If set, the instance will use customer-managed encryption keys.
+The key must be in the same region as the instance.
+The key format is:
+projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{key}`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -251,6 +281,240 @@ GKE clients are not supported.`,
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"maintenance_policy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Defines a maintenance policy for a resource.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"weekly_maintenance_windows": {
+							Type:     schema.TypeList,
+							Required: true,
+							Description: `The weekly maintenance windows for the instance. Currently limited to 1
+window.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"day_of_week": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `Possible values:
+MONDAY
+TUESDAY
+WEDNESDAY
+THURSDAY
+FRIDAY
+SATURDAY
+SUNDAY`,
+									},
+									"start_time": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `Represents a time of day. The date and time zone are either not significant
+or are specified elsewhere. An API may choose to allow leap seconds. Related
+types are google.type.Date and 'google.protobuf.Timestamp'.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hours": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Hours of a day in 24 hour format. Must be greater than or equal to 0 and
+typically must be less than or equal to 23. An API may choose to allow the
+value "24:00:00" for scenarios like business closing time.`,
+												},
+												"minutes": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Minutes of an hour. Must be greater than or equal to 0 and less than or
+equal to 59.`,
+												},
+												"nanos": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Fractions of seconds, in nanoseconds. Must be greater than or equal to 0
+and less than or equal to 999,999,999.`,
+												},
+												"seconds": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Seconds of a minute. Must be greater than or equal to 0 and typically must
+be less than or equal to 59. An API may allow the value 60 if it allows
+leap-seconds.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"maintenance_exclusion_window": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The exclusion windows for the instance. Currently limited to 1 window.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"end_date": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `Represents a whole or partial calendar date, such as a birthday. The time of
+day and time zone are either specified elsewhere or are insignificant. The
+date is relative to the Gregorian Calendar. This can represent one of the
+following:
+
+* A full date, with non-zero year, month, and day values.
+* A month and day, with a zero year (for example, an anniversary).
+* A year on its own, with a zero month and a zero day.
+* A year and month, with a zero day (for example, a credit card expiration
+date).
+
+Related types:
+
+* google.type.TimeOfDay
+* google.type.DateTime
+* google.protobuf.Timestamp`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"day": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+to specify a year by itself or a year and month where the day isn't
+significant.`,
+												},
+												"month": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+month and day.`,
+												},
+												"year": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+a year.`,
+												},
+											},
+										},
+									},
+									"start_date": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `Represents a whole or partial calendar date, such as a birthday. The time of
+day and time zone are either specified elsewhere or are insignificant. The
+date is relative to the Gregorian Calendar. This can represent one of the
+following:
+
+* A full date, with non-zero year, month, and day values.
+* A month and day, with a zero year (for example, an anniversary).
+* A year on its own, with a zero month and a zero day.
+* A year and month, with a zero day (for example, a credit card expiration
+date).
+
+Related types:
+
+* google.type.TimeOfDay
+* google.type.DateTime
+* google.protobuf.Timestamp`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"day": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+to specify a year by itself or a year and month where the day isn't
+significant.`,
+												},
+												"month": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+month and day.`,
+												},
+												"year": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+a year.`,
+												},
+											},
+										},
+									},
+									"time": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `Represents a time of day. The date and time zone are either not significant
+or are specified elsewhere. An API may choose to allow leap seconds. Related
+types are google.type.Date and 'google.protobuf.Timestamp'.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hours": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Hours of a day in 24 hour format. Must be greater than or equal to 0 and
+typically must be less than or equal to 23. An API may choose to allow the
+value "24:00:00" for scenarios like business closing time.`,
+												},
+												"minutes": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Minutes of an hour. Must be greater than or equal to 0 and less than or
+equal to 59.`,
+												},
+												"nanos": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Fractions of seconds, in nanoseconds. Must be greater than or equal to 0
+and less than or equal to 999,999,999.`,
+												},
+												"seconds": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Optional: true,
+													Description: `Seconds of a minute. Must be greater than or equal to 0 and typically must
+be less than or equal to 59. An API may allow the value 60 if it allows
+leap-seconds.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"per_unit_storage_throughput": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The throughput of the instance in MBps per TiB. Valid values are 125, 250,
+500, 1000.
+See [Performance tiers and maximum storage
+capacities](https://cloud.google.com/managed-lustre/docs/create-instance#performance-tiers)
+for more information.
+
+If the instance is using the Dynamic tier, this field must not be set or
+must be set to zero.`,
 			},
 			"placement_policy": {
 				Type:     schema.TypeString,
@@ -283,12 +547,20 @@ projects/{project}/locations/{location}/resourcePolicies/{resource_policy}`,
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `The state of the instance.
-Please see https://cloud.google.com/managed-lustre/docs/reference/rest/v1/projects.locations.instances#state for values`,
+Possible values:
+ACTIVE
+CREATING
+DELETING
+UPGRADING
+REPAIRING
+STOPPED
+UPDATING
+SUSPENDED`,
 			},
 			"state_reason": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The reason why the instance is in a certain state.`,
+				Description: `The reason why the instance is in a certain state (e.g. SUSPENDED).`,
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -296,6 +568,32 @@ Please see https://cloud.google.com/managed-lustre/docs/reference/rest/v1/projec
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"uid": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Unique ID of the resource.
+This is unrelated to the access rules which allow specifying the root
+squash uid.`,
+			},
+			"upcoming_maintenance_schedule": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Represents a scheduled maintenance event.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"end_time": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The scheduled end time for the maintenance.`,
+						},
+						"start_time": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The scheduled start time for the maintenance.`,
+						},
+					},
+				},
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -333,17 +631,29 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	obj := make(map[string]interface{})
+	accessRulesOptionsProp, err := expandLustreInstanceAccessRulesOptions(d.Get("access_rules_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("access_rules_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessRulesOptionsProp)) && (ok || !reflect.DeepEqual(v, accessRulesOptionsProp)) {
+		obj["accessRulesOptions"] = accessRulesOptionsProp
+	}
 	capacityGibProp, err := expandLustreInstanceCapacityGib(d.Get("capacity_gib"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("capacity_gib"); !tpgresource.IsEmptyValue(reflect.ValueOf(capacityGibProp)) && (ok || !reflect.DeepEqual(v, capacityGibProp)) {
 		obj["capacityGib"] = capacityGibProp
 	}
-	gkeSupportEnabledProp, err := expandLustreInstanceGkeSupportEnabled(d.Get("gke_support_enabled"), d, config)
+	descriptionProp, err := expandLustreInstanceDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("gke_support_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(gkeSupportEnabledProp)) && (ok || !reflect.DeepEqual(v, gkeSupportEnabledProp)) {
-		obj["gkeSupportEnabled"] = gkeSupportEnabledProp
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	dynamicTierOptionsProp, err := expandLustreInstanceDynamicTierOptions(d.Get("dynamic_tier_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dynamic_tier_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(dynamicTierOptionsProp)) && (ok || !reflect.DeepEqual(v, dynamicTierOptionsProp)) {
+		obj["dynamicTierOptions"] = dynamicTierOptionsProp
 	}
 	filesystemProp, err := expandLustreInstanceFilesystem(d.Get("filesystem"), d, config)
 	if err != nil {
@@ -351,17 +661,29 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("filesystem"); !tpgresource.IsEmptyValue(reflect.ValueOf(filesystemProp)) && (ok || !reflect.DeepEqual(v, filesystemProp)) {
 		obj["filesystem"] = filesystemProp
 	}
+	gkeSupportEnabledProp, err := expandLustreInstanceGkeSupportEnabled(d.Get("gke_support_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gke_support_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(gkeSupportEnabledProp)) && (ok || !reflect.DeepEqual(v, gkeSupportEnabledProp)) {
+		obj["gkeSupportEnabled"] = gkeSupportEnabledProp
+	}
+	kmsKeyProp, err := expandLustreInstanceKmsKey(d.Get("kms_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
+		obj["kmsKey"] = kmsKeyProp
+	}
+	maintenancePolicyProp, err := expandLustreInstanceMaintenancePolicy(d.Get("maintenance_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenancePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
+		obj["maintenancePolicy"] = maintenancePolicyProp
+	}
 	networkProp, err := expandLustreInstanceNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
-	}
-	descriptionProp, err := expandLustreInstanceDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
 	}
 	perUnitStorageThroughputProp, err := expandLustreInstancePerUnitStorageThroughput(d.Get("per_unit_storage_throughput"), d, config)
 	if err != nil {
@@ -374,18 +696,6 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("placement_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(placementPolicyProp)) && (ok || !reflect.DeepEqual(v, placementPolicyProp)) {
 		obj["placementPolicy"] = placementPolicyProp
-	}
-	kmsKeyProp, err := expandLustreInstanceKmsKey(d.Get("kms_key"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
-		obj["kmsKey"] = kmsKeyProp
-	}
-	accessRulesOptionsProp, err := expandLustreInstanceAccessRulesOptions(d.Get("access_rules_options"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("access_rules_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessRulesOptionsProp)) && (ok || !reflect.DeepEqual(v, accessRulesOptionsProp)) {
-		obj["accessRulesOptions"] = accessRulesOptionsProp
 	}
 	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -488,6 +798,8 @@ func resourceLustreInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("LustreInstance %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading LustreInstance %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
@@ -505,25 +817,10 @@ func resourceLustreInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
+	if err := d.Set("access_rules_options", flattenLustreInstanceAccessRulesOptions(res["accessRulesOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("capacity_gib", flattenLustreInstanceCapacityGib(res["capacityGib"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("update_time", flattenLustreInstanceUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("gke_support_enabled", flattenLustreInstanceGkeSupportEnabled(res["gkeSupportEnabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("filesystem", flattenLustreInstanceFilesystem(res["filesystem"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("network", flattenLustreInstanceNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("state", flattenLustreInstanceState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("mount_point", flattenLustreInstanceMountPoint(res["mountPoint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("create_time", flattenLustreInstanceCreateTime(res["createTime"], d, config)); err != nil {
@@ -532,25 +829,52 @@ func resourceLustreInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("description", flattenLustreInstanceDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("labels", flattenLustreInstanceLabels(res["labels"], d, config)); err != nil {
+	if err := d.Set("dynamic_tier_options", flattenLustreInstanceDynamicTierOptions(res["dynamicTierOptions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("per_unit_storage_throughput", flattenLustreInstancePerUnitStorageThroughput(res["perUnitStorageThroughput"], d, config)); err != nil {
+	if err := d.Set("filesystem", flattenLustreInstanceFilesystem(res["filesystem"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("name", flattenLustreInstanceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("placement_policy", flattenLustreInstancePlacementPolicy(res["placementPolicy"], d, config)); err != nil {
+	if err := d.Set("gke_support_enabled", flattenLustreInstanceGkeSupportEnabled(res["gkeSupportEnabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("kms_key", flattenLustreInstanceKmsKey(res["kmsKey"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("labels", flattenLustreInstanceLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("maintenance_policy", flattenLustreInstanceMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("mount_point", flattenLustreInstanceMountPoint(res["mountPoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("name", flattenLustreInstanceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("network", flattenLustreInstanceNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("per_unit_storage_throughput", flattenLustreInstancePerUnitStorageThroughput(res["perUnitStorageThroughput"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("placement_policy", flattenLustreInstancePlacementPolicy(res["placementPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("state", flattenLustreInstanceState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("state_reason", flattenLustreInstanceStateReason(res["stateReason"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("access_rules_options", flattenLustreInstanceAccessRulesOptions(res["accessRulesOptions"], d, config)); err != nil {
+	if err := d.Set("uid", flattenLustreInstanceUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("upcoming_maintenance_schedule", flattenLustreInstanceUpcomingMaintenanceSchedule(res["upcomingMaintenanceSchedule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("update_time", flattenLustreInstanceUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenLustreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
@@ -592,17 +916,17 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	accessRulesOptionsProp, err := expandLustreInstanceAccessRulesOptions(d.Get("access_rules_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("access_rules_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessRulesOptionsProp)) {
+		obj["accessRulesOptions"] = accessRulesOptionsProp
+	}
 	capacityGibProp, err := expandLustreInstanceCapacityGib(d.Get("capacity_gib"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("capacity_gib"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, capacityGibProp)) {
 		obj["capacityGib"] = capacityGibProp
-	}
-	gkeSupportEnabledProp, err := expandLustreInstanceGkeSupportEnabled(d.Get("gke_support_enabled"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("gke_support_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gkeSupportEnabledProp)) {
-		obj["gkeSupportEnabled"] = gkeSupportEnabledProp
 	}
 	descriptionProp, err := expandLustreInstanceDescription(d.Get("description"), d, config)
 	if err != nil {
@@ -610,17 +934,23 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	gkeSupportEnabledProp, err := expandLustreInstanceGkeSupportEnabled(d.Get("gke_support_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gke_support_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gkeSupportEnabledProp)) {
+		obj["gkeSupportEnabled"] = gkeSupportEnabledProp
+	}
+	maintenancePolicyProp, err := expandLustreInstanceMaintenancePolicy(d.Get("maintenance_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
+		obj["maintenancePolicy"] = maintenancePolicyProp
+	}
 	placementPolicyProp, err := expandLustreInstancePlacementPolicy(d.Get("placement_policy"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("placement_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, placementPolicyProp)) {
 		obj["placementPolicy"] = placementPolicyProp
-	}
-	accessRulesOptionsProp, err := expandLustreInstanceAccessRulesOptions(d.Get("access_rules_options"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("access_rules_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessRulesOptionsProp)) {
-		obj["accessRulesOptions"] = accessRulesOptionsProp
 	}
 	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -638,24 +968,28 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	headers := make(http.Header)
 	updateMask := []string{}
 
-	if d.HasChange("capacity_gib") {
-		updateMask = append(updateMask, "capacityGib")
+	if d.HasChange("access_rules_options") {
+		updateMask = append(updateMask, "accessRulesOptions")
 	}
 
-	if d.HasChange("gke_support_enabled") {
-		updateMask = append(updateMask, "gkeSupportEnabled")
+	if d.HasChange("capacity_gib") {
+		updateMask = append(updateMask, "capacityGib")
 	}
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
 	}
 
-	if d.HasChange("placement_policy") {
-		updateMask = append(updateMask, "placementPolicy")
+	if d.HasChange("gke_support_enabled") {
+		updateMask = append(updateMask, "gkeSupportEnabled")
 	}
 
-	if d.HasChange("access_rules_options") {
-		updateMask = append(updateMask, "accessRulesOptions")
+	if d.HasChange("maintenance_policy") {
+		updateMask = append(updateMask, "maintenancePolicy")
+	}
+
+	if d.HasChange("placement_policy") {
+		updateMask = append(updateMask, "placementPolicy")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -787,77 +1121,6 @@ func resourceLustreInstanceImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenLustreInstanceCapacityGib(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceGkeSupportEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceFilesystem(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceMountPoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-
-	transformed := make(map[string]interface{})
-	if l, ok := d.GetOkExists("labels"); ok {
-		for k := range l.(map[string]interface{}) {
-			transformed[k] = v.(map[string]interface{})[k]
-		}
-	}
-
-	return transformed
-}
-
-func flattenLustreInstancePerUnitStorageThroughput(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstancePlacementPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceStateReason(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenLustreInstanceAccessRulesOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -867,16 +1130,65 @@ func flattenLustreInstanceAccessRulesOptions(v interface{}, d *schema.ResourceDa
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["access_rules"] =
+		flattenLustreInstanceAccessRulesOptionsAccessRules(original["accessRules"], d, config)
+	transformed["default_squash_gid"] =
+		flattenLustreInstanceAccessRulesOptionsDefaultSquashGid(original["defaultSquashGid"], d, config)
 	transformed["default_squash_mode"] =
 		flattenLustreInstanceAccessRulesOptionsDefaultSquashMode(original["defaultSquashMode"], d, config)
 	transformed["default_squash_uid"] =
 		flattenLustreInstanceAccessRulesOptionsDefaultSquashUid(original["defaultSquashUid"], d, config)
-	transformed["default_squash_gid"] =
-		flattenLustreInstanceAccessRulesOptionsDefaultSquashGid(original["defaultSquashGid"], d, config)
-	transformed["access_rules"] =
-		flattenLustreInstanceAccessRulesOptionsAccessRules(original["accessRules"], d, config)
 	return []interface{}{transformed}
 }
+func flattenLustreInstanceAccessRulesOptionsAccessRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"ip_address_ranges": flattenLustreInstanceAccessRulesOptionsAccessRulesIpAddressRanges(original["ipAddressRanges"], d, config),
+			"name":              flattenLustreInstanceAccessRulesOptionsAccessRulesName(original["name"], d, config),
+			"squash_mode":       flattenLustreInstanceAccessRulesOptionsAccessRulesSquashMode(original["squashMode"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenLustreInstanceAccessRulesOptionsAccessRulesIpAddressRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceAccessRulesOptionsAccessRulesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceAccessRulesOptionsAccessRulesSquashMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceAccessRulesOptionsDefaultSquashGid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenLustreInstanceAccessRulesOptionsDefaultSquashMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -898,7 +1210,115 @@ func flattenLustreInstanceAccessRulesOptionsDefaultSquashUid(v interface{}, d *s
 	return v // let terraform core handle it otherwise
 }
 
-func flattenLustreInstanceAccessRulesOptionsDefaultSquashGid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenLustreInstanceCapacityGib(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceDynamicTierOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["mode"] =
+		flattenLustreInstanceDynamicTierOptionsMode(original["mode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceDynamicTierOptionsMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceFilesystem(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceGkeSupportEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenLustreInstanceMaintenancePolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["maintenance_exclusion_window"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindow(original["maintenanceExclusionWindow"], d, config)
+	transformed["weekly_maintenance_windows"] =
+		flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindows(original["weeklyMaintenanceWindows"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"end_date":   flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDate(original["endDate"], d, config),
+			"start_date": flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDate(original["startDate"], d, config),
+			"time":       flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTime(original["time"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["day"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateDay(original["day"], d, config)
+	transformed["month"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateMonth(original["month"], d, config)
+	transformed["year"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateYear(original["year"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateDay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
@@ -915,7 +1335,196 @@ func flattenLustreInstanceAccessRulesOptionsDefaultSquashGid(v interface{}, d *s
 	return v // let terraform core handle it otherwise
 }
 
-func flattenLustreInstanceAccessRulesOptionsAccessRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateMonth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateYear(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["day"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateDay(original["day"], d, config)
+	transformed["month"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateMonth(original["month"], d, config)
+	transformed["year"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateYear(original["year"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateDay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateMonth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateYear(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeHours(original["hours"], d, config)
+	transformed["minutes"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeMinutes(original["minutes"], d, config)
+	transformed["nanos"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeNanos(original["nanos"], d, config)
+	transformed["seconds"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeSeconds(original["seconds"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeHours(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeMinutes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindows(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -928,22 +1537,159 @@ func flattenLustreInstanceAccessRulesOptionsAccessRules(v interface{}, d *schema
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":              flattenLustreInstanceAccessRulesOptionsAccessRulesName(original["name"], d, config),
-			"ip_address_ranges": flattenLustreInstanceAccessRulesOptionsAccessRulesIpAddressRanges(original["ipAddressRanges"], d, config),
-			"squash_mode":       flattenLustreInstanceAccessRulesOptionsAccessRulesSquashMode(original["squashMode"], d, config),
+			"day_of_week": flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsDayOfWeek(original["dayOfWeek"], d, config),
+			"start_time":  flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTime(original["startTime"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenLustreInstanceAccessRulesOptionsAccessRulesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsDayOfWeek(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLustreInstanceAccessRulesOptionsAccessRulesIpAddressRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeHours(original["hours"], d, config)
+	transformed["minutes"] =
+		flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeMinutes(original["minutes"], d, config)
+	transformed["nanos"] =
+		flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeNanos(original["nanos"], d, config)
+	transformed["seconds"] =
+		flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeSeconds(original["seconds"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeHours(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeMinutes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMountPoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLustreInstanceAccessRulesOptionsAccessRulesSquashMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenLustreInstanceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstancePerUnitStorageThroughput(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstancePlacementPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceStateReason(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceUpcomingMaintenanceSchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["end_time"] =
+		flattenLustreInstanceUpcomingMaintenanceScheduleEndTime(original["endTime"], d, config)
+	transformed["start_time"] =
+		flattenLustreInstanceUpcomingMaintenanceScheduleStartTime(original["startTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceUpcomingMaintenanceScheduleEndTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceUpcomingMaintenanceScheduleStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -966,38 +1712,6 @@ func flattenLustreInstanceEffectiveLabels(v interface{}, d *schema.ResourceData,
 	return v
 }
 
-func expandLustreInstanceCapacityGib(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandLustreInstanceGkeSupportEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandLustreInstanceFilesystem(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandLustreInstanceNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandLustreInstanceDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandLustreInstancePerUnitStorageThroughput(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandLustreInstancePlacementPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandLustreInstanceKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
 func expandLustreInstanceAccessRulesOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1009,6 +1723,20 @@ func expandLustreInstanceAccessRulesOptions(v interface{}, d tpgresource.Terrafo
 	raw := l[0]
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
+
+	transformedAccessRules, err := expandLustreInstanceAccessRulesOptionsAccessRules(original["access_rules"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAccessRules); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["accessRules"] = transformedAccessRules
+	}
+
+	transformedDefaultSquashGid, err := expandLustreInstanceAccessRulesOptionsDefaultSquashGid(original["default_squash_gid"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultSquashGid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defaultSquashGid"] = transformedDefaultSquashGid
+	}
 
 	transformedDefaultSquashMode, err := expandLustreInstanceAccessRulesOptionsDefaultSquashMode(original["default_squash_mode"], d, config)
 	if err != nil {
@@ -1024,33 +1752,7 @@ func expandLustreInstanceAccessRulesOptions(v interface{}, d tpgresource.Terrafo
 		transformed["defaultSquashUid"] = transformedDefaultSquashUid
 	}
 
-	transformedDefaultSquashGid, err := expandLustreInstanceAccessRulesOptionsDefaultSquashGid(original["default_squash_gid"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDefaultSquashGid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["defaultSquashGid"] = transformedDefaultSquashGid
-	}
-
-	transformedAccessRules, err := expandLustreInstanceAccessRulesOptionsAccessRules(original["access_rules"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedAccessRules); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["accessRules"] = transformedAccessRules
-	}
-
 	return transformed, nil
-}
-
-func expandLustreInstanceAccessRulesOptionsDefaultSquashMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandLustreInstanceAccessRulesOptionsDefaultSquashUid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandLustreInstanceAccessRulesOptionsDefaultSquashGid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandLustreInstanceAccessRulesOptionsAccessRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1066,18 +1768,18 @@ func expandLustreInstanceAccessRulesOptionsAccessRules(v interface{}, d tpgresou
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedName, err := expandLustreInstanceAccessRulesOptionsAccessRulesName(original["name"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["name"] = transformedName
-		}
-
 		transformedIpAddressRanges, err := expandLustreInstanceAccessRulesOptionsAccessRulesIpAddressRanges(original["ip_address_ranges"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedIpAddressRanges); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["ipAddressRanges"] = transformedIpAddressRanges
+		}
+
+		transformedName, err := expandLustreInstanceAccessRulesOptionsAccessRulesName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
 		}
 
 		transformedSquashMode, err := expandLustreInstanceAccessRulesOptionsAccessRulesSquashMode(original["squash_mode"], d, config)
@@ -1092,15 +1794,403 @@ func expandLustreInstanceAccessRulesOptionsAccessRules(v interface{}, d tpgresou
 	return req, nil
 }
 
-func expandLustreInstanceAccessRulesOptionsAccessRulesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
 func expandLustreInstanceAccessRulesOptionsAccessRulesIpAddressRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
+func expandLustreInstanceAccessRulesOptionsAccessRulesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandLustreInstanceAccessRulesOptionsAccessRulesSquashMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceAccessRulesOptionsDefaultSquashGid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceAccessRulesOptionsDefaultSquashMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceAccessRulesOptionsDefaultSquashUid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceCapacityGib(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceDynamicTierOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMode, err := expandLustreInstanceDynamicTierOptionsMode(original["mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mode"] = transformedMode
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceDynamicTierOptionsMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceFilesystem(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceGkeSupportEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMaintenanceExclusionWindow, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindow(original["maintenance_exclusion_window"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaintenanceExclusionWindow); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maintenanceExclusionWindow"] = transformedMaintenanceExclusionWindow
+	}
+
+	transformedWeeklyMaintenanceWindows, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindows(original["weekly_maintenance_windows"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWeeklyMaintenanceWindows); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["weeklyMaintenanceWindows"] = transformedWeeklyMaintenanceWindows
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindow(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedEndDate, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDate(original["end_date"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEndDate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["endDate"] = transformedEndDate
+		}
+
+		transformedStartDate, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDate(original["start_date"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStartDate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["startDate"] = transformedStartDate
+		}
+
+		transformedTime, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTime(original["time"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["time"] = transformedTime
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDay, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateDay(original["day"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["day"] = transformedDay
+	}
+
+	transformedMonth, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateMonth(original["month"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["month"] = transformedMonth
+	}
+
+	transformedYear, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateYear(original["year"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["year"] = transformedYear
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateDay(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateMonth(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateYear(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDay, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateDay(original["day"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["day"] = transformedDay
+	}
+
+	transformedMonth, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateMonth(original["month"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["month"] = transformedMonth
+	}
+
+	transformedYear, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateYear(original["year"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["year"] = transformedYear
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateDay(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateMonth(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateYear(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	transformedMinutes, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeMinutes(original["minutes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minutes"] = transformedMinutes
+	}
+
+	transformedNanos, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	transformedSeconds, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeHours(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeMinutes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindows(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDayOfWeek, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsDayOfWeek(original["day_of_week"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDayOfWeek); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dayOfWeek"] = transformedDayOfWeek
+		}
+
+		transformedStartTime, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTime(original["start_time"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["startTime"] = transformedStartTime
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsDayOfWeek(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	transformedMinutes, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeMinutes(original["minutes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minutes"] = transformedMinutes
+	}
+
+	transformedNanos, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	transformedSeconds, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeHours(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeMinutes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstancePerUnitStorageThroughput(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstancePlacementPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

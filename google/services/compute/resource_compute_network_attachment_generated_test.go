@@ -53,10 +53,17 @@ var (
 func TestAccComputeNetworkAttachment_networkAttachmentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"billing_account":                envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":                         envvar.GetTestOrgFromEnv(t),
+		"accepted_producer_project_name": "tf-test-prj-accepted" + randomSuffix,
+		"network_name":                   "tf-test-basic-network" + randomSuffix,
+		"rejected_producer_project_name": "tf-test-prj-rejected" + randomSuffix,
+		"resource_name":                  "tf-test-basic-network-attachment" + randomSuffix,
+		"subnetwork_name":                "tf-test-basic-subnetwork" + randomSuffix,
+		"random_suffix":                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +87,7 @@ func TestAccComputeNetworkAttachment_networkAttachmentBasicExample(t *testing.T)
 func testAccComputeNetworkAttachment_networkAttachmentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network_attachment" "default" {
-    name = "tf-test-basic-network-attachment%{random_suffix}"
+    name = "%{resource_name}"
     region = "us-central1"
     description = "basic network attachment description"
     connection_preference = "ACCEPT_MANUAL"
@@ -99,12 +106,12 @@ resource "google_compute_network_attachment" "default" {
 }
 
 resource "google_compute_network" "default" {
-    name = "tf-test-basic-network%{random_suffix}"
+    name = "%{network_name}"
     auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-    name = "tf-test-basic-subnetwork%{random_suffix}"
+    name = "%{subnetwork_name}"
     region = "us-central1"
 
     network = google_compute_network.default.id
@@ -112,16 +119,16 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_project" "rejected_producer_project" {
-    project_id      = "tf-test-prj-rejected%{random_suffix}"
-    name            = "tf-test-prj-rejected%{random_suffix}"
+    project_id      = "%{rejected_producer_project_name}"
+    name            = "%{rejected_producer_project_name}"
     org_id          = "%{org_id}"
     billing_account = "%{billing_account}"
     deletion_policy = "DELETE"
 }
 
 resource "google_project" "accepted_producer_project" {
-    project_id      = "tf-test-prj-accepted%{random_suffix}"
-    name            = "tf-test-prj-accepted%{random_suffix}"
+    project_id      = "%{accepted_producer_project_name}"
+    name            = "%{accepted_producer_project_name}"
     org_id          = "%{org_id}"
     billing_account = "%{billing_account}"
     deletion_policy = "DELETE"

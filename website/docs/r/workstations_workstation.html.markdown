@@ -23,12 +23,10 @@ description: |-
 
 A single instance of a developer workstation with its own persistent storage.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about Workstation, see:
 
-* [API documentation](https://cloud.google.com/workstations/docs/reference/rest/v1beta/projects.locations.workstationClusters.workstationConfigs.workstations)
+* [API documentation](https://cloud.google.com/workstations/docs/reference/rest/v1/projects.locations.workstationClusters.workstationConfigs.workstations)
 * How-to Guides
     * [Workstations](https://cloud.google.com/workstations/docs/)
 
@@ -42,13 +40,11 @@ To get more information about Workstation, see:
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -56,7 +52,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -72,7 +67,6 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  provider               = google-beta
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
@@ -87,7 +81,6 @@ resource "google_workstations_workstation_config" "default" {
 }
 
 resource "google_workstations_workstation" "default" {
-  provider               = google-beta
   workstation_id         = "work-station"
   workstation_config_id  = google_workstations_workstation_config.default.workstation_config_id
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id

@@ -515,6 +515,8 @@ func resourceAccessContextManagerAccessLevelConditionRead(d *schema.ResourceData
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAccessLevelCondition %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading AccessContextManagerAccessLevelCondition %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedAccessContextManagerAccessLevelCondition(d, meta, res)
 	if err != nil {
 		return err

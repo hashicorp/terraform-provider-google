@@ -53,8 +53,11 @@ var (
 func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"blockchain_node_id": "tf_test_blockchain_basic_node" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func testAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBasicExample(cont
 resource "google_blockchain_node_engine_blockchain_nodes" "default_node" {
   location = "us-central1"
   blockchain_type = "ETHEREUM"
-  blockchain_node_id = "tf_test_blockchain_basic_node%{random_suffix}"
+  blockchain_node_id = "%{blockchain_node_id}"
   ethereum_details {
     api_enable_admin = true
     api_enable_debug = true
@@ -103,8 +106,11 @@ resource "google_blockchain_node_engine_blockchain_nodes" "default_node" {
 func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesGethDetailsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"blockchain_node_id": "tf_test_blockchain_geth_node" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -130,7 +136,7 @@ func testAccBlockchainNodeEngineBlockchainNodes_blockchainNodesGethDetailsExampl
 resource "google_blockchain_node_engine_blockchain_nodes" "default_node_geth" {
   location = "us-central1"
   blockchain_type = "ETHEREUM"
-  blockchain_node_id = "tf_test_blockchain_geth_node%{random_suffix}"
+  blockchain_node_id = "%{blockchain_node_id}"
   ethereum_details {
     api_enable_admin = true
     api_enable_debug = true
@@ -144,6 +150,59 @@ resource "google_blockchain_node_engine_blockchain_nodes" "default_node_geth" {
     geth_details {
       garbage_collection_mode = "FULL"
     }
+  }
+  
+  labels = {
+    environment = "dev"
+  }
+}
+`, context)
+}
+
+func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBeaconFeeRecipientExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"blockchain_node_id": "tf_test_beacon_fee_node" + randomSuffix,
+		"random_suffix":      randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBlockchainNodeEngineBlockchainNodesDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBeaconFeeRecipientExample(context),
+			},
+			{
+				ResourceName:            "google_blockchain_node_engine_blockchain_nodes.default_node_beacon_fee",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"blockchain_node_id", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBeaconFeeRecipientExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_blockchain_node_engine_blockchain_nodes" "default_node_beacon_fee" {
+  location = "us-central1"
+  blockchain_type = "ETHEREUM"
+  blockchain_node_id = "%{blockchain_node_id}"
+  ethereum_details {
+    api_enable_admin = true
+    api_enable_debug = true
+    validator_config {
+      beacon_fee_recipient = "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7"
+    }
+    node_type = "ARCHIVE"
+    consensus_client = "LIGHTHOUSE"
+    execution_client = "ERIGON"
+    network = "MAINNET"
   }
   
   labels = {
