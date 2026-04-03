@@ -63,6 +63,132 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_account_connector_ghe&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Account Connector Ghe
+
+
+```hcl
+data "google_secret_manager_secret_version_access" "ghe_ac_client_id" {
+  secret  = "ghe-ac-client-id"
+  project = "devconnect-terraform-creds"
+}
+
+data "google_secret_manager_secret_version_access" "ghe_ac_client_secret" {
+  secret  = "ghe-ac-client-secret"
+  project = "devconnect-terraform-creds"
+}
+
+resource "google_developer_connect_account_connector" "my-account-connector" {
+  location = "us-central1"
+  account_connector_id = "tf-test-ac"
+
+  custom_oauth_config {
+    auth_uri = "https://ghe.proctor-staging-test.com/login/oauth/authorize"
+    client_id = data.google_secret_manager_secret_version_access.ghe_ac_client_id.secret_data
+    client_secret = data.google_secret_manager_secret_version_access.ghe_ac_client_secret.secret_data
+    token_uri = "https://ghe.proctor-staging-test.com/login/oauth/access_token"
+    host_uri = "https://ghe.proctor-staging-test.com"
+    scm_provider = "GITHUB_ENTERPRISE"
+    scopes = ["repo"]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Terraform should ignore changes to the client_secret field because
+      # the API does not return it (INPUT_ONLY).
+      custom_oauth_config[0].client_secret,
+    ]
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_account_connector_gle&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Account Connector Gle
+
+
+```hcl
+data "google_secret_manager_secret_version_access" "gle_ac_client_id" {
+  secret  = "gle-ac-client-id"
+  project = "devconnect-terraform-creds"
+}
+
+data "google_secret_manager_secret_version_access" "gle_ac_client_secret" {
+  secret  = "gle-ac-client-secret"
+  project = "devconnect-terraform-creds"
+}
+
+resource "google_developer_connect_account_connector" "my-account-connector" {
+  location = "us-central1"
+  account_connector_id = "tf-test-ac"
+
+  custom_oauth_config {
+    auth_uri = "https://gle-us-central1.gcb-test.com/oauth/authorize"
+    client_id = data.google_secret_manager_secret_version_access.gle_ac_client_id.secret_data
+    client_secret = data.google_secret_manager_secret_version_access.gle_ac_client_secret.secret_data
+    token_uri = "https://gle-us-central1.gcb-test.com/oauth/token"
+    host_uri = "https://gle-us-central1.gcb-test.com"
+    scm_provider = "GITLAB_ENTERPRISE"
+    scopes = ["api"]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Terraform should ignore changes to the client_secret field because
+      # the API does not return it (INPUT_ONLY).
+      custom_oauth_config[0].client_secret,
+    ]
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_account_connector_bbdc&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Account Connector Bbdc
+
+
+```hcl
+data "google_secret_manager_secret_version_access" "bbdc_ac_client_id" {
+  secret  = "bbdc-ac-client-id"
+  project = "devconnect-terraform-creds"
+}
+
+data "google_secret_manager_secret_version_access" "bbdc_ac_client_secret" {
+  secret  = "bbdc-ac-client-secret"
+  project = "devconnect-terraform-creds"
+}
+
+resource "google_developer_connect_account_connector" "my-account-connector" {
+  location = "us-central1"
+  account_connector_id = "tf-test-ac"
+
+  custom_oauth_config {
+    auth_uri = "https://bitbucket-us-central.gcb-test.com/rest/oauth2/latest/authorize"
+    client_id = data.google_secret_manager_secret_version_access.bbdc_ac_client_id.secret_data
+    client_secret = data.google_secret_manager_secret_version_access.bbdc_ac_client_secret.secret_data
+    token_uri = "https://bitbucket-us-central.gcb-test.com/rest/oauth2/latest/token"
+    host_uri = "https://bitbucket-us-central.gcb-test.com"
+    scm_provider = "BITBUCKET_DATA_CENTER"
+    scopes = ["REPO_ADMIN"]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Terraform should ignore changes to the client_secret field because
+      # the API does not return it (INPUT_ONLY).
+      custom_oauth_config[0].client_secret,
+    ]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -71,45 +197,128 @@ The following arguments are supported:
 
 * `location` -
   (Required)
-  The location of the resource.
+  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
 
 * `account_connector_id` -
   (Required)
-  Required. The ID to use for the AccountConnector, which will become the final
+  The ID to use for the AccountConnector, which will become the final
   component of the AccountConnector's resource name. Its format should adhere
   to https://google.aip.dev/122#resource-id-segments Names must be unique
   per-project per-location.
 
+
+* `annotations` -
+  (Optional)
+  Allows users to store small amounts of arbitrary data.
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `custom_oauth_config` -
+  (Optional)
+  Message for a customized OAuth config.
+  Structure is [documented below](#nested_custom_oauth_config).
+
+* `etag` -
+  (Optional)
+  This checksum is computed by the server based on the value of other
+  fields, and may be sent on update and delete requests to ensure the
+  client has an up-to-date value before proceeding.
+
+* `labels` -
+  (Optional)
+  Labels as key value pairs
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `provider_oauth_config` -
   (Optional)
   ProviderOAuthConfig is the OAuth config for a provider.
   Structure is [documented below](#nested_provider_oauth_config).
 
-* `annotations` -
+* `proxy_config` -
   (Optional)
-  Optional. Allows users to store small amounts of arbitrary data.
-  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
-  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
-
-* `labels` -
-  (Optional)
-  Optional. Labels as key value pairs
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
+  The proxy configuration.
+  Structure is [documented below](#nested_proxy_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
 
+<a name="nested_custom_oauth_config"></a>The `custom_oauth_config` block supports:
+
+* `auth_uri` -
+  (Required)
+  The OAuth2 authrization server URL.
+
+* `client_id` -
+  (Required)
+  The client ID of the OAuth application.
+
+* `client_secret` -
+  (Required)
+  Input only. The client secret of the OAuth application.
+  It will be provided as plain text, but encrypted and stored in developer
+  connect. As INPUT_ONLY field, it will not be included in the output.
+
+* `host_uri` -
+  (Required)
+  The host URI of the OAuth application.
+
+* `pkce_disabled` -
+  (Optional)
+  Disable PKCE for this OAuth config. PKCE is enabled by default.
+
+* `scm_provider` -
+  (Required)
+  The type of the SCM provider.
+  Possible values:
+  SCM_PROVIDER_UNKNOWN
+  GITHUB_ENTERPRISE
+  GITLAB_ENTERPRISE
+  BITBUCKET_DATA_CENTER
+
+* `scopes` -
+  (Required)
+  The scopes to be requested during OAuth.
+
+* `server_version` -
+  (Output)
+  SCM server version installed at the host URI.
+
+* `service_directory_config` -
+  (Optional)
+  ServiceDirectoryConfig represents Service Directory configuration for a
+  connection.
+  Structure is [documented below](#nested_custom_oauth_config_service_directory_config).
+
+* `ssl_ca_certificate` -
+  (Optional)
+  SSL certificate to use for requests to a private service.
+
+* `token_uri` -
+  (Required)
+  The OAuth2 token request URL.
+
+
+<a name="nested_custom_oauth_config_service_directory_config"></a>The `service_directory_config` block supports:
+
+* `service` -
+  (Required)
+  The Service Directory service name.
+  Format:
+  projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.
+
 <a name="nested_provider_oauth_config"></a>The `provider_oauth_config` block supports:
+
+* `scopes` -
+  (Required)
+  User selected scopes to apply to the Oauth config
+  In the event of changing scopes, user records under AccountConnector will
+  be deleted and users will re-auth again.
 
 * `system_provider_id` -
   (Optional)
-  List of providers that are owned by Developer Connect. Creation of
-  new non-SCM providers Account Connectors is not possible at this
-  time.
   Possible values:
   GITHUB
   GITLAB
@@ -118,12 +327,14 @@ The following arguments are supported:
   ROVO
   NEW_RELIC
   DATASTAX
+  DYNATRACE
 
-* `scopes` -
-  (Required)
-  Required. User selected scopes to apply to the Oauth config
-  In the event of changing scopes, user records under AccountConnector will
-  be deleted and users will re-auth again.
+<a name="nested_proxy_config"></a>The `proxy_config` block supports:
+
+* `enabled` -
+  (Optional)
+  Setting this to true allows the git and http proxies to perform actions on
+  behalf of the user configured under the account connector.
 
 ## Attributes Reference
 
@@ -131,18 +342,18 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/accountConnectors/{{account_connector_id}}`
 
-* `oauth_start_uri` -
-  Output only. Start OAuth flow by clicking on this URL.
+* `create_time` -
+  The timestamp when the accountConnector was created.
 
 * `name` -
-  Identifier. The resource name of the userConnection, in the format
+  Identifier. The resource name of the accountConnector, in the format
   `projects/{project}/locations/{location}/accountConnectors/{account_connector_id}`.
 
-* `create_time` -
-  Output only. The timestamp when the userConnection was created.
+* `oauth_start_uri` -
+  Start OAuth flow by clicking on this URL.
 
 * `update_time` -
-  Output only. The timestamp when the userConnection was updated.
+  The timestamp when the accountConnector was updated.
 
 * `effective_annotations` -
   All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
