@@ -27,3 +27,5 @@ fields:
     field: 'state_details'
   - api_field: 'peerings.updateStrategy'
     field: 'update_strategy'
+  - field: 'deletion_policy'
+    provider_only: true

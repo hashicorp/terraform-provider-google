@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -32,12 +33,15 @@ const nonUniqueWriterAccount = "serviceAccount:cloud-logs@system.gserviceaccount
 
 func ResourceLoggingProjectSink() *schema.Resource {
 	schm := &schema.Resource{
-		Create:        resourceLoggingProjectSinkAcquireOrCreate,
-		Read:          resourceLoggingProjectSinkRead,
-		Delete:        resourceLoggingProjectSinkDelete,
-		Update:        resourceLoggingProjectSinkUpdate,
-		Schema:        resourceLoggingSinkSchema(),
-		CustomizeDiff: resourceLoggingProjectSinkCustomizeDiff,
+		Create: resourceLoggingProjectSinkAcquireOrCreate,
+		Read:   resourceLoggingProjectSinkRead,
+		Delete: resourceLoggingProjectSinkDelete,
+		Update: resourceLoggingProjectSinkUpdate,
+		Schema: resourceLoggingSinkSchema(),
+		CustomizeDiff: customdiff.All(
+			resourceLoggingProjectSinkCustomizeDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
 		Importer: &schema.ResourceImporter{
 			State: resourceLoggingSinkImportState("project"),
 		},
@@ -186,10 +190,20 @@ func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error setting unique_writer_identity: %s", err)
 		}
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 	return nil
 }
 
 func resourceLoggingProjectSinkUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceLoggingProjectSink) {
+		return ResourceLoggingProjectSink().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -220,6 +234,13 @@ func resourceLoggingProjectSinkUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceLoggingProjectSinkDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	name := d.Get("name")
 	for _, restrictedName := range []string{"_Required", "_Default"} {
 		if name == restrictedName {

@@ -47,6 +47,7 @@ func ResourceDataprocJob() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 			tpgresource.SetLabelsDiff,
 		),
@@ -228,6 +229,9 @@ func ResourceDataprocJob() *schema.Resource {
 			"pig_config":      pigSchema,
 			"sparksql_config": sparkSqlSchema,
 			"presto_config":   prestoSchema,
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -428,10 +432,22 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Error setting presto_config: %s", err)
 		}
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 	return nil
 }
 
 func resourceDataprocJobDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

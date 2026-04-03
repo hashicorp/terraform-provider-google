@@ -21,6 +21,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -30,6 +31,7 @@ func ResourceComputeSharedVpcHostProject() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeSharedVpcHostProjectCreate,
 		Read:   resourceComputeSharedVpcHostProjectRead,
+		Update: resourceComputeSharedVpcHostProjectUpdate,
 		Delete: resourceComputeSharedVpcHostProjectDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -40,6 +42,10 @@ func ResourceComputeSharedVpcHostProject() *schema.Resource {
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
+
 		Schema: map[string]*schema.Schema{
 			"project": {
 				Type:        schema.TypeString,
@@ -47,6 +53,9 @@ func ResourceComputeSharedVpcHostProject() *schema.Resource {
 				ForceNew:    true,
 				Description: `The ID of the project that will serve as a Shared VPC host project`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -99,10 +108,30 @@ func resourceComputeSharedVpcHostProjectRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error setting project: %s", err)
 	}
 
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 	return nil
 }
 
+// UDP update start
+func resourceComputeSharedVpcHostProjectUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceComputeSharedVpcHostProjectRead(d, meta)
+}
+
+//UDP update end
+
 func resourceComputeSharedVpcHostProjectDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

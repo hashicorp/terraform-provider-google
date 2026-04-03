@@ -153,3 +153,5 @@ fields:
   - api_field: 'virtualClusterConfig.kubernetesClusterConfig.kubernetesSoftwareConfig.componentVersion'
   - api_field: 'virtualClusterConfig.kubernetesClusterConfig.kubernetesSoftwareConfig.properties'
   - api_field: 'virtualClusterConfig.stagingBucket'
+  - field: 'deletion_policy'
+    provider_only: true

@@ -24,3 +24,5 @@ fields:
     field: 'subnetwork'
   - api_field: 'interfaces.linkedVpnTunnel'
     field: 'vpn_tunnel'
+  - field: 'deletion_policy'
+    provider_only: true
