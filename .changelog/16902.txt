@@ -1,0 +1,3 @@
+```release-note:bug
+firebaseailogic: fixed perma-diff on `traffic_filter` field in `google_firebase_ai_logic_config` resource
+```
