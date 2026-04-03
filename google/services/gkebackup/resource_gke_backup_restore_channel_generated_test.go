@@ -53,10 +53,13 @@ var (
 func TestAccGKEBackupRestoreChannel_gkebackupRestorechannelBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
 		"destination_project": "projects/24240755850",
-		"random_suffix":       acctest.RandString(t, 10),
+		"name":                "tf-test-basic-channel" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func TestAccGKEBackupRestoreChannel_gkebackupRestorechannelBasicExample(t *testi
 func testAccGKEBackupRestoreChannel_gkebackupRestorechannelBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gke_backup_restore_channel" "basic" {
-  name = "tf-test-basic-channel%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   description = "Description"
   destination_project = "%{destination_project}"

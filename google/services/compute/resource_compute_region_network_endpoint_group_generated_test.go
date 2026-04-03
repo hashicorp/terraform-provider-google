@@ -53,9 +53,14 @@ var (
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunctionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"bucket_name":   "tf-test-cloudfunctions-function-example-bucket" + randomSuffix,
+		"function_name": "tf-test-function-neg" + randomSuffix,
+		"neg_name":      "tf-test-function-neg" + randomSuffix,
 		"zip_path":      acctest.CreateZIPArchiveForCloudFunctionSource(t, "./test-fixtures/http_trigger.js"),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +85,7 @@ func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunction
 	return acctest.Nprintf(`
 // Cloud Functions Example
 resource "google_compute_region_network_endpoint_group" "function_neg" {
-  name                  = "tf-test-function-neg%{random_suffix}"
+  name                  = "%{neg_name}"
   network_endpoint_type = "SERVERLESS"
   region                = "us-central1"
   cloud_function {
@@ -89,7 +94,7 @@ resource "google_compute_region_network_endpoint_group" "function_neg" {
 }
 
 resource "google_cloudfunctions_function" "function_neg" {
-  name        = "tf-test-function-neg%{random_suffix}"
+  name        = "%{neg_name}"
   description = "My function"
   runtime     = "nodejs20"
 
@@ -102,7 +107,7 @@ resource "google_cloudfunctions_function" "function_neg" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 
@@ -117,8 +122,11 @@ resource "google_storage_bucket_object" "archive" {
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrunExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":      "tf-test-cloudrun-neg" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -143,7 +151,7 @@ func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrun
 	return acctest.Nprintf(`
 // Cloud Run Example
 resource "google_compute_region_network_endpoint_group" "cloudrun_neg" {
-  name                  = "tf-test-cloudrun-neg%{random_suffix}"
+  name                  = "%{neg_name}"
   network_endpoint_type = "SERVERLESS"
   region                = "us-central1"
   cloud_run {
@@ -152,7 +160,7 @@ resource "google_compute_region_network_endpoint_group" "cloudrun_neg" {
 }
 
 resource "google_cloud_run_service" "cloudrun_neg" {
-  name     = "tf-test-cloudrun-neg%{random_suffix}"
+  name     = "%{neg_name}"
   location = "us-central1"
 
   template {
@@ -174,8 +182,11 @@ resource "google_cloud_run_service" "cloudrun_neg" {
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengineExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":      "tf-test-appengine-neg" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -200,7 +211,7 @@ func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 	return acctest.Nprintf(`
 // App Engine Example
 resource "google_compute_region_network_endpoint_group" "appengine_neg" {
-  name                  = "tf-test-appengine-neg%{random_suffix}"
+  name                  = "%{neg_name}"
   network_endpoint_type = "SERVERLESS"
   region                = "us-central1"
   app_engine {
@@ -211,7 +222,7 @@ resource "google_compute_region_network_endpoint_group" "appengine_neg" {
 
 resource "google_app_engine_flexible_app_version" "appengine_neg" {
   version_id = "v1"
-  service    = "tf-test-appengine-neg%{random_suffix}"
+  service    = "%{neg_name}"
   runtime    = "nodejs"
   flexible_runtime_settings {
     operating_system = "ubuntu22"
@@ -263,7 +274,7 @@ resource "google_app_engine_flexible_app_version" "appengine_neg" {
 }
 
 resource "google_storage_bucket" "appengine_neg" {
-  name     = "tf-test-appengine-neg%{random_suffix}"
+  name     = "%{neg_name}"
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -279,8 +290,11 @@ resource "google_storage_bucket_object" "appengine_neg" {
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengineEmptyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":      "tf-test-appengine-neg" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -305,7 +319,7 @@ func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 	return acctest.Nprintf(`
 // App Engine Example
 resource "google_compute_region_network_endpoint_group" "appengine_neg" {
-  name                  = "tf-test-appengine-neg%{random_suffix}"
+  name                  = "%{neg_name}"
   network_endpoint_type = "SERVERLESS"
   region                = "us-central1"
   app_engine {
@@ -317,8 +331,11 @@ resource "google_compute_region_network_endpoint_group" "appengine_neg" {
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":      "tf-test-psc-neg" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -342,7 +359,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExamp
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_network_endpoint_group" "psc_neg" {
-  name                  = "tf-test-psc-neg%{random_suffix}"
+  name                  = "%{neg_name}"
   region                = "asia-northeast3"
 
   network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
@@ -354,8 +371,18 @@ resource "google_compute_region_network_endpoint_group" "psc_neg" {
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServiceAttachmentExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name":    "tf-test-psc-backend" + randomSuffix,
+		"forwarding_rule_name":    "tf-test-psc-forwarding-rule" + randomSuffix,
+		"health_check_name":       "tf-test-psc-healthcheck" + randomSuffix,
+		"neg_name":                "tf-test-psc-neg" + randomSuffix,
+		"network_name":            "tf-test-psc-network" + randomSuffix,
+		"psc_subnetwork_name":     "tf-test-psc-subnetwork-nat" + randomSuffix,
+		"service_attachment_name": "tf-test-psc-service-attachment" + randomSuffix,
+		"subnetwork_name":         "tf-test-psc-subnetwork" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -379,18 +406,18 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServi
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServiceAttachmentExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name = "tf-test-psc-network%{random_suffix}"
+  name = "%{network_name}"
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-psc-subnetwork%{random_suffix}"
+  name          = "%{subnetwork_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "europe-west4"
   network       = google_compute_network.default.id
 }
 
 resource "google_compute_subnetwork" "psc_subnetwork" {
-  name          = "tf-test-psc-subnetwork-nat%{random_suffix}"
+  name          = "%{psc_subnetwork_name}"
   ip_cidr_range = "10.1.0.0/16"
   region        = "europe-west4"
   purpose       = "PRIVATE_SERVICE_CONNECT"
@@ -398,7 +425,7 @@ resource "google_compute_subnetwork" "psc_subnetwork" {
 }
 
 resource "google_compute_health_check" "default" {
-  name = "tf-test-psc-healthcheck%{random_suffix}"
+  name = "%{health_check_name}"
 
   check_interval_sec = 1
   timeout_sec        = 1
@@ -407,14 +434,14 @@ resource "google_compute_health_check" "default" {
   }
 }
 resource "google_compute_region_backend_service" "default" {
-  name   = "tf-test-psc-backend%{random_suffix}"
+  name   = "%{backend_service_name}"
   region = "europe-west4"
 
   health_checks = [google_compute_health_check.default.id]
 }
 
 resource "google_compute_forwarding_rule" "default" {
-  name   = "tf-test-psc-forwarding-rule%{random_suffix}"
+  name   = "%{forwarding_rule_name}"
   region = "europe-west4"
 
   load_balancing_scheme = "INTERNAL"
@@ -425,7 +452,7 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_service_attachment" "default" {
-  name        = "tf-test-psc-service-attachment%{random_suffix}"
+  name        = "%{service_attachment_name}"
   region      = "europe-west4"
   description = "A service attachment configured with Terraform"
 
@@ -436,7 +463,7 @@ resource "google_compute_service_attachment" "default" {
 }
 
 resource "google_compute_region_network_endpoint_group" "psc_neg_service_attachment" {
-  name                  = "tf-test-psc-neg%{random_suffix}"
+  name                  = "%{neg_name}"
   region                = "europe-west4"
 
   network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
@@ -452,8 +479,12 @@ resource "google_compute_region_network_endpoint_group" "psc_neg_service_attachm
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternetIpPortExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":      "tf-test-ip-port-neg" + randomSuffix,
+		"network_name":  "network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -477,7 +508,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternet
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternetIpPortExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_network_endpoint_group" "region_network_endpoint_group_internet_ip_port" {
-  name                  = "tf-test-ip-port-neg%{random_suffix}"
+  name                  = "%{neg_name}"
   region                = "us-central1"
   network               = google_compute_network.default.id
 
@@ -485,7 +516,7 @@ resource "google_compute_region_network_endpoint_group" "region_network_endpoint
 }
 
 resource "google_compute_network" "default" {
-  name                    = "network%{random_suffix}"
+  name                    = "%{network_name}"
 }
 `, context)
 }
@@ -493,8 +524,12 @@ resource "google_compute_network" "default" {
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternetFqdnPortExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":      "tf-test-ip-port-neg" + randomSuffix,
+		"network_name":  "network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -518,7 +553,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternet
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternetFqdnPortExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_network_endpoint_group" "region_network_endpoint_group_internet_fqdn_port" {
-  name                  = "tf-test-ip-port-neg%{random_suffix}"
+  name                  = "%{neg_name}"
   region                = "us-central1"
   network               = google_compute_network.default.id
 
@@ -526,7 +561,7 @@ resource "google_compute_region_network_endpoint_group" "region_network_endpoint
 }
 
 resource "google_compute_network" "default" {
-  name                    = "network%{random_suffix}"
+  name                    = "%{network_name}"
 }
 `, context)
 }

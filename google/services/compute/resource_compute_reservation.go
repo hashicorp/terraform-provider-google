@@ -755,6 +755,8 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeReservation %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeReservation %q: %#v", d.Id(), res)
+
 	zone, err := tpgresource.GetZone(d, config)
 	if err != nil {
 		return err

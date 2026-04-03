@@ -51,14 +51,17 @@ var (
 )
 
 func TestAccOracleDatabaseOdbSubnet_oracledatabaseOdbsubnetExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
 		"deletion_protection": false,
 		"odb_network_id":      "tf-test-permanent-odbnetwork",
 		"odb_subnet_id":       fmt.Sprintf("tf-test-odbsubnet-%s", acctest.RandString(t, 10)),
 		"project":             "oci-terraform-testing-prod",
-		"random_suffix":       acctest.RandString(t, 10),
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

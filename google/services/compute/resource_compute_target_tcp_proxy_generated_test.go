@@ -53,8 +53,13 @@ var (
 func TestAccComputeTargetTcpProxy_targetTcpProxyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name":  "tf-test-backend-service" + randomSuffix,
+		"health_check_name":     "tf-test-health-check" + randomSuffix,
+		"target_tcp_proxy_name": "tf-test-test-proxy" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +83,12 @@ func TestAccComputeTargetTcpProxy_targetTcpProxyBasicExample(t *testing.T) {
 func testAccComputeTargetTcpProxy_targetTcpProxyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_target_tcp_proxy" "default" {
-  name            = "tf-test-test-proxy%{random_suffix}"
+  name            = "%{target_tcp_proxy_name}"
   backend_service = google_compute_backend_service.default.id
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "tf-test-backend-service%{random_suffix}"
+  name        = "%{backend_service_name}"
   protocol    = "TCP"
   timeout_sec = 10
 
@@ -91,7 +96,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   timeout_sec        = 1
   check_interval_sec = 1
 

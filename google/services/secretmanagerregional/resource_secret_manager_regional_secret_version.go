@@ -386,6 +386,8 @@ func resourceSecretManagerRegionalRegionalSecretVersionRead(d *schema.ResourceDa
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecretManagerRegionalRegionalSecretVersion %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecretManagerRegionalRegionalSecretVersion %q: %#v", d.Id(), res)
+
 	res, err = resourceSecretManagerRegionalRegionalSecretVersionDecoder(d, meta, res)
 	if err != nil {
 		return err

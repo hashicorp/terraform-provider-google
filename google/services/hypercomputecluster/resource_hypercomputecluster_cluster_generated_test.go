@@ -53,9 +53,11 @@ var (
 func TestAccHypercomputeclusterCluster_hypercomputeclusterClusterBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"cluster_id":    fmt.Sprintf("tf%s", acctest.RandString(t, 8)),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

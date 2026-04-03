@@ -53,8 +53,14 @@ var (
 func TestAccNetworkServicesMulticastDomainGroup_networkServicesMulticastDomainGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"domain_a_name":     "tf-test-test-mdg-domain-a" + randomSuffix,
+		"domain_b_name":     "tf-test-test-mdg-domain-b" + randomSuffix,
+		"domain_group_name": "tf-test-test-mdg-resource" + randomSuffix,
+		"network_name":      "tf-test-test-mdg-network" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +84,7 @@ func TestAccNetworkServicesMulticastDomainGroup_networkServicesMulticastDomainGr
 func testAccNetworkServicesMulticastDomainGroup_networkServicesMulticastDomainGroupBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_multicast_domain_group" "mdg_test"{
-  multicast_domain_group_id                    = "tf-test-test-mdg-resource%{random_suffix}"
+  multicast_domain_group_id                    = "%{domain_group_name}"
   location = "global"
   description = "my description"
   labels = {
@@ -87,12 +93,12 @@ resource "google_network_services_multicast_domain_group" "mdg_test"{
 }
 
 resource "google_compute_network" "network" {
-  name                    = "tf-test-test-mdg-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_services_multicast_domain" "multicast_domain_a" {
-  multicast_domain_id                    = "tf-test-test-mdg-domain-a%{random_suffix}"
+  multicast_domain_id                    = "%{domain_a_name}"
   location = "global"
   admin_network = google_compute_network.network.id
   connection_config  { connection_type="SAME_VPC"}
@@ -101,7 +107,7 @@ resource "google_network_services_multicast_domain" "multicast_domain_a" {
 }
 
 resource "google_network_services_multicast_domain" "multicast_domain_b" {
-  multicast_domain_id                   = "tf-test-test-mdg-domain-b%{random_suffix}"
+  multicast_domain_id                   = "%{domain_b_name}"
   location = "global"
   admin_network = google_compute_network.network.id
   connection_config  { connection_type="SAME_VPC"}

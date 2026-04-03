@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_eventarc_google_api_source
 generation_type: mmv1
 source_file: products/eventarc/GoogleApiSource.yaml

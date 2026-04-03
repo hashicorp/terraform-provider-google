@@ -53,8 +53,12 @@ var (
 func TestAccWorkflowsWorkflow_workflowBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":    "tf-test-my-account" + randomSuffix,
+		"name":          "workflow" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -72,12 +76,12 @@ func TestAccWorkflowsWorkflow_workflowBasicExample(t *testing.T) {
 func testAccWorkflowsWorkflow_workflowBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "test_account" {
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Test Service Account"
 }
 
 resource "google_workflows_workflow" "example" {
-  name          = "workflow%{random_suffix}"
+  name          = "%{name}"
   region        = "us-central1"
   description   = "Magic"
   service_account = google_service_account.test_account.id
@@ -124,8 +128,14 @@ EOF
 func TestAccWorkflowsWorkflow_workflowTagsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":    "tf-test-my-account" + randomSuffix,
+		"name":          "workflow" + randomSuffix,
+		"tag_key":       "tf_test_tag_key" + randomSuffix,
+		"tag_value":     "tf_test_tag_value" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -147,21 +157,21 @@ data "google_project" "project" {
 
 resource "google_tags_tag_key" "tag_key" {
   parent = "projects/${data.google_project.project.number}"
-  short_name = "tf_test_tag_key%{random_suffix}"
+  short_name = "%{tag_key}"
 }
 
 resource "google_tags_tag_value" "tag_value" {
   parent = "tagKeys/${google_tags_tag_key.tag_key.name}"
-  short_name = "tf_test_tag_value%{random_suffix}"
+  short_name = "%{tag_value}"
 }
 
 resource "google_service_account" "test_account" {
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Test Service Account"
 }
 
 resource "google_workflows_workflow" "example" {
-  name          = "workflow%{random_suffix}"
+  name          = "%{name}"
   region        = "us-central1"
   description   = "Magic"
   service_account = google_service_account.test_account.id

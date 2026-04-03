@@ -413,6 +413,8 @@ func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("KMSCryptoKey %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading KMSCryptoKey %q: %#v", d.Id(), res)
+
 	res, err = resourceKMSCryptoKeyDecoder(d, meta, res)
 	if err != nil {
 		return err

@@ -53,8 +53,12 @@ var (
 func TestAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data":          "tf-test-secret-data" + randomSuffix,
+		"secret_id":     "tf-test-secret-version" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +82,13 @@ func TestAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionBasi
 func testAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_regional_secret" "secret-basic" {
-  secret_id = "tf-test-secret-version%{random_suffix}"
+  secret_id = "%{secret_id}"
   location = "us-central1"
 }
 
 resource "google_secret_manager_regional_secret_version" "regional_secret_version_basic" {
   secret = google_secret_manager_regional_secret.secret-basic.id
-  secret_data = "tf-test-secret-data%{random_suffix}"
+  secret_data = "%{data}"
 }
 `, context)
 }
@@ -92,9 +96,12 @@ resource "google_secret_manager_regional_secret_version" "regional_secret_versio
 func TestAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionWithBase64DataExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"data":          "./test-fixtures/binary-file.pfx",
-		"random_suffix": acctest.RandString(t, 10),
+		"secret_id":     "tf-test-secret-version" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -118,7 +125,7 @@ func TestAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionWith
 func testAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionWithBase64DataExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_regional_secret" "secret-basic" {
-  secret_id = "tf-test-secret-version%{random_suffix}"
+  secret_id = "%{secret_id}"
   location = "us-central1"
 }
 
@@ -133,8 +140,12 @@ resource "google_secret_manager_regional_secret_version" "regional_secret_versio
 func TestAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionDisabledExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data":          "tf-test-secret-data" + randomSuffix,
+		"secret_id":     "tf-test-secret-version" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -158,13 +169,13 @@ func TestAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionDisa
 func testAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionDisabledExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_regional_secret" "secret-basic" {
-  secret_id = "tf-test-secret-version%{random_suffix}"
+  secret_id = "%{secret_id}"
   location = "us-central1"
 }
 
 resource "google_secret_manager_regional_secret_version" "regional_secret_version_disabled" {
   secret = google_secret_manager_regional_secret.secret-basic.id
-  secret_data = "tf-test-secret-data%{random_suffix}"
+  secret_data = "%{data}"
   enabled = false
 }
 `, context)
@@ -173,8 +184,12 @@ resource "google_secret_manager_regional_secret_version" "regional_secret_versio
 func TestAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionDeletionPolicyAbandonExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data":          "tf-test-secret-data" + randomSuffix,
+		"secret_id":     "tf-test-secret-version" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -198,13 +213,13 @@ func TestAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionDele
 func testAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionDeletionPolicyAbandonExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_regional_secret" "secret-basic" {
-  secret_id = "tf-test-secret-version%{random_suffix}"
+  secret_id = "%{secret_id}"
   location = "us-central1"
 }
 
 resource "google_secret_manager_regional_secret_version" "regional_secret_version_deletion_policy" {
   secret = google_secret_manager_regional_secret.secret-basic.id
-  secret_data = "tf-test-secret-data%{random_suffix}"
+  secret_data = "%{data}"
   deletion_policy = "ABANDON"
 }
 `, context)
@@ -213,8 +228,12 @@ resource "google_secret_manager_regional_secret_version" "regional_secret_versio
 func TestAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionDeletionPolicyDisableExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data":          "tf-test-secret-data" + randomSuffix,
+		"secret_id":     "tf-test-secret-version" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -238,13 +257,13 @@ func TestAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionDele
 func testAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionDeletionPolicyDisableExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_regional_secret" "secret-basic" {
-  secret_id = "tf-test-secret-version%{random_suffix}"
+  secret_id = "%{secret_id}"
   location = "us-central1"
 }
 
 resource "google_secret_manager_regional_secret_version" "regional_secret_version_deletion_policy" {
   secret = google_secret_manager_regional_secret.secret-basic.id
-  secret_data = "tf-test-secret-data%{random_suffix}"
+  secret_data = "%{data}"
   deletion_policy = "DISABLE"
 }
 `, context)

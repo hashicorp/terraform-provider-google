@@ -380,10 +380,10 @@ Supported file types: .py, .egg, and .zip.`,
 										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
-										Description: `Optional. Scenarios for which tunings are applied. Possible values: ["SCALING", "BROADCAST_HASH_JOIN", "MEMORY"]`,
+										Description: `Optional. Scenarios for which tunings are applied. Possible values: ["AUTO", "SCALING", "BROADCAST_HASH_JOIN", "MEMORY"]`,
 										Elem: &schema.Schema{
 											Type:         schema.TypeString,
-											ValidateFunc: verify.ValidateEnum([]string{"SCALING", "BROADCAST_HASH_JOIN", "MEMORY"}),
+											ValidateFunc: verify.ValidateEnum([]string{"AUTO", "SCALING", "BROADCAST_HASH_JOIN", "MEMORY"}),
 										},
 										RequiredWith: []string{"runtime_config.0.cohort"},
 									},
@@ -915,6 +915,8 @@ func resourceDataprocBatchRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataprocBatch %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading DataprocBatch %q: %#v", d.Id(), res)
 
 	res, err = resourceDataprocBatchDecoder(d, meta, res)
 	if err != nil {

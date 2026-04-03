@@ -53,8 +53,11 @@ var (
 func TestAccVertexAIDeploymentResourcePool_vertexAiDeploymentResourcePoolExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"deployment_resource_pool_id": "tf-test-example-deployment-resource-pool" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccVertexAIDeploymentResourcePool_vertexAiDeploymentResourcePoolExample
 	return acctest.Nprintf(`
 resource "google_vertex_ai_deployment_resource_pool" "deployment_resource_pool" {
     region = "us-central1"
-    name = "tf-test-example-deployment-resource-pool%{random_suffix}"
+    name = "%{deployment_resource_pool_id}"
     dedicated_resources {
         machine_spec {
             machine_type = "n1-standard-4"

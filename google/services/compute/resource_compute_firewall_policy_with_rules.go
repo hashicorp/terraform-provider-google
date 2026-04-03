@@ -971,6 +971,8 @@ func resourceComputeFirewallPolicyWithRulesRead(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeFirewallPolicyWithRules %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeFirewallPolicyWithRules %q: %#v", d.Id(), res)
+
 	res, err = resourceComputeFirewallPolicyWithRulesDecoder(d, meta, res)
 	if err != nil {
 		return err

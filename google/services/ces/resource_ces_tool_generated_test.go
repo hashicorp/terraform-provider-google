@@ -53,8 +53,14 @@ var (
 func TestAccCESTool_cesToolClientFunctionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name":  "tf-test-my-app" + randomSuffix,
+		"app_id":            "tf-test-app-id" + randomSuffix,
+		"tool_display_name": "tf_test_ces_tool_client_function_basic" + randomSuffix,
+		"tool_id":           "tf_test_ces_tool_basic1" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,8 +85,8 @@ func testAccCESTool_cesToolClientFunctionBasicExample(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_ces_app" "my-app" {
     location     = "us"
-    display_name = "tf-test-my-app%{random_suffix}"
-    app_id       = "tf-test-app-id%{random_suffix}"
+    display_name = "%{app_display_name}"
+    app_id       = "%{app_id}"
     time_zone_settings {   
         time_zone = "America/Los_Angeles"
     }
@@ -88,10 +94,10 @@ resource "google_ces_app" "my-app" {
 resource "google_ces_tool" "ces_tool_client_function_basic" {
     location     = "us"
     app          = google_ces_app.my-app.name
-    tool_id      = "tf_test_ces_tool_basic1%{random_suffix}"
+    tool_id      = "%{tool_id}"
     execution_type = "SYNCHRONOUS"
     client_function {
-        name = "tf_test_ces_tool_client_function_basic%{random_suffix}"
+        name = "%{tool_display_name}"
         description = "example-description"
         parameters {
             additional_properties = jsonencode(
@@ -189,8 +195,16 @@ resource "google_ces_tool" "ces_tool_client_function_basic" {
 func TestAccCESTool_cesToolDataStoreToolEngineSourceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name":  "tf-test-my-app" + randomSuffix,
+		"app_id":            "tf-test-app-id" + randomSuffix,
+		"data_store_id":     "tf_test_tool_data_store_id" + randomSuffix,
+		"engine_id":         "tf_test_tool_engine_id" + randomSuffix,
+		"tool_display_name": "tf_test_ces_tool_data_store_tool_engine_source_basic" + randomSuffix,
+		"tool_id":           "tf_test_ces_tool_basic2" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -215,7 +229,7 @@ func testAccCESTool_cesToolDataStoreToolEngineSourceBasicExample(context map[str
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "basic" {
   location                    = "global"
-  data_store_id               = "tf_test_tool_data_store_id%{random_suffix}"
+  data_store_id               = "%{data_store_id}"
   display_name                = "tf-test-structured-datastore"
   industry_vertical           = "GENERIC"
   content_config              = "NO_CONTENT"
@@ -223,7 +237,7 @@ resource "google_discovery_engine_data_store" "basic" {
   create_advanced_site_search = false
 }
 resource "google_discovery_engine_search_engine" "basic" {
-  engine_id = "tf_test_tool_engine_id%{random_suffix}"
+  engine_id = "%{engine_id}"
   collection_id = "default_collection"
   location = google_discovery_engine_data_store.basic.location
   display_name = "Example Display Name"
@@ -233,8 +247,8 @@ resource "google_discovery_engine_search_engine" "basic" {
 }
 resource "google_ces_app" "my-app" {
     location     = "us"
-    display_name = "tf-test-my-app%{random_suffix}"
-    app_id       = "tf-test-app-id%{random_suffix}"
+    display_name = "%{app_display_name}"
+    app_id       = "%{app_id}"
     time_zone_settings {   
         time_zone = "America/Los_Angeles"
     }
@@ -242,7 +256,7 @@ resource "google_ces_app" "my-app" {
 resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
     location       = "us"
     app            = google_ces_app.my-app.name
-    tool_id        = "tf_test_ces_tool_basic2%{random_suffix}"
+    tool_id        = "%{tool_id}"
     execution_type = "SYNCHRONOUS"
     data_store_tool {
         name = "example-tool"
@@ -310,8 +324,14 @@ resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
 func TestAccCESTool_cesToolGoogleSearchToolBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name":  "tf-test-my-app" + randomSuffix,
+		"app_id":            "tf-test-app-id" + randomSuffix,
+		"tool_display_name": "tf_test_ces_tool_google_search_tool_basic" + randomSuffix,
+		"tool_id":           "tf_test_ces_tool_basic3" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -336,8 +356,8 @@ func testAccCESTool_cesToolGoogleSearchToolBasicExample(context map[string]inter
 	return acctest.Nprintf(`
 resource "google_ces_app" "my-app" {
     location     = "us"
-    display_name = "tf-test-my-app%{random_suffix}"
-    app_id       = "tf-test-app-id%{random_suffix}"
+    display_name = "%{app_display_name}"
+    app_id       = "%{app_id}"
     time_zone_settings {   
         time_zone = "America/Los_Angeles"
     }
@@ -345,7 +365,7 @@ resource "google_ces_app" "my-app" {
 resource "google_ces_tool" "ces_tool_google_search_tool_basic" {
     location       = "us"
     app            = google_ces_app.my-app.name
-    tool_id        = "tf_test_ces_tool_basic3%{random_suffix}"
+    tool_id        = "%{tool_id}"
     execution_type = "SYNCHRONOUS"
     google_search_tool {
         name            = "example-tool"
@@ -361,8 +381,14 @@ resource "google_ces_tool" "ces_tool_google_search_tool_basic" {
 func TestAccCESTool_cesToolPythonFunctionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name":  "tf-test-my-app" + randomSuffix,
+		"app_id":            "tf-test-app-id" + randomSuffix,
+		"tool_display_name": "tf_test_ces_tool_python_function_basic" + randomSuffix,
+		"tool_id":           "tf_test_ces_tool_basic4" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -387,8 +413,8 @@ func testAccCESTool_cesToolPythonFunctionBasicExample(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_ces_app" "my-app" {
     location     = "us"
-    display_name = "tf-test-my-app%{random_suffix}"
-    app_id       = "tf-test-app-id%{random_suffix}"
+    display_name = "%{app_display_name}"
+    app_id       = "%{app_id}"
     time_zone_settings {   
         time_zone = "America/Los_Angeles"
     }
@@ -396,7 +422,7 @@ resource "google_ces_app" "my-app" {
 resource "google_ces_tool" "ces_tool_python_function_basic" {
     location       = "us"
     app            = google_ces_app.my-app.name
-    tool_id        = "tf_test_ces_tool_basic4%{random_suffix}"
+    tool_id        = "%{tool_id}"
     execution_type = "SYNCHRONOUS"
     python_function {
         name = "example_function"

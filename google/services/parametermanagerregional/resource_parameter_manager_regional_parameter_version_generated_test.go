@@ -53,8 +53,12 @@ var (
 func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":         "tf_test_regional_parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_regional_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +82,13 @@ func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVe
 func testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
-  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   location = "us-central1"
 }
 
 resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-basic" {
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
-  parameter_version_id = "tf_test_regional_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = "regional-parameter-version-data"
 }
 `, context)
@@ -93,8 +97,12 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
 func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithJsonFormatExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":         "tf_test_regional_parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_regional_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -118,14 +126,14 @@ func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVe
 func testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithJsonFormatExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
-  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   format = "JSON"
   location = "us-central1"
 }
 
 resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-json-format" {
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
-  parameter_version_id = "tf_test_regional_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = jsonencode({
     "key1": "val1",
     "key2": "val2"
@@ -137,8 +145,12 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
 func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithYamlFormatExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":         "tf_test_regional_parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_regional_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -162,14 +174,14 @@ func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVe
 func testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithYamlFormatExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
-  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   format = "YAML"
   location = "us-central1"
 }
 
 resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-yaml-format" {
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
-  parameter_version_id = "tf_test_regional_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = yamlencode({
     "key1": "val1",
     "key2": "val2"
@@ -187,9 +199,13 @@ func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVe
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"kms_key":       acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"kms_key":              acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"parameter_id":         "tf_test_regional_parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_regional_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -215,7 +231,7 @@ func testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVe
 data "google_project" "project" {}
 
 resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
-  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   location = "us-central1"
 
   kms_key = "%{kms_key}"
@@ -223,7 +239,7 @@ resource "google_parameter_manager_regional_parameter" "regional-parameter-basic
 
 resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-kms-key" {
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
-  parameter_version_id = "tf_test_regional_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = "regional-parameter-version-data"
 }
 `, context)
@@ -232,9 +248,13 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
 func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithJsonFormatWithFileExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"data":          "./test-fixtures/regional_parameter_data_json_format.json",
-		"random_suffix": acctest.RandString(t, 10),
+		"data":                 "./test-fixtures/regional_parameter_data_json_format.json",
+		"parameter_id":         "tf_test_regional_parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_regional_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -258,14 +278,14 @@ func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVe
 func testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithJsonFormatWithFileExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
-  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   format = "JSON"
   location = "us-central1"
 }
 
 resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-json-format-with-file" {
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
-  parameter_version_id = "tf_test_regional_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = file("%{data}")
 }
 `, context)
@@ -274,9 +294,13 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
 func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithYamlFormatWithFileExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"data":          "./test-fixtures/regional_parameter_data_yaml_format.yaml",
-		"random_suffix": acctest.RandString(t, 10),
+		"data":                 "./test-fixtures/regional_parameter_data_yaml_format.yaml",
+		"parameter_id":         "tf_test_regional_parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_regional_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -300,14 +324,14 @@ func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVe
 func testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithYamlFormatWithFileExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
-  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   format = "YAML"
   location = "us-central1"
 }
 
 resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-yaml-format-with-file" {
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
-  parameter_version_id = "tf_test_regional_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = file("%{data}")
 }
 `, context)

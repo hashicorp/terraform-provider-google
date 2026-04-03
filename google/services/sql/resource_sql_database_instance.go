@@ -104,6 +104,7 @@ var (
 		"settings.0.ip_configuration.0.ssl_mode",
 		"settings.0.ip_configuration.0.server_ca_mode",
 		"settings.0.ip_configuration.0.server_ca_pool",
+		"settings.0.ip_configuration.0.server_certificate_rotation_mode",
 		"settings.0.ip_configuration.0.custom_subject_alternative_names",
 	}
 
@@ -702,6 +703,14 @@ API (for read pools, effective_availability_type may differ from availability_ty
 										Optional:     true,
 										Description:  `The resource name of the server CA pool for an instance with "CUSTOMER_MANAGED_CAS_CA" as the "server_ca_mode".`,
 										AtLeastOneOf: ipConfigurationKeys,
+									},
+									"server_certificate_rotation_mode": {
+										Type:             schema.TypeString,
+										Optional:         true,
+										ValidateFunc:     validation.StringInSlice([]string{"NO_AUTOMATIC_ROTATION", "AUTOMATIC_ROTATION_DURING_MAINTENANCE"}, false),
+										Description:      `Settings for how the server certificate gets rotated.`,
+										AtLeastOneOf:     ipConfigurationKeys,
+										DiffSuppressFunc: serverCertificateRotationModeDiffSuppress,
 									},
 									"custom_subject_alternative_names": {
 										Type:     schema.TypeSet,
@@ -1380,6 +1389,11 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Required:    true,
 							Description: `The name of the instance from which the point in time should be restored.`,
 						},
+						"source_project": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The project ID of the source project`,
+						},
 						"point_in_time": {
 							Type:             schema.TypeString,
 							Optional:         true,
@@ -1447,6 +1461,11 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `The name of the target instance to restore to.`,
+						},
+						"region": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The region of the target instance to restore to.`,
 						},
 					},
 				},
@@ -1561,6 +1580,11 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	cloneContext, cloneSourceInstance := expandCloneContext(d.Get("clone").([]interface{}))
+
+	cloneSourceProject := expandCloneSourceProject(d.Get("clone").([]interface{}))
+	if cloneSourceProject == "" {
+		cloneSourceProject = project
+	}
 	pointInTimeRestoreContext := expandPointInTimeRestoreContext(d.Get("point_in_time_restore_context").([]interface{}))
 
 	if valueI, ok := d.GetOk("settings.0.auto_upgrade_enabled"); ok && !(valueI.(bool)) {
@@ -1622,8 +1646,13 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		RetryFunc: func() (operr error) {
 			if cloneContext != nil {
 				cloneContext.DestinationInstanceName = name
+				// if cloneSourceProject isn't equal to the project, then it's a cross project clone request.
+				if cloneSourceProject != project {
+					cloneContext.DestinationProject = project
+					cloneContext.DestinationNetwork = network
+				}
 				clodeReq := sqladmin.InstancesCloneRequest{CloneContext: cloneContext}
-				op, operr = config.NewSqlAdminClient(userAgent).Instances.Clone(project, cloneSourceInstance, &clodeReq).Do()
+				op, operr = config.NewSqlAdminClient(userAgent).Instances.Clone(cloneSourceProject, cloneSourceInstance, &clodeReq).Do()
 			} else if pointInTimeRestoreContext != nil {
 				parent := fmt.Sprintf("projects/%s", project)
 				op, operr = config.NewSqlAdminClient(userAgent).Instances.PointInTimeRestore(parent, pointInTimeRestoreContext).Do()
@@ -1867,6 +1896,14 @@ func expandCloneContext(configured []interface{}) (*sqladmin.CloneContext, strin
 	}, _cloneConfiguration["source_instance_name"].(string)
 }
 
+func expandCloneSourceProject(configured []interface{}) string {
+	if len(configured) == 0 || configured[0] == nil {
+		return ""
+	}
+	_cloneConfiguration := configured[0].(map[string]interface{})
+	return _cloneConfiguration["source_project"].(string)
+}
+
 func expandMaintenanceWindow(configured []interface{}) *sqladmin.MaintenanceWindow {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
@@ -1920,6 +1957,7 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 		SslMode:                                 _ipConfiguration["ssl_mode"].(string),
 		ServerCaMode:                            _ipConfiguration["server_ca_mode"].(string),
 		ServerCaPool:                            _ipConfiguration["server_ca_pool"].(string),
+		ServerCertificateRotationMode:           _ipConfiguration["server_certificate_rotation_mode"].(string),
 		CustomSubjectAlternativeNames:           tpgresource.ConvertStringArr(_ipConfiguration["custom_subject_alternative_names"].(*schema.Set).List()),
 	}
 }
@@ -2770,6 +2808,15 @@ func databaseVersionDiffSuppress(_, oldVersion, newVersion string, _ *schema.Res
 	return false
 }
 
+func serverCertificateRotationModeDiffSuppress(_, oldMode, newMode string, _ *schema.ResourceData) bool {
+	// If the value is not set in the configuration (new is empty)
+	// and the API returns the default UNSPECIFIED value, suppress the diff.
+	if newMode == "" && oldMode == "SERVER_CERTIFICATE_ROTATION_MODE_UNSPECIFIED" {
+		return true
+	}
+	return false
+}
+
 func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -3149,6 +3196,7 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 		"ssl_mode":                         ipConfiguration.SslMode,
 		"server_ca_mode":                   ipConfiguration.ServerCaMode,
 		"server_ca_pool":                   ipConfiguration.ServerCaPool,
+		"server_certificate_rotation_mode": ipConfiguration.ServerCertificateRotationMode,
 		"custom_subject_alternative_names": ipConfiguration.CustomSubjectAlternativeNames,
 	}
 
@@ -3470,6 +3518,7 @@ func expandPointInTimeRestoreContext(configured []interface{}) *sqladmin.PointIn
 		Datasource:       _pitrc["datasource"].(string),
 		AllocatedIpRange: _pitrc["allocated_ip_range"].(string),
 		TargetInstance:   _pitrc["target_instance"].(string),
+		Region:           _pitrc["region"].(string),
 	}
 }
 

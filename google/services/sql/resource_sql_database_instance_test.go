@@ -1691,6 +1691,37 @@ func TestAccSqlDatabaseInstance_basicClone(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_crossProjectClone(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":      acctest.RandString(t, 10),
+		"orgId":              envvar.GetTestOrgFromEnv(t),
+		"billingAccount":     envvar.GetTestBillingAccountFromEnv(t),
+		"cloneSourceProject": envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_crossProjectClone(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdFunc:       testAccSqlDatabaseInstanceImportStateIdFunc("google_sql_database_instance.instance"),
+				ImportStateVerifyIgnore: []string{"deletion_protection", "clone"},
+			},
+		},
+	})
+}
+
 func testAccSqlDatabaseInstanceImportStateIdFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
@@ -1785,6 +1816,44 @@ func TestAccSqlDatabaseInstance_pointInTimeRestore(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSqlDatabaseInstance_pointInTimeRestoreContext(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "point_in_time_restore_context"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_pointInTimeRestoreInMultiRegion(t *testing.T) {
+	// Skipped due to randomness
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	backupVaultID := "bv-test-mr"
+	location := "us"
+	project := envvar.GetTestProjectFromEnv()
+	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"project":         project,
+		"backup_vault_id": backupVaultID,
+		"backup_vault":    backupVault,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_pointInTimeRestoreContextMultiRegion(context),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -3965,6 +4034,7 @@ func TestAccSqlDatabaseInstance_useInternalCaByDefault(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_ca_mode", "GOOGLE_MANAGED_INTERNAL_CA"),
 					resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_ca_pool", ""),
+					resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_certificate_rotation_mode", "SERVER_CERTIFICATE_ROTATION_MODE_UNSPECIFIED"),
 				),
 			},
 			{
@@ -3994,9 +4064,40 @@ func TestAccSqlDatabaseInstance_useCasBasedServerCa(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_ca_mode", "GOOGLE_MANAGED_CAS_CA"),
 					resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_ca_pool", ""),
+					resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_certificate_rotation_mode", "SERVER_CERTIFICATE_ROTATION_MODE_UNSPECIFIED"),
 					resource.TestCheckResourceAttr(resourceName, "dns_names.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "dns_names.0.connection_type", "PUBLIC"),
 					resource.TestCheckResourceAttr(resourceName, "dns_names.0.dns_scope", "INSTANCE"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_setServerCertRotationMode(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+	resourceName := "google_sql_database_instance.instance"
+	rotationMode := "AUTOMATIC_ROTATION_DURING_MAINTENANCE"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_setServerCertRotationMode(databaseName, rotationMode),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_certificate_rotation_mode", rotationMode),
+					resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_ca_mode", "GOOGLE_MANAGED_CAS_CA"),
 				),
 			},
 			{
@@ -4725,6 +4826,7 @@ resource "google_sql_database_instance" "instance" {
 		ipv4_enabled    = "true"
 		server_ca_mode  = "CUSTOMER_MANAGED_CAS_CA"
 		server_ca_pool  = google_privateca_ca_pool.customer_ca_pool.id
+		server_certificate_rotation_mode = "AUTOMATIC_ROTATION_DURING_MAINTENANCE"
 		custom_subject_alternative_names = ["%{customSan}"]
 	}
   }
@@ -4813,9 +4915,10 @@ resource "google_sql_database_instance" "instance" {
   settings {
 	tier = "db-f1-micro"
 	ip_configuration {
-		ipv4_enabled    = "true"
-		server_ca_mode  = "CUSTOMER_MANAGED_CAS_CA"
-		server_ca_pool  = google_privateca_ca_pool.customer_ca_pool.id
+		ipv4_enabled                     = "true"
+		server_ca_mode                   = "CUSTOMER_MANAGED_CAS_CA"
+		server_ca_pool                   = google_privateca_ca_pool.customer_ca_pool.id
+		server_certificate_rotation_mode = "AUTOMATIC_ROTATION_DURING_MAINTENANCE"
 	}
   }
 
@@ -4840,6 +4943,25 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, databaseName, serverCaMode)
+}
+
+func testGoogleSqlDatabaseInstance_setServerCertRotationMode(databaseName, rotationMode string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "POSTGRES_15"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      ipv4_enabled    = "true"
+      server_ca_mode  = "GOOGLE_MANAGED_CAS_CA"
+      server_certificate_rotation_mode = "%s"
+    }
+  }
+}
+`, databaseName, rotationMode)
 }
 
 func testGoogleSqlDatabaseInstance_setSslOptionsForPostgreSQL(databaseName string, databaseVersion string, sslMode string) string {
@@ -8195,7 +8317,6 @@ data "google_sql_backup_run" "backup" {
 func testAccSqlDatabaseInstance_crossProjectClone(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "project" {
-  provider = google-beta
   name                = "tf-test-cpc-%{random_suffix}"
   project_id          = "tf-test-cpc-%{random_suffix}"
   org_id              = "%{orgId}"
@@ -8209,14 +8330,12 @@ resource "time_sleep" "wait_60_seconds" {
 }
 
 resource "google_project_service" "compute" {
-  provider = google-beta
   project = google_project.project.project_id
   service = "compute.googleapis.com"
   depends_on = [time_sleep.wait_60_seconds]
 }
 
 resource "google_project_service" "servicenetworking" {
-  provider = google-beta
   project = google_project.project.project_id
   service = "servicenetworking.googleapis.com"
   depends_on = [google_project_service.compute]
@@ -8228,14 +8347,12 @@ resource "time_sleep" "wait_300_seconds" {
 }
 
 resource "google_compute_network" "sql_network" {
-  provider = google-beta
   name       = "sql-network"
   project    = google_project.project.project_id
   depends_on = [time_sleep.wait_300_seconds]
 }
 
 resource "google_compute_global_address" "sql_range" {
-  provider = google-beta
   name          = "sql-range"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
@@ -8245,7 +8362,6 @@ resource "google_compute_global_address" "sql_range" {
 }
 
 resource "google_service_networking_connection" "sql_vpc_connection" {
-  provider = google-beta
   network                 = google_compute_network.sql_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.sql_range.name]
@@ -8254,7 +8370,6 @@ resource "google_service_networking_connection" "sql_vpc_connection" {
 }
 
 resource "google_sql_database_instance" "instance" {
-	provider = google-beta
 	name             = "tf-test-cpc-%{random_suffix}"
 	database_version = "POSTGRES_11"
 	region           = "us-central1"
@@ -8287,7 +8402,6 @@ resource "google_sql_database_instance" "instance" {
 }
 
 resource "google_sql_database_instance" "source_instance" {
-	provider = google-beta
 	name = "tf-test-source-%{random_suffix}"
 	database_version = "POSTGRES_11"
 	region           = "us-central1"
@@ -8358,6 +8472,117 @@ resource "google_sql_database_instance" "instance" {
 data "google_sql_backup_run" "backup" {
 	instance = "%{original_db_name}"
 	most_recent = true
+}
+`, context)
+}
+
+func testAccSqlDatabaseInstance_pointInTimeRestoreContextMultiRegion(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+// Create a backup plan
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+  log_retention_days = 2
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+// Create source SQL instance to backup
+resource "google_sql_database_instance" "source" {
+    name                = "tf-test-source-%{random_suffix}"
+    database_version    = "MYSQL_8_0_41"
+    region             	= "us-central1"
+    project            	= "%{project}"
+    settings {
+        tier = "db-f1-micro"
+        backup_configuration {
+            enabled = true
+        }
+    }
+	lifecycle {
+		ignore_changes = [
+		  settings[0].backup_configuration[0].enabled,
+		]
+ 	}
+    deletion_protection = false
+}
+
+// Associate backup plan with SQL instance
+resource "google_backup_dr_backup_plan_association" "association" { 
+  location 						= "us-central1" 
+  backup_plan_association_id 	= "tf-test-bpa-test-%{random_suffix}"
+  resource 						= "projects/${google_sql_database_instance.source.project}/instances/${google_sql_database_instance.source.name}"
+  resource_type					= "sqladmin.googleapis.com/Instance"
+  backup_plan 					= google_backup_dr_backup_plan.plan.name
+}
+
+// Wait for the first backup to be created
+resource "time_sleep" "wait_10_mins" {
+  depends_on = [google_backup_dr_backup_plan_association.association]
+
+  create_duration = "600s"
+}
+
+data "google_backup_dr_backup" "sql_backups" {
+  project			= "%{project}"
+  location      	= "us"
+  backup_vault_id 	= "%{backup_vault_id}"
+  data_source_id 	= element(split("/", google_backup_dr_backup_plan_association.association.data_source), length(split("/", google_backup_dr_backup_plan_association.association.data_source)) - 1)
+
+  depends_on = [time_sleep.wait_10_mins]
+}
+
+// for a point in time restore operation to succeed, the source instance must be in active state and have logs
+resource "google_sql_database" "database" {
+  name     = "tf-test-db-%{random_suffix}"
+  instance =  google_sql_database_instance.source.name
+  project  = "%{project}"
+  depends_on = [data.google_backup_dr_backup.sql_backups]
+}
+
+// Wait for the ten minutes (RPO is 5 minutes)
+resource "time_sleep" "wait_for_binlog" {
+  depends_on = [google_sql_database.database]
+
+  create_duration = "600s"
+}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%{random_suffix}"
+  database_version = "MYSQL_8_0_41"
+  region           = "us-central1"
+
+  point_in_time_restore_context {
+    datasource      = google_backup_dr_backup_plan_association.association.data_source
+	target_instance = "%{project}:tf-test-%{random_suffix}"
+	point_in_time   = timestamp()
+	region		    = "us-central1"
+  }
+
+  lifecycle {
+	ignore_changes = [point_in_time_restore_context[0].point_in_time]
+  }
+
+  depends_on = [time_sleep.wait_for_binlog]
+
+  deletion_protection 	= false
 }
 `, context)
 }

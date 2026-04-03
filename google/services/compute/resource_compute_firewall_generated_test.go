@@ -53,8 +53,12 @@ var (
 func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"firewall_name": "tf-test-test-firewall" + randomSuffix,
+		"network_name":  "tf-test-test-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 func testAccComputeFirewall_firewallBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_firewall" "default" {
-  name    = "tf-test-test-firewall%{random_suffix}"
+  name    = "%{firewall_name}"
   network = google_compute_network.default.name
 
   allow {
@@ -94,7 +98,7 @@ resource "google_compute_firewall" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name = "tf-test-test-network%{random_suffix}"
+  name = "%{network_name}"
 }
 `, context)
 }
@@ -102,9 +106,12 @@ resource "google_compute_network" "default" {
 func TestAccComputeFirewall_firewallWithTargetTagsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"firewall_name": "tf-test-my-firewall-rule" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -129,7 +136,7 @@ func testAccComputeFirewall_firewallWithTargetTagsExample(context map[string]int
 	return acctest.Nprintf(`
 resource "google_compute_firewall" "rules" {
   project     = "%{project}"
-  name        = "tf-test-my-firewall-rule%{random_suffix}"
+  name        = "%{firewall_name}"
   network     = "default"
   description = "Creates firewall rule targeting tagged instances"
 

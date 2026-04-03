@@ -53,8 +53,12 @@ var (
 func TestAccDataprocMetastoreFederation_dataprocMetastoreFederationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"federation_id": "tf-test-metastore-fed" + randomSuffix,
+		"service_id":    "tf-test-metastore-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +83,7 @@ func testAccDataprocMetastoreFederation_dataprocMetastoreFederationBasicExample(
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_federation" "default" {
   location      = "us-central1"
-  federation_id = "tf-test-metastore-fed%{random_suffix}"
+  federation_id = "%{federation_id}"
   version       = "3.1.2"
 
   backend_metastores {
@@ -90,7 +94,7 @@ resource "google_dataproc_metastore_federation" "default" {
 }
 
 resource "google_dataproc_metastore_service" "default" {
-  service_id = "tf-test-metastore-service%{random_suffix}"
+  service_id = "%{service_id}"
   location   = "us-central1"
   tier       = "DEVELOPER"
 
@@ -107,8 +111,12 @@ resource "google_dataproc_metastore_service" "default" {
 func TestAccDataprocMetastoreFederation_dataprocMetastoreFederationBigqueryExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"federation_id": "tf-test-metastore-fed" + randomSuffix,
+		"service_id":    "tf-test-metastore-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -133,7 +141,7 @@ func testAccDataprocMetastoreFederation_dataprocMetastoreFederationBigqueryExamp
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_federation" "default" {
   location      = "us-central1"
-  federation_id = "tf-test-metastore-fed%{random_suffix}"
+  federation_id = "%{federation_id}"
   version       = "3.1.2"
 
   backend_metastores {
@@ -150,7 +158,7 @@ resource "google_dataproc_metastore_federation" "default" {
 }
 
 resource "google_dataproc_metastore_service" "default" {
-  service_id = "tf-test-metastore-service%{random_suffix}"
+  service_id = "%{service_id}"
   location   = "us-central1"
   tier       = "DEVELOPER"
 

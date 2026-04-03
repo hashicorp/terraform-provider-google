@@ -53,9 +53,12 @@ var (
 func TestAccDeveloperConnectConnection_developerConnectConnectionExistingCredentialsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"secret_name":   "projects/devconnect-terraform-creds/secrets/tf-test-do-not-change-github-oauthtoken-e0b9e7/versions/1",
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "tf-test-tf-test-connection-cred" + randomSuffix,
+		"secret_name":     "projects/devconnect-terraform-creds/secrets/tf-test-do-not-change-github-oauthtoken-e0b9e7/versions/1",
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func testAccDeveloperConnectConnection_developerConnectConnectionExistingCredent
 	return acctest.Nprintf(`
 resource "google_developer_connect_connection" "my-connection" {
   location = "us-central1"
-  connection_id = "tf-test-tf-test-connection-cred%{random_suffix}"
+  connection_id = "%{connection_name}"
 
   github_config {
     github_app = "DEVELOPER_CONNECT"
@@ -101,8 +104,11 @@ output "next_steps" {
 func TestAccDeveloperConnectConnection_developerConnectConnectionGithubExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,7 +133,7 @@ func testAccDeveloperConnectConnection_developerConnectConnectionGithubExample(c
 	return acctest.Nprintf(`
 resource "google_developer_connect_connection" "my-connection" {
   location = "us-central1"
-  connection_id = "tf-test-tf-test-connection%{random_suffix}"
+  connection_id = "%{connection_name}"
 
   github_config {
     github_app = "DEVELOPER_CONNECT"
@@ -143,8 +149,11 @@ resource "google_developer_connect_connection" "my-connection" {
 func TestAccDeveloperConnectConnection_developerConnectConnectionGithubEnterpriseExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -169,7 +178,7 @@ func testAccDeveloperConnectConnection_developerConnectConnectionGithubEnterpris
 	return acctest.Nprintf(`
 resource "google_developer_connect_connection" "my-connection" {
   location = "us-central1"
-  connection_id = "tf-test-tf-test-connection%{random_suffix}"
+  connection_id = "%{connection_name}"
 
   github_enterprise_config {
     host_uri = "https://ghe.proctor-staging-test.com"
@@ -185,8 +194,11 @@ resource "google_developer_connect_connection" "my-connection" {
 func TestAccDeveloperConnectConnection_developerConnectConnectionGitlabExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -211,7 +223,7 @@ func testAccDeveloperConnectConnection_developerConnectConnectionGitlabExample(c
 	return acctest.Nprintf(`
 resource "google_developer_connect_connection" "my-connection" {
   location = "us-central1"
-  connection_id = "tf-test-tf-test-connection%{random_suffix}"
+  connection_id = "%{connection_name}"
 
   gitlab_config {
     webhook_secret_secret_version = "projects/devconnect-terraform-creds/secrets/gitlab-webhook/versions/latest"
@@ -231,8 +243,11 @@ resource "google_developer_connect_connection" "my-connection" {
 func TestAccDeveloperConnectConnection_developerConnectConnectionGitlabEnterpriseExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -257,7 +272,7 @@ func testAccDeveloperConnectConnection_developerConnectConnectionGitlabEnterpris
 	return acctest.Nprintf(`
 resource "google_developer_connect_connection" "my-connection" {
   location = "us-central1"
-  connection_id = "tf-test-tf-test-connection%{random_suffix}"
+  connection_id = "%{connection_name}"
 
   gitlab_enterprise_config {
     host_uri = "https://gle-us-central1.gcb-test.com"
@@ -279,8 +294,11 @@ resource "google_developer_connect_connection" "my-connection" {
 func TestAccDeveloperConnectConnection_developerConnectConnectionBbcExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -305,7 +323,7 @@ func testAccDeveloperConnectConnection_developerConnectConnectionBbcExample(cont
 	return acctest.Nprintf(`
 resource "google_developer_connect_connection" "my-connection" {
   location = "us-central1"
-  connection_id = "tf-test-tf-test-connection%{random_suffix}"
+  connection_id = "%{connection_name}"
 
   bitbucket_cloud_config {
     workspace = "proctor-test"
@@ -326,8 +344,11 @@ resource "google_developer_connect_connection" "my-connection" {
 func TestAccDeveloperConnectConnection_developerConnectConnectionBbdcExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -352,7 +373,7 @@ func testAccDeveloperConnectConnection_developerConnectConnectionBbdcExample(con
 	return acctest.Nprintf(`
 resource "google_developer_connect_connection" "my-connection" {
   location = "us-central1"
-  connection_id = "tf-test-tf-test-connection%{random_suffix}"
+  connection_id = "%{connection_name}"
 
   bitbucket_data_center_config {
     host_uri = "https://bitbucket-us-central.gcb-test.com"
@@ -374,8 +395,11 @@ resource "google_developer_connect_connection" "my-connection" {
 func TestAccDeveloperConnectConnection_developerConnectConnectionHttpConnBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -400,7 +424,7 @@ func testAccDeveloperConnectConnection_developerConnectConnectionHttpConnBasicEx
 	return acctest.Nprintf(`
 resource "google_developer_connect_connection" "my-connection" {
   location = "us-central1"
-  connection_id = "tf-test-tf-test-connection%{random_suffix}"
+  connection_id = "%{connection_name}"
 
   http_config {
     basic_authentication {
@@ -416,8 +440,11 @@ resource "google_developer_connect_connection" "my-connection" {
 func TestAccDeveloperConnectConnection_developerConnectConnectionHttpConnBearerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -442,7 +469,7 @@ func testAccDeveloperConnectConnection_developerConnectConnectionHttpConnBearerE
 	return acctest.Nprintf(`
 resource "google_developer_connect_connection" "my-connection" {
   location = "us-central1"
-  connection_id = "tf-test-tf-test-connection%{random_suffix}"
+  connection_id = "%{connection_name}"
 
   http_config {
     host_uri = "https://devconnectprober.atlassian.net"

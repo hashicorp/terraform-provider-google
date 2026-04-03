@@ -1506,6 +1506,8 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("PrivatecaCertificate %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading PrivatecaCertificate %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present

@@ -53,8 +53,13 @@ var (
 func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id": "tf_test_my_data_exchange" + randomSuffix,
+		"desc":             "example data exchange" + randomSuffix,
+		"listing_id":       "tf_test_my_listing" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,17 +84,17 @@ func testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingBasicExample(
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
   location         = "US"
-  data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
-  display_name     = "tf_test_my_data_exchange%{random_suffix}"
-  description      = "example data exchange%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{desc}"
 }
 
 resource "google_bigquery_analytics_hub_listing" "listing" {
   location         = "US"
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
-  listing_id       = "tf_test_my_listing%{random_suffix}"
-  display_name     = "tf_test_my_listing%{random_suffix}"
-  description      = "example data exchange%{random_suffix}"
+  listing_id       = "%{listing_id}"
+  display_name     = "%{listing_id}"
+  description      = "%{desc}"
 
   bigquery_dataset {
     dataset = google_bigquery_dataset.listing.id
@@ -97,9 +102,9 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
 }
 
 resource "google_bigquery_dataset" "listing" {
-  dataset_id                  = "tf_test_my_listing%{random_suffix}"
-  friendly_name               = "tf_test_my_listing%{random_suffix}"
-  description                 = "example data exchange%{random_suffix}"
+  dataset_id                  = "%{listing_id}"
+  friendly_name               = "%{listing_id}"
+  description                 = "%{desc}"
   location                    = "US"
 }
 `, context)
@@ -108,8 +113,13 @@ resource "google_bigquery_dataset" "listing" {
 func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingRestrictedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id": "tf_test_my_data_exchange" + randomSuffix,
+		"desc":             "example data exchange" + randomSuffix,
+		"listing_id":       "tf_test_my_listing" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -134,17 +144,17 @@ func testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingRestrictedExa
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
   location         = "US"
-  data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
-  display_name     = "tf_test_my_data_exchange%{random_suffix}"
-  description      = "example data exchange%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{desc}"
 }
 
 resource "google_bigquery_analytics_hub_listing" "listing" {
   location         = "US"
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
-  listing_id       = "tf_test_my_listing%{random_suffix}"
-  display_name     = "tf_test_my_listing%{random_suffix}"
-  description      = "example data exchange%{random_suffix}"
+  listing_id       = "%{listing_id}"
+  display_name     = "%{listing_id}"
+  description      = "%{desc}"
 
   bigquery_dataset {
     dataset = google_bigquery_dataset.listing.id
@@ -157,9 +167,9 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
 }
 
 resource "google_bigquery_dataset" "listing" {
-  dataset_id                  = "tf_test_my_listing%{random_suffix}"
-  friendly_name               = "tf_test_my_listing%{random_suffix}"
-  description                 = "example data exchange%{random_suffix}"
+  dataset_id                  = "%{listing_id}"
+  friendly_name               = "%{listing_id}"
+  description                 = "%{desc}"
   location                    = "US"
 }
 `, context)
@@ -168,8 +178,13 @@ resource "google_bigquery_dataset" "listing" {
 func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingDcrExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id": "tf_test_dcr_data_exchange" + randomSuffix,
+		"desc":             "example dcr data exchange" + randomSuffix,
+		"listing_id":       "tf_test_dcr_listing" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -194,9 +209,9 @@ func testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingDcrExample(co
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
   location         = "US"
-  data_exchange_id = "tf_test_dcr_data_exchange%{random_suffix}"
-  display_name     = "tf_test_dcr_data_exchange%{random_suffix}"
-  description      = "example dcr data exchange%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{desc}"
   sharing_environment_config  {
     dcr_exchange_config {}
   }
@@ -205,9 +220,9 @@ resource "google_bigquery_analytics_hub_data_exchange" "listing" {
 resource "google_bigquery_analytics_hub_listing" "listing" {
   location         = "US"
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
-  listing_id       = "tf_test_dcr_listing%{random_suffix}"
-  display_name     = "tf_test_dcr_listing%{random_suffix}"
-  description      = "example dcr data exchange%{random_suffix}"
+  listing_id       = "%{listing_id}"
+  display_name     = "%{listing_id}"
+  description      = "%{desc}"
 
   bigquery_dataset {
     dataset = google_bigquery_dataset.listing.id
@@ -222,15 +237,15 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
 }
 
 resource "google_bigquery_dataset" "listing" {
-  dataset_id                  = "tf_test_dcr_listing%{random_suffix}"
-  friendly_name               = "tf_test_dcr_listing%{random_suffix}"
-  description                 = "example dcr data exchange%{random_suffix}"
+  dataset_id                  = "%{listing_id}"
+  friendly_name               = "%{listing_id}"
+  description                 = "%{desc}"
   location                    = "US"
 }
 
 resource "google_bigquery_table" "listing" {
   deletion_protection = false
-  table_id   = "tf_test_dcr_listing%{random_suffix}"
+  table_id   = "%{listing_id}"
   dataset_id = google_bigquery_dataset.listing.dataset_id
   schema = <<EOF
 [
@@ -258,8 +273,14 @@ EOF
 func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingLogLinkedDatasetQueryUserExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id": "tf_test_tf_test_log_email_de" + randomSuffix,
+		"dataset_id":       "tf_test_tf_test_log_email_ds" + randomSuffix,
+		"description":      "Example for log email test" + randomSuffix,
+		"listing_id":       "tf_test_tf_test_log_email_listing" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -284,17 +305,17 @@ func testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingLogLinkedData
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing_log_email" {
   location         = "US"
-  data_exchange_id = "tf_test_tf_test_log_email_de%{random_suffix}" 
-  display_name     = "tf_test_tf_test_log_email_de%{random_suffix}" 
-  description      = "Example for log email test%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}" 
+  display_name     = "%{data_exchange_id}" 
+  description      = "%{description}"
 }
 
 resource "google_bigquery_analytics_hub_listing" "listing" {
   location         = "US"
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing_log_email.data_exchange_id
-  listing_id       = "tf_test_tf_test_log_email_listing%{random_suffix}" 
-  display_name     = "tf_test_tf_test_log_email_listing%{random_suffix}" 
-  description      = "Example for log email test%{random_suffix}"
+  listing_id       = "%{listing_id}" 
+  display_name     = "%{listing_id}" 
+  description      = "%{description}"
   log_linked_dataset_query_user_email = true
 
   bigquery_dataset {
@@ -303,9 +324,9 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
 }
 
 resource "google_bigquery_dataset" "listing_log_email" {
-  dataset_id                  = "tf_test_tf_test_log_email_ds%{random_suffix}" 
-  friendly_name               = "tf_test_tf_test_log_email_ds%{random_suffix}" 
-  description                 = "Example for log email test%{random_suffix}"
+  dataset_id                  = "%{dataset_id}" 
+  friendly_name               = "%{dataset_id}" 
+  description                 = "%{description}"
   location                    = "US"
 }
 `, context)
@@ -314,8 +335,14 @@ resource "google_bigquery_dataset" "listing_log_email" {
 func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingPubsubExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id":  "tf_test_tf_test_pubsub_data_exchange" + randomSuffix,
+		"description":       "Example for pubsub topic source" + randomSuffix,
+		"listing_id":        "tf_test_tf_test_pubsub_listing" + randomSuffix,
+		"pubsub_topic_name": "tf_test_test_pubsub" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -340,21 +367,21 @@ func testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingPubsubExample
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
   location         = "US"
-  data_exchange_id = "tf_test_tf_test_pubsub_data_exchange%{random_suffix}"
-  display_name     = "tf_test_tf_test_pubsub_data_exchange%{random_suffix}"
-  description      = "Example for pubsub topic source%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{description}"
 }
 
 resource "google_pubsub_topic" "tf_test_pubsub_topic" { 
-  name    = "tf_test_test_pubsub%{random_suffix}" 
+  name    = "%{pubsub_topic_name}" 
 }
 
 resource "google_bigquery_analytics_hub_listing" "listing" {
   location         = "US"
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
-  listing_id       = "tf_test_tf_test_pubsub_listing%{random_suffix}"
-  display_name     = "tf_test_tf_test_pubsub_listing%{random_suffix}"
-  description      = "Example for pubsub topic source%{random_suffix}"
+  listing_id       = "%{listing_id}"
+  display_name     = "%{listing_id}"
+  description      = "%{description}"
 
   pubsub_topic {
     topic = google_pubsub_topic.tf_test_pubsub_topic.id
@@ -370,8 +397,13 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
 func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubPublicListingExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id": "tf_test_my_data_exchange" + randomSuffix,
+		"desc":             "example public listing" + randomSuffix,
+		"listing_id":       "tf_test_my_listing" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -396,18 +428,18 @@ func testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubPublicListingExample
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
   location         = "US"
-  data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
-  display_name     = "tf_test_my_data_exchange%{random_suffix}"
-  description      = "example public listing%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{desc}"
   discovery_type   = "DISCOVERY_TYPE_PUBLIC"
 }
 
 resource "google_bigquery_analytics_hub_listing" "listing" {
   location         = "US"
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
-  listing_id       = "tf_test_my_listing%{random_suffix}"
-  display_name     = "tf_test_my_listing%{random_suffix}"
-  description      = "example public listing%{random_suffix}"
+  listing_id       = "%{listing_id}"
+  display_name     = "%{listing_id}"
+  description      = "%{desc}"
   discovery_type   = "DISCOVERY_TYPE_PUBLIC"
   allow_only_metadata_sharing= false
 
@@ -417,9 +449,9 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
 }
 
 resource "google_bigquery_dataset" "listing" {
-  dataset_id                  = "tf_test_my_listing%{random_suffix}"
-  friendly_name               = "tf_test_my_listing%{random_suffix}"
-  description                 = "example public listing%{random_suffix}"
+  dataset_id                  = "%{listing_id}"
+  friendly_name               = "%{listing_id}"
+  description                 = "%{desc}"
   location                    = "US"
 }
 `, context)
@@ -428,8 +460,13 @@ resource "google_bigquery_dataset" "listing" {
 func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingMarketplaceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id": "tf_test_my_data_exchange" + randomSuffix,
+		"desc":             "example data exchange" + randomSuffix,
+		"listing_id":       "tf_test_my_listing" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -454,17 +491,17 @@ func testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingMarketplaceEx
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
   location         = "US"
-  data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
-  display_name     = "tf_test_my_data_exchange%{random_suffix}"
-  description      = "example data exchange%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{desc}"
 }
 
 resource "google_bigquery_analytics_hub_listing" "listing" {
   location         = "US"
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
-  listing_id       = "tf_test_my_listing%{random_suffix}"
-  display_name     = "tf_test_my_listing%{random_suffix}"
-  description      = "example data exchange%{random_suffix}"
+  listing_id       = "%{listing_id}"
+  display_name     = "%{listing_id}"
+  description      = "%{desc}"
   delete_commercial = true
 
   bigquery_dataset {
@@ -474,9 +511,9 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
 }
 
 resource "google_bigquery_dataset" "listing" {
-  dataset_id                  = "tf_test_my_listing%{random_suffix}"
-  friendly_name               = "tf_test_my_listing%{random_suffix}"
-  description                 = "example data exchange%{random_suffix}"
+  dataset_id                  = "%{listing_id}"
+  friendly_name               = "%{listing_id}"
+  description                 = "%{desc}"
   location                    = "US"
 }
 `, context)

@@ -496,6 +496,8 @@ func TestRemoveBasePathVersion(t *testing.T) {
 		{"https://staging-version.googleapis.com/", "https://staging-version.googleapis.com/"},
 		// For URLs with any parts, the last part is always removed- it's assumed to be the version.
 		{"https://runtimeconfig.googleapis.com/runtimeconfig/", "https://runtimeconfig.googleapis.com/"},
+		// The protocol can also be http
+		{"http://www.googleapis.com/compute/version_v1/", "http://www.googleapis.com/compute/"},
 	}
 
 	for _, c := range cases {

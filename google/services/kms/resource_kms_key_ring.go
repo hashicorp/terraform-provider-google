@@ -250,6 +250,8 @@ func resourceKMSKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("KMSKeyRing %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading KMSKeyRing %q: %#v", d.Id(), res)
+
 	res, err = resourceKMSKeyRingDecoder(d, meta, res)
 	if err != nil {
 		return err

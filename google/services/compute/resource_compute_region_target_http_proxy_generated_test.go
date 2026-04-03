@@ -53,8 +53,14 @@ var (
 func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"region_backend_service_name":   "tf-test-backend-service" + randomSuffix,
+		"region_health_check_name":      "tf-test-http-health-check" + randomSuffix,
+		"region_target_http_proxy_name": "tf-test-test-proxy" + randomSuffix,
+		"region_url_map_name":           "tf-test-url-map" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,13 +85,13 @@ func testAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(conte
 	return acctest.Nprintf(`
 resource "google_compute_region_target_http_proxy" "default" {
   region  = "us-central1"
-  name    = "tf-test-test-proxy%{random_suffix}"
+  name    = "%{region_target_http_proxy_name}"
   url_map = google_compute_region_url_map.default.id
 }
 
 resource "google_compute_region_url_map" "default" {
   region          = "us-central1"
-  name            = "tf-test-url-map%{random_suffix}"
+  name            = "%{region_url_map_name}"
   default_service = google_compute_region_backend_service.default.id
 
   host_rule {
@@ -106,7 +112,7 @@ resource "google_compute_region_url_map" "default" {
 
 resource "google_compute_region_backend_service" "default" {
   region                = "us-central1"
-  name                  = "tf-test-backend-service%{random_suffix}"
+  name                  = "%{region_backend_service_name}"
   protocol              = "HTTP"
   timeout_sec           = 10
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -116,7 +122,7 @@ resource "google_compute_region_backend_service" "default" {
 
 resource "google_compute_region_health_check" "default" {
   region = "us-central1"
-  name   = "tf-test-http-health-check%{random_suffix}"
+  name   = "%{region_health_check_name}"
   http_health_check {
     port = 80
   }
@@ -127,8 +133,14 @@ resource "google_compute_region_health_check" "default" {
 func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpKeepAliveTimeoutExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"region_backend_service_name":   "tf-test-backend-service" + randomSuffix,
+		"region_health_check_name":      "tf-test-http-health-check" + randomSuffix,
+		"region_target_http_proxy_name": "tf-test-test-http-keep-alive-timeout-proxy" + randomSuffix,
+		"region_url_map_name":           "tf-test-url-map" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -153,14 +165,14 @@ func testAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpKeepAliveTimeo
 	return acctest.Nprintf(`
 resource "google_compute_region_target_http_proxy" "default" {
   region                      = "us-central1"
-  name                        = "tf-test-test-http-keep-alive-timeout-proxy%{random_suffix}"
+  name                        = "%{region_target_http_proxy_name}"
   http_keep_alive_timeout_sec = 600
   url_map                     = google_compute_region_url_map.default.id
 }
 
 resource "google_compute_region_url_map" "default" {
   region          = "us-central1"
-  name            = "tf-test-url-map%{random_suffix}"
+  name            = "%{region_url_map_name}"
   default_service = google_compute_region_backend_service.default.id
 
   host_rule {
@@ -181,7 +193,7 @@ resource "google_compute_region_url_map" "default" {
 
 resource "google_compute_region_backend_service" "default" {
   region                = "us-central1"
-  name                  = "tf-test-backend-service%{random_suffix}"
+  name                  = "%{region_backend_service_name}"
   port_name             = "http"
   protocol              = "HTTP"
   timeout_sec           = 10
@@ -192,7 +204,7 @@ resource "google_compute_region_backend_service" "default" {
 
 resource "google_compute_region_health_check" "default" {
   region = "us-central1"
-  name   = "tf-test-http-health-check%{random_suffix}"
+  name   = "%{region_health_check_name}"
 
   http_health_check {
     port = 80
@@ -204,8 +216,12 @@ resource "google_compute_region_health_check" "default" {
 func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpsRedirectExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"region_target_http_proxy_name": "tf-test-test-https-redirect-proxy" + randomSuffix,
+		"region_url_map_name":           "tf-test-url-map" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -230,13 +246,13 @@ func testAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpsRedirectExamp
 	return acctest.Nprintf(`
 resource "google_compute_region_target_http_proxy" "default" {
   region  = "us-central1"
-  name    = "tf-test-test-https-redirect-proxy%{random_suffix}"
+  name    = "%{region_target_http_proxy_name}"
   url_map = google_compute_region_url_map.default.id
 }
 
 resource "google_compute_region_url_map" "default" {
   region          = "us-central1"
-  name            = "tf-test-url-map%{random_suffix}"
+  name            = "%{region_url_map_name}"
   default_url_redirect {
     https_redirect = true
     strip_query    = false

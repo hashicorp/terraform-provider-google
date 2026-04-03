@@ -53,8 +53,12 @@ var (
 func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id": "tf_test_my_data_exchange" + randomSuffix,
+		"desc":             "example data exchange" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,9 +83,9 @@ func testAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBas
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
-  data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
-  display_name     = "tf_test_my_data_exchange%{random_suffix}"
-  description      = "example data exchange%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{desc}"
 }
 `, context)
 }
@@ -89,8 +93,12 @@ resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
 func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeDcrExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id": "tf_test_dcr_data_exchange" + randomSuffix,
+		"desc":             "example dcr data exchange" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -115,9 +123,9 @@ func testAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeDcr
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
-  data_exchange_id = "tf_test_dcr_data_exchange%{random_suffix}"
-  display_name     = "tf_test_dcr_data_exchange%{random_suffix}"
-  description      = "example dcr data exchange%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{desc}"
   sharing_environment_config  {
     dcr_exchange_config {}
   }
@@ -128,8 +136,12 @@ resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
 func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeLogLinkedDatasetQueryUserExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id": "tf_test_tf_test_log_email_data_exchange" + randomSuffix,
+		"description":      "Example for log email test for data exchange" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -154,9 +166,9 @@ func testAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeLog
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
-  data_exchange_id = "tf_test_tf_test_log_email_data_exchange%{random_suffix}" 
-  display_name     = "tf_test_tf_test_log_email_data_exchange%{random_suffix}" 
-  description      = "Example for log email test for data exchange%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}" 
+  display_name     = "%{data_exchange_id}" 
+  description      = "%{description}"
   log_linked_dataset_query_user_email = true
 }
 `, context)
@@ -165,8 +177,12 @@ resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
 func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubPublicDataExchangeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_exchange_id": "tf_test_public_data_exchange" + randomSuffix,
+		"desc":             "Example for public data exchange" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -191,9 +207,9 @@ func testAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubPublicDataExcha
 	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
-  data_exchange_id = "tf_test_public_data_exchange%{random_suffix}"
-  display_name     = "tf_test_public_data_exchange%{random_suffix}"
-  description      = "Example for public data exchange%{random_suffix}"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{desc}"
   discovery_type   = "DISCOVERY_TYPE_PUBLIC"
 }
 `, context)

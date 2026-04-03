@@ -53,8 +53,12 @@ var (
 func TestAccIAMWorkforcePoolOauthClientCredential_iamOauthClientCredentialFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"oauth_client_credential_id": "tf-test-cred-id" + randomSuffix,
+		"oauth_client_id":            "tf-test-example-client-id" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccIAMWorkforcePoolOauthClientCredential_iamOauthClientCredentialFullEx
 func testAccIAMWorkforcePoolOauthClientCredential_iamOauthClientCredentialFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_oauth_client" "oauth_client" {
-  oauth_client_id           = "tf-test-example-client-id%{random_suffix}"
+  oauth_client_id           = "%{oauth_client_id}"
   location                  = "global"
   allowed_grant_types       = ["AUTHORIZATION_CODE_GRANT"]
   allowed_redirect_uris     = ["https://www.example.com"]
@@ -89,7 +93,7 @@ resource "google_iam_oauth_client" "oauth_client" {
 resource "google_iam_oauth_client_credential" "example" {
   oauthclient                   = google_iam_oauth_client.oauth_client.oauth_client_id
   location                      = google_iam_oauth_client.oauth_client.location
-  oauth_client_credential_id    = "tf-test-cred-id%{random_suffix}"
+  oauth_client_credential_id    = "%{oauth_client_credential_id}"
   disabled                      = true
   display_name                  = "Display Name of credential"
 }

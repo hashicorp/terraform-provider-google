@@ -647,6 +647,48 @@ resource "google_tags_tag_value" "tag_value" {
   short_name = "tag_value"
 }
 ```
+## Example Usage - Pubsub Subscription Ai Inference
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+}
+
+resource "google_service_account" "gemini_query_service_account" {
+  account_id   = "example-sa"
+  display_name = "Gemini Query Service Account"
+}
+
+resource "google_project_iam_member" "gemini_inference_get" {
+  project = "my-project-name"
+  role   = "roles/aiplatform.user"
+  member = "serviceAccount:${google_service_account.gemini_query_service_account.email}"
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_iam_member.gemini_inference_get]
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = google_pubsub_topic.example.id
+  depends_on = [time_sleep.wait_120_seconds]
+
+  message_transforms {
+    ai_inference {
+      endpoint = "projects/my-project-name/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+      unstructured_inference {
+        parameters = {
+          "max_tokens" = 25000
+        }
+      }
+      service_account_email = google_service_account.gemini_query_service_account.email
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -1027,6 +1069,13 @@ The following arguments are supported:
 
 <a name="nested_message_transforms"></a>The `message_transforms` block supports:
 
+* `ai_inference` -
+  (Optional)
+  AI Inference. Specifies the Vertex AI endpoint that inference
+  requests built from the Pub/Sub message data and provided parameters will
+  be sent to.
+  Structure is [documented below](#nested_message_transforms_ai_inference).
+
 * `javascript_udf` -
   (Optional)
   Javascript User Defined Function. If multiple Javascript UDFs are specified on a resource,
@@ -1038,6 +1087,34 @@ The following arguments are supported:
   Controls whether or not to use this transform. If not set or `false`,
   the transform will be applied to messages. Default: `true`.
 
+
+<a name="nested_message_transforms_ai_inference"></a>The `ai_inference` block supports:
+
+* `endpoint` -
+  (Required)
+  The endpoint to a Vertex AI model of the form
+  `projects/{project}/locations/{location}/endpoints/{endpoint}` or
+  `projects/{project}/locations/{location}/publishers/{publisher}/models/{model}`.
+  Vertex AI API requests will be sent to this endpoint.
+
+* `unstructured_inference` -
+  (Optional)
+  Configuration for making inferences using arbitrary JSON payloads.
+  Structure is [documented below](#nested_message_transforms_ai_inference_unstructured_inference).
+
+* `service_account_email` -
+  (Optional)
+  The service account to use to make prediction requests against
+  endpoints.
+
+
+<a name="nested_message_transforms_ai_inference_unstructured_inference"></a>The `unstructured_inference` block supports:
+
+* `parameters` -
+  (Optional)
+  A parameters object to be included in each inference request.
+  The parameters object is combined with the data field of the Pub/Sub
+  message to form the inference request.
 
 <a name="nested_message_transforms_javascript_udf"></a>The `javascript_udf` block supports:
 

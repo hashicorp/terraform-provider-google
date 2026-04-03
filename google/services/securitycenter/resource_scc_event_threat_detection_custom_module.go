@@ -300,6 +300,8 @@ func resourceSecurityCenterEventThreatDetectionCustomModuleRead(d *schema.Resour
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterEventThreatDetectionCustomModule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityCenterEventThreatDetectionCustomModule %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present

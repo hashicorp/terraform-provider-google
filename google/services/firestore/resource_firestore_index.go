@@ -495,6 +495,8 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("FirestoreIndex %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading FirestoreIndex %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("skip_wait"); !ok {
 		if err := d.Set("skip_wait", false); err != nil {

@@ -53,8 +53,11 @@ var (
 func TestAccMonitoringNotificationChannel_notificationChannelBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "Test Notification Channel" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccMonitoringNotificationChannel_notificationChannelBasicExample(t *tes
 func testAccMonitoringNotificationChannel_notificationChannelBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_notification_channel" "basic" {
-  display_name = "Test Notification Channel%{random_suffix}"
+  display_name = "%{display_name}"
   type         = "email"
   labels = {
     email_address = "fake_email@blahblah.com"

@@ -53,8 +53,11 @@ var (
 func TestAccCertificateManagerTrustConfig_certificateManagerTrustConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"trust_config_name": "tf-test-trust-config" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccCertificateManagerTrustConfig_certificateManagerTrustConfigExample(t
 func testAccCertificateManagerTrustConfig_certificateManagerTrustConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_trust_config" "default" {
-  name        = "tf-test-trust-config%{random_suffix}"
+  name        = "%{trust_config_name}"
   description = "sample description for the trust config"
   location    = "us-central1"
 
@@ -101,8 +104,11 @@ resource "google_certificate_manager_trust_config" "default" {
 func TestAccCertificateManagerTrustConfig_certificateManagerTrustConfigAllowlistedCertificatesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"trust_config_name": "tf-test-trust-config" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -126,7 +132,7 @@ func TestAccCertificateManagerTrustConfig_certificateManagerTrustConfigAllowlist
 func testAccCertificateManagerTrustConfig_certificateManagerTrustConfigAllowlistedCertificatesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_trust_config" "default" {
-  name        = "tf-test-trust-config%{random_suffix}"
+  name        = "%{trust_config_name}"
   description = "A sample trust config resource with allowlisted certificates"
   location = "global"
 

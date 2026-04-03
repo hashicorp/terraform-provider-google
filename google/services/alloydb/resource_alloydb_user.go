@@ -292,6 +292,8 @@ func resourceAlloydbUserRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AlloydbUser %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading AlloydbUser %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
@@ -363,41 +365,75 @@ func resourceAlloydbUserUpdate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("password_wo"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, passwordWoProp)) {
 		obj["password"] = passwordWoProp
 	}
-	userTypeProp, err := expandAlloydbUserUserType(d.Get("user_type"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("user_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userTypeProp)) {
-		obj["userType"] = userTypeProp
-	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/users?userId={{user_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/users/{{user_id}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Updating User %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+	updateMask := []string{}
+
+	if d.HasChange("password") {
+		updateMask = append(updateMask, "password")
+	}
+
+	if d.HasChange("database_roles") {
+		updateMask = append(updateMask, "databaseRoles")
+	}
+
+	if d.HasChange("password_wo") {
+		updateMask = append(updateMask, "password")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+	// If password_wo_version changed, the user wants to update the password.
+	// Write-only fields aren't in state, so d.HasChange("password_wo") is always
+	// false and the value is never added to obj by the generated code. Handle
+	// both the update mask and the request body here.
+	if d.HasChange("password_wo_version") {
+		if pw := tpgresource.GetRawConfigAttributeAsString(d, "password_wo"); pw != "" {
+			obj["password"] = pw
+		}
+		updateMask = append(updateMask, "password")
+
+		// Rebuild the updateMask query parameter.
+		url = strings.Split(url, "?updateMask=")[0]
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+		if err != nil {
+			return err
+		}
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-		Headers:   headers,
-	})
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
 
-	if err != nil {
-		return fmt.Errorf("Error updating User %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating User %q: %#v", d.Id(), res)
+		if err != nil {
+			return fmt.Errorf("Error updating User %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating User %q: %#v", d.Id(), res)
+		}
+
 	}
 
 	return resourceAlloydbUserRead(d, meta)

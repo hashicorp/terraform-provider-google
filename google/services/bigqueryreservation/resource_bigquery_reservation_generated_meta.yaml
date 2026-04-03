@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_bigquery_reservation
 generation_type: mmv1
 source_file: products/bigqueryreservation/Reservation.yaml
@@ -20,6 +22,7 @@ fields:
     - api_field: replicationStatus.error.message
     - api_field: replicationStatus.lastErrorTime
     - api_field: replicationStatus.lastReplicationTime
+    - api_field: reservationGroup
     - api_field: secondaryLocation
     - api_field: slotCapacity
     - field: deletion_policy

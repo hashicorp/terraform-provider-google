@@ -2357,6 +2357,11 @@ func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 				),
 				ExpectNonEmptyPlan: true,
 			},
+			// RefreshState is necessary due to the machine type being updated after config apply within the same step.
+			{
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo", "desired_status", "current_status", "labels", "terraform_labels"}),
 		},
 	})

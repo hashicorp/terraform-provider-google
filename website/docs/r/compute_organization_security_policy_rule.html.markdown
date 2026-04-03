@@ -53,6 +53,29 @@ resource "google_compute_organization_security_policy_rule" "policy" {
   priority = 100
 }
 ```
+## Example Usage - Organization Security Policy Rule Expression
+
+
+```hcl
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = "organizations/123456789"
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action = "allow"
+
+  match {
+    expr {
+      expression = "request.path.contains('/folder/test/')"
+    }
+		versioned_expr = ""
+  }
+  priority = 100
+}
+```
 ## Example Usage - Organization Security Policy Rule Firewall
 
 
@@ -167,11 +190,22 @@ The following arguments are supported:
   the only supported type is "SRC_IPS_V1".
   **NOTE** : 'FIREWALL' type is deprecated. Please use 'google_compute_firewall_policy_rule' resource instead.
 
+* `expr` -
+  (Optional)
+  User defined CEVAL expression. A CEVAL expression is used to specify match criteria such as origin.ip, source.region_code and contents in the request header.
+  Structure is [documented below](#nested_match_expr).
+
 * `config` -
-  (Required)
+  (Optional)
   The configuration options for matching the rule.
   Structure is [documented below](#nested_match_config).
 
+
+<a name="nested_match_expr"></a>The `expr` block supports:
+
+* `expression` -
+  (Required)
+  Textual representation of an expression in Common Expression Language syntax. The application context of the containing message determines which well-known feature set of CEL is supported.
 
 <a name="nested_match_config"></a>The `config` block supports:
 

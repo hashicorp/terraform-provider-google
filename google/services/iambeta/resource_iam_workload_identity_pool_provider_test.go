@@ -17,8 +17,9 @@
 package iambeta_test
 
 import (
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
@@ -106,12 +107,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_oidc(t *testing.T) {
 func testAccIAMBetaWorkloadIdentityPoolProvider_aws_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "my_pool" {
-  workload_identity_pool_id = "my-pool-%{random_suffix}"
+  workload_identity_pool_id = "tf-test-my-pool-%{random_suffix}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "my_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.my_pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "my-provider-%{random_suffix}"
+  workload_identity_pool_provider_id = "tf-test-my-provider-%{random_suffix}"
   display_name                       = "Name of provider"
   description                        = "AWS identity pool provider for automated test"
   disabled                           = true
@@ -131,12 +132,12 @@ resource "google_iam_workload_identity_pool_provider" "my_provider" {
 func testAccIAMBetaWorkloadIdentityPoolProvider_aws_enabled(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "my_pool" {
-  workload_identity_pool_id = "my-pool-%{random_suffix}"
+  workload_identity_pool_id = "tf-test-my-pool-%{random_suffix}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "my_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.my_pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "my-provider-%{random_suffix}"
+  workload_identity_pool_provider_id = "tf-test-my-provider-%{random_suffix}"
   display_name                       = "Name of provider"
   description                        = "AWS identity pool provider for automated test"
   disabled                           = false
@@ -156,12 +157,12 @@ resource "google_iam_workload_identity_pool_provider" "my_provider" {
 func testAccIAMBetaWorkloadIdentityPoolProvider_oidc_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "my_pool" {
-  workload_identity_pool_id = "my-pool-%{random_suffix}"
+  workload_identity_pool_id = "tf-test-my-pool-%{random_suffix}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "my_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.my_pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "my-provider-%{random_suffix}"
+  workload_identity_pool_provider_id = "tf-test-my-provider-%{random_suffix}"
   display_name                       = "Name of provider"
   description                        = "OIDC identity pool provider for automated test"
   disabled                           = true
@@ -188,12 +189,12 @@ EOT
 func testAccIAMBetaWorkloadIdentityPoolProvider_oidc_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "my_pool" {
-  workload_identity_pool_id = "my-pool-%{random_suffix}"
+  workload_identity_pool_id = "tf-test-my-pool-%{random_suffix}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "my_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.my_pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "my-provider-%{random_suffix}"
+  workload_identity_pool_provider_id = "tf-test-my-provider-%{random_suffix}"
   display_name                       = "Name of provider"
   description                        = "OIDC identity pool provider for automated test"
   disabled                           = true
@@ -221,12 +222,12 @@ EOT
 func testAccIAMBetaWorkloadIdentityPoolProvider_aws_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "my_pool" {
-  workload_identity_pool_id = "my-pool-%{random_suffix}"
+  workload_identity_pool_id = "tf-test-my-pool-%{random_suffix}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "my_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.my_pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "my-provider-%{random_suffix}"
+  workload_identity_pool_provider_id = "tf-test-my-provider-%{random_suffix}"
   aws {
     account_id = "999999999999"
   }
@@ -237,12 +238,12 @@ resource "google_iam_workload_identity_pool_provider" "my_provider" {
 func testAccIAMBetaWorkloadIdentityPoolProvider_oidc_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "my_pool" {
-  workload_identity_pool_id = "my-pool-%{random_suffix}"
+  workload_identity_pool_id = "tf-test-my-pool-%{random_suffix}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "my_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.my_pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "my-provider-%{random_suffix}"
+  workload_identity_pool_provider_id = "tf-test-my-provider-%{random_suffix}"
   attribute_mapping                  = {
 	"google.subject"                  = "assertion.sub"
   }

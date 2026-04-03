@@ -53,11 +53,14 @@ var (
 func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"pool_location":       "us-central1",
-		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"random_suffix":       acctest.RandString(t, 10),
+		"certificate_authority_id": "tf-test-my-certificate-authority" + randomSuffix,
+		"deletion_protection":      false,
+		"pool_location":            "us-central1",
+		"pool_name":                acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +87,7 @@ resource "google_privateca_certificate_authority" "default" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools
   pool = "%{pool_name}"
-  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
+  certificate_authority_id = "%{certificate_authority_id}"
   location = "%{pool_location}"
   deletion_protection = %{deletion_protection}
   config {
@@ -122,11 +125,14 @@ resource "google_privateca_certificate_authority" "default" {
 func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicNoOrgExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"pool_location":       "us-central1",
-		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"random_suffix":       acctest.RandString(t, 10),
+		"certificate_authority_id": "tf-test-my-certificate-authority" + randomSuffix,
+		"deletion_protection":      false,
+		"pool_location":            "us-central1",
+		"pool_name":                acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -153,7 +159,7 @@ resource "google_privateca_certificate_authority" "default" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools
   pool = "%{pool_name}"
-  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
+  certificate_authority_id = "%{certificate_authority_id}"
   location = "%{pool_location}"
   deletion_protection = %{deletion_protection}
   config {
@@ -191,11 +197,14 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordina
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"pool_location":       "us-central1",
-		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"random_suffix":       acctest.RandString(t, 10),
+		"certificate_authority_id": "tf-test-my-certificate-authority" + randomSuffix,
+		"deletion_protection":      false,
+		"pool_location":            "us-central1",
+		"pool_name":                acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -220,7 +229,7 @@ func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordina
 	return acctest.Nprintf(`
 resource "google_privateca_certificate_authority" "root-ca" {
   pool = "%{pool_name}"
-  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}-root"
+  certificate_authority_id = "%{certificate_authority_id}-root"
   location = "us-central1"
   config {
     subject_config {
@@ -259,7 +268,7 @@ resource "google_privateca_certificate_authority" "default" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools
   pool = "%{pool_name}"
-  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}-sub"
+  certificate_authority_id = "%{certificate_authority_id}-sub"
   location = "%{pool_location}"
   deletion_protection = %{deletion_protection}
   subordinate_config {
@@ -304,11 +313,14 @@ resource "google_privateca_certificate_authority" "default" {
 func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicWithCustomCdpAiaUrlsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"pool_location":       "us-central1",
-		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"random_suffix":       acctest.RandString(t, 10),
+		"certificate_authority_id": "tf-test-my-certificate-authority" + randomSuffix,
+		"deletion_protection":      false,
+		"pool_location":            "us-central1",
+		"pool_name":                acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -335,7 +347,7 @@ resource "google_privateca_certificate_authority" "default" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools
   pool = "%{pool_name}"
-  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
+  certificate_authority_id = "%{certificate_authority_id}"
   location = "%{pool_location}"
   deletion_protection = %{deletion_protection}
   config {

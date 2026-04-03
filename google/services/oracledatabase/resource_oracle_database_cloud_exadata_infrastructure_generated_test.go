@@ -53,11 +53,13 @@ var (
 func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataInfrastructureBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-basic-%s", acctest.RandString(t, 10)),
 		"deletion_protection":             false,
 		"project":                         "oci-terraform-testing-prod",
-		"random_suffix":                   acctest.RandString(t, 10),
+		"random_suffix":                   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -99,11 +101,13 @@ resource "google_oracle_database_cloud_exadata_infrastructure" "my-cloud-exadata
 func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataInfrastructureFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-full-%s", acctest.RandString(t, 10)),
 		"deletion_protection":             false,
 		"project":                         "oci-terraform-testing-prod",
-		"random_suffix":                   acctest.RandString(t, 10),
+		"random_suffix":                   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

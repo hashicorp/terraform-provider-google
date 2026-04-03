@@ -53,8 +53,11 @@ var (
 func TestAccBigqueryDatapolicyv2DataPolicy_bigqueryDatapolicyv2DatapolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_policy_id": "tf_test_basic_data_policy" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func testAccBigqueryDatapolicyv2DataPolicy_bigqueryDatapolicyv2DatapolicyBasicEx
 resource "google_bigquery_datapolicyv2_data_policy" "basic_data_policy" {
   location         = "us-central1"
   data_policy_type = "RAW_DATA_ACCESS_POLICY"
-  data_policy_id   = "tf_test_basic_data_policy%{random_suffix}"
+  data_policy_id   = "%{data_policy_id}"
 }
 `, context)
 }
@@ -88,8 +91,11 @@ resource "google_bigquery_datapolicyv2_data_policy" "basic_data_policy" {
 func TestAccBigqueryDatapolicyv2DataPolicy_bigqueryDatapolicyv2DatapolicyPredefinedMaskingExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_policy_id": "tf_test_predefined_masking_data_policy" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -118,7 +124,7 @@ resource "google_bigquery_datapolicyv2_data_policy" "predefined_masking_data_pol
   data_masking_policy {
     predefined_expression = "SHA256"
   }
-  data_policy_id   = "tf_test_predefined_masking_data_policy%{random_suffix}"
+  data_policy_id   = "%{data_policy_id}"
 }
 `, context)
 }
@@ -126,8 +132,12 @@ resource "google_bigquery_datapolicyv2_data_policy" "predefined_masking_data_pol
 func TestAccBigqueryDatapolicyv2DataPolicy_bigqueryDatapolicyv2DatapolicyRoutineExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_policy_id": "tf_test_routine_data_policy" + randomSuffix,
+		"dataset_id":     "tf_test_dataset_id" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -152,7 +162,7 @@ func testAccBigqueryDatapolicyv2DataPolicy_bigqueryDatapolicyv2DatapolicyRoutine
 	return acctest.Nprintf(`
 resource "google_bigquery_datapolicyv2_data_policy" "routine_data_policy" {
   location         = "us-central1"
-  data_policy_id   = "tf_test_routine_data_policy%{random_suffix}"
+  data_policy_id   = "%{data_policy_id}"
 	data_policy_type = "DATA_MASKING_POLICY"  
 	data_masking_policy {
 		routine = google_bigquery_routine.custom_masking_routine.id
@@ -160,7 +170,7 @@ resource "google_bigquery_datapolicyv2_data_policy" "routine_data_policy" {
 }
 
 resource "google_bigquery_dataset" "test" {
-  dataset_id = "tf_test_dataset_id%{random_suffix}"
+  dataset_id = "%{dataset_id}"
   location   = "us-central1"
 }
 
@@ -184,8 +194,11 @@ resource "google_bigquery_routine" "custom_masking_routine" {
 func TestAccBigqueryDatapolicyv2DataPolicy_bigqueryDatapolicyv2DatapolicyWithgranteesTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_policy_id": "tf_test_data_policy_with_grantees" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -214,7 +227,7 @@ resource "google_bigquery_datapolicyv2_data_policy" "data_policy_with_grantees" 
   grantees = [
     "principalSet://goog/group/bigquery-datamasking-swe@google.com"
   ]
-  data_policy_id   = "tf_test_data_policy_with_grantees%{random_suffix}"
+  data_policy_id   = "%{data_policy_id}"
 }
 `, context)
 }

@@ -53,9 +53,14 @@ var (
 func TestAccNetappVolumeSnapshot_volumeSnapshotCreateExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
-		"random_suffix": acctest.RandString(t, 10),
+		"pool_name":     "tf-test-test-pool" + randomSuffix,
+		"snap_name":     "testvolumesnap" + randomSuffix,
+		"volume_name":   "tf-test-test-volume" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +84,7 @@ func TestAccNetappVolumeSnapshot_volumeSnapshotCreateExample(t *testing.T) {
 func testAccNetappVolumeSnapshot_volumeSnapshotCreateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_netapp_storage_pool" "default" {
-  name = "tf-test-test-pool%{random_suffix}"
+  name = "%{pool_name}"
   location = "us-west2"
   service_level = "PREMIUM"
   capacity_gib = 2048
@@ -88,9 +93,9 @@ resource "google_netapp_storage_pool" "default" {
 
 resource "google_netapp_volume" "default" {
   location = google_netapp_storage_pool.default.location
-  name = "tf-test-test-volume%{random_suffix}"
+  name = "%{volume_name}"
   capacity_gib = 100
-  share_name = "tf-test-test-volume%{random_suffix}"
+  share_name = "%{volume_name}"
   storage_pool = google_netapp_storage_pool.default.name
   protocols = ["NFSV3"]
 }
@@ -99,7 +104,7 @@ resource "google_netapp_volume_snapshot" "test_snapshot" {
   depends_on = [google_netapp_volume.default]
   location = google_netapp_volume.default.location
   volume_name = google_netapp_volume.default.name
-  name = "testvolumesnap%{random_suffix}"
+  name = "%{snap_name}"
 }
 
 data "google_compute_network" "default" {

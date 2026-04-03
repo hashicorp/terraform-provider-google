@@ -1,0 +1,43 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dialogflow_environment
+generation_type: mmv1
+source_file: products/dialogflow/Environment.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v2
+api_resource_type_kind: Environment
+fields:
+    - api_field: agentVersion
+    - api_field: description
+    - field: environmentid
+      provider_only: true
+    - api_field: fulfillment.displayName
+    - api_field: fulfillment.features.type
+    - api_field: fulfillment.genericWebService.password
+    - api_field: fulfillment.genericWebService.requestHeaders
+    - api_field: fulfillment.genericWebService.uri
+    - api_field: fulfillment.genericWebService.username
+    - api_field: fulfillment.name
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: state
+    - api_field: textToSpeechSettings.enableTextToSpeech
+    - api_field: textToSpeechSettings.outputAudioEncoding
+    - api_field: textToSpeechSettings.sampleRateHertz
+    - api_field: textToSpeechSettings.synthesizeSpeechConfigs.key
+      field: text_to_speech_settings.synthesize_speech_configs.language
+    - api_field: textToSpeechSettings.synthesizeSpeechConfigs.value.effectsProfileId
+      field: text_to_speech_settings.synthesize_speech_configs.effects_profile_id
+    - api_field: textToSpeechSettings.synthesizeSpeechConfigs.value.pitch
+      field: text_to_speech_settings.synthesize_speech_configs.pitch
+    - api_field: textToSpeechSettings.synthesizeSpeechConfigs.value.speakingRate
+      field: text_to_speech_settings.synthesize_speech_configs.speaking_rate
+    - api_field: textToSpeechSettings.synthesizeSpeechConfigs.value.voice.name
+      field: text_to_speech_settings.synthesize_speech_configs.voice.name
+    - api_field: textToSpeechSettings.synthesizeSpeechConfigs.value.voice.ssmlGender
+      field: text_to_speech_settings.synthesize_speech_configs.voice.ssml_gender
+    - api_field: textToSpeechSettings.synthesizeSpeechConfigs.value.volumeGainDb
+      field: text_to_speech_settings.synthesize_speech_configs.volume_gain_db
+    - field: deletion_policy
+      provider_only: true

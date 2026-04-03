@@ -296,6 +296,8 @@ func resourceServiceDirectoryEndpointRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ServiceDirectoryEndpoint %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ServiceDirectoryEndpoint %q: %#v", d.Id(), res)
+
 	res, err = resourceServiceDirectoryEndpointDecoder(d, meta, res)
 	if err != nil {
 		return err

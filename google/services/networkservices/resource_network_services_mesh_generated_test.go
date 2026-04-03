@@ -53,8 +53,11 @@ var (
 func TestAccNetworkServicesMesh_networkServicesMeshBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-mesh" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetworkServicesMesh_networkServicesMeshBasicExample(t *testing.T) {
 func testAccNetworkServicesMesh_networkServicesMeshBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_mesh" "default" {
-  name        = "tf-test-my-mesh%{random_suffix}"
+  name        = "%{resource_name}"
   labels      = {
     foo = "bar"
   }
@@ -91,8 +94,11 @@ resource "google_network_services_mesh" "default" {
 func TestAccNetworkServicesMesh_networkServicesMeshNoPortExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-mesh-noport" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -116,7 +122,7 @@ func TestAccNetworkServicesMesh_networkServicesMeshNoPortExample(t *testing.T) {
 func testAccNetworkServicesMesh_networkServicesMeshNoPortExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_mesh" "default" {
-  name        = "tf-test-my-mesh-noport%{random_suffix}"
+  name        = "%{resource_name}"
   labels      = {
     foo = "bar"
   }
@@ -128,8 +134,11 @@ resource "google_network_services_mesh" "default" {
 func TestAccNetworkServicesMesh_networkServicesMeshLocationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-mesh" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -153,7 +162,7 @@ func TestAccNetworkServicesMesh_networkServicesMeshLocationExample(t *testing.T)
 func testAccNetworkServicesMesh_networkServicesMeshLocationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_mesh" "default" {
-  name        = "tf-test-my-mesh%{random_suffix}"
+  name        = "%{resource_name}"
   location    = "global"
 }
 `, context)

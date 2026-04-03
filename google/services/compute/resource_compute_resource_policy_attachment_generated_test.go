@@ -53,8 +53,12 @@ var (
 func TestAccComputeResourcePolicyAttachment_computeResourcePolicyAttachmentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"policy_name":   "tf-test-my-resource-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccComputeResourcePolicyAttachment_computeResourcePolicyAttachmentBasic
 func testAccComputeResourcePolicyAttachment_computeResourcePolicyAttachmentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "instance" {
-  name         = "tf-test-my-instance%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
   zone         = "us-central1-a"
 
@@ -99,7 +103,7 @@ resource "google_compute_instance" "instance" {
 }
 
 resource "google_compute_resource_policy" "policy" {
-  name   = "tf-test-my-resource-policy%{random_suffix}"
+  name   = "%{policy_name}"
   region = "us-central1"
   
   instance_schedule_policy {

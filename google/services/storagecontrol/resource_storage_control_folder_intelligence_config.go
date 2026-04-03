@@ -374,6 +374,8 @@ func resourceStorageControlFolderIntelligenceConfigRead(d *schema.ResourceData, 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("StorageControlFolderIntelligenceConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading StorageControlFolderIntelligenceConfig %q: %#v", d.Id(), res)
+
 	if err := d.Set("edition_config", flattenStorageControlFolderIntelligenceConfigEditionConfig(res["editionConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FolderIntelligenceConfig: %s", err)
 	}

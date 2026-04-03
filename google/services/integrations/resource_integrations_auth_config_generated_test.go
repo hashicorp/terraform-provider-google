@@ -53,8 +53,11 @@ var (
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigAdvanceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"auth_config_name": "tf-test-test-authconfig" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -83,7 +86,7 @@ resource "google_integrations_client" "client" {
 
 resource "google_integrations_auth_config" "advance_example" {
     location = "asia-east2"
-    display_name = "tf-test-test-authconfig%{random_suffix}"
+    display_name = "%{auth_config_name}"
     description = "Test auth config created via terraform"
     visibility = "CLIENT_VISIBLE"
     expiry_notification_duration = ["3.500s"]
@@ -103,9 +106,12 @@ resource "google_integrations_auth_config" "advance_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigUsernameAndPasswordExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+		"auth_config_name": "tf-test-test-authconfig-username-and-password" + randomSuffix,
+		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -130,7 +136,7 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigUsernameAndPasswordExam
 	return acctest.Nprintf(`
 resource "google_integrations_auth_config" "username_and_password_example" {
     location = "us-east4"
-    display_name = "tf-test-test-authconfig-username-and-password%{random_suffix}"
+    display_name = "%{auth_config_name}"
     description = "Test auth config created via terraform"
     decrypted_credential {
         credential_type = "USERNAME_AND_PASSWORD"
@@ -146,9 +152,12 @@ resource "google_integrations_auth_config" "username_and_password_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2AuthorizationCodeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+		"auth_config_name": "tf-test-test-authconfig-oauth2-authorization-code" + randomSuffix,
+		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -173,7 +182,7 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigOauth2AuthorizationCode
 	return acctest.Nprintf(`
 resource "google_integrations_auth_config" "oauth2_authotization_code_example" {
     location = "us-east4"
-    display_name = "tf-test-test-authconfig-oauth2-authorization-code%{random_suffix}"
+    display_name = "%{auth_config_name}"
     description = "Test auth config created via terraform"
     decrypted_credential {
         credential_type = "OAUTH2_AUTHORIZATION_CODE"
@@ -192,9 +201,12 @@ resource "google_integrations_auth_config" "oauth2_authotization_code_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2ClientCredentialsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+		"auth_config_name": "tf-test-test-authconfig-oauth2-client-credentials" + randomSuffix,
+		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -219,7 +231,7 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigOauth2ClientCredentials
 	return acctest.Nprintf(`
 resource "google_integrations_auth_config" "oauth2_client_credentials_example" {
     location = "us-east4"
-    display_name = "tf-test-test-authconfig-oauth2-client-credentials%{random_suffix}"
+    display_name = "%{auth_config_name}"
     description = "Test auth config created via terraform"
     decrypted_credential {
         credential_type = "OAUTH2_CLIENT_CREDENTIALS"
@@ -252,9 +264,12 @@ resource "google_integrations_auth_config" "oauth2_client_credentials_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigJwtExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+		"auth_config_name": "tf-test-test-authconfig-jwt" + randomSuffix,
+		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -279,7 +294,7 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigJwtExample(context map[
 	return acctest.Nprintf(`
 resource "google_integrations_auth_config" "jwt_example" {
     location = "us-east4"
-    display_name = "tf-test-test-authconfig-jwt%{random_suffix}"
+    display_name = "%{auth_config_name}"
     description = "Test auth config created via terraform"
     decrypted_credential {
         credential_type = "JWT"
@@ -296,9 +311,12 @@ resource "google_integrations_auth_config" "jwt_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigAuthTokenExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+		"auth_config_name": "tf-test-test-authconfig-auth-token" + randomSuffix,
+		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -323,7 +341,7 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigAuthTokenExample(contex
 	return acctest.Nprintf(`
 resource "google_integrations_auth_config" "auth_token_example" {
     location = "us-east4"
-    display_name = "tf-test-test-authconfig-auth-token%{random_suffix}"
+    display_name = "%{auth_config_name}"
     description = "Test auth config created via terraform"
     decrypted_credential {
         credential_type = "AUTH_TOKEN"
@@ -339,9 +357,13 @@ resource "google_integrations_auth_config" "auth_token_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigServiceAccountExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+		"auth_config_name":   "tf-test-test-authconfig-service-account" + randomSuffix,
+		"client":             acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"service_account_id": "sa" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -365,13 +387,13 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigServiceAccountExample(t
 func testAccIntegrationsAuthConfig_integrationsAuthConfigServiceAccountExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account" {
-  account_id   = "sa%{random_suffix}"
+  account_id   = "%{service_account_id}"
   display_name = "Service Account"
 }
 
 resource "google_integrations_auth_config" "service_account_example" {
     location = "us-east4"
-    display_name = "tf-test-test-authconfig-service-account%{random_suffix}"
+    display_name = "%{auth_config_name}"
     description = "Test auth config created via terraform"
     decrypted_credential {
         credential_type = "SERVICE_ACCOUNT"
@@ -387,9 +409,13 @@ resource "google_integrations_auth_config" "service_account_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigOidcTokenExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+		"auth_config_name":   "tf-test-test-authconfig-oidc-token" + randomSuffix,
+		"client":             acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"service_account_id": "sa" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -413,13 +439,13 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOidcTokenExample(t *tes
 func testAccIntegrationsAuthConfig_integrationsAuthConfigOidcTokenExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account" {
-  account_id   = "sa%{random_suffix}"
+  account_id   = "%{service_account_id}"
   display_name = "Service Account"
 }
 
 resource "google_integrations_auth_config" "oidc_token_example" {
     location = "us-east4"
-    display_name = "tf-test-test-authconfig-oidc-token%{random_suffix}"
+    display_name = "%{auth_config_name}"
     description = "Test auth config created via terraform"
     decrypted_credential {
         credential_type = "OIDC_TOKEN"
@@ -435,9 +461,12 @@ resource "google_integrations_auth_config" "oidc_token_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigClientCertificateOnlyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+		"auth_config_name": "tf-test-test-authconfig-client-certificate" + randomSuffix,
+		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -462,7 +491,7 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigClientCertificateOnlyEx
 	return acctest.Nprintf(`
 resource "google_integrations_auth_config" "client_certificate_example" {
     location = "us-east4"
-    display_name = "tf-test-test-authconfig-client-certificate%{random_suffix}"
+    display_name = "%{auth_config_name}"
     description = "Test auth config created via terraform"
     decrypted_credential {
         credential_type = "CLIENT_CERTIFICATE_ONLY"

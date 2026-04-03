@@ -53,9 +53,16 @@ var (
 func TestAccBackupDRBackupPlanAssociation_backupDrBpaExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                    envvar.GetTestProjectFromEnv(),
+		"account_id":                 "tf-test-my-custom" + randomSuffix,
+		"backup_plan_association_id": "tf-test-my-bpa" + randomSuffix,
+		"backup_plan_id":             "tf-test-bp-bpa-test" + randomSuffix,
+		"backup_vault_id":            "tf-test-bv-bpa" + randomSuffix,
+		"compute-name":               "tf-test-test-instance" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,12 +86,12 @@ func TestAccBackupDRBackupPlanAssociation_backupDrBpaExample(t *testing.T) {
 func testAccBackupDRBackupPlanAssociation_backupDrBpaExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
  resource "google_service_account" "mySA" {
-  account_id   = "tf-test-my-custom%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Custom SA for VM Instance"
 }
 
 resource "google_compute_instance" "myinstance" {
-  name         = "tf-test-test-instance%{random_suffix}"
+  name         = "%{compute-name}"
   machine_type = "n2-standard-2"
   zone         = "us-central1-a"
   boot_disk {
@@ -113,14 +120,14 @@ resource "google_compute_instance" "myinstance" {
 
 resource "google_backup_dr_backup_vault" "bv1" {
   location                                      = "us-central1"
-  backup_vault_id                               = "tf-test-bv-bpa%{random_suffix}"
+  backup_vault_id                               = "%{backup_vault_id}"
   backup_minimum_enforced_retention_duration    = "100000s"
    force_delete = "true"
 }
 
 resource "google_backup_dr_backup_plan" "bp1" {
   location       = "us-central1"
-  backup_plan_id = "tf-test-bp-bpa-test%{random_suffix}"
+  backup_plan_id = "%{backup_plan_id}"
   resource_type  = "compute.googleapis.com/Instance"
   backup_vault   = google_backup_dr_backup_vault.bv1.id
 
@@ -143,7 +150,7 @@ resource "google_backup_dr_backup_plan" "bp1" {
 resource "google_backup_dr_backup_plan_association" "my-backup-plan-association" {
   location = "us-central1"
   resource_type= "compute.googleapis.com/Instance"
-  backup_plan_association_id          = "tf-test-my-bpa%{random_suffix}"
+  backup_plan_association_id          = "%{backup_plan_association_id}"
   resource      = google_compute_instance.myinstance.id
   backup_plan  = google_backup_dr_backup_plan.bp1.name
 }
@@ -153,9 +160,15 @@ resource "google_backup_dr_backup_plan_association" "my-backup-plan-association"
 func TestAccBackupDRBackupPlanAssociation_backupDrBpaFilestoreExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                    envvar.GetTestProjectFromEnv(),
+		"backup_plan_association_id": "tf-test-my-bpa-filestore" + randomSuffix,
+		"backup_plan_id":             "tf-test-bp-bpa-filestore" + randomSuffix,
+		"backup_vault_id":            "tf-test-bv-bpa-filestore" + randomSuffix,
+		"filestore_instance_id":      "tf-test-test-instance-bpa" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -179,7 +192,7 @@ func TestAccBackupDRBackupPlanAssociation_backupDrBpaFilestoreExample(t *testing
 func testAccBackupDRBackupPlanAssociation_backupDrBpaFilestoreExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_filestore_instance" "my_filestore_instance" {
-  name = "tf-test-test-instance-bpa%{random_suffix}"
+  name = "%{filestore_instance_id}"
   location = "us-central1"
   tier = "ENTERPRISE"
 
@@ -196,14 +209,14 @@ resource "google_filestore_instance" "my_filestore_instance" {
 
 resource "google_backup_dr_backup_vault" "my_backup_vault" {
   location = "us-central1"
-  backup_vault_id = "tf-test-bv-bpa-filestore%{random_suffix}"
+  backup_vault_id = "%{backup_vault_id}"
   backup_minimum_enforced_retention_duration = "100000s"
   force_delete = true
 }
 
 resource "google_backup_dr_backup_plan" "my_backup_plan" {
   location = "us-central1"
-  backup_plan_id = "tf-test-bp-bpa-filestore%{random_suffix}"
+  backup_plan_id = "%{backup_plan_id}"
   resource_type = "file.googleapis.com/Instance"
   backup_vault = google_backup_dr_backup_vault.my_backup_vault.id
 
@@ -227,7 +240,7 @@ resource "google_backup_dr_backup_plan" "my_backup_plan" {
 resource "google_backup_dr_backup_plan_association" "my-backup-plan-association-filestore" {
   location = "us-central1"
   resource_type = "file.googleapis.com/Instance"
-  backup_plan_association_id = "tf-test-my-bpa-filestore%{random_suffix}"
+  backup_plan_association_id = "%{backup_plan_association_id}"
   resource = google_filestore_instance.my_filestore_instance.id
   backup_plan = google_backup_dr_backup_plan.my_backup_plan.name
 }

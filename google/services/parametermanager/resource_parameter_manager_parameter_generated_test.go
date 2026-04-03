@@ -53,8 +53,11 @@ var (
 func TestAccParameterManagerParameter_parameterConfigBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":  "parameter" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccParameterManagerParameter_parameterConfigBasicExample(t *testing.T) 
 func testAccParameterManagerParameter_parameterConfigBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  parameter_id = "parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
 }
 `, context)
 }
@@ -86,8 +89,11 @@ resource "google_parameter_manager_parameter" "parameter-basic" {
 func TestAccParameterManagerParameter_parameterWithFormatExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":  "parameter" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -111,7 +117,7 @@ func TestAccParameterManagerParameter_parameterWithFormatExample(t *testing.T) {
 func testAccParameterManagerParameter_parameterWithFormatExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_parameter" "parameter-with-format" {
-  parameter_id = "parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   format = "JSON"
 }
 `, context)
@@ -120,8 +126,11 @@ resource "google_parameter_manager_parameter" "parameter-with-format" {
 func TestAccParameterManagerParameter_parameterWithLabelsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":  "parameter" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -145,7 +154,7 @@ func TestAccParameterManagerParameter_parameterWithLabelsExample(t *testing.T) {
 func testAccParameterManagerParameter_parameterWithLabelsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_parameter" "parameter-with-labels" {
-  parameter_id = "parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
 
   labels = {
     key1 = "val1"
@@ -167,9 +176,12 @@ func TestAccParameterManagerParameter_parameterWithKmsKeyExample(t *testing.T) {
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"kms_key":       acctest.BootstrapKMSKey(t).CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":  "parameter" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -195,7 +207,7 @@ func testAccParameterManagerParameter_parameterWithKmsKeyExample(context map[str
 data "google_project" "project" {}
 
 resource "google_parameter_manager_parameter" "parameter-with-kms-key" {
-  parameter_id = "parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   kms_key = "%{kms_key}"
 }
 `, context)

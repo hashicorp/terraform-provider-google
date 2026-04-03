@@ -249,11 +249,16 @@ func updateComputeCommonInstanceMetadata(config *transport_tpg.Config, projectID
 			md[key] = *afterVal
 		}
 
+		var fingerprint string
+		if project.CommonInstanceMetadata != nil {
+			fingerprint = project.CommonInstanceMetadata.Fingerprint
+		}
+
 		// Attempt to write the new value now
 		op, err := config.NewComputeClient(userAgent).Projects.SetCommonInstanceMetadata(
 			projectID,
 			&compute.Metadata{
-				Fingerprint: project.CommonInstanceMetadata.Fingerprint,
+				Fingerprint: fingerprint,
 				Items:       expandComputeMetadata(md),
 			},
 		).Do()

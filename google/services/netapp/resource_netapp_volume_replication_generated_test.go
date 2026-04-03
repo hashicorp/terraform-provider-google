@@ -53,9 +53,16 @@ var (
 func TestAccNetappVolumeReplication_netappVolumeReplicationCreateExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
-		"random_suffix": acctest.RandString(t, 10),
+		"destination_pool_name": "tf-test-destination-pool" + randomSuffix,
+		"destination_volume":    "tf-test-destination-volume" + randomSuffix,
+		"network_name":          acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"replication_name":      "tf-test-test-replication" + randomSuffix,
+		"source_pool_name":      "tf-test-source-pool" + randomSuffix,
+		"volume_name":           "tf-test-source-volume" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +91,7 @@ data "google_compute_network" "default" {
 }
 
 resource "google_netapp_storage_pool" "source_pool" {
-  name          = "tf-test-source-pool%{random_suffix}"
+  name          = "%{source_pool_name}"
   location      = "us-central1"
   service_level = "PREMIUM"
   capacity_gib  = 2048
@@ -92,7 +99,7 @@ resource "google_netapp_storage_pool" "source_pool" {
 }
 
 resource "google_netapp_storage_pool" "destination_pool" {
-  name          = "tf-test-destination-pool%{random_suffix}"
+  name          = "%{destination_pool_name}"
   location      = "us-west2"
   service_level = "PREMIUM"
   capacity_gib  = 2048
@@ -102,9 +109,9 @@ resource "google_netapp_storage_pool" "destination_pool" {
 
 resource "google_netapp_volume" "source_volume" {
   location     = google_netapp_storage_pool.source_pool.location
-  name         = "tf-test-source-volume%{random_suffix}"
+  name         = "%{volume_name}"
   capacity_gib = 100
-  share_name   = "tf-test-source-volume%{random_suffix}"
+  share_name   = "%{volume_name}"
   storage_pool = google_netapp_storage_pool.source_pool.name
   protocols = [
     "NFSV3"
@@ -116,15 +123,15 @@ resource "google_netapp_volume_replication" "test_replication" {
   depends_on           = [google_netapp_volume.source_volume]
   location             = google_netapp_volume.source_volume.location
   volume_name          = google_netapp_volume.source_volume.name
-  name                 = "tf-test-test-replication%{random_suffix}"
+  name                 = "%{replication_name}"
   replication_schedule = "EVERY_10_MINUTES"
   description          = "This is a replication resource"
   destination_volume_parameters {
     storage_pool = google_netapp_storage_pool.destination_pool.id
-    volume_id    = "tf-test-destination-volume%{random_suffix}"
+    volume_id    = "%{destination_volume}"
     # Keeping the share_name of source and destination the same
     # simplifies implementing client failover concepts
-    share_name  = "tf-test-source-volume%{random_suffix}"
+    share_name  = "%{volume_name}"
     description = "This is a replicated volume"
     tiering_policy {
         cooling_threshold_days = 20

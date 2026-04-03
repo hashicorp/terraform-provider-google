@@ -53,9 +53,14 @@ var (
 func TestAccNetworkConnectivityv1ServiceConnectionPolicy_networkConnectivityPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"service_class_name": "gcp-memorystore-redis",
-		"random_suffix":      acctest.RandString(t, 10),
+		"producer_network_name":    "tf-test-producer-net" + randomSuffix,
+		"producer_subnetwork_name": "tf-test-producer-subnet" + randomSuffix,
+		"resource_name":            "tf-test-my-network-connectivity-policy" + randomSuffix,
+		"service_class_name":       "gcp-memorystore-redis",
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,19 +84,19 @@ func TestAccNetworkConnectivityv1ServiceConnectionPolicy_networkConnectivityPoli
 func testAccNetworkConnectivityv1ServiceConnectionPolicy_networkConnectivityPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "producer_net" {
-  name                    = "tf-test-producer-net%{random_suffix}"
+  name                    = "%{producer_network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "tf-test-producer-subnet%{random_suffix}"
+  name          = "%{producer_subnetwork_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.producer_net.id
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "tf-test-my-network-connectivity-policy%{random_suffix}"
+  name = "%{resource_name}"
   location = "us-central1"
   service_class = "%{service_class_name}"
   description   = "my basic service connection policy"

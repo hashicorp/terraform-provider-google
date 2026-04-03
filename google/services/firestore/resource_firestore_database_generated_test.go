@@ -53,10 +53,13 @@ var (
 func TestAccFirestoreDatabase_firestoreDatabaseExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
 		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +84,7 @@ func testAccFirestoreDatabase_firestoreDatabaseExample(context map[string]interf
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project                           = "%{project_id}"
-  name                              = "tf-test-database-id%{random_suffix}"
+  name                              = "%{database_id}"
   location_id                       = "nam5"
   type                              = "FIRESTORE_NATIVE"
   concurrency_mode                  = "OPTIMISTIC"
@@ -96,10 +99,15 @@ resource "google_firestore_database" "database" {
 func TestAccFirestoreDatabase_firestoreCmekDatabaseExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-cmek-database-id" + randomSuffix,
 		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
-		"random_suffix":           acctest.RandString(t, 10),
+		"kms_key_name":            "tf-test-kms-key" + randomSuffix,
+		"kms_key_ring_name":       "tf-test-kms-key-ring" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,7 +135,7 @@ data "google_project" "project" {
 
 resource "google_firestore_database" "database" {
   project                           = "%{project_id}"
-  name                              = "tf-test-cmek-database-id%{random_suffix}"
+  name                              = "%{database_id}"
   location_id                       = "nam5"
   type                              = "FIRESTORE_NATIVE"
   concurrency_mode                  = "OPTIMISTIC"
@@ -145,13 +153,13 @@ resource "google_firestore_database" "database" {
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-  name     = "tf-test-kms-key%{random_suffix}"
+  name     = "%{kms_key_name}"
   key_ring = google_kms_key_ring.key_ring.id
   purpose  = "ENCRYPT_DECRYPT"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  name     = "tf-test-kms-key-ring%{random_suffix}"
+  name     = "%{kms_key_ring_name}"
   location = "us"
 }
 
@@ -169,10 +177,13 @@ resource "google_kms_crypto_key_iam_binding" "firestore_cmek_keyuser" {
 func TestAccFirestoreDatabase_firestoreDatabaseInDatastoreModeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
 		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -197,7 +208,7 @@ func testAccFirestoreDatabase_firestoreDatabaseInDatastoreModeExample(context ma
 	return acctest.Nprintf(`
 resource "google_firestore_database" "datastore_mode_database" {
   project                           = "%{project_id}"
-  name                              = "tf-test-database-id%{random_suffix}"
+  name                              = "%{database_id}"
   location_id                       = "nam5"
   type                              = "DATASTORE_MODE"
   concurrency_mode                  = "OPTIMISTIC"
@@ -212,10 +223,15 @@ resource "google_firestore_database" "datastore_mode_database" {
 func TestAccFirestoreDatabase_firestoreCmekDatabaseInDatastoreModeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-cmek-database-id" + randomSuffix,
 		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
-		"random_suffix":           acctest.RandString(t, 10),
+		"kms_key_name":            "tf-test-kms-key" + randomSuffix,
+		"kms_key_ring_name":       "tf-test-kms-key-ring" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -243,7 +259,7 @@ data "google_project" "project" {
 
 resource "google_firestore_database" "database" {
   project                           = "%{project_id}"
-  name                              = "tf-test-cmek-database-id%{random_suffix}"
+  name                              = "%{database_id}"
   location_id                       = "nam5"
   type                              = "DATASTORE_MODE"
   concurrency_mode                  = "OPTIMISTIC"
@@ -261,13 +277,13 @@ resource "google_firestore_database" "database" {
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-  name     = "tf-test-kms-key%{random_suffix}"
+  name     = "%{kms_key_name}"
   key_ring = google_kms_key_ring.key_ring.id
   purpose  = "ENCRYPT_DECRYPT"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  name     = "tf-test-kms-key-ring%{random_suffix}"
+  name     = "%{kms_key_ring_name}"
   location = "us"
 }
 
@@ -285,9 +301,13 @@ resource "google_kms_crypto_key_iam_binding" "firestore_cmek_keyuser" {
 func TestAccFirestoreDatabase_firestoreDatabaseEnterpriseExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
+		"delete_protection_state": "tf_test_DELETE_PROTECTION_ENABLED" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -312,7 +332,7 @@ func testAccFirestoreDatabase_firestoreDatabaseEnterpriseExample(context map[str
 	return acctest.Nprintf(`
 resource "google_firestore_database" "enterprise-db" {
 	project                  = "%{project_id}"
-	name                     = "tf-test-database-id%{random_suffix}"
+	name                     = "%{database_id}"
 	location_id              = "nam5"
 	type                     = "FIRESTORE_NATIVE"
 	database_edition         = "ENTERPRISE"
@@ -324,9 +344,12 @@ resource "google_firestore_database" "enterprise-db" {
 func TestAccFirestoreDatabase_firestoreDatabaseDataAccessTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"database_id":   "tf-test-data-access-database-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -351,7 +374,7 @@ func testAccFirestoreDatabase_firestoreDatabaseDataAccessTestExample(context map
 	return acctest.Nprintf(`
 resource "google_firestore_database" "firestore_access_database_test" {
   project                             = "%{project_id}"
-  name                                = "tf-test-data-access-database-id%{random_suffix}"
+  name                                = "%{database_id}"
   location_id                         = "nam5"
   type                                = "FIRESTORE_NATIVE"
   database_edition                    = "ENTERPRISE"

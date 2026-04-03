@@ -115,7 +115,6 @@ func ResourceVertexAIReasoningEngine() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
-			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -466,23 +465,17 @@ projects/{project}/locations/{location}/reasoningEngines/{reasoningEngine}`,
 				Description: `The timestamp of when the Index was last updated in RFC3339 UTC "Zulu"
 format, with nanosecond resolution and up to nine fractional digits.`,
 			},
+			"deletion_policy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"FORCE", ""}),
+				Description:  `Optional. The deletion policy for the reasoning engine. Setting this to FORCE allows the reasoning engine to be deleted regardless of child undeleted resources. Possible values: ["FORCE"]`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
-			},
-			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
-When a 'terraform destroy' or 'terraform apply' would delete the instance,
-the command will fail if this field is set to "PREVENT" in Terraform state.
-When set to "ABANDON", the command will remove the resource from Terraform
-management without updating or deleting the resource in the API.
-When set to "DELETE", deleting the resource is allowed.
-`,
 			},
 		},
 		UseJSONNumber: true,
@@ -692,19 +685,9 @@ func resourceVertexAIReasoningEngineRead(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VertexAIReasoningEngine %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading VertexAIReasoningEngine %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOkExists("deletion_policy"); !ok {
-		//prioritize config's value if present
-		if config.DeletionPolicy != "" {
-			if err := d.Set("deletion_policy", config.DeletionPolicy); err != nil {
-				return fmt.Errorf("Error setting deletion_policy: %s", err)
-			}
-		} else {
-			if err := d.Set("deletion_policy", "DELETE"); err != nil {
-				return fmt.Errorf("Error setting deletion_policy: %s", err)
-			}
-		}
-	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
 	}
@@ -735,18 +718,6 @@ func resourceVertexAIReasoningEngineRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceVertexAIReasoningEngineUpdate(d *schema.ResourceData, meta interface{}) error {
-	clientSideFields := map[string]bool{"deletion_policy": true}
-	clientSideOnly := true
-	for field := range ResourceVertexAIReasoningEngine().Schema {
-		if d.HasChange(field) && !clientSideFields[field] {
-			clientSideOnly = false
-			break
-		}
-	}
-	if clientSideOnly {
-		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
-		return resourceVertexAIReasoningEngineRead(d, meta)
-	}
 
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -873,12 +844,13 @@ func resourceVertexAIReasoningEngineDelete(d *schema.ResourceData, meta interfac
 	}
 
 	headers := make(http.Header)
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy VertexAIReasoningEngine without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing ReasoningEngine %q from Terraform state without deletion", d.Id())
-		return nil
+	if v, ok := d.GetOk("deletion_policy"); ok {
+		if v.(string) == "FORCE" {
+			url, err = transport_tpg.AddQueryParams(url, map[string]string{"force": "true"})
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	log.Printf("[DEBUG] Deleting ReasoningEngine %q", d.Id())
@@ -925,6 +897,8 @@ func resourceVertexAIReasoningEngineImport(d *schema.ResourceData, meta interfac
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
 
 	return []*schema.ResourceData{d}, nil
 }

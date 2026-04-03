@@ -287,6 +287,8 @@ func resourceComputeBackendBucketSignedUrlKeyRead(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeBackendBucketSignedUrlKey %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeBackendBucketSignedUrlKey %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedComputeBackendBucketSignedUrlKey(d, meta, res)
 	if err != nil {
 		return err

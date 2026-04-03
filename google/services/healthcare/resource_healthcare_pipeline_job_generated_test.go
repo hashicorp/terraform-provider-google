@@ -53,8 +53,14 @@ var (
 func TestAccHealthcarePipelineJob_healthcarePipelineJobReconciliationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":     "tf_test_example_bucket_name" + randomSuffix,
+		"dataset_name":    "tf_test_example_dataset" + randomSuffix,
+		"fhir_store_name": "tf_test_fhir_store" + randomSuffix,
+		"pipeline_name":   "tf_test_example_pipeline_job" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +87,7 @@ data "google_project" "project" {
 }
 
 resource "google_healthcare_pipeline_job" "example-pipeline" {
-  name  = "tf_test_example_pipeline_job%{random_suffix}"
+  name  = "%{pipeline_name}"
   location = "us-central1"
   dataset = google_healthcare_dataset.dataset.id
   disable_lineage = true
@@ -99,12 +105,12 @@ resource "google_healthcare_pipeline_job" "example-pipeline" {
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf_test_example_dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 
 resource "google_healthcare_fhir_store" "fhirstore" {
-  name    = "tf_test_fhir_store%{random_suffix}"
+  name    = "%{fhir_store_name}"
   dataset = google_healthcare_dataset.dataset.id
   version = "R4"
   enable_update_create          = true
@@ -112,7 +118,7 @@ resource "google_healthcare_fhir_store" "fhirstore" {
 }
 
 resource "google_storage_bucket" "bucket" {
-    name          = "tf_test_example_bucket_name%{random_suffix}"
+    name          = "%{bucket_name}"
     location      = "us-central1"
     uniform_bucket_level_access = true
 }
@@ -135,8 +141,13 @@ func TestAccHealthcarePipelineJob_healthcarePipelineJobBackfillExample(t *testin
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backfill_pipeline_name": "tf_test_example_backfill_pipeline" + randomSuffix,
+		"dataset_name":           "tf_test_example_dataset" + randomSuffix,
+		"mapping_pipeline_name":  "tf_test_example_mapping_pipeline_job" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -160,16 +171,16 @@ func TestAccHealthcarePipelineJob_healthcarePipelineJobBackfillExample(t *testin
 func testAccHealthcarePipelineJob_healthcarePipelineJobBackfillExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_healthcare_pipeline_job" "example-pipeline" {
-  name  = "tf_test_example_backfill_pipeline%{random_suffix}"
+  name  = "%{backfill_pipeline_name}"
   location = "us-central1"
   dataset = google_healthcare_dataset.dataset.id
   backfill_pipeline_job {
-    mapping_pipeline_job = "${google_healthcare_dataset.dataset.id}/pipelineJobs/tf_test_example_mapping_pipeline_job%{random_suffix}"
+    mapping_pipeline_job = "${google_healthcare_dataset.dataset.id}/pipelineJobs/%{mapping_pipeline_name}"
   }      
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf_test_example_dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 `, context)
@@ -178,8 +189,15 @@ resource "google_healthcare_dataset" "dataset" {
 func TestAccHealthcarePipelineJob_healthcarePipelineJobWhistleMappingExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":           "tf_test_example_bucket_name" + randomSuffix,
+		"dataset_name":          "tf_test_example_dataset" + randomSuffix,
+		"dest_fhirstore_name":   "tf_test_dest_fhir_store" + randomSuffix,
+		"pipeline_name":         "tf_test_example_mapping_pipeline_job" + randomSuffix,
+		"source_fhirstore_name": "tf_test_source_fhir_store" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -206,7 +224,7 @@ data "google_project" "project" {
 }
 
 resource "google_healthcare_pipeline_job" "example-mapping-pipeline" {
-  name  = "tf_test_example_mapping_pipeline_job%{random_suffix}"
+  name  = "%{pipeline_name}"
   location = "us-central1"
   dataset = google_healthcare_dataset.dataset.id
   disable_lineage = true
@@ -230,12 +248,12 @@ resource "google_healthcare_pipeline_job" "example-mapping-pipeline" {
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf_test_example_dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 
 resource "google_healthcare_fhir_store" "source_fhirstore" {
-  name    = "tf_test_source_fhir_store%{random_suffix}"
+  name    = "%{source_fhirstore_name}"
   dataset = google_healthcare_dataset.dataset.id
   version = "R4"
   enable_update_create          = true
@@ -243,7 +261,7 @@ resource "google_healthcare_fhir_store" "source_fhirstore" {
 }
 
 resource "google_healthcare_fhir_store" "dest_fhirstore" {
-  name    = "tf_test_dest_fhir_store%{random_suffix}"
+  name    = "%{dest_fhirstore_name}"
   dataset = google_healthcare_dataset.dataset.id
   version = "R4"
   enable_update_create          = true
@@ -251,7 +269,7 @@ resource "google_healthcare_fhir_store" "dest_fhirstore" {
 }
 
 resource "google_storage_bucket" "bucket" {
-    name          = "tf_test_example_bucket_name%{random_suffix}"
+    name          = "%{bucket_name}"
     location      = "us-central1"
     uniform_bucket_level_access = true
 }
@@ -273,8 +291,16 @@ resource "google_storage_bucket_iam_member" "hsa" {
 func TestAccHealthcarePipelineJob_healthcarePipelineJobMappingReconDestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":           "tf_test_example_bucket_name" + randomSuffix,
+		"dataset_name":          "tf_test_example_dataset" + randomSuffix,
+		"dest_fhirstore_name":   "tf_test_dest_fhir_store" + randomSuffix,
+		"pipeline_name":         "tf_test_example_mapping_pipeline_job" + randomSuffix,
+		"recon_pipeline_name":   "tf_test_example_recon_pipeline_job" + randomSuffix,
+		"source_fhirstore_name": "tf_test_source_fhir_store" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -301,7 +327,7 @@ data "google_project" "project" {
 }
 
 resource "google_healthcare_pipeline_job" "recon" {
-  name  = "tf_test_example_recon_pipeline_job%{random_suffix}"
+  name  = "%{recon_pipeline_name}"
   location = "us-central1"
   dataset = google_healthcare_dataset.dataset.id
   disable_lineage = true
@@ -320,7 +346,7 @@ resource "google_healthcare_pipeline_job" "recon" {
 
 resource "google_healthcare_pipeline_job" "example-mapping-pipeline" {
   depends_on = [google_healthcare_pipeline_job.recon]
-  name  = "tf_test_example_mapping_pipeline_job%{random_suffix}"
+  name  = "%{pipeline_name}"
   location = "us-central1"
   dataset = google_healthcare_dataset.dataset.id
   disable_lineage = true
@@ -344,12 +370,12 @@ resource "google_healthcare_pipeline_job" "example-mapping-pipeline" {
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf_test_example_dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 
 resource "google_healthcare_fhir_store" "source_fhirstore" {
-  name    = "tf_test_source_fhir_store%{random_suffix}"
+  name    = "%{source_fhirstore_name}"
   dataset = google_healthcare_dataset.dataset.id
   version = "R4"
   enable_update_create          = true
@@ -357,7 +383,7 @@ resource "google_healthcare_fhir_store" "source_fhirstore" {
 }
 
 resource "google_healthcare_fhir_store" "dest_fhirstore" {
-  name    = "tf_test_dest_fhir_store%{random_suffix}"
+  name    = "%{dest_fhirstore_name}"
   dataset = google_healthcare_dataset.dataset.id
   version = "R4"
   enable_update_create          = true
@@ -365,7 +391,7 @@ resource "google_healthcare_fhir_store" "dest_fhirstore" {
 }
 
 resource "google_storage_bucket" "bucket" {
-    name          = "tf_test_example_bucket_name%{random_suffix}"
+    name          = "%{bucket_name}"
     location      = "us-central1"
     uniform_bucket_level_access = true
 }

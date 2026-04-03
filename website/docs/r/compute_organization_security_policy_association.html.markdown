@@ -71,6 +71,14 @@ The following arguments are supported:
   The security policy ID of the association.
 
 
+* `excluded_projects` -
+  (Optional)
+  A list of projects to exclude from the security policy.
+
+* `excluded_folders` -
+  (Optional)
+  A list of folders to exclude from the security policy.
+
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
 	the command will fail if this field is set to "PREVENT" in Terraform state.

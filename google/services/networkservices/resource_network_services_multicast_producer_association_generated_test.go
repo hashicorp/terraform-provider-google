@@ -53,8 +53,14 @@ var (
 func TestAccNetworkServicesMulticastProducerAssociation_networkServicesMulticastProducerAssociationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"domain_activation_name":    "tf-test-test-domain-activation-mpa" + randomSuffix,
+		"domain_name":               "tf-test-test-domain-mpa" + randomSuffix,
+		"network_name":              "tf-test-test-network-mpa" + randomSuffix,
+		"producer_association_name": "tf-test-test-producer-association-mpa" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +84,12 @@ func TestAccNetworkServicesMulticastProducerAssociation_networkServicesMulticast
 func testAccNetworkServicesMulticastProducerAssociation_networkServicesMulticastProducerAssociationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "tf-test-test-network-mpa%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_services_multicast_domain" "multicast_domain" {
-  multicast_domain_id                    = "tf-test-test-domain-mpa%{random_suffix}"
+  multicast_domain_id                    = "%{domain_name}"
   location = "global"
   admin_network = google_compute_network.network.id
   connection_config  { connection_type="SAME_VPC"}
@@ -91,13 +97,13 @@ resource "google_network_services_multicast_domain" "multicast_domain" {
 }
 
 resource "google_network_services_multicast_domain_activation" "multicast_domain_activation" {
-  multicast_domain_activation_id                    = "tf-test-test-domain-activation-mpa%{random_suffix}"
+  multicast_domain_activation_id                    = "%{domain_activation_name}"
   location = "us-central1-b"
   multicast_domain = google_network_services_multicast_domain.multicast_domain.id
 }
 
 resource "google_network_services_multicast_producer_association" mpa_test  {
-  multicast_producer_association_id              = "tf-test-test-producer-association-mpa%{random_suffix}"
+  multicast_producer_association_id              = "%{producer_association_name}"
   location = "us-central1-b"
   network = google_compute_network.network.id
   multicast_domain_activation = google_network_services_multicast_domain_activation.multicast_domain_activation.id

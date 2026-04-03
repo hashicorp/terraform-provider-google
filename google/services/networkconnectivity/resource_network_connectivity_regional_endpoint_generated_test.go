@@ -53,8 +53,13 @@ var (
 func TestAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpointRegionalAccessExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"rep_name":       "tf-test-my-rep" + randomSuffix,
+		"rep_network":    "tf-test-my-network" + randomSuffix,
+		"rep_subnetwork": "tf-test-my-subnetwork" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,19 +83,19 @@ func TestAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpo
 func testAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpointRegionalAccessExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "my_network" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{rep_network}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "my_subnetwork" {
-  name          = "tf-test-my-subnetwork%{random_suffix}"
+  name          = "%{rep_subnetwork}"
   ip_cidr_range = "192.168.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.my_network.id
 }
 
 resource "google_network_connectivity_regional_endpoint" "default" {
-  name              = "tf-test-my-rep%{random_suffix}"
+  name              = "%{rep_name}"
   location          = "us-central1"
   target_google_api = "storage.us-central1.rep.googleapis.com"
   access_type       = "REGIONAL"
@@ -106,8 +111,13 @@ resource "google_network_connectivity_regional_endpoint" "default" {
 func TestAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpointGlobalAccessExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"rep_name":       "tf-test-my-rep" + randomSuffix,
+		"rep_network":    "tf-test-my-network" + randomSuffix,
+		"rep_subnetwork": "tf-test-my-subnetwork" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -131,19 +141,19 @@ func TestAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpo
 func testAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpointGlobalAccessExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "my_network" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{rep_network}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "my_subnetwork" {
-  name          = "tf-test-my-subnetwork%{random_suffix}"
+  name          = "%{rep_subnetwork}"
   ip_cidr_range = "192.168.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.my_network.id
 }
 
 resource "google_network_connectivity_regional_endpoint" "default" {
-  name              = "tf-test-my-rep%{random_suffix}"
+  name              = "%{rep_name}"
   location          = "us-central1"
   target_google_api = "storage.us-central1.rep.googleapis.com"
   access_type       = "GLOBAL"

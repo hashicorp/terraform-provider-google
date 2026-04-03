@@ -23,8 +23,6 @@ description: |-
 # google_workstations_workstation_config_iam_policy
 
 Retrieves the current IAM policy data for workstationconfig
-~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage
@@ -32,7 +30,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 data "google_workstations_workstation_config_iam_policy" "policy" {
-  provider = google-beta
   project = google_workstations_workstation_config.default.project
   location = google_workstations_workstation_config.default.location
   workstation_cluster_id = google_workstations_workstation_config.default.workstation_cluster_id

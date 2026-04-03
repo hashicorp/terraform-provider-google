@@ -910,3 +910,93 @@ resource "google_compute_region_security_policy_rule" "policy_rule" {
 }
 `, spName)
 }
+
+func TestAccComputeRegionSecurityPolicyRule_ruleActionUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionSecurityPolicyRule_ruleActionThrottle(context),
+			},
+			{
+				ResourceName:      "google_compute_region_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionSecurityPolicyRule_ruleActionDeny(context),
+			},
+			{
+				ResourceName:      "google_compute_region_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionSecurityPolicyRule_ruleActionThrottle(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_security_policy" "policy" {
+  name = "tf-test%{random_suffix}"
+	region = "us-central1"
+	type	= "CLOUD_ARMOR"
+}
+
+resource "google_compute_region_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_region_security_policy.policy.name
+  region          = "us-central1"
+  action          = "throttle"
+  description = "Block requests if their reCAPTCHA Enterprise score is too low"
+  priority = "1000"
+  match {
+    expr {
+      expression = "request.path == 'my-path' && token.recaptcha_action.score <= 0.5"
+    }
+  }
+
+  rate_limit_options {
+    conform_action = "allow"
+    exceed_action = "deny(403)"
+
+    rate_limit_threshold {
+      count = 10
+      interval_sec = 10
+    }
+  }
+  preview = true
+}
+`, context)
+}
+
+func testAccComputeRegionSecurityPolicyRule_ruleActionDeny(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_security_policy" "policy" {
+  name  = "tf-test%{random_suffix}"
+  region = "us-central1"
+  type	= "CLOUD_ARMOR"
+}
+
+resource "google_compute_region_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_region_security_policy.policy.name
+  region          = "us-central1"
+  action          = "deny(403)"
+  priority = "1000"
+  match {
+    expr {
+      expression = "request.path == 'my-path' && token.recaptcha_action.score <= 0.5"
+    }
+  }
+  description = "Block requests if their reCAPTCHA Enterprise score is too low"
+  preview = true
+}
+`, context)
+}

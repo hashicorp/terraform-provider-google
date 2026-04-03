@@ -53,8 +53,11 @@ var (
 func TestAccNetappHostGroup_netappHostGroupExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"host_group_name": "tf-test-test-host-group" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetappHostGroup_netappHostGroupExample(t *testing.T) {
 func testAccNetappHostGroup_netappHostGroupExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_netapp_host_group" "test_host_group" {
-  name = "tf-test-test-host-group%{random_suffix}"
+  name = "%{host_group_name}"
   location = "us-central1"
   os_type = "LINUX"
   type = "ISCSI_INITIATOR"

@@ -53,8 +53,12 @@ var (
 func TestAccHealthcareConsentStore_healthcareConsentStoreBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"consent_id":    "tf-test-my-consent-store" + randomSuffix,
+		"dataset_id":    "tf-test-my-dataset" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,12 +83,12 @@ func testAccHealthcareConsentStore_healthcareConsentStoreBasicExample(context ma
 	return acctest.Nprintf(`
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
-  name     = "tf-test-my-dataset%{random_suffix}"
+  name     = "%{dataset_id}"
 }
 
 resource "google_healthcare_consent_store" "my-consent" {
   dataset = google_healthcare_dataset.dataset.id
-  name    = "tf-test-my-consent-store%{random_suffix}"
+  name    = "%{consent_id}"
 }
 `, context)
 }
@@ -92,8 +96,12 @@ resource "google_healthcare_consent_store" "my-consent" {
 func TestAccHealthcareConsentStore_healthcareConsentStoreFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"consent_id":    "tf-test-my-consent-store" + randomSuffix,
+		"dataset_id":    "tf-test-my-dataset" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -119,12 +127,12 @@ func testAccHealthcareConsentStore_healthcareConsentStoreFullExample(context map
 
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
-  name     = "tf-test-my-dataset%{random_suffix}"
+  name     = "%{dataset_id}"
 }
 
 resource "google_healthcare_consent_store" "my-consent" {
   dataset = google_healthcare_dataset.dataset.id
-  name    = "tf-test-my-consent-store%{random_suffix}"
+  name    = "%{consent_id}"
 
   enable_consent_create_on_update = true
   default_consent_ttl             = "90000s"
@@ -139,8 +147,13 @@ resource "google_healthcare_consent_store" "my-consent" {
 func TestAccHealthcareConsentStore_healthcareConsentStoreIamExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":    "tf-test-my-account" + randomSuffix,
+		"consent_id":    "tf-test-my-consent-store" + randomSuffix,
+		"dataset_id":    "tf-test-my-dataset" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -165,16 +178,16 @@ func testAccHealthcareConsentStore_healthcareConsentStoreIamExample(context map[
 	return acctest.Nprintf(`
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
-  name     = "tf-test-my-dataset%{random_suffix}"
+  name     = "%{dataset_id}"
 }
 
 resource "google_healthcare_consent_store" "my-consent" {
   dataset = google_healthcare_dataset.dataset.id
-  name    = "tf-test-my-consent-store%{random_suffix}"
+  name    = "%{consent_id}"
 }
 
 resource "google_service_account" "test-account" {
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Test Service Account"
 }
 

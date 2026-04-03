@@ -53,8 +53,10 @@ var (
 func TestAccContactCenterInsightsAnalysisRule_contactCenterInsightsAnalysisRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -87,9 +89,11 @@ resource "google_contact_center_insights_analysis_rule" "analysis_rule_basic" {
 func TestAccContactCenterInsightsAnalysisRule_contactCenterInsightsAnalysisRuleFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -146,9 +150,11 @@ resource "google_contact_center_insights_analysis_rule" "analysis_rule_full" {
 func TestAccContactCenterInsightsAnalysisRule_contactCenterInsightsAnalysisRuleProfileExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

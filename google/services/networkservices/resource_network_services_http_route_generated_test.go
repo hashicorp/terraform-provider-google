@@ -53,8 +53,11 @@ var (
 func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-http-route" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteBasicExample(t *tes
 func testAccNetworkServicesHttpRoute_networkServicesHttpRouteBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_http_route" "default" {
-  name                   = "tf-test-my-http-route%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }
@@ -100,8 +103,11 @@ resource "google_network_services_http_route" "default" {
 func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteMatchesAndActionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-http-route" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -125,7 +131,7 @@ func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteMatchesAndActionsEx
 func testAccNetworkServicesHttpRoute_networkServicesHttpRouteMatchesAndActionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_http_route" "default" {
-  name                   = "tf-test-my-http-route%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }
@@ -213,8 +219,11 @@ resource "google_network_services_http_route" "default" {
 func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteActionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-http-route" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -238,7 +247,7 @@ func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteActionsExample(t *t
 func testAccNetworkServicesHttpRoute_networkServicesHttpRouteActionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_http_route" "default" {
-  name                   = "tf-test-my-http-route%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }
@@ -299,8 +308,12 @@ resource "google_network_services_http_route" "default" {
 func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteMeshBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"mesh_name":     "tf-test-my-mesh" + randomSuffix,
+		"resource_name": "tf-test-my-http-route" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -324,7 +337,7 @@ func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteMeshBasicExample(t 
 func testAccNetworkServicesHttpRoute_networkServicesHttpRouteMeshBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_mesh" "default" {
-  name        = "tf-test-my-http-route%{random_suffix}"
+  name        = "%{resource_name}"
   labels      = {
     foo = "bar"
   }
@@ -332,7 +345,7 @@ resource "google_network_services_mesh" "default" {
 }
 
 resource "google_network_services_http_route" "default" {
-  name                   = "tf-test-my-http-route%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }

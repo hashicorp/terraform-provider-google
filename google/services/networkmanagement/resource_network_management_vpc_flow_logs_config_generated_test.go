@@ -53,8 +53,14 @@ var (
 func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfigInterconnectBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"interconnect_attachment_name": "tf-test-basic-interconnect-test-id" + randomSuffix,
+		"network_name":                 "tf-test-basic-interconnect-test-network" + randomSuffix,
+		"router_name":                  "tf-test-basic-interconnect-test-router" + randomSuffix,
+		"vpc_flow_logs_config_id":      "tf-test-basic-interconnect-test-id" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,17 +87,17 @@ data "google_project" "project" {
 }
 
 resource "google_network_management_vpc_flow_logs_config" "interconnect-test" {
-  vpc_flow_logs_config_id = "tf-test-basic-interconnect-test-id%{random_suffix}"
+  vpc_flow_logs_config_id = "%{vpc_flow_logs_config_id}"
   location                = "global"
   interconnect_attachment = "projects/${data.google_project.project.number}/regions/us-east4/interconnectAttachments/${google_compute_interconnect_attachment.attachment.name}"
 }
 
 resource "google_compute_network" "network" {
-  name     = "tf-test-basic-interconnect-test-network%{random_suffix}"
+  name     = "%{network_name}"
 }
 
 resource "google_compute_router" "router" {
-  name    = "tf-test-basic-interconnect-test-router%{random_suffix}"
+  name    = "%{router_name}"
   network = google_compute_network.network.name
   bgp {
     asn = 16550
@@ -99,7 +105,7 @@ resource "google_compute_router" "router" {
 }
 
 resource "google_compute_interconnect_attachment" "attachment" {
-  name                     = "tf-test-basic-interconnect-test-id%{random_suffix}"
+  name                     = "%{interconnect_attachment_name}"
   edge_availability_domain = "AVAILABILITY_DOMAIN_1"
   type                     = "PARTNER"
   router                   = google_compute_router.router.id
@@ -112,8 +118,19 @@ resource "google_compute_interconnect_attachment" "attachment" {
 func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfigVpnBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":                 "tf-test-basic-test-address" + randomSuffix,
+		"esp_forwarding_rule_name":     "tf-test-basic-test-fresp" + randomSuffix,
+		"network_name":                 "tf-test-basic-test-network" + randomSuffix,
+		"route_name":                   "tf-test-basic-test-route" + randomSuffix,
+		"target_vpn_gateway_name":      "tf-test-basic-test-gateway" + randomSuffix,
+		"udp4500_forwarding_rule_name": "tf-test-basic-test-fr4500" + randomSuffix,
+		"udp500_forwarding_rule_name":  "tf-test-basic-test-fr500" + randomSuffix,
+		"vpc_flow_logs_config_id":      "tf-test-basic-test-id" + randomSuffix,
+		"vpn_tunnel_name":              "tf-test-basic-test-tunnel" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -140,13 +157,13 @@ data "google_project" "project" {
 }
 
 resource "google_network_management_vpc_flow_logs_config" "vpn-test" {
-  vpc_flow_logs_config_id = "tf-test-basic-test-id%{random_suffix}"
+  vpc_flow_logs_config_id = "%{vpc_flow_logs_config_id}"
   location                = "global"
   vpn_tunnel              = "projects/${data.google_project.project.number}/regions/us-central1/vpnTunnels/${google_compute_vpn_tunnel.tunnel.name}"
 }
 
 resource "google_compute_vpn_tunnel" "tunnel" {
-  name               = "tf-test-basic-test-tunnel%{random_suffix}"
+  name               = "%{vpn_tunnel_name}"
   peer_ip            = "15.0.0.120"
   shared_secret      = "a secret message"
   target_vpn_gateway = google_compute_vpn_gateway.target_gateway.id
@@ -159,27 +176,27 @@ resource "google_compute_vpn_tunnel" "tunnel" {
 }
 
 resource "google_compute_vpn_gateway" "target_gateway" {
-  name     = "tf-test-basic-test-gateway%{random_suffix}"
+  name     = "%{target_vpn_gateway_name}"
   network  = google_compute_network.network.id
 }
 
 resource "google_compute_network" "network" {
-  name     = "tf-test-basic-test-network%{random_suffix}"
+  name     = "%{network_name}"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
-  name     = "tf-test-basic-test-address%{random_suffix}"
+  name     = "%{address_name}"
 }
 
 resource "google_compute_forwarding_rule" "fr_esp" {
-  name        = "tf-test-basic-test-fresp%{random_suffix}"
+  name        = "%{esp_forwarding_rule_name}"
   ip_protocol = "ESP"
   ip_address  = google_compute_address.vpn_static_ip.address
   target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
-  name        = "tf-test-basic-test-fr500%{random_suffix}"
+  name        = "%{udp500_forwarding_rule_name}"
   ip_protocol = "UDP"
   port_range  = "500"
   ip_address  = google_compute_address.vpn_static_ip.address
@@ -187,7 +204,7 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
-  name        = "tf-test-basic-test-fr4500%{random_suffix}"
+  name        = "%{udp4500_forwarding_rule_name}"
   ip_protocol = "UDP"
   port_range  = "4500"
   ip_address  = google_compute_address.vpn_static_ip.address
@@ -195,7 +212,7 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
 }
 
 resource "google_compute_route" "route" {
-  name                = "tf-test-basic-test-route%{random_suffix}"
+  name                = "%{route_name}"
   network             = google_compute_network.network.name
   dest_range          = "15.0.0.0/24"
   priority            = 1000
@@ -207,8 +224,12 @@ resource "google_compute_route" "route" {
 func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfigNetworkBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":            "tf-test-basic-network-test-network" + randomSuffix,
+		"vpc_flow_logs_config_id": "tf-test-basic-network-test-id" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -235,13 +256,13 @@ data "google_project" "project" {
 }
 
 resource "google_network_management_vpc_flow_logs_config" "network-test" {
-  vpc_flow_logs_config_id = "tf-test-basic-network-test-id%{random_suffix}"
+  vpc_flow_logs_config_id = "%{vpc_flow_logs_config_id}"
   location                = "global"
   network                 = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.network.name}"
 }
 
 resource "google_compute_network" "network" {
-  name     = "tf-test-basic-network-test-network%{random_suffix}"
+  name     = "%{network_name}"
 }
 `, context)
 }
@@ -249,8 +270,13 @@ resource "google_compute_network" "network" {
 func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfigSubnetBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":            "tf-test-basic-subnet-test-network" + randomSuffix,
+		"subnetwork_name":         "tf-test-basic-subnet-test-subnetwork" + randomSuffix,
+		"vpc_flow_logs_config_id": "tf-test-basic-subnet-test-id" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -277,18 +303,18 @@ data "google_project" "project" {
 }
 
 resource "google_network_management_vpc_flow_logs_config" "subnet-test" {
-  vpc_flow_logs_config_id = "tf-test-basic-subnet-test-id%{random_suffix}"
+  vpc_flow_logs_config_id = "%{vpc_flow_logs_config_id}"
   location                = "global"
   subnet                  = "projects/${data.google_project.project.number}/regions/us-central1/subnetworks/${google_compute_subnetwork.subnetwork.name}"
 }
 
 resource "google_compute_network" "network" {
-  name                    = "tf-test-basic-subnet-test-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name          = "tf-test-basic-subnet-test-subnetwork%{random_suffix}"
+  name          = "%{subnetwork_name}"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.network.id

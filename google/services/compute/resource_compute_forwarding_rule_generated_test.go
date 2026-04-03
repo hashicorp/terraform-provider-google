@@ -53,10 +53,15 @@ var (
 func TestAccComputeForwardingRule_forwardingRuleExternallbByoipv6Example(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"ip_address":        fmt.Sprintf("2600:1901:4457:1:%d:%d::/96", acctest.RandIntRange(t, 0, 9999), acctest.RandIntRange(t, 0, 9999)),
-		"ip_collection_url": "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/tf-test-forwarding-rule-mode-pdp",
-		"random_suffix":     acctest.RandString(t, 10),
+		"backend_name":         "tf-test-website-backend" + randomSuffix,
+		"forwarding_rule_name": "tf-test-byoipv6-forwarding-rule" + randomSuffix,
+		"ip_address":           fmt.Sprintf("2600:1901:4457:1:%d:%d::/96", acctest.RandIntRange(t, 0, 9999), acctest.RandIntRange(t, 0, 9999)),
+		"ip_collection_url":    "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/tf-test-forwarding-rule-mode-pdp",
+		"network_name":         "tf-test-website-net" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -82,7 +87,7 @@ func testAccComputeForwardingRule_forwardingRuleExternallbByoipv6Example(context
 // Forwarding rule for External Network Load Balancing using Backend Services with IP Collection
 
 resource "google_compute_forwarding_rule" "default" {
-  name                  = "tf-test-byoipv6-forwarding-rule%{random_suffix}"
+  name                  = "%{forwarding_rule_name}"
   region                = "us-central1"
   port_range            = 80
   ip_protocol           = "TCP"
@@ -95,14 +100,14 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_region_backend_service" "backend" {
-  name                  = "tf-test-website-backend%{random_suffix}"
+  name                  = "%{backend_name}"
   region                = "us-central1"
   load_balancing_scheme = "EXTERNAL"
   health_checks         = [google_compute_region_health_check.hc.id]
 }
 
 resource "google_compute_region_health_check" "hc" {
-  name               = "tf-test-website-backend%{random_suffix}"
+  name               = "%{backend_name}"
   check_interval_sec = 1
   timeout_sec        = 1
   region             = "us-central1"
@@ -117,8 +122,13 @@ resource "google_compute_region_health_check" "hc" {
 func TestAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_name":         "tf-test-website-backend" + randomSuffix,
+		"forwarding_rule_name": "tf-test-website-forwarding-rule" + randomSuffix,
+		"network_name":         "tf-test-website-net" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -143,7 +153,7 @@ func testAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(context 
 	return acctest.Nprintf(`
 // Forwarding rule for Internal Load Balancing
 resource "google_compute_forwarding_rule" "default" {
-  name                  = "tf-test-website-forwarding-rule%{random_suffix}"
+  name                  = "%{forwarding_rule_name}"
   region                = "us-central1"
   load_balancing_scheme = "INTERNAL"
   backend_service       = google_compute_region_backend_service.backend.id
@@ -153,12 +163,12 @@ resource "google_compute_forwarding_rule" "default" {
   subnetwork            = google_compute_subnetwork.default.name
 }
 resource "google_compute_region_backend_service" "backend" {
-  name                  = "tf-test-website-backend%{random_suffix}"
+  name                  = "%{backend_name}"
   region                = "us-central1"
   health_checks         = [google_compute_health_check.hc.id]
 }
 resource "google_compute_health_check" "hc" {
-  name               = "check-tf-test-website-backend%{random_suffix}"
+  name               = "check-%{backend_name}"
   check_interval_sec = 1
   timeout_sec        = 1
   tcp_health_check {
@@ -166,11 +176,11 @@ resource "google_compute_health_check" "hc" {
   }
 }
 resource "google_compute_network" "default" {
-  name = "tf-test-website-net%{random_suffix}"
+  name = "%{network_name}"
   auto_create_subnetworks = false
 }
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-website-net%{random_suffix}"
+  name          = "%{network_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.default.id
@@ -181,8 +191,12 @@ resource "google_compute_subnetwork" "default" {
 func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"forwarding_rule_name": "tf-test-website-forwarding-rule" + randomSuffix,
+		"target_pool_name":     "tf-test-website-target-pool" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -206,13 +220,13 @@ func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 func testAccComputeForwardingRule_forwardingRuleBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_forwarding_rule" "default" {
-  name       = "tf-test-website-forwarding-rule%{random_suffix}"
+  name       = "%{forwarding_rule_name}"
   target     = google_compute_target_pool.default.id
   port_range = "80"
 }
 
 resource "google_compute_target_pool" "default" {
-  name = "tf-test-website-target-pool%{random_suffix}"
+  name = "%{target_pool_name}"
 }
 `, context)
 }
@@ -220,8 +234,13 @@ resource "google_compute_target_pool" "default" {
 func TestAccComputeForwardingRule_forwardingRuleInternallbExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_name":         "tf-test-website-backend" + randomSuffix,
+		"forwarding_rule_name": "tf-test-website-forwarding-rule" + randomSuffix,
+		"network_name":         "tf-test-website-net" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -246,7 +265,7 @@ func testAccComputeForwardingRule_forwardingRuleInternallbExample(context map[st
 	return acctest.Nprintf(`
 // Forwarding rule for Internal Load Balancing
 resource "google_compute_forwarding_rule" "default" {
-  name   = "tf-test-website-forwarding-rule%{random_suffix}"
+  name   = "%{forwarding_rule_name}"
   region = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
@@ -258,13 +277,13 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_region_backend_service" "backend" {
-  name          = "tf-test-website-backend%{random_suffix}"
+  name          = "%{backend_name}"
   region        = "us-central1"
   health_checks = [google_compute_health_check.hc.id]
 }
 
 resource "google_compute_health_check" "hc" {
-  name               = "check-tf-test-website-backend%{random_suffix}"
+  name               = "check-%{backend_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -274,12 +293,12 @@ resource "google_compute_health_check" "hc" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-website-net%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-website-net%{random_suffix}"
+  name          = "%{network_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.default.id
@@ -290,8 +309,19 @@ resource "google_compute_subnetwork" "default" {
 func TestAccComputeForwardingRule_forwardingRuleVpcPscExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"consumer_network_name":         "tf-test-consumer-net" + randomSuffix,
+		"forwarding_rule_name":          "tf-test-psc-endpoint" + randomSuffix,
+		"ip_name":                       "tf-test-website-ip" + randomSuffix,
+		"producer_backend_name":         "tf-test-producer-service-backend" + randomSuffix,
+		"producer_forwarding_rule_name": "tf-test-producer-forwarding-rule" + randomSuffix,
+		"producer_healthcheck_name":     "tf-test-producer-service-health-check" + randomSuffix,
+		"producer_network_name":         "tf-test-producer-net" + randomSuffix,
+		"producer_psc_network_name":     "tf-test-producer-psc-net" + randomSuffix,
+		"service_attachment_name":       "tf-test-producer-service" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -316,7 +346,7 @@ func testAccComputeForwardingRule_forwardingRuleVpcPscExample(context map[string
 	return acctest.Nprintf(`
 // Forwarding rule for VPC private service connect
 resource "google_compute_forwarding_rule" "default" {
-  name                    = "tf-test-psc-endpoint%{random_suffix}"
+  name                    = "%{forwarding_rule_name}"
   region                  = "us-central1"
   load_balancing_scheme   = ""
   target                  = google_compute_service_attachment.producer_service_attachment.id
@@ -328,19 +358,19 @@ resource "google_compute_forwarding_rule" "default" {
 // Consumer service endpoint
 
 resource "google_compute_network" "consumer_net" {
-  name                    = "tf-test-consumer-net%{random_suffix}"
+  name                    = "%{consumer_network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "consumer_subnet" {
-  name          = "tf-test-consumer-net%{random_suffix}"
+  name          = "%{consumer_network_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.consumer_net.id
 }
 
 resource "google_compute_address" "consumer_address" {
-  name         = "tf-test-website-ip%{random_suffix}-1"
+  name         = "%{ip_name}-1"
   region       = "us-central1"
   subnetwork   = google_compute_subnetwork.consumer_subnet.id
   address_type = "INTERNAL"
@@ -350,19 +380,19 @@ resource "google_compute_address" "consumer_address" {
 // Producer service attachment
 
 resource "google_compute_network" "producer_net" {
-  name                    = "tf-test-producer-net%{random_suffix}"
+  name                    = "%{producer_network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "tf-test-producer-net%{random_suffix}"
+  name          = "%{producer_network_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.producer_net.id
 }
 
 resource "google_compute_subnetwork" "psc_producer_subnet" {
-  name          = "tf-test-producer-psc-net%{random_suffix}"
+  name          = "%{producer_psc_network_name}"
   ip_cidr_range = "10.1.0.0/16"
   region        = "us-central1"
 
@@ -371,7 +401,7 @@ resource "google_compute_subnetwork" "psc_producer_subnet" {
 }
 
 resource "google_compute_service_attachment" "producer_service_attachment" {
-  name        = "tf-test-producer-service%{random_suffix}"
+  name        = "%{service_attachment_name}"
   region      = "us-central1"
   description = "A service attachment configured with Terraform"
 
@@ -382,7 +412,7 @@ resource "google_compute_service_attachment" "producer_service_attachment" {
 }
 
 resource "google_compute_forwarding_rule" "producer_target_service" {
-  name     = "tf-test-producer-forwarding-rule%{random_suffix}"
+  name     = "%{producer_forwarding_rule_name}"
   region   = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
@@ -393,14 +423,14 @@ resource "google_compute_forwarding_rule" "producer_target_service" {
 }
 
 resource "google_compute_region_backend_service" "producer_service_backend" {
-  name     = "tf-test-producer-service-backend%{random_suffix}"
+  name     = "%{producer_backend_name}"
   region   = "us-central1"
 
   health_checks = [google_compute_health_check.producer_service_health_check.id]
 }
 
 resource "google_compute_health_check" "producer_service_health_check" {
-  name     = "tf-test-producer-service-health-check%{random_suffix}"
+  name     = "%{producer_healthcheck_name}"
 
   check_interval_sec = 1
   timeout_sec        = 1
@@ -414,8 +444,19 @@ resource "google_compute_health_check" "producer_service_health_check" {
 func TestAccComputeForwardingRule_forwardingRuleVpcPscNoAutomateDnsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"consumer_network_name":         "tf-test-consumer-net" + randomSuffix,
+		"forwarding_rule_name":          "tf-test-psc-endpoint" + randomSuffix,
+		"ip_name":                       "tf-test-website-ip" + randomSuffix,
+		"producer_backend_name":         "tf-test-producer-service-backend" + randomSuffix,
+		"producer_forwarding_rule_name": "tf-test-producer-forwarding-rule" + randomSuffix,
+		"producer_healthcheck_name":     "tf-test-producer-service-health-check" + randomSuffix,
+		"producer_network_name":         "tf-test-producer-net" + randomSuffix,
+		"producer_psc_network_name":     "tf-test-producer-psc-net" + randomSuffix,
+		"service_attachment_name":       "tf-test-producer-service" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -439,7 +480,7 @@ func TestAccComputeForwardingRule_forwardingRuleVpcPscNoAutomateDnsExample(t *te
 func testAccComputeForwardingRule_forwardingRuleVpcPscNoAutomateDnsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_forwarding_rule" "default" {
-  name                    = "tf-test-psc-endpoint%{random_suffix}"
+  name                    = "%{forwarding_rule_name}"
   region                  = "us-central1"
   load_balancing_scheme   = ""
   target                  = google_compute_service_attachment.producer_service_attachment.id
@@ -450,19 +491,19 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_network" "consumer_net" {
-  name                    = "tf-test-consumer-net%{random_suffix}"
+  name                    = "%{consumer_network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "consumer_subnet" {
-  name          = "tf-test-consumer-net%{random_suffix}"
+  name          = "%{consumer_network_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.consumer_net.id
 }
 
 resource "google_compute_address" "consumer_address" {
-  name         = "tf-test-website-ip%{random_suffix}-1"
+  name         = "%{ip_name}-1"
   region       = "us-central1"
   subnetwork   = google_compute_subnetwork.consumer_subnet.id
   address_type = "INTERNAL"
@@ -470,19 +511,19 @@ resource "google_compute_address" "consumer_address" {
 
 
 resource "google_compute_network" "producer_net" {
-  name                    = "tf-test-producer-net%{random_suffix}"
+  name                    = "%{producer_network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "tf-test-producer-net%{random_suffix}"
+  name          = "%{producer_network_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.producer_net.id
 }
 
 resource "google_compute_subnetwork" "psc_producer_subnet" {
-  name          = "tf-test-producer-psc-net%{random_suffix}"
+  name          = "%{producer_psc_network_name}"
   ip_cidr_range = "10.1.0.0/16"
   region        = "us-central1"
 
@@ -491,7 +532,7 @@ resource "google_compute_subnetwork" "psc_producer_subnet" {
 }
 
 resource "google_compute_service_attachment" "producer_service_attachment" {
-  name        = "tf-test-producer-service%{random_suffix}"
+  name        = "%{service_attachment_name}"
   region      = "us-central1"
   description = "A service attachment configured with Terraform"
 
@@ -502,7 +543,7 @@ resource "google_compute_service_attachment" "producer_service_attachment" {
 }
 
 resource "google_compute_forwarding_rule" "producer_target_service" {
-  name     = "tf-test-producer-forwarding-rule%{random_suffix}"
+  name     = "%{producer_forwarding_rule_name}"
   region   = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
@@ -513,14 +554,14 @@ resource "google_compute_forwarding_rule" "producer_target_service" {
 }
 
 resource "google_compute_region_backend_service" "producer_service_backend" {
-  name     = "tf-test-producer-service-backend%{random_suffix}"
+  name     = "%{producer_backend_name}"
   region   = "us-central1"
 
   health_checks = [google_compute_health_check.producer_service_health_check.id]
 }
 
 resource "google_compute_health_check" "producer_service_health_check" {
-  name     = "tf-test-producer-service-health-check%{random_suffix}"
+  name     = "%{producer_healthcheck_name}"
 
   check_interval_sec = 1
   timeout_sec        = 1
@@ -534,8 +575,14 @@ resource "google_compute_health_check" "producer_service_health_check" {
 func TestAccComputeForwardingRule_forwardingRuleRegionalSteeringExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_name":                  "tf-test-service-backend" + randomSuffix,
+		"external_forwarding_rule_name": "tf-test-external-forwarding-rule" + randomSuffix,
+		"forwarding_rule_name":          "tf-test-steering-rule" + randomSuffix,
+		"ip_name":                       "tf-test-website-ip" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -559,7 +606,7 @@ func TestAccComputeForwardingRule_forwardingRuleRegionalSteeringExample(t *testi
 func testAccComputeForwardingRule_forwardingRuleRegionalSteeringExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_forwarding_rule" "steering" {
-  name = "tf-test-steering-rule%{random_suffix}"
+  name = "%{forwarding_rule_name}"
   region = "us-central1"
   ip_address = google_compute_address.basic.address
   backend_service = google_compute_region_backend_service.external.self_link
@@ -569,18 +616,18 @@ resource "google_compute_forwarding_rule" "steering" {
 }
 
 resource "google_compute_address" "basic" {
-  name = "tf-test-website-ip%{random_suffix}"
+  name = "%{ip_name}"
   region = "us-central1"
 }
 
 resource "google_compute_region_backend_service" "external" {
-  name = "tf-test-service-backend%{random_suffix}"
+  name = "%{backend_name}"
   region = "us-central1"
   load_balancing_scheme = "EXTERNAL"
 }
 
 resource "google_compute_forwarding_rule" "external" {
-  name = "tf-test-external-forwarding-rule%{random_suffix}"
+  name = "%{external_forwarding_rule_name}"
   region = "us-central1"
   ip_address = google_compute_address.basic.address
   backend_service = google_compute_region_backend_service.external.self_link
@@ -592,8 +639,14 @@ resource "google_compute_forwarding_rule" "external" {
 func TestAccComputeForwardingRule_forwardingRuleInternallbIpv6Example(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_name":         "tf-test-ilb-ipv6-backend" + randomSuffix,
+		"forwarding_rule_name": "tf-test-ilb-ipv6-forwarding-rule" + randomSuffix,
+		"network_name":         "tf-test-net-ipv6" + randomSuffix,
+		"subnet_name":          "tf-test-subnet-internal-ipv6" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -618,7 +671,7 @@ func testAccComputeForwardingRule_forwardingRuleInternallbIpv6Example(context ma
 	return acctest.Nprintf(`
 // Forwarding rule for Internal Load Balancing
 resource "google_compute_forwarding_rule" "default" {
-  name   = "tf-test-ilb-ipv6-forwarding-rule%{random_suffix}"
+  name   = "%{forwarding_rule_name}"
   region = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
@@ -630,13 +683,13 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_region_backend_service" "backend" {
-  name          = "tf-test-ilb-ipv6-backend%{random_suffix}"
+  name          = "%{backend_name}"
   region        = "us-central1"
   health_checks = [google_compute_health_check.hc.id]
 }
 
 resource "google_compute_health_check" "hc" {
-  name               = "check-tf-test-ilb-ipv6-backend%{random_suffix}"
+  name               = "check-%{backend_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -646,13 +699,13 @@ resource "google_compute_health_check" "hc" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-net-ipv6%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
   enable_ula_internal_ipv6 = true
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-subnet-internal-ipv6%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   stack_type       = "IPV4_IPV6"

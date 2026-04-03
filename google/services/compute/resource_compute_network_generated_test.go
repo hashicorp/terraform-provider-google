@@ -53,8 +53,11 @@ var (
 func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-vpc-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 func testAccComputeNetwork_networkBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "vpc_network" {
-  name = "tf-test-vpc-network%{random_suffix}"
+  name = "%{network_name}"
 }
 `, context)
 }
@@ -86,9 +89,12 @@ resource "google_compute_network" "vpc_network" {
 func TestAccComputeNetwork_networkCustomMtuExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-vpc-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -113,7 +119,7 @@ func testAccComputeNetwork_networkCustomMtuExample(context map[string]interface{
 	return acctest.Nprintf(`
 resource "google_compute_network" "vpc_network" {
   project                 = "%{project}"
-  name                    = "tf-test-vpc-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = true
   mtu                     = 1460
 }
@@ -123,9 +129,12 @@ resource "google_compute_network" "vpc_network" {
 func TestAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-vpc-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -150,7 +159,7 @@ func testAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(context 
 	return acctest.Nprintf(`
 resource "google_compute_network" "vpc_network" {
   project                                   = "%{project}"
-  name                                      = "tf-test-vpc-network%{random_suffix}"
+  name                                      = "%{network_name}"
   auto_create_subnetworks                   = true
   network_firewall_policy_enforcement_order = "BEFORE_CLASSIC_FIREWALL"
 }
@@ -160,9 +169,12 @@ resource "google_compute_network" "vpc_network" {
 func TestAccComputeNetwork_networkBgpBestPathSelectionModeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-vpc-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -187,7 +199,7 @@ func testAccComputeNetwork_networkBgpBestPathSelectionModeExample(context map[st
 	return acctest.Nprintf(`
 resource "google_compute_network" "vpc_network" {
   project                                   = "%{project}"
-  name                                      = "tf-test-vpc-network%{random_suffix}"
+  name                                      = "%{network_name}"
   routing_mode                              = "GLOBAL"
 }
 `, context)
@@ -196,9 +208,12 @@ resource "google_compute_network" "vpc_network" {
 func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-vpc-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -223,7 +238,7 @@ func testAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(contex
 	return acctest.Nprintf(`
 resource "google_compute_network" "vpc_network" {
   project                                   = "%{project}"
-  name                                      = "tf-test-vpc-network%{random_suffix}"
+  name                                      = "%{network_name}"
   routing_mode                              = "GLOBAL"
   bgp_best_path_selection_mode              = "STANDARD"
 }
@@ -233,9 +248,12 @@ resource "google_compute_network" "vpc_network" {
 func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-vpc-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -260,7 +278,7 @@ func testAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsEx
 	return acctest.Nprintf(`
 resource "google_compute_network" "vpc_network" {
   project                                   = "%{project}"
-  name                                      = "tf-test-vpc-network%{random_suffix}"
+  name                                      = "%{network_name}"
   routing_mode                              = "GLOBAL"
   bgp_best_path_selection_mode              = "STANDARD"
   bgp_always_compare_med                    = true
@@ -272,9 +290,12 @@ resource "google_compute_network" "vpc_network" {
 func TestAccComputeNetwork_networkBgpStandardModeDeleteMedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-vpc-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -298,7 +319,7 @@ func TestAccComputeNetwork_networkBgpStandardModeDeleteMedExample(t *testing.T) 
 func testAccComputeNetwork_networkBgpStandardModeDeleteMedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "vpc_network" {
-  name                    = "tf-test-vpc-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
   routing_mode            = "GLOBAL"
   project                 = "%{project}"

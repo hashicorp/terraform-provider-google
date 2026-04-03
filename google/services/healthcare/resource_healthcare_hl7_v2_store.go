@@ -416,6 +416,8 @@ func resourceHealthcareHl7V2StoreRead(d *schema.ResourceData, meta interface{}) 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("HealthcareHl7V2Store %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading HealthcareHl7V2Store %q: %#v", d.Id(), res)
+
 	res, err = resourceHealthcareHl7V2StoreDecoder(d, meta, res)
 	if err != nil {
 		return err

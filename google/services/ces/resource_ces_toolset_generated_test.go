@@ -53,9 +53,15 @@ var (
 func TestAccCESToolset_cesToolsetOpenapiServiceAccountAuthConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"service_account":  envvar.GetTestServiceAccountFromEnv(t),
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"location":         "us" + randomSuffix,
+		"toolset_id":       "toolset1" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,10 +85,10 @@ func TestAccCESToolset_cesToolsetOpenapiServiceAccountAuthConfigExample(t *testi
 func testAccCESToolset_cesToolsetOpenapiServiceAccountAuthConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_toolset" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -96,7 +102,7 @@ resource "google_ces_app" "ces_app_for_toolset" {
 }
 
 resource "google_ces_toolset" "ces_toolset_openapi_service_account_auth_config" {
-  toolset_id = "toolset1%{random_suffix}"
+  toolset_id = "%{toolset_id}"
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
@@ -136,8 +142,14 @@ resource "google_ces_toolset" "ces_toolset_openapi_service_account_auth_config" 
 func TestAccCESToolset_cesToolsetOpenapiOauthConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"location":         "us" + randomSuffix,
+		"toolset_id":       "toolset1" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -161,10 +173,10 @@ func TestAccCESToolset_cesToolsetOpenapiOauthConfigExample(t *testing.T) {
 func testAccCESToolset_cesToolsetOpenapiOauthConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_toolset" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -178,7 +190,7 @@ resource "google_ces_app" "ces_app_for_toolset" {
 }
 
 resource "google_ces_toolset" "ces_toolset_openapi_oauth_config" {
-  toolset_id = "toolset1%{random_suffix}"
+  toolset_id = "%{toolset_id}"
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
@@ -221,8 +233,14 @@ resource "google_ces_toolset" "ces_toolset_openapi_oauth_config" {
 func TestAccCESToolset_cesToolsetOpenapiServiceAgentIdTokenAuthConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"location":         "us" + randomSuffix,
+		"toolset_id":       "toolset1" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -246,10 +264,10 @@ func TestAccCESToolset_cesToolsetOpenapiServiceAgentIdTokenAuthConfigExample(t *
 func testAccCESToolset_cesToolsetOpenapiServiceAgentIdTokenAuthConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_toolset" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -263,7 +281,7 @@ resource "google_ces_app" "ces_app_for_toolset" {
 }
 
 resource "google_ces_toolset" "ces_toolset_openapi_service_agent_id_token_auth_config" {
-  toolset_id = "toolset1%{random_suffix}"
+  toolset_id = "%{toolset_id}"
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
@@ -301,8 +319,14 @@ resource "google_ces_toolset" "ces_toolset_openapi_service_agent_id_token_auth_c
 func TestAccCESToolset_cesToolsetOpenapiApiKeyConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"location":         "us" + randomSuffix,
+		"toolset_id":       "toolset1" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -326,10 +350,10 @@ func TestAccCESToolset_cesToolsetOpenapiApiKeyConfigExample(t *testing.T) {
 func testAccCESToolset_cesToolsetOpenapiApiKeyConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_toolset" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -343,7 +367,7 @@ resource "google_ces_app" "ces_app_for_toolset" {
 }
 
 resource "google_ces_toolset" "ces_toolset_openapi_api_key_config" {
-  toolset_id = "toolset1%{random_suffix}"
+  toolset_id = "%{toolset_id}"
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
@@ -386,8 +410,14 @@ resource "google_ces_toolset" "ces_toolset_openapi_api_key_config" {
 func TestAccCESToolset_cesToolsetBearerTokenConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"location":         "us" + randomSuffix,
+		"toolset_id":       "toolset1" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -411,10 +441,10 @@ func TestAccCESToolset_cesToolsetBearerTokenConfigExample(t *testing.T) {
 func testAccCESToolset_cesToolsetBearerTokenConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_toolset" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -428,7 +458,7 @@ resource "google_ces_app" "ces_app_for_toolset" {
 }
 
 resource "google_ces_toolset" "ces_toolset_bearer_token_config" {
-  toolset_id = "toolset1%{random_suffix}"
+  toolset_id = "%{toolset_id}"
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
@@ -467,9 +497,15 @@ resource "google_ces_toolset" "ces_toolset_bearer_token_config" {
 func TestAccCESToolset_cesToolsetMcpServiceAccountAuthConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"service_account":  envvar.GetTestServiceAccountFromEnv(t),
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"location":         "us" + randomSuffix,
+		"toolset_id":       "toolset1" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -493,10 +529,10 @@ func TestAccCESToolset_cesToolsetMcpServiceAccountAuthConfigExample(t *testing.T
 func testAccCESToolset_cesToolsetMcpServiceAccountAuthConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_toolset" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -510,7 +546,7 @@ resource "google_ces_app" "ces_app_for_toolset" {
 }
 
 resource "google_ces_toolset" "ces_toolset_mcp_service_account_auth_config" {
-  toolset_id = "toolset1%{random_suffix}"
+  toolset_id = "%{toolset_id}"
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
@@ -540,8 +576,14 @@ resource "google_ces_toolset" "ces_toolset_mcp_service_account_auth_config" {
 func TestAccCESToolset_cesToolsetMcpOauthConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"location":         "us" + randomSuffix,
+		"toolset_id":       "toolset1" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -565,10 +607,10 @@ func TestAccCESToolset_cesToolsetMcpOauthConfigExample(t *testing.T) {
 func testAccCESToolset_cesToolsetMcpOauthConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_toolset" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -582,7 +624,7 @@ resource "google_ces_app" "ces_app_for_toolset" {
 }
 
 resource "google_ces_toolset" "ces_toolset_mcp_oauth_config" {
-  toolset_id = "toolset1%{random_suffix}"
+  toolset_id = "%{toolset_id}"
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
@@ -615,8 +657,14 @@ resource "google_ces_toolset" "ces_toolset_mcp_oauth_config" {
 func TestAccCESToolset_cesToolsetMcpServiceAgentIdTokenAuthConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"location":         "us" + randomSuffix,
+		"toolset_id":       "toolset1" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -640,10 +688,10 @@ func TestAccCESToolset_cesToolsetMcpServiceAgentIdTokenAuthConfigExample(t *test
 func testAccCESToolset_cesToolsetMcpServiceAgentIdTokenAuthConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_toolset" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -657,7 +705,7 @@ resource "google_ces_app" "ces_app_for_toolset" {
 }
 
 resource "google_ces_toolset" "ces_toolset_mcp_service_agent_id_token_auth_config" {
-  toolset_id = "toolset1%{random_suffix}"
+  toolset_id = "%{toolset_id}"
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
@@ -687,8 +735,14 @@ resource "google_ces_toolset" "ces_toolset_mcp_service_agent_id_token_auth_confi
 func TestAccCESToolset_cesToolsetMcpApiKeyConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"location":         "us" + randomSuffix,
+		"toolset_id":       "toolset1" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -712,10 +766,10 @@ func TestAccCESToolset_cesToolsetMcpApiKeyConfigExample(t *testing.T) {
 func testAccCESToolset_cesToolsetMcpApiKeyConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_toolset" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -729,7 +783,7 @@ resource "google_ces_app" "ces_app_for_toolset" {
 }
 
 resource "google_ces_toolset" "ces_toolset_mcp_api_key_config" {
-  toolset_id = "toolset1%{random_suffix}"
+  toolset_id = "%{toolset_id}"
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
@@ -762,8 +816,14 @@ resource "google_ces_toolset" "ces_toolset_mcp_api_key_config" {
 func TestAccCESToolset_cesToolsetMcpBearerTokenConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"location":         "us" + randomSuffix,
+		"toolset_id":       "toolset1" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -787,10 +847,10 @@ func TestAccCESToolset_cesToolsetMcpBearerTokenConfigExample(t *testing.T) {
 func testAccCESToolset_cesToolsetMcpBearerTokenConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_toolset" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -804,7 +864,7 @@ resource "google_ces_app" "ces_app_for_toolset" {
 }
 
 resource "google_ces_toolset" "ces_toolset_mcp_bearer_token_config" {
-  toolset_id = "toolset1%{random_suffix}"
+  toolset_id = "%{toolset_id}"
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"

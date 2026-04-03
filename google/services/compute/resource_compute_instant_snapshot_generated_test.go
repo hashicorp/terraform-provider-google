@@ -53,8 +53,12 @@ var (
 func TestAccComputeInstantSnapshot_instantSnapshotBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"disk_name":     "tf-test-example-disk" + randomSuffix,
+		"instance_name": "tf-test-instant-snapshot" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +82,13 @@ func TestAccComputeInstantSnapshot_instantSnapshotBasicExample(t *testing.T) {
 func testAccComputeInstantSnapshot_instantSnapshotBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_disk" "foo" {
-  name = "tf-test-example-disk%{random_suffix}"
+  name = "%{disk_name}"
   type = "pd-ssd"
   size = 10
 }
 
 resource "google_compute_instant_snapshot" "default" {
-  name         = "tf-test-instant-snapshot%{random_suffix}"
+  name         = "%{instance_name}"
   zone         = "us-central1-a"
   source_disk  = google_compute_disk.foo.self_link
 }

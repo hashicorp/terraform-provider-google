@@ -53,8 +53,12 @@ var (
 func TestAccSpannerInstancePartition_spannerInstancePartitionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name":  "tf-test-test-instance" + randomSuffix,
+		"partition_name": "tf-test-test-partition" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccSpannerInstancePartition_spannerInstancePartitionBasicExample(t *tes
 func testAccSpannerInstancePartition_spannerInstancePartitionBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_spanner_instance" "main" {
-  name         = "tf-test-test-instance%{random_suffix}"
+  name         = "%{instance_name}"
   config       = "nam6"
   display_name = "main-instance"
   num_nodes    = 1
@@ -86,12 +90,70 @@ resource "google_spanner_instance" "main" {
 }
 
 resource "google_spanner_instance_partition" "partition" {
-  name         = "tf-test-test-partition%{random_suffix}"
+  name         = "%{partition_name}"
   instance     = google_spanner_instance.main.name
   config       = "nam8"
   display_name = "test-spanner-partition"
   node_count   = 1
 } 
+`, context)
+}
+
+func TestAccSpannerInstancePartition_spannerInstancePartitionAutoscalingExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"instance_name":  "tf-test-test-instance" + randomSuffix,
+		"partition_name": "tf-test-test-partition" + randomSuffix,
+		"random_suffix":  randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerInstancePartitionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstancePartition_spannerInstancePartitionAutoscalingExample(context),
+			},
+			{
+				ResourceName:            "google_spanner_instance_partition.partition",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config", "instance"},
+			},
+		},
+	})
+}
+
+func testAccSpannerInstancePartition_spannerInstancePartitionAutoscalingExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_spanner_instance" "main" {
+  name         = "%{instance_name}"
+  config       = "nam6"
+  display_name = "main-instance"
+  num_nodes    = 1
+  edition     = "ENTERPRISE_PLUS"
+}
+
+resource "google_spanner_instance_partition" "partition" {
+  name         = "%{partition_name}"
+  instance     = google_spanner_instance.main.name
+  config       = "nam8"
+  display_name = "test-spanner-partition"
+  autoscaling_config {
+    autoscaling_limits {
+      min_processing_units = 1000
+      max_processing_units = 2000
+    }
+    autoscaling_targets {
+      high_priority_cpu_utilization_percent = 65
+      storage_utilization_percent           = 95
+    }
+  }
+}
 `, context)
 }
 

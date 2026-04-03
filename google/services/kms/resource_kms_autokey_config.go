@@ -133,6 +133,12 @@ func ResourceKMSAutokeyConfig() *schema.Resource {
 CryptoKey for any new KeyHandle the Developer creates. Should have the form
 'projects/<project_id_or_number>'.`,
 			},
+			"key_project_resolution_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DEDICATED_KEY_PROJECT", "RESOURCE_PROJECT", "DISABLED", ""}),
+				Description:  `How Autokey determines which project to use when provisioning CMEK keys. Possible values: ["DEDICATED_KEY_PROJECT", "RESOURCE_PROJECT", "DISABLED"]`,
+			},
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -170,8 +176,14 @@ func resourceKMSAutokeyConfigCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("key_project"); !tpgresource.IsEmptyValue(reflect.ValueOf(keyProjectProp)) && (ok || !reflect.DeepEqual(v, keyProjectProp)) {
 		obj["keyProject"] = keyProjectProp
 	}
+	keyProjectResolutionModeProp, err := expandKMSAutokeyConfigKeyProjectResolutionMode(d.Get("key_project_resolution_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("key_project_resolution_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(keyProjectResolutionModeProp)) && (ok || !reflect.DeepEqual(v, keyProjectResolutionModeProp)) {
+		obj["keyProjectResolutionMode"] = keyProjectResolutionModeProp
+	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}folders/{{folder}}/autokeyConfig?updateMask=keyProject")
+	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}folders/{{folder}}/autokeyConfig?updateMask=keyProject,keyProjectResolutionMode")
 	if err != nil {
 		return err
 	}
@@ -251,6 +263,8 @@ func resourceKMSAutokeyConfigRead(d *schema.ResourceData, meta interface{}) erro
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("KMSAutokeyConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading KMSAutokeyConfig %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
@@ -269,6 +283,9 @@ func resourceKMSAutokeyConfigRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading AutokeyConfig: %s", err)
 	}
 	if err := d.Set("etag", flattenKMSAutokeyConfigEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutokeyConfig: %s", err)
+	}
+	if err := d.Set("key_project_resolution_mode", flattenKMSAutokeyConfigKeyProjectResolutionMode(res["keyProjectResolutionMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AutokeyConfig: %s", err)
 	}
 
@@ -304,8 +321,14 @@ func resourceKMSAutokeyConfigUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("key_project"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, keyProjectProp)) {
 		obj["keyProject"] = keyProjectProp
 	}
+	keyProjectResolutionModeProp, err := expandKMSAutokeyConfigKeyProjectResolutionMode(d.Get("key_project_resolution_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("key_project_resolution_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, keyProjectResolutionModeProp)) {
+		obj["keyProjectResolutionMode"] = keyProjectResolutionModeProp
+	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}folders/{{folder}}/autokeyConfig?updateMask=keyProject")
+	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}folders/{{folder}}/autokeyConfig?updateMask=keyProject,keyProjectResolutionMode")
 	if err != nil {
 		return err
 	}
@@ -350,7 +373,7 @@ func resourceKMSAutokeyConfigDelete(d *schema.ResourceData, meta interface{}) er
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}folders/{{folder}}/autokeyConfig?updateMask=keyProject")
+	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}folders/{{folder}}/autokeyConfig?updateMask=keyProject,keyProjectResolutionMode")
 	if err != nil {
 		return err
 	}
@@ -418,6 +441,14 @@ func flattenKMSAutokeyConfigEtag(v interface{}, d *schema.ResourceData, config *
 	return v
 }
 
+func flattenKMSAutokeyConfigKeyProjectResolutionMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandKMSAutokeyConfigKeyProject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandKMSAutokeyConfigKeyProjectResolutionMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

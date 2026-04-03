@@ -1,0 +1,22 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_iam_workload_identity_pool_managed_identity
+generation_type: mmv1
+source_file: products/iambeta/WorkloadIdentityPoolManagedIdentity.yaml
+api_service_name: iam.googleapis.com
+api_version: v1
+api_resource_type_kind: WorkloadIdentityPoolManagedIdentity
+fields:
+    - api_field: attestationRules.googleCloudResource
+    - api_field: description
+    - api_field: disabled
+    - api_field: name
+    - api_field: state
+    - field: workload_identity_pool_id
+      provider_only: true
+    - field: workload_identity_pool_managed_identity_id
+      provider_only: true
+    - field: workload_identity_pool_namespace_id
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true

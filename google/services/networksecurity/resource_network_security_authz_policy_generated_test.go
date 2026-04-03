@@ -53,9 +53,26 @@ var (
 func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyAdvancedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                      envvar.GetTestProjectFromEnv(),
+		"address_name":                 "tf-test-l7-ilb-ip-address" + randomSuffix,
+		"authz_extension_name":         "tf-test-my-authz-ext" + randomSuffix,
+		"backend_authz_name":           "tf-test-authz-service" + randomSuffix,
+		"backend_url_name":             "tf-test-l7-ilb-backend-service" + randomSuffix,
+		"callouts_health_check_name":   "tf-test-l7-ilb-callouts-healthcheck" + randomSuffix,
+		"callouts_instance_group_name": "tf-test-l7-ilb-callouts-ins-group" + randomSuffix,
+		"callouts_instance_name":       "tf-test-l7-ilb-callouts-ins" + randomSuffix,
+		"forwarding_rule_name":         "tf-test-l7-ilb-forwarding-rule" + randomSuffix,
+		"health_check_name":            "tf-test-l7-ilb-basic-check" + randomSuffix,
+		"network_name":                 "tf-test-lb-network" + randomSuffix,
+		"proxy_subnet_name":            "tf-test-proxy-only-subnet" + randomSuffix,
+		"resource_name":                "tf-test-my-authz-policy" + randomSuffix,
+		"subnet_name":                  "tf-test-backend-subnet" + randomSuffix,
+		"target_proxy_name":            "tf-test-l7-ilb-proxy" + randomSuffix,
+		"url_name":                     "tf-test-l7-ilb-map" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,13 +96,13 @@ func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyAdvancedExample
 func testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyAdvancedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-lb-network%{random_suffix}"
+  name                    = "%{network_name}"
   project                 = "%{project}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-backend-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   project       = "%{project}"
   region        = "us-west1"
   ip_cidr_range = "10.1.2.0/24"
@@ -93,7 +110,7 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_subnetwork" "proxy_only" {
-  name          = "tf-test-proxy-only-subnet%{random_suffix}"
+  name          = "%{proxy_subnet_name}"
   project       = "%{project}"
   region        = "us-west1"
   ip_cidr_range = "10.129.0.0/23"
@@ -103,7 +120,7 @@ resource "google_compute_subnetwork" "proxy_only" {
 }
 
 resource "google_compute_instance" "callouts_instance" {
-  name                = "tf-test-l7-ilb-callouts-ins%{random_suffix}"
+  name                = "%{callouts_instance_name}"
   zone                = "us-west1-a"
   machine_type        = "e2-small"
   tags                = ["allow-ssh","load-balanced-backend"]
@@ -142,7 +159,7 @@ resource "google_compute_instance" "callouts_instance" {
 }
 
 resource "google_compute_instance_group" "callouts_instance_group" {
-  name        = "tf-test-l7-ilb-callouts-ins-group%{random_suffix}"
+  name        = "%{callouts_instance_group_name}"
   description = "Terraform test instance group"
   zone        = "us-west1-a"
 
@@ -162,7 +179,7 @@ resource "google_compute_instance_group" "callouts_instance_group" {
 }
 
 resource "google_compute_region_health_check" "callouts_health_check" {
-  name     = "tf-test-l7-ilb-callouts-healthcheck%{random_suffix}"
+  name     = "%{callouts_health_check_name}"
   region   = "us-west1"
 
   http_health_check {
@@ -175,7 +192,7 @@ resource "google_compute_region_health_check" "callouts_health_check" {
 }
 
 resource "google_compute_address" "default" {
-  name         = "tf-test-l7-ilb-ip-address%{random_suffix}"
+  name         = "%{address_name}"
   project      = "%{project}"
   region       = "us-west1"
   subnetwork   = google_compute_subnetwork.default.id
@@ -184,7 +201,7 @@ resource "google_compute_address" "default" {
 }
 
 resource "google_compute_region_health_check" "default" {
-  name    = "tf-test-l7-ilb-basic-check%{random_suffix}"
+  name    = "%{health_check_name}"
   project = "%{project}"
   region  = "us-west1"
 
@@ -194,7 +211,7 @@ resource "google_compute_region_health_check" "default" {
 }
 
 resource "google_compute_region_backend_service" "url_map" {
-  name                  = "tf-test-l7-ilb-backend-service%{random_suffix}"
+  name                  = "%{backend_url_name}"
   project               = "%{project}"
   region                = "us-west1"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -203,21 +220,21 @@ resource "google_compute_region_backend_service" "url_map" {
 }
 
 resource "google_compute_region_url_map" "default" {
-  name            = "tf-test-l7-ilb-map%{random_suffix}"
+  name            = "%{url_name}"
   project         = "%{project}"
   region          = "us-west1"
   default_service = google_compute_region_backend_service.url_map.id
 }
 
 resource "google_compute_region_target_http_proxy" "default" {
-  name    = "tf-test-l7-ilb-proxy%{random_suffix}"
+  name    = "%{target_proxy_name}"
   project = "%{project}"
   region  = "us-west1"
   url_map = google_compute_region_url_map.default.id
 }
 
 resource "google_compute_forwarding_rule" "default" {
-  name                  = "tf-test-l7-ilb-forwarding-rule%{random_suffix}"
+  name                  = "%{forwarding_rule_name}"
   project               = "%{project}"
   region                = "us-west1"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -232,7 +249,7 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_region_backend_service" "authz_extension" {
-  name    = "tf-test-authz-service%{random_suffix}"
+  name    = "%{backend_authz_name}"
   project = "%{project}"
   region  = "us-west1"
 
@@ -249,7 +266,7 @@ resource "google_compute_region_backend_service" "authz_extension" {
 }
 
 resource "google_network_services_authz_extension" "default" {
-  name     = "tf-test-my-authz-ext%{random_suffix}"
+  name     = "%{authz_extension_name}"
   project  = "%{project}"
   location = "us-west1"
 
@@ -263,7 +280,7 @@ resource "google_network_services_authz_extension" "default" {
 }
 
 resource "google_network_security_authz_policy" "default" {
-  name        = "tf-test-my-authz-policy%{random_suffix}"
+  name        = "%{resource_name}"
   project     = "%{project}"
   location    = "us-west1"
   description = "my description"
@@ -318,8 +335,11 @@ func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyMcpExample(t *t
 	t.Skip("true")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"policy_name":   "tf-test-my-mcp-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -345,7 +365,7 @@ func testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyMcpExample(cont
 data "google_project" "project" {}
 
 resource "google_network_security_authz_policy" "default" {
-  name        = "tf-test-my-mcp-policy%{random_suffix}"
+  name        = "%{policy_name}"
   location    = "us-west1"
 
   target {

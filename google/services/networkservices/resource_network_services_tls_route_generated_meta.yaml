@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_network_services_tls_route
 generation_type: mmv1
 source_file: products/networkservices/TlsRoute.yaml
@@ -8,6 +10,8 @@ fields:
     - api_field: createTime
     - api_field: description
     - api_field: gateways
+    - field: location
+      provider_only: true
     - api_field: meshes
     - field: name
       provider_only: true
@@ -16,6 +20,7 @@ fields:
     - api_field: rules.matches.alpn
     - api_field: rules.matches.sniHost
     - api_field: selfLink
+    - api_field: targetProxies
     - api_field: updateTime
     - field: deletion_policy
       provider_only: true

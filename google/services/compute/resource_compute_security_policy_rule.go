@@ -778,6 +778,8 @@ func resourceComputeSecurityPolicyRuleRead(d *schema.ResourceData, meta interfac
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeSecurityPolicyRule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeSecurityPolicyRule %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
@@ -940,7 +942,8 @@ func resourceComputeSecurityPolicyRuleUpdate(d *schema.ResourceData, meta interf
 	}
 
 	if d.HasChange("rate_limit_options") {
-		updateMask = append(updateMask, "rateLimitOptions.rateLimitThreshold",
+		updateMask = append(updateMask, "rateLimitOptions",
+			"rateLimitOptions.rateLimitThreshold",
 			"rateLimitOptions.conformAction",
 			"rateLimitOptions.exceedRedirectOptions",
 			"rateLimitOptions.exceedAction",

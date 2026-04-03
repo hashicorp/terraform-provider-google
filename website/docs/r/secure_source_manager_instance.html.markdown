@@ -172,6 +172,102 @@ resource "time_sleep" "wait_120_seconds" {
 data "google_project" "project" {}
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_instance_private_custom_host&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Secure Source Manager Instance Private Custom Host
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_privateca_ca_pool" "ca_pool" {
+  name     = "ca-pool"
+  location = "us-central1"
+  tier     = "ENTERPRISE"
+  publishing_options {
+    publish_ca_cert = true
+    publish_crl     = true
+  }
+}
+
+resource "google_privateca_certificate_authority" "root_ca" {
+  pool                     = google_privateca_ca_pool.ca_pool.name
+  certificate_authority_id = "root-ca"
+  location                 = "us-central1"
+  config {
+    subject_config {
+      subject {
+        organization = "google"
+        common_name = "my-certificate-authority"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+
+  // Disable deletion protections for easier test cleanup purposes
+  deletion_protection = false
+  ignore_active_certificates_on_deletion = true
+  skip_grace_period = true
+}
+
+resource "google_privateca_ca_pool_iam_binding" "ca_pool_binding" {
+  ca_pool = google_privateca_ca_pool.ca_pool.id
+  role = "roles/privateca.certificateRequester"
+
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-sourcemanager.iam.gserviceaccount.com"
+  ]
+}
+
+resource "google_secure_source_manager_instance" "default" {
+  instance_id = "my-instance"
+  location = "us-central1"
+  private_config {
+    is_private = true
+    ca_pool = google_privateca_ca_pool.ca_pool.id
+    custom_host_config {
+      api = "api.example.com"
+      git_http = "git-http.example.com"
+      git_ssh = "git-ssh.example.com"
+      html   = "html.example.com"
+    }
+  }
+
+  # Prevent accidental deletions.
+  deletion_policy = "PREVENT"
+
+  depends_on = [
+    google_privateca_certificate_authority.root_ca,
+    time_sleep.wait_120_seconds
+  ]
+}
+
+# ca pool IAM permissions can take time to propagate
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_privateca_ca_pool_iam_binding.ca_pool_binding]
+
+  create_duration = "120s"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_instance_private_psc_backend&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -600,6 +696,11 @@ Default is `PREVENT`.  Possible values are:
   (Required)
   'Indicate if it's private instance.'
 
+* `custom_host_config` -
+  (Optional)
+  Custom host configuration for the instance.
+  Structure is [documented below](#nested_private_config_custom_host_config).
+
 * `ca_pool` -
   (Optional)
   CA pool resource, resource must in the format of `projects/{project}/locations/{location}/caPools/{ca_pool}`.
@@ -611,6 +712,25 @@ Default is `PREVENT`.  Possible values are:
 * `ssh_service_attachment` -
   (Output)
   Service Attachment for SSH, resource is in the format of `projects/{project}/regions/{region}/serviceAttachments/{service_attachment}`.
+
+
+<a name="nested_private_config_custom_host_config"></a>The `custom_host_config` block supports:
+
+* `html` -
+  (Required)
+  HTML hostname.
+
+* `api` -
+  (Required)
+  API hostname.
+
+* `git_http` -
+  (Required)
+  Git HTTP hostname.
+
+* `git_ssh` -
+  (Required)
+  Git SSH hostname.
 
 <a name="nested_workforce_identity_federation_config"></a>The `workforce_identity_federation_config` block supports:
 

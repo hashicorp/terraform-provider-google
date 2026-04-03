@@ -53,8 +53,13 @@ var (
 func TestAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"config_map_name":      "tf-test-test-config-map" + randomSuffix,
+		"environment_name":     "tf-test-test-environment" + randomSuffix,
+		"service_account_name": "tf-test-test-sa" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +85,7 @@ func testAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicEx
 data "google_project" "project" {}
 
 resource "google_service_account" "test" {
-  account_id   = "tf-test-test-sa%{random_suffix}"
+  account_id   = "%{service_account_name}"
   display_name = "Test Service Account for Composer Environment"
 }
 
@@ -91,7 +96,7 @@ resource "google_project_iam_member" "composer-worker" {
 }
 
 resource "google_composer_environment" "environment" {
-  name   = "tf-test-test-environment%{random_suffix}"
+  name   = "%{environment_name}"
   region = "us-central1"
   config {
     software_config {
@@ -105,7 +110,7 @@ resource "google_composer_environment" "environment" {
 }
 
 resource "google_composer_user_workloads_config_map" "config_map" {
-  name = "tf-test-test-config-map%{random_suffix}"
+  name = "%{config_map_name}"
   region = "us-central1"
   environment = google_composer_environment.environment.name
   data = {

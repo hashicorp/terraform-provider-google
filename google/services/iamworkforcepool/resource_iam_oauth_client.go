@@ -393,6 +393,8 @@ func resourceIAMWorkforcePoolOauthClientRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IAMWorkforcePoolOauthClient %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IAMWorkforcePoolOauthClient %q: %#v", d.Id(), res)
+
 	res, err = resourceIAMWorkforcePoolOauthClientDecoder(d, meta, res)
 	if err != nil {
 		return err

@@ -53,8 +53,12 @@ var (
 func TestAccParameterManagerParameterVersion_parameterVersionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +82,12 @@ func TestAccParameterManagerParameterVersion_parameterVersionBasicExample(t *tes
 func testAccParameterManagerParameterVersion_parameterVersionBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  parameter_id = "parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
 }
 
 resource "google_parameter_manager_parameter_version" "parameter-version-basic" {
   parameter = google_parameter_manager_parameter.parameter-basic.id
-  parameter_version_id = "tf_test_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = "app-parameter-version-data"
 }
 `, context)
@@ -92,8 +96,12 @@ resource "google_parameter_manager_parameter_version" "parameter-version-basic" 
 func TestAccParameterManagerParameterVersion_parameterVersionWithJsonFormatExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -117,13 +125,13 @@ func TestAccParameterManagerParameterVersion_parameterVersionWithJsonFormatExamp
 func testAccParameterManagerParameterVersion_parameterVersionWithJsonFormatExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  parameter_id = "parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   format = "JSON"
 }
 
 resource "google_parameter_manager_parameter_version" "parameter-version-with-json-format" {
   parameter = google_parameter_manager_parameter.parameter-basic.id
-  parameter_version_id = "tf_test_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = jsonencode({
     "key1": "val1",
     "key2": "val2"
@@ -141,9 +149,13 @@ func TestAccParameterManagerParameterVersion_parameterVersionWithKmsKeyExample(t
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"kms_key":       acctest.BootstrapKMSKey(t).CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"kms_key":              acctest.BootstrapKMSKey(t).CryptoKey.Name,
+		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -169,13 +181,13 @@ func testAccParameterManagerParameterVersion_parameterVersionWithKmsKeyExample(c
 data "google_project" "project" {}
 
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  parameter_id = "parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   kms_key = "%{kms_key}"
 }
 
 resource "google_parameter_manager_parameter_version" "parameter-version-with-kms-key" {
   parameter = google_parameter_manager_parameter.parameter-basic.id
-  parameter_version_id = "tf_test_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = "app-parameter-version-data"
 }
 `, context)
@@ -184,8 +196,12 @@ resource "google_parameter_manager_parameter_version" "parameter-version-with-km
 func TestAccParameterManagerParameterVersion_parameterVersionWithYamlFormatExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -209,13 +225,13 @@ func TestAccParameterManagerParameterVersion_parameterVersionWithYamlFormatExamp
 func testAccParameterManagerParameterVersion_parameterVersionWithYamlFormatExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  parameter_id = "parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   format = "YAML"
 }
 
 resource "google_parameter_manager_parameter_version" "parameter-version-with-yaml-format" {
   parameter = google_parameter_manager_parameter.parameter-basic.id
-  parameter_version_id = "tf_test_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = yamlencode({
     "key1": "val1",
     "key2": "val2"
@@ -227,9 +243,13 @@ resource "google_parameter_manager_parameter_version" "parameter-version-with-ya
 func TestAccParameterManagerParameterVersion_parameterVersionWithJsonFormatWithFileExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"data":          "./test-fixtures/parameter_data_json_format.json",
-		"random_suffix": acctest.RandString(t, 10),
+		"data":                 "./test-fixtures/parameter_data_json_format.json",
+		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -253,13 +273,13 @@ func TestAccParameterManagerParameterVersion_parameterVersionWithJsonFormatWithF
 func testAccParameterManagerParameterVersion_parameterVersionWithJsonFormatWithFileExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  parameter_id = "parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   format = "JSON"
 }
 
 resource "google_parameter_manager_parameter_version" "parameter-version-with-json-format-with-file" {
   parameter = google_parameter_manager_parameter.parameter-basic.id
-  parameter_version_id = "tf_test_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = file("%{data}") 
 }
 `, context)
@@ -268,9 +288,13 @@ resource "google_parameter_manager_parameter_version" "parameter-version-with-js
 func TestAccParameterManagerParameterVersion_parameterVersionWithYamlFormatWithFileExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"data":          "./test-fixtures/parameter_data_yaml_format.yaml",
-		"random_suffix": acctest.RandString(t, 10),
+		"data":                 "./test-fixtures/parameter_data_yaml_format.yaml",
+		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -294,13 +318,13 @@ func TestAccParameterManagerParameterVersion_parameterVersionWithYamlFormatWithF
 func testAccParameterManagerParameterVersion_parameterVersionWithYamlFormatWithFileExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  parameter_id = "parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   format = "YAML"
 }
 
 resource "google_parameter_manager_parameter_version" "parameter-version-with-yaml-format-with-file" {
   parameter = google_parameter_manager_parameter.parameter-basic.id
-  parameter_version_id = "tf_test_parameter_version%{random_suffix}"
+  parameter_version_id = "%{parameter_version_id}"
   parameter_data = file("%{data}")
 }
 `, context)

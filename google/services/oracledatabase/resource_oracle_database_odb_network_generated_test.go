@@ -53,11 +53,13 @@ var (
 func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"deletion_protection": false,
 		"odb_network_id":      fmt.Sprintf("tf-test-odbnetwork-%s", acctest.RandString(t, 10)),
 		"project":             "oci-terraform-testing-prod",
-		"random_suffix":       acctest.RandString(t, 10),
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -101,11 +103,13 @@ data "google_compute_network" "default" {
 func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"deletion_protection": false,
 		"odb_network_id":      fmt.Sprintf("tf-test-odbnetwork-full-%s", acctest.RandString(t, 10)),
 		"project":             "oci-terraform-testing-prod",
-		"random_suffix":       acctest.RandString(t, 10),
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

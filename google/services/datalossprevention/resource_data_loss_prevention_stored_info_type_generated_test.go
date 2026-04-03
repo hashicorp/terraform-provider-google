@@ -53,9 +53,11 @@ var (
 func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -94,9 +96,11 @@ resource "google_data_loss_prevention_stored_info_type" "basic" {
 func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeDictionaryExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -136,9 +140,13 @@ resource "google_data_loss_prevention_stored_info_type" "dictionary" {
 func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeLargeCustomDictionaryExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":   "tf-test-tf-test-bucket" + randomSuffix,
+		"object_name":   "tf-test-tf-test-object" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -177,13 +185,13 @@ resource "google_data_loss_prevention_stored_info_type" "large" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name          = "tf-test-tf-test-bucket%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "US"
   force_destroy = true
 }
 
 resource "google_storage_bucket_object" "object" {
-  name   = "tf-test-tf-test-object%{random_suffix}"
+  name   = "%{object_name}"
   bucket = google_storage_bucket.bucket.name
   source = "./test-fixtures/words.txt"
 }
@@ -193,9 +201,12 @@ resource "google_storage_bucket_object" "object" {
 func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeWithIdExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-id-" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -222,7 +233,7 @@ resource "google_data_loss_prevention_stored_info_type" "with_stored_info_type_i
   parent = "projects/%{project}"
   description = "Description"
   display_name = "Displayname"
-  stored_info_type_id = "tf-test-id-%{random_suffix}"
+  stored_info_type_id = "%{name}"
 
   regex {
     pattern = "patient"

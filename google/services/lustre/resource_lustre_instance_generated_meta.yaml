@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_lustre_instance
 generation_type: mmv1
 source_file: products/lustre/Instance.yaml
@@ -15,6 +17,7 @@ fields:
     - api_field: capacityGib
     - api_field: createTime
     - api_field: description
+    - api_field: dynamicTierOptions.mode
     - field: effective_labels
       provider_only: true
     - api_field: filesystem
@@ -25,6 +28,21 @@ fields:
     - api_field: labels
     - field: location
       provider_only: true
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.endDate.day
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.endDate.month
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.endDate.year
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.startDate.day
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.startDate.month
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.startDate.year
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.time.hours
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.time.minutes
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.time.nanos
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.time.seconds
+    - api_field: maintenancePolicy.weeklyMaintenanceWindows.dayOfWeek
+    - api_field: maintenancePolicy.weeklyMaintenanceWindows.startTime.hours
+    - api_field: maintenancePolicy.weeklyMaintenanceWindows.startTime.minutes
+    - api_field: maintenancePolicy.weeklyMaintenanceWindows.startTime.nanos
+    - api_field: maintenancePolicy.weeklyMaintenanceWindows.startTime.seconds
     - api_field: mountPoint
     - api_field: name
     - api_field: network
@@ -34,6 +52,9 @@ fields:
     - api_field: stateReason
     - field: terraform_labels
       provider_only: true
+    - api_field: uid
+    - api_field: upcomingMaintenanceSchedule.endTime
+    - api_field: upcomingMaintenanceSchedule.startTime
     - api_field: updateTime
     - field: deletion_policy
       provider_only: true

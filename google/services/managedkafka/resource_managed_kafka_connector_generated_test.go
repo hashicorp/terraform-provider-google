@@ -53,10 +53,18 @@ var (
 func TestAccManagedKafkaConnector_managedkafkaConnectorBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"billing_account":     envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":              envvar.GetTestOrgFromEnv(t),
+		"cluster_id":          "tf-test-my-cluster" + randomSuffix,
+		"connect_cluster_id":  "tf-test-my-connect-cluster" + randomSuffix,
+		"connector_id":        "tf-test-my-connector" + randomSuffix,
+		"cps_topic_name":      "tf-test-my-cps-topic" + randomSuffix,
+		"secondary_subnet_id": "tf-test-my-secondary-subnetwork-00" + randomSuffix,
+		"topic_id":            "tf-test-my-topic" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -87,7 +95,7 @@ data "google_project" "project" {
 
 resource "google_compute_subnetwork" "mkc_secondary_subnet" {
   project       = data.google_project.project.project_id
-  name          = "tf-test-my-secondary-subnetwork-00%{random_suffix}"
+  name          = "%{secondary_subnet_id}"
   ip_cidr_range = "10.5.0.0/16"
   region        = "us-central1"
   network       = "default"
@@ -95,12 +103,12 @@ resource "google_compute_subnetwork" "mkc_secondary_subnet" {
 
 resource "google_pubsub_topic" "cps_topic" {
   project = data.google_project.project.project_id
-  name    = "tf-test-my-cps-topic%{random_suffix}"
+  name    = "%{cps_topic_name}"
   message_retention_duration = "86600s"
 }
 
 resource "google_managed_kafka_cluster" "gmk_cluster" {
-  cluster_id = "tf-test-my-cluster%{random_suffix}"
+  cluster_id = "%{cluster_id}"
   location   = "us-central1"
   capacity_config {
     vcpu_count   = 3
@@ -116,7 +124,7 @@ resource "google_managed_kafka_cluster" "gmk_cluster" {
 }
 
 resource "google_managed_kafka_topic" "gmk_topic" {
-  topic_id           = "tf-test-my-topic%{random_suffix}"
+  topic_id           = "%{topic_id}"
   cluster            = google_managed_kafka_cluster.gmk_cluster.cluster_id
   location           = "us-central1"
   partition_count    = 2
@@ -124,7 +132,7 @@ resource "google_managed_kafka_topic" "gmk_topic" {
 }
 
 resource "google_managed_kafka_connect_cluster" "mkc_cluster" {
-  connect_cluster_id = "tf-test-my-connect-cluster%{random_suffix}"
+  connect_cluster_id = "%{connect_cluster_id}"
   kafka_cluster      = "projects/${data.google_project.project.project_id}/locations/us-central1/clusters/${google_managed_kafka_cluster.gmk_cluster.cluster_id}"
   location           = "us-central1"
   capacity_config {
@@ -150,12 +158,12 @@ resource "google_managed_kafka_connect_cluster" "mkc_cluster" {
 }
 
 resource "google_managed_kafka_connector" "example" {
-  connector_id    = "tf-test-my-connector%{random_suffix}"
+  connector_id    = "%{connector_id}"
   connect_cluster = google_managed_kafka_connect_cluster.mkc_cluster.connect_cluster_id
   location        = "us-central1"
   configs = {
     "connector.class" = "com.google.pubsub.kafka.sink.CloudPubSubSinkConnector"
-    "name"            = "tf-test-my-connector%{random_suffix}"
+    "name"            = "%{connector_id}"
     "tasks.max"       = "3"
     "topics"          = google_managed_kafka_topic.gmk_topic.topic_id
     "cps.topic"       = google_pubsub_topic.cps_topic.name

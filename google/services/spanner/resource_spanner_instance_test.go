@@ -983,3 +983,132 @@ resource "google_spanner_instance" "test" {
 }
 `, name, name, maxProcessingUnits, minProcessingUnits, highPriorityCPU, totalCPU, storageUtilization)
 }
+
+func TestAccSpannerInstance_asymmetricAutoscalingWithAllOverrideFields(t *testing.T) {
+	displayName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_asymmetricAutoscalingWithAllOverrideFields(displayName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.test", "state"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSpannerInstance_asymmetricAutoscalingWithAllOverrideFieldsUpdate(displayName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.test", "state"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccSpannerInstance_asymmetricAutoscalingWithAllOverrideFields(name string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "test" {
+  name         = "%s"
+  config       = "nam-eur-asia3"
+  display_name = "%s"
+  autoscaling_config {
+    autoscaling_limits {
+      max_processing_units = 3000
+      min_processing_units = 1000
+    }
+    autoscaling_targets {
+      high_priority_cpu_utilization_percent = 65
+      total_cpu_utilization_percent         = 80
+      storage_utilization_percent           = 90
+    }
+    asymmetric_autoscaling_options {
+      replica_selection {
+        location = "europe-west1"
+      }
+      overrides {
+        autoscaling_limits {
+          min_processing_units = 2000
+          max_processing_units = 4000
+        }
+        autoscaling_target_high_priority_cpu_utilization_percent = 70
+        autoscaling_target_total_cpu_utilization_percent         = 85
+      }
+    }
+    asymmetric_autoscaling_options {
+      replica_selection {
+        location = "asia-east1"
+      }
+      overrides {
+        autoscaling_limits {
+          min_processing_units = 1000
+          max_processing_units = 5000
+        }
+        disable_high_priority_cpu_autoscaling = true
+        disable_total_cpu_autoscaling         = false
+      }
+    }
+  }
+  edition = "ENTERPRISE_PLUS"
+}`, name, name)
+}
+
+func testAccSpannerInstance_asymmetricAutoscalingWithAllOverrideFieldsUpdate(name string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "test" {
+  name         = "%s"
+  config       = "nam-eur-asia3"
+  display_name = "%s"
+  autoscaling_config {
+    autoscaling_limits {
+      max_processing_units = 4000
+      min_processing_units = 2000
+    }
+    autoscaling_targets {
+      high_priority_cpu_utilization_percent = 70
+      total_cpu_utilization_percent         = 85
+      storage_utilization_percent           = 95
+    }
+    asymmetric_autoscaling_options {
+      replica_selection {
+        location = "europe-west1"
+      }
+      overrides {
+        autoscaling_limits {
+          min_processing_units = 3000
+          max_processing_units = 5000
+        }
+        autoscaling_target_high_priority_cpu_utilization_percent = 75
+        autoscaling_target_total_cpu_utilization_percent         = 90
+      }
+    }
+    asymmetric_autoscaling_options {
+      replica_selection {
+        location = "asia-east1"
+      }
+      overrides {
+        autoscaling_limits {
+          min_processing_units = 2000
+          max_processing_units = 6000
+        }
+        disable_high_priority_cpu_autoscaling = false
+        disable_total_cpu_autoscaling         = true
+      }
+    }
+  }
+  edition = "ENTERPRISE_PLUS"
+}`, name, name)
+}

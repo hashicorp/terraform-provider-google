@@ -378,6 +378,8 @@ func resourceComputeRouterRoutePolicyRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRouterRoutePolicy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeRouterRoutePolicy %q: %#v", d.Id(), res)
+
 	res, err = resourceComputeRouterRoutePolicyDecoder(d, meta, res)
 	if err != nil {
 		return err

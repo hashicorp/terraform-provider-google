@@ -53,9 +53,12 @@ var (
 func TestAccSecurityposturePosture_securityposturePostureBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"posture_id":    "tf_test_posture_example" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccSecurityposturePosture_securityposturePostureBasicExample(t *testing
 func testAccSecurityposturePosture_securityposturePostureBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_securityposture_posture" "posture1"{
-  posture_id  = "tf_test_posture_example%{random_suffix}"
+  posture_id  = "%{posture_id}"
   parent      = "organizations/%{org_id}"
   location    = "global"
   state       = "ACTIVE"

@@ -398,6 +398,8 @@ func resourceSpannerBackupScheduleRead(d *schema.ResourceData, meta interface{})
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SpannerBackupSchedule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SpannerBackupSchedule %q: %#v", d.Id(), res)
+
 	res, err = resourceSpannerBackupScheduleDecoder(d, meta, res)
 	if err != nil {
 		return err

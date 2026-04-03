@@ -932,6 +932,8 @@ func resourceDataLossPreventionInspectTemplateRead(d *schema.ResourceData, meta 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataLossPreventionInspectTemplate %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DataLossPreventionInspectTemplate %q: %#v", d.Id(), res)
+
 	res, err = resourceDataLossPreventionInspectTemplateDecoder(d, meta, res)
 	if err != nil {
 		return err

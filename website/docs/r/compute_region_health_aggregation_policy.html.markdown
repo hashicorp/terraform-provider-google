@@ -23,8 +23,6 @@ description: |-
 
 The Health Aggregation Policy specifies how to aggregate the service's constituent source health status to determine an aggregated health status result for the service.  For example, you can specify a criteria such as “Consider the Health Source as `Healthy` if there are at least 5 healthy backend endpoints”. Or, you can specify a criteria like “Consider the Health Source as `Healthy` if minimum 60% of endpoints in the Backend are healthy”. The Health Aggregation Policy is applied to each Health Source (e.g. Backend Service) individually.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about RegionHealthAggregationPolicy, see:
 
@@ -37,11 +35,9 @@ To get more information about RegionHealthAggregationPolicy, see:
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_compute_region_health_aggregation_policy" "example_test_health_aggregation_policy" {
-  provider    = google-beta
   name        = "test-health-aggregation-policy"
   description = "Example health aggregation policy basic"
   region      = "us-central1"

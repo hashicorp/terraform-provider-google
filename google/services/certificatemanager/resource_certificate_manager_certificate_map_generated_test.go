@@ -53,8 +53,11 @@ var (
 func TestAccCertificateManagerCertificateMap_certificateManagerCertificateMapBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cert_map_name": "tf-test-cert-map" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccCertificateManagerCertificateMap_certificateManagerCertificateMapBas
 func testAccCertificateManagerCertificateMap_certificateManagerCertificateMapBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate_map" "default" {
-  name        = "tf-test-cert-map%{random_suffix}"
+  name        = "%{cert_map_name}"
   description = "My acceptance test certificate map"
   labels      = {
     "terraform" : true,

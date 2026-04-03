@@ -53,8 +53,11 @@ var (
 func TestAccVertexAITensorboard_vertexAiTensorboardExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "terraform" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccVertexAITensorboard_vertexAiTensorboardExample(t *testing.T) {
 func testAccVertexAITensorboard_vertexAiTensorboardExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_tensorboard" "tensorboard" {
-  display_name = "terraform%{random_suffix}"
+  display_name = "%{display_name}"
   description  = "sample description"
   labels       = {
     "key1" : "value1",
@@ -92,9 +95,12 @@ resource "google_vertex_ai_tensorboard" "tensorboard" {
 func TestAccVertexAITensorboard_vertexAiTensorboardFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"display_name":  "terraform" + randomSuffix,
 		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -118,7 +124,7 @@ func TestAccVertexAITensorboard_vertexAiTensorboardFullExample(t *testing.T) {
 func testAccVertexAITensorboard_vertexAiTensorboardFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_tensorboard" "tensorboard" {
-  display_name = "terraform%{random_suffix}"
+  display_name = "%{display_name}"
   description  = "sample description"
   labels       = {
     "key1" : "value1",

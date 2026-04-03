@@ -583,6 +583,8 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigqueryDataTransferConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading BigqueryDataTransferConfig %q: %#v", d.Id(), res)
+
 	res, err = resourceBigqueryDataTransferConfigDecoder(d, meta, res)
 	if err != nil {
 		return err

@@ -53,8 +53,13 @@ var (
 func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"hub_name":      "hub1" + randomSuffix,
+		"network_name":  "net" + randomSuffix,
+		"spoke_name":    "spoke1" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +83,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkBas
 func testAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "net%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_connectivity_hub" "basic_hub" {
-  name        = "hub1%{random_suffix}"
+  name        = "%{hub_name}"
   description = "A sample hub"
   labels = {
     label-two = "value-one"
@@ -91,7 +96,7 @@ resource "google_network_connectivity_hub" "basic_hub" {
 }
 
 resource "google_network_connectivity_spoke" "primary"  {
-  name = "spoke1%{random_suffix}"
+  name = "%{spoke_name}"
   location = "global"
   description = "A sample spoke with a linked router appliance instance"
   labels = {
@@ -116,8 +121,13 @@ resource "google_network_connectivity_spoke" "primary"  {
 func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkGroupExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"hub_name":      "tf-test-hub1-spoke" + randomSuffix,
+		"network_name":  "tf-test-net-spoke" + randomSuffix,
+		"spoke_name":    "tf-test-group-spoke1" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -141,12 +151,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkGro
 func testAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkGroupExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "tf-test-net-spoke%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_connectivity_hub" "basic_hub" {
-  name        = "tf-test-hub1-spoke%{random_suffix}"
+  name        = "%{hub_name}"
   description = "A sample hub"
   labels = {
     label-two = "value-one"
@@ -160,7 +170,7 @@ resource "google_network_connectivity_group" "default_group"  {
 }
 
 resource "google_network_connectivity_spoke" "primary"  {
-  name = "tf-test-group-spoke1%{random_suffix}"
+  name = "%{spoke_name}"
   location = "global"
   description = "A sample spoke with a linked VPC"
   labels = {
@@ -186,8 +196,15 @@ resource "google_network_connectivity_spoke" "primary"  {
 func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeRouterApplianceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"hub_name":        "tf-test-basic-hub1" + randomSuffix,
+		"instance_name":   "tf-test-basic-instance" + randomSuffix,
+		"network_name":    "tf-test-basic-network" + randomSuffix,
+		"spoke_name":      "tf-test-basic-spoke" + randomSuffix,
+		"subnetwork_name": "tf-test-basic-subnetwork" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -275,8 +292,24 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeVpnTunnelBasicExamp
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"external_gateway_name":   "tf-test-external-vpn-gateway" + randomSuffix,
+		"gateway_name":            "tf-test-vpn-gateway" + randomSuffix,
+		"hub_name":                "tf-test-basic-hub1" + randomSuffix,
+		"network_name":            "tf-test-basic-network" + randomSuffix,
+		"router_interface_1_name": "tf-test-router-interface1" + randomSuffix,
+		"router_interface_2_name": "tf-test-router-interface2" + randomSuffix,
+		"router_name":             "tf-test-external-vpn-gateway" + randomSuffix,
+		"router_peer_1_name":      "tf-test-router-peer1" + randomSuffix,
+		"router_peer_2_name":      "tf-test-router-peer2" + randomSuffix,
+		"subnetwork_name":         "tf-test-basic-subnetwork" + randomSuffix,
+		"vpn_tunnel_1_name":       "tunnel1" + randomSuffix,
+		"vpn_tunnel_1_spoke_name": "tf-test-vpn-tunnel-1-spoke" + randomSuffix,
+		"vpn_tunnel_2_name":       "tunnel2" + randomSuffix,
+		"vpn_tunnel_2_spoke_name": "tf-test-vpn-tunnel-2-spoke" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -300,7 +333,7 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeVpnTunnelBasicExamp
 func testAccNetworkConnectivitySpoke_networkConnectivitySpokeVpnTunnelBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_hub" "basic_hub" {
-  name        = "tf-test-basic-hub1%{random_suffix}"
+  name        = "%{hub_name}"
   description = "A sample hub"
   labels = {
     label-two = "value-one"
@@ -308,24 +341,24 @@ resource "google_network_connectivity_hub" "basic_hub" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "tf-test-basic-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name          = "tf-test-basic-subnetwork%{random_suffix}"
+  name          = "%{subnetwork_name}"
   ip_cidr_range = "10.0.0.0/28"
   region        = "us-central1"
   network       = google_compute_network.network.self_link
 }
 
 resource "google_compute_ha_vpn_gateway" "gateway" {
-  name    = "tf-test-vpn-gateway%{random_suffix}"
+  name    = "%{gateway_name}"
   network = google_compute_network.network.id
 }
 
 resource "google_compute_external_vpn_gateway" "external_vpn_gw" {
-  name            = "tf-test-external-vpn-gateway%{random_suffix}"
+  name            = "%{external_gateway_name}"
   redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
   description     = "An externally managed VPN gateway"
   interface {
@@ -335,7 +368,7 @@ resource "google_compute_external_vpn_gateway" "external_vpn_gw" {
 }
 
 resource "google_compute_router" "router" {
-  name    = "tf-test-external-vpn-gateway%{random_suffix}"
+  name    = "%{router_name}"
   region  = "us-central1"
   network = google_compute_network.network.name
   bgp {
@@ -344,7 +377,7 @@ resource "google_compute_router" "router" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel1" {
-  name                            = "tunnel1%{random_suffix}"
+  name                            = "%{vpn_tunnel_1_name}"
   region                          = "us-central1"
   vpn_gateway                     = google_compute_ha_vpn_gateway.gateway.id
   peer_external_gateway           = google_compute_external_vpn_gateway.external_vpn_gw.id
@@ -355,7 +388,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel2" {
-  name                            = "tunnel2%{random_suffix}"
+  name                            = "%{vpn_tunnel_2_name}"
   region                          = "us-central1"
   vpn_gateway                     = google_compute_ha_vpn_gateway.gateway.id
   peer_external_gateway           = google_compute_external_vpn_gateway.external_vpn_gw.id
@@ -366,7 +399,7 @@ resource "google_compute_vpn_tunnel" "tunnel2" {
 }
 
 resource "google_compute_router_interface" "router_interface1" {
-  name       = "tf-test-router-interface1%{random_suffix}"
+  name       = "%{router_interface_1_name}"
   router     = google_compute_router.router.name
   region     = "us-central1"
   ip_range   = "169.254.0.1/30"
@@ -374,7 +407,7 @@ resource "google_compute_router_interface" "router_interface1" {
 }
 
 resource "google_compute_router_peer" "router_peer1" {
-  name                      = "tf-test-router-peer1%{random_suffix}"
+  name                      = "%{router_peer_1_name}"
   router                    = google_compute_router.router.name
   region                    = "us-central1"
   peer_ip_address           = "169.254.0.2"
@@ -384,7 +417,7 @@ resource "google_compute_router_peer" "router_peer1" {
 }
 
 resource "google_compute_router_interface" "router_interface2" {
-  name       = "tf-test-router-interface2%{random_suffix}"
+  name       = "%{router_interface_2_name}"
   router     = google_compute_router.router.name
   region     = "us-central1"
   ip_range   = "169.254.1.1/30"
@@ -392,7 +425,7 @@ resource "google_compute_router_interface" "router_interface2" {
 }
 
 resource "google_compute_router_peer" "router_peer2" {
-  name                      = "tf-test-router-peer2%{random_suffix}"
+  name                      = "%{router_peer_2_name}"
   router                    = google_compute_router.router.name
   region                    = "us-central1"
   peer_ip_address           = "169.254.1.2"
@@ -402,7 +435,7 @@ resource "google_compute_router_peer" "router_peer2" {
 }
 
 resource "google_network_connectivity_spoke" "tunnel1" {
-  name        = "tf-test-vpn-tunnel-1-spoke%{random_suffix}"
+  name        = "%{vpn_tunnel_1_spoke_name}"
   location    = "us-central1"
   description = "A sample spoke with a linked VPN Tunnel"
   labels = {
@@ -417,7 +450,7 @@ resource "google_network_connectivity_spoke" "tunnel1" {
 }
 
 resource "google_network_connectivity_spoke" "tunnel2" {
-  name        = "tf-test-vpn-tunnel-2-spoke%{random_suffix}"
+  name        = "%{vpn_tunnel_2_spoke_name}"
   location    = "us-central1"
   description = "A sample spoke with a linked VPN Tunnel"
   labels = {
@@ -436,8 +469,15 @@ resource "google_network_connectivity_spoke" "tunnel2" {
 func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeInterconnectAttachmentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"hub_name":                           "tf-test-basic-hub1" + randomSuffix,
+		"interconnect_attachment_name":       "tf-test-partner-interconnect1" + randomSuffix,
+		"interconnect_attachment_spoke_name": "tf-test-interconnect-attachment-spoke" + randomSuffix,
+		"network_name":                       "tf-test-basic-network" + randomSuffix,
+		"router_name":                        "tf-test-external-vpn-gateway" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -461,7 +501,7 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeInterconnectAttachm
 func testAccNetworkConnectivitySpoke_networkConnectivitySpokeInterconnectAttachmentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_hub" "basic_hub" {
-  name        = "tf-test-basic-hub1%{random_suffix}"
+  name        = "%{hub_name}"
   description = "A sample hub"
   labels = {
     label-two = "value-one"
@@ -469,12 +509,12 @@ resource "google_network_connectivity_hub" "basic_hub" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "tf-test-basic-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_router" "router" {
-  name    = "tf-test-external-vpn-gateway%{random_suffix}"
+  name    = "%{router_name}"
   region  = "us-central1"
   network = google_compute_network.network.name
   bgp {
@@ -483,7 +523,7 @@ resource "google_compute_router" "router" {
 }
 
 resource "google_compute_interconnect_attachment" "interconnect-attachment" {
-  name                     = "tf-test-partner-interconnect1%{random_suffix}"
+  name                     = "%{interconnect_attachment_name}"
   edge_availability_domain = "AVAILABILITY_DOMAIN_1"
   type                     = "PARTNER"
   router                   = google_compute_router.router.id
@@ -492,7 +532,7 @@ resource "google_compute_interconnect_attachment" "interconnect-attachment" {
 }
 
 resource "google_network_connectivity_spoke" "primary" {
-  name        = "tf-test-interconnect-attachment-spoke%{random_suffix}"
+  name        = "%{interconnect_attachment_spoke_name}"
   location    = "us-central1"
   description = "A sample spoke with a linked Interconnect Attachment"
   labels = {
@@ -511,8 +551,15 @@ resource "google_network_connectivity_spoke" "primary" {
 func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedProducerVpcNetworkBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"global_name":         "tf-test-test-address" + randomSuffix,
+		"hub_name":            "tf-test-hub-basic" + randomSuffix,
+		"network_name":        "tf-test-net-spoke" + randomSuffix,
+		"producer_spoke_name": "tf-test-producer-spoke" + randomSuffix,
+		"spoke_name":          "tf-test-vpc-spoke" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -536,12 +583,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedProducerVpcNe
 func testAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedProducerVpcNetworkBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "tf-test-net-spoke%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_global_address" "address" {
-  name          = "tf-test-test-address%{random_suffix}"
+  name          = "%{global_name}"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
@@ -555,11 +602,11 @@ resource "google_service_networking_connection" "peering" {
 }
 
 resource "google_network_connectivity_hub" "basic_hub" {
-  name = "tf-test-hub-basic%{random_suffix}"
+  name = "%{hub_name}"
 }
 
 resource "google_network_connectivity_spoke" "linked_vpc_spoke"  {
-  name     = "tf-test-vpc-spoke%{random_suffix}"
+  name     = "%{spoke_name}"
   location = "global"
   hub      = google_network_connectivity_hub.basic_hub.id
   linked_vpc_network {
@@ -568,7 +615,7 @@ resource "google_network_connectivity_spoke" "linked_vpc_spoke"  {
 }
 
 resource "google_network_connectivity_spoke" "primary"  {
-  name        = "tf-test-producer-spoke%{random_suffix}"
+  name        = "%{producer_spoke_name}"
   location    = "global"
   description = "A sample spoke with a linked router appliance instance"
   labels = {
@@ -591,8 +638,14 @@ resource "google_network_connectivity_spoke" "primary"  {
 func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeCenterGroupExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"auto_accept_project_1_name": "foo" + randomSuffix,
+		"auto_accept_project_2_name": "bar" + randomSuffix,
+		"hub_name":                   "tf-test-hub-basic" + randomSuffix,
+		"spoke_name":                 "tf-test-vpc-spoke" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -621,7 +674,7 @@ resource "google_compute_network" "network" {
 }
 
 resource "google_network_connectivity_hub" "star_hub" {
-  name = "tf-test-hub-basic%{random_suffix}"
+  name = "%{hub_name}"
   preset_topology = "STAR"
 }
 
@@ -637,7 +690,7 @@ resource "google_network_connectivity_group" "center_group" {
 }
 
 resource "google_network_connectivity_spoke" "primary"  {
-  name = "tf-test-vpc-spoke%{random_suffix}"
+  name = "%{spoke_name}"
   location = "global"
   description = "A sample spoke"
   labels = {
@@ -656,8 +709,13 @@ resource "google_network_connectivity_spoke" "primary"  {
 func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkIpv6SupportExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"hub_name":      "hub1" + randomSuffix,
+		"network_name":  "net" + randomSuffix,
+		"spoke_name":    "tf-test-spoke1-ipv6" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -681,12 +739,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkIpv
 func testAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkIpv6SupportExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "net%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_connectivity_hub" "basic_hub" {
-  name        = "hub1%{random_suffix}"
+  name        = "%{hub_name}"
   description = "A sample hub"
   labels = {
     label-two = "value-one"
@@ -694,7 +752,7 @@ resource "google_network_connectivity_hub" "basic_hub" {
 }
 
 resource "google_network_connectivity_spoke" "primary"  {
-  name = "tf-test-spoke1-ipv6%{random_suffix}"
+  name = "%{spoke_name}"
   location = "global"
   description = "A sample spoke with a linked VPC that include export ranges of all IPv6"
   labels = {

@@ -53,8 +53,11 @@ var (
 func TestAccGeminiLoggingSetting_geminiLoggingSettingBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"logging_setting_id": "tf-test-ls1-tf" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccGeminiLoggingSetting_geminiLoggingSettingBasicExample(t *testing.T) 
 func testAccGeminiLoggingSetting_geminiLoggingSettingBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gemini_logging_setting" "example" {
-    logging_setting_id = "tf-test-ls1-tf%{random_suffix}"
+    logging_setting_id = "%{logging_setting_id}"
     location = "global"
     labels = {"my_key": "my_value"}
     log_prompts_and_responses = true

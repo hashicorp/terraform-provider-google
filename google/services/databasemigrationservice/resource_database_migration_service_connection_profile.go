@@ -1015,6 +1015,8 @@ func resourceDatabaseMigrationServiceConnectionProfileRead(d *schema.ResourceDat
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DatabaseMigrationServiceConnectionProfile %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DatabaseMigrationServiceConnectionProfile %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present

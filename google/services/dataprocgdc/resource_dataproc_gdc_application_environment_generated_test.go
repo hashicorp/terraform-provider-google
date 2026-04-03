@@ -54,9 +54,12 @@ func TestAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentB
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20419")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       "gdce-cluster-monitoring",
-		"random_suffix": acctest.RandString(t, 10),
+		"application_environment_id": "tf-test-dp-tf-e2e-application-environment-basic" + randomSuffix,
+		"project":                    "gdce-cluster-monitoring",
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func TestAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentB
 func testAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_gdc_application_environment" "application-environment" {
-  application_environment_id = "tf-test-dp-tf-e2e-application-environment-basic%{random_suffix}"
+  application_environment_id = "%{application_environment_id}"
   serviceinstance = "do-not-delete-dataproc-gdc-instance"
   project         = "%{project}"
   location        = "us-west2"
@@ -93,9 +96,12 @@ func TestAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentE
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20419")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       "gdce-cluster-monitoring",
-		"random_suffix": acctest.RandString(t, 10),
+		"application_environment_id": "tf-test-dp-tf-e2e-application-environment" + randomSuffix,
+		"project":                    "gdce-cluster-monitoring",
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -119,7 +125,7 @@ func TestAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentE
 func testAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_gdc_application_environment" "application-environment" {
-  application_environment_id = "tf-test-dp-tf-e2e-application-environment%{random_suffix}"
+  application_environment_id = "%{application_environment_id}"
   serviceinstance = "do-not-delete-dataproc-gdc-instance"
   project         = "%{project}"
   location        = "us-west2"

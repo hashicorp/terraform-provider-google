@@ -1752,6 +1752,8 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRegionBackendService %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeRegionBackendService %q: %#v", d.Id(), res)
+
 	res, err = resourceComputeRegionBackendServiceDecoder(d, meta, res)
 	if err != nil {
 		return err

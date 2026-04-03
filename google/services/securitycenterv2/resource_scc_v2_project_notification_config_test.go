@@ -29,10 +29,14 @@ import (
 func TestAccSecurityCenterV2ProjectNotificationConfig_updateStreamingConfigFilter(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
 		"location":      "global",
-		"random_suffix": acctest.RandString(t, 10),
+		"config_id":     "tf-test-my-config" + randomSuffix,
+		"topic_name":    "tf-test-my-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -76,11 +80,11 @@ func TestAccSecurityCenterV2ProjectNotificationConfig_updateStreamingConfigFilte
 func testAccSecurityCenterV2ProjectNotificationConfig_updateStreamingConfigFilter(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "scc_v2_project_notification" {
-  name = "tf-test-my-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_scc_v2_project_notification_config" "custom_notification_config" {
-  config_id    = "tf-test-my-config%{random_suffix}"
+  config_id    = "%{config_id}"
   project      = "%{project}"
   description  = "My custom Cloud Security Command Center Finding Notification Configuration"
   pubsub_topic =  google_pubsub_topic.scc_v2_project_notification.id
@@ -96,11 +100,11 @@ resource "google_scc_v2_project_notification_config" "custom_notification_config
 func testAccSecurityCenterV2ProjectNotificationConfig_emptyStreamingConfigFilter(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "scc_v2_project_notification" {
-  name = "tf-test-my-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_scc_v2_project_notification_config" "custom_notification_config" {
-  config_id    = "tf-test-my-config%{random_suffix}"
+  config_id    = "%{config_id}"
   project      = "%{project}"
   description  = "My custom Cloud Security Command Center Finding Notification Configuration"
   pubsub_topic =  google_pubsub_topic.scc_v2_project_notification.id
@@ -116,11 +120,11 @@ resource "google_scc_v2_project_notification_config" "custom_notification_config
 func testAccSecurityCenterV2ProjectNotificationConfig_withLocation(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "scc_v2_project_notification" {
-  name = "tf-test-my-topic%{random_suffix}"
+  name =   name = "%{topic_name}"
 }
 
 resource "google_scc_v2_project_notification_config" "custom_notification_config" {
-  config_id    = "tf-test-my-config%{random_suffix}"
+  config_id    = "%{config_id}"
   project      = "%{project}"
   location     = "%{location}"
   description  = "My custom Cloud Security Command Center Finding Notification Configuration"
@@ -137,10 +141,14 @@ func TestAccSecurityCenterV2ProjectNotificationConfig_locationEu(t *testing.T) {
 	t.Skip("Skipping: CI project does not support data residency for other locations. This has to be setup during SCC Initalization")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
 		"location":      "eu",
-		"random_suffix": acctest.RandString(t, 10),
+		"config_id":     "tf-test-my-config" + randomSuffix,
+		"topic_name":    "tf-test-my-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -182,10 +190,14 @@ func TestAccSecurityCenterV2ProjectNotificationConfig_locationUs(t *testing.T) {
 	t.Skip("Skipping: CI project does not support data residency for other locations. This has to be setup during SCC Initalization")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
 		"location":      "us",
-		"random_suffix": acctest.RandString(t, 10),
+		"config_id":     "tf-test-my-config" + randomSuffix,
+		"topic_name":    "tf-test-my-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

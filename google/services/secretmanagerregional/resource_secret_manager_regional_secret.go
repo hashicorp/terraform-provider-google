@@ -499,6 +499,8 @@ func resourceSecretManagerRegionalRegionalSecretRead(d *schema.ResourceData, met
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecretManagerRegionalRegionalSecret %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecretManagerRegionalRegionalSecret %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_protection"); !ok {
 		if err := d.Set("deletion_protection", false); err != nil {

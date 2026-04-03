@@ -53,11 +53,13 @@ var (
 func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorageVaultBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"deletion_protection":          false,
 		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-basic-%s", acctest.RandString(t, 10)),
 		"project":                      "oci-terraform-testing-prod",
-		"random_suffix":                acctest.RandString(t, 10),
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -99,11 +101,13 @@ resource "google_oracle_database_exascale_db_storage_vault" "my_storage_vault"{
 func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorageVaultFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"deletion_protection":          false,
 		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-full-%s", acctest.RandString(t, 10)),
 		"project":                      "oci-terraform-testing-prod",
-		"random_suffix":                acctest.RandString(t, 10),
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

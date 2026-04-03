@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_backup_dr_backup_plan
 generation_type: mmv1
 source_file: products/backupdr/BackupPlan.yaml
@@ -23,6 +25,7 @@ fields:
     - api_field: backupVaultServiceAccount
     - api_field: createTime
     - api_field: description
+    - api_field: diskBackupPlanProperties.guestFlush
     - field: location
       provider_only: true
     - api_field: logRetentionDays

@@ -558,6 +558,8 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudRunDomainMapping %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading CloudRunDomainMapping %q: %#v", d.Id(), res)
+
 	res, err = resourceCloudRunDomainMappingDecoder(d, meta, res)
 	if err != nil {
 		return err

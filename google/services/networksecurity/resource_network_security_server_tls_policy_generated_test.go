@@ -53,8 +53,11 @@ var (
 func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-server-tls-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyBasicEx
 func testAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_server_tls_policy" "default" {
-  name                   = "tf-test-my-server-tls-policy%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }
@@ -103,8 +106,11 @@ resource "google_network_security_server_tls_policy" "default" {
 func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyAdvancedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-server-tls-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -128,7 +134,7 @@ func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyAdvance
 func testAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyAdvancedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_server_tls_policy" "default" {
-  name                   = "tf-test-my-server-tls-policy%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }
@@ -145,8 +151,11 @@ resource "google_network_security_server_tls_policy" "default" {
 func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyServerCertExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-server-tls-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -170,7 +179,7 @@ func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyServerC
 func testAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyServerCertExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_server_tls_policy" "default" {
-  name                   = "tf-test-my-server-tls-policy%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }
@@ -189,8 +198,12 @@ resource "google_network_security_server_tls_policy" "default" {
 func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyMtlsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name":     "tf-test-my-server-tls-policy" + randomSuffix,
+		"trust_config_name": "tf-test-my-trust-config" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -217,7 +230,7 @@ data "google_project" "project" {
 }
 
 resource "google_network_security_server_tls_policy" "default" {
-  name     = "tf-test-my-server-tls-policy%{random_suffix}"
+  name     = "%{resource_name}"
 
   description = "my description"
   location    = "global"
@@ -234,7 +247,7 @@ resource "google_network_security_server_tls_policy" "default" {
 }
 
 resource "google_certificate_manager_trust_config" "default" {
-  name        = "tf-test-my-trust-config%{random_suffix}"
+  name        = "%{trust_config_name}"
   description = "sample trust config description"
   location    = "global"
 

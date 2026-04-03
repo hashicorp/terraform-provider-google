@@ -53,8 +53,11 @@ var (
 func TestAccParameterManagerRegionalRegionalParameter_regionalParameterBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":  "tf_test_regional_parameter" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterBasicExam
 func testAccParameterManagerRegionalRegionalParameter_regionalParameterBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
-  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   location = "us-central1"
 }
 `, context)
@@ -87,8 +90,11 @@ resource "google_parameter_manager_regional_parameter" "regional-parameter-basic
 func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithFormatExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":  "tf_test_regional_parameter" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -112,7 +118,7 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithForma
 func testAccParameterManagerRegionalRegionalParameter_regionalParameterWithFormatExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_regional_parameter" "regional-parameter-with-format" {
-  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   location = "us-central1"
   format = "JSON"
 }
@@ -122,8 +128,11 @@ resource "google_parameter_manager_regional_parameter" "regional-parameter-with-
 func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithLabelsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":  "tf_test_regional_parameter" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -147,7 +156,7 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithLabel
 func testAccParameterManagerRegionalRegionalParameter_regionalParameterWithLabelsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parameter_manager_regional_parameter" "regional-parameter-with-labels" {
-  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   location = "us-central1"
 
   labels = {
@@ -170,9 +179,12 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithKmsKe
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"kms_key":       acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"parameter_id":  "tf_test_regional_parameter" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -198,7 +210,7 @@ func testAccParameterManagerRegionalRegionalParameter_regionalParameterWithKmsKe
 data "google_project" "project" {}
 
 resource "google_parameter_manager_regional_parameter" "regional-parameter-with-kms-key" {
-  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  parameter_id = "%{parameter_id}"
   location = "us-central1"
 
   kms_key = "%{kms_key}"

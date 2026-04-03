@@ -53,8 +53,11 @@ var (
 func TestAccSourceRepoRepository_sourcerepoRepositoryBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"repository_name": "my/repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +80,7 @@ func TestAccSourceRepoRepository_sourcerepoRepositoryBasicExample(t *testing.T) 
 func testAccSourceRepoRepository_sourcerepoRepositoryBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sourcerepo_repository" "my-repo" {
-  name = "my/repository%{random_suffix}"
+  name = "%{repository_name}"
 }
 `, context)
 }
@@ -85,8 +88,13 @@ resource "google_sourcerepo_repository" "my-repo" {
 func TestAccSourceRepoRepository_sourcerepoRepositoryFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":      "tf-test-my-account" + randomSuffix,
+		"repository_name": "tf-test-my-repository" + randomSuffix,
+		"topic_name":      "tf-test-my-topic" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -109,16 +117,16 @@ func TestAccSourceRepoRepository_sourcerepoRepositoryFullExample(t *testing.T) {
 func testAccSourceRepoRepository_sourcerepoRepositoryFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "test_account" {
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Test Service Account"
 }
 
 resource "google_pubsub_topic" "topic" {
-  name     = "tf-test-my-topic%{random_suffix}"
+  name     = "%{topic_name}"
 }
 
 resource "google_sourcerepo_repository" "my-repo" {
-  name = "tf-test-my-repository%{random_suffix}"
+  name = "%{repository_name}"
   pubsub_configs {
       topic = google_pubsub_topic.topic.id
       message_format = "JSON"

@@ -53,8 +53,11 @@ var (
 func TestAccComputeSecurityPolicyRule_securityPolicyRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sec_policy_name": "policyruletest" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccComputeSecurityPolicyRule_securityPolicyRuleBasicExample(t *testing.
 func testAccComputeSecurityPolicyRule_securityPolicyRuleBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_security_policy" "default" {
-  name        = "policyruletest%{random_suffix}"
+  name        = "%{sec_policy_name}"
   description = "basic global security policy"
   type        = "CLOUD_ARMOR"
 }
@@ -102,8 +105,11 @@ resource "google_compute_security_policy_rule" "policy_rule" {
 func TestAccComputeSecurityPolicyRule_securityPolicyRuleDefaultRuleExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sec_policy_name": "policyruletest" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,7 +133,7 @@ func TestAccComputeSecurityPolicyRule_securityPolicyRuleDefaultRuleExample(t *te
 func testAccComputeSecurityPolicyRule_securityPolicyRuleDefaultRuleExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_security_policy" "default" {
-  name        = "policyruletest%{random_suffix}"
+  name        = "%{sec_policy_name}"
   description = "basic global security policy"
   type        = "CLOUD_ARMOR"
 }
@@ -164,8 +170,11 @@ resource "google_compute_security_policy_rule" "policy_rule" {
 func TestAccComputeSecurityPolicyRule_securityPolicyRuleMultipleRulesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sec_policy_name": "policywithmultiplerules" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -189,7 +198,7 @@ func TestAccComputeSecurityPolicyRule_securityPolicyRuleMultipleRulesExample(t *
 func testAccComputeSecurityPolicyRule_securityPolicyRuleMultipleRulesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_security_policy" "default" {
-  name        = "policywithmultiplerules%{random_suffix}"
+  name        = "%{sec_policy_name}"
   description = "basic global security policy"
   type        = "CLOUD_ARMOR"
 }

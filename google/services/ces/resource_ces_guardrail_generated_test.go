@@ -53,8 +53,14 @@ var (
 func TestAccCESGuardrail_cesGuardrailBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name":       "tf-test-my-app" + randomSuffix,
+		"app_id":                 "tf-test-app-id" + randomSuffix,
+		"guardrail_display_name": "tf-test-my-guardrail" + randomSuffix,
+		"guardrail_id":           "tf-test-guardrail-id" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,10 +84,10 @@ func TestAccCESGuardrail_cesGuardrailBasicExample(t *testing.T) {
 func testAccCESGuardrail_cesGuardrailBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_guardrail" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -95,10 +101,10 @@ resource "google_ces_app" "ces_app_for_guardrail" {
 }
 
 resource "google_ces_guardrail" "ces_guardrail_basic" {
-  guardrail_id = "tf-test-guardrail-id%{random_suffix}"
+  guardrail_id = "%{guardrail_id}"
   location     = google_ces_app.ces_app_for_guardrail.location
   app          = google_ces_app.ces_app_for_guardrail.app_id
-  display_name = "tf-test-my-guardrail%{random_suffix}"
+  display_name = "%{guardrail_display_name}"
   description  = "Guardrail description"
   action {
     respond_immediately  {
@@ -122,8 +128,14 @@ resource "google_ces_guardrail" "ces_guardrail_basic" {
 func TestAccCESGuardrail_cesGuardrailTransferAgentContentFilterExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name":       "tf-test-my-app" + randomSuffix,
+		"app_id":                 "tf-test-app-id" + randomSuffix,
+		"guardrail_display_name": "tf-test-my-guardrail" + randomSuffix,
+		"guardrail_id":           "tf-test-guardrail-id" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -147,10 +159,10 @@ func TestAccCESGuardrail_cesGuardrailTransferAgentContentFilterExample(t *testin
 func testAccCESGuardrail_cesGuardrailTransferAgentContentFilterExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_guardrail" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -164,10 +176,10 @@ resource "google_ces_app" "ces_app_for_guardrail" {
 }
 
 resource "google_ces_guardrail" "ces_guardrail_transfer_agent_content_filter" {
-  guardrail_id = "tf-test-guardrail-id%{random_suffix}"
+  guardrail_id = "%{guardrail_id}"
   location     = google_ces_app.ces_app_for_guardrail.location
   app          = google_ces_app.ces_app_for_guardrail.app_id
-  display_name = "tf-test-my-guardrail%{random_suffix}"
+  display_name = "%{guardrail_display_name}"
   description  = "Guardrail description"
   action {
     transfer_agent {
@@ -189,8 +201,14 @@ resource "google_ces_guardrail" "ces_guardrail_transfer_agent_content_filter" {
 func TestAccCESGuardrail_cesGuardrailGenerativeAnswerLlmPromptSecurityExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name":       "tf-test-my-app" + randomSuffix,
+		"app_id":                 "tf-test-app-id" + randomSuffix,
+		"guardrail_display_name": "tf-test-my-guardrail" + randomSuffix,
+		"guardrail_id":           "tf-test-guardrail-id" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -214,10 +232,10 @@ func TestAccCESGuardrail_cesGuardrailGenerativeAnswerLlmPromptSecurityExample(t 
 func testAccCESGuardrail_cesGuardrailGenerativeAnswerLlmPromptSecurityExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_guardrail" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -231,10 +249,10 @@ resource "google_ces_app" "ces_app_for_guardrail" {
 }
 
 resource "google_ces_guardrail" "ces_guardrail_generative_answer_llm_prompt_security" {
-  guardrail_id = "tf-test-guardrail-id%{random_suffix}"
+  guardrail_id = "%{guardrail_id}"
   location     = google_ces_app.ces_app_for_guardrail.location
   app          = google_ces_app.ces_app_for_guardrail.app_id
-  display_name = "tf-test-my-guardrail%{random_suffix}"
+  display_name = "%{guardrail_display_name}"
   description  = "Guardrail description"
   action {
     generative_answer {
@@ -262,8 +280,14 @@ resource "google_ces_guardrail" "ces_guardrail_generative_answer_llm_prompt_secu
 func TestAccCESGuardrail_cesGuardrailCodeCallbackExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name":       "tf-test-my-app" + randomSuffix,
+		"app_id":                 "tf-test-app-id" + randomSuffix,
+		"guardrail_display_name": "tf-test-my-guardrail" + randomSuffix,
+		"guardrail_id":           "tf-test-guardrail-id" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -287,10 +311,10 @@ func TestAccCESGuardrail_cesGuardrailCodeCallbackExample(t *testing.T) {
 func testAccCESGuardrail_cesGuardrailCodeCallbackExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_guardrail" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -304,10 +328,10 @@ resource "google_ces_app" "ces_app_for_guardrail" {
 }
 
 resource "google_ces_guardrail" "ces_guardrail_code_callback" {
-  guardrail_id = "tf-test-guardrail-id%{random_suffix}"
+  guardrail_id = "%{guardrail_id}"
   location     = google_ces_app.ces_app_for_guardrail.location
   app          = google_ces_app.ces_app_for_guardrail.app_id
-  display_name = "tf-test-my-guardrail%{random_suffix}"
+  display_name = "%{guardrail_display_name}"
   description  = "Guardrail description"
   action {
     generative_answer {
@@ -344,8 +368,14 @@ resource "google_ces_guardrail" "ces_guardrail_code_callback" {
 func TestAccCESGuardrail_cesGuardrailLlmPolicyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name":       "tf-test-my-app" + randomSuffix,
+		"app_id":                 "tf-test-app-id" + randomSuffix,
+		"guardrail_display_name": "tf-test-my-guardrail" + randomSuffix,
+		"guardrail_id":           "tf-test-guardrail-id" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -369,10 +399,10 @@ func TestAccCESGuardrail_cesGuardrailLlmPolicyExample(t *testing.T) {
 func testAccCESGuardrail_cesGuardrailLlmPolicyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_ces_app" "ces_app_for_guardrail" {
-  app_id = "tf-test-app-id%{random_suffix}"
+  app_id = "%{app_id}"
   location = "us"
   description = "App used as parent for CES Toolset example"
-  display_name = "tf-test-my-app%{random_suffix}"
+  display_name = "%{app_display_name}"
 
   language_settings {
     default_language_code    = "en-US"
@@ -386,10 +416,10 @@ resource "google_ces_app" "ces_app_for_guardrail" {
 }
 
 resource "google_ces_guardrail" "ces_guardrail_llm_policy" {
-  guardrail_id = "tf-test-guardrail-id%{random_suffix}"
+  guardrail_id = "%{guardrail_id}"
   location     = google_ces_app.ces_app_for_guardrail.location
   app          = google_ces_app.ces_app_for_guardrail.app_id
-  display_name = "tf-test-my-guardrail%{random_suffix}"
+  display_name = "%{guardrail_display_name}"
   description  = "Guardrail description"
   action {
     generative_answer {

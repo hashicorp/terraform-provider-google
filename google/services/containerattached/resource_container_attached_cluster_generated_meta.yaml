@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_container_attached_cluster
 generation_type: mmv1
 source_file: products/containerattached/Cluster.yaml

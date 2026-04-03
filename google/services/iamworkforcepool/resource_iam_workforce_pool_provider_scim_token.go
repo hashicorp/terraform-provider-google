@@ -277,6 +277,8 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenRead(d *schema.Resour
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IAMWorkforcePoolWorkforcePoolProviderScimToken %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IAMWorkforcePoolWorkforcePoolProviderScimToken %q: %#v", d.Id(), res)
+
 	res, err = resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenDecoder(d, meta, res)
 	if err != nil {
 		return err

@@ -53,9 +53,13 @@ var (
 func TestAccAlloydbInstance_alloydbInstanceBasicTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
-		"random_suffix": acctest.RandString(t, 10),
+		"alloydb_cluster_name":  "tf-test-alloydb-cluster" + randomSuffix,
+		"alloydb_instance_name": "tf-test-alloydb-instance" + randomSuffix,
+		"network_name":          acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +84,7 @@ func testAccAlloydbInstance_alloydbInstanceBasicTestExample(context map[string]i
 	return acctest.Nprintf(`
 resource "google_alloydb_instance" "default" {
   cluster       = google_alloydb_cluster.default.name
-  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_id   = "%{alloydb_instance_name}"
   instance_type = "PRIMARY"
 
   machine_config {
@@ -89,13 +93,13 @@ resource "google_alloydb_instance" "default" {
 }
 
 resource "google_alloydb_cluster" "default" {
-  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  cluster_id = "%{alloydb_cluster_name}"
   location   = "us-central1"
   network_config {
     network = data.google_compute_network.default.id
   }
   initial_user {
-    password = "tf-test-alloydb-cluster%{random_suffix}"
+    password = "%{alloydb_cluster_name}"
   }
 
   deletion_protection = false
@@ -112,9 +116,15 @@ data "google_compute_network" "default" {
 func TestAccAlloydbInstance_alloydbSecondaryInstanceBasicTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
-		"random_suffix": acctest.RandString(t, 10),
+		"alloydb_primary_cluster_name":    "tf-test-alloydb-primary-cluster" + randomSuffix,
+		"alloydb_primary_instance_name":   "tf-test-alloydb-primary-instance" + randomSuffix,
+		"alloydb_secondary_cluster_name":  "tf-test-alloydb-secondary-cluster" + randomSuffix,
+		"alloydb_secondary_instance_name": "tf-test-alloydb-secondary-instance" + randomSuffix,
+		"network_name":                    acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
+		"random_suffix":                   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +148,7 @@ func TestAccAlloydbInstance_alloydbSecondaryInstanceBasicTestExample(t *testing.
 func testAccAlloydbInstance_alloydbSecondaryInstanceBasicTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "primary" {
-  cluster_id = "tf-test-alloydb-primary-cluster%{random_suffix}"
+  cluster_id = "%{alloydb_primary_cluster_name}"
   location   = "us-central1"
   network_config {
     network = data.google_compute_network.default.id
@@ -149,7 +159,7 @@ resource "google_alloydb_cluster" "primary" {
 
 resource "google_alloydb_instance" "primary" {
   cluster       = google_alloydb_cluster.primary.name
-  instance_id   = "tf-test-alloydb-primary-instance%{random_suffix}"
+  instance_id   = "%{alloydb_primary_instance_name}"
   instance_type = "PRIMARY"
 
   machine_config {
@@ -158,7 +168,7 @@ resource "google_alloydb_instance" "primary" {
 }
 
 resource "google_alloydb_cluster" "secondary" {
-  cluster_id   = "tf-test-alloydb-secondary-cluster%{random_suffix}"
+  cluster_id   = "%{alloydb_secondary_cluster_name}"
   location     = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
@@ -181,7 +191,7 @@ resource "google_alloydb_cluster" "secondary" {
 
 resource "google_alloydb_instance" "secondary" {
   cluster       = google_alloydb_cluster.secondary.name
-  instance_id   = "tf-test-alloydb-secondary-instance%{random_suffix}"
+  instance_id   = "%{alloydb_secondary_instance_name}"
   instance_type = google_alloydb_cluster.secondary.cluster_type
 
   machine_config {
@@ -200,8 +210,13 @@ data "google_compute_network" "default" {
 func TestAccAlloydbInstance_alloydbInstancePscTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"alloydb_cluster_name":  "tf-test-alloydb-cluster" + randomSuffix,
+		"alloydb_instance_name": "tf-test-alloydb-instance" + randomSuffix,
+		"network_name":          "tf-test-alloydb-network" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -226,7 +241,7 @@ func testAccAlloydbInstance_alloydbInstancePscTestExample(context map[string]int
 	return acctest.Nprintf(`
 resource "google_alloydb_instance" "default" {
   cluster       = google_alloydb_cluster.default.name
-  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_id   = "%{alloydb_instance_name}"
   instance_type = "PRIMARY"
 
   machine_config {
@@ -235,11 +250,11 @@ resource "google_alloydb_instance" "default" {
 }
 
 resource "google_alloydb_cluster" "default" {
-  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  cluster_id = "%{alloydb_cluster_name}"
   location   = "us-central1"
 
   initial_user {
-    password = "tf-test-alloydb-cluster%{random_suffix}"
+    password = "%{alloydb_cluster_name}"
   }
   psc_config {
     psc_enabled = true
