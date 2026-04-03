@@ -215,6 +215,13 @@ The following arguments are supported:
 
 * `label_fingerprint` - The unique fingerprint of the labels.
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "ABANDON", the command will remove the resource from Terraform
+    management without updating or deleting the resource in the API.
+    When set to "DELETE", deleting the resource is allowed.
+
 <a name="nested_advanced_options_config"></a>The `advanced_options_config` block supports:
 
 * `json_parsing` - Whether or not to JSON parse the payload body. Defaults to `DISABLED`.

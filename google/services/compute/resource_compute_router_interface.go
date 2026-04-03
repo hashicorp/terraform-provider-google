@@ -38,6 +38,7 @@ func ResourceComputeRouterInterface() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRouterInterfaceCreate,
 		Read:   resourceComputeRouterInterfaceRead,
+		Update: resourceComputeRouterInterfaceUpdate,
 		Delete: resourceComputeRouterInterfaceDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeRouterInterfaceImportState,
@@ -49,6 +50,7 @@ func ResourceComputeRouterInterface() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderRegion,
 		),
@@ -137,6 +139,9 @@ func ResourceComputeRouterInterface() *schema.Resource {
 				ForceNew:    true,
 				Description: `The name of the interface that is redundant to this interface. Changing this forces a new interface to be created.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -311,6 +316,11 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 			if err := d.Set("redundant_interface", iface.RedundantInterface); err != nil {
 				return fmt.Errorf("Error setting redundant interface: %s", err)
 			}
+			//UDP default read start
+			if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+				return err
+			}
+			//UDP default read end
 			return nil
 		}
 	}
@@ -320,7 +330,22 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
+// UDP update start
+func resourceComputeRouterInterfaceUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceComputeRouterInterfaceRead(d, meta)
+}
+
+//UDP update end
+
 func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

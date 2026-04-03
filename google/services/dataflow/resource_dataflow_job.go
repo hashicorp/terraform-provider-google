@@ -106,6 +106,7 @@ func ResourceDataflowJob() *schema.Resource {
 			Update: schema.DefaultTimeout(10 * time.Minute),
 		},
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.SetLabelsDiff,
 			resourceDataflowJobTypeCustomizeDiff,
 		),
@@ -293,6 +294,9 @@ func ResourceDataflowJob() *schema.Resource {
 				Default:     false,
 				Description: `If true, treat DRAINING and CANCELLING as terminal job states and do not wait for further changes before removing from terraform state and moving on. WARNING: this will lead to job name conflicts if you do not ensure that the job names are different, e.g. by embedding a release ID or by using a random_id.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -460,6 +464,11 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(job.Id)
 
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 	return nil
 }
 
@@ -469,6 +478,11 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 	if resourceDataflowJobIsVirtualUpdate(d, ResourceDataflowJob().Schema) {
 		return nil
 	}
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceDataflowJob) {
+		return ResourceDataflowJob().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 
 	if jobHasUpdate(d, ResourceDataflowJob().Schema) {
 		config := meta.(*transport_tpg.Config)
@@ -526,6 +540,13 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 }
 
 func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

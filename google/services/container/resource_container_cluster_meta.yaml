@@ -781,3 +781,5 @@ fields:
   - api_field: 'userManagedKeysConfig.serviceAccountVerificationKeys'
   - api_field: 'verticalPodAutoscaling.enabled'
   - api_field: 'workloadIdentityConfig.workloadPool'
+  - field: 'deletion_policy'
+    provider_only: true

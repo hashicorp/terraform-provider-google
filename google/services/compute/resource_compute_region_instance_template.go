@@ -45,6 +45,7 @@ func ResourceComputeRegionInstanceTemplate() *schema.Resource {
 		},
 		SchemaVersion: 1,
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderRegion,
 			resourceComputeInstanceTemplateSourceImageCustomizeDiff,
@@ -1175,6 +1176,9 @@ be from 0 to 999,999,999 inclusive.`,
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "STOP", ""}, false),
 				Description:  `Action to be taken when a customer's encryption key is revoked. Supports "STOP" and "NONE", with "NONE" being the default.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -1304,7 +1308,7 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 }
 
 func resourceComputeRegionInstanceTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the field "labels" and "terraform_labels" is mutable
+	// Only the field "deletion_policy", "labels" and "terraform_labels" is mutable
 	return resourceComputeRegionInstanceTemplateRead(d, meta)
 }
 
@@ -1516,10 +1520,22 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 		}
 	}
 
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 	return nil
 }
 
 func resourceComputeRegionInstanceTemplateDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

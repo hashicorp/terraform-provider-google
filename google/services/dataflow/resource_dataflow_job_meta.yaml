@@ -33,3 +33,5 @@ fields:
   - api_field: 'transformNameMapping'
   - api_field: 'type'
   - field: 'zone'
+  - field: 'deletion_policy'
+    provider_only: true

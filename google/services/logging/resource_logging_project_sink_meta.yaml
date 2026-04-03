@@ -22,3 +22,5 @@ fields:
   - field: 'project'
   - field: 'unique_writer_identity'
   - api_field: 'writerIdentity'
+  - field: 'deletion_policy'
+    provider_only: true

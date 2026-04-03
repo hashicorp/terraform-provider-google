@@ -305,3 +305,5 @@ fields:
   - api_field: 'upgradeSettings.maxUnavailable'
   - api_field: 'upgradeSettings.strategy'
   - api_field: 'version'
+  - field: 'deletion_policy'
+    provider_only: true

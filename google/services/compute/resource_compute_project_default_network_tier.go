@@ -47,6 +47,7 @@ func ResourceComputeProjectDefaultNetworkTier() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -130,7 +131,6 @@ func resourceComputeProjectDefaultNetworkTierRead(d *schema.ResourceData, meta i
 }
 
 func resourceComputeProjectDefaultNetworkTierDelete(d *schema.ResourceData, meta interface{}) error {
-
 	log.Printf("[WARNING] Default Network Tier will be only removed from Terraform state, but will be left intact on GCP.")
 
 	return schema.RemoveFromState(d, meta)

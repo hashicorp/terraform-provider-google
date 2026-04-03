@@ -228,3 +228,5 @@ fields:
     api_field: 'properties.tags.fingerprint'
   - field: 'terraform_labels'
     provider_only: true
+  - field: 'deletion_policy'
+    provider_only: true

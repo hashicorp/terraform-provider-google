@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -44,6 +45,10 @@ func ResourceGoogleFolderOrganizationPolicy() *schema.Resource {
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
+
 		Schema: tpgresource.MergeSchemas(
 			schemaOrganizationPolicy,
 			map[string]*schema.Schema{
@@ -53,6 +58,9 @@ func ResourceGoogleFolderOrganizationPolicy() *schema.Resource {
 					ForceNew:    true,
 					Description: `The resource name of the folder to set the policy for. Its format is folders/{folder_id}.`,
 				},
+				//UDP schema start
+				"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+				//UDP schema end
 			},
 		),
 		UseJSONNumber: true,
@@ -138,11 +146,21 @@ func resourceGoogleFolderOrganizationPolicyRead(d *schema.ResourceData, meta int
 	if err := d.Set("update_time", policy.UpdateTime); err != nil {
 		return fmt.Errorf("Error setting update_time: %s", err)
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	return nil
 }
 
 func resourceGoogleFolderOrganizationPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceGoogleFolderOrganizationPolicy) {
+		return ResourceGoogleFolderOrganizationPolicy().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	if isOrganizationPolicyUnset(d) {
 		return resourceGoogleFolderOrganizationPolicyDelete(d, meta)
 	}
@@ -155,6 +173,13 @@ func resourceGoogleFolderOrganizationPolicyUpdate(d *schema.ResourceData, meta i
 }
 
 func resourceGoogleFolderOrganizationPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

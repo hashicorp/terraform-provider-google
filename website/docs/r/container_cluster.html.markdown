@@ -456,6 +456,14 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
 * `rbac_binding_config` - (Optional)
   RBACBindingConfig allows user to restrict ClusterRoleBindings an RoleBindings that can be created. Structure is [documented below](#nested_rbac_binding_config).
 
+* `deletion_policy` - 
+  (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+  When a 'terraform destroy' or 'terraform apply' would delete the resource,
+  the command will fail if this field is set to "PREVENT" in Terraform state.
+  When set to "ABANDON", the command will remove the resource from Terraform
+  management without updating or deleting the resource in the API.
+  When set to "DELETE", deleting the resource is allowed.
+
 <a name="nested_default_snat_status"></a>The `default_snat_status` block supports
 
 *  `disabled` - (Required) Whether the cluster disables default in-node sNAT rules. In-node sNAT rules will be disabled when defaultSnatStatus is disabled.When disabled is set to false, default IP masquerade rules will be applied to the nodes to prevent sNAT on cluster internal traffic
