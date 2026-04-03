@@ -1,0 +1,15 @@
+```release-note:bug
+apigee: fixed overly restrictive validation of `name` field in `google_apigee_api_product` that rejected uppercase letters, aligning provider behavior with the Apigee API
+```
+
+## Problem
+
+Any `terraform plan` against a resource with an uppercase name failed client-side before even reaching the API:
+
+```
+│ Error: "name" ("myApiProduct") doesn't match regexp `^[a-z][a-z0-9._\-$ %]*$`
+│
+│   with module.products[0].google_apigee_api_product.products["myApiProduct"],
+│   on ../api-product/main.tf line 11, in resource "google_apigee_api_product" "products":
+│   11:   name = each.value.name
+```

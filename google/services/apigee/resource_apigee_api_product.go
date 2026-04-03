@@ -123,7 +123,7 @@ func ResourceApigeeApiProduct() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateRegexp(`^[a-z][a-z0-9._\-$ %]*$`),
+				ValidateFunc: verify.ValidateRegexp(`^[a-zA-Z][a-zA-Z0-9._\-$ %]*$`),
 				Description:  `Internal name of the API product.`,
 			},
 			"org_id": {
