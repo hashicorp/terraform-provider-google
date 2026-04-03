@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `disable_multi_nic` to `lustre_csi_driver_config` for `google_container_cluster`
+```
