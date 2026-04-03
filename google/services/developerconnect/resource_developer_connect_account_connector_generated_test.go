@@ -134,6 +134,201 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 `, context)
 }
 
+func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGheExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"account_connector_name": "tf-test-tf-test-ac" + randomSuffix,
+		"random_suffix":          randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDeveloperConnectAccountConnectorDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGheExample(context),
+			},
+			{
+				ResourceName:            "google_developer_connect_account_connector.my-account-connector",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"account_connector_id", "annotations", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGheExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_secret_manager_secret_version_access" "ghe_ac_client_id" {
+  secret  = "ghe-ac-client-id"
+  project = "devconnect-terraform-creds"
+}
+
+data "google_secret_manager_secret_version_access" "ghe_ac_client_secret" {
+  secret  = "ghe-ac-client-secret"
+  project = "devconnect-terraform-creds"
+}
+
+resource "google_developer_connect_account_connector" "my-account-connector" {
+  location = "us-central1"
+  account_connector_id = "%{account_connector_name}"
+
+  custom_oauth_config {
+    auth_uri = "https://ghe.proctor-staging-test.com/login/oauth/authorize"
+    client_id = data.google_secret_manager_secret_version_access.ghe_ac_client_id.secret_data
+    client_secret = data.google_secret_manager_secret_version_access.ghe_ac_client_secret.secret_data
+    token_uri = "https://ghe.proctor-staging-test.com/login/oauth/access_token"
+    host_uri = "https://ghe.proctor-staging-test.com"
+    scm_provider = "GITHUB_ENTERPRISE"
+    scopes = ["repo"]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Terraform should ignore changes to the client_secret field because
+      # the API does not return it (INPUT_ONLY).
+      custom_oauth_config[0].client_secret,
+    ]
+  }
+}
+`, context)
+}
+
+func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGleExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"account_connector_name": "tf-test-tf-test-ac" + randomSuffix,
+		"random_suffix":          randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDeveloperConnectAccountConnectorDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGleExample(context),
+			},
+			{
+				ResourceName:            "google_developer_connect_account_connector.my-account-connector",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"account_connector_id", "annotations", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGleExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_secret_manager_secret_version_access" "gle_ac_client_id" {
+  secret  = "gle-ac-client-id"
+  project = "devconnect-terraform-creds"
+}
+
+data "google_secret_manager_secret_version_access" "gle_ac_client_secret" {
+  secret  = "gle-ac-client-secret"
+  project = "devconnect-terraform-creds"
+}
+
+resource "google_developer_connect_account_connector" "my-account-connector" {
+  location = "us-central1"
+  account_connector_id = "%{account_connector_name}"
+
+  custom_oauth_config {
+    auth_uri = "https://gle-us-central1.gcb-test.com/oauth/authorize"
+    client_id = data.google_secret_manager_secret_version_access.gle_ac_client_id.secret_data
+    client_secret = data.google_secret_manager_secret_version_access.gle_ac_client_secret.secret_data
+    token_uri = "https://gle-us-central1.gcb-test.com/oauth/token"
+    host_uri = "https://gle-us-central1.gcb-test.com"
+    scm_provider = "GITLAB_ENTERPRISE"
+    scopes = ["api"]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Terraform should ignore changes to the client_secret field because
+      # the API does not return it (INPUT_ONLY).
+      custom_oauth_config[0].client_secret,
+    ]
+  }
+}
+`, context)
+}
+
+func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorBbdcExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"account_connector_name": "tf-test-tf-test-ac" + randomSuffix,
+		"random_suffix":          randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDeveloperConnectAccountConnectorDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDeveloperConnectAccountConnector_developerConnectAccountConnectorBbdcExample(context),
+			},
+			{
+				ResourceName:            "google_developer_connect_account_connector.my-account-connector",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"account_connector_id", "annotations", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDeveloperConnectAccountConnector_developerConnectAccountConnectorBbdcExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_secret_manager_secret_version_access" "bbdc_ac_client_id" {
+  secret  = "bbdc-ac-client-id"
+  project = "devconnect-terraform-creds"
+}
+
+data "google_secret_manager_secret_version_access" "bbdc_ac_client_secret" {
+  secret  = "bbdc-ac-client-secret"
+  project = "devconnect-terraform-creds"
+}
+
+resource "google_developer_connect_account_connector" "my-account-connector" {
+  location = "us-central1"
+  account_connector_id = "%{account_connector_name}"
+
+  custom_oauth_config {
+    auth_uri = "https://bitbucket-us-central.gcb-test.com/rest/oauth2/latest/authorize"
+    client_id = data.google_secret_manager_secret_version_access.bbdc_ac_client_id.secret_data
+    client_secret = data.google_secret_manager_secret_version_access.bbdc_ac_client_secret.secret_data
+    token_uri = "https://bitbucket-us-central.gcb-test.com/rest/oauth2/latest/token"
+    host_uri = "https://bitbucket-us-central.gcb-test.com"
+    scm_provider = "BITBUCKET_DATA_CENTER"
+    scopes = ["REPO_ADMIN"]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Terraform should ignore changes to the client_secret field because
+      # the API does not return it (INPUT_ONLY).
+      custom_oauth_config[0].client_secret,
+    ]
+  }
+}
+`, context)
+}
+
 func testAccCheckDeveloperConnectAccountConnectorDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
