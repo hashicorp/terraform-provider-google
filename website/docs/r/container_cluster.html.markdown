@@ -550,10 +550,11 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
    which allows the usage of a Lustre instances as volumes.
    It is disabled by default for Standard clusters; set `enabled = true` to enable.
    It is disabled by default for Autopilot clusters; set `enabled = true` to enable.
-   Lustre CSI Driver Config has optional subfield
-   `enable_legacy_lustre_port` which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988. 
-   This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
    See [Enable Lustre CSI driver](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/lustre-csi-driver-new-volume) for more information.
+   Lustre CSI Driver Config has optional subfields:
+   * `enable_legacy_lustre_port` which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988. 
+   This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
+   * `disable_multi_nic` When set to true, this disables multi-NIC support for the Lustre CSI driver. By default, GKE enables multi-NIC support, which allows the Lustre CSI driver to automatically detect and configure all suitable network interfaces on a node to maximize I/O performance for demanding workloads.
 
 * `pod_snapshot_config` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The status of the Pod Snapshot addon. It is disabled by default. Set `enabled = true` to enable.
 

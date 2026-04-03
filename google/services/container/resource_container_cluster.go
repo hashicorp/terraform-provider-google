@@ -523,6 +523,12 @@ func ResourceContainerCluster() *schema.Resource {
 										Description: `If set to true, the Lustre CSI driver will initialize LNet (the virtual network layer for Lustre kernel module) using port 6988.
 										This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.`,
 									},
+									"disable_multi_nic": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `When set to true, this disables multi-NIC support for the Lustre CSI driver. By default, GKE enables multi-NIC support, which
+										allows the Lustre CSI driver to automatically detect and configure all suitable network interfaces on a node to maximize I/O performance for demanding workloads.`,
+									},
 								},
 							},
 						},
@@ -5345,6 +5351,12 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 			ac.LustreCsiDriverConfig.EnableLegacyLustrePort = val.(bool)
 			ac.LustreCsiDriverConfig.ForceSendFields = append(ac.LustreCsiDriverConfig.ForceSendFields, "EnableLegacyLustrePort")
 		}
+
+		// Check for disable_multi_nic
+		if val, ok := lustreConfig["disable_multi_nic"]; ok {
+			ac.LustreCsiDriverConfig.DisableMultiNic = val.(bool)
+			ac.LustreCsiDriverConfig.ForceSendFields = append(ac.LustreCsiDriverConfig.ForceSendFields, "DisableMultiNic")
+		}
 	}
 
 	return ac
@@ -6820,6 +6832,7 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 			{
 				"enabled":                   lustreConfig.Enabled,
 				"enable_legacy_lustre_port": lustreConfig.EnableLegacyLustrePort,
+				"disable_multi_nic":         lustreConfig.DisableMultiNic,
 			},
 		}
 	}
