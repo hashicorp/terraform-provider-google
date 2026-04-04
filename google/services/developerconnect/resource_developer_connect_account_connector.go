@@ -124,7 +124,7 @@ func ResourceDeveloperConnectAccountConnector() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `The ID to use for the AccountConnector, which will become the final
+				Description: `Required. The ID to use for the AccountConnector, which will become the final
 component of the AccountConnector's resource name. Its format should adhere
 to https://google.aip.dev/122#resource-id-segments Names must be unique
 per-project per-location.`,
@@ -133,118 +133,21 @@ per-project per-location.`,
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
+				Description: `The location of the resource.`,
 			},
 			"annotations": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Description: `Allows users to store small amounts of arbitrary data.
+				Description: `Optional. Allows users to store small amounts of arbitrary data.
 
 **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
 Please refer to the field 'effective_annotations' for all of the annotations present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
-			"custom_oauth_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `Message for a customized OAuth config.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"auth_uri": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `The OAuth2 authrization server URL.`,
-						},
-						"client_id": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The client ID of the OAuth application.`,
-						},
-						"client_secret": {
-							Type:     schema.TypeString,
-							Required: true,
-							Description: `Input only. The client secret of the OAuth application.
-It will be provided as plain text, but encrypted and stored in developer
-connect. As INPUT_ONLY field, it will not be included in the output.`,
-						},
-						"host_uri": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The host URI of the OAuth application.`,
-						},
-						"scm_provider": {
-							Type:     schema.TypeString,
-							Required: true,
-							Description: `The type of the SCM provider.
-Possible values:
-SCM_PROVIDER_UNKNOWN
-GITHUB_ENTERPRISE
-GITLAB_ENTERPRISE
-BITBUCKET_DATA_CENTER`,
-						},
-						"scopes": {
-							Type:        schema.TypeList,
-							Required:    true,
-							Description: `The scopes to be requested during OAuth.`,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"token_uri": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `The OAuth2 token request URL.`,
-						},
-						"pkce_disabled": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Disable PKCE for this OAuth config. PKCE is enabled by default.`,
-						},
-						"service_directory_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `ServiceDirectoryConfig represents Service Directory configuration for a
-connection.`,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"service": {
-										Type:     schema.TypeString,
-										Required: true,
-										Description: `The Service Directory service name.
-Format:
-projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.`,
-									},
-								},
-							},
-						},
-						"ssl_ca_certificate": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `SSL certificate to use for requests to a private service.`,
-						},
-						"server_version": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `SCM server version installed at the host URI.`,
-						},
-					},
-				},
-			},
-			"etag": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `This checksum is computed by the server based on the value of other
-fields, and may be sent on update and delete requests to ensure the
-client has an up-to-date value before proceeding.`,
-			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Description: `Labels as key value pairs
+				Description: `Optional. Labels as key value pairs
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
@@ -260,7 +163,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						"scopes": {
 							Type:     schema.TypeList,
 							Required: true,
-							Description: `User selected scopes to apply to the Oauth config
+							Description: `Required. User selected scopes to apply to the Oauth config
 In the event of changing scopes, user records under AccountConnector will
 be deleted and users will re-auth again.`,
 							Elem: &schema.Schema{
@@ -270,31 +173,19 @@ be deleted and users will re-auth again.`,
 						"system_provider_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `Possible values:
+							ForceNew: true,
+							Description: `List of providers that are owned by Developer Connect. Creation of
+new non-SCM providers Account Connectors is not possible at this
+time.
+
+Possible values:
 GITHUB
 GITLAB
 GOOGLE
 SENTRY
 ROVO
 NEW_RELIC
-DATASTAX
-DYNATRACE`,
-						},
-					},
-				},
-			},
-			"proxy_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `The proxy configuration.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Description: `Setting this to true allows the git and http proxies to perform actions on
-behalf of the user configured under the account connector.`,
+DATASTAX`,
 						},
 					},
 				},
@@ -302,7 +193,7 @@ behalf of the user configured under the account connector.`,
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The timestamp when the accountConnector was created.`,
+				Description: `Output only. The timestamp when the userConnection was created.`,
 			},
 			"effective_annotations": {
 				Type:        schema.TypeMap,
@@ -319,13 +210,13 @@ behalf of the user configured under the account connector.`,
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `Identifier. The resource name of the accountConnector, in the format
+				Description: `Identifier. The resource name of the userConnection, in the format
 'projects/{project}/locations/{location}/accountConnectors/{account_connector_id}'.`,
 			},
 			"oauth_start_uri": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Start OAuth flow by clicking on this URL.`,
+				Description: `Output only. Start OAuth flow by clicking on this URL.`,
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -337,7 +228,7 @@ behalf of the user configured under the account connector.`,
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The timestamp when the accountConnector was updated.`,
+				Description: `Output only. The timestamp when the userConnection was updated.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -358,29 +249,11 @@ func resourceDeveloperConnectAccountConnectorCreate(d *schema.ResourceData, meta
 	}
 
 	obj := make(map[string]interface{})
-	customOauthConfigProp, err := expandDeveloperConnectAccountConnectorCustomOauthConfig(d.Get("custom_oauth_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("custom_oauth_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(customOauthConfigProp)) && (ok || !reflect.DeepEqual(v, customOauthConfigProp)) {
-		obj["customOauthConfig"] = customOauthConfigProp
-	}
-	etagProp, err := expandDeveloperConnectAccountConnectorEtag(d.Get("etag"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(etagProp)) && (ok || !reflect.DeepEqual(v, etagProp)) {
-		obj["etag"] = etagProp
-	}
 	providerOauthConfigProp, err := expandDeveloperConnectAccountConnectorProviderOauthConfig(d.Get("provider_oauth_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("provider_oauth_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(providerOauthConfigProp)) && (ok || !reflect.DeepEqual(v, providerOauthConfigProp)) {
 		obj["providerOauthConfig"] = providerOauthConfigProp
-	}
-	proxyConfigProp, err := expandDeveloperConnectAccountConnectorProxyConfig(d.Get("proxy_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("proxy_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(proxyConfigProp)) && (ok || !reflect.DeepEqual(v, proxyConfigProp)) {
-		obj["proxyConfig"] = proxyConfigProp
 	}
 	effectiveAnnotationsProp, err := expandDeveloperConnectAccountConnectorEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
@@ -495,34 +368,25 @@ func resourceDeveloperConnectAccountConnectorRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading AccountConnector: %s", err)
 	}
 
-	if err := d.Set("annotations", flattenDeveloperConnectAccountConnectorAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("create_time", flattenDeveloperConnectAccountConnectorCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("custom_oauth_config", flattenDeveloperConnectAccountConnectorCustomOauthConfig(res["customOauthConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("etag", flattenDeveloperConnectAccountConnectorEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("labels", flattenDeveloperConnectAccountConnectorLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("name", flattenDeveloperConnectAccountConnectorName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
 	if err := d.Set("oauth_start_uri", flattenDeveloperConnectAccountConnectorOauthStartUri(res["oauthStartUri"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccountConnector: %s", err)
 	}
 	if err := d.Set("provider_oauth_config", flattenDeveloperConnectAccountConnectorProviderOauthConfig(res["providerOauthConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccountConnector: %s", err)
 	}
-	if err := d.Set("proxy_config", flattenDeveloperConnectAccountConnectorProxyConfig(res["proxyConfig"], d, config)); err != nil {
+	if err := d.Set("name", flattenDeveloperConnectAccountConnectorName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err := d.Set("create_time", flattenDeveloperConnectAccountConnectorCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccountConnector: %s", err)
 	}
 	if err := d.Set("update_time", flattenDeveloperConnectAccountConnectorUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err := d.Set("annotations", flattenDeveloperConnectAccountConnectorAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err := d.Set("labels", flattenDeveloperConnectAccountConnectorLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccountConnector: %s", err)
 	}
 	if err := d.Set("effective_annotations", flattenDeveloperConnectAccountConnectorEffectiveAnnotations(res["annotations"], d, config)); err != nil {
@@ -554,29 +418,11 @@ func resourceDeveloperConnectAccountConnectorUpdate(d *schema.ResourceData, meta
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	customOauthConfigProp, err := expandDeveloperConnectAccountConnectorCustomOauthConfig(d.Get("custom_oauth_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("custom_oauth_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customOauthConfigProp)) {
-		obj["customOauthConfig"] = customOauthConfigProp
-	}
-	etagProp, err := expandDeveloperConnectAccountConnectorEtag(d.Get("etag"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, etagProp)) {
-		obj["etag"] = etagProp
-	}
 	providerOauthConfigProp, err := expandDeveloperConnectAccountConnectorProviderOauthConfig(d.Get("provider_oauth_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("provider_oauth_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, providerOauthConfigProp)) {
 		obj["providerOauthConfig"] = providerOauthConfigProp
-	}
-	proxyConfigProp, err := expandDeveloperConnectAccountConnectorProxyConfig(d.Get("proxy_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("proxy_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, proxyConfigProp)) {
-		obj["proxyConfig"] = proxyConfigProp
 	}
 	effectiveAnnotationsProp, err := expandDeveloperConnectAccountConnectorEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
@@ -600,20 +446,8 @@ func resourceDeveloperConnectAccountConnectorUpdate(d *schema.ResourceData, meta
 	headers := make(http.Header)
 	updateMask := []string{}
 
-	if d.HasChange("custom_oauth_config") {
-		updateMask = append(updateMask, "customOauthConfig")
-	}
-
-	if d.HasChange("etag") {
-		updateMask = append(updateMask, "etag")
-	}
-
 	if d.HasChange("provider_oauth_config") {
 		updateMask = append(updateMask, "providerOauthConfig")
-	}
-
-	if d.HasChange("proxy_config") {
-		updateMask = append(updateMask, "proxyConfig")
 	}
 
 	if d.HasChange("effective_annotations") {
@@ -742,6 +576,45 @@ func resourceDeveloperConnectAccountConnectorImport(d *schema.ResourceData, meta
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenDeveloperConnectAccountConnectorOauthStartUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDeveloperConnectAccountConnectorProviderOauthConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["system_provider_id"] =
+		flattenDeveloperConnectAccountConnectorProviderOauthConfigSystemProviderId(original["systemProviderId"], d, config)
+	transformed["scopes"] =
+		flattenDeveloperConnectAccountConnectorProviderOauthConfigScopes(original["scopes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDeveloperConnectAccountConnectorProviderOauthConfigSystemProviderId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDeveloperConnectAccountConnectorProviderOauthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDeveloperConnectAccountConnectorName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDeveloperConnectAccountConnectorCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDeveloperConnectAccountConnectorUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDeveloperConnectAccountConnectorAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -757,104 +630,6 @@ func flattenDeveloperConnectAccountConnectorAnnotations(v interface{}, d *schema
 	return transformed
 }
 
-func flattenDeveloperConnectAccountConnectorCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorCustomOauthConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["auth_uri"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigAuthUri(original["authUri"], d, config)
-	transformed["client_id"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigClientId(original["clientId"], d, config)
-	transformed["client_secret"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigClientSecret(original["clientSecret"], d, config)
-	transformed["host_uri"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigHostUri(original["hostUri"], d, config)
-	transformed["pkce_disabled"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigPkceDisabled(original["pkceDisabled"], d, config)
-	transformed["scm_provider"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigScmProvider(original["scmProvider"], d, config)
-	transformed["scopes"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigScopes(original["scopes"], d, config)
-	transformed["server_version"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigServerVersion(original["serverVersion"], d, config)
-	transformed["service_directory_config"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigServiceDirectoryConfig(original["serviceDirectoryConfig"], d, config)
-	transformed["ssl_ca_certificate"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigSslCaCertificate(original["sslCaCertificate"], d, config)
-	transformed["token_uri"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigTokenUri(original["tokenUri"], d, config)
-	return []interface{}{transformed}
-}
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigAuthUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigClientSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigHostUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigPkceDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigScmProvider(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigServerVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigServiceDirectoryConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["service"] =
-		flattenDeveloperConnectAccountConnectorCustomOauthConfigServiceDirectoryConfigService(original["service"], d, config)
-	return []interface{}{transformed}
-}
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigServiceDirectoryConfigService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigSslCaCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorCustomOauthConfigTokenUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenDeveloperConnectAccountConnectorLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -868,58 +643,6 @@ func flattenDeveloperConnectAccountConnectorLabels(v interface{}, d *schema.Reso
 	}
 
 	return transformed
-}
-
-func flattenDeveloperConnectAccountConnectorName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorOauthStartUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorProviderOauthConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["scopes"] =
-		flattenDeveloperConnectAccountConnectorProviderOauthConfigScopes(original["scopes"], d, config)
-	transformed["system_provider_id"] =
-		flattenDeveloperConnectAccountConnectorProviderOauthConfigSystemProviderId(original["systemProviderId"], d, config)
-	return []interface{}{transformed}
-}
-func flattenDeveloperConnectAccountConnectorProviderOauthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorProviderOauthConfigSystemProviderId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorProxyConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["enabled"] =
-		flattenDeveloperConnectAccountConnectorProxyConfigEnabled(original["enabled"], d, config)
-	return []interface{}{transformed}
-}
-func flattenDeveloperConnectAccountConnectorProxyConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDeveloperConnectAccountConnectorUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenDeveloperConnectAccountConnectorEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -945,168 +668,6 @@ func flattenDeveloperConnectAccountConnectorEffectiveLabels(v interface{}, d *sc
 	return v
 }
 
-func expandDeveloperConnectAccountConnectorCustomOauthConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedAuthUri, err := expandDeveloperConnectAccountConnectorCustomOauthConfigAuthUri(original["auth_uri"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedAuthUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["authUri"] = transformedAuthUri
-	}
-
-	transformedClientId, err := expandDeveloperConnectAccountConnectorCustomOauthConfigClientId(original["client_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedClientId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["clientId"] = transformedClientId
-	}
-
-	transformedClientSecret, err := expandDeveloperConnectAccountConnectorCustomOauthConfigClientSecret(original["client_secret"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedClientSecret); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["clientSecret"] = transformedClientSecret
-	}
-
-	transformedHostUri, err := expandDeveloperConnectAccountConnectorCustomOauthConfigHostUri(original["host_uri"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedHostUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["hostUri"] = transformedHostUri
-	}
-
-	transformedPkceDisabled, err := expandDeveloperConnectAccountConnectorCustomOauthConfigPkceDisabled(original["pkce_disabled"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPkceDisabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["pkceDisabled"] = transformedPkceDisabled
-	}
-
-	transformedScmProvider, err := expandDeveloperConnectAccountConnectorCustomOauthConfigScmProvider(original["scm_provider"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedScmProvider); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["scmProvider"] = transformedScmProvider
-	}
-
-	transformedScopes, err := expandDeveloperConnectAccountConnectorCustomOauthConfigScopes(original["scopes"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["scopes"] = transformedScopes
-	}
-
-	transformedServerVersion, err := expandDeveloperConnectAccountConnectorCustomOauthConfigServerVersion(original["server_version"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedServerVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["serverVersion"] = transformedServerVersion
-	}
-
-	transformedServiceDirectoryConfig, err := expandDeveloperConnectAccountConnectorCustomOauthConfigServiceDirectoryConfig(original["service_directory_config"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedServiceDirectoryConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["serviceDirectoryConfig"] = transformedServiceDirectoryConfig
-	}
-
-	transformedSslCaCertificate, err := expandDeveloperConnectAccountConnectorCustomOauthConfigSslCaCertificate(original["ssl_ca_certificate"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSslCaCertificate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["sslCaCertificate"] = transformedSslCaCertificate
-	}
-
-	transformedTokenUri, err := expandDeveloperConnectAccountConnectorCustomOauthConfigTokenUri(original["token_uri"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTokenUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["tokenUri"] = transformedTokenUri
-	}
-
-	return transformed, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigAuthUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigClientId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigClientSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigHostUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigPkceDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigScmProvider(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigServerVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigServiceDirectoryConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedService, err := expandDeveloperConnectAccountConnectorCustomOauthConfigServiceDirectoryConfigService(original["service"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedService); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["service"] = transformedService
-	}
-
-	return transformed, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigServiceDirectoryConfigService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigSslCaCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDeveloperConnectAccountConnectorCustomOauthConfigTokenUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDeveloperConnectAccountConnectorEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
 func expandDeveloperConnectAccountConnectorProviderOauthConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1119,13 +680,6 @@ func expandDeveloperConnectAccountConnectorProviderOauthConfig(v interface{}, d 
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedScopes, err := expandDeveloperConnectAccountConnectorProviderOauthConfigScopes(original["scopes"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["scopes"] = transformedScopes
-	}
-
 	transformedSystemProviderId, err := expandDeveloperConnectAccountConnectorProviderOauthConfigSystemProviderId(original["system_provider_id"], d, config)
 	if err != nil {
 		return nil, err
@@ -1133,40 +687,21 @@ func expandDeveloperConnectAccountConnectorProviderOauthConfig(v interface{}, d 
 		transformed["systemProviderId"] = transformedSystemProviderId
 	}
 
-	return transformed, nil
-}
+	transformedScopes, err := expandDeveloperConnectAccountConnectorProviderOauthConfigScopes(original["scopes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scopes"] = transformedScopes
+	}
 
-func expandDeveloperConnectAccountConnectorProviderOauthConfigScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	return transformed, nil
 }
 
 func expandDeveloperConnectAccountConnectorProviderOauthConfigSystemProviderId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDeveloperConnectAccountConnectorProxyConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedEnabled, err := expandDeveloperConnectAccountConnectorProxyConfigEnabled(original["enabled"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["enabled"] = transformedEnabled
-	}
-
-	return transformed, nil
-}
-
-func expandDeveloperConnectAccountConnectorProxyConfigEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDeveloperConnectAccountConnectorProviderOauthConfigScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

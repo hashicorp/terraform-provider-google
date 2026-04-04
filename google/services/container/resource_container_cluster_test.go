@@ -7423,7 +7423,6 @@ resource "google_container_cluster" "primary" {
     lustre_csi_driver_config {
       enabled = true
       enable_legacy_lustre_port=true
-	  disable_multi_nic=false
     }
 	}
   network    = "%s"

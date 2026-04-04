@@ -12,22 +12,10 @@ fields:
       provider_only: true
     - api_field: annotations
     - api_field: createTime
-    - api_field: customOauthConfig.authUri
-    - api_field: customOauthConfig.clientId
-    - api_field: customOauthConfig.clientSecret
-    - api_field: customOauthConfig.hostUri
-    - api_field: customOauthConfig.pkceDisabled
-    - api_field: customOauthConfig.scmProvider
-    - api_field: customOauthConfig.scopes
-    - api_field: customOauthConfig.serverVersion
-    - api_field: customOauthConfig.serviceDirectoryConfig.service
-    - api_field: customOauthConfig.sslCaCertificate
-    - api_field: customOauthConfig.tokenUri
     - field: effective_annotations
       provider_only: true
     - field: effective_labels
       provider_only: true
-    - api_field: etag
     - api_field: labels
     - field: location
       provider_only: true
@@ -35,7 +23,6 @@ fields:
     - api_field: oauthStartUri
     - api_field: providerOauthConfig.scopes
     - api_field: providerOauthConfig.systemProviderId
-    - api_field: proxyConfig.enabled
     - field: terraform_labels
       provider_only: true
     - api_field: updateTime

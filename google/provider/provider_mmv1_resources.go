@@ -460,6 +460,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_redis_instance":                                      redis.DataSourceGoogleRedisInstance(),
 	"google_redis_cluster":                                       redis.DataSourceRedisCluster(),
 	"google_vertex_ai_index":                                     vertexai.DataSourceVertexAIIndex(),
+	"google_vertex_ai_reasoning_engine_query":                    vertexai.DataSourceVertexAIReasoningEngineQuery(),
 	"google_vmwareengine_cluster":                                vmwareengine.DataSourceVmwareengineCluster(),
 	"google_vmwareengine_external_access_rule":                   vmwareengine.DataSourceVmwareengineExternalAccessRule(),
 	"google_vmwareengine_external_address":                       vmwareengine.DataSourceVmwareengineExternalAddress(),

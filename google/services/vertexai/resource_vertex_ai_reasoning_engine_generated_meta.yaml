@@ -19,6 +19,7 @@ fields:
     - api_field: spec.agentFramework
     - api_field: spec.classMethods
       json: true
+    - api_field: spec.containerSpec.imageUri
     - api_field: spec.deploymentSpec.containerConcurrency
     - api_field: spec.deploymentSpec.env.name
     - api_field: spec.deploymentSpec.env.value
@@ -40,6 +41,7 @@ fields:
     - api_field: spec.sourceCodeSpec.developerConnectSource.config.dir
     - api_field: spec.sourceCodeSpec.developerConnectSource.config.gitRepositoryLink
     - api_field: spec.sourceCodeSpec.developerConnectSource.config.revision
+    - api_field: spec.sourceCodeSpec.imageSpec.buildArgs
     - api_field: spec.sourceCodeSpec.inlineSource.sourceArchive
     - api_field: spec.sourceCodeSpec.pythonSpec.entrypointModule
     - api_field: spec.sourceCodeSpec.pythonSpec.entrypointObject
