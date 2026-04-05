@@ -123,6 +123,7 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true, // If no rules are set, a default rule is added
+				Set:      resourceComputeSecurityPolicyRuleHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"action": {
@@ -736,6 +737,17 @@ func resourceComputeSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams
 		},
 		Description: description,
 	}
+}
+
+// resourceComputeSecurityPolicyRuleHash hashes security policy rules by priority.
+// Rules are uniquely identified by priority, so using priority as the hash
+// allows Terraform to correctly match old and new rules during plan/apply,
+// preventing unnecessary rule recreation when non-priority fields have subtle
+// differences between API response and config (e.g. empty defaults).
+func resourceComputeSecurityPolicyRuleHash(v interface{}) int {
+	raw := v.(map[string]interface{})
+	// Use priority as the hash since it uniquely identifies a rule.
+	return raw["priority"].(int)
 }
 
 func rulesCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {
