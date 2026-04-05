@@ -1062,11 +1062,11 @@ func expandComputeServiceAttachmentConnectionPreference(v interface{}, d tpgreso
 }
 
 func expandComputeServiceAttachmentTargetService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	resource := strings.Split(v.(string), "/")
-	if len(resource) < 4 {
-		return nil, fmt.Errorf("invalid value for target_service")
-	}
-
+	// Accept both full self_link URLs and short resource names.
+	// The DiffSuppressFunc (CompareSelfLinkOrResourceName) already handles
+	// comparing self_links with names, so we pass the value through and let
+	// the API validate it. This avoids panics and confusing errors when users
+	// reference resources by name (e.g. google_network_services_gateway.*.name).
 	return v, nil
 }
 
