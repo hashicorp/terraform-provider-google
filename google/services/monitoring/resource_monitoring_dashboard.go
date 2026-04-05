@@ -58,6 +58,57 @@ func removeComputedKeys(old map[string]interface{}, new map[string]interface{}) 
 	return old
 }
 
+// removeEmptyConfigEntries removes keys from the config (new) that have empty
+// values (empty arrays, empty maps, empty strings) when the corresponding key
+// does not exist in the API response (old). This prevents perma-diffs when the
+// user's config includes empty values that the API naturally omits.
+func removeEmptyConfigEntries(old map[string]interface{}, new map[string]interface{}) map[string]interface{} {
+	for k, v := range new {
+		if old[k] == nil {
+			rv := reflect.ValueOf(v)
+			switch rv.Kind() {
+			case reflect.Slice:
+				if rv.Len() == 0 {
+					delete(new, k)
+				}
+			case reflect.Map:
+				if rv.Len() == 0 {
+					delete(new, k)
+				}
+			case reflect.String:
+				if rv.Len() == 0 {
+					delete(new, k)
+				}
+			}
+			continue
+		}
+
+		if reflect.ValueOf(v).Kind() == reflect.Map {
+			if oldVal, ok := old[k].(map[string]interface{}); ok {
+				new[k] = removeEmptyConfigEntries(oldVal, v.(map[string]interface{}))
+			}
+			continue
+		}
+
+		if reflect.ValueOf(v).Kind() == reflect.Slice {
+			oldSlice, oldOk := old[k].([]interface{})
+			newSlice := v.([]interface{})
+			if oldOk {
+				for i, j := range newSlice {
+					if reflect.ValueOf(j).Kind() == reflect.Map && len(oldSlice) > i {
+						if oldEntry, ok := oldSlice[i].(map[string]interface{}); ok {
+							newSlice[i] = removeEmptyConfigEntries(oldEntry, j.(map[string]interface{}))
+						}
+					}
+				}
+			}
+			continue
+		}
+	}
+
+	return new
+}
+
 func monitoringDashboardDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	oldMap, err := structure.ExpandJsonFromString(old)
 	if err != nil {
@@ -69,6 +120,7 @@ func monitoringDashboardDiffSuppress(k, old, new string, d *schema.ResourceData)
 	}
 
 	oldMap = removeComputedKeys(oldMap, newMap)
+	newMap = removeEmptyConfigEntries(oldMap, newMap)
 	return reflect.DeepEqual(oldMap, newMap)
 }
 
