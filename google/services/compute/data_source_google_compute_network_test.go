@@ -100,3 +100,36 @@ data "google_compute_network" "my_network" {
 }
 `, name)
 }
+
+func TestAccDataSourceGoogleNetwork_selfLink(t *testing.T) {
+	t.Parallel()
+
+	networkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceGoogleNetworkSelfLinkConfig(networkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceGoogleNetworkCheck("data.google_compute_network.my_network_self_link", "google_compute_network.foobar"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataSourceGoogleNetworkSelfLinkConfig(name string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name                     = "%s"
+  description              = "my-description"
+  enable_ula_internal_ipv6 = true
+  auto_create_subnetworks  = false
+}
+
+data "google_compute_network" "my_network_self_link" {
+  self_link = google_compute_network.foobar.self_link
+}
+`, name)
+}
