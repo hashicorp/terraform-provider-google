@@ -96,17 +96,17 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `folders/{{folder}}/consumerPolicies/default`
 
 * `name` -
-  Output only. The resource name of the policy.
+  The resource name of the policy.
   Format: `folders/{folder}/consumerPolicies/default`
 
 * `etag` -
   An opaque tag indicating the current version of the policy, used for concurrency control.
 
 * `create_time` -
-  Output only. The time the policy was created.
+  The time the policy was created.
 
 * `update_time` -
-  Output only. The time the policy was last updated.
+  The time the policy was last updated.
 
 
 ## Timeouts
