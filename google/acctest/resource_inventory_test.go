@@ -281,10 +281,9 @@ func TestValidateResourceMetadata(t *testing.T) {
 			t.Errorf("%s: can't detect service package", r.FileName)
 		}
 
-		// Allowlist google_container_registry because it doesn't clearly correspond to a service.
-		// We don't currently have a concept of a "provider-only" resource; if more examples show up,
-		// we could consider adding one.
-		if resourceName != "google_container_registry" {
+		// Resources that don't clearly correspond to an API resource or don't have a CAIS mapping.
+		providerOnlyResources := []string{"google_container_registry", "google_sql_provision_script"}
+		if !slices.Contains(providerOnlyResources, resourceName) {
 			if r.ApiServiceName == "" {
 				t.Errorf("%s: `api_service_name` is required and not set", r.FileName)
 			}

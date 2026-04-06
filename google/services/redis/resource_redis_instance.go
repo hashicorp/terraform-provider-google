@@ -896,6 +896,8 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("RedisInstance %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading RedisInstance %q: %#v", d.Id(), res)
+
 	res, err = resourceRedisInstanceDecoder(d, meta, res)
 	if err != nil {
 		return err

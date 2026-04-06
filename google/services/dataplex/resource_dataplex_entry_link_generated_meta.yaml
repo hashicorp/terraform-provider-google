@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_dataplex_entry_link
 generation_type: mmv1
 source_file: products/dataplex/EntryLink.yaml
@@ -5,6 +7,13 @@ api_service_name: dataplex.googleapis.com
 api_version: v1
 api_resource_type_kind: EntryLink
 fields:
+    - api_field: aspects.aspect.aspectType
+    - api_field: aspects.aspect.createTime
+    - api_field: aspects.aspect.data
+      json: true
+    - api_field: aspects.aspect.path
+    - api_field: aspects.aspect.updateTime
+    - api_field: aspects.aspectKey
     - api_field: createTime
     - field: entry_group_id
       provider_only: true

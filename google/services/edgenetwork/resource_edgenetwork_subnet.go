@@ -375,6 +375,8 @@ func resourceEdgenetworkSubnetRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("EdgenetworkSubnet %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading EdgenetworkSubnet %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Subnet: %s", err)
 	}

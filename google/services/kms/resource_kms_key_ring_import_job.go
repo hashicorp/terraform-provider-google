@@ -298,6 +298,8 @@ func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("KMSKeyRingImportJob %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading KMSKeyRingImportJob %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenKMSKeyRingImportJobName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading KeyRingImportJob: %s", err)
 	}

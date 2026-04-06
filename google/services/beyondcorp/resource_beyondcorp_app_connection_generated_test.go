@@ -53,8 +53,13 @@ var (
 func TestAccBeyondcorpAppConnection_beyondcorpAppConnectionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":          "tf-test-my-account" + randomSuffix,
+		"app_connection_name": "tf-test-my-app-connection" + randomSuffix,
+		"app_connector_name":  "tf-test-my-app-connector" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +83,12 @@ func TestAccBeyondcorpAppConnection_beyondcorpAppConnectionBasicExample(t *testi
 func testAccBeyondcorpAppConnection_beyondcorpAppConnectionBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account" {
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Test Service Account"
 }
 
 resource "google_beyondcorp_app_connector" "app_connector" {
-  name = "tf-test-my-app-connector%{random_suffix}"
+  name = "%{app_connector_name}"
   principal_info {
     service_account {
      email = google_service_account.service_account.email
@@ -92,7 +97,7 @@ resource "google_beyondcorp_app_connector" "app_connector" {
 }
 
 resource "google_beyondcorp_app_connection" "app_connection" {
-  name = "tf-test-my-app-connection%{random_suffix}"
+  name = "%{app_connection_name}"
   type = "TCP_PROXY"
   application_endpoint {
     host = "foo-host"
@@ -106,8 +111,15 @@ resource "google_beyondcorp_app_connection" "app_connection" {
 func TestAccBeyondcorpAppConnection_beyondcorpAppConnectionFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":          "tf-test-my-account" + randomSuffix,
+		"app_connection_name": "tf-test-my-app-connection" + randomSuffix,
+		"app_connector_name":  "tf-test-my-app-connector" + randomSuffix,
+		"app_gateway_name":    "tf-test-my-app-gateway" + randomSuffix,
+		"display_name":        "some display name" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -131,18 +143,18 @@ func TestAccBeyondcorpAppConnection_beyondcorpAppConnectionFullExample(t *testin
 func testAccBeyondcorpAppConnection_beyondcorpAppConnectionFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account" {
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Test Service Account"
 }
 
 resource "google_beyondcorp_app_gateway" "app_gateway" {
-  name = "tf-test-my-app-gateway%{random_suffix}"
+  name = "%{app_gateway_name}"
   type = "TCP_PROXY"
   host_type = "GCP_REGIONAL_MIG"
 }
 
 resource "google_beyondcorp_app_connector" "app_connector" {
-  name = "tf-test-my-app-connector%{random_suffix}"
+  name = "%{app_connector_name}"
   principal_info {
     service_account {
      email = google_service_account.service_account.email
@@ -151,9 +163,9 @@ resource "google_beyondcorp_app_connector" "app_connector" {
 }
 
 resource "google_beyondcorp_app_connection" "app_connection" {
-  name = "tf-test-my-app-connection%{random_suffix}"
+  name = "%{app_connection_name}"
   type = "TCP_PROXY"
-  display_name = "some display name%{random_suffix}"
+  display_name = "%{display_name}"
   application_endpoint {
     host = "foo-host"
     port = 8080

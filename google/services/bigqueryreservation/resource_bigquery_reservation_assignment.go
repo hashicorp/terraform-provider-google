@@ -296,6 +296,8 @@ func resourceBigqueryReservationReservationAssignmentRead(d *schema.ResourceData
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigqueryReservationReservationAssignment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading BigqueryReservationReservationAssignment %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedBigqueryReservationReservationAssignment(d, meta, res)
 	if err != nil {
 		return err

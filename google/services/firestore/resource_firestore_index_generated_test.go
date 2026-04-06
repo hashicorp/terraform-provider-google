@@ -53,9 +53,12 @@ var (
 func TestAccFirestoreIndex_firestoreIndexBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"database_id":   "tf-test-database-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +87,7 @@ func testAccFirestoreIndex_firestoreIndexBasicExample(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-database-id%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "nam5"
   type        = "FIRESTORE_NATIVE"
 
@@ -113,9 +116,12 @@ resource "google_firestore_index" "my-index" {
 func TestAccFirestoreIndex_firestoreIndexDatastoreModeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"database_id":   "tf-test-database-id-dm" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -140,7 +146,7 @@ func testAccFirestoreIndex_firestoreIndexDatastoreModeExample(context map[string
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-database-id-dm%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "nam5"
   type        = "DATASTORE_MODE"
 
@@ -173,9 +179,12 @@ resource "google_firestore_index" "my-index" {
 func TestAccFirestoreIndex_firestoreIndexVectorExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"database_id":   "tf-test-database-id-vector" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -200,7 +209,7 @@ func testAccFirestoreIndex_firestoreIndexVectorExample(context map[string]interf
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-database-id-vector%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "nam5"
   type        = "FIRESTORE_NATIVE"
 
@@ -237,9 +246,12 @@ resource "google_firestore_index" "my-index" {
 func TestAccFirestoreIndex_firestoreIndexNameDescendingExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"database_id":   "tf-test-database-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -264,7 +276,7 @@ func testAccFirestoreIndex_firestoreIndexNameDescendingExample(context map[strin
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-database-id%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "nam5"
   type        = "FIRESTORE_NATIVE"
 
@@ -288,9 +300,12 @@ resource "google_firestore_index" "my-index" {
 func TestAccFirestoreIndex_firestoreIndexMongodbCompatibleScopeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"database_id":   "tf-test-database-id-mongodb-compatible" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -315,7 +330,7 @@ func testAccFirestoreIndex_firestoreIndexMongodbCompatibleScopeExample(context m
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
 	project                  = "%{project_id}"
-	name                     = "tf-test-database-id-mongodb-compatible%{random_suffix}"
+	name                     = "%{database_id}"
 	location_id              = "nam5"
 	type                     = "FIRESTORE_NATIVE"
 	database_edition         = "ENTERPRISE"
@@ -350,9 +365,12 @@ resource "google_firestore_index" "my-index" {
 func TestAccFirestoreIndex_firestoreIndexSparseAnyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"database_id":   "tf-test-database-id-sparse-any" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -377,7 +395,7 @@ func testAccFirestoreIndex_firestoreIndexSparseAnyExample(context map[string]int
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
 	project                  = "%{project_id}"
-	name                     = "tf-test-database-id-sparse-any%{random_suffix}"
+	name                     = "%{database_id}"
 	location_id              = "nam5"
 	type                     = "FIRESTORE_NATIVE"
 	database_edition         = "ENTERPRISE"
@@ -412,9 +430,12 @@ resource "google_firestore_index" "my-index" {
 func TestAccFirestoreIndex_firestoreIndexUniqueExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"database_id":   "tf-test-database-id-unique" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -439,7 +460,7 @@ func testAccFirestoreIndex_firestoreIndexUniqueExample(context map[string]interf
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
 	project                  = "%{project_id}"
-	name                     = "tf-test-database-id-unique%{random_suffix}"
+	name                     = "%{database_id}"
 	location_id              = "nam5"
 	type                     = "FIRESTORE_NATIVE"
 	database_edition         = "ENTERPRISE"
@@ -475,9 +496,12 @@ resource "google_firestore_index" "my-index" {
 func TestAccFirestoreIndex_firestoreIndexSkipWaitExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"database_id":   "tf-test-database-id-skip-wait" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -502,7 +526,7 @@ func testAccFirestoreIndex_firestoreIndexSkipWaitExample(context map[string]inte
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-database-id-skip-wait%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "nam5"
   type        = "FIRESTORE_NATIVE"
 
@@ -533,10 +557,13 @@ resource "google_firestore_index" "my-index" {
 func TestAccFirestoreIndex_firestoreIndexDeletionPolicyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":      envvar.GetTestProjectFromEnv(),
+		"database_id":     "tf-test-database-id-deletion-policy" + randomSuffix,
 		"deletion_policy": "DELETE",
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -561,7 +588,7 @@ func testAccFirestoreIndex_firestoreIndexDeletionPolicyExample(context map[strin
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-database-id-deletion-policy%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "nam5"
   type        = "FIRESTORE_NATIVE"
 

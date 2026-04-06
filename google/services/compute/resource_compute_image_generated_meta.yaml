@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_compute_image
 generation_type: mmv1
 source_file: products/compute/Image.yaml

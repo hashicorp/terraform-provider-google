@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"log"
 
-	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -31,7 +30,7 @@ func OldValue(old, new interface{}) interface{} {
 }
 
 func HandleNotFoundDCLError(err error, d *schema.ResourceData, resourceName string) error {
-	if dcl.IsNotFound(err) {
+	if IsNotFound(err) {
 		log.Printf("[WARN] Removing %s because it's gone", resourceName)
 		// The resource doesn't exist anymore
 		d.SetId("")
@@ -61,4 +60,36 @@ func ResourceContainerAwsNodePoolCustomizeDiffFunc(_ context.Context, diff *sche
 	}
 
 	return nil
+}
+
+type DCLLogger struct{}
+
+// Fatal records Fatal errors.
+func (l DCLLogger) Fatal(args ...interface{}) {
+	log.Fatal(args...)
+}
+
+// Fatalf records Fatal errors with added arguments.
+func (l DCLLogger) Fatalf(format string, args ...interface{}) {
+	log.Fatalf(fmt.Sprintf("[DEBUG][DCL FATAL] %s", format), args...)
+}
+
+// Info records Info errors.
+func (l DCLLogger) Info(args ...interface{}) {
+	log.Print(args...)
+}
+
+// Infof records Info errors with added arguments.
+func (l DCLLogger) Infof(format string, args ...interface{}) {
+	log.Printf(fmt.Sprintf("[DEBUG][DCL INFO] %s", format), args...)
+}
+
+// Warningf records Warning errors with added arguments.
+func (l DCLLogger) Warningf(format string, args ...interface{}) {
+	log.Printf(fmt.Sprintf("[DEBUG][DCL WARNING] %s", format), args...)
+}
+
+// Warning records Warning errors.
+func (l DCLLogger) Warning(args ...interface{}) {
+	log.Print(args...)
 }

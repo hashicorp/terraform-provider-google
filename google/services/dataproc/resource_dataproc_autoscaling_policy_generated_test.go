@@ -53,8 +53,11 @@ var (
 func TestAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-dataproc-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyBasicExample(t *t
 func testAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_autoscaling_policy" "basic" {
-  policy_id = "tf-test-dataproc-policy%{random_suffix}"
+  policy_id = "%{name}"
   location  = "us-central1"
 
   worker_config {
@@ -100,8 +103,11 @@ resource "google_dataproc_autoscaling_policy" "basic" {
 func TestAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-dataproc-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -125,7 +131,7 @@ func TestAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyExample(t *testin
 func testAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_cluster" "basic" {
-  name     = "tf-test-dataproc-policy%{random_suffix}"
+  name     = "%{name}"
   region   = "us-central1"
 
   cluster_config {
@@ -136,7 +142,7 @@ resource "google_dataproc_cluster" "basic" {
 }
 
 resource "google_dataproc_autoscaling_policy" "asp" {
-  policy_id = "tf-test-dataproc-policy%{random_suffix}"
+  policy_id = "%{name}"
   location  = "us-central1"
 
   worker_config {

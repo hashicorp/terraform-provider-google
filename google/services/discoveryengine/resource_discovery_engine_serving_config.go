@@ -325,6 +325,8 @@ func resourceDiscoveryEngineServingConfigRead(d *schema.ResourceData, meta inter
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DiscoveryEngineServingConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DiscoveryEngineServingConfig %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ServingConfig: %s", err)
 	}

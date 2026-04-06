@@ -23,12 +23,10 @@ description: |-
 
 A grouping of workstation configurations and the associated workstations in that region.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about WorkstationCluster, see:
 
-* [API documentation](https://cloud.google.com/workstations/docs/reference/rest/v1beta/projects.locations.workstationClusters/create)
+* [API documentation](https://cloud.google.com/workstations/docs/reference/rest/v1/projects.locations.workstationClusters/create)
 * How-to Guides
     * [Workstations](https://cloud.google.com/workstations/docs/)
 
@@ -42,7 +40,6 @@ To get more information about WorkstationCluster, see:
 
 ```hcl
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -58,17 +55,14 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -85,7 +79,6 @@ resource "google_compute_subnetwork" "default" {
 
 ```hcl
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster-private"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -105,17 +98,14 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster-private"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider = google-beta
   name          = "workstation-cluster-private"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -132,7 +122,6 @@ resource "google_compute_subnetwork" "default" {
 
 ```hcl
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster-custom-domain"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -156,17 +145,14 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster-custom-domain"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider = google-beta
   name          = "workstation-cluster-custom-domain"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -183,23 +169,19 @@ resource "google_compute_subnetwork" "default" {
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_tags_tag_key" "tag_key" {
-  provider   = google-beta
   parent     = "projects/${data.google_project.project.number}"
   short_name = "keyname"
 }
 
 resource "google_tags_tag_value" "tag_value" {
-  provider   = google-beta
   parent     = "tagKeys/${google_tags_tag_key.tag_key.name}"
   short_name = "valuename"
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster-tags"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -211,13 +193,11 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster-tags"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "workstation-cluster-tags"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"

@@ -53,11 +53,13 @@ var (
 func TestAccDataprocBatch_dataprocBatchSparkExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-spark-test-network", "dataproc-spark-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -110,11 +112,15 @@ resource "google_dataproc_batch" "example_batch_spark" {
 func TestAccDataprocBatch_dataprocBatchSparkFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
+		"bucket_name":     "tf-test-dataproc-bucket" + randomSuffix,
+		"dataproc_batch":  "tf-test-dataproc-batch" + randomSuffix,
 		"kms_key_name":    acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-dataproc-batch-key1").CryptoKey.Name,
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -144,7 +150,7 @@ data "google_storage_project_service_account" "gcs_account" {
 }
 
 resource "google_dataproc_batch" "example_batch_spark" {
-    batch_id      = "tf-test-dataproc-batch%{random_suffix}"
+    batch_id      = "%{dataproc_batch}"
     location      = "us-central1"
     labels        = {"batch_test": "terraform"}
 
@@ -186,7 +192,7 @@ resource "google_dataproc_batch" "example_batch_spark" {
 
 resource "google_storage_bucket" "bucket" {
   uniform_bucket_level_access = true
-  name                        = "tf-test-dataproc-bucket%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "US"
   force_destroy               = true
 }
@@ -198,7 +204,7 @@ resource "google_kms_crypto_key_iam_member" "crypto_key_member_1" {
 }
 
 resource "google_dataproc_cluster" "basic" {
-  name   = "tf-test-dataproc-batch%{random_suffix}"
+  name   = "%{dataproc_batch}"
   region = "us-central1"
 
   cluster_config {
@@ -229,7 +235,7 @@ resource "google_dataproc_cluster" "basic" {
 }
 
  resource "google_dataproc_metastore_service" "ms" {
-  service_id = "tf-test-dataproc-batch%{random_suffix}"
+  service_id = "%{dataproc_batch}"
   location   = "us-central1"
   port       = 9080
   tier       = "DEVELOPER"
@@ -249,11 +255,13 @@ resource "google_dataproc_cluster" "basic" {
 func TestAccDataprocBatch_dataprocBatchSparksqlExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-sparksql-test-network", "dataproc-sparksql-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -305,11 +313,13 @@ resource "google_dataproc_batch" "example_batch_sparsql" {
 func TestAccDataprocBatch_dataprocBatchPysparkExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-pyspark-test-network", "dataproc-pyspark-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -365,11 +375,13 @@ resource "google_dataproc_batch" "example_batch_pyspark" {
 func TestAccDataprocBatch_dataprocBatchSparkrExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-pyspark-test-network", "dataproc-pyspark-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -421,11 +433,13 @@ resource "google_dataproc_batch" "example_batch_sparkr" {
 func TestAccDataprocBatch_dataprocBatchAutotuningExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-autotuning-test-network", "dataproc-autotuning-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -459,7 +473,7 @@ resource "google_dataproc_batch" "example_batch_autotuning" {
       properties    = { "spark.dynamicAllocation.enabled": "false", "spark.executor.instances": "2" }
       cohort        = "tf-dataproc-batch-example"
       autotuning_config {
-        scenarios = ["SCALING", "MEMORY"]
+        scenarios = ["AUTO", "SCALING", "MEMORY"]
       }
     }
 

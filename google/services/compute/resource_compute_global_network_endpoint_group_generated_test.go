@@ -53,8 +53,11 @@ var (
 func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":      "tf-test-my-lb-neg" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +80,7 @@ func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupExample(
 func testAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_global_network_endpoint_group" "neg" {
-  name                  = "tf-test-my-lb-neg%{random_suffix}"
+  name                  = "%{neg_name}"
   default_port          = "90"
   network_endpoint_type = "INTERNET_FQDN_PORT"
 }
@@ -87,8 +90,11 @@ resource "google_compute_global_network_endpoint_group" "neg" {
 func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupIpAddressExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":      "tf-test-my-lb-neg" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -111,7 +117,7 @@ func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupIpAddres
 func testAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupIpAddressExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_global_network_endpoint_group" "neg" {
-  name                  = "tf-test-my-lb-neg%{random_suffix}"
+  name                  = "%{neg_name}"
   network_endpoint_type = "INTERNET_IP_PORT"
   default_port          = 90
 }

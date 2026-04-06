@@ -53,10 +53,12 @@ var (
 func TestAccOrgPolicyCustomConstraint_orgPolicyCustomConstraintBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 		"policy_name":   "custom.tfTestDisableGkeAutoUpgrade" + acctest.RandString(t, 10),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -95,10 +97,12 @@ resource "google_org_policy_custom_constraint" "constraint" {
 func TestAccOrgPolicyCustomConstraint_orgPolicyCustomConstraintFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 		"policy_name":   "custom.tfTestDisableGkeAutoUpgrade" + acctest.RandString(t, 10),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

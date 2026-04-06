@@ -1102,6 +1102,8 @@ func resourceCloudSecurityComplianceCloudControlRead(d *schema.ResourceData, met
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudSecurityComplianceCloudControl %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading CloudSecurityComplianceCloudControl %q: %#v", d.Id(), res)
+
 	if err := d.Set("categories", flattenCloudSecurityComplianceCloudControlCategories(res["categories"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CloudControl: %s", err)
 	}

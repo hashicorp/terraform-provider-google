@@ -53,8 +53,17 @@ var (
 func TestAccNetworkSecurityInterceptDeployment_networkSecurityInterceptDeploymentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name": "tf-test-example-bs" + randomSuffix,
+		"deployment_group_id":  "tf-test-example-dg" + randomSuffix,
+		"deployment_id":        "tf-test-example-deployment" + randomSuffix,
+		"forwarding_rule_name": "tf-test-example-fwr" + randomSuffix,
+		"health_check_name":    "tf-test-example-hc" + randomSuffix,
+		"network_name":         "tf-test-example-network" + randomSuffix,
+		"subnetwork_name":      "tf-test-example-subnet" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,19 +87,19 @@ func TestAccNetworkSecurityInterceptDeployment_networkSecurityInterceptDeploymen
 func testAccNetworkSecurityInterceptDeployment_networkSecurityInterceptDeploymentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "tf-test-example-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name          = "tf-test-example-subnet%{random_suffix}"
+  name          = "%{subnetwork_name}"
   region        = "us-central1"
   ip_cidr_range = "10.1.0.0/16"
   network       = google_compute_network.network.name
 }
 
 resource "google_compute_region_health_check" "health_check" {
-  name   = "tf-test-example-hc%{random_suffix}"
+  name   = "%{health_check_name}"
   region = "us-central1"
   http_health_check {
     port = 80
@@ -98,7 +107,7 @@ resource "google_compute_region_health_check" "health_check" {
 }
 
 resource "google_compute_region_backend_service" "backend_service" {
-  name                  = "tf-test-example-bs%{random_suffix}"
+  name                  = "%{backend_service_name}"
   region                = "us-central1"
   health_checks         = [google_compute_region_health_check.health_check.id]
   protocol              = "UDP"
@@ -106,7 +115,7 @@ resource "google_compute_region_backend_service" "backend_service" {
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule" {
-  name                  = "tf-test-example-fwr%{random_suffix}"
+  name                  = "%{forwarding_rule_name}"
   region                = "us-central1"
   network               = google_compute_network.network.name
   subnetwork            = google_compute_subnetwork.subnetwork.name
@@ -117,13 +126,13 @@ resource "google_compute_forwarding_rule" "forwarding_rule" {
 }
 
 resource "google_network_security_intercept_deployment_group" "deployment_group" {
-  intercept_deployment_group_id = "tf-test-example-dg%{random_suffix}"
+  intercept_deployment_group_id = "%{deployment_group_id}"
   location                      = "global"
   network                       = google_compute_network.network.id
 }
 
 resource "google_network_security_intercept_deployment" "default" {
-  intercept_deployment_id    = "tf-test-example-deployment%{random_suffix}"
+  intercept_deployment_id    = "%{deployment_id}"
   location                   = "us-central1-a"
   forwarding_rule            = google_compute_forwarding_rule.forwarding_rule.id
   intercept_deployment_group = google_network_security_intercept_deployment_group.deployment_group.id

@@ -53,8 +53,12 @@ var (
 func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":   "tf-test-static-content-bucket" + randomSuffix,
+		"object_name":   "tf-test-public-object" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -85,12 +89,12 @@ resource "google_storage_object_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "tf-test-static-content-bucket%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
-  name   = "tf-test-public-object%{random_suffix}"
+  name   = "%{object_name}"
   bucket = google_storage_bucket.bucket.name
   source = "test-fixtures/header-logo.png"
 }

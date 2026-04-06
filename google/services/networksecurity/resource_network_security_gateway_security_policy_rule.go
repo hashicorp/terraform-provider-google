@@ -356,6 +356,8 @@ func resourceNetworkSecurityGatewaySecurityPolicyRuleRead(d *schema.ResourceData
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkSecurityGatewaySecurityPolicyRule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkSecurityGatewaySecurityPolicyRule %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
 	}

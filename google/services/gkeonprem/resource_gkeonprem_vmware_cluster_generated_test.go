@@ -53,8 +53,11 @@ var (
 func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-cluster-basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterBasicExample(t *testing
 func testAccGkeonpremVmwareCluster_gkeonpremVmwareClusterBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_vmware_cluster" "cluster-basic" {
-  name = "tf-test-cluster-basic%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   description = "test cluster"
@@ -123,8 +126,11 @@ resource "google_gkeonprem_vmware_cluster" "cluster-basic" {
 func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterF5lbExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-cluster-f5lb" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -148,7 +154,7 @@ func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterF5lbExample(t *testing.
 func testAccGkeonpremVmwareCluster_gkeonpremVmwareClusterF5lbExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_vmware_cluster" "cluster-f5lb" {
-  name = "tf-test-cluster-f5lb%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   description = "test cluster"
@@ -220,8 +226,11 @@ resource "google_gkeonprem_vmware_cluster" "cluster-f5lb" {
 func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterManuallbExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-cluster-manuallb" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -245,7 +254,7 @@ func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterManuallbExample(t *test
 func testAccGkeonpremVmwareCluster_gkeonpremVmwareClusterManuallbExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_vmware_cluster" "cluster-manuallb" {
-  name = "tf-test-cluster-manuallb%{random_suffix}"
+  name = "%{name}"
   skip_validations = ["WORKSTATION", "CONFIG", "DOCKER"]
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"

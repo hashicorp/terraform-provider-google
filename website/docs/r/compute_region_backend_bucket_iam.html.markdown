@@ -44,6 +44,7 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 data "google_iam_policy" "admin" {
+  provider = google-beta
   binding {
     role = "roles/compute.admin"
     members = [
@@ -53,6 +54,7 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_compute_region_backend_bucket_iam_policy" "policy" {
+  provider = google-beta
   project = google_compute_region_backend_bucket.image_backend.project
   region = google_compute_region_backend_bucket.image_backend.region
   name = google_compute_region_backend_bucket.image_backend.name
@@ -64,6 +66,7 @@ With IAM Conditions:
 
 ```hcl
 data "google_iam_policy" "admin" {
+  provider = google-beta
   binding {
     role = "roles/compute.admin"
     members = [
@@ -79,6 +82,7 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_compute_region_backend_bucket_iam_policy" "policy" {
+  provider = google-beta
   project = google_compute_region_backend_bucket.image_backend.project
   region = google_compute_region_backend_bucket.image_backend.region
   name = google_compute_region_backend_bucket.image_backend.name
@@ -89,6 +93,7 @@ resource "google_compute_region_backend_bucket_iam_policy" "policy" {
 
 ```hcl
 resource "google_compute_region_backend_bucket_iam_binding" "binding" {
+  provider = google-beta
   project = google_compute_region_backend_bucket.image_backend.project
   region = google_compute_region_backend_bucket.image_backend.region
   name = google_compute_region_backend_bucket.image_backend.name
@@ -103,6 +108,7 @@ With IAM Conditions:
 
 ```hcl
 resource "google_compute_region_backend_bucket_iam_binding" "binding" {
+  provider = google-beta
   project = google_compute_region_backend_bucket.image_backend.project
   region = google_compute_region_backend_bucket.image_backend.region
   name = google_compute_region_backend_bucket.image_backend.name
@@ -122,6 +128,7 @@ resource "google_compute_region_backend_bucket_iam_binding" "binding" {
 
 ```hcl
 resource "google_compute_region_backend_bucket_iam_member" "member" {
+  provider = google-beta
   project = google_compute_region_backend_bucket.image_backend.project
   region = google_compute_region_backend_bucket.image_backend.region
   name = google_compute_region_backend_bucket.image_backend.name
@@ -134,6 +141,7 @@ With IAM Conditions:
 
 ```hcl
 resource "google_compute_region_backend_bucket_iam_member" "member" {
+  provider = google-beta
   project = google_compute_region_backend_bucket.image_backend.project
   region = google_compute_region_backend_bucket.image_backend.region
   name = google_compute_region_backend_bucket.image_backend.name

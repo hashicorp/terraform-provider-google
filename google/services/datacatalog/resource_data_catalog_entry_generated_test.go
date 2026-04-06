@@ -53,8 +53,12 @@ var (
 func TestAccDataCatalogEntry_dataCatalogEntryBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"entry_group_id": "tf_test_my_group" + randomSuffix,
+		"entry_id":       "tf_test_my_entry" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,14 +83,14 @@ func testAccDataCatalogEntry_dataCatalogEntryBasicExample(context map[string]int
 	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "basic_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
-  entry_id = "tf_test_my_entry%{random_suffix}"
+  entry_id = "%{entry_id}"
 
   user_specified_type = "my_custom_type"
   user_specified_system = "SomethingExternal"
 }
 
 resource "google_data_catalog_entry_group" "entry_group" {
-  entry_group_id = "tf_test_my_group%{random_suffix}"
+  entry_group_id = "%{entry_group_id}"
 }
 `, context)
 }
@@ -94,8 +98,12 @@ resource "google_data_catalog_entry_group" "entry_group" {
 func TestAccDataCatalogEntry_dataCatalogEntryFilesetExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"entry_group_id": "tf_test_my_group" + randomSuffix,
+		"entry_id":       "tf_test_my_entry" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -120,7 +128,7 @@ func testAccDataCatalogEntry_dataCatalogEntryFilesetExample(context map[string]i
 	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "basic_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
-  entry_id = "tf_test_my_entry%{random_suffix}"
+  entry_id = "%{entry_id}"
 
   type = "FILESET"
 
@@ -130,7 +138,7 @@ resource "google_data_catalog_entry" "basic_entry" {
 }
 
 resource "google_data_catalog_entry_group" "entry_group" {
-  entry_group_id = "tf_test_my_group%{random_suffix}"
+  entry_group_id = "%{entry_group_id}"
 }
 `, context)
 }
@@ -138,8 +146,12 @@ resource "google_data_catalog_entry_group" "entry_group" {
 func TestAccDataCatalogEntry_dataCatalogEntryFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"entry_group_id": "tf_test_my_group" + randomSuffix,
+		"entry_id":       "tf_test_my_entry" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -164,7 +176,7 @@ func testAccDataCatalogEntry_dataCatalogEntryFullExample(context map[string]inte
 	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "basic_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
-  entry_id = "tf_test_my_entry%{random_suffix}"
+  entry_id = "%{entry_id}"
 
   user_specified_type = "my_user_specified_type"
   user_specified_system = "Something_custom"
@@ -214,7 +226,7 @@ EOF
 }
 
 resource "google_data_catalog_entry_group" "entry_group" {
-  entry_group_id = "tf_test_my_group%{random_suffix}"
+  entry_group_id = "%{entry_group_id}"
 }
 `, context)
 }

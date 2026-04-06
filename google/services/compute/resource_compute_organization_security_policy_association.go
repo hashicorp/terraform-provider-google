@@ -130,6 +130,24 @@ func ResourceComputeOrganizationSecurityPolicyAssociation() *schema.Resource {
 				ForceNew:    true,
 				Description: `The security policy ID of the association.`,
 			},
+			"excluded_folders": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `A list of folders to exclude from the security policy.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"excluded_projects": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `A list of projects to exclude from the security policy.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -159,6 +177,18 @@ func resourceComputeOrganizationSecurityPolicyAssociationCreate(d *schema.Resour
 		return err
 	} else if v, ok := d.GetOkExists("attachment_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(attachmentIdProp)) && (ok || !reflect.DeepEqual(v, attachmentIdProp)) {
 		obj["attachmentId"] = attachmentIdProp
+	}
+	excludedProjectsProp, err := expandComputeOrganizationSecurityPolicyAssociationExcludedProjects(d.Get("excluded_projects"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("excluded_projects"); !tpgresource.IsEmptyValue(reflect.ValueOf(excludedProjectsProp)) && (ok || !reflect.DeepEqual(v, excludedProjectsProp)) {
+		obj["excludedProjects"] = excludedProjectsProp
+	}
+	excludedFoldersProp, err := expandComputeOrganizationSecurityPolicyAssociationExcludedFolders(d.Get("excluded_folders"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("excluded_folders"); !tpgresource.IsEmptyValue(reflect.ValueOf(excludedFoldersProp)) && (ok || !reflect.DeepEqual(v, excludedFoldersProp)) {
+		obj["excludedFolders"] = excludedFoldersProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}{{policy_id}}/addAssociation")
@@ -263,6 +293,8 @@ func resourceComputeOrganizationSecurityPolicyAssociationRead(d *schema.Resource
 		return transport_tpg.HandleNotFoundError(transformSecurityPolicyAssociationReadError(err), d, fmt.Sprintf("ComputeOrganizationSecurityPolicyAssociation %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeOrganizationSecurityPolicyAssociation %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenComputeOrganizationSecurityPolicyAssociationName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
 	}
@@ -270,6 +302,12 @@ func resourceComputeOrganizationSecurityPolicyAssociationRead(d *schema.Resource
 		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
 	}
 	if err := d.Set("display_name", flattenComputeOrganizationSecurityPolicyAssociationDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
+	}
+	if err := d.Set("excluded_projects", flattenComputeOrganizationSecurityPolicyAssociationExcludedProjects(res["excludedProjects"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
+	}
+	if err := d.Set("excluded_folders", flattenComputeOrganizationSecurityPolicyAssociationExcludedFolders(res["excludedFolders"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
 	}
 
@@ -378,10 +416,26 @@ func flattenComputeOrganizationSecurityPolicyAssociationDisplayName(v interface{
 	return v
 }
 
+func flattenComputeOrganizationSecurityPolicyAssociationExcludedProjects(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeOrganizationSecurityPolicyAssociationExcludedFolders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandComputeOrganizationSecurityPolicyAssociationName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandComputeOrganizationSecurityPolicyAssociationAttachmentId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeOrganizationSecurityPolicyAssociationExcludedProjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeOrganizationSecurityPolicyAssociationExcludedFolders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

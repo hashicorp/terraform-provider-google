@@ -560,10 +560,11 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 			},
 
 			"adaptive_protection_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `Adaptive Protection Config of this security policy.`,
-				MaxItems:    1,
+				Type:             schema.TypeList,
+				Optional:         true,
+				Description:      `Adaptive Protection Config of this security policy.`,
+				MaxItems:         1,
+				DiffSuppressFunc: tpgresource.SuppressLayer7DdosDefenseMissing,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"layer_7_ddos_defense_config": {
@@ -1062,6 +1063,10 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 					for _, nValue := range nRules[priority]["rate_limit_options"].([]interface{}) {
 						nMap = nValue.(map[string]interface{})
 					}
+				}
+
+				if fmt.Sprintf("%v", oMap) != fmt.Sprintf("%v", nMap) {
+					updateMask = append(updateMask, "rate_limit_options")
 				}
 
 				if fmt.Sprintf("%v", oMap["enforce_on_key"]) != fmt.Sprintf("%v", nMap["enforce_on_key"]) {

@@ -53,9 +53,13 @@ var (
 func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"deletion_policy": "DELETE",
-		"random_suffix":   acctest.RandString(t, 10),
+		"instance_id":     "tf-test-my-instance" + randomSuffix,
+		"repository_id":   "tf-test-my-repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +84,7 @@ func testAccSecureSourceManagerRepository_secureSourceManagerRepositoryBasicExam
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
-    instance_id = "tf-test-my-instance%{random_suffix}"
+    instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
     deletion_policy = "%{deletion_policy}"
@@ -88,7 +92,7 @@ resource "google_secure_source_manager_instance" "instance" {
 
 resource "google_secure_source_manager_repository" "default" {
     location = "us-central1"
-    repository_id = "tf-test-my-repository%{random_suffix}"
+    repository_id = "%{repository_id}"
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
@@ -100,9 +104,13 @@ resource "google_secure_source_manager_repository" "default" {
 func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryInitialConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"deletion_policy": "DELETE",
-		"random_suffix":   acctest.RandString(t, 10),
+		"instance_id":     "tf-test-my-instance" + randomSuffix,
+		"repository_id":   "tf-test-my-repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,7 +135,7 @@ func testAccSecureSourceManagerRepository_secureSourceManagerRepositoryInitialCo
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
-    instance_id = "tf-test-my-instance%{random_suffix}"
+    instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
     deletion_policy = "%{deletion_policy}"
@@ -135,7 +143,7 @@ resource "google_secure_source_manager_instance" "instance" {
 
 resource "google_secure_source_manager_repository" "default" {
     location = "us-central1"
-    repository_id = "tf-test-my-repository%{random_suffix}"
+    repository_id = "%{repository_id}"
     instance = google_secure_source_manager_instance.instance.name
 
     description = "This is a test repository"

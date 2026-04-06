@@ -53,10 +53,14 @@ var (
 func TestAccApigeeControlPlaneAccess_apigeeControlPlaneAccessBasicTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"account_id":      "tf-test-my-account" + randomSuffix,
+		"project_id":      "tf-test-my-project" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,8 +83,8 @@ func TestAccApigeeControlPlaneAccess_apigeeControlPlaneAccessBasicTestExample(t 
 func testAccApigeeControlPlaneAccess_apigeeControlPlaneAccessBasicTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "project" {
-  project_id      = "tf-test-my-project%{random_suffix}"
-  name            = "tf-test-my-project%{random_suffix}"
+  project_id      = "%{project_id}"
+  name            = "%{project_id}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_account}"
   deletion_policy = "DELETE"
@@ -100,7 +104,7 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_service_account" "service_account" {
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Service Account"
 }
 

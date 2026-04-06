@@ -53,10 +53,18 @@ var (
 func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedIndexBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", acctest.AddressWithPrefixLength(8)),
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":       acctest.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", acctest.AddressWithPrefixLength(8)),
+		"bucket_name":        "tf-test-bucket-name" + randomSuffix,
+		"deployed_index_id":  "tf_test_deployed_index_id" + randomSuffix,
+		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,
+		"display_name_index": "tf-test-test-index" + randomSuffix,
+		"endpoint_name":      "tf-test-endpoint-name" + randomSuffix,
+		"network_name":       acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
+		"service_account_id": "tf-test-vertex-sa" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,8 +88,8 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 func testAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedIndexBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_index_endpoint_deployed_index" "basic_deployed_index" {
-  deployed_index_id     = "tf_test_deployed_index_id%{random_suffix}"
-  display_name          = "tf-test-vertex-deployed-index%{random_suffix}"
+  deployed_index_id     = "%{deployed_index_id}"
+  display_name          = "%{display_name}"
   region                = "us-central1"
   index                 = google_vertex_ai_index.index.id
   index_endpoint        = google_vertex_ai_index_endpoint.vertex_index_endpoint_deployed.id
@@ -99,7 +107,7 @@ resource "google_vertex_ai_index_endpoint_deployed_index" "basic_deployed_index"
 
 resource "google_vertex_ai_index" "index" {
   region              = "us-central1"
-  display_name        = "tf-test-test-index%{random_suffix}"
+  display_name        = "%{display_name_index}"
   description         = "index for test"
   index_update_method = "BATCH_UPDATE"
   labels = {
@@ -137,11 +145,11 @@ resource "google_vertex_ai_index_endpoint" "vertex_index_endpoint_deployed" {
 }
 
 resource "google_service_account" "sa" {
-  account_id = "tf-test-vertex-sa%{random_suffix}"
+  account_id = "%{service_account_id}"
 }
 
 resource "google_storage_bucket" "bucket" {
-  name                        = "tf-test-bucket-name%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "us-central1"
   uniform_bucket_level_access = true
 }
@@ -168,10 +176,18 @@ data "google_project" "project" {}
 func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedIndexBasicTwoExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", acctest.AddressWithPrefixLength(8)),
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":       acctest.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", acctest.AddressWithPrefixLength(8)),
+		"bucket_name":        "tf-test-bucket-name" + randomSuffix,
+		"deployed_index_id":  "tf_test_deployed_index_id" + randomSuffix,
+		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,
+		"display_name_index": "tf-test-test-index" + randomSuffix,
+		"endpoint_name":      "tf-test-endpoint-name" + randomSuffix,
+		"network_name":       acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
+		"service_account_id": "tf-test-vertex-sa" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -195,8 +211,8 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 func testAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedIndexBasicTwoExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_index_endpoint_deployed_index" "basic_deployed_index" {
-  deployed_index_id     = "tf_test_deployed_index_id%{random_suffix}"
-  display_name          = "tf-test-vertex-deployed-index%{random_suffix}"
+  deployed_index_id     = "%{deployed_index_id}"
+  display_name          = "%{display_name}"
   region                = "us-central1"
   index                 = google_vertex_ai_index.index.id
   index_endpoint        = google_vertex_ai_index_endpoint.vertex_index_endpoint_deployed.id
@@ -217,12 +233,12 @@ resource "google_vertex_ai_index_endpoint_deployed_index" "basic_deployed_index"
 }
 
 resource "google_service_account" "sa" {
-  account_id   = "tf-test-vertex-sa%{random_suffix}"
+  account_id   = "%{service_account_id}"
 }
 
 resource "google_vertex_ai_index" "index" {
   region              = "us-central1"
-  display_name        = "tf-test-test-index%{random_suffix}"
+  display_name        = "%{display_name_index}"
   description         = "index for test"
   index_update_method = "BATCH_UPDATE"
   labels = {
@@ -260,7 +276,7 @@ resource "google_vertex_ai_index_endpoint" "vertex_index_endpoint_deployed" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "tf-test-bucket-name%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "us-central1"
   uniform_bucket_level_access = true
 }
@@ -287,8 +303,14 @@ data "google_project" "project" {}
 func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedIndexDedicatedResourcesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":        "tf-test-bucket-name" + randomSuffix,
+		"deployed_index_id":  "tf_test_deployed_index_id" + randomSuffix,
+		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,
+		"display_name_index": "tf-test-test-index" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -312,8 +334,8 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 func testAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedIndexDedicatedResourcesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_index_endpoint_deployed_index" "dedicated_resources" {
-  deployed_index_id = "tf_test_deployed_index_id%{random_suffix}"
-  display_name      = "tf-test-vertex-deployed-index%{random_suffix}"
+  deployed_index_id = "%{deployed_index_id}"
+  display_name      = "%{display_name}"
   region            = "us-central1"
   index             = google_vertex_ai_index.index.id
   index_endpoint    = google_vertex_ai_index_endpoint.vertex_endpoint.id
@@ -330,7 +352,7 @@ resource "google_vertex_ai_index_endpoint_deployed_index" "dedicated_resources" 
 
 resource "google_vertex_ai_index" "index" {
   region              = "us-central1"
-  display_name        = "tf-test-test-index%{random_suffix}"
+  display_name        = "%{display_name_index}"
   description         = "index for test"
   index_update_method = "BATCH_UPDATE"
   labels = {
@@ -369,7 +391,7 @@ resource "google_vertex_ai_index_endpoint" "vertex_endpoint" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name                        = "tf-test-bucket-name%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "us-central1"
   uniform_bucket_level_access = true
 }
@@ -392,8 +414,14 @@ data "google_project" "project" {}
 func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedIndexAutomaticResourcesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":        "tf-test-bucket-name" + randomSuffix,
+		"deployed_index_id":  "tf_test_deployed_index_id" + randomSuffix,
+		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,
+		"display_name_index": "tf-test-test-index" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -417,8 +445,8 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 func testAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedIndexAutomaticResourcesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_index_endpoint_deployed_index" "automatic_resources" {
-  deployed_index_id = "tf_test_deployed_index_id%{random_suffix}"
-  display_name      = "tf-test-vertex-deployed-index%{random_suffix}"
+  deployed_index_id = "%{deployed_index_id}"
+  display_name      = "%{display_name}"
   region            = "us-central1"
   index             = google_vertex_ai_index.index.id
   index_endpoint    = google_vertex_ai_index_endpoint.vertex_endpoint.id
@@ -432,7 +460,7 @@ resource "google_vertex_ai_index_endpoint_deployed_index" "automatic_resources" 
 
 resource "google_vertex_ai_index" "index" {
   region              = "us-central1"
-  display_name        = "tf-test-test-index%{random_suffix}"
+  display_name        = "%{display_name_index}"
   description         = "index for test"
   index_update_method = "BATCH_UPDATE"
   labels = {
@@ -470,7 +498,7 @@ resource "google_vertex_ai_index_endpoint" "vertex_endpoint" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name                        = "tf-test-bucket-name%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "us-central1"
   uniform_bucket_level_access = true
 }

@@ -317,6 +317,8 @@ func resourceApigeeAddonsConfigRead(d *schema.ResourceData, meta interface{}) er
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeAddonsConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeAddonsConfig %q: %#v", d.Id(), res)
+
 	if err := d.Set("addons_config", flattenApigeeAddonsConfigAddonsConfig(res["addonsConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AddonsConfig: %s", err)
 	}

@@ -278,6 +278,8 @@ func resourceVmwareengineExternalAddressRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VmwareengineExternalAddress %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading VmwareengineExternalAddress %q: %#v", d.Id(), res)
+
 	if err := d.Set("create_time", flattenVmwareengineExternalAddressCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ExternalAddress: %s", err)
 	}

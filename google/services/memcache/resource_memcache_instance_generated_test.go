@@ -53,9 +53,13 @@ var (
 func TestAccMemcacheInstance_memcacheInstanceBasicTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"address_name":  "address" + randomSuffix,
+		"instance_name": "tf-test-test-instance" + randomSuffix,
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -91,7 +95,7 @@ data "google_compute_network" "memcache_network" {
 }
 
 resource "google_memcache_instance" "instance" {
-  name = "tf-test-test-instance%{random_suffix}"
+  name = "%{instance_name}"
   authorized_network = data.google_compute_network.memcache_network.id
 
   labels = {

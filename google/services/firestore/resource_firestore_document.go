@@ -281,6 +281,8 @@ func resourceFirestoreDocumentRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("FirestoreDocument %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading FirestoreDocument %q: %#v", d.Id(), res)
+
 	res, err = resourceFirestoreDocumentDecoder(d, meta, res)
 	if err != nil {
 		return err

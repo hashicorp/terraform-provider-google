@@ -425,6 +425,13 @@ If unspecified, the purpose defaults to 'PRIVATE'.`,
 				Description: `The ID of the reserved internal range. Must be prefixed with 'networkconnectivity.googleapis.com'
 E.g. 'networkconnectivity.googleapis.com/projects/{project}/locations/global/internalRanges/{rangeId}'`,
 			},
+			"resolve_subnet_mask": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ARP_ALL_RANGES", "ARP_PRIMARY_RANGE", ""}),
+				Description:  `'Configures subnet mask resolution for this subnetwork.' Possible values: ["ARP_ALL_RANGES", "ARP_PRIMARY_RANGE"]`,
+			},
 			"role": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -720,6 +727,12 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("params"); !tpgresource.IsEmptyValue(reflect.ValueOf(paramsProp)) && (ok || !reflect.DeepEqual(v, paramsProp)) {
 		obj["params"] = paramsProp
 	}
+	resolveSubnetMaskProp, err := expandComputeSubnetworkResolveSubnetMask(d.Get("resolve_subnet_mask"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("resolve_subnet_mask"); !tpgresource.IsEmptyValue(reflect.ValueOf(resolveSubnetMaskProp)) && (ok || !reflect.DeepEqual(v, resolveSubnetMaskProp)) {
+		obj["resolveSubnetMask"] = resolveSubnetMaskProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks")
 	if err != nil {
@@ -815,6 +828,8 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeSubnetwork %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
@@ -887,6 +902,9 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("state", flattenComputeSubnetworkState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err := d.Set("resolve_subnet_mask", flattenComputeSubnetworkResolveSubnetMask(res["resolveSubnetMask"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -1293,77 +1311,10 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 	}
-	if d.HasChange("secondary_ip_range") {
-		obj := make(map[string]interface{})
-
-		getUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		getRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "GET",
-			Project:   billingProject,
-			RawURL:    getUrl,
-			UserAgent: userAgent,
-		})
-		if err != nil {
-			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
-		}
-
-		obj["fingerprint"] = getRes["fingerprint"]
-
-		secondaryIpRangesProp, err := expandComputeSubnetworkSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("secondary_ip_range"); ok || !reflect.DeepEqual(v, secondaryIpRangesProp) {
-			obj["secondaryIpRanges"] = secondaryIpRangesProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Subnetwork %q: %#v", d.Id(), res)
-		}
-
-		err = ComputeOperationWaitTime(
-			config, res, project, "Updating Subnetwork", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
 
 	d.Partial(false)
 
+	// Handle the "Send Empty" override logic
 	if v, ok := d.GetOk("send_secondary_ip_range_if_empty"); ok && v.(bool) {
 		if sv, ok := d.GetOk("secondary_ip_range"); ok {
 			configValue := d.GetRawConfig().GetAttr("secondary_ip_range")
@@ -1434,6 +1385,128 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 					return err
 				}
 			}
+		}
+	}
+	// Handle standard changes with the "Two-Step" split update logic for secondary_ip_range
+	// due to the API limitation
+	if d.HasChange("secondary_ip_range") {
+		old, new := d.GetChange("secondary_ip_range")
+		oldRanges := schema.NewSet(schema.HashResource(ResourceComputeSubnetwork().Schema["secondary_ip_range"].Elem.(*schema.Resource)), old.([]interface{}))
+		newRanges := schema.NewSet(schema.HashResource(ResourceComputeSubnetwork().Schema["secondary_ip_range"].Elem.(*schema.Resource)), new.([]interface{}))
+
+		removalsRaw := oldRanges.Difference(newRanges)
+		additionsRaw := newRanges.Difference(oldRanges)
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		// If there's a mix of additions and removals, we must perform the removal step first.
+		if removalsRaw.Len() > 0 && additionsRaw.Len() > 0 {
+			log.Printf("[DEBUG] Splitting update for %q: Performing removal step first.", d.Id())
+
+			getRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: userAgent,
+			})
+			if err != nil {
+				return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
+			}
+
+			var currentRanges []interface{}
+			if r, ok := getRes["secondaryIpRanges"].([]interface{}); ok {
+				currentRanges = r
+			}
+
+			removalSet := make(map[string]struct{})
+			for _, item := range removalsRaw.List() {
+				r := item.(map[string]interface{})
+				removalSet[r["range_name"].(string)] = struct{}{}
+			}
+
+			var rangesAfterRemoval []interface{}
+			for _, apiRange := range currentRanges {
+				rMap := apiRange.(map[string]interface{})
+				if name, ok := rMap["rangeName"].(string); ok {
+					if _, isRemoving := removalSet[name]; !isRemoving {
+						rangesAfterRemoval = append(rangesAfterRemoval, apiRange)
+					}
+				}
+			}
+
+			removalObj := make(map[string]interface{})
+			removalObj["secondaryIpRanges"] = rangesAfterRemoval
+			removalObj["fingerprint"] = getRes["fingerprint"]
+
+			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "PATCH",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: userAgent,
+				Body:      removalObj,
+				Timeout:   d.Timeout(schema.TimeoutUpdate),
+			})
+			if err != nil {
+				return fmt.Errorf("Error during removal step for Subnetwork %q: %s", d.Id(), err)
+			}
+
+			err = ComputeOperationWaitTime(
+				config, res, project, "Updating Subnetwork", userAgent,
+				d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+		}
+
+		// Final Update (Additions and remaining changes)
+		obj := make(map[string]interface{})
+
+		// Re-fetch to get the fresh fingerprint
+		getRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
+		}
+		obj["fingerprint"] = getRes["fingerprint"]
+
+		secondaryIpRangesProp, err := expandComputeSubnetworkSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
+		if err != nil {
+			return err
+		}
+		obj["secondaryIpRanges"] = secondaryIpRangesProp
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating Subnetwork", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
 		}
 	}
 	return resourceComputeSubnetworkRead(d, meta)
@@ -1692,6 +1765,10 @@ func flattenComputeSubnetworkState(v interface{}, d *schema.ResourceData, config
 	return v
 }
 
+func flattenComputeSubnetworkResolveSubnetMask(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandComputeSubnetworkDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1878,4 +1955,8 @@ func expandComputeSubnetworkParamsResourceManagerTags(v interface{}, d tpgresour
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandComputeSubnetworkResolveSubnetMask(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }

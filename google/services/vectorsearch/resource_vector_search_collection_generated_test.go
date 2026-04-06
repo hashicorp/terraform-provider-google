@@ -53,8 +53,11 @@ var (
 func TestAccVectorSearchCollection_vectorsearchCollectionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"collection_id": "tf-test-example-collection" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccVectorSearchCollection_vectorsearchCollectionBasicExample(context ma
 	return acctest.Nprintf(`
 resource "google_vector_search_collection" "example-collection" {
   location      = "us-central1"
-  collection_id = "tf-test-example-collection%{random_suffix}"
+  collection_id = "%{collection_id}"
 
   display_name = "My Awesome Collection"
   description  = "This collection stores important data."

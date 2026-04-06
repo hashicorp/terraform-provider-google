@@ -469,6 +469,9 @@ resource "google_ces_toolset" "ces_toolset_mcp_service_agent_id_token_auth_confi
 
   mcp_toolset {
     server_address = "https://api.example.com/mcp/"
+    custom_headers = {
+      "X-Custom-Header" = "$context.variables.my_variable"
+    }
     tls_config {
         ca_certs {
           display_name="example"
@@ -848,6 +851,14 @@ The following arguments are supported:
   The TLS configuration. Includes the custom server certificates that the
   client should trust.
   Structure is [documented below](#nested_mcp_toolset_tls_config).
+
+* `custom_headers` -
+  (Optional)
+  The custom headers to send in the request to the MCP server. The values
+  must be in the format `$context.variables.<name_of_variable>` and can be
+  set in the session variables. See
+  https://docs.cloud.google.com/customer-engagement-ai/conversational-agents/ps/tool/open-api#openapi-injection
+  for more details.
 
 
 <a name="nested_mcp_toolset_api_authentication"></a>The `api_authentication` block supports:

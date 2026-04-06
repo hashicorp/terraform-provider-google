@@ -53,8 +53,12 @@ var (
 func TestAccNetworkSecurityGatewaySecurityPolicyRule_networkSecurityGatewaySecurityPolicyRulesBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"gateway_security_policy_id": "tf-test-my-gateway-security-policy" + randomSuffix,
+		"resource_name":              "tf-test-my-gateway-security-policy-rule" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +82,13 @@ func TestAccNetworkSecurityGatewaySecurityPolicyRule_networkSecurityGatewaySecur
 func testAccNetworkSecurityGatewaySecurityPolicyRule_networkSecurityGatewaySecurityPolicyRulesBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_gateway_security_policy" "default" {
-  name        = "tf-test-my-gateway-security-policy%{random_suffix}"
+  name        = "%{gateway_security_policy_id}"
   location    = "us-central1"
   description = "gateway security policy created to be used as reference by the rule."
 }
 
 resource "google_network_security_gateway_security_policy_rule" "default" {
-  name                    = "tf-test-my-gateway-security-policy-rule%{random_suffix}"
+  name                    = "%{resource_name}"
   location                = "us-central1"
   gateway_security_policy = google_network_security_gateway_security_policy.default.name
   enabled                 = true  
@@ -99,8 +103,12 @@ resource "google_network_security_gateway_security_policy_rule" "default" {
 func TestAccNetworkSecurityGatewaySecurityPolicyRule_networkSecurityGatewaySecurityPolicyRulesAdvancedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"gateway_security_policy_id": "tf-test-my-gateway-security-policy" + randomSuffix,
+		"resource_name":              "tf-test-my-gateway-security-policy-rule" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -124,13 +132,13 @@ func TestAccNetworkSecurityGatewaySecurityPolicyRule_networkSecurityGatewaySecur
 func testAccNetworkSecurityGatewaySecurityPolicyRule_networkSecurityGatewaySecurityPolicyRulesAdvancedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_gateway_security_policy" "default" {
-  name        = "tf-test-my-gateway-security-policy%{random_suffix}"
+  name        = "%{gateway_security_policy_id}"
   location    = "us-central1"
   description = "gateway security policy created to be used as reference by the rule."
 }
 
 resource "google_network_security_gateway_security_policy_rule" "default" {
-  name                    = "tf-test-my-gateway-security-policy-rule%{random_suffix}"
+  name                    = "%{resource_name}"
   location                = "us-central1"
   gateway_security_policy = google_network_security_gateway_security_policy.default.name
   enabled                 = true  

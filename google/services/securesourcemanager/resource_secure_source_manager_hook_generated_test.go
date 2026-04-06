@@ -53,10 +53,15 @@ var (
 func TestAccSecureSourceManagerHook_secureSourceManagerHookBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"deletion_policy": "DELETE",
+		"hook_id":         "tf-test-my-basic-hook" + randomSuffix,
+		"instance_id":     "tf-test-my-basic-instance" + randomSuffix,
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"repository_id":   "tf-test-my-basic-repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,14 +86,14 @@ func testAccSecureSourceManagerHook_secureSourceManagerHookBasicExample(context 
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
-    instance_id = "tf-test-my-basic-instance%{random_suffix}"
+    instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
     deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "repository" {
-    repository_id = "tf-test-my-basic-repository%{random_suffix}"
+    repository_id = "%{repository_id}"
     location = google_secure_source_manager_instance.instance.location
     instance = google_secure_source_manager_instance.instance.name
 
@@ -97,7 +102,7 @@ resource "google_secure_source_manager_repository" "repository" {
 }
 
 resource "google_secure_source_manager_hook" "basic" {
-    hook_id = "tf-test-my-basic-hook%{random_suffix}"
+    hook_id = "%{hook_id}"
     repository_id = google_secure_source_manager_repository.repository.repository_id
     location = google_secure_source_manager_repository.repository.location
     target_uri = "https://www.example.com"
@@ -110,10 +115,15 @@ resource "google_secure_source_manager_hook" "basic" {
 func TestAccSecureSourceManagerHook_secureSourceManagerHookWithFieldsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"deletion_policy": "DELETE",
+		"hook_id":         "tf-test-my-initial-hook" + randomSuffix,
+		"instance_id":     "tf-test-my-initial-instance" + randomSuffix,
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"repository_id":   "tf-test-my-initial-repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,14 +148,14 @@ func testAccSecureSourceManagerHook_secureSourceManagerHookWithFieldsExample(con
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
-    instance_id = "tf-test-my-initial-instance%{random_suffix}"
+    instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
     deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "repository" {
-    repository_id = "tf-test-my-initial-repository%{random_suffix}"
+    repository_id = "%{repository_id}"
     instance = google_secure_source_manager_instance.instance.name
     location = google_secure_source_manager_instance.instance.location
 
@@ -154,7 +164,7 @@ resource "google_secure_source_manager_repository" "repository" {
 }
 
 resource "google_secure_source_manager_hook" "default" {
-    hook_id = "tf-test-my-initial-hook%{random_suffix}"
+    hook_id = "%{hook_id}"
     location = google_secure_source_manager_repository.repository.location
     repository_id = google_secure_source_manager_repository.repository.repository_id
     target_uri = "https://www.example.com"

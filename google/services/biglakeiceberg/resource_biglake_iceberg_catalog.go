@@ -228,7 +228,7 @@ func resourceBiglakeIcebergIcebergCatalogCreate(d *schema.ResourceData, meta int
 		obj["catalog-type"] = catalogTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}&primary-location={{primary_location}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}&primary_location={{primary_location}}")
 	if err != nil {
 		return err
 	}
@@ -319,6 +319,8 @@ func resourceBiglakeIcebergIcebergCatalogRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BiglakeIcebergIcebergCatalog %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading BiglakeIcebergIcebergCatalog %q: %#v", d.Id(), res)
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading IcebergCatalog: %s", err)

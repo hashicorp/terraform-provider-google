@@ -53,8 +53,13 @@ var (
 func TestAccDiscoveryEngineAssistant_discoveryengineAssistantBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_id": "tf-test-example-data-store-id" + randomSuffix,
+		"engine_id":     "tf-test-example-engine-id" + randomSuffix,
+		"template_id":   "tf-test-example-template-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +84,7 @@ func testAccDiscoveryEngineAssistant_discoveryengineAssistantBasicExample(contex
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "basic" {
   location                      = "global"
-  data_store_id                 = "tf-test-example-data-store-id%{random_suffix}"
+  data_store_id                 = "%{data_store_id}"
   display_name                  = "tf-test-structured-datastore"
   industry_vertical             = "GENERIC"
   content_config                = "NO_CONTENT"
@@ -89,7 +94,7 @@ resource "google_discovery_engine_data_store" "basic" {
 resource "google_discovery_engine_search_engine" "basic" {
   location                      = "global"
   collection_id                 = "default_collection"
-  engine_id                     = "tf-test-example-engine-id%{random_suffix}"
+  engine_id                     = "%{engine_id}"
   display_name                  = "Example Display Name"
   data_store_ids                = [google_discovery_engine_data_store.basic.data_store_id]
   search_engine_config {

@@ -1274,6 +1274,8 @@ func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, me
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeter %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading AccessContextManagerServicePerimeter %q: %#v", d.Id(), res)
+
 	if err := d.Set("title", flattenAccessContextManagerServicePerimeterTitle(res["title"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}

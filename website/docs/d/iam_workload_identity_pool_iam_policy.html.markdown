@@ -23,8 +23,6 @@ description: |-
 # google_iam_workload_identity_pool_iam_policy
 
 Retrieves the current IAM policy data for workloadidentitypool
-~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage

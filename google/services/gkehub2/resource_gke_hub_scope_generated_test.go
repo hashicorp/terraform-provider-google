@@ -53,9 +53,12 @@ var (
 func TestAccGKEHub2Scope_gkehubScopeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-scope" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccGKEHub2Scope_gkehubScopeBasicExample(t *testing.T) {
 func testAccGKEHub2Scope_gkehubScopeBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
-  scope_id = "tf-test-my-scope%{random_suffix}"
+  scope_id = "%{resource_name}"
   namespace_labels = {
       keyb = "valueb"
       keya = "valuea"

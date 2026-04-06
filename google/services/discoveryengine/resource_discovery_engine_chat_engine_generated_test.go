@@ -53,8 +53,13 @@ var (
 func TestAccDiscoveryEngineChatEngine_discoveryengineChatEngineBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_2_id": "tf-test-data-store-2" + randomSuffix,
+		"data_store_id":   "tf-test-data-store" + randomSuffix,
+		"engine_id":       "tf-test-chat-engine-id" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +84,7 @@ func testAccDiscoveryEngineChatEngine_discoveryengineChatEngineBasicExample(cont
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "test_data_store" {
   location                    = "global"
-  data_store_id               = "tf-test-data-store%{random_suffix}"
+  data_store_id               = "%{data_store_id}"
   display_name                = "Structured datastore"
   industry_vertical           = "GENERIC"
   content_config              = "NO_CONTENT"
@@ -88,7 +93,7 @@ resource "google_discovery_engine_data_store" "test_data_store" {
 
 resource "google_discovery_engine_data_store" "test_data_store_2" {
   location                    = google_discovery_engine_data_store.test_data_store.location
-  data_store_id               = "tf-test-data-store-2%{random_suffix}"
+  data_store_id               = "%{data_store_2_id}"
   display_name                = "Structured datastore 2"
   industry_vertical           = "GENERIC"
   content_config              = "NO_CONTENT"
@@ -96,7 +101,7 @@ resource "google_discovery_engine_data_store" "test_data_store_2" {
 }
 
 resource "google_discovery_engine_chat_engine" "primary" {
-  engine_id = "tf-test-chat-engine-id%{random_suffix}"
+  engine_id = "%{engine_id}"
   collection_id = "default_collection"
   location = google_discovery_engine_data_store.test_data_store.location
   display_name = "Chat engine"
@@ -119,8 +124,12 @@ resource "google_discovery_engine_chat_engine" "primary" {
 func TestAccDiscoveryEngineChatEngine_discoveryengineChatEngineExistingDialogflowAgentExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_id": "tf-test-data-store" + randomSuffix,
+		"engine_id":     "tf-test-chat-engine-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -145,7 +154,7 @@ func testAccDiscoveryEngineChatEngine_discoveryengineChatEngineExistingDialogflo
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "test_data_store" {
   location                    = "eu"
-  data_store_id               = "tf-test-data-store%{random_suffix}"
+  data_store_id               = "%{data_store_id}"
   display_name                = "Structured datastore"
   industry_vertical           = "GENERIC"
   content_config              = "NO_CONTENT"
@@ -160,7 +169,7 @@ resource "google_dialogflow_cx_agent" "agent" {
 }
 
 resource "google_discovery_engine_chat_engine" "primary" {
-  engine_id = "tf-test-chat-engine-id%{random_suffix}"
+  engine_id = "%{engine_id}"
   collection_id = "default_collection"
   location = google_discovery_engine_data_store.test_data_store.location
   display_name = "Chat engine"

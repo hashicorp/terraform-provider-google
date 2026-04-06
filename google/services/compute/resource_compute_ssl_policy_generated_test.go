@@ -53,8 +53,13 @@ var (
 func TestAccComputeSslPolicy_sslPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"custom_ssl_policy_name":     "tf-test-custom-ssl-policy" + randomSuffix,
+		"nonprod_ssl_policy_name":    "tf-test-nonprod-ssl-policy" + randomSuffix,
+		"production_ssl_policy_name": "tf-test-production-ssl-policy" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,18 +82,18 @@ func TestAccComputeSslPolicy_sslPolicyBasicExample(t *testing.T) {
 func testAccComputeSslPolicy_sslPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_ssl_policy" "prod-ssl-policy" {
-  name    = "tf-test-production-ssl-policy%{random_suffix}"
+  name    = "%{production_ssl_policy_name}"
   profile = "MODERN"
 }
 
 resource "google_compute_ssl_policy" "nonprod-ssl-policy" {
-  name            = "tf-test-nonprod-ssl-policy%{random_suffix}"
+  name            = "%{nonprod_ssl_policy_name}"
   profile         = "MODERN"
   min_tls_version = "TLS_1_2"
 }
 
 resource "google_compute_ssl_policy" "custom-ssl-policy" {
-  name            = "tf-test-custom-ssl-policy%{random_suffix}"
+  name            = "%{custom_ssl_policy_name}"
   min_tls_version = "TLS_1_2"
   profile         = "CUSTOM"
   custom_features = ["TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"]

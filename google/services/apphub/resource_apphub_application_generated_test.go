@@ -53,10 +53,13 @@ var (
 func TestAccApphubApplication_apphubApplicationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"location":      "us-east1",
-		"scope_type":    "REGIONAL",
-		"random_suffix": acctest.RandString(t, 10),
+		"application_id": "tf-test-example-application" + randomSuffix,
+		"location":       "us-east1",
+		"scope_type":     "REGIONAL",
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +84,7 @@ func testAccApphubApplication_apphubApplicationBasicExample(context map[string]i
 	return acctest.Nprintf(`
 resource "google_apphub_application" "example" {
   location = "%{location}"
-  application_id = "tf-test-example-application%{random_suffix}"
+  application_id = "%{application_id}"
   scope {
     type = "%{scope_type}"
   }
@@ -92,10 +95,13 @@ resource "google_apphub_application" "example" {
 func TestAccApphubApplication_apphubApplicationGlobalBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"location":      "global",
-		"scope_type":    "GLOBAL",
-		"random_suffix": acctest.RandString(t, 10),
+		"application_id": "tf-test-example-application" + randomSuffix,
+		"location":       "global",
+		"scope_type":     "GLOBAL",
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -120,7 +126,7 @@ func testAccApphubApplication_apphubApplicationGlobalBasicExample(context map[st
 	return acctest.Nprintf(`
 resource "google_apphub_application" "example" {
   location = "%{location}"
-  application_id = "tf-test-example-application%{random_suffix}"
+  application_id = "%{application_id}"
   scope {
     type = "%{scope_type}"
   }
@@ -131,8 +137,19 @@ resource "google_apphub_application" "example" {
 func TestAccApphubApplication_apphubApplicationFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"application_id":  "tf-test-example-application" + randomSuffix,
+		"business_email":  "alice@google.com" + randomSuffix,
+		"business_name":   "Alice" + randomSuffix,
+		"desc":            "Application for testing" + randomSuffix,
+		"developer_email": "bob@google.com" + randomSuffix,
+		"developer_name":  "Bob" + randomSuffix,
+		"display_name":    "Application Full" + randomSuffix,
+		"operator_email":  "charlie@google.com" + randomSuffix,
+		"operator_name":   "Charlie" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -157,12 +174,12 @@ func testAccApphubApplication_apphubApplicationFullExample(context map[string]in
 	return acctest.Nprintf(`
 resource "google_apphub_application" "example2" {
   location = "us-east1"
-  application_id = "tf-test-example-application%{random_suffix}"
-  display_name = "Application Full%{random_suffix}"
+  application_id = "%{application_id}"
+  display_name = "%{display_name}"
   scope {
     type = "REGIONAL"
   }
-  description = "Application for testing%{random_suffix}"
+  description = "%{desc}"
   attributes {
     environment {
       type = "STAGING"
@@ -171,16 +188,16 @@ resource "google_apphub_application" "example2" {
       type = "MISSION_CRITICAL"
 		}
 		business_owners {
-		  display_name =  "Alice%{random_suffix}"
-		  email        =  "alice@google.com%{random_suffix}"
+		  display_name =  "%{business_name}"
+		  email        =  "%{business_email}"
 		}
 		developer_owners {
-		  display_name =  "Bob%{random_suffix}"
-		  email        =  "bob@google.com%{random_suffix}"
+		  display_name =  "%{developer_name}"
+		  email        =  "%{developer_email}"
 		}
 		operator_owners {
-		  display_name =  "Charlie%{random_suffix}"
-		  email        =  "charlie@google.com%{random_suffix}"
+		  display_name =  "%{operator_name}"
+		  email        =  "%{operator_email}"
 		}
   }
 }

@@ -116,13 +116,6 @@ func ResourceComputeRegionTargetTcpProxy() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"backend_service": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description:      `A reference to the BackendService resource.`,
-			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -134,6 +127,15 @@ the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
+			},
+			"backend_service": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `A reference to the BackendService resource. This field is optional when
+the loadBalancingScheme (available in beta) is specified.`,
+				AtLeastOneOf: []string{"backend_service"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -330,6 +332,8 @@ func resourceComputeRegionTargetTcpProxyRead(d *schema.ResourceData, meta interf
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRegionTargetTcpProxy %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading ComputeRegionTargetTcpProxy %q: %#v", d.Id(), res)
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)

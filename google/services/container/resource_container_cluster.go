@@ -22,6 +22,7 @@ import (
 	"log"
 	"reflect"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 
@@ -240,6 +241,7 @@ func ResourceContainerCluster() *schema.Resource {
 			customdiff.ForceNewIfChange("enable_l4_ilb_subsetting", isBeenEnabled),
 			customdiff.ForceNewIfChange("enable_fqdn_network_policy", isBeenEnabled),
 			containerClusterAutopilotCustomizeDiff,
+			containerClusterAutopilotPrivilegedAdmissionCustomizeDiff,
 			containerClusterNodeVersionRemoveDefaultCustomizeDiff,
 			containerClusterNetworkPolicyEmptyCustomizeDiff,
 			containerClusterSurgeSettingsCustomizeDiff,
@@ -521,6 +523,12 @@ func ResourceContainerCluster() *schema.Resource {
 										Description: `If set to true, the Lustre CSI driver will initialize LNet (the virtual network layer for Lustre kernel module) using port 6988.
 										This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.`,
 									},
+									"disable_multi_nic": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `When set to true, this disables multi-NIC support for the Lustre CSI driver. By default, GKE enables multi-NIC support, which
+										allows the Lustre CSI driver to automatically detect and configure all suitable network interfaces on a node to maximize I/O performance for demanding workloads.`,
+									},
 								},
 							},
 						},
@@ -704,7 +712,7 @@ func ResourceContainerCluster() *schema.Resource {
 										Default:          "pd-standard",
 										Description:      `Type of the disk attached to each node.`,
 										DiffSuppressFunc: suppressDiffForAutopilot,
-										ValidateFunc:     validation.StringInSlice([]string{"pd-standard", "pd-ssd", "pd-balanced"}, false),
+										ValidateFunc:     validation.StringInSlice([]string{"pd-standard", "pd-ssd", "pd-balanced", "hyperdisk-balanced"}, false),
 									},
 									"image_type": {
 										Type:             schema.TypeString,
@@ -1017,6 +1025,17 @@ func ResourceContainerCluster() *schema.Resource {
 				Description: `Enable NET_ADMIN for this cluster.`,
 			},
 
+			"autopilot_privileged_admission": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: "The customer allowlist Cloud Storage paths for the cluster. These paths are used with the `--autopilot-privileged-admission` flag to authorize privileged workloads in Autopilot clusters. To allow default partner allowlists, set to []. To allow no allowlists, set to [\"\"].",
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.StringMatch(regexp.MustCompile(`^((?:gke|gs)://.+)?$`), "allowlist path must start with either gke:// or gs://"),
+				},
+			},
+
 			"authenticator_groups_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -1172,6 +1191,32 @@ func ResourceContainerCluster() *schema.Resource {
 												},
 											},
 										},
+									},
+								},
+							},
+						},
+						"disruption_budget": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `Cluster disruption intervals for minor version and patch version upgrade`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"minor_version_disruption_interval": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"patch_version_disruption_interval": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"last_minor_version_disruption_time": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"last_disruption_time": {
+										Type:     schema.TypeString,
+										Computed: true,
 									},
 								},
 							},
@@ -2621,6 +2666,18 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	var privilegedAdmissionConfig *container.PrivilegedAdmissionConfig
+	if v, ok := d.GetOk("autopilot_privileged_admission"); ok {
+		allowlistPaths := tpgresource.ConvertStringArr(v.([]interface{}))
+		// CustomizeDiff might cause this field to be set to the fallback
+		// default on first creation, which is bad. We edge case that out.
+		if !slices.Equal(allowlistPaths, []string{"gke://*"}) {
+			privilegedAdmissionConfig = &container.PrivilegedAdmissionConfig{
+				AllowlistPaths: allowlistPaths,
+			}
+		}
+	}
+
 	cluster := &container.Cluster{
 		Name:                        clusterName,
 		InitialNodeCount:            int64(d.Get("initial_node_count").(int)),
@@ -2644,9 +2701,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		Autoscaling:           expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
 		BinaryAuthorization:   expandBinaryAuthorization(d.Get("binary_authorization")),
 		Autopilot: &container.Autopilot{
-			Enabled:              d.Get("enable_autopilot").(bool),
-			WorkloadPolicyConfig: workloadPolicyConfig,
-			ForceSendFields:      []string{"Enabled"},
+			Enabled:                   d.Get("enable_autopilot").(bool),
+			WorkloadPolicyConfig:      workloadPolicyConfig,
+			PrivilegedAdmissionConfig: privilegedAdmissionConfig,
+			ForceSendFields:           []string{"Enabled"},
 		},
 		ReleaseChannel:       expandReleaseChannel(d.Get("release_channel")),
 		GkeAutoUpgradeConfig: expandGkeAutoUpgradeConfig(d.Get("gke_auto_upgrade_config")),
@@ -3193,6 +3251,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("binary_authorization", flattenBinaryAuthorization(cluster.BinaryAuthorization)); err != nil {
 		return err
 	}
+	var allowlistPaths []string
 	if autopilot := cluster.Autopilot; autopilot != nil {
 		if err := d.Set("enable_autopilot", autopilot.Enabled); err != nil {
 			return fmt.Errorf("Error setting enable_autopilot: %s", err)
@@ -3202,6 +3261,14 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 				return fmt.Errorf("Error setting allow_net_admin: %s", err)
 			}
 		}
+		if autopilot.PrivilegedAdmissionConfig != nil && len(autopilot.PrivilegedAdmissionConfig.AllowlistPaths) > 0 {
+			allowlistPaths = autopilot.PrivilegedAdmissionConfig.AllowlistPaths
+		}
+	}
+	// Always set autopilot_privileged_admission due to it being a computed
+	// field. Otherwise, normal cluster creation will always cause a diff.
+	if err := d.Set("autopilot_privileged_admission", allowlistPaths); err != nil {
+		return fmt.Errorf("Error setting autopilot_privileged_admission: %w", err)
 	}
 	if cluster.ShieldedNodes != nil {
 		if err := d.Set("enable_shielded_nodes", cluster.ShieldedNodes.Enabled); err != nil {
@@ -3566,6 +3633,31 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s's autopilot workload policy config allow_net_admin has been set to %v", d.Id(), allowed)
+	}
+
+	if d.HasChange("autopilot_privileged_admission") {
+		v := d.Get("autopilot_privileged_admission")
+
+		allowlistPaths := tpgresource.ConvertStringArr(v.([]interface{}))
+		if len(allowlistPaths) == 0 {
+			allowlistPaths = []string{"gke://*"}
+		}
+
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredPrivilegedAdmissionConfig: &container.PrivilegedAdmissionConfig{
+					AllowlistPaths: allowlistPaths,
+				},
+			},
+		}
+
+		updateF := updateFunc(req, "updating privileged admission for GKE autopilot workload policy config")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's autopilot privileged admission allowlist has been updated", d.Id())
 	}
 
 	if d.HasChange("binary_authorization") {
@@ -5259,6 +5351,12 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 			ac.LustreCsiDriverConfig.EnableLegacyLustrePort = val.(bool)
 			ac.LustreCsiDriverConfig.ForceSendFields = append(ac.LustreCsiDriverConfig.ForceSendFields, "EnableLegacyLustrePort")
 		}
+
+		// Check for disable_multi_nic
+		if val, ok := lustreConfig["disable_multi_nic"]; ok {
+			ac.LustreCsiDriverConfig.DisableMultiNic = val.(bool)
+			ac.LustreCsiDriverConfig.ForceSendFields = append(ac.LustreCsiDriverConfig.ForceSendFields, "DisableMultiNic")
+		}
 	}
 
 	return ac
@@ -5447,6 +5545,18 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 		}
 	}
 
+	var budget *container.DisruptionBudget
+	if disruptionBudget, ok := maintenancePolicy["disruption_budget"]; ok && len(disruptionBudget.([]interface{})) > 0 {
+		db := disruptionBudget.([]interface{})[0].(map[string]interface{})
+		budget = &container.DisruptionBudget{}
+		if _, ok := db["minor_version_disruption_interval"]; ok {
+			budget.MinorVersionDisruptionInterval = db["minor_version_disruption_interval"].(string)
+		}
+		if _, ok := db["patch_version_disruption_interval"]; ok {
+			budget.PatchVersionDisruptionInterval = db["patch_version_disruption_interval"].(string)
+		}
+	}
+
 	if dailyMaintenanceWindow, ok := maintenancePolicy["daily_maintenance_window"]; ok && len(dailyMaintenanceWindow.([]interface{})) > 0 {
 		dmw := dailyMaintenanceWindow.([]interface{})[0].(map[string]interface{})
 		startTime := dmw["start_time"].(string)
@@ -5457,7 +5567,8 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 					StartTime: startTime,
 				},
 			},
-			ResourceVersion: resourceVersion,
+			DisruptionBudget: budget,
+			ResourceVersion:  resourceVersion,
 		}
 	}
 	if recurringWindow, ok := maintenancePolicy["recurring_window"]; ok && len(recurringWindow.([]interface{})) > 0 {
@@ -5473,7 +5584,8 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 					Recurrence: rw["recurrence"].(string),
 				},
 			},
-			ResourceVersion: resourceVersion,
+			DisruptionBudget: budget,
+			ResourceVersion:  resourceVersion,
 		}
 	}
 	return nil
@@ -5788,7 +5900,7 @@ func expandNotificationConfig(configured interface{}) *container.NotificationCon
 				},
 			}
 
-			if vv, ok := pubsub["filter"]; ok && len(vv.([]interface{})) > 0 {
+			if vv, ok := pubsub["filter"]; ok && len(vv.([]interface{})) > 0 && vv.([]interface{})[0] != nil {
 				filter := vv.([]interface{})[0].(map[string]interface{})
 				eventType := filter["event_type"].([]interface{})
 				nc.Pubsub.Filter = &container.Filter{
@@ -6720,6 +6832,7 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 			{
 				"enabled":                   lustreConfig.Enabled,
 				"enable_legacy_lustre_port": lustreConfig.EnableLegacyLustrePort,
+				"disable_multi_nic":         lustreConfig.DisableMultiNic,
 			},
 		}
 	}
@@ -7031,6 +7144,25 @@ func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]inte
 			exclusions = append(exclusions, exclusion)
 		}
 	}
+	var budget []map[string]interface{}
+	if mp.DisruptionBudget != nil {
+		m := make(map[string]interface{})
+		if mp.DisruptionBudget.MinorVersionDisruptionInterval != "" {
+			m["minor_version_disruption_interval"] = mp.DisruptionBudget.MinorVersionDisruptionInterval
+		}
+		if mp.DisruptionBudget.PatchVersionDisruptionInterval != "" {
+			m["patch_version_disruption_interval"] = mp.DisruptionBudget.PatchVersionDisruptionInterval
+		}
+		if mp.DisruptionBudget.LastMinorVersionDisruptionTime != "" {
+			m["last_minor_version_disruption_time"] = mp.DisruptionBudget.LastMinorVersionDisruptionTime
+		}
+		if mp.DisruptionBudget.LastDisruptionTime != "" {
+			m["last_disruption_time"] = mp.DisruptionBudget.LastDisruptionTime
+		}
+		if len(m) > 0 {
+			budget = append(budget, m)
+		}
+	}
 
 	if mp.Window.DailyMaintenanceWindow != nil {
 		return []map[string]interface{}{
@@ -7042,6 +7174,7 @@ func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]inte
 					},
 				},
 				"maintenance_exclusion": exclusions,
+				"disruption_budget":     budget,
 			},
 		}
 	}
@@ -7056,6 +7189,7 @@ func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]inte
 					},
 				},
 				"maintenance_exclusion": exclusions,
+				"disruption_budget":     budget,
 			},
 		}
 	}
@@ -7698,6 +7832,42 @@ func containerClusterAutopilotCustomizeDiff(_ context.Context, d *schema.Resourc
 	if d.Get("enable_autopilot").(bool) && d.HasChange("dns_config.0.additive_vpc_scope_dns_domain") {
 		return d.ForceNew("dns_config.0.additive_vpc_scope_dns_domain")
 	}
+	return nil
+}
+
+func containerClusterAutopilotPrivilegedAdmissionCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	toStrings := func(val interface{}) []string {
+		if val == nil {
+			return nil
+		}
+		return tpgresource.ConvertStringArr(val.([]interface{}))
+	}
+
+	rawConfig := d.GetRawConfig()
+	if !rawConfig.IsNull() && rawConfig.IsKnown() && rawConfig.Type().HasAttribute("autopilot_privileged_admission") {
+		if rawConfig.GetAttr("autopilot_privileged_admission").IsNull() {
+			old, _ := d.GetChange("autopilot_privileged_admission")
+			oldStrs := toStrings(old)
+
+			// Defaulting only needed if the cluster field was not empty.
+			if len(oldStrs) > 0 {
+				if err := d.SetNew("autopilot_privileged_admission", []string{"gke://*"}); err != nil {
+					return fmt.Errorf("Error setting autopilot_privileged_admission: %s", err)
+				}
+			}
+
+			return nil
+		}
+	}
+
+	new := d.Get("autopilot_privileged_admission")
+	newStrs := toStrings(new)
+	if len(newStrs) == 0 || slices.Equal(newStrs, []string{"gke://*"}) {
+		if err := d.SetNew("autopilot_privileged_admission", []string{"gke://*"}); err != nil {
+			return fmt.Errorf("Error setting autopilot_privileged_admission: %s", err)
+		}
+	}
+
 	return nil
 }
 

@@ -283,6 +283,8 @@ func resourceHealthcareConsentStoreRead(d *schema.ResourceData, meta interface{}
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("HealthcareConsentStore %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading HealthcareConsentStore %q: %#v", d.Id(), res)
+
 	if err := d.Set("default_consent_ttl", flattenHealthcareConsentStoreDefaultConsentTtl(res["defaultConsentTtl"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ConsentStore: %s", err)
 	}

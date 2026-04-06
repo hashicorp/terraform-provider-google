@@ -26,8 +26,12 @@ import (
 func TestAccBigqueryDatapolicyDataPolicy_bigqueryDatapolicyDataPolicyUpdate(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_policy_id": "tf_test_data_policy" + randomSuffix,
+		"taxonomy":       "taxonomy" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -54,8 +58,13 @@ func TestAccBigqueryDatapolicyDataPolicy_bigqueryDatapolicyDataPolicyUpdate(t *t
 func TestAccBigqueryDatapolicyDataPolicy_bigqueryDatapolicyDataPolicyRoutineUpdate(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_policy_id": "tf_test_data_policy" + randomSuffix,
+		"dataset_id":     "tf_test_dataset_id" + randomSuffix,
+		"taxonomy":       "taxonomy" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -83,7 +92,7 @@ func testAccBigqueryDatapolicyDataPolicy_bigqueryDatapolicyDataPolicyUpdate(cont
 	return acctest.Nprintf(`
 resource "google_bigquery_datapolicy_data_policy" "data_policy" {
     location         = "us-central1"
-    data_policy_id   = "tf_test_data_policy%{random_suffix}"
+    data_policy_id   = "%{data_policy_id}"
     policy_tag       = google_data_catalog_policy_tag.policy_tag_updated.name
     data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
   }
@@ -112,7 +121,7 @@ resource "google_bigquery_datapolicy_data_policy" "data_policy" {
 
   resource "google_data_catalog_taxonomy" "taxonomy" {
     region                 = "us-central1"
-    display_name           = "taxonomy%{random_suffix}"
+    display_name           = "%{taxonomy}"
     description            = "A collection of policy tags"
     activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
   }
@@ -123,7 +132,7 @@ func testAccBigqueryDatapolicyDataPolicy_bigqueryDatapolicyDataPolicyRoutineUpda
 	return acctest.Nprintf(`
 resource "google_bigquery_datapolicy_data_policy" "data_policy" {
   location         = "us-central1"
-  data_policy_id   = "tf_test_data_policy%{random_suffix}"
+  data_policy_id   = "%{data_policy_id}"
   policy_tag       = google_data_catalog_policy_tag.policy_tag.name
   data_policy_type = "DATA_MASKING_POLICY"  
   data_masking_policy {
@@ -139,15 +148,16 @@ resource "google_data_catalog_policy_tag" "policy_tag" {
   
 resource "google_data_catalog_taxonomy" "taxonomy" {
   region                 = "us-central1"
-  display_name           = "taxonomy%{random_suffix}"
+  display_name           = "%{taxonomy}"
   description            = "A collection of policy tags"
   activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
 }
 
 resource "google_bigquery_dataset" "test" {
-  dataset_id = "tf_test_dataset_id%{random_suffix}"
+  dataset_id = "%{dataset_id}"
   location   = "us-central1"
 }
+
 
 resource "google_bigquery_routine" "custom_masking_routine" {
 	dataset_id           = google_bigquery_dataset.test.dataset_id

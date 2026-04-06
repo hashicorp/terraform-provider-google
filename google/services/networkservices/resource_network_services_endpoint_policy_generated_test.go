@@ -53,8 +53,11 @@ var (
 func TestAccNetworkServicesEndpointPolicy_networkServicesEndpointPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-endpoint-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetworkServicesEndpointPolicy_networkServicesEndpointPolicyBasicExam
 func testAccNetworkServicesEndpointPolicy_networkServicesEndpointPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_endpoint_policy" "default" {
-  name                   = "tf-test-my-endpoint-policy%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }
@@ -104,8 +107,11 @@ resource "google_network_services_endpoint_policy" "default" {
 func TestAccNetworkServicesEndpointPolicy_networkServicesEndpointPolicyEmptyMatchExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-endpoint-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -129,7 +135,7 @@ func TestAccNetworkServicesEndpointPolicy_networkServicesEndpointPolicyEmptyMatc
 func testAccNetworkServicesEndpointPolicy_networkServicesEndpointPolicyEmptyMatchExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_endpoint_policy" "default" {
-  name                   = "tf-test-my-endpoint-policy%{random_suffix}"
+  name                   = "%{resource_name}"
   labels                 = {
     foo = "bar"
   }

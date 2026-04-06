@@ -53,8 +53,11 @@ var (
 func TestAccDialogflowCXPlaybook_dialogflowcxPlaybookBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent-basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccDialogflowCXPlaybook_dialogflowcxPlaybookBasicExample(t *testing.T) 
 func testAccDialogflowCXPlaybook_dialogflowcxPlaybookBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name          = "tf-test-dialogflowcx-agent-basic%{random_suffix}"
+  display_name          = "%{agent_name}"
   location              = "global"
   default_language_code = "en"
   time_zone             = "America/New_York"
@@ -127,8 +130,12 @@ resource "google_dialogflow_cx_playbook" "my-playbook" {
 func TestAccDialogflowCXPlaybook_dialogflowcxPlaybookFulfillmentExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"bucket_name":   "tf-test-dialogflowcx-bucket" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -152,7 +159,7 @@ func TestAccDialogflowCXPlaybook_dialogflowcxPlaybookFulfillmentExample(t *testi
 func testAccDialogflowCXPlaybook_dialogflowcxPlaybookFulfillmentExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name          = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name          = "%{agent_name}"
   location              = "global"
   default_language_code = "en"
   time_zone             = "America/New_York"
@@ -160,7 +167,7 @@ resource "google_dialogflow_cx_agent" "agent" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name                        = "tf-test-dialogflowcx-bucket%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "US"
   uniform_bucket_level_access = true
 }

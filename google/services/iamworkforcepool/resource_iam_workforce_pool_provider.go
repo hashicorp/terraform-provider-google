@@ -241,6 +241,11 @@ Example: '{ "name": "wrench", "mass": "1.3kg", "count": "3" }'.`,
 				Optional:    true,
 				Description: `A user-specified description of the provider. Cannot exceed 256 characters.`,
 			},
+			"detailed_audit_logging": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If true, populates additional debug information in Cloud Audit Logs for this provider. Logged attribute mappings and values can be found in 'sts.googleapis.com' data access logs. Default value is false.`,
+			},
 			"disabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -698,6 +703,12 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("scim_usage"); !tpgresource.IsEmptyValue(reflect.ValueOf(scimUsageProp)) && (ok || !reflect.DeepEqual(v, scimUsageProp)) {
 		obj["scimUsage"] = scimUsageProp
 	}
+	detailedAuditLoggingProp, err := expandIAMWorkforcePoolWorkforcePoolProviderDetailedAuditLogging(d.Get("detailed_audit_logging"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("detailed_audit_logging"); !tpgresource.IsEmptyValue(reflect.ValueOf(detailedAuditLoggingProp)) && (ok || !reflect.DeepEqual(v, detailedAuditLoggingProp)) {
+		obj["detailedAuditLogging"] = detailedAuditLoggingProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers?workforcePoolProviderId={{provider_id}}")
 	if err != nil {
@@ -828,6 +839,8 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderRead(d *schema.ResourceData, m
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IAMWorkforcePoolWorkforcePoolProvider %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IAMWorkforcePoolWorkforcePoolProvider %q: %#v", d.Id(), res)
+
 	res, err = resourceIAMWorkforcePoolWorkforcePoolProviderDecoder(d, meta, res)
 	if err != nil {
 		return err
@@ -874,6 +887,9 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading WorkforcePoolProvider: %s", err)
 	}
 	if err := d.Set("scim_usage", flattenIAMWorkforcePoolWorkforcePoolProviderScimUsage(res["scimUsage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProvider: %s", err)
+	}
+	if err := d.Set("detailed_audit_logging", flattenIAMWorkforcePoolWorkforcePoolProviderDetailedAuditLogging(res["detailedAuditLogging"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WorkforcePoolProvider: %s", err)
 	}
 
@@ -950,6 +966,12 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("scim_usage"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scimUsageProp)) {
 		obj["scimUsage"] = scimUsageProp
 	}
+	detailedAuditLoggingProp, err := expandIAMWorkforcePoolWorkforcePoolProviderDetailedAuditLogging(d.Get("detailed_audit_logging"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("detailed_audit_logging"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, detailedAuditLoggingProp)) {
+		obj["detailedAuditLogging"] = detailedAuditLoggingProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
 	if err != nil {
@@ -998,6 +1020,10 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 
 	if d.HasChange("scim_usage") {
 		updateMask = append(updateMask, "scimUsage")
+	}
+
+	if d.HasChange("detailed_audit_logging") {
+		updateMask = append(updateMask, "detailedAuditLogging")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1454,6 +1480,10 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderExtendedAttributesOauth2ClientQ
 }
 
 func flattenIAMWorkforcePoolWorkforcePoolProviderScimUsage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAMWorkforcePoolWorkforcePoolProviderDetailedAuditLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1974,6 +2004,10 @@ func expandIAMWorkforcePoolWorkforcePoolProviderExtendedAttributesOauth2ClientQu
 }
 
 func expandIAMWorkforcePoolWorkforcePoolProviderScimUsage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderDetailedAuditLogging(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

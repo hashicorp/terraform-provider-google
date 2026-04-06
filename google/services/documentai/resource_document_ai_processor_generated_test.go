@@ -53,8 +53,11 @@ var (
 func TestAccDocumentAIProcessor_documentaiProcessorExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"processor_name": "tf-test-test-processor" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccDocumentAIProcessor_documentaiProcessorExample(context map[string]in
 	return acctest.Nprintf(`
 resource "google_document_ai_processor" "processor" {
   location = "us"
-  display_name = "tf-test-test-processor%{random_suffix}"
+  display_name = "%{processor_name}"
   type = "OCR_PROCESSOR"
 }
 `, context)
@@ -88,8 +91,11 @@ resource "google_document_ai_processor" "processor" {
 func TestAccDocumentAIProcessor_documentaiProcessorEuExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"processor_name": "tf-test-test-processor" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -114,7 +120,7 @@ func testAccDocumentAIProcessor_documentaiProcessorEuExample(context map[string]
 	return acctest.Nprintf(`
 resource "google_document_ai_processor" "processor" {
   location = "eu"
-  display_name = "tf-test-test-processor%{random_suffix}"
+  display_name = "%{processor_name}"
   type = "OCR_PROCESSOR"
 }
 `, context)

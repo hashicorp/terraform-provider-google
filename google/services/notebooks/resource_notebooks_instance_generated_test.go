@@ -53,8 +53,11 @@ var (
 func TestAccNotebooksInstance_notebookInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-notebooks-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicExample(t *testing.T) {
 func testAccNotebooksInstance_notebookInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
-  name = "tf-test-notebooks-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
@@ -93,8 +96,11 @@ func TestAccNotebooksInstance_notebookInstanceBasicStoppedExample(t *testing.T) 
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/17593#issuecomment-2888583933")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-notebooks-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -118,7 +124,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicStoppedExample(t *testing.T) 
 func testAccNotebooksInstance_notebookInstanceBasicStoppedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
-  name = "tf-test-notebooks-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
@@ -133,8 +139,11 @@ resource "google_notebooks_instance" "instance" {
 func TestAccNotebooksInstance_notebookInstanceBasicContainerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-notebooks-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -158,7 +167,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicContainerExample(t *testing.T
 func testAccNotebooksInstance_notebookInstanceBasicContainerExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
-  name = "tf-test-notebooks-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-west1-a"
   machine_type = "e2-medium"
   metadata = {
@@ -176,8 +185,11 @@ resource "google_notebooks_instance" "instance" {
 func TestAccNotebooksInstance_notebookInstanceBasicGpuExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-notebooks-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -201,7 +213,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicGpuExample(t *testing.T) {
 func testAccNotebooksInstance_notebookInstanceBasicGpuExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
-  name = "tf-test-notebooks-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-west1-a"
   machine_type = "n1-standard-1" // can't be e2 because of accelerator
 
@@ -221,10 +233,13 @@ resource "google_notebooks_instance" "instance" {
 func TestAccNotebooksInstance_notebookInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
+		"instance_name":   "tf-test-notebooks-instance" + randomSuffix,
 		"key_name":        acctest.BootstrapKMSKeyInLocation(t, "global").CryptoKey.Name,
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -248,7 +263,7 @@ func TestAccNotebooksInstance_notebookInstanceFullExample(t *testing.T) {
 func testAccNotebooksInstance_notebookInstanceFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
-  name = "tf-test-notebooks-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-central1-a"
   machine_type = "e2-medium"
 

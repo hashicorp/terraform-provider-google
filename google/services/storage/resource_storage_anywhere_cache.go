@@ -322,6 +322,8 @@ func resourceStorageAnywhereCacheRead(d *schema.ResourceData, meta interface{}) 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("StorageAnywhereCache %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading StorageAnywhereCache %q: %#v", d.Id(), res)
+
 	if err := d.Set("zone", flattenStorageAnywhereCacheZone(res["zone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AnywhereCache: %s", err)
 	}

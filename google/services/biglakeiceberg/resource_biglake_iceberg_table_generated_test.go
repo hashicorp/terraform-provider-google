@@ -53,8 +53,13 @@ var (
 func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":   "tf-test-my-bucket" + randomSuffix,
+		"namespace_id":  "tf_test_my_namespace" + randomSuffix,
+		"table_name":    "tf_test_my_table" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableBasicExample(t *testin
 func testAccBiglakeIcebergIcebergTable_biglakeIcebergTableBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "my-bucket-%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -91,14 +96,14 @@ resource "google_biglake_iceberg_catalog" "catalog" {
 
 resource "google_biglake_iceberg_namespace" "namespace" {
   catalog = google_biglake_iceberg_catalog.catalog.name
-  namespace_id = "my_namespace_%{random_suffix}"
+  namespace_id = "%{namespace_id}"
 }
 
 resource "google_biglake_iceberg_table" "my_iceberg_table" {
   catalog   = google_biglake_iceberg_catalog.catalog.name
   namespace = google_biglake_iceberg_namespace.namespace.namespace_id
-  name      = "my_table_%{random_suffix}"
-  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/my_table_%{random_suffix}"
+  name      = "%{table_name}"
+  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/%{table_name}"
   schema {
     type = "struct"
     fields {
@@ -131,8 +136,13 @@ func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableUpdateExample(t *testi
 	t.Skip("true")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":   "tf-test-my-bucket" + randomSuffix,
+		"namespace_id":  "tf_test_my_namespace" + randomSuffix,
+		"table_name":    "tf_test_my_table" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -156,7 +166,7 @@ func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableUpdateExample(t *testi
 func testAccBiglakeIcebergIcebergTable_biglakeIcebergTableUpdateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "my-bucket-%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -169,13 +179,13 @@ resource "google_biglake_iceberg_catalog" "catalog" {
 
 resource "google_biglake_iceberg_namespace" "namespace" {
   catalog = google_biglake_iceberg_catalog.catalog.name
-  namespace_id = "my_namespace_%{random_suffix}"
+  namespace_id = "%{namespace_id}"
 }
 
 resource "google_biglake_iceberg_table" "my_iceberg_table" {
   catalog   = google_biglake_iceberg_catalog.catalog.name
   namespace = google_biglake_iceberg_namespace.namespace.namespace_id
-  name      = "my_table_%{random_suffix}"
+  name      = "%{table_name}"
   schema {
     type = "struct"
     fields {

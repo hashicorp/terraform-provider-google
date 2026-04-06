@@ -53,8 +53,11 @@ var (
 func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sec_policy_name": "tf-test-my-sec-policy-basic" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyBasicExample(t *test
 func testAccComputeRegionSecurityPolicy_regionSecurityPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_security_policy" "region-sec-policy-basic" {
-  name        = "tf-test-my-sec-policy-basic%{random_suffix}"
+  name        = "%{sec_policy_name}"
   description = "basic region security policy"
   type        = "CLOUD_ARMOR"
 }
@@ -88,8 +91,11 @@ resource "google_compute_region_security_policy" "region-sec-policy-basic" {
 func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyWithDdosProtectionConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sec_policy_name": "tf-test-my-sec-policy-ddos-protection" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -113,7 +119,7 @@ func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyWithDdosProtectionCo
 func testAccComputeRegionSecurityPolicy_regionSecurityPolicyWithDdosProtectionConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_security_policy" "region-sec-policy-ddos-protection" {
-  name        = "tf-test-my-sec-policy-ddos-protection%{random_suffix}"
+  name        = "%{sec_policy_name}"
   description = "with ddos protection config"
   type        = "CLOUD_ARMOR_NETWORK"
 
@@ -127,8 +133,11 @@ resource "google_compute_region_security_policy" "region-sec-policy-ddos-protect
 func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyWithUserDefinedFieldsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sec_policy_name": "tf-test-my-sec-policy-user-defined-fields" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -152,7 +161,7 @@ func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyWithUserDefinedField
 func testAccComputeRegionSecurityPolicy_regionSecurityPolicyWithUserDefinedFieldsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_security_policy" "region-sec-policy-user-defined-fields" {
-  name        = "tf-test-my-sec-policy-user-defined-fields%{random_suffix}"
+  name        = "%{sec_policy_name}"
   description = "with user defined fields"
   type        = "CLOUD_ARMOR_NETWORK"
   user_defined_fields {
@@ -176,8 +185,11 @@ resource "google_compute_region_security_policy" "region-sec-policy-user-defined
 func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyWithRulesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sec_policy_name": "tf-test-my-sec-policy-with-rules" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -201,7 +213,7 @@ func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyWithRulesExample(t *
 func testAccComputeRegionSecurityPolicy_regionSecurityPolicyWithRulesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_security_policy" "region-sec-policy-with-rules" {
-  name        = "tf-test-my-sec-policy-with-rules%{random_suffix}"
+  name        = "%{sec_policy_name}"
   description = "basic region security policy with multiple rules"
   type        = "CLOUD_ARMOR"
 

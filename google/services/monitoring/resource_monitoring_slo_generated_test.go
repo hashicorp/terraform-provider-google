@@ -53,8 +53,11 @@ var (
 func TestAccMonitoringSlo_monitoringSloAppengineExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"slo_id":        "tf-test-ae-slo" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +87,7 @@ data "google_monitoring_app_engine_service" "default" {
 resource "google_monitoring_slo" "appeng_slo" {
   service = data.google_monitoring_app_engine_service.default.service_id
 
-  slo_id = "tf-test-ae-slo%{random_suffix}"
+  slo_id = "%{slo_id}"
   display_name = "Terraform Test SLO for App Engine"
 
   goal = 0.9
@@ -107,9 +110,13 @@ resource "google_monitoring_slo" "appeng_slo" {
 func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"service_id":    "tf-test-custom-srv-request-slos" + randomSuffix,
+		"slo_id":        "tf-test-consumed-api-slo" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -133,13 +140,13 @@ func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
 func testAccMonitoringSlo_monitoringSloRequestBasedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
-  service_id = "tf-test-custom-srv-request-slos%{random_suffix}"
+  service_id = "%{service_id}"
   display_name = "My Custom Service"
 }
 
 resource "google_monitoring_slo" "request_based_slo" {
   service = google_monitoring_custom_service.customsrv.service_id
-  slo_id = "tf-test-consumed-api-slo%{random_suffix}"
+  slo_id = "%{slo_id}"
   display_name = "Terraform Test SLO with request based SLI (good total ratio)"
 
   goal = 0.9
@@ -160,8 +167,12 @@ resource "google_monitoring_slo" "request_based_slo" {
 func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"service_id":    "tf-test-custom-srv-windows-slos" + randomSuffix,
+		"slo_id":        "tf-test-good-bad-metric-filter" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -185,7 +196,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t 
 func testAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
-  service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
+  service_id = "%{service_id}"
   display_name = "My Custom Service"
 }
 
@@ -210,8 +221,12 @@ resource "google_monitoring_slo" "windows_based" {
 func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"service_id":    "tf-test-custom-srv-windows-slos" + randomSuffix,
+		"slo_id":        "tf-test-metric-mean-range" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -235,7 +250,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.
 func testAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
-  service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
+  service_id = "%{service_id}"
   display_name = "My Custom Service"
 }
 
@@ -266,8 +281,12 @@ resource "google_monitoring_slo" "windows_based" {
 func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"service_id":    "tf-test-custom-srv-windows-slos" + randomSuffix,
+		"slo_id":        "tf-test-metric-sum-range" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -291,7 +310,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T
 func testAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
-  service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
+  service_id = "%{service_id}"
   display_name = "My Custom Service"
 }
 
@@ -322,8 +341,12 @@ resource "google_monitoring_slo" "windows_based" {
 func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"service_id":    "tf-test-custom-srv-windows-slos" + randomSuffix,
+		"slo_id":        "tf-test-ratio-threshold" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -347,7 +370,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *test
 func testAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
-  service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
+  service_id = "%{service_id}"
   display_name = "My Custom Service"
 }
 

@@ -1,0 +1,13 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_bigquery_reservation_group
+generation_type: mmv1
+source_file: products/bigqueryreservation/ReservationGroup.yaml
+api_service_name: bigqueryreservation.googleapis.com
+api_version: v1
+api_resource_type_kind: ReservationGroup
+fields:
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true

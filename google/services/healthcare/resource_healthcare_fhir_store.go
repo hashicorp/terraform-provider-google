@@ -608,6 +608,8 @@ func resourceHealthcareFhirStoreRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("HealthcareFhirStore %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading HealthcareFhirStore %q: %#v", d.Id(), res)
+
 	res, err = resourceHealthcareFhirStoreDecoder(d, meta, res)
 	if err != nil {
 		return err

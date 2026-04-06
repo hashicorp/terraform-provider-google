@@ -53,8 +53,11 @@ var (
 func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf_test_my_iceberg_catalog" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogExample(t *testing
 func testAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket_for_my_iceberg_catalog" {
-  name          = "tf_test_my_iceberg_catalog%{random_suffix}"
+  name          = "%{name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -107,8 +110,11 @@ resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
 func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogPrimaryLocationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf_test_my_iceberg_catalog" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -132,7 +138,7 @@ func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogPrimaryLocationExa
 func testAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogPrimaryLocationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket_for_my_iceberg_catalog" {
-  name          = "tf_test_my_iceberg_catalog%{random_suffix}"
+  name          = "%{name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true

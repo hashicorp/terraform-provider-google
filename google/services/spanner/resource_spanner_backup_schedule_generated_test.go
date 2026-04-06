@@ -53,9 +53,14 @@ var (
 func TestAccSpannerBackupSchedule_spannerBackupScheduleDailyFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"database_name":       "tf-test-database-id" + randomSuffix,
 		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"instance_name":       "tf-test-instance-id" + randomSuffix,
+		"name":                "tf-test-backup-schedule-id" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +84,7 @@ func TestAccSpannerBackupSchedule_spannerBackupScheduleDailyFullExample(t *testi
 func testAccSpannerBackupSchedule_spannerBackupScheduleDailyFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_spanner_instance" "main" {
-  name         = "tf-test-instance-id%{random_suffix}"
+  name         = "%{instance_name}"
   config       = "regional-europe-west1"
   display_name = "main-instance"
   num_nodes    = 1
@@ -87,7 +92,7 @@ resource "google_spanner_instance" "main" {
 
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.main.name
-  name     = "tf-test-database-id%{random_suffix}"
+  name     = "%{database_name}"
   version_retention_period = "3d"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
@@ -101,7 +106,7 @@ resource "google_spanner_backup_schedule" "full-backup" {
 
   database = google_spanner_database.database.name
 
-  name = "tf-test-backup-schedule-id%{random_suffix}"
+  name = "%{name}"
 
   retention_duration = "31620000s" // 366 days (maximum possible retention)
 
@@ -128,9 +133,14 @@ resource "google_spanner_backup_schedule" "full-backup" {
 func TestAccSpannerBackupSchedule_spannerBackupScheduleDailyIncrementalExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"database_name":       "tf-test-database-id" + randomSuffix,
 		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"instance_name":       "tf-test-instance-id" + randomSuffix,
+		"name":                "tf-test-backup-schedule-id" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -154,7 +164,7 @@ func TestAccSpannerBackupSchedule_spannerBackupScheduleDailyIncrementalExample(t
 func testAccSpannerBackupSchedule_spannerBackupScheduleDailyIncrementalExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_spanner_instance" "main" {
-  name         = "tf-test-instance-id%{random_suffix}"
+  name         = "%{instance_name}"
   config       = "regional-europe-west1"
   display_name = "main-instance"
   num_nodes    = 1
@@ -163,7 +173,7 @@ resource "google_spanner_instance" "main" {
 
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.main.name
-  name     = "tf-test-database-id%{random_suffix}"
+  name     = "%{database_name}"
   version_retention_period = "3d"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
@@ -177,7 +187,7 @@ resource "google_spanner_backup_schedule" "incremental-backup" {
 
   database = google_spanner_database.database.name
 
-  name = "tf-test-backup-schedule-id%{random_suffix}"
+  name = "%{name}"
   
   retention_duration = "31620000s" // 366 days (maximum possible retention)
 

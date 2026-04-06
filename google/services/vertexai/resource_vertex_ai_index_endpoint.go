@@ -432,6 +432,8 @@ func resourceVertexAIIndexEndpointRead(d *schema.ResourceData, meta interface{})
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VertexAIIndexEndpoint %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading VertexAIIndexEndpoint %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading IndexEndpoint: %s", err)
 	}

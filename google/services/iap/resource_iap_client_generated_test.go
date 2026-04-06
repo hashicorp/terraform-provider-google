@@ -53,10 +53,13 @@ var (
 func TestAccIapClient_iapClientExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":    "tf-test-my-project" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,8 +83,8 @@ func TestAccIapClient_iapClientExample(t *testing.T) {
 func testAccIapClient_iapClientExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "project" {
-  project_id = "tf-test-my-project%{random_suffix}"
-  name       = "tf-test-my-project%{random_suffix}"
+  project_id = "%{project_id}"
+  name       = "%{project_id}"
   org_id     = "%{org_id}"
   deletion_policy = "DELETE"
 }

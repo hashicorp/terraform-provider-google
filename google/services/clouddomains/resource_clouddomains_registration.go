@@ -905,6 +905,8 @@ func resourceClouddomainsRegistrationRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ClouddomainsRegistration %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ClouddomainsRegistration %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Registration: %s", err)
 	}

@@ -676,6 +676,8 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigQueryDatasetAccess %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading BigQueryDatasetAccess %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedBigQueryDatasetAccess(d, meta, res)
 	if err != nil {
 		return err

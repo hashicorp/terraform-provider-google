@@ -53,8 +53,12 @@ var (
 func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"job_name":      "tf-test-test-job" + randomSuffix,
+		"topic_name":    "tf-test-job-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,11 +82,11 @@ func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobPubsubExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "topic" {
-  name = "tf-test-job-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name        = "tf-test-test-job%{random_suffix}"
+  name        = "%{job_name}"
   description = "test job"
   schedule    = "*/2 * * * *"
 
@@ -98,8 +102,11 @@ resource "google_cloud_scheduler_job" "job" {
 func TestAccCloudSchedulerJob_schedulerJobHttpExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"job_name":      "tf-test-test-job" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -123,7 +130,7 @@ func TestAccCloudSchedulerJob_schedulerJobHttpExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobHttpExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
-  name             = "tf-test-test-job%{random_suffix}"
+  name             = "%{job_name}"
   description      = "test http job"
   schedule         = "*/8 * * * *"
   time_zone        = "America/New_York"
@@ -148,8 +155,11 @@ resource "google_cloud_scheduler_job" "job" {
 func TestAccCloudSchedulerJob_schedulerJobPausedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"job_name":      "tf-test-test-job" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -174,7 +184,7 @@ func testAccCloudSchedulerJob_schedulerJobPausedExample(context map[string]inter
 	return acctest.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   paused           = true
-  name             = "tf-test-test-job%{random_suffix}"
+  name             = "%{job_name}"
   description      = "test http job with updated fields"
   schedule         = "*/8 * * * *"
   time_zone        = "America/New_York"
@@ -199,8 +209,11 @@ resource "google_cloud_scheduler_job" "job" {
 func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"job_name":      "tf-test-test-job" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -224,7 +237,7 @@ func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobAppEngineExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
-  name             = "tf-test-test-job%{random_suffix}"
+  name             = "%{job_name}"
   schedule         = "*/4 * * * *"
   description      = "test app engine job"
   time_zone        = "Europe/London"
@@ -255,10 +268,13 @@ resource "google_cloud_scheduler_job" "job" {
 func TestAccCloudSchedulerJob_schedulerJobOauthExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"region":        envvar.GetTestRegionFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"job_name":      "tf-test-test-job" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -285,7 +301,7 @@ data "google_compute_default_service_account" "default" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name             = "tf-test-test-job%{random_suffix}"
+  name             = "%{job_name}"
   description      = "test http job"
   schedule         = "*/8 * * * *"
   time_zone        = "America/New_York"
@@ -306,8 +322,11 @@ resource "google_cloud_scheduler_job" "job" {
 func TestAccCloudSchedulerJob_schedulerJobOidcExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"job_name":      "tf-test-test-job" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -334,7 +353,7 @@ data "google_compute_default_service_account" "default" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name             = "tf-test-test-job%{random_suffix}"
+  name             = "%{job_name}"
   description      = "test http job"
   schedule         = "*/8 * * * *"
   time_zone        = "America/New_York"

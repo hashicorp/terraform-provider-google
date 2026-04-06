@@ -269,6 +269,8 @@ func resourceKMSKeyHandleRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("KMSKeyHandle %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading KMSKeyHandle %q: %#v", d.Id(), res)
+
 	res, err = resourceKMSKeyHandleDecoder(d, meta, res)
 	if err != nil {
 		return err

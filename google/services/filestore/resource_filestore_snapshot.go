@@ -322,6 +322,8 @@ func resourceFilestoreSnapshotRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("FilestoreSnapshot %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading FilestoreSnapshot %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}

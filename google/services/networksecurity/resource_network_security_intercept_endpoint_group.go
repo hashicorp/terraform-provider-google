@@ -426,6 +426,8 @@ func resourceNetworkSecurityInterceptEndpointGroupRead(d *schema.ResourceData, m
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkSecurityInterceptEndpointGroup %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkSecurityInterceptEndpointGroup %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading InterceptEndpointGroup: %s", err)
 	}

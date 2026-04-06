@@ -53,8 +53,15 @@ var (
 func TestAccCertificateManagerCertificateMapEntry_certificateManagerCertificateMapEntryFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cert_map_entry_name": "tf-test-cert-map-entry" + randomSuffix,
+		"dns_auth_name":       "tf-test-dns-auth" + randomSuffix,
+		"dns_auth_name2":      "tf-test-dns-auth2" + randomSuffix,
+		"dns_auth_subdomain":  "subdomain" + randomSuffix,
+		"dns_auth_subdomain2": "subdomain2" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +85,7 @@ func TestAccCertificateManagerCertificateMapEntry_certificateManagerCertificateM
 func testAccCertificateManagerCertificateMapEntry_certificateManagerCertificateMapEntryFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate_map" "certificate_map" {
-  name        = "tf-test-cert-map-entry%{random_suffix}"
+  name        = "%{cert_map_entry_name}"
   description = "My acceptance test certificate map"
    labels      = {
     "terraform" : true,
@@ -87,7 +94,7 @@ resource "google_certificate_manager_certificate_map" "certificate_map" {
 }
 
 resource "google_certificate_manager_certificate_map_entry" "default" {
-  name        = "tf-test-cert-map-entry%{random_suffix}"
+  name        = "%{cert_map_entry_name}"
   description = "My acceptance test certificate map entry"
   map = google_certificate_manager_certificate_map.certificate_map.name 
   labels      = {
@@ -99,7 +106,7 @@ resource "google_certificate_manager_certificate_map_entry" "default" {
 }
 
 resource "google_certificate_manager_certificate" "certificate" {
-  name        = "tf-test-cert-map-entry%{random_suffix}"
+  name        = "%{cert_map_entry_name}"
   description = "The default cert"
   scope       = "DEFAULT"
   managed {
@@ -116,15 +123,15 @@ resource "google_certificate_manager_certificate" "certificate" {
 
 
 resource "google_certificate_manager_dns_authorization" "instance" {
-  name        = "tf-test-dns-auth%{random_suffix}"
+  name        = "%{dns_auth_name}"
   description = "The default dnss"
-  domain      = "subdomain%{random_suffix}.hashicorptest.com"
+  domain      = "%{dns_auth_subdomain}.hashicorptest.com"
 }
 
 resource "google_certificate_manager_dns_authorization" "instance2" {
-  name        = "tf-test-dns-auth2%{random_suffix}"
+  name        = "%{dns_auth_name2}"
   description = "The default dnss"
-  domain      = "subdomain2%{random_suffix}.hashicorptest.com"
+  domain      = "%{dns_auth_subdomain2}.hashicorptest.com"
 }
 `, context)
 }

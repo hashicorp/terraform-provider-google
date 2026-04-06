@@ -428,6 +428,8 @@ func resourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleRe
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterManagementFolderSecurityHealthAnalyticsCustomModule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityCenterManagementFolderSecurityHealthAnalyticsCustomModule %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
 	}

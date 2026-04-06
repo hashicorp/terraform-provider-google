@@ -53,10 +53,15 @@ var (
 func TestAccIAM2DenyPolicy_iamDenyPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"account_id":      "tf-test-svc-acc" + randomSuffix,
+		"policy_name":     "tf-test-my-deny-policy" + randomSuffix,
+		"project_name":    "tf-test-my-project" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,8 +85,8 @@ func TestAccIAM2DenyPolicy_iamDenyPolicyBasicExample(t *testing.T) {
 func testAccIAM2DenyPolicy_iamDenyPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "project" {
-  project_id      = "tf-test-my-project%{random_suffix}"
-  name            = "tf-test-my-project%{random_suffix}"
+  project_id      = "%{project_name}"
+  name            = "%{project_name}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_account}"
   deletion_policy = "DELETE"
@@ -89,7 +94,7 @@ resource "google_project" "project" {
 
 resource "google_iam_deny_policy" "example" {
   parent   = urlencode("cloudresourcemanager.googleapis.com/projects/${google_project.project.project_id}")
-  name     = "tf-test-my-deny-policy%{random_suffix}"
+  name     = "%{policy_name}"
   display_name = "A deny rule"
   rules {
     description = "First rule"
@@ -117,7 +122,7 @@ resource "google_iam_deny_policy" "example" {
 }
 
 resource "google_service_account" "test-account" {
-  account_id   = "tf-test-svc-acc%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Test Service Account"
   project      = google_project.project.project_id
 }

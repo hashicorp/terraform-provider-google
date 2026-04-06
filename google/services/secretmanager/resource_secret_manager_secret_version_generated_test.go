@@ -53,8 +53,12 @@ var (
 func TestAccSecretManagerSecretVersion_secretVersionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data":          "tf-test-secret-data" + randomSuffix,
+		"secret_id":     "tf-test-secret-version" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccSecretManagerSecretVersion_secretVersionBasicExample(t *testing.T) {
 func testAccSecretManagerSecretVersion_secretVersionBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "tf-test-secret-version%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -93,7 +97,7 @@ resource "google_secret_manager_secret" "secret-basic" {
 resource "google_secret_manager_secret_version" "secret-version-basic" {
   secret = google_secret_manager_secret.secret-basic.id
 
-  secret_data = "tf-test-secret-data%{random_suffix}"
+  secret_data = "%{data}"
 }
 `, context)
 }
@@ -101,8 +105,12 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
 func TestAccSecretManagerSecretVersion_secretVersionBasicWriteOnlyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data":          "tf-test-secret-data-write-only" + randomSuffix,
+		"secret_id":     "tf-test-secret-version-write-only" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -126,7 +134,7 @@ func TestAccSecretManagerSecretVersion_secretVersionBasicWriteOnlyExample(t *tes
 func testAccSecretManagerSecretVersion_secretVersionBasicWriteOnlyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic-write-only" {
-  secret_id = "tf-test-secret-version-write-only%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -141,7 +149,7 @@ resource "google_secret_manager_secret" "secret-basic-write-only" {
 resource "google_secret_manager_secret_version" "secret-version-basic-write-only" {
   secret = google_secret_manager_secret.secret-basic-write-only.id
   secret_data_wo_version = 1
-  secret_data_wo = "tf-test-secret-data-write-only%{random_suffix}"
+  secret_data_wo = "%{data}"
 }
 `, context)
 }
@@ -149,8 +157,12 @@ resource "google_secret_manager_secret_version" "secret-version-basic-write-only
 func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyAbandonExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data":          "tf-test-secret-data" + randomSuffix,
+		"secret_id":     "tf-test-secret-version" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -174,7 +186,7 @@ func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyAbandonExample
 func testAccSecretManagerSecretVersion_secretVersionDeletionPolicyAbandonExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "tf-test-secret-version%{random_suffix}"
+  secret_id = "%{secret_id}"
 
   replication {
     user_managed {
@@ -188,7 +200,7 @@ resource "google_secret_manager_secret" "secret-basic" {
 resource "google_secret_manager_secret_version" "secret-version-deletion-policy" {
   secret = google_secret_manager_secret.secret-basic.id
 
-  secret_data = "tf-test-secret-data%{random_suffix}"
+  secret_data = "%{data}"
   deletion_policy = "ABANDON"
 }
 `, context)
@@ -197,8 +209,12 @@ resource "google_secret_manager_secret_version" "secret-version-deletion-policy"
 func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyDisableExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data":          "tf-test-secret-data" + randomSuffix,
+		"secret_id":     "tf-test-secret-version" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -222,7 +238,7 @@ func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyDisableExample
 func testAccSecretManagerSecretVersion_secretVersionDeletionPolicyDisableExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "tf-test-secret-version%{random_suffix}"
+  secret_id = "%{secret_id}"
 
   replication {
     user_managed {
@@ -236,7 +252,7 @@ resource "google_secret_manager_secret" "secret-basic" {
 resource "google_secret_manager_secret_version" "secret-version-deletion-policy" {
   secret = google_secret_manager_secret.secret-basic.id
 
-  secret_data = "tf-test-secret-data%{random_suffix}"
+  secret_data = "%{data}"
   deletion_policy = "DISABLE"
 }
 `, context)
@@ -245,9 +261,12 @@ resource "google_secret_manager_secret_version" "secret-version-deletion-policy"
 func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"data":          "./test-fixtures/binary-file.pfx",
-		"random_suffix": acctest.RandString(t, 10),
+		"secret_id":     "tf-test-secret-version" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -271,7 +290,7 @@ func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataEx
 func testAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "tf-test-secret-version%{random_suffix}"
+  secret_id = "%{secret_id}"
 
   replication {
     user_managed {
@@ -294,9 +313,12 @@ resource "google_secret_manager_secret_version" "secret-version-base64" {
 func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataWriteOnlyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"data":          "./test-fixtures/binary-file.pfx",
-		"random_suffix": acctest.RandString(t, 10),
+		"secret_id":     "tf-test-secret-version-base64-write-only" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -320,7 +342,7 @@ func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataWr
 func testAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataWriteOnlyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "tf-test-secret-version-base64-write-only%{random_suffix}"
+  secret_id = "%{secret_id}"
 
   replication {
     user_managed {

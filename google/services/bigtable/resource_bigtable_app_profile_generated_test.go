@@ -54,9 +54,13 @@ func TestAccBigtableAppProfile_bigtableAppProfileAnyclusterExample(t *testing.T)
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"app_profile_name":    "tf-test-bt-profile" + randomSuffix,
 		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"instance_name":       "tf-test-bt-instance" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +84,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileAnyclusterExample(t *testing.T)
 func testAccBigtableAppProfile_bigtableAppProfileAnyclusterExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigtable_instance" "instance" {
-  name = "tf-test-bt-instance%{random_suffix}"
+  name = "%{instance_name}"
   cluster {
     cluster_id   = "cluster-1"
     zone         = "us-central1-a"
@@ -105,7 +109,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_app_profile" "ap" {
   instance       = google_bigtable_instance.instance.name
-  app_profile_id = "tf-test-bt-profile%{random_suffix}"
+  app_profile_id = "%{app_profile_name}"
 
   // Requests will be routed to any of the 3 clusters.
   multi_cluster_routing_use_any = true
@@ -119,9 +123,13 @@ func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"app_profile_name":    "tf-test-bt-profile" + randomSuffix,
 		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"instance_name":       "tf-test-bt-instance" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -145,7 +153,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing
 func testAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigtable_instance" "instance" {
-  name = "tf-test-bt-instance%{random_suffix}"
+  name = "%{instance_name}"
   cluster {
     cluster_id   = "cluster-1"
     zone         = "us-central1-b"
@@ -158,7 +166,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_app_profile" "ap" {
   instance       = google_bigtable_instance.instance.name
-  app_profile_id = "tf-test-bt-profile%{random_suffix}"
+  app_profile_id = "%{app_profile_name}"
 
   // Requests will be routed to the following cluster.
   single_cluster_routing {
@@ -175,9 +183,13 @@ func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"app_profile_name":    "tf-test-bt-profile" + randomSuffix,
 		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"instance_name":       "tf-test-bt-instance" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -201,7 +213,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.
 func testAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigtable_instance" "instance" {
-  name = "tf-test-bt-instance%{random_suffix}"
+  name = "%{instance_name}"
   cluster {
     cluster_id   = "cluster-1"
     zone         = "us-central1-a"
@@ -226,7 +238,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_app_profile" "ap" {
   instance       = google_bigtable_instance.instance.name
-  app_profile_id = "tf-test-bt-profile%{random_suffix}"
+  app_profile_id = "%{app_profile_name}"
 
   // Requests will be routed to the following 2 clusters.
   multi_cluster_routing_use_any = true
@@ -241,9 +253,13 @@ func TestAccBigtableAppProfile_bigtableAppProfilePriorityExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"app_profile_name":    "tf-test-bt-profile" + randomSuffix,
 		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"instance_name":       "tf-test-bt-instance" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -267,7 +283,7 @@ func TestAccBigtableAppProfile_bigtableAppProfilePriorityExample(t *testing.T) {
 func testAccBigtableAppProfile_bigtableAppProfilePriorityExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigtable_instance" "instance" {
-  name = "tf-test-bt-instance%{random_suffix}"
+  name = "%{instance_name}"
   cluster {
     cluster_id   = "cluster-1"
     zone         = "us-central1-b"
@@ -280,7 +296,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_app_profile" "ap" {
   instance       = google_bigtable_instance.instance.name
-  app_profile_id = "tf-test-bt-profile%{random_suffix}"
+  app_profile_id = "%{app_profile_name}"
 
   // Requests will be routed to the following cluster.
   single_cluster_routing {

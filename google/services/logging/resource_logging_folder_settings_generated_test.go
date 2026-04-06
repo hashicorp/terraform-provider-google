@@ -53,10 +53,13 @@ var (
 func TestAccLoggingFolderSettings_loggingFolderSettingsAllExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"folder_name":   "tf-test-folder-name" + randomSuffix,
 		"key_name":      acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -87,7 +90,7 @@ resource "google_logging_folder_settings" "example" {
 }
 
 resource "google_folder" "my_folder" {
-  display_name = "tf-test-folder-name%{random_suffix}"
+  display_name = "%{folder_name}"
   parent       = "organizations/%{org_id}"
   deletion_protection = false
 }

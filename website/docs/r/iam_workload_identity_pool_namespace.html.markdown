@@ -24,8 +24,6 @@ description: |-
 Represents a namespace for a workload identity pool. Namespaces are used to segment identities
 within the pool.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about WorkloadIdentityPoolNamespace, see:
 
@@ -44,15 +42,11 @@ To get more information about WorkloadIdentityPoolNamespace, see:
 
 ```hcl
 resource "google_iam_workload_identity_pool" "pool" {
-  provider = google-beta
-
   workload_identity_pool_id = "example-pool"
   mode                      = "TRUST_DOMAIN"
 }
 
 resource "google_iam_workload_identity_pool_namespace" "example" {
-  provider = google-beta
-
   workload_identity_pool_id           = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_namespace_id = "example-namespace"
 }
@@ -67,15 +61,11 @@ resource "google_iam_workload_identity_pool_namespace" "example" {
 
 ```hcl
 resource "google_iam_workload_identity_pool" "pool" {
-  provider = google-beta
-
   workload_identity_pool_id = "example-pool"
   mode                      = "TRUST_DOMAIN"
 }
 
 resource "google_iam_workload_identity_pool_namespace" "example" {
-  provider = google-beta
-
   workload_identity_pool_id           = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_namespace_id = "example-namespace"
   description                         = "Example Namespace in a Workload Identity Pool"

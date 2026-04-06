@@ -53,8 +53,11 @@ var (
 func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":  "tf-test-my-address" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 func testAccComputeAddress_addressBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_address" "ip_address" {
-  name = "tf-test-my-address%{random_suffix}"
+  name = "%{address_name}"
 }
 `, context)
 }
@@ -86,8 +89,13 @@ resource "google_compute_address" "ip_address" {
 func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":    "tf-test-my-internal-address" + randomSuffix,
+		"network_name":    "tf-test-my-network" + randomSuffix,
+		"subnetwork_name": "tf-test-my-subnet" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -111,18 +119,18 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 func testAccComputeAddress_addressWithSubnetworkExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name = "tf-test-my-network%{random_suffix}"
+  name = "%{network_name}"
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-my-subnet%{random_suffix}"
+  name          = "%{subnetwork_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.default.id
 }
 
 resource "google_compute_address" "internal_with_subnet_and_address" {
-  name         = "tf-test-my-internal-address%{random_suffix}"
+  name         = "%{address_name}"
   subnetwork   = google_compute_subnetwork.default.id
   address_type = "INTERNAL"
   address      = "10.0.42.42"
@@ -134,8 +142,11 @@ resource "google_compute_address" "internal_with_subnet_and_address" {
 func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":  "tf-test-my-internal-address-" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -159,7 +170,7 @@ func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
 func testAccComputeAddress_addressWithGceEndpointExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_address" "internal_with_gce_endpoint" {
-  name         = "tf-test-my-internal-address-%{random_suffix}"
+  name         = "%{address_name}"
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
 }
@@ -169,8 +180,11 @@ resource "google_compute_address" "internal_with_gce_endpoint" {
 func TestAccComputeAddress_addressWithSharedLoadbalancerVipExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":  "tf-test-my-internal-address" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -194,7 +208,7 @@ func TestAccComputeAddress_addressWithSharedLoadbalancerVipExample(t *testing.T)
 func testAccComputeAddress_addressWithSharedLoadbalancerVipExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_address" "internal_with_shared_loadbalancer_vip" {
-  name         = "tf-test-my-internal-address%{random_suffix}"
+  name         = "%{address_name}"
   address_type = "INTERNAL"
   purpose      = "SHARED_LOADBALANCER_VIP"
 }
@@ -204,8 +218,12 @@ resource "google_compute_address" "internal_with_shared_loadbalancer_vip" {
 func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":  "tf-test-ipv4-address" + randomSuffix,
+		"instance_name": "tf-test-vm-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -229,7 +247,7 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 func testAccComputeAddress_instanceWithIpExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_address" "static" {
-  name = "tf-test-ipv4-address%{random_suffix}"
+  name = "%{address_name}"
 }
 
 data "google_compute_image" "debian_image" {
@@ -238,7 +256,7 @@ data "google_compute_image" "debian_image" {
 }
 
 resource "google_compute_instance" "instance_with_ip" {
-  name         = "tf-test-vm-instance%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "f1-micro"
   zone         = "us-central1-a"
 
@@ -261,8 +279,12 @@ resource "google_compute_instance" "instance_with_ip" {
 func TestAccComputeAddress_computeAddressIpsecInterconnectExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":  "tf-test-test-address" + randomSuffix,
+		"network_name":  "tf-test-test-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -286,7 +308,7 @@ func TestAccComputeAddress_computeAddressIpsecInterconnectExample(t *testing.T) 
 func testAccComputeAddress_computeAddressIpsecInterconnectExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_address" "ipsec-interconnect-address" {
-  name          = "tf-test-test-address%{random_suffix}"
+  name          = "%{address_name}"
   address_type  = "INTERNAL"
   purpose       = "IPSEC_INTERCONNECT"
   address       = "192.168.1.0"
@@ -295,7 +317,7 @@ resource "google_compute_address" "ipsec-interconnect-address" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "tf-test-test-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -304,10 +326,14 @@ resource "google_compute_network" "network" {
 func TestAccComputeAddress_computeAddressEnhancedByoipExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"address_name":    "tf-test-test-address" + randomSuffix,
 		"root_pdp_url":    "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/tf-enhanced-pdp-136-124-3-120-29",
 		"sub_pdp_ip_cidr": fmt.Sprintf("136.124.3.%d/32", 120+acctest.RandIntRange(t, 0, 7)),
-		"random_suffix":   acctest.RandString(t, 10),
+		"sub_pdp_name":    "tf-test-test-sub-pdp" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -331,13 +357,13 @@ func TestAccComputeAddress_computeAddressEnhancedByoipExample(t *testing.T) {
 func testAccComputeAddress_computeAddressEnhancedByoipExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_address" "default" {
-  name             = "tf-test-test-address%{random_suffix}"
+  name             = "%{address_name}"
   region           = "us-central1"
   ip_collection    = google_compute_public_delegated_prefix.sub_pdp.self_link
 }
 
 resource "google_compute_public_delegated_prefix" "sub_pdp" {
-  name             = "tf-test-test-sub-pdp%{random_suffix}"
+  name             = "%{sub_pdp_name}"
   region           = "us-central1"
   ip_cidr_range    = "%{sub_pdp_ip_cidr}"
   parent_prefix    = "%{root_pdp_url}"

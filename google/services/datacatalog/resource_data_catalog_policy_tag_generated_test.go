@@ -53,8 +53,11 @@ var (
 func TestAccDataCatalogPolicyTag_dataCatalogTaxonomiesPolicyTagBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"taxonomy_display_name": "tf_test_taxonomy_display_name" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +87,7 @@ resource "google_data_catalog_policy_tag" "basic_policy_tag" {
 }
 
 resource "google_data_catalog_taxonomy" "my_taxonomy" {
-  display_name =  "tf_test_taxonomy_display_name%{random_suffix}"
+  display_name =  "%{taxonomy_display_name}"
   description = "A collection of policy tags"
   activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
 }
@@ -94,8 +97,11 @@ resource "google_data_catalog_taxonomy" "my_taxonomy" {
 func TestAccDataCatalogPolicyTag_dataCatalogTaxonomiesPolicyTagChildPoliciesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"taxonomy_display_name": "tf_test_taxonomy_display_name" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -141,7 +147,7 @@ resource "google_data_catalog_policy_tag" "child_policy2" {
 }
 
 resource "google_data_catalog_taxonomy" "my_taxonomy" {
-  display_name =  "tf_test_taxonomy_display_name%{random_suffix}"
+  display_name =  "%{taxonomy_display_name}"
   description = "A collection of policy tags"
   activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
 }

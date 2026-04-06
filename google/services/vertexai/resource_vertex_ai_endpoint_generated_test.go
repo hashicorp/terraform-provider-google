@@ -53,8 +53,11 @@ var (
 func TestAccVertexAIEndpoint_vertexAiEndpointPrivateServiceConnectExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-psc-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccVertexAIEndpoint_vertexAiEndpointPrivateServiceConnectExample(t *tes
 func testAccVertexAIEndpoint_vertexAiEndpointPrivateServiceConnectExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name = "tf-test-psc-network%{random_suffix}-%{random_suffix}"
+  name = "%{network_name}-%{random_suffix}"
 }
 
 resource "google_vertex_ai_endpoint" "endpoint" {
@@ -110,8 +113,10 @@ data "google_project" "project" {}
 func TestAccVertexAIEndpoint_vertexAiEndpointDedicatedEndpointExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

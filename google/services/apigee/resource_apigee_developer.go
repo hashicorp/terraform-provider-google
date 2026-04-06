@@ -297,6 +297,8 @@ func resourceApigeeDeveloperRead(d *schema.ResourceData, meta interface{}) error
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeDeveloper %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeDeveloper %q: %#v", d.Id(), res)
+
 	if err := d.Set("email", flattenApigeeDeveloperEmail(res["email"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Developer: %s", err)
 	}

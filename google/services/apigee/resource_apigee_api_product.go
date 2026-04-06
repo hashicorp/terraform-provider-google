@@ -123,7 +123,7 @@ func ResourceApigeeApiProduct() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateRegexp(`^[a-z][a-z0-9._\-$ %]*$`),
+				ValidateFunc: verify.ValidateRegexp(`^[a-zA-Z][a-zA-Z0-9._\-$ %]*$`),
 				Description:  `Internal name of the API product.`,
 			},
 			"org_id": {
@@ -753,6 +753,8 @@ func resourceApigeeApiProductRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeApiProduct %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading ApigeeApiProduct %q: %#v", d.Id(), res)
 
 	if err := d.Set("name", flattenApigeeApiProductName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ApiProduct: %s", err)

@@ -53,8 +53,12 @@ var (
 func TestAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"attestor_name": "tf-test-test-attestor" + randomSuffix,
+		"note_name":     "tf-test-test-attestor-note" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +81,7 @@ func TestAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(
 func testAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "tf-test-test-attestor%{random_suffix}"
+  name = "%{attestor_name}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -104,7 +108,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "tf-test-test-attestor-note%{random_suffix}"
+  name = "%{note_name}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"

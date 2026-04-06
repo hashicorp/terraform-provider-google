@@ -53,9 +53,12 @@ var (
 func TestAccNetappStoragePool_storagePoolCreateExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
-		"random_suffix": acctest.RandString(t, 10),
+		"pool_name":     "tf-test-test-pool" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -85,7 +88,7 @@ data "google_compute_network" "default" {
 # Create a storage pool
 # Create this resource in the project which is expected to own the volumes
 resource "google_netapp_storage_pool" "test_pool" {
-  name = "tf-test-test-pool%{random_suffix}"
+  name = "%{pool_name}"
   # project = <your_project>
   location = "us-central1"
   service_level = "PREMIUM"

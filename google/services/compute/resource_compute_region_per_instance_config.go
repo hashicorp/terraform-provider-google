@@ -446,6 +446,8 @@ func resourceComputeRegionPerInstanceConfigRead(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRegionPerInstanceConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeRegionPerInstanceConfig %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedComputeRegionPerInstanceConfig(d, meta, res)
 	if err != nil {
 		return err

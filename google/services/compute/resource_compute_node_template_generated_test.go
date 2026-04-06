@@ -53,8 +53,11 @@ var (
 func TestAccComputeNodeTemplate_nodeTemplateBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"template_name": "tf-test-soletenant-tmpl" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccComputeNodeTemplate_nodeTemplateBasicExample(t *testing.T) {
 func testAccComputeNodeTemplate_nodeTemplateBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_node_template" "template" {
-  name      = "tf-test-soletenant-tmpl%{random_suffix}"
+  name      = "%{template_name}"
   region    = "us-central1"
   node_type = "n1-node-96-624"
 }
@@ -88,8 +91,11 @@ resource "google_compute_node_template" "template" {
 func TestAccComputeNodeTemplate_nodeTemplateServerBindingExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"template_name": "tf-test-soletenant-with-licenses" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -117,7 +123,7 @@ data "google_compute_node_types" "central1a" {
 }
 
 resource "google_compute_node_template" "template" {
-  name      = "tf-test-soletenant-with-licenses%{random_suffix}"
+  name      = "%{template_name}"
   region    = "us-central1"
   node_type = "n1-node-96-624"
 
@@ -135,8 +141,11 @@ resource "google_compute_node_template" "template" {
 func TestAccComputeNodeTemplate_nodeTemplateAcceleratorsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"template_name": "tf-test-soletenant-with-accelerators" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -164,7 +173,7 @@ data "google_compute_node_types" "central1a" {
 }
 
 resource "google_compute_node_template" "template" {
-  name      = "tf-test-soletenant-with-accelerators%{random_suffix}"
+  name      = "%{template_name}"
   region    = "us-central1"
   node_type = "n1-node-96-624"
 
@@ -179,8 +188,11 @@ resource "google_compute_node_template" "template" {
 func TestAccComputeNodeTemplate_nodeTemplateDisksExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"template_name": "tf-test-soletenant-with-disks" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -208,7 +220,7 @@ data "google_compute_node_types" "central1a" {
 }
 
 resource "google_compute_node_template" "template" {
-  name      = "tf-test-soletenant-with-disks%{random_suffix}"
+  name      = "%{template_name}"
   region    = "us-central1"
   node_type = "n2-node-80-640"
 

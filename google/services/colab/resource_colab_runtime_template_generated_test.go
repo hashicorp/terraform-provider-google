@@ -53,8 +53,11 @@ var (
 func TestAccColabRuntimeTemplate_colabRuntimeTemplateBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"runtime_template_name": "tf-test-colab-runtime-template" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccColabRuntimeTemplate_colabRuntimeTemplateBasicExample(t *testing.T) 
 func testAccColabRuntimeTemplate_colabRuntimeTemplateBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_colab_runtime_template" "runtime-template" {
-  name = "tf-test-colab-runtime-template%{random_suffix}"
+  name = "%{runtime_template_name}"
   display_name = "Runtime template basic"
   location = "us-central1"
 
@@ -96,8 +99,10 @@ resource "google_colab_runtime_template" "runtime-template" {
 func TestAccColabRuntimeTemplate_colabRuntimeTemplateNoNameExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -125,6 +130,9 @@ resource "google_colab_runtime_template" "runtime-template" {
   network_spec {
     enable_internet_access = true
   }
+
+  software_config {
+  }
 }
 `, context)
 }
@@ -132,9 +140,13 @@ resource "google_colab_runtime_template" "runtime-template" {
 func TestAccColabRuntimeTemplate_colabRuntimeTemplateFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"key_name":      acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"key_name":              acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"network_name":          "tf-test-colab-test-default" + randomSuffix,
+		"runtime_template_name": "tf-test-colab-runtime-template" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -158,19 +170,19 @@ func TestAccColabRuntimeTemplate_colabRuntimeTemplateFullExample(t *testing.T) {
 func testAccColabRuntimeTemplate_colabRuntimeTemplateFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "my_network" {
-  name = "tf-test-colab-test-default%{random_suffix}"
+  name = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "my_subnetwork" {
-  name   = "tf-test-colab-test-default%{random_suffix}"
+  name   = "%{network_name}"
   network = google_compute_network.my_network.id
   region = "us-central1"
   ip_cidr_range = "10.0.1.0/24"
 }
 
 resource "google_colab_runtime_template" "runtime-template" {
-  name        = "tf-test-colab-runtime-template%{random_suffix}"
+  name        = "%{runtime_template_name}"
   display_name = "Runtime template full"
   location    = "us-central1"
   description = "Full runtime template"
@@ -223,6 +235,10 @@ resource "google_colab_runtime_template" "runtime-template" {
       post_startup_script = "echo 'hello world'"
       post_startup_script_url = "gs://colab-enterprise-pss-secure/secure_pss.sh"
       post_startup_script_behavior = "RUN_ONCE"
+    }
+
+    colab_image {
+      release_name = "py312"
     }
   }
 }

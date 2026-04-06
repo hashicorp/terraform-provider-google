@@ -322,6 +322,8 @@ func resourceIntegrationConnectorsManagedZoneRead(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IntegrationConnectorsManagedZone %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IntegrationConnectorsManagedZone %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}

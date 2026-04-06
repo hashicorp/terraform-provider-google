@@ -53,9 +53,12 @@ var (
 func TestAccComputeInterconnectAttachmentGroup_interconnectAttachmentGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"deletion_protection":                false,
+		"interconnect_attachment_group_name": "tf-test-example-interconnect-attachment-group" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccComputeInterconnectAttachmentGroup_interconnectAttachmentGroupBasicE
 func testAccComputeInterconnectAttachmentGroup_interconnectAttachmentGroupBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_interconnect_attachment_group" "example-interconnect-attachment-group" {
-  name   = "tf-test-example-interconnect-attachment-group%{random_suffix}"
+  name   = "%{interconnect_attachment_group_name}"
   intent {
     availability_sla = "NO_SLA"
   }

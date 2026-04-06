@@ -53,8 +53,11 @@ var (
 func TestAccTranscoderJobTemplate_transcoderJobTemplateBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"job_template_id": "tf-test-example-job-template" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplateBasicExample(t *testing.T
 func testAccTranscoderJobTemplate_transcoderJobTemplateBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_transcoder_job_template" "default" {
-  job_template_id = "tf-test-example-job-template%{random_suffix}"
+  job_template_id = "%{job_template_id}"
   location = "us-central1"
 
   config {
@@ -167,8 +170,11 @@ resource "google_transcoder_job_template" "default" {
 func TestAccTranscoderJobTemplate_transcoderJobTemplateOverlaysExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"job_template_id": "tf-test-example-job-template" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -192,7 +198,7 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplateOverlaysExample(t *testin
 func testAccTranscoderJobTemplate_transcoderJobTemplateOverlaysExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_transcoder_job_template" "default" {
-  job_template_id = "tf-test-example-job-template%{random_suffix}"
+  job_template_id = "%{job_template_id}"
   location = "us-central1"
   config {
     inputs {
@@ -300,8 +306,12 @@ resource "google_transcoder_job_template" "default" {
 func TestAccTranscoderJobTemplate_transcoderJobTemplateEncryptionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"job_template_id":          "tf-test-example-job-template" + randomSuffix,
+		"secret_manager_secret_id": "tf-test-transcoder-encryption-key" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -325,7 +335,7 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplateEncryptionsExample(t *tes
 func testAccTranscoderJobTemplate_transcoderJobTemplateEncryptionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "encryption_key" {
-  secret_id = "tf-test-transcoder-encryption-key%{random_suffix}"
+  secret_id = "%{secret_manager_secret_id}"
   replication {
     auto {}
   }
@@ -337,7 +347,7 @@ resource "google_secret_manager_secret_version" "encryption_key" {
 }
 
 resource "google_transcoder_job_template" "default" {
-  job_template_id = "tf-test-example-job-template%{random_suffix}"
+  job_template_id = "%{job_template_id}"
   location        = "us-central1"
 
   config {
@@ -478,8 +488,12 @@ resource "google_transcoder_job_template" "default" {
 func TestAccTranscoderJobTemplate_transcoderJobTemplatePubsubExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"job_template_id":    "tf-test-example-job-template" + randomSuffix,
+		"pub_sub_topic_name": "tf-test-transcoder-notifications" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -503,11 +517,11 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplatePubsubExample(t *testing.
 func testAccTranscoderJobTemplate_transcoderJobTemplatePubsubExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "transcoder_notifications" {
-  name = "tf-test-transcoder-notifications%{random_suffix}"
+  name = "%{pub_sub_topic_name}"
 }
 
 resource "google_transcoder_job_template" "default" {
-  job_template_id = "tf-test-example-job-template%{random_suffix}"
+  job_template_id = "%{job_template_id}"
   location = "us-central1"
   config {
     inputs {

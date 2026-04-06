@@ -18,7 +18,6 @@ package compute_test
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -186,38 +185,25 @@ resource "google_compute_network_endpoints" "default" {
 }
 
 func testAccComputeNetworkEndpoints_networkEndpointsPaginated(context map[string]interface{}, lower, upper int) string {
-	context["for_each"] = networkEndpointsGenerateRanges(lower, upper)
+	context["port1"] = lower
+	context["port2"] = lower + 1
 	return acctest.Nprintf(`
 resource "google_compute_network_endpoints" "default" {
   zone                   = "us-central1-a"
   network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
-  dynamic "network_endpoints" {
-    for_each = %{for_each}
-    content {
-      instance   = google_compute_instance.default.name
-      ip_address = google_compute_instance.default.network_interface[0].network_ip
-      port       = network_endpoints.value
-    }
+  network_endpoints {
+    instance   = google_compute_instance.default.name
+    ip_address = google_compute_instance.default.network_interface[0].network_ip
+    port       = %{port1}
+  }
+  network_endpoints {
+    instance   = google_compute_instance.default.name
+    ip_address = google_compute_instance.default.network_interface[0].network_ip
+    port       = %{port2}
   }
 }
 `, context) + testAccComputeNetworkEndpoints_noNetworkEndpoints(context)
-}
-
-// Terraform `range` can only generate a list of 1024 elements, so we need to
-// concat them to get a longer list
-func networkEndpointsGenerateRanges(lower, upper int) string {
-	var ranges []string
-	l := lower
-	for l < upper {
-		u := l + 1024
-		if u > upper {
-			u = upper
-		}
-		ranges = append(ranges, fmt.Sprintf("range(%d, %d)", l, u))
-		l += 1024
-	}
-	return fmt.Sprintf("concat(%s)", strings.Join(ranges, ", "))
 }
 
 func testAccComputeNetworkEndpoints_noNetworkEndpoints(context map[string]interface{}) string {

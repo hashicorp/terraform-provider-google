@@ -53,8 +53,12 @@ var (
 func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  "tf-test-compute-network" + randomSuffix,
+		"route_name":    "tf-test-network-route" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 func testAccComputeRoute_routeBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_route" "default" {
-  name        = "tf-test-network-route%{random_suffix}"
+  name        = "%{route_name}"
   dest_range  = "15.0.0.0/24"
   network     = google_compute_network.default.name
   next_hop_ip = "10.132.1.5"
@@ -86,7 +90,7 @@ resource "google_compute_route" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name = "tf-test-compute-network%{random_suffix}"
+  name = "%{network_name}"
 }
 `, context)
 }
@@ -94,8 +98,16 @@ resource "google_compute_network" "default" {
 func TestAccComputeRoute_routeIlbExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_name":         "tf-test-compute-backend" + randomSuffix,
+		"forwarding_rule_name": "tf-test-compute-forwarding-rule" + randomSuffix,
+		"health_check_name":    "tf-test-proxy-health-check" + randomSuffix,
+		"network_name":         "tf-test-compute-network" + randomSuffix,
+		"route_name":           "tf-test-route-ilb" + randomSuffix,
+		"subnet_name":          "tf-test-compute-subnet" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -119,19 +131,19 @@ func TestAccComputeRoute_routeIlbExample(t *testing.T) {
 func testAccComputeRoute_routeIlbExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-compute-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-compute-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.id
 }
 
 resource "google_compute_health_check" "hc" {
-  name               = "tf-test-proxy-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -141,13 +153,13 @@ resource "google_compute_health_check" "hc" {
 }
 
 resource "google_compute_region_backend_service" "backend" {
-  name          = "tf-test-compute-backend%{random_suffix}"
+  name          = "%{backend_name}"
   region        = "us-central1"
   health_checks = [google_compute_health_check.hc.id]
 }
 
 resource "google_compute_forwarding_rule" "default" {
-  name     = "tf-test-compute-forwarding-rule%{random_suffix}"
+  name     = "%{forwarding_rule_name}"
   region   = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
@@ -158,7 +170,7 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_route" "route-ilb" {
-  name         = "tf-test-route-ilb%{random_suffix}"
+  name         = "%{route_name}"
   dest_range   = "0.0.0.0/0"
   network      = google_compute_network.default.name
   next_hop_ilb = google_compute_forwarding_rule.default.id

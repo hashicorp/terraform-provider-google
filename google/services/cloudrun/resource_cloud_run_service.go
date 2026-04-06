@@ -1588,6 +1588,8 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudRunService %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading CloudRunService %q: %#v", d.Id(), res)
+
 	res, err = resourceCloudRunServiceDecoder(d, meta, res)
 	if err != nil {
 		return err

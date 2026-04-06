@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_compute_subnetwork
 generation_type: mmv1
 source_file: products/compute/Subnetwork.yaml
@@ -29,6 +31,7 @@ fields:
     - api_field: purpose
     - api_field: region
     - api_field: reservedInternalRange
+    - api_field: resolveSubnetMask
     - api_field: role
     - api_field: secondaryIpRanges.ipCidrRange
       field: secondary_ip_range.ip_cidr_range

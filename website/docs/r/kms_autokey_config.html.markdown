@@ -108,6 +108,7 @@ resource "google_kms_autokey_config" "example-autokeyconfig" {
   provider    = google-beta
   folder      = google_folder.autokms_folder.id
   key_project = "projects/${google_project.key_project.project_id}"
+  key_project_resolution_mode = "DEDICATED_KEY_PROJECT"
   depends_on  = [time_sleep.wait_srv_acc_permissions]
 }
 
@@ -134,6 +135,11 @@ The following arguments are supported:
   The target key project for a given folder where KMS Autokey will provision a
   CryptoKey for any new KeyHandle the Developer creates. Should have the form
   `projects/<project_id_or_number>`.
+
+* `key_project_resolution_mode` -
+  (Optional)
+  How Autokey determines which project to use when provisioning CMEK keys.
+  Possible values are: `DEDICATED_KEY_PROJECT`, `RESOURCE_PROJECT`, `DISABLED`.
 
 
 

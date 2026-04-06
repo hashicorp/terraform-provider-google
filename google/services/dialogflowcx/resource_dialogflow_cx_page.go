@@ -2113,6 +2113,8 @@ func resourceDialogflowCXPageRead(d *schema.ResourceData, meta interface{}) erro
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXPage %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DialogflowCXPage %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenDialogflowCXPageName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Page: %s", err)
 	}

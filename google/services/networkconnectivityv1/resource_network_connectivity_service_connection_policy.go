@@ -492,6 +492,8 @@ func resourceNetworkConnectivityv1ServiceConnectionPolicyRead(d *schema.Resource
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkConnectivityv1ServiceConnectionPolicy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkConnectivityv1ServiceConnectionPolicy %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
 	}

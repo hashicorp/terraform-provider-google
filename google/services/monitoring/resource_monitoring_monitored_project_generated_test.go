@@ -53,10 +53,13 @@ var (
 func TestAccMonitoringMonitoredProject_monitoringMonitoredProjectBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"project_id":        envvar.GetTestProjectFromEnv(),
+		"monitored_project": "tf-test-m-id" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -85,8 +88,8 @@ resource "google_monitoring_monitored_project" "primary" {
 }
 
 resource "google_project" "basic" {
-  project_id = "tf-test-m-id%{random_suffix}"
-  name       = "tf-test-m-id%{random_suffix}-display"
+  project_id = "%{monitored_project}"
+  name       = "%{monitored_project}-display"
   org_id     = "%{org_id}"
   deletion_policy = "DELETE"
 }
@@ -96,10 +99,13 @@ resource "google_project" "basic" {
 func TestAccMonitoringMonitoredProject_monitoringMonitoredProjectLongFormExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"project_id":        envvar.GetTestProjectFromEnv(),
+		"monitored_project": "tf-test-m-id" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -128,8 +134,8 @@ resource "google_monitoring_monitored_project" "primary" {
 }
 
 resource "google_project" "basic" {
-  project_id = "tf-test-m-id%{random_suffix}"
-  name       = "tf-test-m-id%{random_suffix}-display"
+  project_id = "%{monitored_project}"
+  name       = "%{monitored_project}-display"
   org_id     = "%{org_id}"
   deletion_policy = "DELETE"
 }

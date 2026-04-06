@@ -53,8 +53,11 @@ var (
 func TestAccDialogflowCXFlow_dialogflowcxFlowBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowBasicExample(t *testing.T) {
 func testAccDialogflowCXFlow_dialogflowcxFlowBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name               = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name               = "%{agent_name}"
   location                   = "global"
   default_language_code      = "en"
   supported_language_codes   = ["fr", "de", "es"]
@@ -145,8 +148,13 @@ resource "google_dialogflow_cx_flow" "basic_flow" {
 func TestAccDialogflowCXFlow_dialogflowcxFlowFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"bucket_name":   "tf-test-dialogflowcx-bucket" + randomSuffix,
+		"data-store":    "tf-test-datastore-flow-full" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -170,7 +178,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowFullExample(t *testing.T) {
 func testAccDialogflowCXFlow_dialogflowcxFlowFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name               = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name               = "%{agent_name}"
   location                   = "global"
   default_language_code      = "en"
   supported_language_codes   = ["fr", "de", "es"]
@@ -185,7 +193,7 @@ resource "google_dialogflow_cx_agent" "agent" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name                        = "tf-test-dialogflowcx-bucket%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "US"
   uniform_bucket_level_access = true
 }
@@ -581,7 +589,7 @@ resource "google_dialogflow_cx_flow" "basic_flow" {
 
 resource "google_discovery_engine_data_store" "my_datastore" {
   location          = "global"
-  data_store_id     = "tf-test-datastore-flow-full%{random_suffix}"
+  data_store_id     = "%{data-store}"
   display_name      = "datastore-flow-full"
   industry_vertical = "GENERIC"
   content_config    = "NO_CONTENT"
@@ -604,8 +612,11 @@ data "google_project" "project" {
 func TestAccDialogflowCXFlow_dialogflowcxFlowDefaultStartFlowExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -629,7 +640,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowDefaultStartFlowExample(t *testing.
 func testAccDialogflowCXFlow_dialogflowcxFlowDefaultStartFlowExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name          = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name          = "%{agent_name}"
   location              = "global"
   default_language_code = "en"
   time_zone             = "America/New_York"
@@ -710,8 +721,11 @@ resource "google_dialogflow_cx_flow" "default_start_flow" {
 func TestAccDialogflowCXFlow_dialogflowcxFlowCustomEndpointExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -739,7 +753,7 @@ provider "google" {
 }
 
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name               = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name               = "%{agent_name}"
   location                   = "us-central1"
   default_language_code      = "en"
   time_zone                  = "America/New_York"

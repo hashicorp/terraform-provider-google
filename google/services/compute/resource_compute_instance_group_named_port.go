@@ -288,6 +288,8 @@ func resourceComputeInstanceGroupNamedPortRead(d *schema.ResourceData, meta inte
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeInstanceGroupNamedPort %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeInstanceGroupNamedPort %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedComputeInstanceGroupNamedPort(d, meta, res)
 	if err != nil {
 		return err

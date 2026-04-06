@@ -174,12 +174,30 @@ resource "google_oracle_database_autonomous_database" "myADB"{
 
 
 ```hcl
+resource "google_oracle_database_autonomous_database" "adb-dr"{
+  autonomous_database_id = "my-instance"
+  location = "us-east4"
+  project = "my-project"
+  database = "mydatabase"
+  admin_password = "123Abpassword"
+  properties {
+    compute_count = "2"
+    data_storage_size_gb="20"
+    db_version = "19c"
+    db_workload = "OLTP"
+    license_type = "LICENSE_INCLUDED"
+    mtls_connection_required = "true"
+    }
+  deletion_protection = "true"
+}
+
+
 resource "google_oracle_database_autonomous_database" "myADB"{
-  autonomous_database_id = "my-primary-adb-id"
+  autonomous_database_id = "my-instance"
   location = "my-location"
   project = "my-project"
   source_config {
-    autonomous_database = ""projects/my-project/locations/us-east4/autonomousDatabases/adb-id""
+    autonomous_database = google_oracle_database_autonomous_database.adb-dr.name
     automatic_backups_replication_enabled = "false"
     }
   deletion_protection = "true"

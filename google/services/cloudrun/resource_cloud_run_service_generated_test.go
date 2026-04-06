@@ -53,9 +53,12 @@ var (
 func TestAccCloudRunService_cloudRunServiceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                envvar.GetTestProjectFromEnv(),
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccCloudRunService_cloudRunServiceBasicExample(t *testing.T) {
 func testAccCloudRunService_cloudRunServiceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {
@@ -101,9 +104,12 @@ resource "google_cloud_run_service" "default" {
 func TestAccCloudRunService_cloudRunServiceGpuExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                envvar.GetTestProjectFromEnv(),
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,7 +133,7 @@ func TestAccCloudRunService_cloudRunServiceGpuExample(t *testing.T) {
 func testAccCloudRunService_cloudRunServiceGpuExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   metadata {
@@ -166,9 +172,13 @@ resource "google_cloud_run_service" "default" {
 func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
+		"cloud_run_sql_name":     "tf-test-cloudrun-sql" + randomSuffix,
+		"deletion_protection":    false,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -192,7 +202,7 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 func testAccCloudRunService_cloudRunServiceSqlExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {
@@ -214,7 +224,7 @@ resource "google_cloud_run_service" "default" {
 }
 
 resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-cloudrun-sql%{random_suffix}"
+  name             = "%{cloud_run_sql_name}"
   region           = "us-east1"
   database_version = "MYSQL_5_7"
   settings {
@@ -229,9 +239,12 @@ resource "google_sql_database_instance" "instance" {
 func TestAccCloudRunService_cloudRunServiceNoauthExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                envvar.GetTestProjectFromEnv(),
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -256,7 +269,7 @@ func testAccCloudRunService_cloudRunServiceNoauthExample(context map[string]inte
 	return acctest.Nprintf(`
 
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {
@@ -290,9 +303,12 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
 func TestAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                envvar.GetTestProjectFromEnv(),
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -316,7 +332,7 @@ func TestAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(t
 func testAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {
@@ -359,9 +375,13 @@ resource "google_cloud_run_service" "default" {
 func TestAccCloudRunService_cloudRunServiceSecretEnvironmentVariablesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                envvar.GetTestProjectFromEnv(),
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
+		"secret_id":              "secret" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -388,7 +408,7 @@ data "google_project" "project" {
 }
 
 resource "google_secret_manager_secret" "secret" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
@@ -407,7 +427,7 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 }
 
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {
@@ -453,9 +473,13 @@ resource "google_cloud_run_service" "default" {
 func TestAccCloudRunService_cloudRunServiceSecretVolumesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                envvar.GetTestProjectFromEnv(),
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
+		"secret_id":              "secret" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -482,7 +506,7 @@ data "google_project" "project" {
 }
 
 resource "google_secret_manager_secret" "secret" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
@@ -501,7 +525,7 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 }
 
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {
@@ -554,8 +578,11 @@ resource "google_cloud_run_service" "default" {
 func TestAccCloudRunService_cloudRunServiceProbesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -579,7 +606,7 @@ func TestAccCloudRunService_cloudRunServiceProbesExample(t *testing.T) {
 func testAccCloudRunService_cloudRunServiceProbesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   template {
@@ -621,9 +648,12 @@ resource "google_cloud_run_service" "default" {
 func TestAccCloudRunService_cloudRunServiceReadinessProbeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                envvar.GetTestProjectFromEnv(),
+		"cloud_run_service_name": "tf-test-cloudrun-srv-rp" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -647,7 +677,7 @@ func TestAccCloudRunService_cloudRunServiceReadinessProbeExample(t *testing.T) {
 func testAccCloudRunService_cloudRunServiceReadinessProbeExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv-rp%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   metadata {
@@ -690,9 +720,12 @@ resource "google_cloud_run_service" "default" {
 func TestAccCloudRunService_cloudRunServiceIapExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                envvar.GetTestProjectFromEnv(),
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -716,7 +749,7 @@ func TestAccCloudRunService_cloudRunServiceIapExample(t *testing.T) {
 func testAccCloudRunService_cloudRunServiceIapExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   metadata {

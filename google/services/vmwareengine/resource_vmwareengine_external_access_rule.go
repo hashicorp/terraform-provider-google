@@ -374,6 +374,8 @@ func resourceVmwareengineExternalAccessRuleRead(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VmwareengineExternalAccessRule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading VmwareengineExternalAccessRule %q: %#v", d.Id(), res)
+
 	if err := d.Set("create_time", flattenVmwareengineExternalAccessRuleCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
 	}

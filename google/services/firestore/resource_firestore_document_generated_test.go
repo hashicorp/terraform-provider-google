@@ -53,9 +53,13 @@ var (
 func TestAccFirestoreDocument_firestoreDocumentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"document_id":   "tf-test-my-doc-id" + randomSuffix,
+		"project_id":    "tf-test-project-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -83,8 +87,8 @@ func TestAccFirestoreDocument_firestoreDocumentBasicExample(t *testing.T) {
 func testAccFirestoreDocument_firestoreDocumentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "project" {
-  project_id = "tf-test-project-id%{random_suffix}"
-  name       = "tf-test-project-id%{random_suffix}"
+  project_id = "%{project_id}"
+  name       = "%{project_id}"
   org_id     = "%{org_id}"
   deletion_policy = "DELETE"
 }
@@ -116,7 +120,7 @@ resource "google_firestore_document" "mydoc" {
   project     = google_project.project.project_id
   database    = google_firestore_database.database.name
   collection  = "somenewcollection"
-  document_id = "tf-test-my-doc-id%{random_suffix}"
+  document_id = "%{document_id}"
   fields      = "{\"something\":{\"mapValue\":{\"fields\":{\"akey\":{\"stringValue\":\"avalue\"}}}}}"
 }
 `, context)
@@ -125,9 +129,13 @@ resource "google_firestore_document" "mydoc" {
 func TestAccFirestoreDocument_firestoreDocumentNestedDocumentExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"document_id":   "tf-test-my-doc-id" + randomSuffix,
+		"project_id":    "tf-test-project-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -155,8 +163,8 @@ func TestAccFirestoreDocument_firestoreDocumentNestedDocumentExample(t *testing.
 func testAccFirestoreDocument_firestoreDocumentNestedDocumentExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "project" {
-  project_id      = "tf-test-project-id%{random_suffix}"
-  name            = "tf-test-project-id%{random_suffix}"
+  project_id      = "%{project_id}"
+  name            = "%{project_id}"
   org_id          = "%{org_id}"
   deletion_policy = "DELETE"
 }
@@ -188,7 +196,7 @@ resource "google_firestore_document" "mydoc" {
   project     = google_project.project.project_id
   database    = google_firestore_database.database.name
   collection  = "somenewcollection"
-  document_id = "tf-test-my-doc-id%{random_suffix}"
+  document_id = "%{document_id}"
   fields      = "{\"something\":{\"mapValue\":{\"fields\":{\"akey\":{\"stringValue\":\"avalue\"}}}}}"
 }
 

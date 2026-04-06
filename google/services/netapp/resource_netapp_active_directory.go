@@ -493,6 +493,8 @@ func resourceNetappActiveDirectoryRead(d *schema.ResourceData, meta interface{})
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetappActiveDirectory %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetappActiveDirectory %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}

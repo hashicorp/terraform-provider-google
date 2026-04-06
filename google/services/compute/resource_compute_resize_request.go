@@ -652,6 +652,8 @@ func resourceComputeResizeRequestRead(d *schema.ResourceData, meta interface{}) 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeResizeRequest %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeResizeRequest %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ResizeRequest: %s", err)
 	}

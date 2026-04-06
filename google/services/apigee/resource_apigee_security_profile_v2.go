@@ -265,6 +265,8 @@ func resourceApigeeSecurityProfileV2Read(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeSecurityProfileV2 %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeSecurityProfileV2 %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenApigeeSecurityProfileV2Name(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfileV2: %s", err)
 	}

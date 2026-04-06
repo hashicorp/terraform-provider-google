@@ -253,6 +253,8 @@ func resourceAccessContextManagerIngressPolicyRead(d *schema.ResourceData, meta 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerIngressPolicy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading AccessContextManagerIngressPolicy %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedAccessContextManagerIngressPolicy(d, meta, res)
 	if err != nil {
 		return err

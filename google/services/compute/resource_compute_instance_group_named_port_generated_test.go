@@ -54,9 +54,14 @@ func TestAccComputeInstanceGroupNamedPort_instanceGroupNamedPortGkeExample(t *te
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"gke_cluster_name":    "tf-test-my-cluster" + randomSuffix,
+		"network_name":        "tf-test-container-network" + randomSuffix,
+		"subnetwork_name":     "tf-test-container-subnetwork" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -96,19 +101,19 @@ resource "google_compute_instance_group_named_port" "my_ports" {
 }
 
 resource "google_compute_network" "container_network" {
-  name                    = "tf-test-container-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "container_subnetwork" {
-  name                     = "tf-test-container-subnetwork%{random_suffix}"
+  name                     = "%{subnetwork_name}"
   region                   = "us-central1"
   network                  = google_compute_network.container_network.name
   ip_cidr_range            = "10.0.36.0/24"
 }
 
 resource "google_container_cluster" "my_cluster" {
-  name               = "tf-test-my-cluster%{random_suffix}"
+  name               = "%{gke_cluster_name}"
   location           = "us-central1-a"
   initial_node_count = 1
 

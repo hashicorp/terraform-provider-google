@@ -268,6 +268,8 @@ func resourceTagsTagBindingRead(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("TagsTagBinding %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading TagsTagBinding %q: %#v", d.Id(), res)
+
 	v, ok := res["tagBindings"]
 	if !ok || v == nil {
 		log.Printf("[DEBUG] Removing TagsTagBinding because it no longer exists, API response missing tagBindings key.")

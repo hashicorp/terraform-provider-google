@@ -53,8 +53,14 @@ var (
 func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_primary_name":   "tf-test-primary-network" + randomSuffix,
+		"network_secondary_name": "tf-test-secondary-network" + randomSuffix,
+		"peering_primary_name":   "tf-test-primary-peering" + randomSuffix,
+		"peering_secondary_name": "tf-test-secondary-peering" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -87,7 +93,7 @@ resource "google_compute_network_peering_routes_config" "peering_primary_routes"
 }
 
 resource "google_compute_network_peering" "peering_primary" {
-  name         = "tf-test-primary-peering%{random_suffix}"
+  name         = "%{peering_primary_name}"
   network      = google_compute_network.network_primary.id
   peer_network = google_compute_network.network_secondary.id
 
@@ -98,18 +104,18 @@ resource "google_compute_network_peering" "peering_primary" {
 }
 
 resource "google_compute_network_peering" "peering_secondary" {
-  name         = "tf-test-secondary-peering%{random_suffix}"
+  name         = "%{peering_secondary_name}"
   network      = google_compute_network.network_secondary.id
   peer_network = google_compute_network.network_primary.id
 }
 
 resource "google_compute_network" "network_primary" {
-  name                    = "tf-test-primary-network%{random_suffix}"
+  name                    = "%{network_primary_name}"
   auto_create_subnetworks = "false"
 }
 
 resource "google_compute_network" "network_secondary" {
-  name                    = "tf-test-secondary-network%{random_suffix}"
+  name                    = "%{network_secondary_name}"
   auto_create_subnetworks = "false"
 }
 `, context)

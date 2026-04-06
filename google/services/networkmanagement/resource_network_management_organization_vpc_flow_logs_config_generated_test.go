@@ -53,9 +53,12 @@ var (
 func TestAccNetworkManagementOrganizationVpcFlowLogsConfig_networkManagementOrgVpcFlowLogsConfigBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":                  envvar.GetTestOrgFromEnv(t),
+		"vpc_flow_logs_config_id": "tf-test-basic-org-test-id" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccNetworkManagementOrganizationVpcFlowLogsConfig_networkManagementOrgV
 func testAccNetworkManagementOrganizationVpcFlowLogsConfig_networkManagementOrgVpcFlowLogsConfigBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_management_organization_vpc_flow_logs_config" "org-test" {
-  vpc_flow_logs_config_id = "tf-test-basic-org-test-id%{random_suffix}"
+  vpc_flow_logs_config_id = "%{vpc_flow_logs_config_id}"
   location                = "global"
   organization            = "%{org_id}"
 }

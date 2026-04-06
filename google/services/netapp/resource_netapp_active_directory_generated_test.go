@@ -53,8 +53,11 @@ var (
 func TestAccNetappActiveDirectory_netappActiveDirectoryFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"active_directory_full_name": "tf-test-test-active-directory-full" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetappActiveDirectory_netappActiveDirectoryFullExample(t *testing.T)
 func testAccNetappActiveDirectory_netappActiveDirectoryFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_netapp_active_directory" "test_active_directory_full" {
-    name = "tf-test-test-active-directory-full%{random_suffix}"
+    name = "%{active_directory_full_name}"
     location = "us-central1"
     domain = "ad.internal"
     dns = "172.30.64.3"

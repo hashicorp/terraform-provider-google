@@ -792,6 +792,8 @@ func resourceDialogflowCXTestCaseRead(d *schema.ResourceData, meta interface{}) 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXTestCase %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DialogflowCXTestCase %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenDialogflowCXTestCaseName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TestCase: %s", err)
 	}

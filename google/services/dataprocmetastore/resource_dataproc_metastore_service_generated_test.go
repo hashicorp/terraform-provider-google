@@ -53,8 +53,11 @@ var (
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-metastore-srv" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(t *tes
 func testAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "default" {
-  service_id = "tf-test-metastore-srv%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
   port       = 9080
   tier       = "DEVELOPER"
@@ -102,9 +105,12 @@ resource "google_dataproc_metastore_service" "default" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceDeletionProtectionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"deletion_protection":    false,
+		"metastore_service_name": "tf-test-metastore-srv" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -128,7 +134,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDeletionProtectionE
 func testAccDataprocMetastoreService_dataprocMetastoreServiceDeletionProtectionExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "default" {
-    service_id          = "tf-test-metastore-srv%{random_suffix}"
+    service_id          = "%{metastore_service_name}"
     location            = "us-central1"
     port                = 9080
     tier                = "DEVELOPER"
@@ -154,9 +160,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(t *
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"kms_key_name":  acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-metastore-service-key1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"kms_key_name":           acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-metastore-service-key1").CryptoKey.Name,
+		"metastore_service_name": "tf-test-example-service" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -185,7 +194,7 @@ data "google_storage_project_service_account" "gcs_account" {}
 
 
 resource "google_dataproc_metastore_service" "default" {
-  service_id = "tf-test-example-service%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
 
   encryption_config {
@@ -221,8 +230,11 @@ resource "google_kms_crypto_key_iam_member" "crypto_key_member_2" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceEndpointExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-metastore-endpoint" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -246,7 +258,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceEndpointExample(t *
 func testAccDataprocMetastoreService_dataprocMetastoreServiceEndpointExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "endpoint" {
-  service_id = "tf-test-metastore-endpoint%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
   tier       = "DEVELOPER"
 
@@ -261,8 +273,11 @@ resource "google_dataproc_metastore_service" "endpoint" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceAuxExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-metastore-aux" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -286,7 +301,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAuxExample(t *testi
 func testAccDataprocMetastoreService_dataprocMetastoreServiceAuxExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "aux" {
-  service_id = "tf-test-metastore-aux%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
   tier       = "DEVELOPER"
 
@@ -304,8 +319,11 @@ resource "google_dataproc_metastore_service" "aux" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceMetadataExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-metastore-metadata" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -329,7 +347,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceMetadataExample(t *
 func testAccDataprocMetastoreService_dataprocMetastoreServiceMetadataExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "metadata" {
-  service_id = "tf-test-metastore-metadata%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
   tier       = "DEVELOPER"
 
@@ -349,8 +367,11 @@ resource "google_dataproc_metastore_service" "metadata" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-ms-telemetry" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -374,7 +395,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(t 
 func testAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "telemetry" {
-  service_id = "tf-test-ms-telemetry%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
   port       = 9080
   tier       = "DEVELOPER"
@@ -393,8 +414,11 @@ resource "google_dataproc_metastore_service" "telemetry" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-ms-dpms2" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -418,7 +442,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(t *tes
 func testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "dpms2" {
-  service_id = "tf-test-ms-dpms2%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require
@@ -439,8 +463,11 @@ resource "google_dataproc_metastore_service" "dpms2" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-ms-dpms2sf" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -464,7 +491,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorE
 func testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "dpms2_scaling_factor" {
-  service_id = "tf-test-ms-dpms2sf%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require
@@ -485,8 +512,11 @@ resource "google_dataproc_metastore_service" "dpms2_scaling_factor" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorLt1Example(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-ms-dpms2sflt1" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -510,7 +540,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorL
 func testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorLt1Example(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "dpms2_scaling_factor_lt1" {
-  service_id = "tf-test-ms-dpms2sflt1%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require
@@ -531,8 +561,11 @@ resource "google_dataproc_metastore_service" "dpms2_scaling_factor_lt1" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-backup-1" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -556,7 +589,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExam
 func testAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "backup" {
-  service_id = "backup%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
   port       = 9080
   tier       = "DEVELOPER"
@@ -583,7 +616,7 @@ resource "google_dataproc_metastore_service" "backup" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "backup%{random_suffix}"
+  name     = "%{metastore_service_name}"
   location = "us-central1"
 }
 `, context)
@@ -592,8 +625,11 @@ resource "google_storage_bucket" "bucket" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMaxScalingFactorExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-test-service" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -617,7 +653,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMaxScali
 func testAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMaxScalingFactorExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "test_resource" {
-  service_id = "tf-test-test-service%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require
@@ -643,8 +679,11 @@ resource "google_dataproc_metastore_service" "test_resource" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinAndMaxScalingFactorExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-test-service" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -668,7 +707,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinAndMa
 func testAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinAndMaxScalingFactorExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "test_resource" {
-  service_id = "tf-test-test-service%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require
@@ -695,8 +734,11 @@ resource "google_dataproc_metastore_service" "test_resource" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinScalingFactorExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-test-service" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -720,7 +762,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinScali
 func testAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinScalingFactorExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "test_resource" {
-  service_id = "tf-test-test-service%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require
@@ -746,8 +788,11 @@ resource "google_dataproc_metastore_service" "test_resource" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingNoLimitConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"metastore_service_name": "tf-test-test-service" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -771,7 +816,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingNoLimitC
 func testAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingNoLimitConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "test_resource" {
-  service_id = "tf-test-test-service%{random_suffix}"
+  service_id = "%{metastore_service_name}"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require

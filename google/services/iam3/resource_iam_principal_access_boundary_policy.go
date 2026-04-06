@@ -355,6 +355,8 @@ func resourceIAM3PrincipalAccessBoundaryPolicyRead(d *schema.ResourceData, meta 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IAM3PrincipalAccessBoundaryPolicy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IAM3PrincipalAccessBoundaryPolicy %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenIAM3PrincipalAccessBoundaryPolicyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
 	}

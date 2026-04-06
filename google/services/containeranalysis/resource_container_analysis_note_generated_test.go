@@ -53,8 +53,11 @@ var (
 func TestAccContainerAnalysisNote_containerAnalysisNoteBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"note_name":     "tf-test-attestor-note" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +80,7 @@ func TestAccContainerAnalysisNote_containerAnalysisNoteBasicExample(t *testing.T
 func testAccContainerAnalysisNote_containerAnalysisNoteBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
-  name = "tf-test-attestor-note%{random_suffix}"
+  name = "%{note_name}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -90,8 +93,11 @@ resource "google_container_analysis_note" "note" {
 func TestAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"note_name":     "tf-test-attestor-note" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -114,7 +120,7 @@ func TestAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(t 
 func testAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
-  name = "tf-test-attestor-note%{random_suffix}"
+  name = "%{note_name}"
 
   short_description = "test note"
   long_description = "a longer description of test note"

@@ -158,6 +158,7 @@ is created.`,
 			},
 			"spec": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Optional. Configurations of the ReasoningEngine.`,
 				MaxItems:    1,
@@ -464,6 +465,12 @@ projects/{project}/locations/{location}/reasoningEngines/{reasoningEngine}`,
 				Description: `The timestamp of when the Index was last updated in RFC3339 UTC "Zulu"
 format, with nanosecond resolution and up to nine fractional digits.`,
 			},
+			"deletion_policy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"FORCE", ""}),
+				Description:  `Optional. The deletion policy for the reasoning engine. Setting this to FORCE allows the reasoning engine to be deleted regardless of child undeleted resources. Possible values: ["FORCE"]`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -678,6 +685,9 @@ func resourceVertexAIReasoningEngineRead(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VertexAIReasoningEngine %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading VertexAIReasoningEngine %q: %#v", d.Id(), res)
+
+	// Explicitly set virtual fields to default values if unset
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
 	}
@@ -833,6 +843,14 @@ func resourceVertexAIReasoningEngineDelete(d *schema.ResourceData, meta interfac
 	}
 
 	headers := make(http.Header)
+	if v, ok := d.GetOk("deletion_policy"); ok {
+		if v.(string) == "FORCE" {
+			url, err = transport_tpg.AddQueryParams(url, map[string]string{"force": "true"})
+			if err != nil {
+				return err
+			}
+		}
+	}
 
 	log.Printf("[DEBUG] Deleting ReasoningEngine %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -878,6 +896,8 @@ func resourceVertexAIReasoningEngineImport(d *schema.ResourceData, meta interfac
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
 
 	return []*schema.ResourceData{d}, nil
 }

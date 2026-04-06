@@ -53,10 +53,13 @@ var (
 func TestAccDialogflowVersion_dialogflowVersionFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":    "tf-test-my-proj" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -83,8 +86,8 @@ func TestAccDialogflowVersion_dialogflowVersionFullExample(t *testing.T) {
 func testAccDialogflowVersion_dialogflowVersionFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "project" {
-  project_id      = "tf-test-my-proj%{random_suffix}"
-  name            = "tf-test-my-proj%{random_suffix}"
+  project_id      = "%{project_id}"
+  name            = "%{project_id}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_acct}"
   deletion_policy = "DELETE"

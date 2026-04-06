@@ -54,8 +54,10 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateBasicExample(t *test
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -96,8 +98,10 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateBasicWriteonlyExampl
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -139,8 +143,10 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateRandomProviderExampl
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -199,8 +205,14 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesEx
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"region_backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"region_health_check_name":       "tf-test-http-health-check" + randomSuffix,
+		"region_target_https_proxy_name": "tf-test-test-proxy" + randomSuffix,
+		"region_url_map_name":            "tf-test-url-map" + randomSuffix,
+		"random_suffix":                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -246,14 +258,14 @@ resource "google_compute_region_ssl_certificate" "default" {
 
 resource "google_compute_region_target_https_proxy" "default" {
   region           = "us-central1"
-  name             = "tf-test-test-proxy%{random_suffix}"
+  name             = "%{region_target_https_proxy_name}"
   url_map          = google_compute_region_url_map.default.id
   ssl_certificates = [google_compute_region_ssl_certificate.default.id]
 }
 
 resource "google_compute_region_url_map" "default" {
   region      = "us-central1"
-  name        = "tf-test-url-map%{random_suffix}"
+  name        = "%{region_url_map_name}"
   description = "a description"
 
   default_service = google_compute_region_backend_service.default.id
@@ -276,7 +288,7 @@ resource "google_compute_region_url_map" "default" {
 
 resource "google_compute_region_backend_service" "default" {
   region      = "us-central1"
-  name        = "tf-test-backend-service%{random_suffix}"
+  name        = "%{region_backend_service_name}"
   protocol    = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
@@ -286,7 +298,7 @@ resource "google_compute_region_backend_service" "default" {
 
 resource "google_compute_region_health_check" "default" {
   region   = "us-central1"
-  name     = "tf-test-http-health-check%{random_suffix}"
+  name     = "%{region_health_check_name}"
   http_health_check {
     port = 80
   }

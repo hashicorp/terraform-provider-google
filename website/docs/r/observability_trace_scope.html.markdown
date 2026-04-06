@@ -23,8 +23,6 @@ description: |-
 
 A trace scope is a collection of resources whose traces are queried together
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage - Observability Trace Scope Basic
@@ -33,7 +31,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 ```hcl
 resource "google_observability_trace_scope" "observability_trace_scope" {
     depends_on       = [google_project.project-2]
-    provider         = google-beta
     trace_scope_id   = "test-scope"
     location         = "global"
     resource_names   = [
@@ -44,11 +41,9 @@ resource "google_observability_trace_scope" "observability_trace_scope" {
 }
 
 data "google_project" "project" {
-    provider         = google-beta
 }
 
 resource "google_project" "project-2" {
-    provider         = google-beta
     project_id       = "tf-test%{random_suffix}"
     name             = "tf-test%{random_suffix}"
     org_id           = "123456789"

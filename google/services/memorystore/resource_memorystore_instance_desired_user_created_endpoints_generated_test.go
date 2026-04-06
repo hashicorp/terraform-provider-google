@@ -53,8 +53,23 @@ var (
 func TestAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDesiredUserCreatedEndpointsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"forwarding_rule1_network1_name": "tf-test-fwd1-net1" + randomSuffix,
+		"forwarding_rule1_network2_name": "tf-test-fwd1-net2" + randomSuffix,
+		"forwarding_rule2_network1_name": "tf-test-fwd2-net1" + randomSuffix,
+		"forwarding_rule2_network2_name": "tf-test-fwd2-net2" + randomSuffix,
+		"instance_name":                  "tf-test-instance-user-conn" + randomSuffix,
+		"ip1_network1_name":              "tf-test-ip1-net1" + randomSuffix,
+		"ip1_network2_name":              "tf-test-ip1-net2" + randomSuffix,
+		"ip2_network1_name":              "tf-test-ip2-net1" + randomSuffix,
+		"ip2_network2_name":              "tf-test-ip2-net2" + randomSuffix,
+		"network1_name":                  "net1" + randomSuffix,
+		"network2_name":                  "network2" + randomSuffix,
+		"subnet_network1_name":           "tf-test-subnet-net1" + randomSuffix,
+		"subnet_network2_name":           "tf-test-subnet-net2" + randomSuffix,
+		"random_suffix":                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +93,7 @@ func TestAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDe
 func testAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDesiredUserCreatedEndpointsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_memorystore_instance_desired_user_created_endpoints" "instance-user-conn" {
-  name                        = "tf-test-instance-user-conn%{random_suffix}"
+  name                        = "%{instance_name}"
   region                      = "us-central1"
   desired_user_created_endpoints {
     connections {
@@ -123,7 +138,7 @@ resource "google_memorystore_instance_desired_user_created_endpoints" "instance-
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network1" {
-  name                        = "tf-test-fwd1-net1%{random_suffix}"
+  name                        = "%{forwarding_rule1_network1_name}"
   region                      = "us-central1"
   ip_address                  = google_compute_address.ip1_network1.id
   load_balancing_scheme       = ""
@@ -132,7 +147,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network1" {
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network1" {
-  name                        = "tf-test-fwd2-net1%{random_suffix}"
+  name                        = "%{forwarding_rule2_network1_name}"
   region                      = "us-central1"
   ip_address                  = google_compute_address.ip2_network1.id
   load_balancing_scheme       = ""
@@ -141,7 +156,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network1" {
 }
 
 resource "google_compute_address" "ip1_network1" {
-  name                        = "tf-test-ip1-net1%{random_suffix}"
+  name                        = "%{ip1_network1_name}"
   region                      = "us-central1"
   subnetwork                  = google_compute_subnetwork.subnet_network1.id
   address_type                = "INTERNAL"
@@ -149,7 +164,7 @@ resource "google_compute_address" "ip1_network1" {
 }
 
 resource "google_compute_address" "ip2_network1" {
-  name                        = "tf-test-ip2-net1%{random_suffix}"
+  name                        = "%{ip2_network1_name}"
   region                      = "us-central1"
   subnetwork                  = google_compute_subnetwork.subnet_network1.id
   address_type                = "INTERNAL"
@@ -157,19 +172,19 @@ resource "google_compute_address" "ip2_network1" {
 }
 
 resource "google_compute_subnetwork" "subnet_network1" {
-  name                        = "tf-test-subnet-net1%{random_suffix}"
+  name                        = "%{subnet_network1_name}"
   ip_cidr_range               = "10.0.0.248/29"
   region                      = "us-central1"
   network                     = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
-  name                        = "net1%{random_suffix}"
+  name                        = "%{network1_name}"
   auto_create_subnetworks     = false
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
-  name                        = "tf-test-fwd1-net2%{random_suffix}"
+  name                        = "%{forwarding_rule1_network2_name}"
   region                      = "us-central1"
   ip_address                  = google_compute_address.ip1_network2.id
   load_balancing_scheme       = ""
@@ -178,7 +193,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
-  name                        = "tf-test-fwd2-net2%{random_suffix}"
+  name                        = "%{forwarding_rule2_network2_name}"
   region                      = "us-central1"
   ip_address                  = google_compute_address.ip2_network2.id
   load_balancing_scheme       = ""
@@ -187,7 +202,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
 }
 
 resource "google_compute_address" "ip1_network2" {
-  name                        = "tf-test-ip1-net2%{random_suffix}"
+  name                        = "%{ip1_network2_name}"
   region                      = "us-central1"
   subnetwork                  = google_compute_subnetwork.subnet_network2.id
   address_type                = "INTERNAL"
@@ -195,7 +210,7 @@ resource "google_compute_address" "ip1_network2" {
 }
 
 resource "google_compute_address" "ip2_network2" {
-  name                        = "tf-test-ip2-net2%{random_suffix}"
+  name                        = "%{ip2_network2_name}"
   region                      = "us-central1"
   subnetwork                  = google_compute_subnetwork.subnet_network2.id
   address_type                = "INTERNAL"
@@ -204,21 +219,21 @@ resource "google_compute_address" "ip2_network2" {
 
 //Valkey instance without endpoints
 resource "google_memorystore_instance" "instance-user-conn" {
-  instance_id                 =  "tf-test-instance-user-conn%{random_suffix}"
+  instance_id                 =  "%{instance_name}"
   shard_count                 = 1
   location                    = "us-central1"
   deletion_protection_enabled = false
 }
 
 resource "google_compute_subnetwork" "subnet_network2" {
-  name                        = "tf-test-subnet-net2%{random_suffix}"
+  name                        = "%{subnet_network2_name}"
   ip_cidr_range               = "10.0.0.248/29"
   region                      = "us-central1"
   network                     = google_compute_network.network2.id
 }
 
 resource "google_compute_network" "network2" {
-  name                        = "network2%{random_suffix}"
+  name                        = "%{network2_name}"
   auto_create_subnetworks     = false
 }
 
@@ -231,8 +246,20 @@ data "google_project" "project" {
 func TestAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDesiredUserAndAutoCreatedEndpointsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"forwarding_rule1_network2_name": "tf-test-fwd1-net2" + randomSuffix,
+		"forwarding_rule2_network2_name": "tf-test-fwd2-net2" + randomSuffix,
+		"instance_name":                  "tf-test-instance-user-auto-conn" + randomSuffix,
+		"ip1_network2_name":              "tf-test-ip1-net2" + randomSuffix,
+		"ip2_network2_name":              "tf-test-ip2-net2" + randomSuffix,
+		"network1_name":                  "net1" + randomSuffix,
+		"network2_name":                  "network2" + randomSuffix,
+		"policy_name":                    "scpolicy" + randomSuffix,
+		"subnet_network1_name":           "tf-test-subnet-net1" + randomSuffix,
+		"subnet_network2_name":           "tf-test-subnet-net2" + randomSuffix,
+		"random_suffix":                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -256,7 +283,7 @@ func TestAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDe
 func testAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDesiredUserAndAutoCreatedEndpointsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_memorystore_instance_desired_user_created_endpoints" "instance-user-auto-conn" {
-  name                        = "tf-test-instance-user-auto-conn%{random_suffix}"
+  name                        = "%{instance_name}"
   region                      = "us-central1"
   desired_user_created_endpoints {
     connections {
@@ -281,7 +308,7 @@ resource "google_memorystore_instance_desired_user_created_endpoints" "instance-
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
-  name                        = "tf-test-fwd1-net2%{random_suffix}"
+  name                        = "%{forwarding_rule1_network2_name}"
   region                      = "us-central1"
   ip_address                  = google_compute_address.ip1_network2.id
   load_balancing_scheme       = ""
@@ -290,7 +317,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
-  name                        = "tf-test-fwd2-net2%{random_suffix}"
+  name                        = "%{forwarding_rule2_network2_name}"
   region                      = "us-central1"
   ip_address                  = google_compute_address.ip2_network2.id
   load_balancing_scheme       = ""
@@ -299,7 +326,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
 }
 
 resource "google_compute_address" "ip1_network2" {
-  name                        = "tf-test-ip1-net2%{random_suffix}"
+  name                        = "%{ip1_network2_name}"
   region                      = "us-central1"
   subnetwork                  = google_compute_subnetwork.subnet_network2.id
   address_type                = "INTERNAL"  
@@ -307,7 +334,7 @@ resource "google_compute_address" "ip1_network2" {
 }
 
 resource "google_compute_address" "ip2_network2" {
-  name                        = "tf-test-ip2-net2%{random_suffix}"
+  name                        = "%{ip2_network2_name}"
   region                      = "us-central1"
   subnetwork                  = google_compute_subnetwork.subnet_network2.id
   address_type                = "INTERNAL"
@@ -315,20 +342,20 @@ resource "google_compute_address" "ip2_network2" {
 }
 
 resource "google_compute_subnetwork" "subnet_network2" {
-  name                        = "tf-test-subnet-net2%{random_suffix}"
+  name                        = "%{subnet_network2_name}"
   ip_cidr_range               = "10.0.0.248/29"
   region                      = "us-central1"
   network                     = google_compute_network.network2.id
 }
 
 resource "google_compute_network" "network2" {
-  name                        = "network2%{random_suffix}"
+  name                        = "%{network2_name}"
   auto_create_subnetworks     = false
 }
 
 //valkey instance with endpoints
 resource "google_memorystore_instance" "instance-user-auto-conn" {
-  instance_id                 = "tf-test-instance-user-auto-conn%{random_suffix}"
+  instance_id                 = "%{instance_name}"
   shard_count                 = 1
   desired_auto_created_endpoints {
     network                   = google_compute_network.network1.id
@@ -341,7 +368,7 @@ resource "google_memorystore_instance" "instance-user-auto-conn" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name                        = "scpolicy%{random_suffix}"
+  name                        = "%{policy_name}"
   location                    = "us-central1"
   service_class               = "gcp-memorystore"
   description                 = "my basic service connection policy"
@@ -352,14 +379,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "subnet_network1" {
-  name                       = "tf-test-subnet-net1%{random_suffix}"
+  name                       = "%{subnet_network1_name}"
   ip_cidr_range              = "10.0.0.248/29"
   region                     = "us-central1"
   network                    = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
-  name                       = "net1%{random_suffix}"
+  name                       = "%{network1_name}"
   auto_create_subnetworks    = false
 }
 

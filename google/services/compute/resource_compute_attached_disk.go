@@ -30,8 +30,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-
-	"google.golang.org/api/compute/v1"
 )
 
 func ResourceComputeAttachedDisk() *schema.Resource {
@@ -135,21 +133,34 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 		diskSrc = rv.RelativeLink()
 	}
 
-	attachedDisk := compute.AttachedDisk{
-		Source:     diskSrc,
-		Mode:       d.Get("mode").(string),
-		DeviceName: d.Get("device_name").(string),
-		Interface:  d.Get("interface").(string),
+	obj := map[string]interface{}{
+		"source": diskSrc,
+		"mode":   d.Get("mode").(string),
+	}
+	if v := d.Get("device_name").(string); v != "" {
+		obj["deviceName"] = v
+	}
+	if v := d.Get("interface").(string); v != "" {
+		obj["interface"] = v
 	}
 
-	op, err := config.NewComputeClient(userAgent).Instances.AttachDisk(zv.Project, zv.Zone, zv.Name, &attachedDisk).Do()
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/attachDisk", config.ComputeBasePath, zv.Project, zv.Zone, zv.Name)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   zv.Project,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutCreate),
+	})
 	if err != nil {
 		return err
 	}
 
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s/%s", zv.Project, zv.Zone, zv.Name, diskName))
 
-	waitErr := ComputeOperationWaitTime(config, op, zv.Project,
+	waitErr := ComputeOperationWaitTime(config, res, zv.Project,
 		"disk to attach", userAgent, d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		d.SetId("")
@@ -179,36 +190,43 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 
 	diskName := tpgresource.GetResourceNameFromSelfLink(d.Get("disk").(string))
 
-	instance, err := config.NewComputeClient(userAgent).Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", config.ComputeBasePath, zv.Project, zv.Zone, zv.Name)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   zv.Project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AttachedDisk %q", d.Id()))
 	}
 
 	// Iterate through the instance's attached disks as this is the only way to
 	// confirm the disk is actually attached
-	ad := FindDiskByName(instance.Disks, diskName)
+	ad := findDiskByName(res["disks"], diskName)
 	if ad == nil {
 		log.Printf("[WARN] Referenced disk wasn't found attached to this compute instance. Removing from state.")
 		d.SetId("")
 		return nil
 	}
 
-	if err := d.Set("device_name", ad.DeviceName); err != nil {
+	if err := d.Set("device_name", ad["deviceName"]); err != nil {
 		return fmt.Errorf("Error setting device_name: %s", err)
 	}
-	if err := d.Set("mode", ad.Mode); err != nil {
+	if err := d.Set("mode", ad["mode"]); err != nil {
 		return fmt.Errorf("Error setting mode: %s", err)
 	}
 
 	// Force the referenced resources to a self-link in state because it's more specific then name.
-	instancePath, err := tpgresource.GetRelativePath(instance.SelfLink)
+	instancePath, err := tpgresource.GetRelativePath(res["selfLink"].(string))
 	if err != nil {
 		return err
 	}
 	if err := d.Set("instance", instancePath); err != nil {
 		return fmt.Errorf("Error setting instance: %s", err)
 	}
-	diskPath, err := tpgresource.GetRelativePath(ad.Source)
+	diskPath, err := tpgresource.GetRelativePath(ad["source"].(string))
 	if err != nil {
 		return err
 	}
@@ -233,24 +251,45 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 
 	diskName := tpgresource.GetResourceNameFromSelfLink(d.Get("disk").(string))
 
-	instance, err := config.NewComputeClient(userAgent).Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
+	getUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", config.ComputeBasePath, zv.Project, zv.Zone, zv.Name)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   zv.Project,
+		RawURL:    getUrl,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return err
 	}
 
 	// Confirm the disk is still attached before making the call to detach it. If the disk isn't listed as an attached
 	// disk on the compute instance then return as though the delete call succeed since this is the desired state.
-	ad := FindDiskByName(instance.Disks, diskName)
+	ad := findDiskByName(res["disks"], diskName)
 	if ad == nil {
 		return nil
 	}
 
-	op, err := config.NewComputeClient(userAgent).Instances.DetachDisk(zv.Project, zv.Zone, zv.Name, ad.DeviceName).Do()
+	deviceName := ad["deviceName"].(string)
+	detachUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/detachDisk", config.ComputeBasePath, zv.Project, zv.Zone, zv.Name)
+	detachUrl, err = transport_tpg.AddQueryParams(detachUrl, map[string]string{"deviceName": deviceName})
 	if err != nil {
 		return err
 	}
 
-	waitErr := ComputeOperationWaitTime(config, op, zv.Project,
+	res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   zv.Project,
+		RawURL:    detachUrl,
+		UserAgent: userAgent,
+		Timeout:   d.Timeout(schema.TimeoutDelete),
+	})
+	if err != nil {
+		return err
+	}
+
+	waitErr := ComputeOperationWaitTime(config, res, zv.Project,
 		fmt.Sprintf("Detaching disk from %s", zv.Name), userAgent, d.Timeout(schema.TimeoutDelete))
 	if waitErr != nil {
 		return waitErr
@@ -278,13 +317,21 @@ func resourceAttachedDiskImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	return []*schema.ResourceData{d}, nil
 }
 
-func FindDiskByName(disks []*compute.AttachedDisk, id string) *compute.AttachedDisk {
-	for _, disk := range disks {
-		if tpgresource.CompareSelfLinkOrResourceName("", disk.Source, id, nil) {
+func findDiskByName(disksRaw interface{}, id string) map[string]interface{} {
+	disks, ok := disksRaw.([]interface{})
+	if !ok {
+		return nil
+	}
+	for _, diskRaw := range disks {
+		disk, ok := diskRaw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		source, _ := disk["source"].(string)
+		if tpgresource.CompareSelfLinkOrResourceName("", source, id, nil) {
 			return disk
 		}
 	}
-
 	return nil
 }
 

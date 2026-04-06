@@ -53,8 +53,12 @@ var (
 func TestAccIapSettings_iapSettingsBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name": "tf-test-iap-settings-tf" + randomSuffix,
+		"health_check_name":    "tf-test-iap-bs-health-check" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +85,7 @@ data "google_project" "project" {
 }
 
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-iap-settings-tf%{random_suffix}"
+  name                            = "%{backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -89,7 +93,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-iap-bs-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -151,8 +155,12 @@ resource "google_iap_settings" "iap_settings" {
 func TestAccIapSettings_iapSettingsOauthStorageExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name": "tf-test-iap-settings-oauth" + randomSuffix,
+		"health_check_name":    "tf-test-iap-bs-health-check-oauth" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -179,7 +187,7 @@ data "google_project" "project" {
 }
 
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-iap-settings-oauth%{random_suffix}"
+  name                            = "%{backend_service_name}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
@@ -187,7 +195,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-iap-bs-health-check-oauth%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
 

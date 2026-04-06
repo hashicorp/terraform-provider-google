@@ -261,6 +261,8 @@ func resourceApigeeEndpointAttachmentRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeEndpointAttachment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeEndpointAttachment %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenApigeeEndpointAttachmentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
 	}

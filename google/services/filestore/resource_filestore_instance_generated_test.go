@@ -53,8 +53,11 @@ var (
 func TestAccFilestoreInstance_filestoreInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-test-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccFilestoreInstance_filestoreInstanceBasicExample(t *testing.T) {
 func testAccFilestoreInstance_filestoreInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_filestore_instance" "instance" {
-  name     = "tf-test-test-instance%{random_suffix}"
+  name     = "%{instance_name}"
   location = "us-central1-b"
   tier     = "BASIC_HDD"
 
@@ -98,8 +101,11 @@ resource "google_filestore_instance" "instance" {
 func TestAccFilestoreInstance_filestoreInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-test-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -123,7 +129,7 @@ func TestAccFilestoreInstance_filestoreInstanceFullExample(t *testing.T) {
 func testAccFilestoreInstance_filestoreInstanceFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_filestore_instance" "instance" {
-  name     = "tf-test-test-instance%{random_suffix}"
+  name     = "%{instance_name}"
   location = "us-central1-b"
   tier     = "BASIC_SSD"
 
@@ -158,8 +164,11 @@ resource "google_filestore_instance" "instance" {
 func TestAccFilestoreInstance_filestoreInstanceProtocolExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-test-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -183,7 +192,7 @@ func TestAccFilestoreInstance_filestoreInstanceProtocolExample(t *testing.T) {
 func testAccFilestoreInstance_filestoreInstanceProtocolExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_filestore_instance" "instance" {
-  name     = "tf-test-test-instance%{random_suffix}"
+  name     = "%{instance_name}"
   location = "us-central1"
   tier     = "ENTERPRISE"
   protocol = "NFS_V4_1"

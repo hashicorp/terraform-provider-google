@@ -1,0 +1,20 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_compute_region_health_source
+generation_type: mmv1
+source_file: products/compute/RegionHealthSource.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: RegionHealthSource
+fields:
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: fingerprint
+    - api_field: healthAggregationPolicy
+    - api_field: id
+    - api_field: name
+    - field: region
+      provider_only: true
+    - api_field: selfLinkWithId
+    - api_field: sourceType
+    - api_field: sources

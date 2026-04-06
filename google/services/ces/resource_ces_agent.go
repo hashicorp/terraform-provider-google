@@ -423,6 +423,11 @@ variables names to be sent back to the CES agent after the Dialogflow
 agent execution ends.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
+						"respect_response_interruption_settings": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Indicates whether to respect the message-level interruption settings configured in the Dialogflow agent. * If false: all response messages from the Dialogflow agent follow the app-level barge-in settings. * If true: only response messages with ['allow_playback_interruption'](https://docs.cloud.google.com/dialogflow/cx/docs/reference/rpc/google.cloud.dialogflow.cx.v3#text) set to true will be interruptable, all other messages follow the app-level barge-in settings.`,
+						},
 					},
 				},
 			},
@@ -693,6 +698,8 @@ func resourceCESAgentRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CESAgent %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading CESAgent %q: %#v", d.Id(), res)
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
@@ -1335,6 +1342,8 @@ func flattenCESAgentRemoteDialogflowAgent(v interface{}, d *schema.ResourceData,
 		flattenCESAgentRemoteDialogflowAgentInputVariableMapping(original["inputVariableMapping"], d, config)
 	transformed["output_variable_mapping"] =
 		flattenCESAgentRemoteDialogflowAgentOutputVariableMapping(original["outputVariableMapping"], d, config)
+	transformed["respect_response_interruption_settings"] =
+		flattenCESAgentRemoteDialogflowAgentRespectResponseInterruptionSettings(original["respectResponseInterruptionSettings"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAgentRemoteDialogflowAgentAgent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1354,6 +1363,10 @@ func flattenCESAgentRemoteDialogflowAgentInputVariableMapping(v interface{}, d *
 }
 
 func flattenCESAgentRemoteDialogflowAgentOutputVariableMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAgentRemoteDialogflowAgentRespectResponseInterruptionSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1820,6 +1833,13 @@ func expandCESAgentRemoteDialogflowAgent(v interface{}, d tpgresource.TerraformR
 		transformed["outputVariableMapping"] = transformedOutputVariableMapping
 	}
 
+	transformedRespectResponseInterruptionSettings, err := expandCESAgentRemoteDialogflowAgentRespectResponseInterruptionSettings(original["respect_response_interruption_settings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRespectResponseInterruptionSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["respectResponseInterruptionSettings"] = transformedRespectResponseInterruptionSettings
+	}
+
 	return transformed, nil
 }
 
@@ -1855,6 +1875,10 @@ func expandCESAgentRemoteDialogflowAgentOutputVariableMapping(v interface{}, d t
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandCESAgentRemoteDialogflowAgentRespectResponseInterruptionSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCESAgentTools(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

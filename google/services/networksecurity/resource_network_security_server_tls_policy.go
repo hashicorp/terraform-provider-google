@@ -433,6 +433,8 @@ func resourceNetworkSecurityServerTlsPolicyRead(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkSecurityServerTlsPolicy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkSecurityServerTlsPolicy %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ServerTlsPolicy: %s", err)
 	}

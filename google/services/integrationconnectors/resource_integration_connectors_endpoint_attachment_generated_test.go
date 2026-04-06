@@ -53,8 +53,11 @@ var (
 func TestAccIntegrationConnectorsEndpointAttachment_integrationConnectorsEndpointAttachmentExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"endpoint_attachment_name": "tf-test-test-endpoint-attachment" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccIntegrationConnectorsEndpointAttachment_integrationConnectorsEndpoin
 func testAccIntegrationConnectorsEndpointAttachment_integrationConnectorsEndpointAttachmentExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_integration_connectors_endpoint_attachment" "sampleendpointattachment" {
-  name     = "tf-test-test-endpoint-attachment%{random_suffix}"
+  name     = "%{endpoint_attachment_name}"
   location = "us-central1"
   description = "tf created description"
   service_attachment = "projects/connectors-example/regions/us-central1/serviceAttachments/test"

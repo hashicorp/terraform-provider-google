@@ -53,8 +53,11 @@ var (
 func TestAccLoggingMetric_loggingMetricBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"logging_metric_name": "tf-test-my-(custom)/metric" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +80,7 @@ func TestAccLoggingMetric_loggingMetricBasicExample(t *testing.T) {
 func testAccLoggingMetric_loggingMetricBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_logging_metric" "logging_metric" {
-  name   = "tf-test-my-(custom)/metric%{random_suffix}"
+  name   = "%{logging_metric_name}"
   filter = "resource.type=gae_app AND severity>=ERROR"
   metric_descriptor {
     metric_kind = "DELTA"
@@ -114,8 +117,11 @@ resource "google_logging_metric" "logging_metric" {
 func TestAccLoggingMetric_loggingMetricCounterBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"logging_metric_name": "tf-test-my-(custom)/metric" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +144,7 @@ func TestAccLoggingMetric_loggingMetricCounterBasicExample(t *testing.T) {
 func testAccLoggingMetric_loggingMetricCounterBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_logging_metric" "logging_metric" {
-  name   = "tf-test-my-(custom)/metric%{random_suffix}"
+  name   = "%{logging_metric_name}"
   filter = "resource.type=gae_app AND severity>=ERROR"
   metric_descriptor {
     metric_kind = "DELTA"
@@ -151,8 +157,11 @@ resource "google_logging_metric" "logging_metric" {
 func TestAccLoggingMetric_loggingMetricCounterLabelsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"logging_metric_name": "tf-test-my-(custom)/metric" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -175,7 +184,7 @@ func TestAccLoggingMetric_loggingMetricCounterLabelsExample(t *testing.T) {
 func testAccLoggingMetric_loggingMetricCounterLabelsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_logging_metric" "logging_metric" {
-  name   = "tf-test-my-(custom)/metric%{random_suffix}"
+  name   = "%{logging_metric_name}"
   filter = "resource.type=gae_app AND severity>=ERROR"
   metric_descriptor {
     metric_kind = "DELTA"
@@ -196,9 +205,12 @@ resource "google_logging_metric" "logging_metric" {
 func TestAccLoggingMetric_loggingMetricLoggingBucketExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":             envvar.GetTestProjectFromEnv(),
+		"logging_metric_name": "tf-test-my-(custom)/metric" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -227,7 +239,7 @@ resource "google_logging_project_bucket_config" "logging_metric" {
 }
 
 resource "google_logging_metric" "logging_metric" {
-  name        = "tf-test-my-(custom)/metric%{random_suffix}"
+  name        = "%{logging_metric_name}"
   filter      = "resource.type=gae_app AND severity>=ERROR"
   bucket_name = google_logging_project_bucket_config.logging_metric.name
 }
@@ -237,8 +249,11 @@ resource "google_logging_metric" "logging_metric" {
 func TestAccLoggingMetric_loggingMetricDisabledExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"logging_metric_name": "tf-test-my-(custom)/metric" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -261,7 +276,7 @@ func TestAccLoggingMetric_loggingMetricDisabledExample(t *testing.T) {
 func testAccLoggingMetric_loggingMetricDisabledExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_logging_metric" "logging_metric" {
-  name   = "tf-test-my-(custom)/metric%{random_suffix}"
+  name   = "%{logging_metric_name}"
   filter = "resource.type=gae_app AND severity>=ERROR"
   metric_descriptor {
     metric_kind = "DELTA"

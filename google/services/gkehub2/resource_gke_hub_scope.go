@@ -323,6 +323,8 @@ func resourceGKEHub2ScopeRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("GKEHub2Scope %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading GKEHub2Scope %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Scope: %s", err)
 	}

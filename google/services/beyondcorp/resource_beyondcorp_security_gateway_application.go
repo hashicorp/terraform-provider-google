@@ -506,6 +506,8 @@ func resourceBeyondcorpSecurityGatewayApplicationRead(d *schema.ResourceData, me
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BeyondcorpSecurityGatewayApplication %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading BeyondcorpSecurityGatewayApplication %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading SecurityGatewayApplication: %s", err)
 	}

@@ -53,8 +53,11 @@ var (
 func TestAccDiscoveryEngineSitemap_discoveryengineSitemapBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_id": "tf-test-data-store-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -85,7 +88,7 @@ resource "google_discovery_engine_sitemap" "basic" {
 
 resource "google_discovery_engine_data_store" "advanced" {
   location                     = "global"
-  data_store_id                = "tf-test-data-store-id%{random_suffix}"
+  data_store_id                = "%{data_store_id}"
   display_name                 = "tf-test-advanced-site-search-datastore"
   industry_vertical            = "GENERIC"
   content_config               = "PUBLIC_WEBSITE"

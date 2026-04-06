@@ -421,6 +421,8 @@ func resourceDiscoveryEngineChatEngineRead(d *schema.ResourceData, meta interfac
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DiscoveryEngineChatEngine %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DiscoveryEngineChatEngine %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ChatEngine: %s", err)
 	}

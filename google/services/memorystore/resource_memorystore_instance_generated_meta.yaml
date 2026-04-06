@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_memorystore_instance
 generation_type: mmv1
 source_file: products/memorystore/Instance.yaml
@@ -88,6 +90,8 @@ fields:
     - api_field: pscAutoConnections.pscConnectionStatus
     - api_field: pscAutoConnections.serviceAttachment
     - api_field: replicaCount
+    - api_field: serverCaMode
+    - api_field: serverCaPool
     - api_field: shardCount
     - api_field: state
     - api_field: stateInfo.updateInfo.targetEngineVersion

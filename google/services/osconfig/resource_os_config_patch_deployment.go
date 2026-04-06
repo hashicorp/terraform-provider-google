@@ -1185,6 +1185,8 @@ func resourceOSConfigPatchDeploymentRead(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("OSConfigPatchDeployment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading OSConfigPatchDeployment %q: %#v", d.Id(), res)
+
 	res, err = resourceOSConfigPatchDeploymentDecoder(d, meta, res)
 	if err != nil {
 		return err

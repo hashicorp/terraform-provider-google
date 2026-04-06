@@ -53,8 +53,11 @@ var (
 func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicExample(t *testing.T) 
 func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -95,8 +98,11 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicDependsOnExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -120,7 +126,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicDependsOnExample(t *te
 func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicDependsOnExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -152,8 +158,11 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolLimitsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -177,7 +186,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolLimitsExample(t *testing.T)
 func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolLimitsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -200,9 +209,14 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSqlExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"cloud_run_sql_name":         "tf-test-cloudrun-sql" + randomSuffix,
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"deletion_protection":        false,
+		"secret_id":                  "tf-test-secret-1" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -226,7 +240,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSqlExample(t *testing.T) {
 func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSqlExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -274,7 +288,7 @@ data "google_project" "project" {
 }
 
 resource "google_secret_manager_secret" "secret" {
-  secret_id = "tf-test-secret-1%{random_suffix}"
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
@@ -293,7 +307,7 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 }
 
 resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-cloudrun-sql%{random_suffix}"
+  name             = "%{cloud_run_sql_name}"
   region           = "us-central1"
   database_version = "MYSQL_5_7"
   settings {
@@ -308,8 +322,11 @@ resource "google_sql_database_instance" "instance" {
 func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolDirectvpcExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -333,7 +350,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolDirectvpcExample(t *testing
 func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolDirectvpcExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -357,8 +374,11 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolGpuExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -382,7 +402,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolGpuExample(t *testing.T) {
 func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolGpuExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -410,8 +430,12 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSecretExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"secret_id":                  "tf-test-secret-1" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -435,7 +459,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSecretExample(t *testing.T)
 func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSecretExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -468,7 +492,7 @@ data "google_project" "project" {
 }
 
 resource "google_secret_manager_secret" "secret" {
-  secret_id = "tf-test-secret-1%{random_suffix}"
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
@@ -491,8 +515,11 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMulticontainerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -516,7 +543,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMulticontainerExample(t *te
 func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMulticontainerExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "BETA"
@@ -550,8 +577,11 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountGcsExample(t *testing.
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -575,7 +605,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountGcsExample(t *testing.
 func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountGcsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
 
   location     = "us-central1"
   deletion_protection = false
@@ -601,7 +631,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 }
 
 resource "google_storage_bucket" "default" {
-    name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+    name     = "%{cloud_run_worker_pool_name}"
     location = "US"
     uniform_bucket_level_access = true
 }
@@ -612,8 +642,11 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountNfsExample(t *testing.
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -637,7 +670,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountNfsExample(t *testing.
 func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountNfsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
 
   location     = "us-central1"
   deletion_protection = false
@@ -670,7 +703,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 }
 
 resource "google_filestore_instance" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1-b"
   tier     = "BASIC_HDD"
 
@@ -690,8 +723,14 @@ resource "google_filestore_instance" "default" {
 func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolStartupLivenessProbeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_worker_pool_name":  "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"compute_network_name":        "tf-test-wp-net" + randomSuffix,
+		"vpc_access_connector_name":   "tf-test-wp-connector" + randomSuffix,
+		"vpc_compute_subnetwork_name": "tf-test-wp-subnet" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -715,19 +754,19 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolStartupLivenessProbeExample
 func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolStartupLivenessProbeExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "custom_test" {
-  name                    = "tf-test-wp-net%{random_suffix}"
+  name                    = "%{compute_network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "custom_test" {
-  name          = "tf-test-wp-subnet%{random_suffix}"
+  name          = "%{vpc_compute_subnetwork_name}"
   ip_cidr_range = "10.2.0.0/28"
   region        = "us-central1"
   network       = google_compute_network.custom_test.id
 }
 
 resource "google_cloud_run_v2_worker_pool" "default" {
-  name                = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  name                = "%{cloud_run_worker_pool_name}"
   location            = "us-central1"
   launch_stage        = "BETA"
   deletion_protection = false

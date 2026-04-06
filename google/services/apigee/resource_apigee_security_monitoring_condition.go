@@ -277,6 +277,8 @@ func resourceApigeeSecurityMonitoringConditionRead(d *schema.ResourceData, meta 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeSecurityMonitoringCondition %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeSecurityMonitoringCondition %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenApigeeSecurityMonitoringConditionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityMonitoringCondition: %s", err)
 	}

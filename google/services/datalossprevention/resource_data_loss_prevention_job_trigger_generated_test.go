@@ -53,9 +53,12 @@ var (
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"trigger":       "trigger" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -116,9 +119,12 @@ resource "google_data_loss_prevention_job_trigger" "basic" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"trigger":       "trigger" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -184,9 +190,12 @@ resource "google_data_loss_prevention_job_trigger" "bigquery_row_limit" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitPercentageExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"trigger":       "trigger" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -252,9 +261,12 @@ resource "google_data_loss_prevention_job_trigger" "bigquery_row_limit_percentag
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToDataplexCatalogExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"trigger":       "trigger" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -313,9 +325,12 @@ resource "google_data_loss_prevention_job_trigger" "publish_to_dataplex_catalog"
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDataCatalogOutputExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"trigger":       "trigger" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -374,9 +389,12 @@ resource "google_data_loss_prevention_job_trigger" "data_catalog_output" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerSccOutputExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"trigger":       "trigger" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -435,9 +453,11 @@ resource "google_data_loss_prevention_job_trigger" "scc_output" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerJobNotificationEmailsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -491,10 +511,12 @@ resource "google_data_loss_prevention_job_trigger" "job_notification_emails" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
 		"name":          "tf_test_" + acctest.RandString(t, 10),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -606,9 +628,11 @@ resource "google_bigquery_table" "default" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -674,9 +698,12 @@ resource "google_data_loss_prevention_job_trigger" "hybrid_trigger" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerInspectExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"trigger":       "trigger" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -793,9 +820,11 @@ resource "google_data_loss_prevention_job_trigger" "inspect" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToStackdriverExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -849,9 +878,12 @@ resource "google_data_loss_prevention_job_trigger" "publish_to_stackdriver" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerWithIdExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-id-" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -878,7 +910,7 @@ resource "google_data_loss_prevention_job_trigger" "with_trigger_id" {
   parent = "projects/%{project}"
   description = "Starting description"
   display_name = "display"
-  trigger_id = "tf-test-id-%{random_suffix}"
+  trigger_id = "%{name}"
 
   triggers {
     schedule {
@@ -913,9 +945,12 @@ resource "google_data_loss_prevention_job_trigger" "with_trigger_id" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerMultipleActionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"trigger":       "trigger" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -984,9 +1019,12 @@ resource "google_data_loss_prevention_job_trigger" "basic" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerCloudStorageOptionalTimespanAutopopulationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"trigger":       "trigger" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1051,9 +1089,12 @@ resource "google_data_loss_prevention_job_trigger" "basic" {
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerTimespanConfigBigQueryExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"trigger":       "trigger" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

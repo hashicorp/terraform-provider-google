@@ -147,6 +147,13 @@ state.
 `false`. This field should only be enabled for Autopilot clusters (`enable_autopilot`
 set to `true`).
 
+* `autopilot_privileged_admission` - (Optional) The customer
+allowlist Cloud Storage paths for the cluster. These paths are used with the
+`--autopilot-privileged-admission` flag to authorize privileged workloads in
+Autopilot clusters. See the Cluster API's
+[PrivilegedAdmissionConfig](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters#privilegedadmissionconfig)
+documentation for more details.
+
 * `cluster_ipv4_cidr` - (Optional) The IP address range of the Kubernetes pods
 in this cluster in CIDR notation (e.g. `10.96.0.0/14`). Leave blank to have one
 automatically chosen or specify a `/14` block in `10.0.0.0/8`. This field will
@@ -529,7 +536,7 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
    GKE](https://cloud.google.com/kubernetes-engine/docs/add-on/ray-on-gke/how-to/collect-view-logs-metrics)
    for more information.
 
-*  `slice_controller` - (Optional). 
+*  `slice_controller_config` - (Optional). 
    The status of the slice controller addon.
    It is disabled by default. Set `enabled = true` to enable.
 
@@ -543,10 +550,11 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
    which allows the usage of a Lustre instances as volumes.
    It is disabled by default for Standard clusters; set `enabled = true` to enable.
    It is disabled by default for Autopilot clusters; set `enabled = true` to enable.
-   Lustre CSI Driver Config has optional subfield
-   `enable_legacy_lustre_port` which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988. 
-   This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
    See [Enable Lustre CSI driver](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/lustre-csi-driver-new-volume) for more information.
+   Lustre CSI Driver Config has optional subfields:
+   * `enable_legacy_lustre_port` which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988. 
+   This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
+   * `disable_multi_nic` When set to true, this disables multi-NIC support for the Lustre CSI driver. By default, GKE enables multi-NIC support, which allows the Lustre CSI driver to automatically detect and configure all suitable network interfaces on a node to maximize I/O performance for demanding workloads.
 
 * `pod_snapshot_config` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The status of the Pod Snapshot addon. It is disabled by default. Set `enabled = true` to enable.
 
@@ -739,6 +747,7 @@ This block also contains several computed attributes, documented below.
 * `daily_maintenance_window` - (Optional) structure documented below.
 * `recurring_window` - (Optional) structure documented below
 * `maintenance_exclusion` - (Optional) structure documented below
+* `disruption_budget` - (Optional) structure documented below
 
 In beta, one or the other of `recurring_window` and `daily_maintenance_window` is required if a `maintenance_policy` block is supplied.
 
@@ -822,6 +831,24 @@ maintenance_policy {
       scope = "NO_MINOR_UPGRADES"
       end_time_behavior = "UNTIL_END_OF_SUPPORT"
     }
+  }
+}
+```
+
+* `disruption_budget` - cluster control plane minor and patch version disruption interval.
+
+<a name="nested_disruption_budget"></a>The `disruption_budget` block supports:
+* `minor_version_disruption_interval` - (Optional) The minimum duration between two minor version upgrades of the control plane.
+* `patch_version_disruption_interval` - (Optional) The minimum duration between two patch version upgrades of the control plane.
+* `last_minor_version_disruption_time` - (Output) The last minor version disruption time of the control plane.
+* `last_disruption_time` - (Output) The last disruption time of the control plane.
+
+Examples:
+```hcl
+maintenance_policy {
+  disruption_budget{
+    minor_version_disruption_interval = "2592000s"
+    patch_version_disruption_interval = "86400s"
   }
 }
 ```

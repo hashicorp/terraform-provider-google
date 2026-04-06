@@ -53,9 +53,13 @@ var (
 func TestAccLoggingLinkedDataset_loggingLinkedDatasetBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_id":     "tf-test-my-bucket" + randomSuffix,
+		"link_id":       "mylink" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -82,11 +86,11 @@ resource "google_logging_project_bucket_config" "logging_linked_dataset" {
   location         = "global"
   project          = "%{project}"
   enable_analytics = true
-  bucket_id        = "tf-test-my-bucket%{random_suffix}"
+  bucket_id        = "%{bucket_id}"
 }
 
 resource "google_logging_linked_dataset" "logging_linked_dataset" {
-  link_id     = "mylink%{random_suffix}"
+  link_id     = "%{link_id}"
   bucket      = google_logging_project_bucket_config.logging_linked_dataset.id
   description = "Linked dataset test"
 }
@@ -96,9 +100,13 @@ resource "google_logging_linked_dataset" "logging_linked_dataset" {
 func TestAccLoggingLinkedDataset_loggingLinkedDatasetAllParamsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_id":     "tf-test-my-bucket" + randomSuffix,
+		"link_id":       "mylink" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -125,12 +133,12 @@ resource "google_logging_project_bucket_config" "logging_linked_dataset" {
   location         = "global"
   project          = "%{project}"
   enable_analytics = true
-  bucket_id        = "tf-test-my-bucket%{random_suffix}"
+  bucket_id        = "%{bucket_id}"
 }
 
 resource "google_logging_linked_dataset" "logging_linked_dataset" {
-  link_id     = "mylink%{random_suffix}"
-  bucket      = "tf-test-my-bucket%{random_suffix}"
+  link_id     = "%{link_id}"
+  bucket      = "%{bucket_id}"
   parent      = "projects/%{project}"
   location    = "global"
   description = "Linked dataset test"

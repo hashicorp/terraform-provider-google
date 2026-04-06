@@ -307,6 +307,8 @@ func resourceSecurityCenterV2OrganizationNotificationConfigRead(d *schema.Resour
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterV2OrganizationNotificationConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityCenterV2OrganizationNotificationConfig %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenSecurityCenterV2OrganizationNotificationConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
 	}

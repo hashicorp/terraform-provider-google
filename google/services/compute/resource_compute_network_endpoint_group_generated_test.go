@@ -53,8 +53,13 @@ var (
 func TestAccComputeNetworkEndpointGroup_networkEndpointGroupExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":        "tf-test-my-lb-neg" + randomSuffix,
+		"network_name":    "tf-test-neg-network" + randomSuffix,
+		"subnetwork_name": "tf-test-neg-subnetwork" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccComputeNetworkEndpointGroup_networkEndpointGroupExample(t *testing.T
 func testAccComputeNetworkEndpointGroup_networkEndpointGroupExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
-  name         = "tf-test-my-lb-neg%{random_suffix}"
+  name         = "%{neg_name}"
   network      = google_compute_network.default.id
   subnetwork   = google_compute_subnetwork.default.id
   default_port = "90"
@@ -86,12 +91,12 @@ resource "google_compute_network_endpoint_group" "neg" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-neg-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-neg-subnetwork%{random_suffix}"
+  name          = "%{subnetwork_name}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.default.id
@@ -102,8 +107,12 @@ resource "google_compute_subnetwork" "default" {
 func TestAccComputeNetworkEndpointGroup_networkEndpointGroupNonGcpExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":      "tf-test-my-lb-neg" + randomSuffix,
+		"network_name":  "tf-test-neg-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,7 +136,7 @@ func TestAccComputeNetworkEndpointGroup_networkEndpointGroupNonGcpExample(t *tes
 func testAccComputeNetworkEndpointGroup_networkEndpointGroupNonGcpExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
-  name                  = "tf-test-my-lb-neg%{random_suffix}"
+  name                  = "%{neg_name}"
   network               = google_compute_network.default.id
   default_port          = "90"
   zone                  = "us-central1-a"
@@ -141,7 +150,7 @@ resource "google_compute_network_endpoint" "default-endpoint" {
 }
 
 resource "google_compute_network" "default" {
-  name = "tf-test-neg-network%{random_suffix}"
+  name = "%{network_name}"
 }
 `, context)
 }

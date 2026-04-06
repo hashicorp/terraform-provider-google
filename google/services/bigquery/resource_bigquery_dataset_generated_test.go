@@ -53,8 +53,12 @@ var (
 func TestAccBigQueryDataset_bigqueryDatasetBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_name":  "bqowner" + randomSuffix,
+		"dataset_id":    "tf_test_example_dataset" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccBigQueryDataset_bigqueryDatasetBasicExample(t *testing.T) {
 func testAccBigQueryDataset_bigqueryDatasetBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id                  = "tf_test_example_dataset%{random_suffix}"
+  dataset_id                  = "%{dataset_id}"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "EU"
@@ -100,7 +104,7 @@ resource "google_bigquery_dataset" "dataset" {
 }
 
 resource "google_service_account" "bqowner" {
-  account_id = "bqowner%{random_suffix}"
+  account_id = "%{account_name}"
 }
 `, context)
 }
@@ -108,8 +112,12 @@ resource "google_service_account" "bqowner" {
 func TestAccBigQueryDataset_bigqueryDatasetWithMaxTimeTravelHoursExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_name":  "bqowner" + randomSuffix,
+		"dataset_id":    "tf_test_example_dataset" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -133,7 +141,7 @@ func TestAccBigQueryDataset_bigqueryDatasetWithMaxTimeTravelHoursExample(t *test
 func testAccBigQueryDataset_bigqueryDatasetWithMaxTimeTravelHoursExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id                  = "tf_test_example_dataset%{random_suffix}"
+  dataset_id                  = "%{dataset_id}"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "EU"
@@ -156,7 +164,7 @@ resource "google_bigquery_dataset" "dataset" {
 }
 
 resource "google_service_account" "bqowner" {
-  account_id = "bqowner%{random_suffix}"
+  account_id = "%{account_name}"
 }
 `, context)
 }
@@ -164,8 +172,13 @@ resource "google_service_account" "bqowner" {
 func TestAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_name":  "bqowner" + randomSuffix,
+		"private":       "private" + randomSuffix,
+		"public":        "public" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -189,7 +202,7 @@ func TestAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(t *testing.T
 func testAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "public" {
-  dataset_id                  = "public%{random_suffix}"
+  dataset_id                  = "%{public}"
   friendly_name               = "test"
   description                 = "This dataset is public"
   location                    = "EU"
@@ -211,7 +224,7 @@ resource "google_bigquery_dataset" "public" {
 }
 
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id                  = "private%{random_suffix}"
+  dataset_id                  = "%{private}"
   friendly_name               = "test"
   description                 = "This dataset is private"
   location                    = "EU"
@@ -243,7 +256,7 @@ resource "google_bigquery_dataset" "dataset" {
 }
 
 resource "google_service_account" "bqowner" {
-  account_id = "bqowner%{random_suffix}"
+  account_id = "%{account_name}"
 }
 `, context)
 }
@@ -251,9 +264,14 @@ resource "google_service_account" "bqowner" {
 func TestAccBigQueryDataset_bigqueryDatasetAuthorizedRoutineExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"private_dataset": "tf_test_private_dataset" + randomSuffix,
+		"public_dataset":  "tf_test_public_dataset" + randomSuffix,
+		"public_routine":  "tf_test_public_routine" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -277,13 +295,13 @@ func TestAccBigQueryDataset_bigqueryDatasetAuthorizedRoutineExample(t *testing.T
 func testAccBigQueryDataset_bigqueryDatasetAuthorizedRoutineExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "public" {
-  dataset_id  = "tf_test_public_dataset%{random_suffix}"
+  dataset_id  = "%{public_dataset}"
   description = "This dataset is public"
 }
 
 resource "google_bigquery_routine" "public" {
   dataset_id      = google_bigquery_dataset.public.dataset_id
-  routine_id      = "tf_test_public_routine%{random_suffix}"
+  routine_id      = "%{public_routine}"
   routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
   definition_body = <<-EOS
@@ -300,7 +318,7 @@ resource "google_bigquery_routine" "public" {
 }
 
 resource "google_bigquery_dataset" "private" {
-  dataset_id  = "tf_test_private_dataset%{random_suffix}"
+  dataset_id  = "%{private_dataset}"
   description = "This dataset is private"
   access {
     role          = "OWNER"
@@ -320,8 +338,12 @@ resource "google_bigquery_dataset" "private" {
 func TestAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_name":  "bqowner" + randomSuffix,
+		"dataset_id":    "tf_test_example_dataset" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -345,7 +367,7 @@ func TestAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(t *testin
 func testAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id                  = "tf_test_example_dataset%{random_suffix}"
+  dataset_id                  = "%{dataset_id}"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "EU"
@@ -368,7 +390,7 @@ resource "google_bigquery_dataset" "dataset" {
 }
 
 resource "google_service_account" "bqowner" {
-  account_id = "bqowner%{random_suffix}"
+  account_id = "%{account_name}"
 }
 `, context)
 }
@@ -376,8 +398,12 @@ resource "google_service_account" "bqowner" {
 func TestAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_name":  "bqowner" + randomSuffix,
+		"dataset_id":    "tf_test_example_dataset" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -401,7 +427,7 @@ func TestAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(t *testing
 func testAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id                  = "tf_test_example_dataset%{random_suffix}"
+  dataset_id                  = "%{dataset_id}"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "EU"
@@ -424,7 +450,7 @@ resource "google_bigquery_dataset" "dataset" {
 }
 
 resource "google_service_account" "bqowner" {
-  account_id = "bqowner%{random_suffix}"
+  account_id = "%{account_name}"
 }
 `, context)
 }
@@ -432,8 +458,11 @@ resource "google_service_account" "bqowner" {
 func TestAccBigQueryDataset_bigqueryDatasetExternalCatalogDatasetOptionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_id":    "tf_test_example_dataset" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -457,7 +486,7 @@ func TestAccBigQueryDataset_bigqueryDatasetExternalCatalogDatasetOptionsExample(
 func testAccBigQueryDataset_bigqueryDatasetExternalCatalogDatasetOptionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id    = "tf_test_example_dataset%{random_suffix}"
+  dataset_id    = "%{dataset_id}"
   friendly_name = "test"
   description   = "This is a test description"
   location      = "US"
@@ -475,8 +504,15 @@ resource "google_bigquery_dataset" "dataset" {
 func TestAccBigQueryDataset_bigqueryDatasetResourceTagsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_id":    "dataset" + randomSuffix,
+		"tag_key1":      "tf_test_tag_key1" + randomSuffix,
+		"tag_key2":      "tf_test_tag_key2" + randomSuffix,
+		"tag_value1":    "tf_test_tag_value1" + randomSuffix,
+		"tag_value2":    "tf_test_tag_value2" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -503,26 +539,26 @@ data "google_project" "project" {}
 
 resource "google_tags_tag_key" "tag_key1" {
   parent     = data.google_project.project.id
-  short_name = "tf_test_tag_key1%{random_suffix}"
+  short_name = "%{tag_key1}"
 }
 
 resource "google_tags_tag_value" "tag_value1" {
   parent     = google_tags_tag_key.tag_key1.id
-  short_name = "tf_test_tag_value1%{random_suffix}"
+  short_name = "%{tag_value1}"
 }
 
 resource "google_tags_tag_key" "tag_key2" {
   parent     = data.google_project.project.id
-  short_name = "tf_test_tag_key2%{random_suffix}"
+  short_name = "%{tag_key2}"
 }
 
 resource "google_tags_tag_value" "tag_value2" {
   parent     = google_tags_tag_key.tag_key2.id
-  short_name = "tf_test_tag_value2%{random_suffix}"
+  short_name = "%{tag_value2}"
 }
 
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id    = "dataset%{random_suffix}"
+  dataset_id    = "%{dataset_id}"
   friendly_name = "test"
   description   = "This is a test description"
   location      = "EU"

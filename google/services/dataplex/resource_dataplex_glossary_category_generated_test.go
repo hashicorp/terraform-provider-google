@@ -53,8 +53,11 @@ var (
 func TestAccDataplexGlossaryCategory_dataplexGlossaryCategoryBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"category_name": "tf-test-category-basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -94,8 +97,11 @@ resource "google_dataplex_glossary_category" "category_test_id" {
 func TestAccDataplexGlossaryCategory_dataplexGlossaryCategoryFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"category_name": "tf-test-category-full" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

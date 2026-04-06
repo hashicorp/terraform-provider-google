@@ -54,9 +54,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationBasicExample(
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       "gdce-cluster-monitoring",
-		"random_suffix": acctest.RandString(t, 10),
+		"project":              "gdce-cluster-monitoring",
+		"spark_application_id": "tf-test-tf-e2e-spark-app-basic" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationBasicExample(
 func testAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_gdc_spark_application" "spark-application" {
-  spark_application_id = "tf-test-tf-e2e-spark-app-basic%{random_suffix}"
+  spark_application_id = "%{spark_application_id}"
   serviceinstance = "do-not-delete-dataproc-gdc-instance"
   project         = "%{project}"
   location        = "us-west2"
@@ -98,9 +101,13 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationExample(t *te
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       "gdce-cluster-monitoring",
-		"random_suffix": acctest.RandString(t, 10),
+		"application_environment_id": "tf-test-tf-e2e-spark-app-env" + randomSuffix,
+		"project":                    "gdce-cluster-monitoring",
+		"spark_application_id":       "tf-test-tf-e2e-spark-app" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -124,7 +131,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationExample(t *te
 func testAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_gdc_application_environment" "app_env" {
-  application_environment_id = "tf-test-tf-e2e-spark-app-env%{random_suffix}"
+  application_environment_id = "%{application_environment_id}"
   serviceinstance = "do-not-delete-dataproc-gdc-instance"
   project         = "%{project}"
   location        = "us-west2"
@@ -132,7 +139,7 @@ resource "google_dataproc_gdc_application_environment" "app_env" {
 }
 
 resource "google_dataproc_gdc_spark_application" "spark-application" {
-  spark_application_id = "tf-test-tf-e2e-spark-app%{random_suffix}"
+  spark_application_id = "%{spark_application_id}"
   serviceinstance = "do-not-delete-dataproc-gdc-instance"
   project         = "%{project}"
   location        = "us-west2"
@@ -162,9 +169,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationPysparkExampl
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       "gdce-cluster-monitoring",
-		"random_suffix": acctest.RandString(t, 10),
+		"project":              "gdce-cluster-monitoring",
+		"spark_application_id": "tf-test-tf-e2e-pyspark-app" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -188,7 +198,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationPysparkExampl
 func testAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationPysparkExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_gdc_spark_application" "spark-application" {
-  spark_application_id = "tf-test-tf-e2e-pyspark-app%{random_suffix}"
+  spark_application_id = "%{spark_application_id}"
   serviceinstance = "do-not-delete-dataproc-gdc-instance"
   project         = "%{project}"
   location        = "us-west2"
@@ -211,9 +221,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparkrExample
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       "gdce-cluster-monitoring",
-		"random_suffix": acctest.RandString(t, 10),
+		"project":              "gdce-cluster-monitoring",
+		"spark_application_id": "tf-test-tf-e2e-sparkr-app" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -237,7 +250,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparkrExample
 func testAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparkrExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_gdc_spark_application" "spark-application" {
-  spark_application_id = "tf-test-tf-e2e-sparkr-app%{random_suffix}"
+  spark_application_id = "%{spark_application_id}"
   serviceinstance = "do-not-delete-dataproc-gdc-instance"
   project         = "%{project}"
   location        = "us-west2"
@@ -257,9 +270,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlExamp
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       "gdce-cluster-monitoring",
-		"random_suffix": acctest.RandString(t, 10),
+		"project":              "gdce-cluster-monitoring",
+		"spark_application_id": "tf-test-tf-e2e-sparksql-app" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -283,7 +299,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlExamp
 func testAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_gdc_spark_application" "spark-application" {
-  spark_application_id = "tf-test-tf-e2e-sparksql-app%{random_suffix}"
+  spark_application_id = "%{spark_application_id}"
   serviceinstance = "do-not-delete-dataproc-gdc-instance"
   project         = "%{project}"
   location        = "us-west2"
@@ -306,9 +322,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlQuery
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       "gdce-cluster-monitoring",
-		"random_suffix": acctest.RandString(t, 10),
+		"project":              "gdce-cluster-monitoring",
+		"spark_application_id": "tf-test-tf-e2e-sparksql-app" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -332,7 +351,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlQuery
 func testAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlQueryFileExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_gdc_spark_application" "spark-application" {
-  spark_application_id = "tf-test-tf-e2e-sparksql-app%{random_suffix}"
+  spark_application_id = "%{spark_application_id}"
   serviceinstance = "do-not-delete-dataproc-gdc-instance"
   project         = "%{project}"
   location        = "us-west2"

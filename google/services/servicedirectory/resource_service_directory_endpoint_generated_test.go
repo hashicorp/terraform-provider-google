@@ -53,8 +53,13 @@ var (
 func TestAccServiceDirectoryEndpoint_serviceDirectoryEndpointBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"endpoint_id":   "tf-test-example-endpoint" + randomSuffix,
+		"namespace_id":  "tf-test-example-namespace" + randomSuffix,
+		"service_id":    "tf-test-example-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,17 +83,17 @@ func TestAccServiceDirectoryEndpoint_serviceDirectoryEndpointBasicExample(t *tes
 func testAccServiceDirectoryEndpoint_serviceDirectoryEndpointBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_directory_namespace" "example" {
-  namespace_id = "tf-test-example-namespace%{random_suffix}"
+  namespace_id = "%{namespace_id}"
   location     = "us-central1"
 }
 
 resource "google_service_directory_service" "example" {
-  service_id = "tf-test-example-service%{random_suffix}"
+  service_id = "%{service_id}"
   namespace  = google_service_directory_namespace.example.id
 }
 
 resource "google_service_directory_endpoint" "example" {
-  endpoint_id = "tf-test-example-endpoint%{random_suffix}"
+  endpoint_id = "%{endpoint_id}"
   service     = google_service_directory_service.example.id
 
   metadata = {
@@ -105,8 +110,14 @@ resource "google_service_directory_endpoint" "example" {
 func TestAccServiceDirectoryEndpoint_serviceDirectoryEndpointWithNetworkExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"endpoint_id":   "tf-test-example-endpoint" + randomSuffix,
+		"namespace_id":  "tf-test-example-namespace" + randomSuffix,
+		"network_name":  "tf-test-example-network" + randomSuffix,
+		"service_id":    "tf-test-example-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -133,21 +144,21 @@ data "google_project" "project" {
 }
 
 resource "google_compute_network" "example" {
-  name      = "tf-test-example-network%{random_suffix}"
+  name      = "%{network_name}"
 }
 
 resource "google_service_directory_namespace" "example" {
-  namespace_id = "tf-test-example-namespace%{random_suffix}"
+  namespace_id = "%{namespace_id}"
   location     = "us-central1"
 }
 
 resource "google_service_directory_service" "example" {
-  service_id = "tf-test-example-service%{random_suffix}"
+  service_id = "%{service_id}"
   namespace  = google_service_directory_namespace.example.id
 }
 
 resource "google_service_directory_endpoint" "example" {
-  endpoint_id = "tf-test-example-endpoint%{random_suffix}"
+  endpoint_id = "%{endpoint_id}"
   service     = google_service_directory_service.example.id
 
   metadata = {
