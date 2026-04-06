@@ -101,6 +101,18 @@ NetworkFirewallPolicyAssociation can be imported using any of these accepted for
 * `{{project}}/{{firewall_policy}}/{{name}}`
 * `{{firewall_policy}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import NetworkFirewallPolicyAssociation using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-required value->"
+    firewallPolicy = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_compute_network_firewall_policy_association.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import NetworkFirewallPolicyAssociation using one of the formats above. For example:
 

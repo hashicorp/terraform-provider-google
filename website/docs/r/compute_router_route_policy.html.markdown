@@ -236,6 +236,19 @@ RouterRoutePolicy can be imported using any of these accepted formats:
 * `{{region}}/{{router}}/{{name}}`
 * `{{router}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import RouterRoutePolicy using identity values. For example:
+
+```tf
+import {
+  identity = {
+    router = "<-required value->"
+    region = "<-optional value->"
+    name = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_compute_router_route_policy.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RouterRoutePolicy using one of the formats above. For example:
 

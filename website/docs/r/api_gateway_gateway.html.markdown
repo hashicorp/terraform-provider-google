@@ -144,6 +144,18 @@ Gateway can be imported using any of these accepted formats:
 * `{{region}}/{{gateway_id}}`
 * `{{gateway_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Gateway using identity values. For example:
+
+```tf
+import {
+  identity = {
+    region = "<-optional value->"
+    gatewayId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_api_gateway_gateway.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Gateway using one of the formats above. For example:
 

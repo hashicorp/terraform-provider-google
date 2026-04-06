@@ -118,6 +118,26 @@ func ResourceDatabaseMigrationServiceMigrationJob() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"migration_job_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"destination": {
 				Type:        schema.TypeString,
@@ -480,6 +500,27 @@ func resourceDatabaseMigrationServiceMigrationJobCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if migrationJobIdValue, ok := d.GetOk("migration_job_id"); ok && migrationJobIdValue.(string) != "" {
+			if err = identity.Set("migration_job_id", migrationJobIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting migration_job_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = DatabaseMigrationServiceOperationWaitTime(
 		config, res, project, "Creating MigrationJob", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -597,6 +638,30 @@ func resourceDatabaseMigrationServiceMigrationJobRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading MigrationJob: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("migration_job_id"); !ok && v == "" {
+			err = identity.Set("migration_job_id", d.Get("migration_job_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting migration_job_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -605,6 +670,26 @@ func resourceDatabaseMigrationServiceMigrationJobUpdate(d *schema.ResourceData, 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if migrationJobIdValue, ok := d.GetOk("migration_job_id"); ok && migrationJobIdValue.(string) != "" {
+			if err = identity.Set("migration_job_id", migrationJobIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting migration_job_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

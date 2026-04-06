@@ -117,6 +117,26 @@ func ResourceDNSResponsePolicyRule() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"rule_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"response_policy": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"dns_name": {
 				Type:        schema.TypeString,
@@ -260,6 +280,27 @@ func resourceDNSResponsePolicyRuleCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if ruleNameValue, ok := d.GetOk("rule_name"); ok && ruleNameValue.(string) != "" {
+			if err = identity.Set("rule_name", ruleNameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting rule_name: %s", err)
+			}
+		}
+		if responsePolicyValue, ok := d.GetOk("response_policy"); ok && responsePolicyValue.(string) != "" {
+			if err = identity.Set("response_policy", responsePolicyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting response_policy: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating ResponsePolicyRule %q: %#v", d.Id(), res)
 
 	return resourceDNSResponsePolicyRuleRead(d, meta)
@@ -319,6 +360,30 @@ func resourceDNSResponsePolicyRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ResponsePolicyRule: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("rule_name"); !ok && v == "" {
+			err = identity.Set("rule_name", d.Get("rule_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting rule_name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("response_policy"); !ok && v == "" {
+			err = identity.Set("response_policy", d.Get("response_policy").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting response_policy: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -327,6 +392,26 @@ func resourceDNSResponsePolicyRuleUpdate(d *schema.ResourceData, meta interface{
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if ruleNameValue, ok := d.GetOk("rule_name"); ok && ruleNameValue.(string) != "" {
+			if err = identity.Set("rule_name", ruleNameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting rule_name: %s", err)
+			}
+		}
+		if responsePolicyValue, ok := d.GetOk("response_policy"); ok && responsePolicyValue.(string) != "" {
+			if err = identity.Set("response_policy", responsePolicyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting response_policy: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

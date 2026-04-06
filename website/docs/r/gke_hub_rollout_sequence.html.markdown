@@ -138,6 +138,17 @@ RolloutSequence can be imported using any of these accepted formats:
 * `{{project}}/{{rollout_sequence_id}}`
 * `{{rollout_sequence_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import RolloutSequence using identity values. For example:
+
+```tf
+import {
+  identity = {
+    rollout_sequence_id = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_gke_hub_rollout_sequence.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RolloutSequence using one of the formats above. For example:
 

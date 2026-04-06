@@ -117,6 +117,30 @@ func ResourceIAMWorkforcePoolOauthClientCredential() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"oauthclient": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"oauth_client_credential_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -244,6 +268,32 @@ func resourceIAMWorkforcePoolOauthClientCredentialCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if oauthclientValue, ok := d.GetOk("oauthclient"); ok && oauthclientValue.(string) != "" {
+			if err = identity.Set("oauthclient", oauthclientValue.(string)); err != nil {
+				return fmt.Errorf("Error setting oauthclient: %s", err)
+			}
+		}
+		if oauthClientCredentialIdValue, ok := d.GetOk("oauth_client_credential_id"); ok && oauthClientCredentialIdValue.(string) != "" {
+			if err = identity.Set("oauth_client_credential_id", oauthClientCredentialIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting oauth_client_credential_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
@@ -323,6 +373,36 @@ func resourceIAMWorkforcePoolOauthClientCredentialRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading OauthClientCredential: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("oauthclient"); !ok && v == "" {
+			err = identity.Set("oauthclient", d.Get("oauthclient").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting oauthclient: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("oauth_client_credential_id"); !ok && v == "" {
+			err = identity.Set("oauth_client_credential_id", d.Get("oauth_client_credential_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting oauth_client_credential_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -331,6 +411,31 @@ func resourceIAMWorkforcePoolOauthClientCredentialUpdate(d *schema.ResourceData,
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if oauthclientValue, ok := d.GetOk("oauthclient"); ok && oauthclientValue.(string) != "" {
+			if err = identity.Set("oauthclient", oauthclientValue.(string)); err != nil {
+				return fmt.Errorf("Error setting oauthclient: %s", err)
+			}
+		}
+		if oauthClientCredentialIdValue, ok := d.GetOk("oauth_client_credential_id"); ok && oauthClientCredentialIdValue.(string) != "" {
+			if err = identity.Set("oauth_client_credential_id", oauthClientCredentialIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting oauth_client_credential_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

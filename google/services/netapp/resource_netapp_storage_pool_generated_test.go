@@ -75,6 +75,12 @@ func TestAccNetappStoragePool_storagePoolCreateExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"enable_hot_tier_auto_resize", "labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_netapp_storage_pool.test_pool",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -78,6 +78,12 @@ func TestAccMemorystoreInstance_memorystoreInstanceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
 			},
+			{
+				ResourceName:       "google_memorystore_instance.instance-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -175,6 +181,12 @@ func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
+			},
+			{
+				ResourceName:       "google_memorystore_instance.instance-full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -291,6 +303,12 @@ func TestAccMemorystoreInstance_memorystoreInstancePersistenceAofExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
 			},
+			{
+				ResourceName:       "google_memorystore_instance.instance-persistence-aof",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -382,6 +400,12 @@ func TestAccMemorystoreInstance_memorystoreInstanceSecondaryInstanceExample(t *t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
+			},
+			{
+				ResourceName:       "google_memorystore_instance.secondary_instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -558,6 +582,12 @@ func TestAccMemorystoreInstance_memorystoreInstanceFlexibleCaExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_memorystore_instance.test-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

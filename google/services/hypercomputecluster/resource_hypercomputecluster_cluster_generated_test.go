@@ -74,6 +74,12 @@ func TestAccHypercomputeclusterCluster_hypercomputeclusterClusterBasicExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cluster_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_hypercomputecluster_cluster.cluster",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

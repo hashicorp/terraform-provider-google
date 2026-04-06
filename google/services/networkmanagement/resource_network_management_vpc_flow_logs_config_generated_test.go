@@ -77,6 +77,12 @@ func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels", "vpc_flow_logs_config_id"},
 			},
+			{
+				ResourceName:       "google_network_management_vpc_flow_logs_config.interconnect-test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -146,6 +152,12 @@ func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels", "vpc_flow_logs_config_id"},
+			},
+			{
+				ResourceName:       "google_network_management_vpc_flow_logs_config.vpn-test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -246,6 +258,12 @@ func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels", "vpc_flow_logs_config_id"},
 			},
+			{
+				ResourceName:       "google_network_management_vpc_flow_logs_config.network-test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -292,6 +310,12 @@ func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels", "vpc_flow_logs_config_id"},
+			},
+			{
+				ResourceName:       "google_network_management_vpc_flow_logs_config.subnet-test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -878,6 +878,17 @@ ToolVersion can be imported using any of these accepted formats:
 * `{{parent}}/versions/{{name}}`
 * `{{parent}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import ToolVersion using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-optional value->"
+    parent = "<-required value->"
+  }
+  to = google_dialogflow_cx_tool_version.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ToolVersion using one of the formats above. For example:
 

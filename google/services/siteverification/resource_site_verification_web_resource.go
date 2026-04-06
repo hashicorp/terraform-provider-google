@@ -111,6 +111,18 @@ func ResourceSiteVerificationWebResource() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"web_resource_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"site": {
 				Type:        schema.TypeList,
@@ -225,6 +237,17 @@ func resourceSiteVerificationWebResourceCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if webResourceIdValue, ok := d.GetOk("web_resource_id"); ok && webResourceIdValue.(string) != "" {
+			if err = identity.Set("web_resource_id", webResourceIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting web_resource_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating WebResource %q: %#v", d.Id(), res)
 
 	return resourceSiteVerificationWebResourceRead(d, meta)
@@ -277,6 +300,18 @@ func resourceSiteVerificationWebResourceRead(d *schema.ResourceData, meta interf
 	}
 	if err := d.Set("owners", flattenSiteVerificationWebResourceOwners(res["owners"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WebResource: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("web_resource_id"); !ok && v == "" {
+			err = identity.Set("web_resource_id", d.Get("web_resource_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting web_resource_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

@@ -78,6 +78,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -124,6 +130,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionBasicExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -207,6 +219,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionFullExample(t *testin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -287,6 +305,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAwsExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -337,6 +361,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAzureExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -386,6 +416,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerExample(t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -434,6 +470,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerDataboost
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -478,6 +520,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSparkExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -553,6 +601,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(t 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_connection.bq-connection-cmek",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

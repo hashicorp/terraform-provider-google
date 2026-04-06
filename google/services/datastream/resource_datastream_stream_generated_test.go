@@ -86,6 +86,12 @@ func TestAccDatastreamStream_datastreamStreamBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "stream_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_datastream_stream.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -257,6 +263,12 @@ func TestAccDatastreamStream_datastreamStreamFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "stream_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_datastream_stream.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -499,6 +511,12 @@ func TestAccDatastreamStream_datastreamStreamPostgresqlBigqueryDatasetIdExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "stream_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_datastream_stream.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -649,6 +667,12 @@ func TestAccDatastreamStream_datastreamStreamBigqueryExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "stream_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_datastream_stream.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -809,6 +833,12 @@ func TestAccDatastreamStream_datastreamStreamBigqueryCrossProjectSourceHierachyE
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "stream_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_datastream_stream.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -982,6 +1012,12 @@ func TestAccDatastreamStream_datastreamStreamBigqueryAppendOnlyExample(t *testin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "stream_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_datastream_stream.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

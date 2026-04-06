@@ -191,6 +191,18 @@ UllMirroringCollector can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{ull_mirroring_collector_id}}`
 * `{{location}}/{{ull_mirroring_collector_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import UllMirroringCollector using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    ullMirroringCollectorId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_network_security_ull_mirroring_collector.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import UllMirroringCollector using one of the formats above. For example:
 

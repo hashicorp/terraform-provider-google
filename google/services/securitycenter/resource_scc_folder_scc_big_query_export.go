@@ -113,6 +113,22 @@ func ResourceSecurityCenterFolderSccBigQueryExport() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"folder": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"big_query_export_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"big_query_export_id": {
 				Type:        schema.TypeString,
@@ -267,6 +283,22 @@ func resourceSecurityCenterFolderSccBigQueryExportCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if folderValue, ok := d.GetOk("folder"); ok && folderValue.(string) != "" {
+			if err = identity.Set("folder", folderValue.(string)); err != nil {
+				return fmt.Errorf("Error setting folder: %s", err)
+			}
+		}
+		if bigQueryExportIdValue, ok := d.GetOk("big_query_export_id"); ok && bigQueryExportIdValue.(string) != "" {
+			if err = identity.Set("big_query_export_id", bigQueryExportIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting big_query_export_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating FolderSccBigQueryExport %q: %#v", d.Id(), res)
 
 	return resourceSecurityCenterFolderSccBigQueryExportRead(d, meta)
@@ -331,6 +363,24 @@ func resourceSecurityCenterFolderSccBigQueryExportRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading FolderSccBigQueryExport: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("folder"); !ok && v == "" {
+			err = identity.Set("folder", d.Get("folder").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting folder: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("big_query_export_id"); !ok && v == "" {
+			err = identity.Set("big_query_export_id", d.Get("big_query_export_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting big_query_export_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -339,6 +389,21 @@ func resourceSecurityCenterFolderSccBigQueryExportUpdate(d *schema.ResourceData,
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if folderValue, ok := d.GetOk("folder"); ok && folderValue.(string) != "" {
+			if err = identity.Set("folder", folderValue.(string)); err != nil {
+				return fmt.Errorf("Error setting folder: %s", err)
+			}
+		}
+		if bigQueryExportIdValue, ok := d.GetOk("big_query_export_id"); ok && bigQueryExportIdValue.(string) != "" {
+			if err = identity.Set("big_query_export_id", bigQueryExportIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting big_query_export_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

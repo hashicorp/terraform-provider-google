@@ -149,6 +149,18 @@ PromptTemplate can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{template_id}}`
 * `{{location}}/{{template_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import PromptTemplate using identity values. For example:
+
+```tf
+import {
+  identity = {
+    templateId = "<-required value->"
+    location = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_firebase_ai_logic_prompt_template.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import PromptTemplate using one of the formats above. For example:
 

@@ -113,6 +113,18 @@ func ResourceAccessContextManagerServicePerimeters() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"parent": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"parent": {
 				Type:     schema.TypeString,
@@ -1077,6 +1089,17 @@ func resourceAccessContextManagerServicePerimetersCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = AccessContextManagerOperationWaitTime(
 		config, res, "Creating ServicePerimeters", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -1130,6 +1153,18 @@ func resourceAccessContextManagerServicePerimetersRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading ServicePerimeters: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("parent"); !ok && v == "" {
+			err = identity.Set("parent", d.Get("parent").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -1138,6 +1173,16 @@ func resourceAccessContextManagerServicePerimetersUpdate(d *schema.ResourceData,
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

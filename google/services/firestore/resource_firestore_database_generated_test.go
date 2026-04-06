@@ -76,6 +76,12 @@ func TestAccFirestoreDatabase_firestoreDatabaseExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
 			},
+			{
+				ResourceName:       "google_firestore_database.database",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -123,6 +129,12 @@ func TestAccFirestoreDatabase_firestoreCmekDatabaseExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
+			},
+			{
+				ResourceName:       "google_firestore_database.database",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -200,6 +212,12 @@ func TestAccFirestoreDatabase_firestoreDatabaseInDatastoreModeExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
 			},
+			{
+				ResourceName:       "google_firestore_database.datastore_mode_database",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -247,6 +265,12 @@ func TestAccFirestoreDatabase_firestoreCmekDatabaseInDatastoreModeExample(t *tes
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
+			},
+			{
+				ResourceName:       "google_firestore_database.database",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -324,6 +348,12 @@ func TestAccFirestoreDatabase_firestoreDatabaseEnterpriseExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
 			},
+			{
+				ResourceName:       "google_firestore_database.enterprise-db",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -365,6 +395,12 @@ func TestAccFirestoreDatabase_firestoreDatabaseDataAccessTestExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
+			},
+			{
+				ResourceName:       "google_firestore_database.firestore_access_database_test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

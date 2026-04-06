@@ -381,6 +381,18 @@ CloudExadataInfrastructure can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{cloud_exadata_infrastructure_id}}`
 * `{{location}}/{{cloud_exadata_infrastructure_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import CloudExadataInfrastructure using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    cloudExadataInfrastructureId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_oracle_database_cloud_exadata_infrastructure.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import CloudExadataInfrastructure using one of the formats above. For example:
 

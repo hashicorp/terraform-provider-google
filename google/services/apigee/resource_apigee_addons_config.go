@@ -113,6 +113,18 @@ func ResourceApigeeAddonsConfig() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"org": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"org": {
 				Type:        schema.TypeString,
@@ -270,6 +282,17 @@ func resourceApigeeAddonsConfigCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if orgValue, ok := d.GetOk("org"); ok && orgValue.(string) != "" {
+			if err = identity.Set("org", orgValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = ApigeeOperationWaitTime(
 		config, res, "Creating AddonsConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -323,6 +346,18 @@ func resourceApigeeAddonsConfigRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading AddonsConfig: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("org"); !ok && v == "" {
+			err = identity.Set("org", d.Get("org").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -331,6 +366,16 @@ func resourceApigeeAddonsConfigUpdate(d *schema.ResourceData, meta interface{}) 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if orgValue, ok := d.GetOk("org"); ok && orgValue.(string) != "" {
+			if err = identity.Set("org", orgValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

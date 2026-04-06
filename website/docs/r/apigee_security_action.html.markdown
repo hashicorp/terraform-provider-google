@@ -287,6 +287,18 @@ SecurityAction can be imported using any of these accepted formats:
 * `organizations/{{org_id}}/environments/{{env_id}}/securityActions/{{security_action_id}}`
 * `{{org_id}}/{{env_id}}/{{security_action_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import SecurityAction using identity values. For example:
+
+```tf
+import {
+  identity = {
+    orgId = "<-required value->"
+    envId = "<-required value->"
+    securityActionId = "<-required value->"
+  }
+  to = google_apigee_security_action.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import SecurityAction using one of the formats above. For example:
 

@@ -118,6 +118,26 @@ func ResourceDataplexEntryType() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"entry_type_id": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"description": {
 				Type:        schema.TypeString,
@@ -319,6 +339,27 @@ func resourceDataplexEntryTypeCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if entryTypeIdValue, ok := d.GetOk("entry_type_id"); ok && entryTypeIdValue.(string) != "" {
+			if err = identity.Set("entry_type_id", entryTypeIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting entry_type_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = DataplexOperationWaitTime(
 		config, res, project, "Creating EntryType", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -418,6 +459,30 @@ func resourceDataplexEntryTypeRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading EntryType: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("entry_type_id"); !ok && v == "" {
+			err = identity.Set("entry_type_id", d.Get("entry_type_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting entry_type_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -426,6 +491,26 @@ func resourceDataplexEntryTypeUpdate(d *schema.ResourceData, meta interface{}) e
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if entryTypeIdValue, ok := d.GetOk("entry_type_id"); ok && entryTypeIdValue.(string) != "" {
+			if err = identity.Set("entry_type_id", entryTypeIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting entry_type_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

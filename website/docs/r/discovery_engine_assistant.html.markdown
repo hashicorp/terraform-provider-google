@@ -235,6 +235,20 @@ Assistant can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{collection_id}}/{{engine_id}}/{{assistant_id}}`
 * `{{location}}/{{collection_id}}/{{engine_id}}/{{assistant_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Assistant using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    collectionId = "<-required value->"
+    engineId = "<-required value->"
+    assistantId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_discovery_engine_assistant.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Assistant using one of the formats above. For example:
 

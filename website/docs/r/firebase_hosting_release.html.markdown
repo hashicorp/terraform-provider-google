@@ -185,6 +185,18 @@ Release can be imported using any of these accepted formats:
 * `{{site_id}}/{{channel_id}}/{{release_id}}`
 * `{{site_id}}/{{release_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Release using identity values. For example:
+
+```tf
+import {
+  identity = {
+    release_id = "<-optional value->"
+    site_id = "<-required value->"
+    channel_id = "<-optional value->"
+  }
+  to = google_firebase_hosting_release.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Release using one of the formats above. For example:
 

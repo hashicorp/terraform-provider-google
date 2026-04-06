@@ -291,6 +291,18 @@ FolderSecurityHealthAnalyticsCustomModule can be imported using any of these acc
 * `folders/{{folder}}/locations/{{location}}/securityHealthAnalyticsCustomModules/{{name}}`
 * `{{folder}}/{{location}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import FolderSecurityHealthAnalyticsCustomModule using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-optional value->"
+    folder = "<-required value->"
+    location = "<-optional value->"
+  }
+  to = google_scc_management_folder_security_health_analytics_custom_module.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import FolderSecurityHealthAnalyticsCustomModule using one of the formats above. For example:
 

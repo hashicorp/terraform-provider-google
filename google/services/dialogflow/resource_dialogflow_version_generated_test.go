@@ -79,6 +79,12 @@ func TestAccDialogflowVersion_dialogflowVersionFullExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
+			{
+				ResourceName:       "google_dialogflow_version.full_version",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

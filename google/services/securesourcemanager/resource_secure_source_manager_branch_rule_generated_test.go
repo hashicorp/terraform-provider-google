@@ -77,6 +77,12 @@ func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"branch_rule_id", "deletion_policy", "location", "repository_id"},
 			},
+			{
+				ResourceName:       "google_secure_source_manager_branch_rule.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -136,6 +142,12 @@ func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithField
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"branch_rule_id", "deletion_policy", "location", "repository_id"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_branch_rule.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

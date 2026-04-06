@@ -168,6 +168,19 @@ Acl can be imported using any of these accepted formats:
 
 * `projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/acls/{{acl_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Acl using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    cluster = "<-required value->"
+    aclId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_managed_kafka_acl.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Acl using one of the formats above. For example:
 

@@ -74,6 +74,12 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretConfigBasicExample
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "secret_id", "tags", "terraform_labels", "ttl"},
 			},
+			{
+				ResourceName:       "google_secret_manager_regional_secret.regional-secret-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -122,6 +128,12 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithCmekExample(t 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "tags", "terraform_labels", "ttl"},
+			},
+			{
+				ResourceName:       "google_secret_manager_regional_secret.regional-secret-with-cmek",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -175,6 +187,12 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithRotationExampl
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "tags", "terraform_labels", "ttl"},
+			},
+			{
+				ResourceName:       "google_secret_manager_regional_secret.regional-secret-with-rotation",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -238,6 +256,12 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithTtlExample(t *
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "tags", "terraform_labels", "ttl"},
 			},
+			{
+				ResourceName:       "google_secret_manager_regional_secret.regional-secret-with-ttl",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -288,6 +312,12 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithExpireTimeExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "tags", "terraform_labels", "ttl"},
 			},
+			{
+				ResourceName:       "google_secret_manager_regional_secret.regional-secret-with-expire-time",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -336,6 +366,12 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithVersionDestroy
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "tags", "terraform_labels", "ttl"},
+			},
+			{
+				ResourceName:       "google_secret_manager_regional_secret.regional-secret-with-version-destroy-ttl",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

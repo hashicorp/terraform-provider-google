@@ -73,6 +73,12 @@ func TestAccDocumentAIProcessorDefaultVersion_documentaiDefaultVersionExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"processor"},
 			},
+			{
+				ResourceName:       "google_document_ai_processor_default_version.processor",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

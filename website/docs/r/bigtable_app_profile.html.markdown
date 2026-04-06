@@ -289,6 +289,18 @@ AppProfile can be imported using any of these accepted formats:
 * `{{project}}/{{instance}}/{{app_profile_id}}`
 * `{{instance}}/{{app_profile_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import AppProfile using identity values. For example:
+
+```tf
+import {
+  identity = {
+    appProfileId = "<-required value->"
+    instance = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_bigtable_app_profile.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import AppProfile using one of the formats above. For example:
 

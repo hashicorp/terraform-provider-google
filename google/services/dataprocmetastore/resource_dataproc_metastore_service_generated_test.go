@@ -74,6 +74,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -126,6 +132,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDeletionProtectionE
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -181,6 +193,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -251,6 +269,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceEndpointExample(t *
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.endpoint",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -293,6 +317,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAuxExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.aux",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -339,6 +369,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceMetadataExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.metadata",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -388,6 +424,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.telemetry",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -434,6 +476,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(t *tes
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.dpms2",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -484,6 +532,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorE
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.dpms2_scaling_factor",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -533,6 +587,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorL
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.dpms2_scaling_factor_lt1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -581,6 +641,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExam
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.backup",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -646,6 +712,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMaxScali
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.test_resource",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -699,6 +771,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinAndMa
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.test_resource",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -755,6 +833,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinScali
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.test_resource",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -808,6 +892,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingNoLimitC
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.test_resource",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

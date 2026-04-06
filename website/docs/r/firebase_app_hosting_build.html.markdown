@@ -463,6 +463,19 @@ Build can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{backend}}/{{build_id}}`
 * `{{location}}/{{backend}}/{{build_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Build using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    backend = "<-required value->"
+    buildId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_firebase_app_hosting_build.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Build using one of the formats above. For example:
 

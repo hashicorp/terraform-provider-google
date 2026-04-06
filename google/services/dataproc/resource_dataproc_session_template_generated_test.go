@@ -77,6 +77,12 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "runtime_config.0.properties", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_session_template.example_session_templates_jupyter",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -139,6 +145,12 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterFullExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "runtime_config.0.properties", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_session_template.dataproc_session_templates_jupyter_full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -291,6 +303,12 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesSparkConnectExample(
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "runtime_config.0.properties", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_session_template.example_session_templates_spark_connect",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
