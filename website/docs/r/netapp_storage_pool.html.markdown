@@ -211,7 +211,7 @@ The following arguments are supported:
   Possible values are: `SCALE_TIER_UNSPECIFIED`, `SCALE_TIER_STANDARD`, `SCALE_TIER_ENTERPRISE`.
 
 * `mode` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Mode of the storage pool.
   The operational mode of the storage pool. ONTAP mode enables operations
   via ONTAP Mode APIs, while DEFAULT mode enables operations via NetApp Volumes APIs.
