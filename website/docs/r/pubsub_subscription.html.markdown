@@ -372,6 +372,57 @@ resource "google_storage_bucket_iam_member" "admin" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=pubsub_subscription_push_cloudstorage_text&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Subscription Push Cloudstorage Text
+
+
+```hcl
+resource "google_storage_bucket" "example" {
+  name  = "example-bucket"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = google_pubsub_topic.example.id
+
+  cloud_storage_config {
+    bucket = google_storage_bucket.example.name
+
+    filename_prefix = "pre-"
+    filename_suffix = "-%{random_suffix}"
+    filename_datetime_format = "YYYY-MM-DD/hh_mm_ssZ"
+
+    max_bytes = 1000
+    max_duration = "300s"
+    max_messages = 1000
+
+    text_config {}
+  }
+  depends_on = [
+    google_storage_bucket.example,
+    google_storage_bucket_iam_member.admin,
+  ]
+}
+
+data "google_project" "project" {
+}
+
+resource "google_storage_bucket_iam_member" "admin" {
+  bucket = google_storage_bucket.example.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=pubsub_subscription_push_cloudstorage_avro&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -825,6 +876,11 @@ The following arguments are supported:
   If set, message data will be written to Cloud Storage in Avro format.
   Structure is [documented below](#nested_cloud_storage_config_avro_config).
 
+* `text_config` -
+  (Optional)
+  If set, message data will be written to Cloud Storage in text format.
+  Structure is [documented below](#nested_cloud_storage_config_text_config).
+
 * `service_account_email` -
   (Optional)
   The service account to use to write to Cloud Storage. If not specified, the Pub/Sub
@@ -841,6 +897,12 @@ The following arguments are supported:
 * `use_topic_schema` -
   (Optional)
   When true, the output Cloud Storage file will be serialized using the topic schema, if it exists.
+
+<a name="nested_cloud_storage_config_text_config"></a>The `text_config` block supports:
+
+* `state` -
+  (Output)
+  Output only. Placeholder to allow the empty text_config block.
 
 <a name="nested_push_config"></a>The `push_config` block supports:
 

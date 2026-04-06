@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -144,6 +144,11 @@ func (u *TagsTagValueIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.P
 	}
 
 	var obj map[string]interface{}
+	obj = map[string]interface{}{
+		"options": map[string]interface{}{
+			"requestedPolicyVersion": tpgiamresource.IamPolicyVersion,
+		},
+	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {

@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -253,8 +253,9 @@ However, existing tokens still grant access.`,
 				Description: `A user-specified display name for the provider. Cannot exceed 32 characters.`,
 			},
 			"extended_attributes_oauth2_client": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:       schema.TypeList,
+				Optional:   true,
+				Deprecated: "`extended_attributes_oauth2_client` is deprecated. Use SCIM instead.",
 				Description: `The configuration for OAuth 2.0 client used to get the extended group
 memberships for user identities. Only the 'AZURE_AD_GROUPS_ID' attribute
 type is supported. Extended groups supports a subset of Google Cloud

@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogExample(t *testing
 				ResourceName:            "google_biglake_iceberg_catalog.my_iceberg_catalog",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name"},
+				ImportStateVerifyIgnore: []string{"name", "primary_location"},
 			},
 		},
 	})
@@ -101,6 +101,52 @@ resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
 #  role = "roles/storage.admin"
 #  member = "serviceAccount:${google_biglake_iceberg_catalog.my_iceberg_catalog.biglake_service_account}"
 #}
+`, context)
+}
+
+func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogPrimaryLocationExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBiglakeIcebergIcebergCatalogDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogPrimaryLocationExample(context),
+			},
+			{
+				ResourceName:            "google_biglake_iceberg_catalog.my_iceberg_catalog",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "primary_location"},
+			},
+		},
+	})
+}
+
+func testAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogPrimaryLocationExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket_for_my_iceberg_catalog" {
+  name          = "tf_test_my_iceberg_catalog%{random_suffix}"
+  location      = "us-central1"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
+    name = google_storage_bucket.bucket_for_my_iceberg_catalog.name
+    catalog_type = "CATALOG_TYPE_GCS_BUCKET"
+    credential_mode = "CREDENTIAL_MODE_VENDED_CREDENTIALS"
+    primary_location = "us-central1"
+    depends_on = [
+      google_storage_bucket.bucket_for_my_iceberg_catalog
+    ]
+}
 `, context)
 }
 

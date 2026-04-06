@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -517,6 +517,7 @@ func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigSchema() *s
 		Schema: map[string]*schema.Schema{
 			"audit_interval_seconds": {
 				Type:        schema.TypeInt,
+				Computed:    true,
 				Optional:    true,
 				Description: "Sets the interval for Policy Controller Audit Scans (in seconds). When set to 0, this disables audit functionality altogether.",
 			},
@@ -1470,7 +1471,7 @@ func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfig(o in
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfig{
-		AuditIntervalSeconds:     dcl.Int64(int64(obj["audit_interval_seconds"].(int))),
+		AuditIntervalSeconds:     dcl.Int64OrNil(int64(obj["audit_interval_seconds"].(int))),
 		ConstraintViolationLimit: dcl.Int64(int64(obj["constraint_violation_limit"].(int))),
 		DeploymentConfigs:        expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsMap(obj["deployment_configs"]),
 		ExemptableNamespaces:     tpgdclresource.ExpandStringArray(obj["exemptable_namespaces"]),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) HashiCorp, Inc.
+ * Copyright IBM Corp. 2014, 2026
  * SPDX-License-Identifier: MPL-2.0
  */
 
@@ -159,6 +159,7 @@ fun BuildSteps.saveArtifactsToGCS() {
                 FOLDER="manual/%teamcity.project.id%/${'$'}{BRANCH_NAME}"
             fi
 
+            echo "Uploading artifacts to GCS folder: ${'$'}{FOLDER}"
             # Copy logs to GCS
             gsutil -m cp %teamcity.build.checkoutDir%/debug* gs://teamcity-logs/${'$'}{FOLDER}/%env.BUILD_NUMBER%/
 
@@ -166,6 +167,9 @@ fun BuildSteps.saveArtifactsToGCS() {
             rm google-account.json
             gcloud auth application-default revoke
             gcloud auth revoke --all
+
+            BUILD_NUMBER="%system.build.number%"
+            echo "BUILD_NUMBER: ${'$'}{BUILD_NUMBER}"
 
             echo "Finished"
         """.trimIndent()

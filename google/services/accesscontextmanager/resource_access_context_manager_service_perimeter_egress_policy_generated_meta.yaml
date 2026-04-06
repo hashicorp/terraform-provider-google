@@ -5,19 +5,33 @@ api_service_name: accesscontextmanager.googleapis.com
 api_version: v1
 api_resource_type_kind: ServicePerimeter
 fields:
-    - api_field: accessPolicyId
-    - api_field: egressFrom.identities
-    - api_field: egressFrom.identityType
-    - api_field: egressFrom.sourceRestriction
-    - api_field: egressFrom.sources.accessLevel
-    - api_field: egressFrom.sources.resource
-    - api_field: egressTo.externalResources
-    - api_field: egressTo.operations.methodSelectors.method
-    - api_field: egressTo.operations.methodSelectors.permission
-    - api_field: egressTo.operations.serviceName
-    - api_field: egressTo.resources
-    - api_field: egressTo.roles
-    - api_field: etag
+    - field: access_policy_id
+      provider_only: true
+    - api_field: status.egressPolicies.egressFrom.identities
+      field: egress_from.identities
+    - api_field: status.egressPolicies.egressFrom.identityType
+      field: egress_from.identity_type
+    - api_field: status.egressPolicies.egressFrom.sourceRestriction
+      field: egress_from.source_restriction
+    - api_field: status.egressPolicies.egressFrom.sources.accessLevel
+      field: egress_from.sources.access_level
+    - api_field: status.egressPolicies.egressFrom.sources.resource
+      field: egress_from.sources.resource
+    - api_field: status.egressPolicies.egressTo.externalResources
+      field: egress_to.external_resources
+    - api_field: status.egressPolicies.egressTo.operations.methodSelectors.method
+      field: egress_to.operations.method_selectors.method
+    - api_field: status.egressPolicies.egressTo.operations.methodSelectors.permission
+      field: egress_to.operations.method_selectors.permission
+    - api_field: status.egressPolicies.egressTo.operations.serviceName
+      field: egress_to.operations.service_name
+    - api_field: status.egressPolicies.egressTo.resources
+      field: egress_to.resources
+    - api_field: status.egressPolicies.egressTo.roles
+      field: egress_to.roles
+    - api_field: status.egressPolicies.etag
+      field: etag
     - field: perimeter
       provider_only: true
-    - api_field: title
+    - api_field: status.egressPolicies.title
+      field: title
