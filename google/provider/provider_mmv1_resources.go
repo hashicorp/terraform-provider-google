@@ -613,6 +613,7 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 	"google_pubsub_subscription_iam_policy":     tpgiamresource.DataSourceIamPolicy(pubsub.IamPubsubSubscriptionSchema, pubsub.NewPubsubSubscriptionIamUpdater),
 	"google_service_account_iam_policy":         tpgiamresource.DataSourceIamPolicy(resourcemanager.IamServiceAccountSchema, resourcemanager.NewServiceAccountIamUpdater),
 	"google_storage_bucket_iam_policy":          tpgiamresource.DataSourceIamPolicy(storage.StorageBucketIamSchema, storage.StorageBucketIamUpdaterProducer),
+	"google_apigee_deployment_iam_policy":       tpgiamresource.DataSourceIamPolicy(apigee.ApigeeDeploymentIamSchema, apigee.ApigeeDeploymentIamUpdaterProducer),
 	// ####### END non-generated IAM datasources ###########
 }
 
@@ -1824,6 +1825,9 @@ var handwrittenIAMResources = map[string]*schema.Resource{
 	"google_service_account_iam_binding":         tpgiamresource.ResourceIamBinding(resourcemanager.IamServiceAccountSchema, resourcemanager.NewServiceAccountIamUpdater, resourcemanager.ServiceAccountIdParseFunc),
 	"google_service_account_iam_member":          tpgiamresource.ResourceIamMember(resourcemanager.IamServiceAccountSchema, resourcemanager.NewServiceAccountIamUpdater, resourcemanager.ServiceAccountIdParseFunc),
 	"google_service_account_iam_policy":          tpgiamresource.ResourceIamPolicy(resourcemanager.IamServiceAccountSchema, resourcemanager.NewServiceAccountIamUpdater, resourcemanager.ServiceAccountIdParseFunc),
+	"google_apigee_deployment_iam_binding":       tpgiamresource.ResourceIamBinding(apigee.ApigeeDeploymentIamSchema, apigee.ApigeeDeploymentIamUpdaterProducer, apigee.ApigeeDeploymentIdParseFunc),
+	"google_apigee_deployment_iam_member":        tpgiamresource.ResourceIamMember(apigee.ApigeeDeploymentIamSchema, apigee.ApigeeDeploymentIamUpdaterProducer, apigee.ApigeeDeploymentIdParseFunc),
+	"google_apigee_deployment_iam_policy":        tpgiamresource.ResourceIamPolicy(apigee.ApigeeDeploymentIamSchema, apigee.ApigeeDeploymentIamUpdaterProducer, apigee.ApigeeDeploymentIdParseFunc),
 	// ####### END non-generated IAM resources ###########
 }
 
