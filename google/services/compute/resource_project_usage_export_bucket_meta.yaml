@@ -11,3 +11,5 @@ fields:
   - api_field: 'usageExportLocation.reportNamePrefix'
     field: 'prefix'
   - field: 'project'
+  - field: 'deletion_policy'
+    provider_only: true

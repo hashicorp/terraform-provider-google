@@ -28,6 +28,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/googleapi"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -35,6 +36,7 @@ func ResourceTagsLocationTagBinding() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceTagsLocationTagBindingCreate,
 		Read:   resourceTagsLocationTagBindingRead,
+		Update: resourceTagsLocationTagBindingUpdate,
 		Delete: resourceTagsLocationTagBindingDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -45,6 +47,10 @@ func ResourceTagsLocationTagBinding() *schema.Resource {
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"parent": {
@@ -72,6 +78,9 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 				Computed:    true,
 				Description: `The generated id for the TagBinding. This is a string of the form 'tagBindings/{full-resource-name}/{tag-value-name}' or 'tagBindings/{full-resource-name}/{tag-key-name}'`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -287,11 +296,31 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 		// Do not change the existing d.Get("tag_value") format to maintain backward compatibility.
 		log.Printf("[DEBUG] Read: Existing tag_value in state: %s.", d.Get("tag_value").(string))
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	return nil
 }
 
+// UDP update start
+func resourceTagsLocationTagBindingUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceTagsLocationTagBindingRead(d, meta)
+}
+
+//UDP update end
+
 func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

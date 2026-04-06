@@ -10,3 +10,5 @@ fields:
     api_field: '*'
     json: true
   - field: 'project'
+  - field: 'deletion_policy'
+    provider_only: true

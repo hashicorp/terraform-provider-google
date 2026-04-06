@@ -74,6 +74,13 @@ services depend on this service when attempting to destroy it.
 If `true`, the usage of the service to be disabled will be checked and an error
 will be returned if the service to be disabled has usage in last 30 days.
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "ABANDON", the command will remove the resource from Terraform
+    management without updating or deleting the resource in the API.
+    When set to "DELETE", deleting the resource is allowed.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are

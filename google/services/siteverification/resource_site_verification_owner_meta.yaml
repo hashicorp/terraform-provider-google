@@ -8,3 +8,5 @@ api_resource_type_kind: 'WebResource'
 fields:
   - field: 'email'
   - field: 'web_resource_id'
+  - field: 'deletion_policy'
+    provider_only: true

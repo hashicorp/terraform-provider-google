@@ -49,6 +49,7 @@ func TestAccDataSourceSqlDatabaseInstances_basic(t *testing.T) {
 						map[string]struct{}{
 							"deletion_protection": {},
 							"id":                  {},
+							"deletion_policy":     {},
 						},
 					),
 				),
@@ -79,6 +80,7 @@ func TestAccDataSourceSqlDatabaseInstances_databaseVersionFilter(t *testing.T) {
 						map[string]struct{}{
 							"deletion_protection": {},
 							"id":                  {},
+							"deletion_policy":     {},
 						},
 					),
 				),
@@ -109,6 +111,7 @@ func TestAccDataSourceSqlDatabaseInstances_regionFilter(t *testing.T) {
 						map[string]struct{}{
 							"deletion_protection": {},
 							"id":                  {},
+							"deletion_policy":     {},
 						},
 					),
 				),
@@ -140,6 +143,7 @@ func TestAccDataSourceSqlDatabaseInstances_tierFilter(t *testing.T) {
 							"deletion_protection": {},
 							"id":                  {},
 							"settings.0.version":  {},
+							"deletion_policy":     {},
 						},
 					),
 				),
