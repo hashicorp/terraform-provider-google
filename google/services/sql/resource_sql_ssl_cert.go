@@ -33,6 +33,7 @@ func ResourceSqlSslCert() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSqlSslCertCreate,
 		Read:   resourceSqlSslCertRead,
+		Update: resourceSqlSslCertUpdate,
 		Delete: resourceSqlSslCertDelete,
 
 		SchemaVersion: 1,
@@ -44,6 +45,7 @@ func ResourceSqlSslCert() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -113,6 +115,9 @@ func ResourceSqlSslCert() *schema.Resource {
 				Computed:    true,
 				Description: `The SHA1 Fingerprint of the certificate.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -222,10 +227,30 @@ func resourceSqlSslCertRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(fmt.Sprintf("projects/%s/instances/%s/sslCerts/%s", project, instance, fingerprint))
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 	return nil
 }
 
+// UDP update start
+func resourceSqlSslCertUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceSqlSslCertRead(d, meta)
+}
+
+//UDP update end
+
 func resourceSqlSslCertDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

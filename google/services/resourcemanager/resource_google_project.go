@@ -59,6 +59,7 @@ func ResourceGoogleProject() *schema.Resource {
 		Delete: resourceGoogleProjectDelete,
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("PREVENT"),
 			tpgresource.SetLabelsDiff,
 		),
 
@@ -85,8 +86,8 @@ func ResourceGoogleProject() *schema.Resource {
 			},
 			"deletion_policy": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
-				Default:  "PREVENT",
 				Description: `The deletion policy for the Project. Setting PREVENT will protect the project against any destroy actions caused by a terraform apply or terraform destroy. Setting ABANDON allows the resource
 				to be abandoned rather than deleted. Possible values are: "PREVENT", "ABANDON", "DELETE"`,
 				ValidateFunc: validation.StringInSlice([]string{"PREVENT", "ABANDON", "DELETE"}, false),
@@ -336,11 +337,11 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 	// Explicitly set client-side fields to default values if unset
-	if _, ok := d.GetOkExists("deletion_policy"); !ok {
-		if err := d.Set("deletion_policy", "PREVENT"); err != nil {
-			return fmt.Errorf("Error setting deletion_policy: %s", err)
-		}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "PREVENT"); err != nil {
+		return err
 	}
+	//UDP default read end
 	if err := d.Set("project_id", pid); err != nil {
 		return fmt.Errorf("Error setting project_id: %s", err)
 	}

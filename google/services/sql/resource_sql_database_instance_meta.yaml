@@ -196,3 +196,5 @@ fields:
   - api_field: 'settings.userLabels'
   - api_field: 'settings.settingsVersion'
     field: 'settings.version'
+  - field: 'deletion_policy'
+    provider_only: true

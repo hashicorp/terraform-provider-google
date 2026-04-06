@@ -19,6 +19,7 @@ package resourcemanager
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -37,6 +38,10 @@ func ResourceGoogleOrganizationIamCustomRole() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"role_id": {
@@ -87,6 +92,9 @@ func ResourceGoogleOrganizationIamCustomRole() *schema.Resource {
 				Computed:    true,
 				Description: `The name of the role in the format organizations/{{org_id}}/roles/{{role_id}}. Like id, this field can be used as a reference in other resources such as IAM role bindings.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -184,11 +192,21 @@ func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta in
 	if err := d.Set("deleted", role.Deleted); err != nil {
 		return fmt.Errorf("Error setting deleted: %s", err)
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	return nil
 }
 
 func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceGoogleOrganizationIamCustomRole) {
+		return ResourceGoogleOrganizationIamCustomRole().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -229,6 +247,13 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 }
 
 func resourceGoogleOrganizationIamCustomRoleDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

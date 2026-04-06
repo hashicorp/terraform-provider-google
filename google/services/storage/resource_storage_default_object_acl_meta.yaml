@@ -8,3 +8,5 @@ api_resource_type_kind: 'ObjectAccessControl'
 fields:
   - field: 'bucket'
   - field: 'role_entity'
+  - field: 'deletion_policy'
+    provider_only: true

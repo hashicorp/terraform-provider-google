@@ -137,6 +137,7 @@ func ResourceStorageTransferJob() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -457,6 +458,9 @@ func ResourceStorageTransferJob() *schema.Resource {
 				Computed:    true,
 				Description: `When the Transfer Job was deleted.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -1145,11 +1149,21 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	return nil
 }
 
 func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceStorageTransferJob) {
+		return ResourceStorageTransferJob().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -1263,6 +1277,13 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

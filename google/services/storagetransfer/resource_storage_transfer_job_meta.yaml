@@ -111,3 +111,5 @@ fields:
   - api_field: 'transferSpec.transferOptions.metadataOptions.uid'
   - api_field: 'transferSpec.transferOptions.overwriteObjectsAlreadyExistingInSink'
   - api_field: 'transferSpec.transferOptions.overwriteWhen'
+  - field: 'deletion_policy'
+    provider_only: true

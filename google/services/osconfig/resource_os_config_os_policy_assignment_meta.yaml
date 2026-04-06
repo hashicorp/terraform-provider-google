@@ -111,3 +111,5 @@ fields:
   - api_field: 'rolloutState'
   - field: 'skip_await_rollout'
   - api_field: 'uid'
+  - field: 'deletion_policy'
+    provider_only: true

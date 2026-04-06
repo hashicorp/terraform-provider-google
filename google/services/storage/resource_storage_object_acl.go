@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/storage/v1"
@@ -31,11 +32,14 @@ import (
 
 func ResourceStorageObjectAcl() *schema.Resource {
 	return &schema.Resource{
-		Create:        resourceStorageObjectAclCreate,
-		Read:          resourceStorageObjectAclRead,
-		Update:        resourceStorageObjectAclUpdate,
-		Delete:        resourceStorageObjectAclDelete,
-		CustomizeDiff: resourceStorageObjectAclDiff,
+		Create: resourceStorageObjectAclCreate,
+		Read:   resourceStorageObjectAclRead,
+		Update: resourceStorageObjectAclUpdate,
+		Delete: resourceStorageObjectAclDelete,
+		CustomizeDiff: customdiff.All(
+			resourceStorageObjectAclDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"bucket": {
@@ -67,6 +71,10 @@ func ResourceStorageObjectAcl() *schema.Resource {
 				},
 				ConflictsWith: []string{"predefined_acl"},
 			},
+
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -212,12 +220,22 @@ func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	d.SetId(getObjectAclId(object))
 	return nil
 }
 
 func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceStorageObjectAcl) {
+		return ResourceStorageObjectAcl().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -276,6 +294,13 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceStorageObjectAclDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
