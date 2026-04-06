@@ -53,8 +53,11 @@ var (
 func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"collection_id": "tf-test-collection-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowB
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_connector" "servicenow-basic" {
   location                     = "global"
-  collection_id                = "tf-test-collection-id%{random_suffix}"
+  collection_id                = "%{collection_id}"
   collection_display_name      = "tf-test-dataconnector-servicenow"
   data_source                  = "servicenow"
   params = {
@@ -133,8 +136,11 @@ resource "google_discovery_engine_data_connector" "servicenow-basic" {
 func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithActionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"collection_id": "tf-test-collection-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -159,7 +165,7 @@ func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithAct
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_connector" "jira-with-actions" {
   location                     = "global"
-  collection_id                = "tf-test-collection-id%{random_suffix}"
+  collection_id                = "%{collection_id}"
   collection_display_name      = "Jira Federated"
   data_source                  = "jira"
   data_source_version          = 3

@@ -53,14 +53,17 @@ var (
 func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"database_id":         fmt.Sprintf("ofake-tf-test-database-basic-%s", acctest.RandString(t, 10)),
 		"db_system_id":        fmt.Sprintf("ofake-tf-test-dbsystem-basic-%s", acctest.RandString(t, 10)),
+		"db_unique_name":      fmt.Sprintf("db%s", acctest.RandString(t, 10)),
 		"deletion_protection": false,
 		"odb_network":         "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
 		"odb_subnet":          "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
 		"project":             "oci-terraform-testing-prod",
-		"random_suffix":       acctest.RandString(t, 10),
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -107,6 +110,7 @@ resource "google_oracle_database_db_system" "my_db_system"{
                 admin_password = "ABcde_1#234"
                 database_id = "%{database_id}"
                 db_name = "db"
+                db_unique_name = "%{db_unique_name}"
             }
         }
     }
@@ -120,14 +124,17 @@ resource "google_oracle_database_db_system" "my_db_system"{
 func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"database_id":         fmt.Sprintf("ofake-tf-test-database-basic-%s", acctest.RandString(t, 10)),
 		"db_system_id":        fmt.Sprintf("ofake-tf-test-dbsystem-basic-%s", acctest.RandString(t, 10)),
+		"db_unique_name":      fmt.Sprintf("db%s", acctest.RandString(t, 10)),
 		"deletion_protection": false,
 		"odb_network":         "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
 		"odb_subnet":          "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
 		"project":             "oci-terraform-testing-prod",
-		"random_suffix":       acctest.RandString(t, 10),
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -173,7 +180,7 @@ resource "google_oracle_database_db_system" "my_db_system"{
             db_version = "19.0.0.0"
             database {
                 db_name = "db"
-                db_unique_name = "dbunique"
+                db_unique_name = "%{db_unique_name}"
                 admin_password = "ABcde_1#2345"
                 tde_wallet_password = "ABcde_1#2345"
                 database_id = "%{database_id}"

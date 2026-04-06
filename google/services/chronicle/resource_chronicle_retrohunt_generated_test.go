@@ -54,11 +54,13 @@ func TestAccChronicleRetrohunt_chronicleRetrohuntBasicExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
 		"end_time":      time.Now().Add(time.Hour * (-1)).Format(time.RFC3339),
 		"start_time":    time.Now().Add(time.Hour * (-12)).Format(time.RFC3339),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

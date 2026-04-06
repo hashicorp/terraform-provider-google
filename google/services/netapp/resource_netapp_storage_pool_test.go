@@ -824,3 +824,86 @@ resource "google_netapp_storage_pool" "test_pool" {
 }
 `, context)
 }
+
+func TestAccNetappStoragePool_ontapMode(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetappStoragePool_ontapMode(context),
+			},
+			{
+				ResourceName:            "google_netapp_storage_pool.test_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetappStoragePool_ontapModeUpdate(context),
+			},
+			{
+				ResourceName:            "google_netapp_storage_pool.test_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetappStoragePool_ontapMode(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+
+resource "google_netapp_storage_pool" "test_pool" {
+  	name           = "tf-test-pool%{random_suffix}"
+  	location       = "us-central1-a"
+	service_level  = "FLEX"
+	type           = "UNIFIED"
+	mode           = "ONTAP"
+	capacity_gib   = "2048"
+	network        = data.google_compute_network.default.id
+	description    = "testing ontap mode"
+	labels         = {
+	    key = "test"
+	    value = "pool"
+	}
+}
+`, context)
+}
+
+func testAccNetappStoragePool_ontapModeUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+data "google_compute_network" "default" {
+	name = "%{network_name}"
+}
+
+resource "google_netapp_storage_pool" "test_pool" {
+	name           = "tf-test-pool%{random_suffix}"
+	location       = "us-central1-a"
+	service_level  = "FLEX"
+	type           = "UNIFIED"
+	mode           = "ONTAP"
+	capacity_gib   = "2048"
+	network        = data.google_compute_network.default.id
+	description    = "updated description"
+	labels                = {
+        key = "test"
+        value = "pool"
+    }
+	total_throughput_mibps = "200"
+}
+`, context)
+}

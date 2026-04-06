@@ -53,9 +53,12 @@ var (
 func TestAccLoggingSavedQuery_loggingSavedQueryBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                  envvar.GetTestProjectFromEnv(),
+		"logging_saved_query_name": "tf-test-my-saved-query" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccLoggingSavedQuery_loggingSavedQueryBasicExample(t *testing.T) {
 func testAccLoggingSavedQuery_loggingSavedQueryBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_logging_saved_query" "saved_query" {
-  name         = "tf-test-my-saved-query%{random_suffix}"
+  name         = "%{logging_saved_query_name}"
   display_name = "My Saved Query"
   parent       = "projects/%{project}"
   location     = "global"
@@ -95,9 +98,12 @@ resource "google_logging_saved_query" "saved_query" {
 func TestAccLoggingSavedQuery_loggingSavedQueryNoDescriptionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                  envvar.GetTestProjectFromEnv(),
+		"logging_saved_query_name": "tf-test-my-saved-query-no-description" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -121,7 +127,7 @@ func TestAccLoggingSavedQuery_loggingSavedQueryNoDescriptionExample(t *testing.T
 func testAccLoggingSavedQuery_loggingSavedQueryNoDescriptionExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_logging_saved_query" "saved_query" {
-  name         = "tf-test-my-saved-query-no-description%{random_suffix}"
+  name         = "%{logging_saved_query_name}"
   display_name = "My Saved Query"
   parent       = "projects/%{project}"
   location     = "global"
@@ -136,9 +142,12 @@ resource "google_logging_saved_query" "saved_query" {
 func TestAccLoggingSavedQuery_loggingSavedQueryPrivateExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                  envvar.GetTestProjectFromEnv(),
+		"logging_saved_query_name": "tf-test-my-saved-query-private" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -162,7 +171,7 @@ func TestAccLoggingSavedQuery_loggingSavedQueryPrivateExample(t *testing.T) {
 func testAccLoggingSavedQuery_loggingSavedQueryPrivateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_logging_saved_query" "saved_query" {
-  name         = "tf-test-my-saved-query-private%{random_suffix}"
+  name         = "%{logging_saved_query_name}"
   display_name = "My Saved Query"
   parent       = "projects/%{project}"
   location     = "global"
@@ -178,9 +187,12 @@ resource "google_logging_saved_query" "saved_query" {
 func TestAccLoggingSavedQuery_loggingSavedQuerySummaryFieldsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                  envvar.GetTestProjectFromEnv(),
+		"logging_saved_query_name": "tf-test-my-saved-query-summary-fields" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -204,7 +216,7 @@ func TestAccLoggingSavedQuery_loggingSavedQuerySummaryFieldsExample(t *testing.T
 func testAccLoggingSavedQuery_loggingSavedQuerySummaryFieldsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_logging_saved_query" "saved_query" {
-  name         = "tf-test-my-saved-query-summary-fields%{random_suffix}"
+  name         = "%{logging_saved_query_name}"
   display_name = "My Saved Query"
   parent       = "projects/%{project}"
   location     = "global"
@@ -227,9 +239,12 @@ resource "google_logging_saved_query" "saved_query" {
 func TestAccLoggingSavedQuery_loggingSavedQuerySqlBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                  envvar.GetTestProjectFromEnv(),
+		"logging_saved_query_name": "tf-test-my-saved-query-sql" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -253,7 +268,7 @@ func TestAccLoggingSavedQuery_loggingSavedQuerySqlBasicExample(t *testing.T) {
 func testAccLoggingSavedQuery_loggingSavedQuerySqlBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_logging_saved_query" "saved_query" {
-  name         = "tf-test-my-saved-query-sql%{random_suffix}"
+  name         = "%{logging_saved_query_name}"
   display_name = "My Saved Query"
   parent       = "projects/%{project}"
   location     = "global"

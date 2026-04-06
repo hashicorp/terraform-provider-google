@@ -349,6 +349,8 @@ func resourceComputeInstantSnapshotRead(d *schema.ResourceData, meta interface{}
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeInstantSnapshot %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeInstantSnapshot %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
 	}

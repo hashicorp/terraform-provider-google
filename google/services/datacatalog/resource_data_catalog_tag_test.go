@@ -26,9 +26,14 @@ import (
 func TestAccDataCatalogTag_update(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"force_delete":  true,
-		"random_suffix": acctest.RandString(t, 10),
+		"entry_group_id":  "tf_test_my_entry_group" + randomSuffix,
+		"entry_id":        "tf_test_my_entry" + randomSuffix,
+		"force_delete":    true,
+		"tag_template_id": "tf_test_my_template" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -68,18 +73,18 @@ func testAccDataCatalogTag_dataCatalogEntryTag_update(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
-  entry_id = "tf_test_my_entry%{random_suffix}"
+  entry_id = "%{entry_id}"
 
   user_specified_type = "my_custom_type"
   user_specified_system = "SomethingExternal"
 }
 
 resource "google_data_catalog_entry_group" "entry_group" {
-  entry_group_id = "tf_test_my_entry_group%{random_suffix}"
+  entry_group_id = "%{entry_group_id}"
 }
 
 resource "google_data_catalog_tag_template" "tag_template" {
-  tag_template_id = "tf_test_my_template%{random_suffix}"
+  tag_template_id = "%{tag_template_id}"
   region = "us-central1"
   display_name = "Demo Tag Template"
 

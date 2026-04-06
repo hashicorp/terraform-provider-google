@@ -53,11 +53,14 @@ var (
 func TestAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
+		"name":            "tf-test-jupyter-session-template" + randomSuffix,
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "jupyer-session-test-network", "jupyter-session-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +84,7 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterExample(t *te
 func testAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_session_template" "example_session_templates_jupyter" {
-    name     = "projects/%{project_name}/locations/us-central1/sessionTemplates/tf-test-jupyter-session-template%{random_suffix}"
+    name     = "projects/%{project_name}/locations/us-central1/sessionTemplates/%{name}"
     location = "us-central1"
     labels   = {"session_template_test": "terraform"}
 
@@ -111,12 +114,16 @@ resource "google_dataproc_session_template" "example_session_templates_jupyter" 
 func TestAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
+		"bucket_name":     "tf-test-dataproc-bucket" + randomSuffix,
 		"kms_key_name":    acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-dataproc-session-template-key1").CryptoKey.Name,
+		"name":            "tf-test-jupyter-session-template" + randomSuffix,
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "jupyer-session-test-network", "jupyter-session-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -146,7 +153,7 @@ data "google_storage_project_service_account" "gcs_account" {
 }
 
 resource "google_dataproc_session_template" "dataproc_session_templates_jupyter_full" {
-    name     = "projects/%{project_name}/locations/us-central1/sessionTemplates/tf-test-jupyter-session-template%{random_suffix}"
+    name     = "projects/%{project_name}/locations/us-central1/sessionTemplates/%{name}"
     location      = "us-central1"
     labels        = {"session_template_test": "terraform"}
 
@@ -188,7 +195,7 @@ resource "google_dataproc_session_template" "dataproc_session_templates_jupyter_
 
 resource "google_storage_bucket" "bucket" {
   uniform_bucket_level_access = true
-  name                        = "tf-test-dataproc-bucket%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "US"
   force_destroy               = true
 }
@@ -200,7 +207,7 @@ resource "google_kms_crypto_key_iam_member" "crypto_key_member_1" {
 }
 
 resource "google_dataproc_cluster" "basic" {
-  name   = "tf-test-jupyter-session-template%{random_suffix}"
+  name   = "%{name}"
   region = "us-central1"
 
   cluster_config {
@@ -235,7 +242,7 @@ resource "google_dataproc_cluster" "basic" {
 }
 
 resource "google_dataproc_metastore_service" "ms" {
-  service_id = "tf-test-jupyter-session-template%{random_suffix}"
+  service_id = "%{name}"
   location   = "us-central1"
   port       = 9080
   tier       = "DEVELOPER"
@@ -261,11 +268,14 @@ resource "google_dataproc_metastore_service" "ms" {
 func TestAccDataprocSessionTemplate_dataprocSessionTemplatesSparkConnectExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
+		"name":            "tf-test-sc-session-template" + randomSuffix,
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "spark-connect-session-test-network", "spark-connect-session-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -289,7 +299,7 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesSparkConnectExample(
 func testAccDataprocSessionTemplate_dataprocSessionTemplatesSparkConnectExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_session_template" "example_session_templates_spark_connect" {
-    name     = "projects/%{project_name}/locations/us-central1/sessionTemplates/tf-test-sc-session-template%{random_suffix}"
+    name     = "projects/%{project_name}/locations/us-central1/sessionTemplates/%{name}"
     location      = "us-central1"
     labels        = {"session_template_test": "terraform"}
 

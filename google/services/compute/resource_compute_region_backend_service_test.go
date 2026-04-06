@@ -733,12 +733,17 @@ resource "google_compute_region_backend_service" "foobar" {
   name = "%s"
   region = "europe-west1"
 
-  dynamic "backend" {
-    for_each = google_compute_instance_group.s1
-    content {
-      balancing_mode = "CONNECTION"
-      group = backend.value.self_link
-    }
+  backend {
+    balancing_mode = "CONNECTION"
+    group          = google_compute_instance_group.s1[0].self_link
+  }
+  backend {
+    balancing_mode = "CONNECTION"
+    group          = google_compute_instance_group.s1[1].self_link
+  }
+  backend {
+    balancing_mode = "CONNECTION"
+    group          = google_compute_instance_group.s1[2].self_link
   }
 
   health_checks = [
@@ -781,12 +786,9 @@ resource "google_compute_region_backend_service" "foobar" {
   name = "%s"
   region = "europe-west1"
 
-  dynamic "backend" {
-    for_each = google_compute_instance_group.s1
-    content {
-      balancing_mode = "CONNECTION"
-      group = backend.value.self_link
-    }
+  backend {
+    balancing_mode = "CONNECTION"
+    group          = google_compute_instance_group.s1[0].self_link
   }
 
   health_checks = [

@@ -321,6 +321,8 @@ func resourceActiveDirectoryDomainTrustRead(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ActiveDirectoryDomainTrust %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ActiveDirectoryDomainTrust %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedActiveDirectoryDomainTrust(d, meta, res)
 	if err != nil {
 		return err

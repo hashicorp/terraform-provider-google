@@ -275,7 +275,7 @@ resource "google_dataproc_batch" "example_batch_autotuning" {
       properties    = { "spark.dynamicAllocation.enabled": "false", "spark.executor.instances": "2" }
       cohort        = "tf-dataproc-batch-example"
       autotuning_config {
-        scenarios = ["SCALING", "MEMORY"]
+        scenarios = ["AUTO", "SCALING", "MEMORY"]
       }
     }
 
@@ -384,7 +384,7 @@ The following arguments are supported:
 * `scenarios` -
   (Optional)
   Optional. Scenarios for which tunings are applied.
-  Each value may be one of: `SCALING`, `BROADCAST_HASH_JOIN`, `MEMORY`.
+  Each value may be one of: `AUTO`, `SCALING`, `BROADCAST_HASH_JOIN`, `MEMORY`.
 
 <a name="nested_environment_config"></a>The `environment_config` block supports:
 

@@ -521,6 +521,8 @@ func resourceDataLossPreventionStoredInfoTypeRead(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataLossPreventionStoredInfoType %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DataLossPreventionStoredInfoType %q: %#v", d.Id(), res)
+
 	res, err = resourceDataLossPreventionStoredInfoTypeDecoder(d, meta, res)
 	if err != nil {
 		return err

@@ -53,8 +53,11 @@ var (
 func TestAccIAMWorkforcePoolOauthClient_iamOauthClientFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"oauth_client_id": "tf-test-example-client-id" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccIAMWorkforcePoolOauthClient_iamOauthClientFullExample(t *testing.T) 
 func testAccIAMWorkforcePoolOauthClient_iamOauthClientFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_oauth_client" "example" {
-  oauth_client_id = "tf-test-example-client-id%{random_suffix}"
+  oauth_client_id = "%{oauth_client_id}"
   display_name              = "Display Name of OAuth client"
   description               = "A sample OAuth client"
   location                  = "global"

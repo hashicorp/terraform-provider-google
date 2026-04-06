@@ -53,8 +53,11 @@ var (
 func TestAccStorageInsightsReportConfig_storageInsightsReportConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":   "tf-test-my-bucket" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -118,7 +121,7 @@ resource "google_storage_insights_report_config" "config" {
 }
 
 resource "google_storage_bucket" "report_bucket" {
-  name                        = "tf-test-my-bucket%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "us-central1"
   force_destroy               = true
   uniform_bucket_level_access = true

@@ -53,8 +53,15 @@ var (
 func TestAccDNSResponsePolicyRule_dnsResponsePolicyRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cluster_1_name":            "tf-test-cluster-1" + randomSuffix,
+		"network_1_name":            "tf-test-network-1" + randomSuffix,
+		"network_2_name":            "tf-test-network-2" + randomSuffix,
+		"response_policy_name":      "tf-test-example-response-policy" + randomSuffix,
+		"response_policy_rule_name": "tf-test-example-rule" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,17 +85,17 @@ func TestAccDNSResponsePolicyRule_dnsResponsePolicyRuleBasicExample(t *testing.T
 func testAccDNSResponsePolicyRule_dnsResponsePolicyRuleBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network-1" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_1_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network-2" {
-  name                    = "tf-test-network-2%{random_suffix}"
+  name                    = "%{network_2_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_dns_response_policy" "response-policy" {
-  response_policy_name = "tf-test-example-response-policy%{random_suffix}"
+  response_policy_name = "%{response_policy_name}"
 
   networks {
     network_url = google_compute_network.network-1.id
@@ -100,7 +107,7 @@ resource "google_dns_response_policy" "response-policy" {
 
 resource "google_dns_response_policy_rule" "example-response-policy-rule" {
   response_policy = google_dns_response_policy.response-policy.response_policy_name
-  rule_name       = "tf-test-example-rule%{random_suffix}"
+  rule_name       = "%{response_policy_rule_name}"
   dns_name        = "dns.example.com."
 
   local_data {

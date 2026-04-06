@@ -67,10 +67,15 @@ func TestAccOSConfigV2PolicyOrchestratorForOrganization_osconfigv2PolicyOrchestr
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
-		"zone":          envvar.GetTestZoneFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":                   envvar.GetTestOrgTargetFromEnv(t),
+		"zone":                     envvar.GetTestZoneFromEnv(),
+		"orchestrated_resource_id": "tf-test-test-orchestrated-resource-org" + randomSuffix,
+		"os_policy_id":             "tf-test-test-os-policy-org" + randomSuffix,
+		"policy_orchestrator_id":   "tf-test-po-org" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -94,17 +99,17 @@ func TestAccOSConfigV2PolicyOrchestratorForOrganization_osconfigv2PolicyOrchestr
 func testAccOSConfigV2PolicyOrchestratorForOrganization_osconfigv2PolicyOrchestratorForOrganizationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_os_config_v2_policy_orchestrator_for_organization" "policy_orchestrator_for_organization" {
-    policy_orchestrator_id = "tf-test-po-org%{random_suffix}"
+    policy_orchestrator_id = "%{policy_orchestrator_id}"
     organization_id = "%{org_id}"
     
     state = "ACTIVE"
     action = "UPSERT"
     
     orchestrated_resource {
-        id = "tf-test-test-orchestrated-resource-org%{random_suffix}"
+        id = "%{orchestrated_resource_id}"
         os_policy_assignment_v1_payload {
             os_policies {
-                id = "tf-test-test-os-policy-org%{random_suffix}"
+                id = "%{os_policy_id}"
                 mode = "VALIDATION"
                 resource_groups {
                     resources {

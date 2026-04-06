@@ -1,0 +1,24 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_contact_center_insights_auto_labeling_rule
+generation_type: mmv1
+source_file: products/contactcenterinsights/AutoLabelingRule.yaml
+api_service_name: contactcenterinsights.googleapis.com
+api_version: v1
+api_resource_type_kind: AutoLabelingRule
+autogen_status: true
+fields:
+    - api_field: active
+    - field: auto_labeling_rule_id
+      provider_only: true
+    - api_field: conditions.condition
+    - api_field: conditions.value
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: labelKey
+    - api_field: labelKeyType
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: updateTime

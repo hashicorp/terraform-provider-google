@@ -53,8 +53,10 @@ var (
 func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCommitmentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -102,8 +104,10 @@ resource "time_sleep" "wait_61_seconds" {
 func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCommitmentNoIdExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

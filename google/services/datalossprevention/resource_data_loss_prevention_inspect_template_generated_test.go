@@ -53,9 +53,12 @@ var (
 func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"template":      "temp" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -188,9 +191,12 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"template":      "temp" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -281,9 +287,11 @@ resource "google_data_loss_prevention_inspect_template" "custom" {
 func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeSurrogateExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -372,9 +380,12 @@ resource "google_data_loss_prevention_inspect_template" "custom_type_surrogate" 
 func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateWithTemplateIdExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-template" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -399,7 +410,7 @@ func testAccDataLossPreventionInspectTemplate_dlpInspectTemplateWithTemplateIdEx
 	return acctest.Nprintf(`
 resource "google_data_loss_prevention_inspect_template" "with_template_id" {
   parent = "projects/%{project}"
-  template_id = "tf-test-my-template%{random_suffix}"
+  template_id = "%{name}"
 
   inspect_config {
     info_types {
@@ -450,9 +461,11 @@ resource "google_data_loss_prevention_inspect_template" "with_template_id" {
 func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateMaxInfotypePerFindingDefaultExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

@@ -304,6 +304,8 @@ func resourceApigeeSecurityFeedbackRead(d *schema.ResourceData, meta interface{}
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeSecurityFeedback %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeSecurityFeedback %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenApigeeSecurityFeedbackName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
 	}

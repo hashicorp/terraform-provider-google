@@ -1863,6 +1863,8 @@ func resourceOSConfigV2PolicyOrchestratorForFolderRead(d *schema.ResourceData, m
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("OSConfigV2PolicyOrchestratorForFolder %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading OSConfigV2PolicyOrchestratorForFolder %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenOSConfigV2PolicyOrchestratorForFolderName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PolicyOrchestratorForFolder: %s", err)
 	}

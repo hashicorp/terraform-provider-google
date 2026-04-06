@@ -242,6 +242,7 @@ resource "google_compute_resource_policy" "bar" {
 
 ```hcl
 resource "google_compute_resource_policy" "bar" {
+  provider = google-beta
   name   = "gce-policy"
   region = "europe-west1"
   workload_policy {
@@ -572,7 +573,7 @@ The following arguments are supported:
   and cannot be set if max topology distance is set.
 
 * `accelerator_topology_mode` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Specifies the connection mode for the accelerator topology.
   Supported values are:
     * `AUTO_CONNECT`: The interconnected chips are pre-configured at the time of VM creation.

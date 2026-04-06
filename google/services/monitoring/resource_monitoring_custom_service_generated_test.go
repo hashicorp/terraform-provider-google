@@ -53,8 +53,12 @@ var (
 func TestAccMonitoringService_monitoringServiceCustomExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "//product.googleapis.com/foo/foo/services/test" + randomSuffix,
+		"service_id":    "tf-test-custom-srv" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,11 +81,11 @@ func TestAccMonitoringService_monitoringServiceCustomExample(t *testing.T) {
 func testAccMonitoringService_monitoringServiceCustomExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_custom_service" "custom" {
-  service_id = "tf-test-custom-srv%{random_suffix}"
-  display_name = "My Custom Service tf-test-custom-srv%{random_suffix}"
+  service_id = "%{service_id}"
+  display_name = "My Custom Service %{service_id}"
 
   telemetry {
-  	resource_name = "//product.googleapis.com/foo/foo/services/test%{random_suffix}"
+  	resource_name = "%{resource_name}"
   }
 
   user_labels = {

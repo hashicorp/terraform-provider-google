@@ -57,6 +57,40 @@ resource "google_spanner_instance_partition" "partition" {
   node_count   = 1
 } 
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=spanner_instance_partition_autoscaling&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Spanner Instance Partition Autoscaling
+
+
+```hcl
+resource "google_spanner_instance" "main" {
+  name         = "test-instance"
+  config       = "nam6"
+  display_name = "main-instance"
+  num_nodes    = 1
+  edition     = "ENTERPRISE_PLUS"
+}
+
+resource "google_spanner_instance_partition" "partition" {
+  name         = "test-partition"
+  instance     = google_spanner_instance.main.name
+  config       = "nam8"
+  display_name = "test-spanner-partition"
+  autoscaling_config {
+    autoscaling_limits {
+      min_processing_units = 1000
+      max_processing_units = 2000
+    }
+    autoscaling_targets {
+      high_priority_cpu_utilization_percent = 65
+      storage_utilization_percent           = 95
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -87,18 +121,92 @@ The following arguments are supported:
 * `node_count` -
   (Optional)
   The number of nodes allocated to this instance partition. One node equals
-  1000 processing units. Exactly one of either node_count or processing_units
-  must be present.
+  1000 processing units. Exactly one of either node_count, processing_units,
+  or autoscaling_config must be present.
 
 * `processing_units` -
   (Optional)
   The number of processing units allocated to this instance partition.
-  Exactly one of either node_count or processing_units must be present.
+  Exactly one of either node_count, processing_units, or autoscaling_config
+  must be present.
+
+* `autoscaling_config` -
+  (Optional)
+  The autoscaling configuration. Autoscaling is enabled if this field is set.
+  Exactly one of either node_count, processing_units, or autoscaling_config must be
+  present. When autoscaling is enabled, node_count and processing_units are treated as
+  OUTPUT_ONLY fields and reflect the current compute capacity allocated to the
+  instance partition.
+  Structure is [documented below](#nested_autoscaling_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
+
+<a name="nested_autoscaling_config"></a>The `autoscaling_config` block supports:
+
+* `autoscaling_limits` -
+  (Optional)
+  Defines scale in controls to reduce the risk of response latency
+  and outages due to abrupt scale-in events. Users can define the minimum and
+  maximum compute capacity allocated to the instance partition, and the autoscaler will
+  only scale within that range. Users can either use nodes or processing
+  units to specify the limits, but should use the same unit to set both the
+  min_limit and max_limit.
+  Structure is [documented below](#nested_autoscaling_config_autoscaling_limits).
+
+* `autoscaling_targets` -
+  (Optional)
+  Defines scale in controls to reduce the risk of response latency
+  and outages due to abrupt scale-in events
+  Structure is [documented below](#nested_autoscaling_config_autoscaling_targets).
+
+
+<a name="nested_autoscaling_config_autoscaling_limits"></a>The `autoscaling_limits` block supports:
+
+* `min_processing_units` -
+  (Optional)
+  Specifies minimum number of processing units allocated to the instance partition.
+  If set, this number should be multiples of 1000.
+
+* `max_processing_units` -
+  (Optional)
+  Specifies maximum number of processing units allocated to the instance partition.
+  If set, this number should be multiples of 1000 and be greater than or equal to
+  min_processing_units.
+
+* `min_nodes` -
+  (Optional)
+  Specifies number of nodes allocated to the instance partition. If set, this number
+  should be greater than or equal to 1.
+
+* `max_nodes` -
+  (Optional)
+  Specifies maximum number of nodes allocated to the instance partition. If set, this number
+  should be greater than or equal to min_nodes.
+
+<a name="nested_autoscaling_config_autoscaling_targets"></a>The `autoscaling_targets` block supports:
+
+* `high_priority_cpu_utilization_percent` -
+  (Optional)
+  Specifies the target high priority cpu utilization percentage that the autoscaler
+  should be trying to achieve for the instance partition.
+  This number is on a scale from 0 (no utilization) to 100 (full utilization).
+
+* `storage_utilization_percent` -
+  (Optional)
+  Specifies the target storage utilization percentage that the autoscaler
+  should be trying to achieve for the instance partition.
+  This number is on a scale from 0 (no utilization) to 100 (full utilization).
+
+* `total_cpu_utilization_percent` -
+  (Optional)
+  Specifies the target total cpu utilization percentage that the autoscaler
+  should be trying to achieve for the instance partition.
+  This number is on a scale from 0 (no utilization) to 100 (full utilization). The valid range is [10, 90] inclusive.
+  If not specified or set to 0, the autoscaler will skip scaling based on total cpu utilization.
+  The value should be higher than high_priority_cpu_utilization_percent if present.
 
 ## Attributes Reference
 

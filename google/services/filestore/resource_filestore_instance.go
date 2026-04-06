@@ -850,6 +850,8 @@ func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("FilestoreInstance %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading FilestoreInstance %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("desired_replica_state"); !ok {
 		if err := d.Set("desired_replica_state", "READY"); err != nil {

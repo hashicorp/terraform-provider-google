@@ -260,6 +260,8 @@ func resourceApigeeEnvironmentApiRevisionDeploymentRead(d *schema.ResourceData, 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeEnvironmentApiRevisionDeployment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeEnvironmentApiRevisionDeployment %q: %#v", d.Id(), res)
+
 	if err := d.Set("state", flattenApigeeEnvironmentApiRevisionDeploymentState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EnvironmentApiRevisionDeployment: %s", err)
 	}

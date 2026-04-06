@@ -53,8 +53,11 @@ var (
 func TestAccPrivatecaCertificateTemplate_privatecaTemplateBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-template" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccPrivatecaCertificateTemplate_privatecaTemplateBasicExample(t *testin
 func testAccPrivatecaCertificateTemplate_privatecaTemplateBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
-  name = "tf-test-my-template%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   description = "A sample certificate template"
 
@@ -155,8 +158,11 @@ resource "google_privateca_certificate_template" "default" {
 func TestAccPrivatecaCertificateTemplate_privatecaTemplateZeroMaxIssuerPathLengthNullCaExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-template" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -180,7 +186,7 @@ func TestAccPrivatecaCertificateTemplate_privatecaTemplateZeroMaxIssuerPathLengt
 func testAccPrivatecaCertificateTemplate_privatecaTemplateZeroMaxIssuerPathLengthNullCaExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
-  name = "tf-test-my-template%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   description = "A sample certificate template"
 

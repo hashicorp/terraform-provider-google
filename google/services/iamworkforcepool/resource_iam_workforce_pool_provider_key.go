@@ -336,6 +336,8 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderKeyRead(d *schema.ResourceData
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IAMWorkforcePoolWorkforcePoolProviderKey %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IAMWorkforcePoolWorkforcePoolProviderKey %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenIAMWorkforcePoolWorkforcePoolProviderKeyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WorkforcePoolProviderKey: %s", err)
 	}

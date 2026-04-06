@@ -3455,6 +3455,8 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeUrlMap %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeUrlMap %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}

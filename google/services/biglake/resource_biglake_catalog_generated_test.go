@@ -53,8 +53,11 @@ var (
 func TestAccBiglakeCatalog_bigqueryBiglakeCatalogExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf_test_my_catalog" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccBiglakeCatalog_bigqueryBiglakeCatalogExample(t *testing.T) {
 func testAccBiglakeCatalog_bigqueryBiglakeCatalogExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_biglake_catalog" "default"  {
-    name = "tf_test_my_catalog%{random_suffix}"
+    name = "%{name}"
     location = "US"
 }
 `, context)

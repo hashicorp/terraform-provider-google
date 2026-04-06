@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_spanner_instance
 generation_type: mmv1
 source_file: products/spanner/Instance.yaml
@@ -8,7 +10,13 @@ cai_asset_name_formats:
     - //spanner.googleapis.com/projects/{{project}}/instances/{{name}}
 fields:
     - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingLimits.maxNodes
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingLimits.maxProcessingUnits
     - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingLimits.minNodes
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingLimits.minProcessingUnits
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingTargetHighPriorityCpuUtilizationPercent
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingTargetTotalCpuUtilizationPercent
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.disableHighPriorityCpuAutoscaling
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.disableTotalCpuAutoscaling
     - api_field: autoscalingConfig.asymmetricAutoscalingOptions.replicaSelection.location
     - api_field: autoscalingConfig.autoscalingLimits.maxNodes
     - api_field: autoscalingConfig.autoscalingLimits.maxProcessingUnits

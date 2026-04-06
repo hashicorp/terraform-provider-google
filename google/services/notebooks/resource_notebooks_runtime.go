@@ -856,6 +856,8 @@ func resourceNotebooksRuntimeRead(d *schema.ResourceData, meta interface{}) erro
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NotebooksRuntime %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NotebooksRuntime %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Runtime: %s", err)
 	}

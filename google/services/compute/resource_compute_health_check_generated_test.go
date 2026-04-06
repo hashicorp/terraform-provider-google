@@ -53,8 +53,11 @@ var (
 func TestAccComputeHealthCheck_healthCheckTcpExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-tcp-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +80,7 @@ func TestAccComputeHealthCheck_healthCheckTcpExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckTcpExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "tcp-health-check" {
-  name = "tf-test-tcp-health-check%{random_suffix}"
+  name = "%{health_check_name}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -92,8 +95,11 @@ resource "google_compute_health_check" "tcp-health-check" {
 func TestAccComputeHealthCheck_healthCheckTcpFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-tcp-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -116,7 +122,7 @@ func TestAccComputeHealthCheck_healthCheckTcpFullExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckTcpFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "tcp-health-check" {
-  name        = "tf-test-tcp-health-check%{random_suffix}"
+  name        = "%{health_check_name}"
   description = "Health check via tcp"
 
   timeout_sec         = 1
@@ -138,8 +144,11 @@ resource "google_compute_health_check" "tcp-health-check" {
 func TestAccComputeHealthCheck_healthCheckSslExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-ssl-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -162,7 +171,7 @@ func TestAccComputeHealthCheck_healthCheckSslExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckSslExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "ssl-health-check" {
-  name = "tf-test-ssl-health-check%{random_suffix}"
+  name = "%{health_check_name}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -177,8 +186,11 @@ resource "google_compute_health_check" "ssl-health-check" {
 func TestAccComputeHealthCheck_healthCheckSslFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-ssl-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -201,7 +213,7 @@ func TestAccComputeHealthCheck_healthCheckSslFullExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckSslFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "ssl-health-check" {
-  name        = "tf-test-ssl-health-check%{random_suffix}"
+  name        = "%{health_check_name}"
   description = "Health check via ssl"
 
   timeout_sec         = 1
@@ -223,8 +235,11 @@ resource "google_compute_health_check" "ssl-health-check" {
 func TestAccComputeHealthCheck_healthCheckHttpExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-http-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -247,7 +262,7 @@ func TestAccComputeHealthCheck_healthCheckHttpExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckHttpExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "http-health-check" {
-  name = "tf-test-http-health-check%{random_suffix}"
+  name = "%{health_check_name}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -262,8 +277,11 @@ resource "google_compute_health_check" "http-health-check" {
 func TestAccComputeHealthCheck_healthCheckHttpFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-http-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -286,7 +304,7 @@ func TestAccComputeHealthCheck_healthCheckHttpFullExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckHttpFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "http-health-check" {
-  name        = "tf-test-http-health-check%{random_suffix}"
+  name        = "%{health_check_name}"
   description = "Health check via http"
 
   timeout_sec         = 1
@@ -309,8 +327,11 @@ resource "google_compute_health_check" "http-health-check" {
 func TestAccComputeHealthCheck_healthCheckHttpsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-https-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -333,7 +354,7 @@ func TestAccComputeHealthCheck_healthCheckHttpsExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckHttpsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "https-health-check" {
-  name = "tf-test-https-health-check%{random_suffix}"
+  name = "%{health_check_name}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -348,8 +369,11 @@ resource "google_compute_health_check" "https-health-check" {
 func TestAccComputeHealthCheck_healthCheckHttpsFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-https-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -372,7 +396,7 @@ func TestAccComputeHealthCheck_healthCheckHttpsFullExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckHttpsFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "https-health-check" {
-  name        = "tf-test-https-health-check%{random_suffix}"
+  name        = "%{health_check_name}"
   description = "Health check via https"
 
   timeout_sec         = 1
@@ -395,8 +419,11 @@ resource "google_compute_health_check" "https-health-check" {
 func TestAccComputeHealthCheck_healthCheckHttp2Example(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-http2-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -419,7 +446,7 @@ func TestAccComputeHealthCheck_healthCheckHttp2Example(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckHttp2Example(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "http2-health-check" {
-  name = "tf-test-http2-health-check%{random_suffix}"
+  name = "%{health_check_name}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -434,8 +461,11 @@ resource "google_compute_health_check" "http2-health-check" {
 func TestAccComputeHealthCheck_healthCheckHttp2FullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-http2-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -458,7 +488,7 @@ func TestAccComputeHealthCheck_healthCheckHttp2FullExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckHttp2FullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "http2-health-check" {
-  name        = "tf-test-http2-health-check%{random_suffix}"
+  name        = "%{health_check_name}"
   description = "Health check via http2"
 
   timeout_sec         = 1
@@ -481,8 +511,11 @@ resource "google_compute_health_check" "http2-health-check" {
 func TestAccComputeHealthCheck_healthCheckGrpcExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-grpc-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -505,7 +538,7 @@ func TestAccComputeHealthCheck_healthCheckGrpcExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckGrpcExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "grpc-health-check" {
-  name = "tf-test-grpc-health-check%{random_suffix}"
+  name = "%{health_check_name}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -520,8 +553,11 @@ resource "google_compute_health_check" "grpc-health-check" {
 func TestAccComputeHealthCheck_healthCheckGrpcFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-grpc-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -544,7 +580,7 @@ func TestAccComputeHealthCheck_healthCheckGrpcFullExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckGrpcFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "grpc-health-check" {
-  name = "tf-test-grpc-health-check%{random_suffix}"
+  name = "%{health_check_name}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -561,8 +597,11 @@ resource "google_compute_health_check" "grpc-health-check" {
 func TestAccComputeHealthCheck_healthCheckGrpcWithTlsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-grpc-with-tls-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -585,7 +624,7 @@ func TestAccComputeHealthCheck_healthCheckGrpcWithTlsExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckGrpcWithTlsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "grpc-with-tls-health-check" {
-  name = "tf-test-grpc-with-tls-health-check%{random_suffix}"
+  name = "%{health_check_name}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -600,8 +639,11 @@ resource "google_compute_health_check" "grpc-with-tls-health-check" {
 func TestAccComputeHealthCheck_healthCheckGrpcWithTlsFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-grpc-with-tls-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -624,7 +666,7 @@ func TestAccComputeHealthCheck_healthCheckGrpcWithTlsFullExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckGrpcWithTlsFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "grpc-with-tls-health-check" {
-  name        = "tf-test-grpc-with-tls-health-check%{random_suffix}"
+  name        = "%{health_check_name}"
   description = "Health check via grpc with TLS"
 
   timeout_sec         = 1
@@ -644,8 +686,11 @@ resource "google_compute_health_check" "grpc-with-tls-health-check" {
 func TestAccComputeHealthCheck_computeHealthCheckHttpSourceRegionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-http-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -668,7 +713,7 @@ func TestAccComputeHealthCheck_computeHealthCheckHttpSourceRegionsExample(t *tes
 func testAccComputeHealthCheck_computeHealthCheckHttpSourceRegionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "http-health-check-with-source-regions" {
-  name = "tf-test-http-health-check%{random_suffix}"
+  name = "%{health_check_name}"
   check_interval_sec = 30
 
   http_health_check {
@@ -684,8 +729,11 @@ resource "google_compute_health_check" "http-health-check-with-source-regions" {
 func TestAccComputeHealthCheck_computeHealthCheckHttpsSourceRegionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-https-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -708,7 +756,7 @@ func TestAccComputeHealthCheck_computeHealthCheckHttpsSourceRegionsExample(t *te
 func testAccComputeHealthCheck_computeHealthCheckHttpsSourceRegionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "https-health-check-with-source-regions" {
-  name = "tf-test-https-health-check%{random_suffix}"
+  name = "%{health_check_name}"
   check_interval_sec = 30
 
   https_health_check {
@@ -724,8 +772,11 @@ resource "google_compute_health_check" "https-health-check-with-source-regions" 
 func TestAccComputeHealthCheck_computeHealthCheckTcpSourceRegionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name": "tf-test-tcp-health-check" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -748,7 +799,7 @@ func TestAccComputeHealthCheck_computeHealthCheckTcpSourceRegionsExample(t *test
 func testAccComputeHealthCheck_computeHealthCheckTcpSourceRegionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_health_check" "tcp-health-check-with-source-regions" {
-  name = "tf-test-tcp-health-check%{random_suffix}"
+  name = "%{health_check_name}"
   check_interval_sec = 30
 
   tcp_health_check {

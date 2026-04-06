@@ -53,8 +53,13 @@ var (
 func TestAccBigQueryRowAccessPolicy_bigqueryRowAccessPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"policy_id":     "tf_test_policy_id" + randomSuffix,
+		"table_id":      "tf_test_table_id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccBigQueryRowAccessPolicy_bigqueryRowAccessPolicyBasicExample(t *testi
 func testAccBigQueryRowAccessPolicy_bigqueryRowAccessPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "example" {
-  dataset_id = "tf_test_dataset_id%{random_suffix}"
+  dataset_id = "%{dataset_id}"
   location = "US"
 }
 
@@ -95,13 +100,13 @@ resource "google_bigquery_table" "example" {
 EOF
 
   dataset_id = google_bigquery_dataset.example.dataset_id
-  table_id   = "tf_test_table_id%{random_suffix}"
+  table_id   = "%{table_id}"
 }
 
 resource "google_bigquery_row_access_policy" "example" {
   dataset_id = google_bigquery_dataset.example.dataset_id
   table_id   = google_bigquery_table.example.table_id
-  policy_id = "tf_test_policy_id%{random_suffix}"
+  policy_id = "%{policy_id}"
 
   filter_predicate = "nullable_field is not NULL"
   grantees = [

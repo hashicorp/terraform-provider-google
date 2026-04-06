@@ -53,8 +53,11 @@ var (
 func TestAccDataplexGlossary_dataplexGlossaryBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"glossary_name": "tf-test-glossary-basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccDataplexGlossary_dataplexGlossaryBasicExample(t *testing.T) {
 func testAccDataplexGlossary_dataplexGlossaryBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataplex_glossary" "glossary_test_id" {
-  glossary_id = "tf-test-glossary-basic%{random_suffix}"
+  glossary_id = "%{glossary_name}"
   location = "us-central1"
 }
 `, context)
@@ -87,8 +90,11 @@ resource "google_dataplex_glossary" "glossary_test_id" {
 func TestAccDataplexGlossary_dataplexGlossaryFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"glossary_name": "tf-test-glossary-full" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -112,7 +118,7 @@ func TestAccDataplexGlossary_dataplexGlossaryFullExample(t *testing.T) {
 func testAccDataplexGlossary_dataplexGlossaryFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataplex_glossary" "glossary_test_id_full" {
-  glossary_id = "tf-test-glossary-full%{random_suffix}"
+  glossary_id = "%{glossary_name}"
   location     = "us-central1"
 
   labels = { "tag": "test-tf" }

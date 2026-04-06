@@ -303,6 +303,8 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantRead(d *schema.Resou
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IAMWorkforcePoolWorkforcePoolProviderScimTenant %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IAMWorkforcePoolWorkforcePoolProviderScimTenant %q: %#v", d.Id(), res)
+
 	res, err = resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantDecoder(d, meta, res)
 	if err != nil {
 		return err

@@ -288,6 +288,8 @@ func resourceApigeeNatAddressRead(d *schema.ResourceData, meta interface{}) erro
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeNatAddress %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeNatAddress %q: %#v", d.Id(), res)
+
 	res, err = resourceApigeeNatAddressDecoder(d, meta, res)
 	if err != nil {
 		return err

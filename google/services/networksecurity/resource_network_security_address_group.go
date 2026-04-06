@@ -325,6 +325,8 @@ func resourceNetworkSecurityAddressGroupRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkSecurityAddressGroup %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkSecurityAddressGroup %q: %#v", d.Id(), res)
+
 	if err := d.Set("description", flattenNetworkSecurityAddressGroupDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AddressGroup: %s", err)
 	}

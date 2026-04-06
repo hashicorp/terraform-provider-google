@@ -53,8 +53,12 @@ var (
 func TestAccComputeSnapshot_snapshotBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"disk_name":     "tf-test-debian-disk" + randomSuffix,
+		"snapshot_name": "tf-test-my-snapshot" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccComputeSnapshot_snapshotBasicExample(t *testing.T) {
 func testAccComputeSnapshot_snapshotBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
-  name        = "tf-test-my-snapshot%{random_suffix}"
+  name        = "%{snapshot_name}"
   source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
   labels = {
@@ -93,7 +97,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "tf-test-debian-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"
@@ -105,8 +109,13 @@ resource "google_compute_disk" "persistent" {
 func TestAccComputeSnapshot_snapshotBasicSourceInstantSnapshotExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"disk_name":             "tf-test-debian-disk" + randomSuffix,
+		"instant_snapshot_name": "tf-test-my-instant-snapshot" + randomSuffix,
+		"snapshot_name":         "tf-test-my-snapshot" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -130,13 +139,13 @@ func TestAccComputeSnapshot_snapshotBasicSourceInstantSnapshotExample(t *testing
 func testAccComputeSnapshot_snapshotBasicSourceInstantSnapshotExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
-  name        = "tf-test-my-snapshot%{random_suffix}"
+  name        = "%{snapshot_name}"
   zone        = "us-central1-a"
   source_instant_snapshot = google_compute_instant_snapshot.instant_snapshot.id
 }
 
 resource "google_compute_instant_snapshot" "instant_snapshot" {
-  name        = "tf-test-my-instant-snapshot%{random_suffix}"
+  name        = "%{instant_snapshot_name}"
   source_disk = google_compute_disk.persistent.self_link
   zone        = google_compute_disk.persistent.zone
 
@@ -152,7 +161,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "tf-test-debian-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"
@@ -164,8 +173,13 @@ resource "google_compute_disk" "persistent" {
 func TestAccComputeSnapshot_snapshotChainnameExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"chain_name":    "tf-test-snapshot-chain" + randomSuffix,
+		"disk_name":     "tf-test-debian-disk" + randomSuffix,
+		"snapshot_name": "tf-test-my-snapshot" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -189,10 +203,10 @@ func TestAccComputeSnapshot_snapshotChainnameExample(t *testing.T) {
 func testAccComputeSnapshot_snapshotChainnameExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
-  name        = "tf-test-my-snapshot%{random_suffix}"
+  name        = "%{snapshot_name}"
   source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
-  chain_name  = "tf-test-snapshot-chain%{random_suffix}"
+  chain_name  = "%{chain_name}"
   labels = {
     my_label = "value"
   }
@@ -205,7 +219,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "tf-test-debian-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"

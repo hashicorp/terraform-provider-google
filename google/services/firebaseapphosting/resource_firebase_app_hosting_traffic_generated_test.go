@@ -53,10 +53,14 @@ var (
 func TestAccFirebaseAppHostingTraffic_firebaseAppHostingTrafficTargetExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":     envvar.GetTestProjectFromEnv(),
+		"backend_id":     "tf-test-traffic-tg" + randomSuffix,
+		"build_id":       "tf-test-target-build" + randomSuffix,
 		"service_act_id": "tf-test-traffic-tg",
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -95,7 +99,7 @@ resource "google_firebase_app_hosting_build" "example" {
   project          = google_firebase_app_hosting_backend.example.project
   location         = google_firebase_app_hosting_backend.example.location
   backend          = google_firebase_app_hosting_backend.example.backend_id
-  build_id         = "tf-test-target-build%{random_suffix}"
+  build_id         = "%{build_id}"
 
   source {
     container {
@@ -109,7 +113,7 @@ resource "google_firebase_app_hosting_backend" "example" {
   # Choose the region closest to your users
 
   location         = "asia-east1"
-  backend_id       = "tf-test-traffic-tg%{random_suffix}"
+  backend_id       = "%{backend_id}"
   app_id           = "1:0000000000:web:674cde32020e16fbce9dbd"
   serving_locality = "GLOBAL_ACCESS"
   service_account  = google_service_account.service_account.email
@@ -148,10 +152,14 @@ resource "google_project_service" "fah" {
 func TestAccFirebaseAppHostingTraffic_firebaseAppHostingTrafficRolloutPolicyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":     envvar.GetTestProjectFromEnv(),
+		"backend_id":     "tf-test-traffic-rp" + randomSuffix,
+		"branch":         "main" + randomSuffix,
 		"service_act_id": "tf-test-traffic-rp",
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -179,7 +187,7 @@ resource "google_firebase_app_hosting_traffic" "example" {
   backend          = google_firebase_app_hosting_backend.example.backend_id
 
   rollout_policy {
-    codebase_branch = "main%{random_suffix}"
+    codebase_branch = "%{branch}"
   }
 }
 
@@ -188,7 +196,7 @@ resource "google_firebase_app_hosting_backend" "example" {
   # Choose the region closest to your users
 
   location         = "asia-east1"
-  backend_id       = "tf-test-traffic-rp%{random_suffix}"
+  backend_id       = "%{backend_id}"
   app_id           = "1:0000000000:web:674cde32020e16fbce9dbd"
   serving_locality = "GLOBAL_ACCESS"
   service_account  = google_service_account.service_account.email
@@ -227,10 +235,14 @@ resource "google_project_service" "fah" {
 func TestAccFirebaseAppHostingTraffic_firebaseAppHostingTrafficRolloutPolicyDisabledExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":     envvar.GetTestProjectFromEnv(),
+		"backend_id":     "tf-test-traffic-rpd" + randomSuffix,
+		"branch":         "main" + randomSuffix,
 		"service_act_id": "tf-test-traffic-rpd",
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -259,7 +271,7 @@ resource "google_firebase_app_hosting_traffic" "example" {
 
   rollout_policy {
     disabled = true
-    codebase_branch = "main%{random_suffix}"
+    codebase_branch = "%{branch}"
   }
 }
 
@@ -268,7 +280,7 @@ resource "google_firebase_app_hosting_backend" "example" {
   # Choose the region closest to your users
 
   location         = "asia-east1"
-  backend_id       = "tf-test-traffic-rpd%{random_suffix}"
+  backend_id       = "%{backend_id}"
   app_id           = "1:0000000000:web:674cde32020e16fbce9dbd"
   serving_locality = "GLOBAL_ACCESS"
   service_account  = google_service_account.service_account.email

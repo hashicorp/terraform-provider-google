@@ -53,9 +53,12 @@ var (
 func TestAccComputeFirewallPolicy_firewallPolicyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"policy_name":   "tf-test-my-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccComputeFirewallPolicy_firewallPolicyExample(context map[string]inter
 	return acctest.Nprintf(`
 resource "google_compute_firewall_policy" "default" {
   parent      = "organizations/%{org_id}"
-  short_name  = "tf-test-my-policy%{random_suffix}"
+  short_name  = "%{policy_name}"
   description = "Example Resource"
 }
 `, context)

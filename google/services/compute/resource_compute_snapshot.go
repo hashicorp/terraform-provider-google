@@ -550,6 +550,8 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeSnapshot %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeSnapshot %q: %#v", d.Id(), res)
+
 	res, err = resourceComputeSnapshotDecoder(d, meta, res)
 	if err != nil {
 		return err

@@ -53,8 +53,12 @@ var (
 func TestAccDataPipelinePipeline_dataPipelinePipelineExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":    "tf-test-my-account" + randomSuffix,
+		"pipeline_name": "tf-test-my-pipeline" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +82,12 @@ func TestAccDataPipelinePipeline_dataPipelinePipelineExample(t *testing.T) {
 func testAccDataPipelinePipeline_dataPipelinePipelineExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account" {
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Service Account"
 }
 
 resource "google_data_pipeline_pipeline" "primary" {
-  name         = "tf-test-my-pipeline%{random_suffix}"
+  name         = "%{pipeline_name}"
   display_name = "my-pipeline"
   type         = "PIPELINE_TYPE_BATCH"
   state        = "STATE_ACTIVE"

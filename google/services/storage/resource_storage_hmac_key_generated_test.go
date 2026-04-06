@@ -53,8 +53,11 @@ var (
 func TestAccStorageHmacKey_storageHmacKeyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":    "tf-test-my-svc-acc" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccStorageHmacKey_storageHmacKeyExample(context map[string]interface{})
 	return acctest.Nprintf(`
 # Create a new service account
 resource "google_service_account" "service_account" {
-  account_id = "tf-test-my-svc-acc%{random_suffix}"
+  account_id = "%{account_id}"
 }
 
 #Create the HMAC key for the associated service account 

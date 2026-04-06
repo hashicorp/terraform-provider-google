@@ -765,6 +765,8 @@ func resourceComputeSecurityPolicyRuleRead(d *schema.ResourceData, meta interfac
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeSecurityPolicyRule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeSecurityPolicyRule %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
 	}
@@ -901,7 +903,8 @@ func resourceComputeSecurityPolicyRuleUpdate(d *schema.ResourceData, meta interf
 	}
 
 	if d.HasChange("rate_limit_options") {
-		updateMask = append(updateMask, "rateLimitOptions.rateLimitThreshold",
+		updateMask = append(updateMask, "rateLimitOptions",
+			"rateLimitOptions.rateLimitThreshold",
 			"rateLimitOptions.conformAction",
 			"rateLimitOptions.exceedRedirectOptions",
 			"rateLimitOptions.exceedAction",

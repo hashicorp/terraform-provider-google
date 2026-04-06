@@ -63,6 +63,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/composer"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/contactcenterinsights"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/container"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/containeranalysis"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/containerattached"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/corebilling"
@@ -172,6 +173,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/workbench"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/workflows"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/workstations"
 	"testing"
 
 	// Manually add the services for DCL resource and handwritten resource sweepers if they are not in the above list

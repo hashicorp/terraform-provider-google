@@ -53,9 +53,13 @@ var (
 func TestAccComputeCrossSiteNetwork_computeCrossSiteNetworkBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"description":   "Example cross site network" + randomSuffix,
+		"name":          "tf-test-test-cross-site-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,8 +85,8 @@ data "google_project" "project" {
 }
 
 resource "google_compute_cross_site_network" "example-cross-site-network" {
-  name                 = "tf-test-test-cross-site-network%{random_suffix}"
-  description         = "Example cross site network%{random_suffix}"
+  name                 = "%{name}"
+  description         = "%{description}"
 }
 `, context)
 }

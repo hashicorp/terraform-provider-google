@@ -113,6 +113,15 @@ func ResourceNetworkServicesTlsRoute() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceNetworkServicesTlsRouteResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceNetworkServicesTlsRouteUpgradeV0,
+				Version: 0,
+			},
+		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 		),
@@ -197,17 +206,33 @@ Partial wildcards are not supported, and values like *w.example.com are invalid.
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `Gateways defines a list of gateways this TlsRoute is attached to, as one of the routing rules to route the requests served by the gateway.
-Each gateway reference should match the pattern: projects/*/locations/global/gateways/<gateway_name>`,
+Each gateway reference should match the pattern: projects/*/locations/*/gateways/<gateway_name>`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"location": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Location (region) of the TLS Route.`,
+				Default:     "global",
 			},
 			"meshes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `Meshes defines a list of meshes this TlsRoute is attached to, as one of the routing rules to route the requests served by the mesh.
-Each mesh reference should match the pattern: projects/*/locations/global/meshes/<mesh_name>
+Each mesh reference should match the pattern: projects/*/locations/*/meshes/<mesh_name>
 The attached Mesh should be of a type SIDECAR`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"target_proxies": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `TargetProxies defines a list of target proxies this TlsRoute is attached to, as one of the routing rules to route the requests served by the load balancer.
+Each target proxy reference should match the pattern: projects/*/locations/global/targetTcpProxies/<target_tcp_proxy_name>`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -264,6 +289,12 @@ func resourceNetworkServicesTlsRouteCreate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("gateways"); ok || !reflect.DeepEqual(v, gatewaysProp) {
 		obj["gateways"] = gatewaysProp
 	}
+	targetProxiesProp, err := expandNetworkServicesTlsRouteTargetProxies(d.Get("target_proxies"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_proxies"); ok || !reflect.DeepEqual(v, targetProxiesProp) {
+		obj["targetProxies"] = targetProxiesProp
+	}
 	rulesProp, err := expandNetworkServicesTlsRouteRules(d.Get("rules"), d, config)
 	if err != nil {
 		return err
@@ -271,7 +302,7 @@ func resourceNetworkServicesTlsRouteCreate(d *schema.ResourceData, meta interfac
 		obj["rules"] = rulesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/tlsRoutes?tlsRouteId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/tlsRoutes?tlsRouteId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -306,7 +337,7 @@ func resourceNetworkServicesTlsRouteCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/tlsRoutes/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/tlsRoutes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -334,7 +365,7 @@ func resourceNetworkServicesTlsRouteRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/tlsRoutes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/tlsRoutes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -365,6 +396,8 @@ func resourceNetworkServicesTlsRouteRead(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkServicesTlsRoute %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkServicesTlsRoute %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading TlsRoute: %s", err)
 	}
@@ -385,6 +418,9 @@ func resourceNetworkServicesTlsRouteRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading TlsRoute: %s", err)
 	}
 	if err := d.Set("gateways", flattenNetworkServicesTlsRouteGateways(res["gateways"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsRoute: %s", err)
+	}
+	if err := d.Set("target_proxies", flattenNetworkServicesTlsRouteTargetProxies(res["targetProxies"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TlsRoute: %s", err)
 	}
 	if err := d.Set("rules", flattenNetworkServicesTlsRouteRules(res["rules"], d, config)); err != nil {
@@ -428,6 +464,12 @@ func resourceNetworkServicesTlsRouteUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("gateways"); ok || !reflect.DeepEqual(v, gatewaysProp) {
 		obj["gateways"] = gatewaysProp
 	}
+	targetProxiesProp, err := expandNetworkServicesTlsRouteTargetProxies(d.Get("target_proxies"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_proxies"); ok || !reflect.DeepEqual(v, targetProxiesProp) {
+		obj["targetProxies"] = targetProxiesProp
+	}
 	rulesProp, err := expandNetworkServicesTlsRouteRules(d.Get("rules"), d, config)
 	if err != nil {
 		return err
@@ -435,7 +477,7 @@ func resourceNetworkServicesTlsRouteUpdate(d *schema.ResourceData, meta interfac
 		obj["rules"] = rulesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/tlsRoutes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/tlsRoutes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -454,6 +496,10 @@ func resourceNetworkServicesTlsRouteUpdate(d *schema.ResourceData, meta interfac
 
 	if d.HasChange("gateways") {
 		updateMask = append(updateMask, "gateways")
+	}
+
+	if d.HasChange("target_proxies") {
+		updateMask = append(updateMask, "targetProxies")
 	}
 
 	if d.HasChange("rules") {
@@ -517,7 +563,7 @@ func resourceNetworkServicesTlsRouteDelete(d *schema.ResourceData, meta interfac
 	}
 	billingProject = project
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/tlsRoutes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/tlsRoutes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -561,15 +607,16 @@ func resourceNetworkServicesTlsRouteDelete(d *schema.ResourceData, meta interfac
 func resourceNetworkServicesTlsRouteImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/tlsRoutes/(?P<name>[^/]+)$",
 		"^projects/(?P<project>[^/]+)/locations/global/tlsRoutes/(?P<name>[^/]+)$",
-		"^(?P<project>[^/]+)/(?P<name>[^/]+)$",
-		"^(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/tlsRoutes/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/tlsRoutes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -599,6 +646,10 @@ func flattenNetworkServicesTlsRouteMeshes(v interface{}, d *schema.ResourceData,
 }
 
 func flattenNetworkServicesTlsRouteGateways(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesTlsRouteTargetProxies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -710,6 +761,10 @@ func expandNetworkServicesTlsRouteMeshes(v interface{}, d tpgresource.TerraformR
 }
 
 func expandNetworkServicesTlsRouteGateways(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesTlsRouteTargetProxies(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -845,4 +900,154 @@ func expandNetworkServicesTlsRouteRulesActionDestinationsServiceName(v interface
 
 func expandNetworkServicesTlsRouteRulesActionDestinationsWeight(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceNetworkServicesTlsRouteResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceNetworkServicesTlsRouteCreate,
+		Read:   resourceNetworkServicesTlsRouteRead,
+		Update: resourceNetworkServicesTlsRouteUpdate,
+		Delete: resourceNetworkServicesTlsRouteDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceNetworkServicesTlsRouteImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
+		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
+
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Name of the TlsRoute resource.`,
+			},
+			"rules": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: `Rules that define how traffic is routed and handled.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"action": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `Required. A detailed rule defining how to route traffic.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"destinations": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The destination to which traffic should be forwarded.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"service_name": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The URL of a BackendService to route traffic to.`,
+												},
+												"weight": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Specifies the proportion of requests forwarded to the backend referenced by the serviceName field.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"matches": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `Matches define the predicate used to match requests to a given action.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"alpn": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `ALPN (Application-Layer Protocol Negotiation) to match against. Examples: "http/1.1", "h2". At least one of sniHost and alpn is required. Up to 5 alpns across all matches can be set.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"sni_host": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `SNI (server name indicator) to match against. SNI will be matched against all wildcard domains, i.e. www.example.com will be first matched against www.example.com, then *.example.com, then *.com.
+Partial wildcards are not supported, and values like *w.example.com are invalid. At least one of sniHost and alpn is required. Up to 5 sni hosts across all matches can be set.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A free-text description of the resource. Max length 1024 characters.`,
+			},
+			"gateways": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Gateways defines a list of gateways this TlsRoute is attached to, as one of the routing rules to route the requests served by the gateway.
+Each gateway reference should match the pattern: projects/*/locations/*/gateways/<gateway_name>`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"meshes": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Meshes defines a list of meshes this TlsRoute is attached to, as one of the routing rules to route the requests served by the mesh.
+Each mesh reference should match the pattern: projects/*/locations/*/meshes/<mesh_name>
+The attached Mesh should be of a type SIDECAR`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time the TlsRoute was created in UTC.`,
+			},
+			"self_link": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Server-defined URL of this resource.`,
+			},
+			"update_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time the TlsRoute was updated in UTC.`,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+		UseJSONNumber: true,
+	}
+}
+
+func ResourceNetworkServicesTlsRouteUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+	if _, ok := rawState["location"]; !ok {
+		rawState["location"] = "global"
+	}
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
 }

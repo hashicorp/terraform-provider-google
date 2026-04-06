@@ -54,11 +54,15 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigBasicExample(t *testing
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_acct":     envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":           envvar.GetTestOrgFromEnv(t),
+		"instance_name":    "tf-test-memory-cache" + randomSuffix,
+		"project_id":       "tf-test-my-project" + randomSuffix,
 		"quota_start_time": time.Now().AddDate(0, 0, 1).Format(time.RFC3339),
-		"random_suffix":    acctest.RandString(t, 10),
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,8 +85,8 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigBasicExample(t *testing
 func testAccIdentityPlatformConfig_identityPlatformConfigBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "default" {
-  project_id = "tf-test-my-project%{random_suffix}"
-  name       = "tf-test-my-project%{random_suffix}"
+  project_id = "%{project_id}"
+  name       = "%{project_id}"
   org_id     = "%{org_id}"
   billing_account =  "%{billing_acct}"
   deletion_policy = "DELETE"
@@ -127,7 +131,7 @@ resource "google_identity_platform_config" "default" {
   blocking_functions {
     triggers {
       event_type = "beforeSignIn"
-      function_uri = "https://us-east1-tf-test-my-project%{random_suffix}.cloudfunctions.net/before-sign-in"
+      function_uri = "https://us-east1-%{project_id}.cloudfunctions.net/before-sign-in"
     }
     forward_inbound_credentials {
       refresh_token = true
@@ -144,8 +148,8 @@ resource "google_identity_platform_config" "default" {
   }
   authorized_domains = [
     "localhost",
-    "tf-test-my-project%{random_suffix}.firebaseapp.com",
-    "tf-test-my-project%{random_suffix}.web.app",
+    "%{project_id}.firebaseapp.com",
+    "%{project_id}.web.app",
   ]
 }
 `, context)
@@ -154,10 +158,13 @@ resource "google_identity_platform_config" "default" {
 func TestAccIdentityPlatformConfig_identityPlatformConfigMinimalExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":    "tf-test-my-project-1" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -180,8 +187,8 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigMinimalExample(t *testi
 func testAccIdentityPlatformConfig_identityPlatformConfigMinimalExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "default" {
-  project_id = "tf-test-my-project-1%{random_suffix}"
-  name       = "tf-test-my-project-1%{random_suffix}"
+  project_id = "%{project_id}"
+  name       = "%{project_id}"
   org_id     = "%{org_id}"
   billing_account =  "%{billing_acct}"
   deletion_policy = "DELETE"
@@ -235,10 +242,13 @@ resource "google_identity_platform_config" "default" {
 func TestAccIdentityPlatformConfig_identityPlatformConfigWithFalseValuesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":    "tf-test-my-project-2" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -261,8 +271,8 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigWithFalseValuesExample(
 func testAccIdentityPlatformConfig_identityPlatformConfigWithFalseValuesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "default" {
-  project_id = "tf-test-my-project-2%{random_suffix}"
-  name       = "tf-test-my-project-2%{random_suffix}"
+  project_id = "%{project_id}"
+  name       = "%{project_id}"
   org_id     = "%{org_id}"
   billing_account =  "%{billing_acct}"
   deletion_policy = "DELETE"
@@ -295,7 +305,7 @@ resource "google_identity_platform_config" "default" {
   blocking_functions {
     triggers {
       event_type   = "beforeSignIn"
-      function_uri = "https://us-east1-tf-test-my-project-2%{random_suffix}.cloudfunctions.net/before-sign-in"
+      function_uri = "https://us-east1-%{project_id}.cloudfunctions.net/before-sign-in"
     }
     forward_inbound_credentials {
       refresh_token = false

@@ -23,8 +23,6 @@ description: |-
 
 Represents a managed identity for a workload identity pool namespace.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about WorkloadIdentityPoolManagedIdentity, see:
 
@@ -43,22 +41,16 @@ To get more information about WorkloadIdentityPoolManagedIdentity, see:
 
 ```hcl
 resource "google_iam_workload_identity_pool" "pool" {
-  provider = google-beta
-
   workload_identity_pool_id = "example-pool"
   mode                      = "TRUST_DOMAIN"
 }
 
 resource "google_iam_workload_identity_pool_namespace" "ns" {
-  provider = google-beta
-
   workload_identity_pool_id           = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_namespace_id = "example-namespace"
 }
 
 resource "google_iam_workload_identity_pool_managed_identity" "example" {
-  provider = google-beta
-
   workload_identity_pool_id                  = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_namespace_id        = google_iam_workload_identity_pool_namespace.ns.workload_identity_pool_namespace_id
   workload_identity_pool_managed_identity_id = "example-managed-identity"
@@ -69,22 +61,16 @@ resource "google_iam_workload_identity_pool_managed_identity" "example" {
 
 ```hcl
 resource "google_iam_workload_identity_pool" "pool" {
-  provider = google-beta
-
   workload_identity_pool_id = "example-pool"
   mode                      = "TRUST_DOMAIN"
 }
 
 resource "google_iam_workload_identity_pool_namespace" "ns" {
-  provider = google-beta
-
   workload_identity_pool_id           = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_namespace_id = "example-namespace"
 }
 
 resource "google_iam_workload_identity_pool_managed_identity" "example" {
-  provider = google-beta
-
   workload_identity_pool_id                  = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_namespace_id        = google_iam_workload_identity_pool_namespace.ns.workload_identity_pool_namespace_id
   workload_identity_pool_managed_identity_id = "example-managed-identity"

@@ -53,9 +53,12 @@ var (
 func TestAccCloudRunDomainMapping_cloudRunDomainMappingBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"namespace":     envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"namespace":              envvar.GetTestProjectFromEnv(),
+		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func testAccCloudRunDomainMapping_cloudRunDomainMappingBasicExample(context map[
 	return acctest.Nprintf(`
 
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
   metadata {

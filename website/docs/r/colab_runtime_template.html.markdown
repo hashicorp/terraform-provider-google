@@ -76,6 +76,9 @@ resource "google_colab_runtime_template" "runtime-template" {
   network_spec {
     enable_internet_access = true
   }
+
+  software_config {
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -153,6 +156,10 @@ resource "google_colab_runtime_template" "runtime-template" {
       post_startup_script = "echo 'hello world'"
       post_startup_script_url = "gs://colab-enterprise-pss-secure/secure_pss.sh"
       post_startup_script_behavior = "RUN_ONCE"
+    }
+
+    colab_image {
+      release_name = "py312"
     }
   }
 }
@@ -309,6 +316,11 @@ The following arguments are supported:
   Post startup script config.
   Structure is [documented below](#nested_software_config_post_startup_script_config).
 
+* `colab_image` -
+  (Optional)
+  Colab Image Configuration.
+  Structure is [documented below](#nested_software_config_colab_image).
+
 
 <a name="nested_software_config_env"></a>The `env` block supports:
 
@@ -334,6 +346,12 @@ The following arguments are supported:
   (Optional)
   Post startup script behavior that defines download and execution behavior.
   Possible values are: `RUN_ONCE`, `RUN_EVERY_START`, `DOWNLOAD_AND_RUN_EVERY_START`.
+
+<a name="nested_software_config_colab_image"></a>The `colab_image` block supports:
+
+* `release_name` -
+  (Optional)
+  The release name of the NotebookRuntime Colab image, e.g. "py310". If not specified, detault to the latest release.
 
 ## Attributes Reference
 

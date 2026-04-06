@@ -268,6 +268,8 @@ func resourceStorageBucketAccessControlRead(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("StorageBucketAccessControl %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading StorageBucketAccessControl %q: %#v", d.Id(), res)
+
 	if err := d.Set("bucket", flattenStorageBucketAccessControlBucket(res["bucket"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
 	}

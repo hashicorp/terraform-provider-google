@@ -117,7 +117,7 @@ func listAndActionNetworkServicesTlsRoute(action sweeper.ResourceAction) error {
 		}
 
 		// Prepare list URL
-		listTemplate := strings.Split("https://networkservices.googleapis.com/v1/projects/{{project}}/locations/global/tlsRoutes", "?")[0]
+		listTemplate := strings.Split("https://networkservices.googleapis.com/v1/projects/{{project}}/locations/{{location}}/tlsRoutes", "?")[0]
 		listUrl, err := tpgresource.ReplaceVars(mockConfig, config, listTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -195,7 +195,7 @@ func deleteResourceNetworkServicesTlsRoute(config *transport_tpg.Config, d *tpgr
 		return nil
 	}
 
-	deleteTemplate := "https://networkservices.googleapis.com/v1/projects/{{project}}/locations/global/tlsRoutes/{{name}}"
+	deleteTemplate := "https://networkservices.googleapis.com/v1/projects/{{project}}/locations/{{location}}/tlsRoutes/{{name}}"
 
 	url, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 	if err != nil {

@@ -1893,6 +1893,8 @@ func resourceOSConfigV2PolicyOrchestratorForOrganizationRead(d *schema.ResourceD
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("OSConfigV2PolicyOrchestratorForOrganization %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading OSConfigV2PolicyOrchestratorForOrganization %q: %#v", d.Id(), res)
+
 	if err := d.Set("orchestration_state", flattenOSConfigV2PolicyOrchestratorForOrganizationOrchestrationState(res["orchestrationState"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PolicyOrchestratorForOrganization: %s", err)
 	}

@@ -188,6 +188,12 @@ func ResourceMigrationCenterPreferenceSet() *schema.Resource {
 											},
 										},
 									},
+									"persistent_disk_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"PERSISTENT_DISK_TYPE_STANDARD", "PERSISTENT_DISK_TYPE_BALANCED", "PERSISTENT_DISK_TYPE_SSD", ""}),
+										Description:  `Persistent disk type to use. If unspecified (default), all types are considered, based on available usage data. Possible values: ["PERSISTENT_DISK_TYPE_STANDARD", "PERSISTENT_DISK_TYPE_BALANCED", "PERSISTENT_DISK_TYPE_SSD"]`,
+									},
 								},
 							},
 						},
@@ -437,6 +443,8 @@ func resourceMigrationCenterPreferenceSetRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("MigrationCenterPreferenceSet %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading MigrationCenterPreferenceSet %q: %#v", d.Id(), res)
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading PreferenceSet: %s", err)
@@ -725,6 +733,8 @@ func flattenMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePr
 		flattenMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePreferencesMachinePreferences(original["machinePreferences"], d, config)
 	transformed["license_type"] =
 		flattenMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePreferencesLicenseType(original["licenseType"], d, config)
+	transformed["persistent_disk_type"] =
+		flattenMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePreferencesPersistentDiskType(original["persistentDiskType"], d, config)
 	return []interface{}{transformed}
 }
 func flattenMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePreferencesMachinePreferences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -763,6 +773,10 @@ func flattenMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePr
 }
 
 func flattenMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePreferencesLicenseType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePreferencesPersistentDiskType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -990,6 +1004,13 @@ func expandMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePre
 		transformed["licenseType"] = transformedLicenseType
 	}
 
+	transformedPersistentDiskType, err := expandMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePreferencesPersistentDiskType(original["persistent_disk_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPersistentDiskType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["persistentDiskType"] = transformedPersistentDiskType
+	}
+
 	return transformed, nil
 }
 
@@ -1045,6 +1066,10 @@ func expandMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePre
 }
 
 func expandMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePreferencesLicenseType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMigrationCenterPreferenceSetVirtualMachinePreferencesComputeEnginePreferencesPersistentDiskType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -53,8 +53,13 @@ var (
 func TestAccNetworkSecurityInterceptEndpointGroup_networkSecurityInterceptEndpointGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"deployment_group_id": "tf-test-example-dg" + randomSuffix,
+		"endpoint_group_id":   "tf-test-example-eg" + randomSuffix,
+		"network_name":        "tf-test-example-network" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,18 +83,18 @@ func TestAccNetworkSecurityInterceptEndpointGroup_networkSecurityInterceptEndpoi
 func testAccNetworkSecurityInterceptEndpointGroup_networkSecurityInterceptEndpointGroupBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "tf-test-example-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_intercept_deployment_group" "deployment_group" {
-  intercept_deployment_group_id = "tf-test-example-dg%{random_suffix}"
+  intercept_deployment_group_id = "%{deployment_group_id}"
   location                      = "global"
   network                       = google_compute_network.network.id
 }
 
 resource "google_network_security_intercept_endpoint_group" "default" {
-  intercept_endpoint_group_id = "tf-test-example-eg%{random_suffix}"
+  intercept_endpoint_group_id = "%{endpoint_group_id}"
   location                    = "global"
   intercept_deployment_group  = google_network_security_intercept_deployment_group.deployment_group.id
   description                 = "some description"

@@ -100,6 +100,25 @@ resource "google_securityposture_posture" "posture_test" {
     	policies {
     		policy_id = "policy_1"
     		constraint {
+    			org_policy_constraint {
+    				canned_constraint_id = "storage.uniformBucketLevelAccess"
+    				policy_rules {
+    					enforce = true
+    				}
+    				policy_rules {
+    					enforce = false
+						condition {
+                            title = "Disable constraint for test"
+                            description = "Disable constraint for test"
+                            expression = "resource.matchTagId('tagKeys/123', 'tagValues/345')"
+					    }
+    				}						
+    			}
+    		}
+		}		
+    	policies {
+    		policy_id = "policy_2"
+    		constraint {
     			org_policy_constraint_custom {
     				custom_constraint {
     					name         = "organizations/%{org_id}/customConstraints/custom.disableGkeAutoUpgrade"

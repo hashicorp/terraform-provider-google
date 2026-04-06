@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_iam_workforce_pool_provider
 generation_type: mmv1
 source_file: products/iamworkforcepool/WorkforcePoolProvider.yaml
@@ -8,6 +10,7 @@ fields:
     - api_field: attributeCondition
     - api_field: attributeMapping
     - api_field: description
+    - api_field: detailedAuditLogging
     - api_field: disabled
     - api_field: displayName
     - api_field: extendedAttributesOauth2Client.attributesType

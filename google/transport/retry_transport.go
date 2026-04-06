@@ -121,7 +121,6 @@ func (t *retryTransport) RoundTrip(req *http.Request) (resp *http.Response, resp
 		log.Printf("[WARN] Retry Transport: Consuming original request body failed: %v", err)
 	}
 
-	log.Printf("[DEBUG] Retry Transport: starting RoundTrip retry loop")
 Retry:
 	for {
 		// RoundTrip contract says request body can/will be consumed, so we need to
@@ -129,31 +128,44 @@ Retry:
 		// If we can't copy the request, we run as a single request.
 		newRequest, copyErr := copyHttpRequest(req)
 		if copyErr != nil {
-			log.Printf("[WARN] Retry Transport: Unable to copy request body: %v.", copyErr)
-			log.Printf("[WARN] Retry Transport: Running request as non-retryable")
+			log.Printf("[DEBUG] Retry Transport: Unable to copy request body: %v.", copyErr)
+			log.Printf("[DEBUG] Retry Transport: Running request as non-retryable")
 			resp, respErr = t.internal.RoundTrip(req)
 			break Retry
 		}
 
-		log.Printf("[DEBUG] Retry Transport: request attempt %d", attempts)
+		// Silent informational logs on first attempt, log on subsequent attempts
+		if attempts > 0 {
+			if attempts == 1 {
+				log.Printf("[DEBUG] Retry Transport: Initial request failed. Beginning retries.")
+			}
+
+			log.Printf("[DEBUG] Retry Transport: request attempt %d", attempts)
+		}
 		// Do the wrapped Roundtrip. This is one request in the retry loop.
 		resp, respErr = t.internal.RoundTrip(newRequest)
 		attempts++
 
 		retryErr := t.checkForRetryableError(resp, respErr)
 		if retryErr == nil {
-			log.Printf("[DEBUG] Retry Transport: Stopping retries, last request was successful")
+			if attempts > 1 {
+				log.Printf("[DEBUG] Retry Transport: Stopping retries, last request was successful")
+			}
 			break Retry
 		}
 		if !retryErr.Retryable {
-			log.Printf("[DEBUG] Retry Transport: Stopping retries, last request failed with non-retryable error: %s", retryErr.Err)
+			if attempts > 1 {
+				log.Printf("[DEBUG] Retry Transport: Stopping retries, last request failed with non-retryable error: %s", retryErr.Err)
+			}
 			break Retry
 		}
 
 		log.Printf("[DEBUG] Retry Transport: Waiting %s before trying request again", backoff)
 		select {
 		case <-ctx.Done():
-			log.Printf("[DEBUG] Retry Transport: Stopping retries, context done: %v", ctx.Err())
+			if attempts > 1 {
+				log.Printf("[DEBUG] Retry Transport: Stopping retries, context done: %v", ctx.Err())
+			}
 			break Retry
 		case <-time.After(backoff):
 			log.Printf("[DEBUG] Retry Transport: Finished waiting %s before next retry", backoff)
@@ -165,7 +177,10 @@ Retry:
 			continue
 		}
 	}
-	log.Printf("[DEBUG] Retry Transport: Returning after %d attempts", attempts)
+	if attempts > 1 {
+		log.Printf("[DEBUG] Retry Transport: Returning after %d attempts", attempts)
+	}
+
 	return resp, respErr
 }
 

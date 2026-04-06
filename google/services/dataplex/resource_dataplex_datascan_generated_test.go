@@ -53,9 +53,12 @@ var (
 func TestAccDataplexDatascan_dataplexDatascanBasicProfileExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"datascan_name": "tf-test-dataprofile-basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func testAccDataplexDatascan_dataplexDatascanBasicProfileExample(context map[str
 	return acctest.Nprintf(`
 resource "google_dataplex_datascan" "basic_profile" {
   location     = "us-central1"
-  data_scan_id = "tf-test-dataprofile-basic%{random_suffix}"
+  data_scan_id = "%{datascan_name}"
 
   data {
 	  resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/samples/tables/shakespeare"
@@ -102,9 +105,12 @@ data_profile_spec {}
 func TestAccDataplexDatascan_dataplexDatascanFullProfileTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"datascan_name": "tf-test-dataprofile-full-test" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -166,7 +172,7 @@ resource "google_bigquery_table" "tf_test_table" {
 resource "google_dataplex_datascan" "full_profile_test" {
   location = "us-central1"
   display_name = "Full Datascan Quality Publishing"
-  data_scan_id = "tf-test-dataprofile-full-test%{random_suffix}"
+  data_scan_id = "%{datascan_name}"
   description = "Example resource - Full Datascan Quality with Publishing enabled"
   labels = {
     author = "billing"
@@ -213,9 +219,12 @@ resource "google_dataplex_datascan" "full_profile_test" {
 func TestAccDataplexDatascan_dataplexDatascanOnetimeProfileExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"datascan_name": "tf-test-dataprofile-onetime" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -240,7 +249,7 @@ func testAccDataplexDatascan_dataplexDatascanOnetimeProfileExample(context map[s
 	return acctest.Nprintf(`
 resource "google_dataplex_datascan" "onetime_profile" {
   location     = "us-central1"
-  data_scan_id = "tf-test-dataprofile-onetime%{random_suffix}"
+  data_scan_id = "%{datascan_name}"
 
   data {
 	  resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/samples/tables/shakespeare"
@@ -264,9 +273,12 @@ data_profile_spec {}
 func TestAccDataplexDatascan_dataplexDatascanBasicQualityExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"datascan_name": "tf-test-dataquality-basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -291,7 +303,7 @@ func testAccDataplexDatascan_dataplexDatascanBasicQualityExample(context map[str
 	return acctest.Nprintf(`
 resource "google_dataplex_datascan" "basic_quality" {
   location     = "us-central1"
-  data_scan_id = "tf-test-dataquality-basic%{random_suffix}"
+  data_scan_id = "%{datascan_name}"
 
   data {
     resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/samples/tables/shakespeare"
@@ -322,9 +334,12 @@ resource "google_dataplex_datascan" "basic_quality" {
 func TestAccDataplexDatascan_dataplexDatascanFullQualityTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"datascan_name": "tf-test-dataquality-full-test" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -413,7 +428,7 @@ resource "google_bigquery_table" "tf_test_table" {
 resource "google_dataplex_datascan" "full_quality_test" {
   location = "us-central1"
   display_name = "Full Datascan Quality Publishing"
-  data_scan_id = "tf-test-dataquality-full-test%{random_suffix}"
+  data_scan_id = "%{datascan_name}"
   description = "Example resource - Full Datascan Quality with Publishing enabled"
   labels = {
     author = "billing"
@@ -535,10 +550,13 @@ resource "google_dataplex_datascan" "full_quality_test" {
 func TestAccDataplexDatascan_dataplexDatascanBasicDiscoveryExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"location":      envvar.GetTestRegionFromEnv(),
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"datascan_name": "tf-test-datadiscovery-basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -563,7 +581,7 @@ func testAccDataplexDatascan_dataplexDatascanBasicDiscoveryExample(context map[s
 	return acctest.Nprintf(`
 resource "google_dataplex_datascan" "basic_discovery" {
   location     = "us-central1"
-  data_scan_id = "tf-test-datadiscovery-basic%{random_suffix}"
+  data_scan_id = "%{datascan_name}"
 
   data {
     resource = "//storage.googleapis.com/projects/${google_storage_bucket.tf_test_bucket.project}/buckets/${google_storage_bucket.tf_test_bucket.name}"
@@ -591,10 +609,13 @@ resource "google_storage_bucket" "tf_test_bucket" {
 func TestAccDataplexDatascan_dataplexDatascanFullDiscoveryExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"location":      envvar.GetTestRegionFromEnv(),
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"datascan_name": "tf-test-datadiscovery-full" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -620,7 +641,7 @@ func testAccDataplexDatascan_dataplexDatascanFullDiscoveryExample(context map[st
 resource "google_dataplex_datascan" "full_discovery" {
   location     = "us-central1"
   display_name = "Full Datascan Discovery"
-  data_scan_id = "tf-test-datadiscovery-full%{random_suffix}"
+  data_scan_id = "%{datascan_name}"
   description  = "Example resource - Full Datascan Discovery"
   labels = {
     author = "billing"
@@ -691,10 +712,13 @@ resource "google_bigquery_connection" "tf_test_connection" {
 func TestAccDataplexDatascan_dataplexDatascanDocumentationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"location":      envvar.GetTestRegionFromEnv(),
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"datascan_name": "datadocumentation" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -781,7 +805,7 @@ resource "google_bigquery_table" "tf_dataplex_test_table" {
 
 resource "google_dataplex_datascan" "documentation" {
   location     = "us-central1"
-  data_scan_id = "datadocumentation%{random_suffix}"
+  data_scan_id = "%{datascan_name}"
 
   data {
     resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_dataplex_test_table.table_id}"
@@ -803,10 +827,13 @@ resource "google_dataplex_datascan" "documentation" {
 func TestAccDataplexDatascan_dataplexDatascanOnetimeDocumentationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"location":      envvar.GetTestRegionFromEnv(),
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"datascan_name": "tf-test-datadocumentation-onetime" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -893,7 +920,7 @@ resource "google_bigquery_table" "tf_dataplex_test_table" {
 
 resource "google_dataplex_datascan" "onetime_documentation" {
   location     = "us-central1"
-  data_scan_id = "tf-test-datadocumentation-onetime%{random_suffix}"
+  data_scan_id = "%{datascan_name}"
 
   data {
     resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_dataplex_test_table.table_id}"

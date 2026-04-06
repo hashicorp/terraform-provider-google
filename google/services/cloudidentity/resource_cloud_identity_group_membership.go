@@ -420,6 +420,8 @@ func resourceCloudIdentityGroupMembershipRead(d *schema.ResourceData, meta inter
 		return transport_tpg.HandleNotFoundError(transformCloudIdentityGroupMembershipReadError(err), d, fmt.Sprintf("CloudIdentityGroupMembership %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading CloudIdentityGroupMembership %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("create_ignore_already_exists"); !ok {
 		if err := d.Set("create_ignore_already_exists", false); err != nil {

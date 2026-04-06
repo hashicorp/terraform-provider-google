@@ -609,6 +609,8 @@ func resourceBillingBudgetRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BillingBudget %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading BillingBudget %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenBillingBudgetName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Budget: %s", err)
 	}

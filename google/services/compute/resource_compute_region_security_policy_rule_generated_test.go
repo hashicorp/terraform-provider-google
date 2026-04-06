@@ -53,8 +53,11 @@ var (
 func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sec_policy_name": "policyruletest" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleBasicExample
 	return acctest.Nprintf(`
 resource "google_compute_region_security_policy" "default" {
   region      = "us-west2"
-  name        = "policyruletest%{random_suffix}"
+  name        = "%{sec_policy_name}"
   description = "basic region security policy"
   type        = "CLOUD_ARMOR"
 }
@@ -104,8 +107,11 @@ resource "google_compute_region_security_policy_rule" "policy_rule" {
 func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleMultipleRulesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sec_policy_name": "policywithmultiplerules" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -130,7 +136,7 @@ func testAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleMultipleRule
 	return acctest.Nprintf(`
 resource "google_compute_region_security_policy" "default" {
   region      = "us-west2"
-  name        = "policywithmultiplerules%{random_suffix}"
+  name        = "%{sec_policy_name}"
   description = "basic region security policy"
   type        = "CLOUD_ARMOR"
 }
@@ -170,8 +176,11 @@ resource "google_compute_region_security_policy_rule" "policy_rule_two" {
 func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleDefaultRuleExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sec_policy_name": "policywithdefaultrule" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -196,7 +205,7 @@ func testAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleDefaultRuleE
 	return acctest.Nprintf(`
 resource "google_compute_region_security_policy" "default" {
   region      = "us-west2"
-  name        = "policywithdefaultrule%{random_suffix}"
+  name        = "%{sec_policy_name}"
   description = "basic region security policy"
   type        = "CLOUD_ARMOR"
 }
@@ -235,8 +244,11 @@ resource "google_compute_region_security_policy_rule" "policy_rule" {
 func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleWithPreconfiguredWafConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sec_policy_name": "policyruletest" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -261,7 +273,7 @@ func testAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleWithPreconfi
 	return acctest.Nprintf(`
 resource "google_compute_region_security_policy" "default" {
   region      = "asia-southeast1"
-  name        = "policyruletest%{random_suffix}"
+  name        = "%{sec_policy_name}"
   description = "basic region security policy"
   type        = "CLOUD_ARMOR"
 }

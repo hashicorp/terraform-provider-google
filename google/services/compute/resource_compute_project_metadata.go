@@ -161,7 +161,9 @@ func resourceComputeProjectMetadataSet(projectID, userAgent string, config *tran
 			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 		}
 
-		md.Fingerprint = project.CommonInstanceMetadata.Fingerprint
+		if project.CommonInstanceMetadata != nil {
+			md.Fingerprint = project.CommonInstanceMetadata.Fingerprint
+		}
 		op, err := config.NewComputeClient(userAgent).Projects.SetCommonInstanceMetadata(projectID, md).Do()
 		if err != nil {
 			return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)

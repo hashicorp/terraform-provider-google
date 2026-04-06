@@ -342,6 +342,8 @@ func resourceComputeManagedSslCertificateRead(d *schema.ResourceData, meta inter
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeManagedSslCertificate %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeManagedSslCertificate %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
 	}

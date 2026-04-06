@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_ces_toolset
 generation_type: mmv1
 source_file: products/ces/Toolset.yaml
@@ -27,6 +29,7 @@ fields:
     - api_field: mcpToolset.apiAuthentication.serviceAccountAuthConfig.scopes
     - api_field: mcpToolset.apiAuthentication.serviceAccountAuthConfig.serviceAccount
     - api_field: mcpToolset.apiAuthentication.serviceAgentIdTokenAuthConfig
+    - api_field: mcpToolset.customHeaders
     - api_field: mcpToolset.serverAddress
     - api_field: mcpToolset.serviceDirectoryConfig.service
     - api_field: mcpToolset.tlsConfig.caCerts.cert

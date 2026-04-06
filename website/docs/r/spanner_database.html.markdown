@@ -48,6 +48,7 @@ for more information on lifecycle parameters.
 
 ```hcl
 resource "google_spanner_instance" "main" {
+  name         = "my-instance"
   config       = "regional-europe-west1"
   display_name = "main-instance"
   num_nodes    = 1

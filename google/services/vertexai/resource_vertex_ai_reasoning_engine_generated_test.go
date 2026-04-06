@@ -50,11 +50,53 @@ var (
 	_ = googleapi.Error{}
 )
 
+func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeletionPolicyExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"name":          "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_vertexAiReasoningEngineDeletionPolicyExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_vertexAiReasoningEngineDeletionPolicyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name    = "%{name}"
+  description     = "A reasoning engine with deletion policy"
+  region          = "us-central1"
+  deletion_policy = "FORCE"
+}
+`, context)
+}
+
 func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -69,7 +111,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(t *testi
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
 			},
 		},
 	})
@@ -78,7 +120,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(t *testi
 func testAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
-  display_name = "tf-test-reasoning-engine%{random_suffix}"
+  display_name = "%{name}"
   description  = "A basic reasoning engine"
   region       = "us-central1"
 }
@@ -88,8 +130,11 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
 func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasedDeploymentExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -104,7 +149,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasedDeployment
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
 			},
 		},
 	})
@@ -113,7 +158,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasedDeployment
 func testAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasedDeploymentExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
-  display_name = "tf-test-reasoning-engine%{random_suffix}"
+  display_name = "%{name}"
   description  = "A basic reasoning engine"
   region       = "us-central1"
 
@@ -126,8 +171,7 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
       python_spec {
         entrypoint_module = "simple_agent"
         entrypoint_object = "fixed_name_generator"
-        requirements_file = "./test-fixtures/requirements.txt"
-        version           = "3.11"
+        version           = "3.14"
       }
     }
   }
@@ -138,8 +182,11 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
 func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeveloperConnectSourceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -154,7 +201,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeveloperConnectSourc
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
 			},
 		},
 	})
@@ -165,7 +212,7 @@ func testAccVertexAIReasoningEngine_vertexAiReasoningEngineDeveloperConnectSourc
 data "google_project" "project" {}
 
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
-  display_name = "tf-test-reasoning-engine%{random_suffix}"
+  display_name = "%{name}"
   description  = "A basic reasoning engine"
   region       = "us-central1"
 
@@ -199,9 +246,15 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineFullExample(t *testin
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"kms_key_name":  acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-re-key1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":        "tf-test-reasoning-engine" + randomSuffix,
+		"kms_key_name":       acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-re-key1").CryptoKey.Name,
+		"name":               "tf-test-reasoning-engine" + randomSuffix,
+		"secret_name":        "secret" + randomSuffix,
+		"service_account_id": "sa" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -219,7 +272,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineFullExample(t *testin
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
 			},
 		},
 	})
@@ -255,7 +308,7 @@ locals {
 }
 
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
-  display_name = "tf-test-reasoning-engine%{random_suffix}"
+  display_name = "%{name}"
   description  = "A basic reasoning engine"
   region       = "us-central1"
 
@@ -339,7 +392,7 @@ resource "google_secret_manager_secret_version" "secret_version" {
 }
 
 resource "google_secret_manager_secret" "secret" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_name}"
 
   replication {
     auto {}
@@ -353,7 +406,7 @@ resource "google_secret_manager_secret_iam_member" "secret_access" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name                        = "tf-test-reasoning-engine%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "us-central1"
   uniform_bucket_level_access = true
   force_destroy               = true
@@ -378,7 +431,7 @@ resource "google_storage_bucket_object" "bucket_obj_dependencies_tar_gz" {
 }
 
 resource "google_service_account" "service_account" {
-  account_id = "sa%{random_suffix}"
+  account_id = "%{service_account_id}"
 }
 
 resource "google_project_iam_member" "sa_iam_object_viewer" {

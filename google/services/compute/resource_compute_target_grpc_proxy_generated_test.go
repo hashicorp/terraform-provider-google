@@ -53,8 +53,14 @@ var (
 func TestAccComputeTargetGrpcProxy_targetGrpcProxyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_name":     "backend" + randomSuffix,
+		"healthcheck_name": "healthcheck" + randomSuffix,
+		"proxy_name":       "proxy" + randomSuffix,
+		"urlmap_name":      "urlmap" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,14 +83,14 @@ func TestAccComputeTargetGrpcProxy_targetGrpcProxyBasicExample(t *testing.T) {
 func testAccComputeTargetGrpcProxy_targetGrpcProxyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_target_grpc_proxy" "default" {
-  name    = "proxy%{random_suffix}"
+  name    = "%{proxy_name}"
   url_map = google_compute_url_map.urlmap.id
   validate_for_proxyless = true
 }
 
 
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap%{random_suffix}"
+  name        = "%{urlmap_name}"
   description = "a description"
   default_service = google_compute_backend_service.home.id
   host_rule {
@@ -146,7 +152,7 @@ resource "google_compute_url_map" "urlmap" {
   }
 }
 resource "google_compute_backend_service" "home" {
-  name        = "backend%{random_suffix}"
+  name        = "%{backend_name}"
   port_name   = "grpc"
   protocol    = "GRPC"
   timeout_sec = 10
@@ -154,7 +160,7 @@ resource "google_compute_backend_service" "home" {
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
 }
 resource "google_compute_health_check" "default" {
-  name               = "healthcheck%{random_suffix}"
+  name               = "%{healthcheck_name}"
   timeout_sec        = 1
   check_interval_sec = 1
   grpc_health_check {

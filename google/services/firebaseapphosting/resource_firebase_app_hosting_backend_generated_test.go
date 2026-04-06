@@ -53,10 +53,13 @@ var (
 func TestAccFirebaseAppHostingBackend_firebaseAppHostingBackendMinimalExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":     envvar.GetTestProjectFromEnv(),
+		"backend_id":     "mini" + randomSuffix,
 		"service_act_id": "tf-test-fah-minimal",
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +87,7 @@ resource "google_firebase_app_hosting_backend" "example" {
   # Choose the region closest to your users
 
   location         = "us-central1"
-  backend_id       = "mini%{random_suffix}"
+  backend_id       = "%{backend_id}"
   app_id           = "1:0000000000:web:674cde32020e16fbce9dbd"
   serving_locality = "GLOBAL_ACCESS"
   service_account  = google_service_account.service_account.email
@@ -123,10 +126,13 @@ resource "google_project_service" "fah" {
 func TestAccFirebaseAppHostingBackend_firebaseAppHostingBackendFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":     envvar.GetTestProjectFromEnv(),
+		"backend_id":     "full" + randomSuffix,
 		"service_act_id": "tf-test-fah-full",
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -154,7 +160,7 @@ resource "google_firebase_app_hosting_backend" "example" {
 
   # Choose the region closest to your users
   location         = "us-central1"
-  backend_id       = "full%{random_suffix}"
+  backend_id       = "%{backend_id}"
   app_id           = "1:0000000000:web:674cde32020e16fbce9dbd"
   display_name     = "My Backend"
   serving_locality = "GLOBAL_ACCESS"

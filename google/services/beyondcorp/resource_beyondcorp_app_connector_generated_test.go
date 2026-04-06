@@ -53,8 +53,12 @@ var (
 func TestAccBeyondcorpAppConnector_beyondcorpAppConnectorBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":         "tf-test-my-account" + randomSuffix,
+		"app_connector_name": "tf-test-my-app-connector" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +82,12 @@ func TestAccBeyondcorpAppConnector_beyondcorpAppConnectorBasicExample(t *testing
 func testAccBeyondcorpAppConnector_beyondcorpAppConnectorBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account" {
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Test Service Account"
 }
 
 resource "google_beyondcorp_app_connector" "app_connector" {
-  name = "tf-test-my-app-connector%{random_suffix}"
+  name = "%{app_connector_name}"
   principal_info {
     service_account {
      email = google_service_account.service_account.email
@@ -96,8 +100,13 @@ resource "google_beyondcorp_app_connector" "app_connector" {
 func TestAccBeyondcorpAppConnector_beyondcorpAppConnectorFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":         "tf-test-my-account" + randomSuffix,
+		"app_connector_name": "tf-test-my-app-connector" + randomSuffix,
+		"display_name":       "some display name" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -121,14 +130,14 @@ func TestAccBeyondcorpAppConnector_beyondcorpAppConnectorFullExample(t *testing.
 func testAccBeyondcorpAppConnector_beyondcorpAppConnectorFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account" {
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Test Service Account"
 }
 
 resource "google_beyondcorp_app_connector" "app_connector" {
-  name = "tf-test-my-app-connector%{random_suffix}"
+  name = "%{app_connector_name}"
   region = "us-central1"
-  display_name = "some display name%{random_suffix}"
+  display_name = "%{display_name}"
   principal_info {
     service_account {
      email = google_service_account.service_account.email

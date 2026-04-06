@@ -382,6 +382,8 @@ func resourceNetworkSecurityMirroringDeploymentGroupRead(d *schema.ResourceData,
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkSecurityMirroringDeploymentGroup %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkSecurityMirroringDeploymentGroup %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
 	}

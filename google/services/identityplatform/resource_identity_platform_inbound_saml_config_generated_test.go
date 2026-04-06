@@ -53,9 +53,13 @@ var (
 func TestAccIdentityPlatformInboundSamlConfig_identityPlatformInboundSamlConfigBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"idp_entity_id": "tf-test-tf-idp" + randomSuffix,
 		"name":          "saml.tf-config-" + acctest.RandString(t, 10),
-		"random_suffix": acctest.RandString(t, 10),
+		"sp_entity_id":  "tf-test-tf-sp" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +85,7 @@ resource "google_identity_platform_inbound_saml_config" "saml_config" {
   name         = "%{name}"
   display_name = "Display Name"
   idp_config {
-    idp_entity_id = "tf-test-tf-idp%{random_suffix}"
+    idp_entity_id = "%{idp_entity_id}"
     sign_request  = true
     sso_url       = "https://example.com"
     idp_certificates {
@@ -90,7 +94,7 @@ resource "google_identity_platform_inbound_saml_config" "saml_config" {
   }
 
   sp_config {
-    sp_entity_id = "tf-test-tf-sp%{random_suffix}"
+    sp_entity_id = "%{sp_entity_id}"
     callback_uri = "https://example.com"
   }
 }

@@ -210,6 +210,17 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `When enabled, the volumes uses Active Directory as LDAP name service for UID/GID lookups. Required to enable extended group support for NFSv3,
 using security identifiers for NFSv4.1 or principal names for kerberized NFSv4.1.`,
 			},
+			"mode": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"MODE_UNSPECIFIED", "DEFAULT", "ONTAP", ""}),
+				Description: `Mode of the storage pool.
+The operational mode of the storage pool. ONTAP mode enables operations
+via ONTAP Mode APIs, while DEFAULT mode enables operations via NetApp Volumes APIs.
+If not specified during creation, the mode defaults to DEFAULT. Possible values: ["MODE_UNSPECIFIED", "DEFAULT", "ONTAP"]`,
+			},
 			"qos_type": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -418,6 +429,12 @@ func resourceNetappStoragePoolCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
 	}
+	modeProp, err := expandNetappStoragePoolMode(d.Get("mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(modeProp)) && (ok || !reflect.DeepEqual(v, modeProp)) {
+		obj["mode"] = modeProp
+	}
 	effectiveLabelsProp, err := expandNetappStoragePoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -519,6 +536,8 @@ func resourceNetappStoragePoolRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetappStoragePool %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetappStoragePool %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
@@ -590,6 +609,9 @@ func resourceNetappStoragePoolRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
 	if err := d.Set("type", flattenNetappStoragePoolType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err := d.Set("mode", flattenNetappStoragePoolMode(res["mode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetappStoragePoolTerraformLabels(res["labels"], d, config)); err != nil {
@@ -1047,6 +1069,10 @@ func flattenNetappStoragePoolType(v interface{}, d *schema.ResourceData, config 
 	return v
 }
 
+func flattenNetappStoragePoolMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappStoragePoolTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1131,6 +1157,10 @@ func expandNetappStoragePoolQosType(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandNetappStoragePoolType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappStoragePoolMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

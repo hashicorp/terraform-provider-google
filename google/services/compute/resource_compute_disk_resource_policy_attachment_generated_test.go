@@ -53,8 +53,12 @@ var (
 func TestAccComputeDiskResourcePolicyAttachment_diskResourcePolicyAttachmentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"disk_name":     "tf-test-my-disk" + randomSuffix,
+		"policy_name":   "tf-test-my-resource-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +88,7 @@ resource "google_compute_disk_resource_policy_attachment" "attachment" {
 }
 
 resource "google_compute_disk" "ssd" {
-  name  = "tf-test-my-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.my_image.self_link
   size  = 50
   type  = "pd-ssd"
@@ -92,7 +96,7 @@ resource "google_compute_disk" "ssd" {
 }
 
 resource "google_compute_resource_policy" "policy" {
-  name = "tf-test-my-resource-policy%{random_suffix}"
+  name = "%{policy_name}"
   region = "us-central1"
   snapshot_schedule_policy {
     schedule {

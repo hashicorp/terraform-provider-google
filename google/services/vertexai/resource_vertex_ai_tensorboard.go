@@ -354,6 +354,8 @@ func resourceVertexAITensorboardRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VertexAITensorboard %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading VertexAITensorboard %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Tensorboard: %s", err)
 	}

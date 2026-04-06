@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_essential_contacts_contact
 generation_type: mmv1
 source_file: products/essentialcontacts/Contact.yaml

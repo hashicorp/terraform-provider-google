@@ -325,6 +325,8 @@ func resourceGeminiGeminiGcpEnablementSettingBindingRead(d *schema.ResourceData,
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("GeminiGeminiGcpEnablementSettingBinding %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading GeminiGeminiGcpEnablementSettingBinding %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
 	}

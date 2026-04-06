@@ -26,6 +26,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -280,8 +281,13 @@ func HandleVCRConfiguration(ctx context.Context, testName string, rndTripper htt
 // NewVcrMatcherFunc returns a function used for matching HTTP requests with data recorded in VCR cassettes
 func NewVcrMatcherFunc(ctx context.Context) func(r *http.Request, i cassette.Request) bool {
 	return func(r *http.Request, i cassette.Request) bool {
-		// Default matcher compares method and URL only
-		if !cassette.DefaultMatcher(r, i) {
+		// Compare method and URL, normalizing standard Google API query
+		// params (alt, prettyPrint) so that cassettes recorded via the
+		// typed client match requests made via transport_tpg.SendRequest.
+		if r.Method != i.Method {
+			return false
+		}
+		if stripStandardQueryParams(r.URL.String()) != stripStandardQueryParams(i.URL) {
 			return false
 		}
 		if r.Body == nil {
@@ -320,6 +326,22 @@ func NewVcrMatcherFunc(ctx context.Context) func(r *http.Request, i cassette.Req
 		}
 		return false
 	}
+}
+
+// stripStandardQueryParams removes standard Google API query parameters
+// (alt, prettyPrint) from a URL string. This allows VCR cassettes recorded
+// via the typed API client to match requests made via transport_tpg.SendRequest,
+// which may include a different set of these decorative parameters.
+func stripStandardQueryParams(rawurl string) string {
+	u, err := url.Parse(rawurl)
+	if err != nil {
+		return rawurl
+	}
+	q := u.Query()
+	q.Del("alt")
+	q.Del("prettyPrint")
+	u.RawQuery = q.Encode()
+	return u.String()
 }
 
 // MuxedProviders configures the providers, thus, if we want the providers to be configured

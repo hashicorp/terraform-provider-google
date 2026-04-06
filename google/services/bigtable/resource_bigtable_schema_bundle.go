@@ -286,6 +286,8 @@ func resourceBigtableSchemaBundleRead(d *schema.ResourceData, meta interface{}) 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigtableSchemaBundle %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading BigtableSchemaBundle %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading SchemaBundle: %s", err)
 	}

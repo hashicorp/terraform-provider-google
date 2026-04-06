@@ -1,0 +1,33 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_workstations_workstation
+generation_type: mmv1
+source_file: products/workstations/Workstation.yaml
+api_service_name: workstations.googleapis.com
+api_version: v1
+api_resource_type_kind: Workstation
+fields:
+    - api_field: annotations
+    - api_field: createTime
+    - api_field: displayName
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: env
+    - api_field: host
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: sourceWorkstation
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - field: workstation_cluster_id
+      provider_only: true
+    - field: workstation_config_id
+      provider_only: true
+    - field: workstation_id
+      provider_only: true

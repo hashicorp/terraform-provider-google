@@ -53,8 +53,11 @@ var (
 func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "basic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +80,7 @@ func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterBasicExample(
 func testAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-basic" {
-  name = "basic%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   description = "test admin cluster"
   bootstrap_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
@@ -126,8 +129,11 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-basic" {
 func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "full" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -150,7 +156,7 @@ func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterFullExample(t
 func testAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-full" {
-  name = "full%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   description = "test admin cluster"
   bootstrap_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
@@ -250,8 +256,11 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-full" {
 func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterMetallbExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "metallb" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -274,7 +283,7 @@ func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterMetallbExampl
 func testAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterMetallbExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-metallb" {
-  name = "metallb%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   description = "test admin cluster"
   bootstrap_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"

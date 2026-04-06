@@ -53,8 +53,11 @@ var (
 func TestAccNotebooksEnvironment_notebookEnvironmentBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"environment_name": "tf-test-notebooks-environment" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNotebooksEnvironment_notebookEnvironmentBasicExample(t *testing.T) {
 func testAccNotebooksEnvironment_notebookEnvironmentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_environment" "environment" {
-  name = "tf-test-notebooks-environment%{random_suffix}"
+  name = "%{environment_name}"
   location = "us-west1-a"  
   container_image {
     repository = "gcr.io/deeplearning-platform-release/base-cpu"

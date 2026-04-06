@@ -53,8 +53,11 @@ var (
 func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_id": "tf-test-data-store-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample(contex
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "basic" {
   location                     = "global"
-  data_store_id                = "tf-test-data-store-id%{random_suffix}"
+  data_store_id                = "%{data_store_id}"
   display_name                 = "tf-test-structured-datastore"
   industry_vertical            = "GENERIC"
   content_config               = "NO_CONTENT"
@@ -93,9 +96,12 @@ resource "google_discovery_engine_data_store" "basic" {
 func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreKmsKeyNameExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"data_store_id": "tf-test-data-store-id" + randomSuffix,
 		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -120,7 +126,7 @@ func testAccDiscoveryEngineDataStore_discoveryengineDatastoreKmsKeyNameExample(c
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "kms_key_name" {
   location                     = "us"
-  data_store_id                = "tf-test-data-store-id%{random_suffix}"
+  data_store_id                = "%{data_store_id}"
   display_name                 = "tf-test-structured-datastore"
   industry_vertical            = "GENERIC"
   content_config               = "NO_CONTENT"
@@ -135,8 +141,11 @@ resource "google_discovery_engine_data_store" "kms_key_name" {
 func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_id": "tf-test-data-store-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -161,7 +170,7 @@ func testAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "document_processing_config" {
   location                    = "global"
-  data_store_id               = "tf-test-data-store-id%{random_suffix}"
+  data_store_id               = "%{data_store_id}"
   display_name                = "tf-test-structured-datastore"
   industry_vertical           = "GENERIC"
   content_config              = "NO_CONTENT"
@@ -185,8 +194,11 @@ resource "google_discovery_engine_data_store" "document_processing_config" {
 func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigOcrExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_id": "tf-test-data-store-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -211,7 +223,7 @@ func testAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "document_processing_config_ocr" {
   location                    = "global"
-  data_store_id               = "tf-test-data-store-id%{random_suffix}"
+  data_store_id               = "%{data_store_id}"
   display_name                = "tf-test-structured-datastore"
   industry_vertical           = "GENERIC"
   content_config              = "NO_CONTENT"
@@ -231,8 +243,11 @@ resource "google_discovery_engine_data_store" "document_processing_config_ocr" {
 func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigLayoutExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_id": "tf-test-data-store-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -257,7 +272,7 @@ func testAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "document_processing_config_layout" {
   location                    = "global"
-  data_store_id               = "tf-test-data-store-id%{random_suffix}"
+  data_store_id               = "%{data_store_id}"
   display_name                = "tf-test-structured-datastore"
   industry_vertical           = "GENERIC"
   content_config              = "CONTENT_REQUIRED"
@@ -281,8 +296,11 @@ resource "google_discovery_engine_data_store" "document_processing_config_layout
 func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigLayoutFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_id": "tf-test-data-store-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -307,7 +325,7 @@ func testAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "document_processing_config_layout_full" {
   location                    = "global"
-  data_store_id               = "tf-test-data-store-id%{random_suffix}"
+  data_store_id               = "%{data_store_id}"
   display_name                = "tf-test-structured-datastore"
   industry_vertical           = "GENERIC"
   content_config              = "CONTENT_REQUIRED"
@@ -338,8 +356,11 @@ resource "google_discovery_engine_data_store" "document_processing_config_layout
 func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreAdvancedSiteSearchConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"data_store_id": "tf-test-data-store-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -364,7 +385,7 @@ func testAccDiscoveryEngineDataStore_discoveryengineDatastoreAdvancedSiteSearchC
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "advanced_site_search_config" {
   location                     = "global"
-  data_store_id                = "tf-test-data-store-id%{random_suffix}"
+  data_store_id                = "%{data_store_id}"
   display_name                 = "tf-test-advanced-site-search-config-datastore"
   industry_vertical            = "GENERIC"
   content_config               = "PUBLIC_WEBSITE"

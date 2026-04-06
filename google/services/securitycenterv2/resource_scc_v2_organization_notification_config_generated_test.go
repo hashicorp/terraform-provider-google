@@ -53,9 +53,13 @@ var (
 func TestAccSecurityCenterV2OrganizationNotificationConfig_sccV2OrganizationNotificationConfigBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"config_id":     "tf-test-my-config" + randomSuffix,
+		"topic_name":    "tf-test-my-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,11 +83,11 @@ func TestAccSecurityCenterV2OrganizationNotificationConfig_sccV2OrganizationNoti
 func testAccSecurityCenterV2OrganizationNotificationConfig_sccV2OrganizationNotificationConfigBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "scc_v2_organization_notification_config" {
-  name = "tf-test-my-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 
 resource "google_scc_v2_organization_notification_config" "custom_organization_notification_config" {
-  config_id    = "tf-test-my-config%{random_suffix}"
+  config_id    = "%{config_id}"
   organization = "%{org_id}"
   location     = "global"
   description  = "My custom Cloud Security Command Center Finding Organization Notification Configuration"

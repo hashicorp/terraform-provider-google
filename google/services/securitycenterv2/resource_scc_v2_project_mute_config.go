@@ -300,6 +300,8 @@ func resourceSecurityCenterV2ProjectMuteConfigRead(d *schema.ResourceData, meta 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterV2ProjectMuteConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityCenterV2ProjectMuteConfig %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
 	}

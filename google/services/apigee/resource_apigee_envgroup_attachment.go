@@ -246,6 +246,8 @@ func resourceApigeeEnvgroupAttachmentRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeEnvgroupAttachment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeEnvgroupAttachment %q: %#v", d.Id(), res)
+
 	if err := d.Set("environment", flattenApigeeEnvgroupAttachmentEnvironment(res["environment"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EnvgroupAttachment: %s", err)
 	}

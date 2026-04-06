@@ -57,12 +57,16 @@ func listAndActionVmwareengineDatastore(action sweeper.ResourceAction) error {
 	var configs []*tpgresource.ResourceDataMock
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
-	// Default single config
-	intermediateValues := []map[string]string{
-		{
-			"region": "us-central1",
-		},
-	}
+	// Build URL substitution maps individually to ensure proper formatting
+	intermediateValues := make([]map[string]string, 4)
+	intermediateValues[0] = map[string]string{}
+	intermediateValues[0]["region"] = "us-central1-a"
+	intermediateValues[1] = map[string]string{}
+	intermediateValues[1]["region"] = "southamerica-west1-a"
+	intermediateValues[2] = map[string]string{}
+	intermediateValues[2]["region"] = "me-west1-a"
+	intermediateValues[3] = map[string]string{}
+	intermediateValues[3]["region"] = "me-west1-b"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {

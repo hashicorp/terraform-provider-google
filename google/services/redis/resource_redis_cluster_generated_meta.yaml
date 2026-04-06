@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
 resource: google_redis_cluster
 generation_type: mmv1
 source_file: products/redis/Cluster.yaml
@@ -65,6 +67,8 @@ fields:
     - field: region
       provider_only: true
     - api_field: replicaCount
+    - api_field: serverCaMode
+    - api_field: serverCaPool
     - api_field: shardCount
     - api_field: sizeGb
     - api_field: state

@@ -663,6 +663,101 @@ resource "google_compute_network" "consumer_net" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=redis_cluster_flexible_ca&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Cluster Flexible Ca
+
+
+```hcl
+resource "google_redis_cluster" "test-cluster" {
+  name           = "ca-cluster"
+  shard_count    = 3
+  region         = "us-central1"
+  
+  psc_configs {
+    network = google_compute_network.consumer_net.id
+  }
+
+  # Security configurations
+  transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION"
+  server_ca_mode          = "SERVER_CA_MODE_CUSTOMER_MANAGED_CAS_CA"
+  server_ca_pool          = google_privateca_ca_pool.default.id
+
+  deletion_protection_enabled = true
+
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default,
+    google_privateca_certificate_authority.default
+  ]
+}
+
+resource "google_privateca_ca_pool" "default" {
+  name     = "ca-pool"
+  location = "us-central1"
+  tier     = "ENTERPRISE"
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  pool                     = google_privateca_ca_pool.default.name
+  certificate_authority_id = "ca-auth"
+  location                 = "us-central1"
+  config {
+    subject_config {
+      subject {
+        organization = "Google"
+        common_name  = "my-redis-ca"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign  = true
+        }
+        # Added this block to satisfy provider requirements
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+  
+  ignore_active_certificates_on_deletion = true
+  deletion_protection = false
+  skip_grace_period   = true
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name           = "ca-policy"
+  location       = "us-central1"
+  service_class  = "gcp-memorystore-redis"
+  network        = google_compute_network.consumer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "ca-subnet"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.consumer_net.id
+}
+
+resource "google_compute_network" "consumer_net" {
+  name                    = "ca-network"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -770,6 +865,18 @@ The following arguments are supported:
 * `kms_key` -
   (Optional)
   The KMS key used to encrypt the at-rest data of the cluster.
+
+* `server_ca_mode` -
+  (Optional)
+  The serverCaMode for the TLS enabled Redis cluster.
+  If not provided, SERVER_CA_MODE_GOOGLE_MANAGED_PER_INSTANCE_CA will be used as default
+  Possible values are: `SERVER_CA_MODE_GOOGLE_MANAGED_PER_INSTANCE_CA`, `SERVER_CA_MODE_GOOGLE_MANAGED_SHARED_CA`, `SERVER_CA_MODE_CUSTOMER_MANAGED_CAS_CA`, `SERVER_CA_MODE_UNSPECIFIED`.
+
+* `server_ca_pool` -
+  (Optional)
+  The resource name of the server CA pool for an instance with SERVER_CA_MODE_CUSTOMER_MANAGED_CAS_CA
+  as the server_ca_mode.
+  Format: projects/{project}/locations/{region}/caPools/{caPoolId}
 
 * `region` -
   (Optional)

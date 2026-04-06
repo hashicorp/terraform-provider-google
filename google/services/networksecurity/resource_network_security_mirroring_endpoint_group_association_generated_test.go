@@ -53,8 +53,15 @@ var (
 func TestAccNetworkSecurityMirroringEndpointGroupAssociation_networkSecurityMirroringEndpointGroupAssociationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"consumer_network_name":         "tf-test-example-cons-network" + randomSuffix,
+		"deployment_group_id":           "tf-test-example-dg" + randomSuffix,
+		"endpoint_group_association_id": "tf-test-example-ega" + randomSuffix,
+		"endpoint_group_id":             "tf-test-example-eg" + randomSuffix,
+		"producer_network_name":         "tf-test-example-prod-network" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,29 +85,29 @@ func TestAccNetworkSecurityMirroringEndpointGroupAssociation_networkSecurityMirr
 func testAccNetworkSecurityMirroringEndpointGroupAssociation_networkSecurityMirroringEndpointGroupAssociationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "producer_network" {
-  name                    = "tf-test-example-prod-network%{random_suffix}"
+  name                    = "%{producer_network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "consumer_network" {
-  name                    = "tf-test-example-cons-network%{random_suffix}"
+  name                    = "%{consumer_network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_mirroring_deployment_group" "deployment_group" {
-  mirroring_deployment_group_id = "tf-test-example-dg%{random_suffix}"
+  mirroring_deployment_group_id = "%{deployment_group_id}"
   location                      = "global"
   network                       = google_compute_network.producer_network.id
 }
 
 resource "google_network_security_mirroring_endpoint_group" "endpoint_group" {
-  mirroring_endpoint_group_id   = "tf-test-example-eg%{random_suffix}"
+  mirroring_endpoint_group_id   = "%{endpoint_group_id}"
   location                      = "global"
   mirroring_deployment_group    = google_network_security_mirroring_deployment_group.deployment_group.id
 }
 
 resource "google_network_security_mirroring_endpoint_group_association" "default" {
-  mirroring_endpoint_group_association_id = "tf-test-example-ega%{random_suffix}"
+  mirroring_endpoint_group_association_id = "%{endpoint_group_association_id}"
   location                                = "global"
   network                                 = google_compute_network.consumer_network.id
   mirroring_endpoint_group                = google_network_security_mirroring_endpoint_group.endpoint_group.id

@@ -54,9 +54,12 @@ func TestAccDataprocGdcServiceInstance_dataprocgdcServiceinstanceExample(t *test
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/21173")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       "gdce-cluster-monitoring",
-		"random_suffix": acctest.RandString(t, 10),
+		"project":             "gdce-cluster-monitoring",
+		"service_instance_id": "tf-test-tf-e2e-service-instance" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func TestAccDataprocGdcServiceInstance_dataprocgdcServiceinstanceExample(t *test
 func testAccDataprocGdcServiceInstance_dataprocgdcServiceinstanceExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_gdc_service_instance" "service-instance" {
-  service_instance_id = "tf-test-tf-e2e-service-instance%{random_suffix}"
+  service_instance_id = "%{service_instance_id}"
   project         = "%{project}"
   location        = "us-west2"
   gdce_cluster {

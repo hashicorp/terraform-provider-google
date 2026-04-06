@@ -320,6 +320,8 @@ func resourceIAM2AccessBoundaryPolicyRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IAM2AccessBoundaryPolicy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IAM2AccessBoundaryPolicy %q: %#v", d.Id(), res)
+
 	if err := d.Set("display_name", flattenIAM2AccessBoundaryPolicyDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessBoundaryPolicy: %s", err)
 	}

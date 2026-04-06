@@ -25,6 +25,86 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
+func TestAccLustreInstance_withMaintenancePolicy(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "default-vpc"),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLustreInstance_withMaintenancePolicy(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_lustre_instance.instance", "maintenance_policy.0.weekly_maintenance_windows.0.day_of_week", "SUNDAY"),
+					resource.TestCheckResourceAttr("google_lustre_instance.instance", "maintenance_policy.0.weekly_maintenance_windows.0.start_time.0.hours", "23"),
+					resource.TestCheckResourceAttr("google_lustre_instance.instance", "maintenance_policy.0.maintenance_exclusion_window.#", "1"),
+					resource.TestCheckResourceAttr("google_lustre_instance.instance", "maintenance_policy.0.maintenance_exclusion_window.0.start_date.0.year", "0"),
+					resource.TestCheckResourceAttr("google_lustre_instance.instance", "maintenance_policy.0.maintenance_exclusion_window.0.start_date.0.month", "12"),
+					resource.TestCheckResourceAttr("google_lustre_instance.instance", "maintenance_policy.0.maintenance_exclusion_window.0.end_date.0.year", "0"),
+					resource.TestCheckResourceAttr("google_lustre_instance.instance", "maintenance_policy.0.maintenance_exclusion_window.0.end_date.0.month", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_lustre_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "gke_support_enabled", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccLustreInstance_withMaintenancePolicy(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_lustre_instance" "instance" {
+  instance_id                 = "tf-test-my-instance%{random_suffix}"
+  location                    = "us-central1-a"
+  filesystem                  = "testfs"
+  network                     = data.google_compute_network.lustre-network.id
+  gke_support_enabled         = false
+  capacity_gib                = 18000
+  per_unit_storage_throughput = 1000
+
+  maintenance_policy {
+    weekly_maintenance_windows {
+      day_of_week = "SUNDAY"
+      start_time {
+        hours = 23
+      }
+    }
+    maintenance_exclusion_window {
+      start_date {
+        year  = 0
+        month = 12
+        day   = 20
+      }
+      end_date {
+        year  = 0
+        month = 1
+        day   = 5
+      }
+      time {
+        nanos = 1
+      }
+    }
+  }
+
+  timeouts {
+    create = "120m"
+  }
+}
+
+data "google_compute_network" "lustre-network" {
+  name = "%{network_name}"
+}
+`, context)
+}
+
 func TestAccLustreInstance_update(t *testing.T) {
 	t.Parallel()
 
@@ -360,6 +440,113 @@ resource "google_compute_resource_policy" "lustre_policy" {
 }
 
 
+data "google_compute_network" "lustre-network" {
+  name = "%{network_name}"
+}
+`, context)
+}
+
+func TestAccLustreInstance_dynamicTier(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "default-vpc"),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLustreInstance_dynamicTierCreate(context),
+			},
+			{
+				ResourceName:            "google_lustre_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "gke_support_enabled", "location", "terraform_labels"},
+			},
+			{
+				Config: testAccLustreInstance_dynamicTierUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(
+							"google_lustre_instance.instance",
+							plancheck.ResourceActionUpdate,
+						),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_lustre_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "gke_support_enabled", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccLustreInstance_dynamicTierCreate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_lustre_instance" "instance" {
+  instance_id                 = "tf-test-my-instance%{random_suffix}"
+  location                    = "us-central1-c"
+  filesystem                  = "testfs"
+  network                     = data.google_compute_network.lustre-network.id
+  gke_support_enabled         = false
+  capacity_gib                = 118000
+  dynamic_tier_options {
+    mode = "DEFAULT_CACHE"
+  }
+  timeouts {
+	create = "120m"
+  }
+}
+
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Lustre instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "lustre-network" {
+  name = "%{network_name}"
+}
+`, context)
+}
+
+func testAccLustreInstance_dynamicTierUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_lustre_instance" "instance" {
+  instance_id                 = "tf-test-my-instance%{random_suffix}"
+  location                    = "us-central1-c"
+  filesystem                  = "testfs"
+  capacity_gib                = 118000
+  network                     = data.google_compute_network.lustre-network.id
+  description                 = "test-description"
+  dynamic_tier_options {
+    mode = "DEFAULT_CACHE"
+  }
+  labels                      = {
+    test = "test-label"
+  }
+  timeouts {
+	create = "120m"
+  }
+}
+
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Lustre instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
 data "google_compute_network" "lustre-network" {
   name = "%{network_name}"
 }

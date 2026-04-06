@@ -53,8 +53,11 @@ var (
 func TestAccCloudTasksQueue_queueBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-cloud-tasks-queue-test" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccCloudTasksQueue_queueBasicExample(t *testing.T) {
 func testAccCloudTasksQueue_queueBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_tasks_queue" "default" {
-  name = "tf-test-cloud-tasks-queue-test%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
 }
 `, context)
@@ -87,8 +90,11 @@ resource "google_cloud_tasks_queue" "default" {
 func TestAccCloudTasksQueue_cloudTasksQueueAdvancedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-instance-name" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -112,7 +118,7 @@ func TestAccCloudTasksQueue_cloudTasksQueueAdvancedExample(t *testing.T) {
 func testAccCloudTasksQueue_cloudTasksQueueAdvancedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_tasks_queue" "advanced_configuration" {
-  name = "tf-test-instance-name%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
 
   app_engine_routing_override {
@@ -144,8 +150,11 @@ resource "google_cloud_tasks_queue" "advanced_configuration" {
 func TestAccCloudTasksQueue_cloudTasksQueueHttpTargetOidcExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-cloud-tasks-queue-http-target-oidc" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -169,7 +178,7 @@ func TestAccCloudTasksQueue_cloudTasksQueueHttpTargetOidcExample(t *testing.T) {
 func testAccCloudTasksQueue_cloudTasksQueueHttpTargetOidcExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_tasks_queue" "http_target_oidc" {
-  name     = "tf-test-cloud-tasks-queue-http-target-oidc%{random_suffix}"
+  name     = "%{name}"
   location = "us-central1"
 
   http_target {
@@ -215,8 +224,11 @@ resource "google_service_account" "oidc_service_account" {
 func TestAccCloudTasksQueue_cloudTasksQueueHttpTargetOauthExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-cloud-tasks-queue-http-target-oauth" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -240,7 +252,7 @@ func TestAccCloudTasksQueue_cloudTasksQueueHttpTargetOauthExample(t *testing.T) 
 func testAccCloudTasksQueue_cloudTasksQueueHttpTargetOauthExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_tasks_queue" "http_target_oauth" {
-  name     = "tf-test-cloud-tasks-queue-http-target-oauth%{random_suffix}"
+  name     = "%{name}"
   location = "us-central1"
 
   http_target {

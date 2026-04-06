@@ -53,6 +53,8 @@ var (
 func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"backup_odb_subnet":            "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-backup-odbsubnet",
 		"deletion_protection":          false,
@@ -61,7 +63,7 @@ func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterBasicExampl
 		"odb_network":                  "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
 		"odb_subnet":                   "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
 		"project":                      "oci-terraform-testing-prod",
-		"random_suffix":                acctest.RandString(t, 10),
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -134,6 +136,8 @@ resource "google_oracle_database_exascale_db_storage_vault" "exascaleDbStorageVa
 func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"backup_odb_subnet":            "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-backup-odbsubnet",
 		"deletion_protection":          false,
@@ -142,7 +146,7 @@ func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterFullExample
 		"odb_network":                  "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
 		"odb_subnet":                   "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
 		"project":                      "oci-terraform-testing-prod",
-		"random_suffix":                acctest.RandString(t, 10),
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

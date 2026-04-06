@@ -53,8 +53,12 @@ var (
 func TestAccGkeonpremVmwareNodePool_gkeonpremVmwareNodePoolBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cluster":       "tf-test-my-cluster" + randomSuffix,
+		"name":          "tf-test-my-nodepool" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccGkeonpremVmwareNodePool_gkeonpremVmwareNodePoolBasicExample(t *testi
 func testAccGkeonpremVmwareNodePool_gkeonpremVmwareNodePoolBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_vmware_cluster" "default-basic" {
-  name = "tf-test-my-cluster%{random_suffix}"
+  name = "%{cluster}"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   description = "test cluster"
@@ -116,7 +120,7 @@ resource "google_gkeonprem_vmware_cluster" "default-basic" {
 }
 
 resource "google_gkeonprem_vmware_node_pool" "nodepool-basic" {
-  name = "tf-test-my-nodepool%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   vmware_cluster = google_gkeonprem_vmware_cluster.default-basic.name
   config {
@@ -131,8 +135,12 @@ resource "google_gkeonprem_vmware_node_pool" "nodepool-basic" {
 func TestAccGkeonpremVmwareNodePool_gkeonpremVmwareNodePoolFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cluster":       "tf-test-my-cluster" + randomSuffix,
+		"name":          "tf-test-my-nodepool" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -156,7 +164,7 @@ func TestAccGkeonpremVmwareNodePool_gkeonpremVmwareNodePoolFullExample(t *testin
 func testAccGkeonpremVmwareNodePool_gkeonpremVmwareNodePoolFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gkeonprem_vmware_cluster" "default-full" {
-  name = "tf-test-my-cluster%{random_suffix}"
+  name = "%{cluster}"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   description = "test cluster"
@@ -194,7 +202,7 @@ resource "google_gkeonprem_vmware_cluster" "default-full" {
 }
 
 resource "google_gkeonprem_vmware_node_pool" "nodepool-full" {
-  name = "tf-test-my-nodepool%{random_suffix}"
+  name = "%{name}"
   location = "us-west1"
   vmware_cluster = google_gkeonprem_vmware_cluster.default-full.name
   on_prem_version = "1.33.0-gke.35"

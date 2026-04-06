@@ -53,8 +53,13 @@ var (
 func TestAccCertificateManagerCertificateIssuanceConfig_certificateManagerCertificateIssuanceConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"ca_name":              "tf-test-ca-authority" + randomSuffix,
+		"issuance_config_name": "tf-test-issuance-config" + randomSuffix,
+		"pool_name":            "tf-test-ca-pool" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccCertificateManagerCertificateIssuanceConfig_certificateManagerCertif
 func testAccCertificateManagerCertificateIssuanceConfig_certificateManagerCertificateIssuanceConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate_issuance_config" "default" {
-  name    = "tf-test-issuance-config%{random_suffix}"
+  name    = "%{issuance_config_name}"
   description = "sample description for the certificate issuanceConfigs"
   certificate_authority_config {
     certificate_authority_service_config {
@@ -94,7 +99,7 @@ resource "google_certificate_manager_certificate_issuance_config" "default" {
 }
   
 resource "google_privateca_ca_pool" "pool" {
-  name     = "tf-test-ca-pool%{random_suffix}"
+  name     = "%{pool_name}"
   location = "us-central1"
   tier     = "ENTERPRISE"
 }
@@ -102,7 +107,7 @@ resource "google_privateca_ca_pool" "pool" {
 resource "google_privateca_certificate_authority" "ca_authority" {
   location = "us-central1"
   pool = google_privateca_ca_pool.pool.name
-  certificate_authority_id = "tf-test-ca-authority%{random_suffix}"
+  certificate_authority_id = "%{ca_name}"
   config {
     subject_config {
       subject {

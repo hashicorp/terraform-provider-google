@@ -80,6 +80,34 @@ resource "google_pubsub_topic" "recognition_result_notification_profile" {
   name = "recognition-result-notification"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dialogflow_conversation_profile_beta_bidi&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dialogflow Conversation Profile Beta Bidi
+
+
+```hcl
+resource "google_dialogflow_conversation_profile" "bidi_profile" {
+  display_name = "dialogflow-profile-bidi"
+  location     = "global"
+  language_code = "en-US"
+  use_bidi_streaming = true
+  automated_agent_config {
+    agent = google_ces_app.ces_app_for_agent.id
+  }
+}
+
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id = "app-id"
+  location = "us"
+  display_name = "my-app"
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -94,6 +122,10 @@ The following arguments are supported:
   (Required)
   desc
 
+
+* `use_bidi_streaming` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Optional. Whether to use the bidi streaming API in telephony integration for the conversation profile.
 
 * `automated_agent_config` -
   (Optional)

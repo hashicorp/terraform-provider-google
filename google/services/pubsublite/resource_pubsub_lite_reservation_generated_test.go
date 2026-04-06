@@ -53,8 +53,11 @@ var (
 func TestAccPubsubLiteReservation_pubsubLiteReservationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"reservation_name": "tf-test-example-reservation" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccPubsubLiteReservation_pubsubLiteReservationBasicExample(t *testing.T
 func testAccPubsubLiteReservation_pubsubLiteReservationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_lite_reservation" "example" {
-  name = "tf-test-example-reservation%{random_suffix}"
+  name = "%{reservation_name}"
   project = data.google_project.project.number
   throughput_capacity = 2
 }

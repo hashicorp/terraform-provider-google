@@ -811,6 +811,8 @@ func resourceSecurityposturePostureRead(d *schema.ResourceData, meta interface{}
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityposturePosture %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityposturePosture %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenSecurityposturePostureName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Posture: %s", err)
 	}
@@ -1904,7 +1906,7 @@ func expandSecurityposturePosturePolicySetsPoliciesConstraintOrgPolicyConstraint
 		transformedEnforce, err := expandSecurityposturePosturePolicySetsPoliciesConstraintOrgPolicyConstraintPolicyRulesEnforce(original["enforce"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedEnforce); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		} else {
 			transformed["enforce"] = transformedEnforce
 		}
 

@@ -122,13 +122,11 @@ func ResourceColabRuntimeTemplate() *schema.Resource {
 			"display_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Required. The display name of the Runtime Template.`,
 			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The location for the resource: https://cloud.google.com/colab/docs/locations`,
 			},
 			"data_persistent_disk_spec": {
@@ -166,7 +164,6 @@ func ResourceColabRuntimeTemplate() *schema.Resource {
 			"encryption_spec": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Customer-managed encryption key spec for the notebook runtime.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -174,7 +171,6 @@ func ResourceColabRuntimeTemplate() *schema.Resource {
 						"kms_key_name": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The Cloud KMS encryption key (customer-managed encryption key) used to protect the runtime.`,
 						},
 					},
@@ -214,7 +210,6 @@ func ResourceColabRuntimeTemplate() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The duration after which the runtime is automatically shut down. An input of 0s disables the idle shutdown feature, and a valid range is [10m, 24h].`,
 						},
 					},
@@ -325,7 +320,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 							Type:             schema.TypeBool,
 							Computed:         true,
 							Optional:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: tpgresource.EmptyOrFalseSuppressBoolean,
 							Description:      `Enables secure boot for the runtime.`,
 						},
@@ -336,28 +330,41 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:        schema.TypeList,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `The notebook software configuration of the notebook runtime.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"colab_image": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Optional:    true,
+							Description: `Colab Image Configuration.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"release_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Optional:    true,
+										Description: `The release name of the NotebookRuntime Colab image, e.g. "py310". If not specified, detault to the latest release.`,
+									},
+								},
+							},
+						},
 						"env": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Environment variables to be passed to the container.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Name of the environment variable. Must be a valid C identifier.`,
 									},
 									"value": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not.`,
 									},
 								},
@@ -366,7 +373,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						"post_startup_script_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Post startup script config.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -374,20 +380,17 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 									"post_startup_script": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Post startup script to run after runtime is started.`,
 									},
 									"post_startup_script_behavior": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ForceNew:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"RUN_ONCE", "RUN_EVERY_START", "DOWNLOAD_AND_RUN_EVERY_START", ""}),
 										Description:  `Post startup script behavior that defines download and execution behavior. Possible values: ["RUN_ONCE", "RUN_EVERY_START", "DOWNLOAD_AND_RUN_EVERY_START"]`,
 									},
 									"post_startup_script_url": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Post startup script url to download. Example: https://bucket/script.sh.`,
 									},
 								},
@@ -619,6 +622,8 @@ func resourceColabRuntimeTemplateRead(d *schema.ResourceData, meta interface{}) 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ColabRuntimeTemplate %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ColabRuntimeTemplate %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading RuntimeTemplate: %s", err)
 	}
@@ -673,7 +678,97 @@ func resourceColabRuntimeTemplateRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceColabRuntimeTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "labels", "terraform_labels", and virtual fields are mutable
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for RuntimeTemplate: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	displayNameProp, err := expandColabRuntimeTemplateDisplayName(d.Get("display_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+		obj["displayName"] = displayNameProp
+	}
+	encryptionSpecProp, err := expandColabRuntimeTemplateEncryptionSpec(d.Get("encryption_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
+		obj["encryptionSpec"] = encryptionSpecProp
+	}
+	softwareConfigProp, err := expandColabRuntimeTemplateSoftwareConfig(d.Get("software_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("software_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, softwareConfigProp)) {
+		obj["softwareConfig"] = softwareConfigProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ColabBasePath}}projects/{{project}}/locations/{{location}}/notebookRuntimeTemplates/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating RuntimeTemplate %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+	updateMask := []string{}
+
+	if d.HasChange("display_name") {
+		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("encryption_spec") {
+		updateMask = append(updateMask, "encryptionSpec.kmsKeyName")
+	}
+
+	if d.HasChange("software_config") {
+		updateMask = append(updateMask, "softwareConfig.env",
+			"softwareConfig.postStartupScriptConfig.postStartupScript",
+			"softwareConfig.postStartupScriptConfig.postStartupScriptUrl",
+			"softwareConfig.postStartupScriptConfig.postStartupScriptBehavior",
+			"softwareConfig.colabImage.releaseName")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error updating RuntimeTemplate %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating RuntimeTemplate %q: %#v", d.Id(), res)
+		}
+
+	}
+
 	return resourceColabRuntimeTemplateRead(d, meta)
 }
 
@@ -962,6 +1057,8 @@ func flattenColabRuntimeTemplateSoftwareConfig(v interface{}, d *schema.Resource
 		flattenColabRuntimeTemplateSoftwareConfigEnv(original["env"], d, config)
 	transformed["post_startup_script_config"] =
 		flattenColabRuntimeTemplateSoftwareConfigPostStartupScriptConfig(original["postStartupScriptConfig"], d, config)
+	transformed["colab_image"] =
+		flattenColabRuntimeTemplateSoftwareConfigColabImage(original["colabImage"], d, config)
 	return []interface{}{transformed}
 }
 func flattenColabRuntimeTemplateSoftwareConfigEnv(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1017,6 +1114,23 @@ func flattenColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartup
 }
 
 func flattenColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScriptBehavior(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabRuntimeTemplateSoftwareConfigColabImage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["release_name"] =
+		flattenColabRuntimeTemplateSoftwareConfigColabImageReleaseName(original["releaseName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabRuntimeTemplateSoftwareConfigColabImageReleaseName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1318,6 +1432,13 @@ func expandColabRuntimeTemplateSoftwareConfig(v interface{}, d tpgresource.Terra
 		transformed["postStartupScriptConfig"] = transformedPostStartupScriptConfig
 	}
 
+	transformedColabImage, err := expandColabRuntimeTemplateSoftwareConfigColabImage(original["colab_image"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedColabImage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["colabImage"] = transformedColabImage
+	}
+
 	return transformed, nil
 }
 
@@ -1406,6 +1527,32 @@ func expandColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupS
 }
 
 func expandColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScriptBehavior(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabRuntimeTemplateSoftwareConfigColabImage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedReleaseName, err := expandColabRuntimeTemplateSoftwareConfigColabImageReleaseName(original["release_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReleaseName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["releaseName"] = transformedReleaseName
+	}
+
+	return transformed, nil
+}
+
+func expandColabRuntimeTemplateSoftwareConfigColabImageReleaseName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

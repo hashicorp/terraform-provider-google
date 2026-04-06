@@ -247,6 +247,8 @@ func resourceSecurityCenterV2OrganizationSourceRead(d *schema.ResourceData, meta
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterV2OrganizationSource %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityCenterV2OrganizationSource %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenSecurityCenterV2OrganizationSourceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationSource: %s", err)
 	}

@@ -556,6 +556,8 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyRead(d *schema.Reso
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeterEgressPolicy %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading AccessContextManagerServicePerimeterEgressPolicy %q: %#v", d.Id(), res)
 	if err := d.Set("etag", res["etag"]); err != nil {
 		log.Printf("[ERROR] Unable to set etag: %s", err)
 	}

@@ -54,10 +54,13 @@ func TestAccIntegrationConnectorsManagedZone_integrationConnectorsManagedZoneExa
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"billing_account":   envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"managed_zone_name": "test" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -128,7 +131,7 @@ data "google_project" "test_project" {
 }
 
 resource "google_integration_connectors_managed_zone" "testmanagedzone" {
-  name     = "test%{random_suffix}"
+  name     = "%{managed_zone_name}"
   description = "tf created description"
   labels = {
     intent = "example"

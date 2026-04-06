@@ -53,9 +53,15 @@ var (
 func TestAccIAMWorkforcePoolWorkforcePoolProviderScimToken_iamWorkforcePoolProviderScimTokenBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"scim_tenant_id":    "tf-test-example-tenant" + randomSuffix,
+		"scim_token_id":     "tf-test-example-scim-token" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +85,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderScimToken_iamWorkforcePoolProvi
 func testAccIAMWorkforcePoolWorkforcePoolProviderScimToken_iamWorkforcePoolProviderScimTokenBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -87,7 +93,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "provider" {
     location = "global"
     workforce_pool_id = google_iam_workforce_pool.pool.workforce_pool_id
-    provider_id = "tf-test-example-prvdr%{random_suffix}"
+    provider_id = "%{provider_id}"
     attribute_mapping   = {
     "google.subject"  = "assertion.sub"
     }
@@ -115,7 +121,7 @@ resource "google_iam_workforce_pool_provider_scim_tenant" "tenant" {
   location            = "global"
   workforce_pool_id   = google_iam_workforce_pool.pool.workforce_pool_id
   provider_id         = google_iam_workforce_pool_provider.provider.provider_id
-  scim_tenant_id      = "tf-test-example-tenant%{random_suffix}"
+  scim_tenant_id      = "%{scim_tenant_id}"
   display_name        = "SCIM Tenant display Name"
   description         = "A SCIM Tenant for IAM Workforce Pool Provider"
   claim_mapping       = {

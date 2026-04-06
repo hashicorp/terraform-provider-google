@@ -53,8 +53,11 @@ var (
 func TestAccCloudbuildv2Connection_cloudbuildv2ConnectionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccCloudbuildv2Connection_cloudbuildv2ConnectionExample(context map[str
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_connection" "my-connection" {
   location = "us-central1"
-  name = "tf-test-tf-test-connection%{random_suffix}"
+  name = "%{connection_name}"
 
   github_config {
     app_installation_id = 0

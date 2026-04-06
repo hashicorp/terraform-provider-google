@@ -1255,6 +1255,8 @@ func resourceOracleDatabaseAutonomousDatabaseRead(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("OracleDatabaseAutonomousDatabase %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading OracleDatabaseAutonomousDatabase %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_protection"); !ok {
 		if err := d.Set("deletion_protection", true); err != nil {

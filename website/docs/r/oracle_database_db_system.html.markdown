@@ -58,6 +58,7 @@ resource "google_oracle_database_db_system" "my_db_system"{
                 admin_password = "ABcde_1#234"
                 database_id = "mydb"
                 db_name = "db"
+                db_unique_name = "db"
             }
         }
     }
@@ -98,7 +99,7 @@ resource "google_oracle_database_db_system" "my_db_system"{
             db_version = "19.0.0.0"
             database {
                 db_name = "db"
-                db_unique_name = "dbunique"
+                db_unique_name = "db"
                 admin_password = "ABcde_1#2345"
                 tde_wallet_password = "ABcde_1#2345"
                 database_id = "mydb"

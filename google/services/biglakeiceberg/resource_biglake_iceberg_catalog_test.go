@@ -67,8 +67,11 @@ var (
 func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalog_update(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf_test_my_iceberg_catalog" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -106,14 +109,14 @@ func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalog_update(t *testing
 func testAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalog_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket_for_my_iceberg_catalog" {
-  name          = "tf_test_my_iceberg_catalog%{random_suffix}"
+  name          = "%{name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
 }
 
 resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
-    name = "tf_test_my_iceberg_catalog%{random_suffix}"
+    name = google_storage_bucket.bucket_for_my_iceberg_catalog.name
     catalog_type = "CATALOG_TYPE_GCS_BUCKET"
 		credential_mode = "CREDENTIAL_MODE_END_USER"
     depends_on = [

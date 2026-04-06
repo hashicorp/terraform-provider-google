@@ -53,8 +53,11 @@ var (
 func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"custom_target_type_name": "tf-test-my-custom-target-type" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccClouddeployCustomTargetType_clouddeployCustomTargetTypeBasicExample(
 	return acctest.Nprintf(`
 resource "google_clouddeploy_custom_target_type" "custom-target-type" {
     location = "us-central1"
-    name = "tf-test-my-custom-target-type%{random_suffix}"
+    name = "%{custom_target_type_name}"
     description = "My custom target type"
     annotations = {
       my_first_annotation = "example-annotation-1"
@@ -100,8 +103,11 @@ resource "google_clouddeploy_custom_target_type" "custom-target-type" {
 func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGitSkaffoldModulesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"custom_target_type_name": "tf-test-my-custom-target-type" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -126,7 +132,7 @@ func testAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGitSkaffoldMo
 	return acctest.Nprintf(`
 resource "google_clouddeploy_custom_target_type" "custom-target-type" {
     location = "us-central1"
-    name = "tf-test-my-custom-target-type%{random_suffix}"
+    name = "%{custom_target_type_name}"
     description = "My custom target type"
     custom_actions {
       render_action = "renderAction"
@@ -147,8 +153,11 @@ resource "google_clouddeploy_custom_target_type" "custom-target-type" {
 func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGcsSkaffoldModulesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"custom_target_type_name": "tf-test-my-custom-target-type" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -173,7 +182,7 @@ func testAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGcsSkaffoldMo
 	return acctest.Nprintf(`
 resource "google_clouddeploy_custom_target_type" "custom-target-type" {
     location = "us-central1"
-    name = "tf-test-my-custom-target-type%{random_suffix}"
+    name = "%{custom_target_type_name}"
     description = "My custom target type"
     custom_actions {
       render_action = "renderAction"
@@ -193,8 +202,11 @@ resource "google_clouddeploy_custom_target_type" "custom-target-type" {
 func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGcbRepoSkaffoldModulesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"custom_target_type_name": "tf-test-my-custom-target-type" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -219,7 +231,7 @@ func testAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGcbRepoSkaffo
 	return acctest.Nprintf(`
 resource "google_clouddeploy_custom_target_type" "custom-target-type" {
     location = "us-central1"
-    name = "tf-test-my-custom-target-type%{random_suffix}"
+    name = "%{custom_target_type_name}"
     description = "My custom target type"
     custom_actions {
       render_action = "renderAction"

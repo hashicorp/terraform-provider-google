@@ -165,6 +165,10 @@ resource "google_firebase_ai_logic_config" "default" {
     sampling_rate = 1.0
   }
 
+  traffic_filter {
+    template_only = true
+  }
+
   depends_on = [time_sleep.wait_30s]
 }
 ```
@@ -189,6 +193,11 @@ The following arguments are supported:
   Telemetry is the collection of metrics, logs, and traces recorded by the
   Firebase AI Logic backend.
   Structure is [documented below](#nested_telemetry_config).
+
+* `traffic_filter` -
+  (Optional)
+  Configuration for traffic filtering.
+  Structure is [documented below](#nested_traffic_filter).
 
 * `location` -
   (Optional)
@@ -239,6 +248,13 @@ The following arguments are supported:
   The percentage of requests to be sampled, expressed as a fraction
   in the range (0,1]. Note that the actual sampling rate may be lower than
   the specified value if the system is overloaded. Default is 1.0.
+
+<a name="nested_traffic_filter"></a>The `traffic_filter` block supports:
+
+* `template_only` -
+  (Optional)
+  Only allows users to use AI Logic via prompt templates for this project.
+  If true, only calls using server templates are permitted.
 
 ## Attributes Reference
 

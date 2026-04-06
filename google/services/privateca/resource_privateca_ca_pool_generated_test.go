@@ -53,8 +53,11 @@ var (
 func TestAccPrivatecaCaPool_privatecaCapoolBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-my-pool" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolBasicExample(t *testing.T) {
 func testAccPrivatecaCaPool_privatecaCapoolBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{name}"
   location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {

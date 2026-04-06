@@ -54,8 +54,10 @@ func TestAccComputeSslCertificate_sslCertificateBasicExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -95,8 +97,10 @@ func TestAccComputeSslCertificate_sslCertificateBasicWriteonlyExample(t *testing
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -137,8 +141,10 @@ func TestAccComputeSslCertificate_sslCertificateRandomProviderExample(t *testing
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -195,8 +201,14 @@ func TestAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(t *tes
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name":    "tf-test-backend-service" + randomSuffix,
+		"http_health_check_name":  "tf-test-http-health-check" + randomSuffix,
+		"target_https_proxy_name": "tf-test-test-proxy" + randomSuffix,
+		"url_map_name":            "tf-test-url-map" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -240,13 +252,13 @@ resource "google_compute_ssl_certificate" "default" {
 }
 
 resource "google_compute_target_https_proxy" "default" {
-  name             = "tf-test-test-proxy%{random_suffix}"
+  name             = "%{target_https_proxy_name}"
   url_map          = google_compute_url_map.default.id
   ssl_certificates = [google_compute_ssl_certificate.default.id]
 }
 
 resource "google_compute_url_map" "default" {
-  name        = "tf-test-url-map%{random_suffix}"
+  name        = "%{url_map_name}"
   description = "a description"
 
   default_service = google_compute_backend_service.default.id
@@ -268,7 +280,7 @@ resource "google_compute_url_map" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "tf-test-backend-service%{random_suffix}"
+  name        = "%{backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -277,7 +289,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-http-health-check%{random_suffix}"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1

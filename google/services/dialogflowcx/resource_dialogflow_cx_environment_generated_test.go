@@ -53,8 +53,11 @@ var (
 func TestAccDialogflowCXEnvironment_dialogflowcxEnvironmentFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccDialogflowCXEnvironment_dialogflowcxEnvironmentFullExample(t *testin
 func testAccDialogflowCXEnvironment_dialogflowcxEnvironmentFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "global"
   default_language_code = "en"
   supported_language_codes = ["fr","de","es"]
@@ -112,8 +115,11 @@ resource "google_dialogflow_cx_environment" "development" {
 func TestAccDialogflowCXEnvironment_dialogflowcxEnvironmentRegionalExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-issue-12880" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -137,7 +143,7 @@ func TestAccDialogflowCXEnvironment_dialogflowcxEnvironmentRegionalExample(t *te
 func testAccDialogflowCXEnvironment_dialogflowcxEnvironmentRegionalExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-issue-12880%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "us-central1"
   default_language_code = "en"
   supported_language_codes = ["fr","de","es"]

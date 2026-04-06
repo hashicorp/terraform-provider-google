@@ -467,6 +467,8 @@ func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeTargetHttpsProxy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeTargetHttpsProxy %q: %#v", d.Id(), res)
+
 	res, err = resourceComputeTargetHttpsProxyDecoder(d, meta, res)
 	if err != nil {
 		return err

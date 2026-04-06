@@ -1235,6 +1235,8 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AppEngineFlexibleAppVersion %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading AppEngineFlexibleAppVersion %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("noop_on_destroy"); !ok {
 		if err := d.Set("noop_on_destroy", false); err != nil {
