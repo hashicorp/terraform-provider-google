@@ -416,6 +416,23 @@ Agent in the project will be used.`,
 											},
 										},
 									},
+									"image_spec": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for building an image with custom config file.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"build_args": {
+													Type:        schema.TypeMap,
+													Optional:    true,
+													Description: `Build arguments to be used. They will be passed through --build-arg flags.`,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+												},
+											},
+										},
+										ConflictsWith: []string{"spec.0.source_code_spec.0.python_spec"},
+									},
 									"inline_source": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -471,6 +488,7 @@ default value is 3.10.`,
 												},
 											},
 										},
+										ConflictsWith: []string{"spec.0.source_code_spec.0.image_spec"},
 									},
 								},
 							},
@@ -1336,6 +1354,8 @@ func flattenVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d *schema.R
 	transformed := make(map[string]interface{})
 	transformed["inline_source"] =
 		flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(original["inlineSource"], d, config)
+	transformed["image_spec"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecImageSpec(original["imageSpec"], d, config)
 	transformed["python_spec"] =
 		flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(original["pythonSpec"], d, config)
 	transformed["developer_connect_source"] =
@@ -1347,6 +1367,20 @@ func flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(v interface{},
 }
 func flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSourceSourceArchive(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("spec.0.source_code_spec.0.inline_source.0.source_archive")
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecImageSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["build_args"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecImageSpecBuildArgs(original["buildArgs"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecImageSpecBuildArgs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1923,6 +1957,13 @@ func expandVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d tpgresourc
 		transformed["inlineSource"] = transformedInlineSource
 	}
 
+	transformedImageSpec, err := expandVertexAIReasoningEngineSpecSourceCodeSpecImageSpec(original["image_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["imageSpec"] = transformedImageSpec
+	}
+
 	transformedPythonSpec, err := expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(original["python_spec"], d, config)
 	if err != nil {
 		return nil, err
@@ -1964,6 +2005,44 @@ func expandVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(v interface{}, 
 
 func expandVertexAIReasoningEngineSpecSourceCodeSpecInlineSourceSourceArchive(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecImageSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBuildArgs, err := expandVertexAIReasoningEngineSpecSourceCodeSpecImageSpecBuildArgs(original["build_args"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["buildArgs"] = transformedBuildArgs
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecImageSpecBuildArgs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

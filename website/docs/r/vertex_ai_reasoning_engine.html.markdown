@@ -94,6 +94,33 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_reasoning_engine_image_spec&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Reasoning Engine Image Spec
+
+
+```hcl
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "reasoning-engine"
+  description  = "Deployed with BYOC Dockerfile through Terraform"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/agent_src.tar.gz")
+      }
+
+      image_spec {
+        build_args = {}
+      }
+    }
+  }
+}
+```
 ## Example Usage - Vertex Ai Reasoning Engine Psc Interface
 
 
@@ -723,6 +750,11 @@ The following arguments are supported:
   Source code is provided directly in the request.
   Structure is [documented below](#nested_spec_source_code_spec_inline_source).
 
+* `image_spec` -
+  (Optional)
+  Configuration for building an image with custom config file.
+  Structure is [documented below](#nested_spec_source_code_spec_image_spec).
+
 * `python_spec` -
   (Optional)
   Specification for running a Python application from source.
@@ -741,6 +773,12 @@ The following arguments are supported:
   Required. Input only.
   The application source code archive, provided as a compressed
   tarball (.tar.gz) file. A base64-encoded string.
+
+<a name="nested_spec_source_code_spec_image_spec"></a>The `image_spec` block supports:
+
+* `build_args` -
+  (Optional)
+  Build arguments to be used. They will be passed through --build-arg flags.
 
 <a name="nested_spec_source_code_spec_python_spec"></a>The `python_spec` block supports:
 
