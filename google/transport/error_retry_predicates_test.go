@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -217,6 +217,57 @@ func TestFirestoreIndex409_retryUnderlyingDataChanged(t *testing.T) {
 	isRetryable, _ := FirestoreIndex409Retry(&err)
 	if !isRetryable {
 		t.Errorf("Error not detected as retryable")
+	}
+}
+
+func TestIs403ConcurrentOperationsQuotaError_retryable(t *testing.T) {
+	err := googleapi.Error{
+		Code: 403,
+		Body: "Rate Limit Exceeded",
+		Details: []interface{}{
+			map[string]interface{}{
+				"@type":  "type.googleapis.com/google.rpc.ErrorInfo",
+				"reason": "CONCURRENT_OPERATIONS_QUOTA_EXCEEDED",
+			},
+		},
+	}
+	isRetryable, _ := is403ConcurrentOperationsQuotaError(&err)
+	if !isRetryable {
+		t.Errorf("Error not detected as retryable")
+	}
+}
+
+func TestIs403ConcurrentOperationsQuotaError_wrongReason(t *testing.T) {
+	err := googleapi.Error{
+		Code: 403,
+		Body: "Rate Limit Exceeded",
+		Details: []interface{}{
+			map[string]interface{}{
+				"@type":  "type.googleapis.com/google.rpc.ErrorInfo",
+				"reason": "RATE_LIMIT_EXCEEDED",
+			},
+		},
+	}
+	isRetryable, _ := is403ConcurrentOperationsQuotaError(&err)
+	if isRetryable {
+		t.Errorf("Error incorrectly detected as retryable")
+	}
+}
+
+func TestIs403ConcurrentOperationsQuotaError_wrongCode(t *testing.T) {
+	err := googleapi.Error{
+		Code: 400,
+		Body: "Rate Limit Exceeded",
+		Details: []interface{}{
+			map[string]interface{}{
+				"@type":  "type.googleapis.com/google.rpc.ErrorInfo",
+				"reason": "CONCURRENT_OPERATIONS_QUOTA_EXCEEDED",
+			},
+		},
+	}
+	isRetryable, _ := is403ConcurrentOperationsQuotaError(&err)
+	if isRetryable {
+		t.Errorf("Error incorrectly detected as retryable")
 	}
 }
 

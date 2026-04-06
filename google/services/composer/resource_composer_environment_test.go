@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -17,6 +17,7 @@
 package composer_test
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -28,7 +29,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/composer"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
@@ -2976,7 +2976,7 @@ func testAccCheckClearComposerEnvironmentFirewalls(t *testing.T, networkName str
 
 		foundFirewalls, err := config.NewComputeClient(config.UserAgent).Firewalls.List(config.Project).Do()
 		if err != nil {
-			return fmt.Errorf("Unable to list firewalls for network %q: %s", network.Name, err)
+			return fmt.Errorf("unable to list firewalls for network %q: %s", network.Name, err)
 		}
 
 		var allErrors error
@@ -2987,16 +2987,14 @@ func testAccCheckClearComposerEnvironmentFirewalls(t *testing.T, networkName str
 			log.Printf("[DEBUG] Deleting firewall %q for test-resource network %q", firewall.Name, network.Name)
 			op, err := config.NewComputeClient(config.UserAgent).Firewalls.Delete(config.Project, firewall.Name).Do()
 			if err != nil {
-				allErrors = multierror.Append(allErrors,
-					fmt.Errorf("Unable to delete firewalls for network %q: %s", network.Name, err))
+				allErrors = errors.Join(allErrors, fmt.Errorf("unable to delete firewalls for network %q: %s", network.Name, err))
 				continue
 			}
 
 			waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project,
 				"Sweeping test composer environment firewalls", config.UserAgent, 10)
 			if waitErr != nil {
-				allErrors = multierror.Append(allErrors,
-					fmt.Errorf("Error while waiting to delete firewall %q: %s", firewall.Name, waitErr))
+				allErrors = errors.Join(allErrors, fmt.Errorf("error while waiting to delete firewall %q: %s", firewall.Name, waitErr))
 			}
 		}
 		return allErrors

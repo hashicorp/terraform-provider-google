@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -690,7 +690,7 @@ func testAccTagsTagKeyIamBinding(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"role":          "roles/resourcemanager.tagAdmin",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"short_name": "tf-test-key-" + acctest.RandString(t, 10),
@@ -702,6 +702,9 @@ func testAccTagsTagKeyIamBinding(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccTagsTagKeyIamBinding_basicGenerated(context),
+			},
+			{
+				Config: testAccTagsTagKeyIamBinding_withCondition(context),
 			},
 			{
 				// Test Iam Binding update
@@ -716,7 +719,7 @@ func testAccTagsTagKeyIamMember(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"role":          "roles/resourcemanager.tagAdmin",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"short_name": "tf-test-key-" + acctest.RandString(t, 10),
@@ -730,6 +733,9 @@ func testAccTagsTagKeyIamMember(t *testing.T) {
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccTagsTagKeyIamMember_basicGenerated(context),
 			},
+			{
+				Config: testAccTagsTagKeyIamMember_withCondition(context),
+			},
 		},
 	})
 }
@@ -739,7 +745,7 @@ func testAccTagsTagKeyIamPolicy(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"role":          "roles/resourcemanager.tagAdmin",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"short_name": "tf-test-key-" + acctest.RandString(t, 10),
@@ -754,6 +760,9 @@ func testAccTagsTagKeyIamPolicy(t *testing.T) {
 			},
 			{
 				Config: testAccTagsTagKeyIamPolicy_emptyBinding(context),
+			},
+			{
+				Config: testAccTagsTagKeyIamPolicy_withCondition(context),
 			},
 		},
 	})
@@ -772,6 +781,28 @@ resource "google_tags_tag_key_iam_member" "foo" {
   tag_key = google_tags_tag_key.key.name
   role = "%{role}"
   member = "user:admin@hashicorptest.com"
+}
+`, context)
+}
+
+func testAccTagsTagKeyIamMember_withCondition(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+
+  parent = "organizations/%{org_id}"
+  short_name = "%{short_name}"
+  description = "For %{short_name} resources."
+}
+
+resource "google_tags_tag_key_iam_member" "foo" {
+  tag_key = google_tags_tag_key.key.name
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
+  condition {
+    description = "Allow tagUser grant."
+    expression  = "api.getAttribute('iam.googleapis.com/modifiedGrantsByRole', []).hasOnly([\"roles/resourcemanager.tagUser\"])"
+    title       = "only_taguser_delegation"
+  }
 }
 `, context)
 }
@@ -818,6 +849,34 @@ resource "google_tags_tag_key_iam_policy" "foo" {
 `, context)
 }
 
+func testAccTagsTagKeyIamPolicy_withCondition(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+
+  parent = "organizations/%{org_id}"
+  short_name = "%{short_name}"
+  description = "For %{short_name} resources."
+}
+
+data "google_iam_policy" "foo" {
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+    condition {
+      description = "Allow tagUser grant."
+      expression  = "api.getAttribute('iam.googleapis.com/modifiedGrantsByRole', []).hasOnly([\"roles/resourcemanager.tagUser\"])"
+      title       = "only_taguser_delegation"
+    }
+  }
+}
+
+resource "google_tags_tag_key_iam_policy" "foo" {
+  tag_key = google_tags_tag_key.key.name
+  policy_data = data.google_iam_policy.foo.policy_data
+}
+`, context)
+}
+
 func testAccTagsTagKeyIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_tags_tag_key" "key" {
@@ -831,6 +890,28 @@ resource "google_tags_tag_key_iam_binding" "foo" {
   tag_key = google_tags_tag_key.key.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com"]
+}
+`, context)
+}
+
+func testAccTagsTagKeyIamBinding_withCondition(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+
+  parent = "organizations/%{org_id}"
+  short_name = "%{short_name}"
+  description = "For %{short_name} resources."
+}
+
+resource "google_tags_tag_key_iam_binding" "foo" {
+  tag_key = google_tags_tag_key.key.name
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
+  condition {
+    description = "Allow tagUser grant."
+    expression  = "api.getAttribute('iam.googleapis.com/modifiedGrantsByRole', []).hasOnly([\"roles/resourcemanager.tagUser\"])"
+    title       = "only_taguser_delegation"
+  }
 }
 `, context)
 }
@@ -857,7 +938,7 @@ func testAccTagsTagValueIamBinding(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"role":          "roles/resourcemanager.tagAdmin",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"key_short_name":   "tf-test-key-" + acctest.RandString(t, 10),
@@ -872,6 +953,9 @@ func testAccTagsTagValueIamBinding(t *testing.T) {
 				Config: testAccTagsTagValueIamBinding_basicGenerated(context),
 			},
 			{
+				Config: testAccTagsTagValueIamBinding_withCondition(context),
+			},
+			{
 				// Test Iam Binding update
 				Config: testAccTagsTagValueIamBinding_updateGenerated(context),
 			},
@@ -884,7 +968,7 @@ func testAccTagsTagValueIamMember(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"role":          "roles/resourcemanager.tagAdmin",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"key_short_name":   "tf-test-key-" + acctest.RandString(t, 10),
@@ -899,6 +983,9 @@ func testAccTagsTagValueIamMember(t *testing.T) {
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccTagsTagValueIamMember_basicGenerated(context),
 			},
+			{
+				Config: testAccTagsTagValueIamMember_withCondition(context),
+			},
 		},
 	})
 }
@@ -908,7 +995,7 @@ func testAccTagsTagValueIamPolicy(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"role":          "roles/resourcemanager.tagAdmin",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"key_short_name":   "tf-test-key-" + acctest.RandString(t, 10),
@@ -924,6 +1011,9 @@ func testAccTagsTagValueIamPolicy(t *testing.T) {
 			},
 			{
 				Config: testAccTagsTagValueIamPolicy_emptyBinding(context),
+			},
+			{
+				Config: testAccTagsTagValueIamPolicy_withCondition(context),
 			},
 		},
 	})
@@ -951,6 +1041,33 @@ resource "google_tags_tag_value_iam_member" "foo" {
 `, context)
 }
 
+func testAccTagsTagValueIamMember_withCondition(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+	parent = "organizations/%{org_id}"
+	short_name = "%{key_short_name}"
+	description = "For %{key_short_name} resources."
+}
+
+resource "google_tags_tag_value" "value" {
+	parent      = google_tags_tag_key.key.id
+	short_name  = "%{value_short_name}"
+	description = "For %{value_short_name} resources."
+}
+
+resource "google_tags_tag_value_iam_member" "foo" {
+  tag_value = google_tags_tag_value.value.name
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
+  condition {
+    description = "Allow tagUser grant."
+    expression  = "api.getAttribute('iam.googleapis.com/modifiedGrantsByRole', []).hasOnly([\"roles/resourcemanager.tagUser\"])"
+    title       = "only_taguser_delegation"
+  }
+}
+`, context)
+}
+
 func testAccTagsTagValueIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_tags_tag_key" "key" {
@@ -969,6 +1086,39 @@ data "google_iam_policy" "foo" {
   binding {
     role = "%{role}"
     members = ["user:admin@hashicorptest.com"]
+  }
+}
+
+resource "google_tags_tag_value_iam_policy" "foo" {
+  tag_value = google_tags_tag_value.value.name
+  policy_data = data.google_iam_policy.foo.policy_data
+}
+`, context)
+}
+
+func testAccTagsTagValueIamPolicy_withCondition(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+	parent = "organizations/%{org_id}"
+	short_name = "%{key_short_name}"
+	description = "For %{key_short_name} resources."
+}
+
+resource "google_tags_tag_value" "value" {
+	parent      = google_tags_tag_key.key.id
+	short_name  = "%{value_short_name}"
+	description = "For %{value_short_name} resources."
+}
+
+data "google_iam_policy" "foo" {
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+	condition {
+        description = "Allow tagUser grant."
+        expression  = "api.getAttribute('iam.googleapis.com/modifiedGrantsByRole', []).hasOnly([\"roles/resourcemanager.tagUser\"])"
+        title       = "only_taguser_delegation"
+    }
   }
 }
 
@@ -1021,6 +1171,33 @@ resource "google_tags_tag_value_iam_binding" "foo" {
   tag_value = google_tags_tag_value.value.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com"]
+}
+`, context)
+}
+
+func testAccTagsTagValueIamBinding_withCondition(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+	parent = "organizations/%{org_id}"
+	short_name = "%{key_short_name}"
+	description = "For %{key_short_name} resources."
+}
+
+resource "google_tags_tag_value" "value" {
+	parent      = google_tags_tag_key.key.id
+	short_name  = "%{value_short_name}"
+	description = "For %{value_short_name} resources."
+}
+
+resource "google_tags_tag_value_iam_binding" "foo" {
+  tag_value = google_tags_tag_value.value.name
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
+  condition {
+      description = "Allow tagUser grant."
+      expression  = "api.getAttribute('iam.googleapis.com/modifiedGrantsByRole', []).hasOnly([\"roles/resourcemanager.tagUser\"])"
+      title       = "only_taguser_delegation"
+  }
 }
 `, context)
 }

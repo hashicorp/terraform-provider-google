@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -14,8 +14,6 @@
 //	overwritten during the next generation cycle.
 //
 // ----------------------------------------------------------------------------
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
 package storage
 
 import (

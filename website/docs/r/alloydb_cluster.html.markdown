@@ -479,6 +479,11 @@ The following arguments are supported:
   The subscrition type of cluster.
   Possible values are: `TRIAL`, `STANDARD`.
 
+* `dataplex_config` -
+  (Optional)
+  Configuration for Dataplex integration. This is an optional field. If not set, Dataplex integration will be enabled by default.
+  Structure is [documented below](#nested_dataplex_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -740,6 +745,12 @@ Default value: "true"
 * `nanos` -
   (Optional)
   Fractions of seconds in nanoseconds. Currently, only the value 0 is supported.
+
+<a name="nested_dataplex_config"></a>The `dataplex_config` block supports:
+
+* `enabled` -
+  (Required)
+  Indicates whether Dataplex integration is enabled for the cluster.
 
 ## Attributes Reference
 

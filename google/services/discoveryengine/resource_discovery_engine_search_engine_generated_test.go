@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -143,6 +143,13 @@ resource "google_discovery_engine_search_engine" "agentspace_basic" {
   industry_vertical           = "GENERIC"
   app_type                    = "APP_TYPE_INTRANET"
   search_engine_config {
+    search_tier               = "SEARCH_TIER_STANDARD"
+    required_subscription_tier = "SUBSCRIPTION_TIER_ENTERPRISE"
+    search_add_ons            = ["SEARCH_ADD_ON_LLM"]
+  }
+  features = {
+    "agent-sharing-without-admin-approval" = "FEATURE_STATE_ON"
+    "disable-agent-sharing"                = "FEATURE_STATE_OFF"
   }
   knowledge_graph_config {
   }

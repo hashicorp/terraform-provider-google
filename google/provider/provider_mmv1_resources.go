@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -165,6 +165,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/storagetransfer"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/services/transcoder"
+	"github.com/hashicorp/terraform-provider-google/google/services/vectorsearch"
 	"github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 	"github.com/hashicorp/terraform-provider-google/google/services/vmwareengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
@@ -378,6 +379,8 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_oracle_database_cloud_exadata_infrastructure":        oracledatabase.DataSourceOracleDatabaseCloudExadataInfrastructure(),
 	"google_oracle_database_cloud_vm_clusters":                   oracledatabase.DataSourceOracleDatabaseCloudVmClusters(),
 	"google_oracle_database_cloud_vm_cluster":                    oracledatabase.DataSourceOracleDatabaseCloudVmCluster(),
+	"google_oracle_database_odb_network":                         oracledatabase.DataSourceOracleDatabaseOdbNetwork(),
+	"google_oracle_database_odb_subnet":                          oracledatabase.DataSourceOracleDatabaseOdbSubnet(),
 	"google_organization":                                        resourcemanager.DataSourceGoogleOrganization(),
 	"google_organizations":                                       resourcemanager.DataSourceGoogleOrganizations(),
 	"google_organization_iam_custom_role":                        resourcemanager.DataSourceGoogleOrganizationIamCustomRole(),
@@ -479,6 +482,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_beyondcorp_security_gateway_application_iam_policy": registry.DataSource("google_beyondcorp_security_gateway_application_iam_policy"),
 	"google_biglake_iceberg_catalog_iam_policy":                 registry.DataSource("google_biglake_iceberg_catalog_iam_policy"),
 	"google_biglake_iceberg_namespace_iam_policy":               registry.DataSource("google_biglake_iceberg_namespace_iam_policy"),
+	"google_biglake_iceberg_table_iam_policy":                   registry.DataSource("google_biglake_iceberg_table_iam_policy"),
 	"google_bigquery_table_iam_policy":                          registry.DataSource("google_bigquery_table_iam_policy"),
 	"google_bigquery_analytics_hub_data_exchange_iam_policy":    registry.DataSource("google_bigquery_analytics_hub_data_exchange_iam_policy"),
 	"google_bigquery_analytics_hub_listing_iam_policy":          registry.DataSource("google_bigquery_analytics_hub_listing_iam_policy"),
@@ -602,9 +606,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 717
-// Generated IAM resources: 333
-// Total generated resources: 1050
+// Generated resources: 719
+// Generated IAM resources: 336
+// Total generated resources: 1055
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -715,6 +719,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_biglake_iceberg_namespace_iam_binding":                               registry.Resource("google_biglake_iceberg_namespace_iam_binding"),
 	"google_biglake_iceberg_namespace_iam_member":                                registry.Resource("google_biglake_iceberg_namespace_iam_member"),
 	"google_biglake_iceberg_namespace_iam_policy":                                registry.Resource("google_biglake_iceberg_namespace_iam_policy"),
+	"google_biglake_iceberg_table":                                               registry.Resource("google_biglake_iceberg_table"),
+	"google_biglake_iceberg_table_iam_binding":                                   registry.Resource("google_biglake_iceberg_table_iam_binding"),
+	"google_biglake_iceberg_table_iam_member":                                    registry.Resource("google_biglake_iceberg_table_iam_member"),
+	"google_biglake_iceberg_table_iam_policy":                                    registry.Resource("google_biglake_iceberg_table_iam_policy"),
 	"google_bigquery_dataset":                                                    registry.Resource("google_bigquery_dataset"),
 	"google_bigquery_dataset_access":                                             registry.Resource("google_bigquery_dataset_access"),
 	"google_bigquery_job":                                                        registry.Resource("google_bigquery_job"),
@@ -1590,6 +1598,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_tags_tag_value_iam_policy":                                           registry.Resource("google_tags_tag_value_iam_policy"),
 	"google_transcoder_job":                                                      registry.Resource("google_transcoder_job"),
 	"google_transcoder_job_template":                                             registry.Resource("google_transcoder_job_template"),
+	"google_vector_search_collection":                                            registry.Resource("google_vector_search_collection"),
 	"google_vertex_ai_cache_config":                                              registry.Resource("google_vertex_ai_cache_config"),
 	"google_vertex_ai_dataset":                                                   registry.Resource("google_vertex_ai_dataset"),
 	"google_vertex_ai_deployment_resource_pool":                                  registry.Resource("google_vertex_ai_deployment_resource_pool"),
@@ -1936,6 +1945,7 @@ func UseGeneratedProducts() {
 	var _ = storagetransfer.ProductName
 	var _ = tags.ProductName
 	var _ = transcoder.ProductName
+	var _ = vectorsearch.ProductName
 	var _ = vertexai.ProductName
 	var _ = vmwareengine.ProductName
 	var _ = vpcaccess.ProductName

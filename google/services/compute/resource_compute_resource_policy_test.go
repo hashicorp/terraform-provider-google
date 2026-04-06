@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -199,6 +199,44 @@ resource "google_compute_resource_policy" "foo" {
 	  }
 	}
 	%{snapshot_properties}
+  }
+}
+`, context)
+}
+
+func TestAccComputeResourcePolicy_withTopologyMode(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeResourcePolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeResourcePolicy_withTopologyMode(context),
+			},
+			{
+				ResourceName:      "google_compute_resource_policy.bar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeResourcePolicy_withTopologyMode(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_resource_policy" "bar" {
+  name   = "tf-test-policy-%{random_suffix}"
+  region = "europe-west1"
+  workload_policy {
+    type = "HIGH_THROUGHPUT"
+    accelerator_topology = "2x2"
+    accelerator_topology_mode = "AUTO_CONNECT"
   }
 }
 `, context)

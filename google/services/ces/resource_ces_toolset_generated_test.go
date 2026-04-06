@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -124,7 +124,8 @@ resource "google_ces_toolset" "ces_toolset_openapi_service_account_auth_config" 
     }
     api_authentication {
         service_account_auth_config {
-            service_account = "testaccount@gmail.com"
+            service_account = "%{service_account}"
+            scopes = ["scope1"]
         }
     }
   }
@@ -528,6 +529,7 @@ resource "google_ces_toolset" "ces_toolset_mcp_service_account_auth_config" {
     api_authentication {
         service_account_auth_config {
             service_account = "%{service_account}"
+            scopes = ["scope1"]
         }
     }
   }

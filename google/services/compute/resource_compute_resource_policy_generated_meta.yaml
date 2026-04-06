@@ -31,6 +31,7 @@ fields:
     - api_field: snapshotSchedulePolicy.snapshotProperties.labels
     - api_field: snapshotSchedulePolicy.snapshotProperties.storageLocations
     - api_field: workloadPolicy.acceleratorTopology
+    - api_field: workloadPolicy.acceleratorTopologyMode
     - api_field: workloadPolicy.maxTopologyDistance
     - api_field: workloadPolicy.type
     - api_field: selfLink

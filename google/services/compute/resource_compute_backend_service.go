@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -4772,7 +4772,7 @@ func expandComputeBackendServiceIap(v interface{}, d tpgresource.TerraformResour
 	transformedOauth2ClientId, err := expandComputeBackendServiceIapOauth2ClientId(original["oauth2_client_id"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedOauth2ClientId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["oauth2ClientId"] = transformedOauth2ClientId
 	}
 

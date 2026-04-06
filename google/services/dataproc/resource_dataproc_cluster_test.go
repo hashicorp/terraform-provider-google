@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -1508,6 +1508,80 @@ resource "google_dataproc_cluster" "tier_cluster" {
   }
 }
 `, bucketName, clusterName, tierConfig, subnetworkName)
+}
+
+func TestAccDataprocCluster_withClusterType(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				// Set type to SINGLE_NODE
+				Config: testAccDataprocCluster_withClusterType(rnd, subnetworkName, "SINGLE_NODE"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.type_cluster", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.type_cluster", "cluster_config.0.cluster_type", "SINGLE_NODE"),
+				),
+			},
+			{
+				// Set type to ZERO_SCALE
+				Config: testAccDataprocCluster_withClusterType(rnd, subnetworkName, "ZERO_SCALE"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.type_cluster", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.type_cluster", "cluster_config.0.cluster_type", "ZERO_SCALE"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataprocCluster_withClusterType(rnd, subnetworkName, clusterType string) string {
+	typeConfig := ""
+	if clusterType != "" {
+		typeConfig = fmt.Sprintf(`cluster_type = "%s"`, clusterType)
+	}
+	clusterName := fmt.Sprintf("tf-test-dproc-type-%s", rnd)
+	bucketName := clusterName + "-temp-bucket"
+
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = "true"
+	uniform_bucket_level_access = "true"
+}
+
+
+
+resource "google_dataproc_cluster" "type_cluster" {
+  name   = "%s"
+  region = "us-central1"
+
+  cluster_config {
+	%s
+
+    software_config {
+      image_version = "2.3.4-debian12"
+			override_properties = {
+				"core:fs.defaultFS" = "gs://%s"
+			}
+    }
+
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+  }
+}
+`, bucketName, clusterName, typeConfig, bucketName, subnetworkName)
 }
 
 func testAccCheckDataprocClusterDestroy(t *testing.T) resource.TestCheckFunc {

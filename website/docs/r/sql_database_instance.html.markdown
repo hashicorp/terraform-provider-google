@@ -553,7 +553,7 @@ This setting can be updated, but it cannot be removed after it is set.
 
 * `ssl_mode` - (Optional) Specify how SSL connection should be enforced in DB connections. Supported values are `ALLOW_UNENCRYPTED_AND_ENCRYPTED`, `ENCRYPTED_ONLY`, and `TRUSTED_CLIENT_CERTIFICATE_REQUIRED` (not supported for SQL Server). See [API reference doc](https://cloud.google.com/sql/docs/postgres/admin-api/rest/v1/instances#ipconfiguration) for details.
 
-* `server_ca_mode` - (Optional) Specify how the server certificate's Certificate Authority is hosted. Supported values are `GOOGLE_MANAGED_INTERNAL_CA` and `GOOGLE_MANAGED_CAS_CA`.
+* `server_ca_mode` - (Optional) Specify how the server certificate's Certificate Authority is hosted. Supported values are `GOOGLE_MANAGED_INTERNAL_CA`, `GOOGLE_MANAGED_CAS_CA`, and `CUSTOMER_MANAGED_CAS_CA`.
 
 * `server_ca_pool` - (Optional) The resource name of the server CA pool for an instance with `CUSTOMER_MANAGED_CAS_CA` as the `server_ca_mode`.
 
@@ -729,6 +729,7 @@ The optional `point_in_time_restore_context` block supports:
 The optional `clone` block supports:
 
 * `source_instance_name` - (Required) Name of the source instance which will be cloned.
+* `source_project` - (Optional) Id of source project where source instances exits, required for cross project clone scenario.
 
 * `point_in_time` -  (Optional) The timestamp of the point in time that should be restored.
 

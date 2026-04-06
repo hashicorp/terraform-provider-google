@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -84,6 +84,15 @@ resource "google_bigquery_dataset" "example" {
 
 resource "google_bigquery_table" "example" {
   deletion_protection = false
+
+  schema = <<EOF
+[
+  {
+    "name": "nullable_field",
+    "type": "STRING"
+  }
+]
+EOF
 
   dataset_id = google_bigquery_dataset.example.dataset_id
   table_id   = "tf_test_table_id%{random_suffix}"
