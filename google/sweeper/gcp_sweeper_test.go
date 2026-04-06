@@ -173,6 +173,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/workbench"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/workflows"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/workloadidentity"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/workstations"
 	"testing"
 

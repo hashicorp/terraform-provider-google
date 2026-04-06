@@ -173,6 +173,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
 	"github.com/hashicorp/terraform-provider-google/google/services/workbench"
 	"github.com/hashicorp/terraform-provider-google/google/services/workflows"
+	"github.com/hashicorp/terraform-provider-google/google/services/workloadidentity"
 	"github.com/hashicorp/terraform-provider-google/google/services/workstations"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
@@ -616,9 +617,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 732
+// Generated resources: 733
 // Generated IAM resources: 339
-// Total generated resources: 1071
+// Total generated resources: 1072
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -1655,6 +1656,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_workbench_instance_iam_member":                                       registry.Resource("google_workbench_instance_iam_member"),
 	"google_workbench_instance_iam_policy":                                       registry.Resource("google_workbench_instance_iam_policy"),
 	"google_workflows_workflow":                                                  registry.Resource("google_workflows_workflow"),
+	"google_workload_identity_service_agent":                                     registry.Resource("google_workload_identity_service_agent"),
 	"google_workstations_workstation":                                            registry.Resource("google_workstations_workstation"),
 	"google_workstations_workstation_iam_binding":                                registry.Resource("google_workstations_workstation_iam_binding"),
 	"google_workstations_workstation_iam_member":                                 registry.Resource("google_workstations_workstation_iam_member"),
@@ -1986,5 +1988,6 @@ func UseGeneratedProducts() {
 	var _ = vpcaccess.ProductName
 	var _ = workbench.ProductName
 	var _ = workflows.ProductName
+	var _ = workloadidentity.ProductName
 	var _ = workstations.ProductName
 }

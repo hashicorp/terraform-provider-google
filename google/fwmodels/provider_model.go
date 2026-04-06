@@ -209,6 +209,7 @@ type ProviderModel struct {
 	VPCAccessCustomEndpoint                types.String `tfsdk:"vpc_access_custom_endpoint"`
 	WorkbenchCustomEndpoint                types.String `tfsdk:"workbench_custom_endpoint"`
 	WorkflowsCustomEndpoint                types.String `tfsdk:"workflows_custom_endpoint"`
+	WorkloadIdentityCustomEndpoint         types.String `tfsdk:"workload_identity_custom_endpoint"`
 	WorkstationsCustomEndpoint             types.String `tfsdk:"workstations_custom_endpoint"`
 
 	// Handwritten Products / Versioned / Atypical Entries

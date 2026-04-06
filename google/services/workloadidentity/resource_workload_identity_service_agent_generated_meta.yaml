@@ -1,0 +1,16 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_workload_identity_service_agent
+generation_type: mmv1
+source_file: products/workloadidentity/ServiceAgent.yaml
+api_service_name: workloadidentity.googleapis.com
+api_version: v1
+api_resource_type_kind: ServiceAgent
+fields:
+    - api_field: parent
+    - api_field: serviceAgents.container
+    - api_field: serviceAgents.name
+    - api_field: serviceAgents.principal
+    - api_field: serviceAgents.role
+    - api_field: serviceAgents.serviceProducer
+    - api_field: serviceAgents.state
