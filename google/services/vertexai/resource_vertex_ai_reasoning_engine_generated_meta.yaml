@@ -32,6 +32,8 @@ fields:
     - api_field: spec.deploymentSpec.secretEnv.name
     - api_field: spec.deploymentSpec.secretEnv.secretRef.secret
     - api_field: spec.deploymentSpec.secretEnv.secretRef.version
+    - api_field: spec.effectiveIdentity
+    - api_field: spec.identityType
     - api_field: spec.packageSpec.dependencyFilesGcsUri
     - api_field: spec.packageSpec.pickleObjectGcsUri
     - api_field: spec.packageSpec.pythonVersion

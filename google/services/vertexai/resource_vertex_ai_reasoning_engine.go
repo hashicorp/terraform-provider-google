@@ -319,6 +319,17 @@ Platform Reasoning Engine service Agent.`,
 								},
 							},
 						},
+						"identity_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"SERVICE_ACCOUNT", "AGENT_IDENTITY", ""}),
+							Description: `Optional. The identity type to use for the Reasoning Engine.
+If not specified, the 'service_account' field will be used if set,
+otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used.
+Possible values:
+* 'SERVICE_ACCOUNT': Use a custom service account if the 'service_account' field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project.
+* 'AGENT_IDENTITY': Use Agent Identity. The 'service_account' field must not be set. Possible values: ["SERVICE_ACCOUNT", "AGENT_IDENTITY"]`,
+						},
 						"package_spec": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -463,6 +474,11 @@ default value is 3.10.`,
 									},
 								},
 							},
+						},
+						"effective_identity": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The identity to use for the Reasoning Engine.`,
 						},
 					},
 				},
@@ -1048,6 +1064,10 @@ func flattenVertexAIReasoningEngineSpec(v interface{}, d *schema.ResourceData, c
 		flattenVertexAIReasoningEngineSpecSourceCodeSpec(original["sourceCodeSpec"], d, config)
 	transformed["service_account"] =
 		flattenVertexAIReasoningEngineSpecServiceAccount(original["serviceAccount"], d, config)
+	transformed["identity_type"] =
+		flattenVertexAIReasoningEngineSpecIdentityType(original["identityType"], d, config)
+	transformed["effective_identity"] =
+		flattenVertexAIReasoningEngineSpecEffectiveIdentity(original["effectiveIdentity"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIReasoningEngineSpecAgentFramework(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1410,6 +1430,14 @@ func flattenVertexAIReasoningEngineSpecServiceAccount(v interface{}, d *schema.R
 	return v
 }
 
+func flattenVertexAIReasoningEngineSpecIdentityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecEffectiveIdentity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandVertexAIReasoningEngineDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1496,6 +1524,20 @@ func expandVertexAIReasoningEngineSpec(v interface{}, d tpgresource.TerraformRes
 		return nil, err
 	} else if val := reflect.ValueOf(transformedServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["serviceAccount"] = transformedServiceAccount
+	}
+
+	transformedIdentityType, err := expandVertexAIReasoningEngineSpecIdentityType(original["identity_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdentityType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["identityType"] = transformedIdentityType
+	}
+
+	transformedEffectiveIdentity, err := expandVertexAIReasoningEngineSpecEffectiveIdentity(original["effective_identity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEffectiveIdentity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["effectiveIdentity"] = transformedEffectiveIdentity
 	}
 
 	return transformed, nil
@@ -2054,5 +2096,13 @@ func expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfig
 }
 
 func expandVertexAIReasoningEngineSpecServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecIdentityType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecEffectiveIdentity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
