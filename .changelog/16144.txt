@@ -1,0 +1,3 @@
+```release-note:note
+provider: added provider-wide `Identity()` schema support, allowing imports with MMv1 resources to occur using the identity block instead of id field
+```

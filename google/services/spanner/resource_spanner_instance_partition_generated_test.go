@@ -75,6 +75,12 @@ func TestAccSpannerInstancePartition_spannerInstancePartitionBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"config", "instance"},
 			},
+			{
+				ResourceName:       "google_spanner_instance_partition.partition",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -123,6 +129,12 @@ func TestAccSpannerInstancePartition_spannerInstancePartitionAutoscalingExample(
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"config", "instance"},
+			},
+			{
+				ResourceName:       "google_spanner_instance_partition.partition",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

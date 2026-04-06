@@ -76,6 +76,12 @@ func TestAccNetworkSecurityMirroringEndpointGroup_networkSecurityMirroringEndpoi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "mirroring_endpoint_group_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_security_mirroring_endpoint_group.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -130,6 +136,12 @@ func TestAccNetworkSecurityMirroringEndpointGroup_networkSecurityMirroringEndpoi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "mirroring_endpoint_group_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_mirroring_endpoint_group.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

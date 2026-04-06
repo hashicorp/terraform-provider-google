@@ -219,6 +219,18 @@ SavedQuery can be imported using any of these accepted formats:
 
 * `{{parent}}/locations/{{location}}/savedQueries/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import SavedQuery using identity values. For example:
+
+```tf
+import {
+  identity = {
+    parent = "<-required value->"
+    location = "<-required value->"
+    name = "<-required value->"
+  }
+  to = google_logging_saved_query.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import SavedQuery using one of the formats above. For example:
 

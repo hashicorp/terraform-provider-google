@@ -111,6 +111,18 @@ func ResourceKMSKeyRingImportJob() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"import_job_id": {
 				Type:        schema.TypeString,
@@ -261,6 +273,17 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating KeyRingImportJob %q: %#v", d.Id(), res)
 
 	return resourceKMSKeyRingImportJobRead(d, meta)
@@ -320,6 +343,18 @@ func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) e
 	}
 	if err := d.Set("attestation", flattenKMSKeyRingImportJobAttestation(res["attestation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading KeyRingImportJob: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

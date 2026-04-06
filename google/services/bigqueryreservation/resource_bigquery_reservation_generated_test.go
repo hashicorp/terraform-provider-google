@@ -74,6 +74,12 @@ func TestAccBigqueryReservationReservation_bigqueryReservationBasicExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "name", "reservation_group"},
 			},
+			{
+				ResourceName:       "google_bigquery_reservation.reservation",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -119,6 +125,12 @@ func TestAccBigqueryReservationReservation_bigqueryReservationWithDisasterRecove
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "name", "reservation_group"},
+			},
+			{
+				ResourceName:       "google_bigquery_reservation.reservation",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

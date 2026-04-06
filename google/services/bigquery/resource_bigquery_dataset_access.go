@@ -234,6 +234,22 @@ func ResourceBigQueryDatasetAccess() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"dataset_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"dataset_id": {
 				Type:     schema.TypeString,
@@ -604,6 +620,22 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if datasetIdValue, ok := d.GetOk("dataset_id"); ok && datasetIdValue.(string) != "" {
+			if err = identity.Set("dataset_id", datasetIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting dataset_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	// by default, we are not updating the member
 	if err := d.Set("api_updated_member", false); err != nil {
 		return fmt.Errorf("Error setting api_updated_member: %s", err)
@@ -723,6 +755,24 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 	}
 	if err := d.Set("condition", flattenNestedBigQueryDatasetAccessCondition(res["condition"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DatasetAccess: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("dataset_id"); !ok && v == "" {
+			err = identity.Set("dataset_id", d.Get("dataset_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting dataset_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

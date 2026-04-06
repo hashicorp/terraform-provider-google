@@ -74,6 +74,12 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "tags", "terraform_labels", "workstation_cluster_id"},
 			},
+			{
+				ResourceName:       "google_workstations_workstation_cluster.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -135,6 +141,12 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterPrivateExample(t *t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "tags", "terraform_labels", "workstation_cluster_id"},
+			},
+			{
+				ResourceName:       "google_workstations_workstation_cluster.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -201,6 +213,12 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterCustomDomainExample
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "tags", "terraform_labels", "workstation_cluster_id"},
+			},
+			{
+				ResourceName:       "google_workstations_workstation_cluster.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -273,6 +291,12 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterTagsExample(t *test
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "tags", "terraform_labels", "workstation_cluster_id"},
+			},
+			{
+				ResourceName:       "google_workstations_workstation_cluster.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -74,6 +74,12 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowB
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "json_params", "location", "params", "sync_mode"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_data_connector.servicenow-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -156,6 +162,12 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithAct
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "json_params", "location", "params", "sync_mode"},
+			},
+			{
+				ResourceName:       "google_discovery_engine_data_connector.jira-with-actions",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

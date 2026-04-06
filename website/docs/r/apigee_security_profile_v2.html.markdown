@@ -161,6 +161,17 @@ SecurityProfileV2 can be imported using any of these accepted formats:
 * `{{org_id}}/securityProfilesV2/{{profile_id}}`
 * `{{org_id}}/{{profile_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import SecurityProfileV2 using identity values. For example:
+
+```tf
+import {
+  identity = {
+    orgId = "<-required value->"
+    profileId = "<-required value->"
+  }
+  to = google_apigee_security_profile_v2.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import SecurityProfileV2 using one of the formats above. For example:
 

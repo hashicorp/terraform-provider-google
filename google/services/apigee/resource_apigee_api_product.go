@@ -113,6 +113,22 @@ func ResourceApigeeApiProduct() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:        schema.TypeString,
@@ -717,6 +733,22 @@ func resourceApigeeApiProductCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating ApiProduct %q: %#v", d.Id(), res)
 
 	return resourceApigeeApiProductRead(d, meta)
@@ -814,6 +846,24 @@ func resourceApigeeApiProductRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading ApiProduct: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("org_id"); !ok && v == "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -822,6 +872,21 @@ func resourceApigeeApiProductUpdate(d *schema.ResourceData, meta interface{}) er
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

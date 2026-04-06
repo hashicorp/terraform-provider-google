@@ -75,6 +75,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -130,6 +136,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
+			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -192,6 +204,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullFilterExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -244,6 +262,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(t *testing.T)
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
+			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -307,6 +331,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
+			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -390,6 +420,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqTableSchemaExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -463,6 +499,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqServiceAccountExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
+			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -558,6 +600,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -631,6 +679,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageTextExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
+			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -707,6 +761,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageAvroExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
+			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -788,6 +848,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageServiceAccountE
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -868,6 +934,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionSingleSmtExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -921,6 +993,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionMultipleSmtsExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
+			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -999,6 +1077,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionTagsExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -1061,6 +1145,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionAiInferenceExample(t *testing.T
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
+			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

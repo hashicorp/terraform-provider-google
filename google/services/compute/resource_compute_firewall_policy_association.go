@@ -117,6 +117,22 @@ func ResourceComputeFirewallPolicyAssociation() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"firewall_policy": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"attachment_target": {
 				Type:             schema.TypeString,
@@ -215,6 +231,22 @@ func resourceComputeFirewallPolicyAssociationCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if firewallPolicyValue, ok := d.GetOk("firewall_policy"); ok && firewallPolicyValue.(string) != "" {
+			if err = identity.Set("firewall_policy", firewallPolicyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting firewall_policy: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	parent := d.Get("firewall_policy").(string)
 	var opRes map[string]interface{}
 	err = ComputeOrgOperationWaitTimeWithResponse(
@@ -279,6 +311,24 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 	}
 	if err := d.Set("short_name", flattenComputeFirewallPolicyAssociationShortName(res["shortName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallPolicyAssociation: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("firewall_policy"); !ok && v == "" {
+			err = identity.Set("firewall_policy", d.Get("firewall_policy").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting firewall_policy: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

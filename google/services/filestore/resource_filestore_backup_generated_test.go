@@ -75,6 +75,12 @@ func TestAccFilestoreBackup_filestoreBackupBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "tags", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_filestore_backup.backup",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

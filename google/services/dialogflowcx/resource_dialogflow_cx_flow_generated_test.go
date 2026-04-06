@@ -74,6 +74,12 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "advanced_settings.0.logging_settings", "knowledge_connector_settings.0.trigger_fulfillment.0.advanced_settings.0.logging_settings", "parent"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_flow.basic_flow",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -170,6 +176,12 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "knowledge_connector_settings.0.trigger_fulfillment.0.advanced_settings.0.logging_settings", "parent"},
+			},
+			{
+				ResourceName:       "google_dialogflow_cx_flow.basic_flow",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -633,6 +645,12 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowDefaultStartFlowExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "knowledge_connector_settings.0.trigger_fulfillment.0.advanced_settings.0.logging_settings", "parent"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_flow.default_start_flow",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -741,6 +759,12 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowCustomEndpointExample(t *testing.T)
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "knowledge_connector_settings.0.trigger_fulfillment.0.advanced_settings.0.logging_settings", "parent"},
+			},
+			{
+				ResourceName:       "google_dialogflow_cx_flow.custom_endpoint_flow",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

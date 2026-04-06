@@ -113,6 +113,26 @@ func ResourceApigeeDeveloperApp() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"developer_email": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"callback_url": {
 				Type:     schema.TypeString,
@@ -404,6 +424,27 @@ func resourceApigeeDeveloperAppCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if developerEmailValue, ok := d.GetOk("developer_email"); ok && developerEmailValue.(string) != "" {
+			if err = identity.Set("developer_email", developerEmailValue.(string)); err != nil {
+				return fmt.Errorf("Error setting developer_email: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating DeveloperApp %q: %#v", d.Id(), res)
 
 	return resourceApigeeDeveloperAppRead(d, meta)
@@ -495,6 +536,30 @@ func resourceApigeeDeveloperAppRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading DeveloperApp: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("org_id"); !ok && v == "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("developer_email"); !ok && v == "" {
+			err = identity.Set("developer_email", d.Get("developer_email").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting developer_email: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -503,6 +568,26 @@ func resourceApigeeDeveloperAppUpdate(d *schema.ResourceData, meta interface{}) 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if developerEmailValue, ok := d.GetOk("developer_email"); ok && developerEmailValue.(string) != "" {
+			if err = identity.Set("developer_email", developerEmailValue.(string)); err != nil {
+				return fmt.Errorf("Error setting developer_email: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

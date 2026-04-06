@@ -76,6 +76,12 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasic
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_services_edge_cache_service.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -161,6 +167,12 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvan
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_services_edge_cache_service.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -381,6 +393,12 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceDualT
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_services_edge_cache_service.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

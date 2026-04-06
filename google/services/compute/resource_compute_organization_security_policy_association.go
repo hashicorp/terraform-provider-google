@@ -111,6 +111,22 @@ func ResourceComputeOrganizationSecurityPolicyAssociation() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"policy_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"attachment_id": {
 				Type:        schema.TypeString,
@@ -226,6 +242,22 @@ func resourceComputeOrganizationSecurityPolicyAssociationCreate(d *schema.Resour
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if policyIdValue, ok := d.GetOk("policy_id"); ok && policyIdValue.(string) != "" {
+			if err = identity.Set("policy_id", policyIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting policy_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	// `parent` is needed to poll the asynchronous operations but its available only on the policy.
 
 	policyUrl := fmt.Sprintf("{{ComputeBasePath}}%s", d.Get("policy_id"))
@@ -309,6 +341,24 @@ func resourceComputeOrganizationSecurityPolicyAssociationRead(d *schema.Resource
 	}
 	if err := d.Set("excluded_folders", flattenComputeOrganizationSecurityPolicyAssociationExcludedFolders(res["excludedFolders"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("policy_id"); !ok && v == "" {
+			err = identity.Set("policy_id", d.Get("policy_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting policy_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

@@ -117,6 +117,22 @@ func ResourceFirebaseAppCheckRecaptchaV3Config() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"app_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"app_id": {
 				Type:     schema.TypeString,
@@ -224,6 +240,22 @@ func resourceFirebaseAppCheckRecaptchaV3ConfigCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if appIdValue, ok := d.GetOk("app_id"); ok && appIdValue.(string) != "" {
+			if err = identity.Set("app_id", appIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting app_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating RecaptchaV3Config %q: %#v", d.Id(), res)
 
 	return resourceFirebaseAppCheckRecaptchaV3ConfigRead(d, meta)
@@ -283,6 +315,24 @@ func resourceFirebaseAppCheckRecaptchaV3ConfigRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading RecaptchaV3Config: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("app_id"); !ok && v == "" {
+			err = identity.Set("app_id", d.Get("app_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting app_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -291,6 +341,21 @@ func resourceFirebaseAppCheckRecaptchaV3ConfigUpdate(d *schema.ResourceData, met
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if appIdValue, ok := d.GetOk("app_id"); ok && appIdValue.(string) != "" {
+			if err = identity.Set("app_id", appIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting app_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

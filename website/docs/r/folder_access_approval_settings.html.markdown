@@ -211,6 +211,16 @@ FolderSettings can be imported using any of these accepted formats:
 * `folders/{{folder_id}}/accessApprovalSettings`
 * `{{folder_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import FolderSettings using identity values. For example:
+
+```tf
+import {
+  identity = {
+    folder_id = "<-required value->"
+  }
+  to = google_folder_access_approval_settings.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import FolderSettings using one of the formats above. For example:
 

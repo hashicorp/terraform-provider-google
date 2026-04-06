@@ -155,6 +155,18 @@ VPCServiceControls can be imported using any of these accepted formats:
 * `{{service}}/{{project}}/{{network}}`
 * `{{service}}/{{network}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import VPCServiceControls using identity values. For example:
+
+```tf
+import {
+  identity = {
+    network = "<-required value->"
+    service = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_service_networking_vpc_service_controls.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import VPCServiceControls using one of the formats above. For example:
 

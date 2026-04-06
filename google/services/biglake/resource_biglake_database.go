@@ -113,6 +113,22 @@ func ResourceBiglakeDatabase() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"catalog": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"catalog": {
 				Type:        schema.TypeString,
@@ -247,6 +263,22 @@ func resourceBiglakeDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if catalogValue, ok := d.GetOk("catalog"); ok && catalogValue.(string) != "" {
+			if err = identity.Set("catalog", catalogValue.(string)); err != nil {
+				return fmt.Errorf("Error setting catalog: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
 
 	return resourceBiglakeDatabaseRead(d, meta)
@@ -305,6 +337,24 @@ func resourceBiglakeDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("catalog"); !ok && v == "" {
+			err = identity.Set("catalog", d.Get("catalog").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting catalog: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -313,6 +363,21 @@ func resourceBiglakeDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if catalogValue, ok := d.GetOk("catalog"); ok && catalogValue.(string) != "" {
+			if err = identity.Set("catalog", catalogValue.(string)); err != nil {
+				return fmt.Errorf("Error setting catalog: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

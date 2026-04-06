@@ -74,6 +74,12 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "logging_config"},
 			},
+			{
+				ResourceName:       "google_dialogflow_conversation_profile.basic_profile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -126,6 +132,12 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileRecogniti
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "logging_config"},
 			},
+			{
+				ResourceName:       "google_dialogflow_conversation_profile.recognition_result_notification_profile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -171,6 +183,12 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileBetaBidiE
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "logging_config"},
+			},
+			{
+				ResourceName:       "google_dialogflow_conversation_profile.bidi_profile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

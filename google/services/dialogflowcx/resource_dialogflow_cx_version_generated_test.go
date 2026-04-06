@@ -74,6 +74,12 @@ func TestAccDialogflowCXVersion_dialogflowcxVersionFullExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_version.version_1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -127,6 +133,12 @@ func TestAccDialogflowCXVersion_dialogflowcxVersionRegionalExample(t *testing.T)
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent"},
+			},
+			{
+				ResourceName:       "google_dialogflow_cx_version.version_1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

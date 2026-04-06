@@ -75,6 +75,12 @@ func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionFullExample(t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "private_connection_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_datastream_private_connection.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -132,6 +138,12 @@ func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionPscInterfaceE
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "private_connection_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_datastream_private_connection.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

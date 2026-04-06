@@ -74,6 +74,12 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_clouddeploy_custom_target_type.custom-target-type",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -123,6 +129,12 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGitSkaffoldMo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_clouddeploy_custom_target_type.custom-target-type",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -174,6 +186,12 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGcsSkaffoldMo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_clouddeploy_custom_target_type.custom-target-type",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -222,6 +240,12 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGcbRepoSkaffo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_clouddeploy_custom_target_type.custom-target-type",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

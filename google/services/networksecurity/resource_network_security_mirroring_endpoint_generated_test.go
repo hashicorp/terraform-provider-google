@@ -77,6 +77,12 @@ func TestAccNetworkSecurityMirroringEndpoint_networkSecurityMirroringEndpointBas
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "mirroring_endpoint_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_security_mirroring_endpoint.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

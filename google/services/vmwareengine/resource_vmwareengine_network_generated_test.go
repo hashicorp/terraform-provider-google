@@ -74,6 +74,12 @@ func TestAccVmwareengineNetwork_vmwareEngineNetworkStandardExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "name"},
 			},
+			{
+				ResourceName:       "google_vmwareengine_network.vmw-engine-network",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

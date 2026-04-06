@@ -75,6 +75,12 @@ func TestAccObservabilityTraceScope_observabilityTraceScopeBasicExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "trace_scope_id"},
 			},
+			{
+				ResourceName:       "google_observability_trace_scope.observability_trace_scope",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

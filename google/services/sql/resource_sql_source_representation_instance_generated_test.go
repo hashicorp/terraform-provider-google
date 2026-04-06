@@ -74,6 +74,12 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasic
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
 			},
+			{
+				ResourceName:       "google_sql_source_representation_instance.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -116,6 +122,12 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstancePostg
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
+			},
+			{
+				ResourceName:       "google_sql_source_representation_instance.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
