@@ -56,7 +56,7 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGit
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"account_connector_name": "tf-test-tf-test-ac" + randomSuffix,
+		"account_connector_name": "tf-test-my-ac" + randomSuffix,
 		"random_suffix":          randomSuffix,
 	}
 
@@ -98,7 +98,7 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGit
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"account_connector_name": "tf-test-tf-test-ac" + randomSuffix,
+		"account_connector_name": "tf-test-my-ac" + randomSuffix,
 		"random_suffix":          randomSuffix,
 	}
 
@@ -140,8 +140,10 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGhe
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"account_connector_name": "tf-test-tf-test-ac" + randomSuffix,
-		"random_suffix":          randomSuffix,
+		"account_connector_name":    "tf-test-my-ac" + randomSuffix,
+		"client_id_secret_name":     "tf-test-ghe-ac-id" + randomSuffix,
+		"client_secret_secret_name": "tf-test-ghe-ac-sec" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -164,14 +166,28 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGhe
 
 func testAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGheExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_secret_manager_secret_version_access" "ghe_ac_client_id" {
-  secret  = "ghe-ac-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "ghe_ac_client_id" {
+  secret_id = "%{client_id_secret_name}"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "ghe_ac_client_secret" {
-  secret  = "ghe-ac-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "ghe_ac_client_id_version" {
+  secret = google_secret_manager_secret.ghe_ac_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "ghe_ac_client_secret" {
+  secret_id = "%{client_secret_secret_name}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "ghe_ac_client_secret_version" {
+  secret = google_secret_manager_secret.ghe_ac_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
@@ -180,8 +196,8 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
   custom_oauth_config {
     auth_uri = "https://ghe.proctor-staging-test.com/login/oauth/authorize"
-    client_id = data.google_secret_manager_secret_version_access.ghe_ac_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.ghe_ac_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.ghe_ac_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.ghe_ac_client_secret_version.secret_data
     token_uri = "https://ghe.proctor-staging-test.com/login/oauth/access_token"
     host_uri = "https://ghe.proctor-staging-test.com"
     scm_provider = "GITHUB_ENTERPRISE"
@@ -205,8 +221,10 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGle
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"account_connector_name": "tf-test-tf-test-ac" + randomSuffix,
-		"random_suffix":          randomSuffix,
+		"account_connector_name":    "tf-test-my-ac" + randomSuffix,
+		"client_id_secret_name":     "tf-test-gle-ac-id" + randomSuffix,
+		"client_secret_secret_name": "tf-test-gle-ac-sec" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -229,14 +247,28 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGle
 
 func testAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGleExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_secret_manager_secret_version_access" "gle_ac_client_id" {
-  secret  = "gle-ac-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "gle_ac_client_id" {
+  secret_id = "%{client_id_secret_name}"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "gle_ac_client_secret" {
-  secret  = "gle-ac-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "gle_ac_client_id_version" {
+  secret = google_secret_manager_secret.gle_ac_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "gle_ac_client_secret" {
+  secret_id = "%{client_secret_secret_name}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gle_ac_client_secret_version" {
+  secret = google_secret_manager_secret.gle_ac_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
@@ -245,8 +277,8 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
   custom_oauth_config {
     auth_uri = "https://gle-us-central1.gcb-test.com/oauth/authorize"
-    client_id = data.google_secret_manager_secret_version_access.gle_ac_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.gle_ac_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.gle_ac_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.gle_ac_client_secret_version.secret_data
     token_uri = "https://gle-us-central1.gcb-test.com/oauth/token"
     host_uri = "https://gle-us-central1.gcb-test.com"
     scm_provider = "GITLAB_ENTERPRISE"
@@ -270,8 +302,10 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorBbd
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"account_connector_name": "tf-test-tf-test-ac" + randomSuffix,
-		"random_suffix":          randomSuffix,
+		"account_connector_name":    "tf-test-my-ac" + randomSuffix,
+		"client_id_secret_name":     "tf-test-bbdc-ac-id" + randomSuffix,
+		"client_secret_secret_name": "tf-test-bbdc-ac-sec" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -294,14 +328,28 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorBbd
 
 func testAccDeveloperConnectAccountConnector_developerConnectAccountConnectorBbdcExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_secret_manager_secret_version_access" "bbdc_ac_client_id" {
-  secret  = "bbdc-ac-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "bbdc_ac_priv_client_id" {
+  secret_id = "%{client_id_secret_name}"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "bbdc_ac_client_secret" {
-  secret  = "bbdc-ac-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "bbdc_ac_priv_client_id_version" {
+  secret = google_secret_manager_secret.bbdc_ac_priv_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "bbdc_ac_priv_client_secret" {
+  secret_id = "%{client_secret_secret_name}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "bbdc_ac_priv_client_secret_version" {
+  secret = google_secret_manager_secret.bbdc_ac_priv_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
@@ -310,8 +358,8 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
   custom_oauth_config {
     auth_uri = "https://bitbucket-us-central.gcb-test.com/rest/oauth2/latest/authorize"
-    client_id = data.google_secret_manager_secret_version_access.bbdc_ac_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.bbdc_ac_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.bbdc_ac_priv_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.bbdc_ac_priv_client_secret_version.secret_data
     token_uri = "https://bitbucket-us-central.gcb-test.com/rest/oauth2/latest/token"
     host_uri = "https://bitbucket-us-central.gcb-test.com"
     scm_provider = "BITBUCKET_DATA_CENTER"

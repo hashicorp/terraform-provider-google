@@ -36,7 +36,7 @@ Description
 ```hcl
 resource "google_developer_connect_account_connector" "my-account-connector" {
   location = "us-central1"
-  account_connector_id = "tf-test-ac"
+  account_connector_id = "my-ac"
 
   provider_oauth_config {
     system_provider_id = "GITHUB"
@@ -55,7 +55,7 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 ```hcl
 resource "google_developer_connect_account_connector" "my-account-connector" {
   location = "us-central1"
-  account_connector_id = "tf-test-ac"
+  account_connector_id = "my-ac"
 
   provider_oauth_config {
     system_provider_id = "GITLAB"
@@ -72,24 +72,38 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
 
 ```hcl
-data "google_secret_manager_secret_version_access" "ghe_ac_client_id" {
-  secret  = "ghe-ac-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "ghe_ac_client_id" {
+  secret_id = "ghe-ac-id"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "ghe_ac_client_secret" {
-  secret  = "ghe-ac-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "ghe_ac_client_id_version" {
+  secret = google_secret_manager_secret.ghe_ac_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "ghe_ac_client_secret" {
+  secret_id = "ghe-ac-sec"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "ghe_ac_client_secret_version" {
+  secret = google_secret_manager_secret.ghe_ac_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
   location = "us-central1"
-  account_connector_id = "tf-test-ac"
+  account_connector_id = "my-ac"
 
   custom_oauth_config {
     auth_uri = "https://ghe.proctor-staging-test.com/login/oauth/authorize"
-    client_id = data.google_secret_manager_secret_version_access.ghe_ac_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.ghe_ac_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.ghe_ac_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.ghe_ac_client_secret_version.secret_data
     token_uri = "https://ghe.proctor-staging-test.com/login/oauth/access_token"
     host_uri = "https://ghe.proctor-staging-test.com"
     scm_provider = "GITHUB_ENTERPRISE"
@@ -114,24 +128,38 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
 
 ```hcl
-data "google_secret_manager_secret_version_access" "gle_ac_client_id" {
-  secret  = "gle-ac-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "gle_ac_client_id" {
+  secret_id = "gle-ac-id"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "gle_ac_client_secret" {
-  secret  = "gle-ac-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "gle_ac_client_id_version" {
+  secret = google_secret_manager_secret.gle_ac_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "gle_ac_client_secret" {
+  secret_id = "gle-ac-sec"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gle_ac_client_secret_version" {
+  secret = google_secret_manager_secret.gle_ac_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
   location = "us-central1"
-  account_connector_id = "tf-test-ac"
+  account_connector_id = "my-ac"
 
   custom_oauth_config {
     auth_uri = "https://gle-us-central1.gcb-test.com/oauth/authorize"
-    client_id = data.google_secret_manager_secret_version_access.gle_ac_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.gle_ac_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.gle_ac_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.gle_ac_client_secret_version.secret_data
     token_uri = "https://gle-us-central1.gcb-test.com/oauth/token"
     host_uri = "https://gle-us-central1.gcb-test.com"
     scm_provider = "GITLAB_ENTERPRISE"
@@ -156,24 +184,38 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
 
 ```hcl
-data "google_secret_manager_secret_version_access" "bbdc_ac_client_id" {
-  secret  = "bbdc-ac-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "bbdc_ac_priv_client_id" {
+  secret_id = "bbdc-ac-id"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "bbdc_ac_client_secret" {
-  secret  = "bbdc-ac-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "bbdc_ac_priv_client_id_version" {
+  secret = google_secret_manager_secret.bbdc_ac_priv_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "bbdc_ac_priv_client_secret" {
+  secret_id = "bbdc-ac-sec"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "bbdc_ac_priv_client_secret_version" {
+  secret = google_secret_manager_secret.bbdc_ac_priv_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
   location = "us-central1"
-  account_connector_id = "tf-test-ac"
+  account_connector_id = "my-ac"
 
   custom_oauth_config {
     auth_uri = "https://bitbucket-us-central.gcb-test.com/rest/oauth2/latest/authorize"
-    client_id = data.google_secret_manager_secret_version_access.bbdc_ac_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.bbdc_ac_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.bbdc_ac_priv_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.bbdc_ac_priv_client_secret_version.secret_data
     token_uri = "https://bitbucket-us-central.gcb-test.com/rest/oauth2/latest/token"
     host_uri = "https://bitbucket-us-central.gcb-test.com"
     scm_provider = "BITBUCKET_DATA_CENTER"

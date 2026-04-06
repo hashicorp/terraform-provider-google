@@ -216,14 +216,28 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGHE
 
 func testAccDeveloperConnectAccountConnector_GHE(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_secret_manager_secret_version_access" "ghe_ac_client_id" {
-  secret  = "ghe-ac-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "ghe_ac_client_id" {
+  secret_id = "tf-test-ghe-ac-id-%{random_suffix}"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "ghe_ac_client_secret" {
-  secret  = "ghe-ac-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "ghe_ac_client_id_version" {
+  secret = google_secret_manager_secret.ghe_ac_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "ghe_ac_client_secret" {
+  secret_id = "tf-test-ghe-ac-sec-%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "ghe_ac_client_secret_version" {
+  secret = google_secret_manager_secret.ghe_ac_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
@@ -232,8 +246,8 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
   custom_oauth_config {
     auth_uri = "https://ghe.proctor-staging-test.com/login/oauth/authorize"
-    client_id = data.google_secret_manager_secret_version_access.ghe_ac_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.ghe_ac_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.ghe_ac_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.ghe_ac_client_secret_version.secret_data
     token_uri = "https://ghe.proctor-staging-test.com/login/oauth/access_token"
     host_uri = "https://ghe.proctor-staging-test.com"
     scm_provider = "GITHUB_ENTERPRISE"
@@ -251,24 +265,28 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
 func testAccDeveloperConnectAccountConnector_GHEUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_secret_manager_secret_version_access" "ghe_ac_client_id" {
-  secret  = "ghe-ac-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "ghe_ac_client_id_update" {
+  secret_id = "tf-test-ghe-ac-id-upd-%{random_suffix}"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "ghe_ac_client_secret" {
-  secret  = "ghe-ac-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "ghe_ac_client_id_upd_version" {
+  secret = google_secret_manager_secret.ghe_ac_client_id_update.name
+  secret_data = "dummy-client-id-update"
 }
 
-data "google_secret_manager_secret_version_access" "ghe_ac_client_id_update" {
-  secret  = "ghe-ac-client-id-update"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "ghe_ac_client_secret_update" {
+  secret_id = "tf-test-ghe-ac-sec-upd-%{random_suffix}"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "ghe_ac_client_secret_update" {
-  secret  = "ghe-ac-client-secret-update"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "ghe_ac_client_sec_upd_version" {
+  secret = google_secret_manager_secret.ghe_ac_client_secret_update.name
+  secret_data = "dummy-client-secret-update"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
@@ -285,8 +303,8 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
   
   custom_oauth_config {
       auth_uri = "https://ghe.proctor-staging-test.com/login/oauth/authorize"
-      client_id = data.google_secret_manager_secret_version_access.ghe_ac_client_id_update.secret_data
-      client_secret = data.google_secret_manager_secret_version_access.ghe_ac_client_secret_update.secret_data
+      client_id = google_secret_manager_secret_version.ghe_ac_client_id_upd_version.secret_data
+      client_secret = google_secret_manager_secret_version.ghe_ac_client_sec_upd_version.secret_data
       token_uri = "https://ghe.proctor-staging-test.com/login/oauth/access_token"
       host_uri = "https://ghe.proctor-staging-test.com"
       scm_provider = "GITLAB_ENTERPRISE"
@@ -342,14 +360,28 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGLE
 
 func testAccDeveloperConnectAccountConnector_GLE(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_secret_manager_secret_version_access" "gle_ac_client_id" {
-  secret  = "gle-ac-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "gle_ac_client_id" {
+  secret_id = "tf-test-gle-ac-id-%{random_suffix}"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "gle_ac_client_secret" {
-  secret  = "gle-ac-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "gle_ac_client_id_version" {
+  secret = google_secret_manager_secret.gle_ac_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "gle_ac_client_secret" {
+  secret_id = "tf-test-gle-ac-sec-%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gle_ac_client_secret_version" {
+  secret = google_secret_manager_secret.gle_ac_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
@@ -358,8 +390,8 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
   
   custom_oauth_config {
     auth_uri = "https://gle-us-central1.gcb-test.com/oauth/authorize"
-    client_id = data.google_secret_manager_secret_version_access.gle_ac_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.gle_ac_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.gle_ac_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.gle_ac_client_secret_version.secret_data
     token_uri = "https://gle-us-central1.gcb-test.com/oauth/token"
     host_uri = "https://gle-us-central1.gcb-test.com"
     scm_provider = "GITLAB_ENTERPRISE"
@@ -377,14 +409,28 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
 func testAccDeveloperConnectAccountConnector_GLEUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_secret_manager_secret_version_access" "gle_ac_client_id" {
-  secret  = "gle-ac-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "gle_ac_client_id" {
+  secret_id = "tf-test-gle-ac-id-%{random_suffix}"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "gle_ac_client_secret" {
-  secret  = "gle-ac-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "gle_ac_client_id_version" {
+  secret = google_secret_manager_secret.gle_ac_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "gle_ac_client_secret" {
+  secret_id = "tf-test-gle-ac-sec-%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gle_ac_client_secret_version" {
+  secret = google_secret_manager_secret.gle_ac_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
@@ -401,8 +447,8 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
   
   custom_oauth_config {
     auth_uri = "https://gle-us-central1.gcb-test.com/oauth/authorize"
-    client_id = data.google_secret_manager_secret_version_access.gle_ac_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.gle_ac_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.gle_ac_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.gle_ac_client_secret_version.secret_data
     token_uri = "https://gle-us-central1.gcb-test.com/oauth/token"
     host_uri = "https://gle-us-central1.gcb-test.com"
     scm_provider = "GITLAB_ENTERPRISE"
@@ -444,14 +490,28 @@ func TestAccDeveloperConnectAccountConnector_GhePrivAccountConnector(t *testing.
 
 func testAccDeveloperConnectAccountConnector_GhePrivAccountConnector(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_secret_manager_secret_version_access" "ghe_ac_priv_client_id" {
-  secret  = "ghe-ac-priv-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "ghe_ac_priv_client_id" {
+  secret_id = "tf-test-ghe-ac-priv-id-%{random_suffix}"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "ghe_ac_priv_client_secret" {
-  secret  = "ghe-ac-priv-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "ghe_ac_priv_client_id_version" {
+  secret = google_secret_manager_secret.ghe_ac_priv_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "ghe_ac_priv_client_secret" {
+  secret_id = "tf-test-ghe-ac-priv-sec-%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "ghe_ac_priv_client_secret_version" {
+  secret = google_secret_manager_secret.ghe_ac_priv_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
@@ -460,8 +520,8 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
   custom_oauth_config {
     auth_uri = "https://ghe.proctor-private-ca.com/login/oauth/authorize"
-    client_id = data.google_secret_manager_secret_version_access.ghe_ac_priv_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.ghe_ac_priv_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.ghe_ac_priv_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.ghe_ac_priv_client_secret_version.secret_data
     token_uri = "https://ghe.proctor-private-ca.com/login/oauth/access_token"
     host_uri = "https://ghe.proctor-private-ca.com"
     scm_provider = "GITHUB_ENTERPRISE"
@@ -507,14 +567,28 @@ func TestAccDeveloperConnectAccountConnector_GlePrivAccountConnector(t *testing.
 
 func testAccDeveloperConnectAccountConnector_GlePrivAccountConnector(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_secret_manager_secret_version_access" "gle_ac_priv_client_id" {
-  secret  = "gle-ac-priv-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "gle_ac_priv_client_id" {
+  secret_id = "tf-test-gle-ac-priv-id-%{random_suffix}"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "gle_ac_priv_client_secret" {
-  secret  = "gle-ac-priv-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "gle_ac_priv_client_id_version" {
+  secret = google_secret_manager_secret.gle_ac_priv_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "gle_ac_priv_client_secret" {
+  secret_id = "tf-test-gle-ac-priv-sec-%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gle_ac_priv_client_secret_version" {
+  secret = google_secret_manager_secret.gle_ac_priv_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
@@ -523,8 +597,8 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
   custom_oauth_config {
     auth_uri = "https://gle-us.gle-us-private.com/oauth/authorize"
-    client_id = data.google_secret_manager_secret_version_access.gle_ac_priv_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.gle_ac_priv_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.gle_ac_priv_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.gle_ac_priv_client_secret_version.secret_data
     token_uri = "https://gle-us.gle-us-private.com/oauth/access_token"
     host_uri = "https://gle-us.gle-us-private.com"
     scm_provider = "GITLAB_ENTERPRISE"
@@ -570,14 +644,28 @@ func TestAccDeveloperConnectAccountConnector_BbdcPrivAccountConnector(t *testing
 
 func testAccDeveloperConnectAccountConnector_BbdcPrivAccountConnector(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_secret_manager_secret_version_access" "bbdc_ac_priv_client_id" {
-  secret  = "bbdc-ac-priv-client-id"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret" "bbdc_ac_priv_client_id" {
+  secret_id = "tf-test-bbdc-ac-priv-id-%{random_suffix}"
+  replication {
+    auto {}
+  }
 }
 
-data "google_secret_manager_secret_version_access" "bbdc_ac_priv_client_secret" {
-  secret  = "bbdc-ac-priv-client-secret"
-  project = "devconnect-terraform-creds"
+resource "google_secret_manager_secret_version" "bbdc_ac_priv_client_id_version" {
+  secret = google_secret_manager_secret.bbdc_ac_priv_client_id.name
+  secret_data = "dummy-client-id"
+}
+
+resource "google_secret_manager_secret" "bbdc_ac_priv_client_secret" {
+  secret_id = "tf-test-bbdc-ac-priv-sec-%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "bbdc_ac_priv_client_secret_version" {
+  secret = google_secret_manager_secret.bbdc_ac_priv_client_secret.name
+  secret_data = "dummy-client-secret"
 }
 
 resource "google_developer_connect_account_connector" "my-account-connector" {
@@ -586,8 +674,8 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
 
   custom_oauth_config {
     auth_uri = "https://private-bitbucket.proctor-test.com/rest/oauth2/latest/authorize"
-    client_id = data.google_secret_manager_secret_version_access.bbdc_ac_priv_client_id.secret_data
-    client_secret = data.google_secret_manager_secret_version_access.bbdc_ac_priv_client_secret.secret_data
+    client_id = google_secret_manager_secret_version.bbdc_ac_priv_client_id_version.secret_data
+    client_secret = google_secret_manager_secret_version.bbdc_ac_priv_client_secret_version.secret_data
     token_uri = "https://private-bitbucket.proctor-test.com/rest/oauth2/latest/token"
     host_uri = "https://private-bitbucket.proctor-test.com"
     scm_provider = "BITBUCKET_DATA_CENTER"
@@ -595,7 +683,7 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
     service_directory_config {
       service = "projects/devconnect-terraform-creds/locations/us-central1/namespaces/my-namespace/services/terraform-bbdc"
     }
-    ssl_ca_certificate = "-----BEGIN CERTIFICATE-----\nMIIEWDCCA0CgAwIBAgIUPHTFNv00au9lCZnZIbpDZOVNz8swDQYJKoZIhvcNAQEL\nBQAwgaIxCzAJBgNVBAYTAkNBMRAwDgYDVQQIDAdPbnRhcmlvMRAwDgYDVQQHDAdU\nb3JvbnRvMQ8wDQYDVQQKDAZHb29nbGUxDDAKBgNVBAsMA0dDUDErMCkGA1UEAwwi\ncHJpdmF0ZS1iaXRidWNrZXQucHJvY3Rvci10ZXN0LmNvbTEjMCEGCSqGSIb3DQEJ\nARYUbW9uaWNhbGl1QGdvb2dsZS5jb20wHhcNMjUwMTEzMjIyODU5WhcNMzUwMTEx\nMjIyODU5WjCBojELMAkGA1UEBhMCQ0ExEDAOBgNVBAgMB09udGFyaW8xEDAOBgNV\nBAcMB1Rvcm9udG8xDzANBgNVBAoMBkdvb2dsZTEMMAoGA1UECwwDR0NQMSswKQYD\nVQQDDCJwcml2YXRlLWJpdGJ1Y2tldC5wcm9jdG9yLXRlc3QuY29tMSMwIQYJKoZI\nhvcNAQkBFhRtb25pY2FsaXVAZ29vZ2xlLmNvbTCCASIwDQYJKoZIhvcNAQEBBQAD\nggEPADCCAQoCggEBAKNbLKjUD04cq5S9Z0HIdPjOSNsswegSDy4+DCN/tWYU+CiB\nKFFHVT+WUa5IGWCzUh2qXtJAls3zpsEP/EwiF2gnIR2nerLv5ppQdd5ejo57jo/u\nPqm7NVnjWEnruCt9UXyVbvCocj/FBcubBDkRzNsEx7e/aPk/deaj3YjJBbdKbNJu\nXmU5bOfnHjAqsiAsAj09W9f/ZifMZnQdGCpopbaJA+0Rr8ZcxMPsBauI5MClIy2R\n2hNWtiOLJpp4hplnIy1M2npn/sjT8FBTrClzpaDDicI4EiBVZPQTOwERd1Gdk3Us\nXBxUIi3Jje9utZeVQTEPuiUnOqIQ7GHn9ynRW3kCAwEAAaOBgzCBgDAdBgNVHQ4E\nFgQUpAZEKba/ZJUJGJ0+4q9kCCfEOv4wHwYDVR0jBBgwFoAUpAZEKba/ZJUJGJ0+\n4q9kCCfEOv4wDwYDVR0TAQH/BAUwAwEB/zAtBgNVHREEJjAkgiJwcml2YXRlLWJp\ndGJ1Y2tldC5wcm9jdG9yLXRlc3QuY29tMA0GCSqGSIb3DQEBCwUAA4IBAQA8TqtB\nQGF+ibVmcwQZeI295w8Xfy7hBiKPrl6h+ReB1zJKyspCfvSLzfFyvBWIzbVCaGIh\nRbeDPh9divTKI4w1jhNhUbL7pLVnpvX4kAvnZzbAljQwzvHfwyuMsZNtfp0c7Rc/\nbowtxNce5Mgqver477od2zwLlQjyeKWaolILKGGL0NfRIx2VeZzpXblo0pksKpLb\n3Ncw41hFYI552FTQ3eqjbCYNNWn2nzBg+FqEL8eYRHIUGCj9bcm8dvBGp1fffuNp\nlFQt8ifUATTRqUt8q3/ukN9IYCJSKc5TGrWu34/QVyReOnZ6EBL0JFSd9u+/ckXn\ntOIt3W2yI+EOFLUJ\n-----END CERTIFICATE-----"
+    ssl_ca_certificate = "-----BEGIN CERTIFICATE-----\nMIIEWDCCA0CgAwIBAgIUPHTFNv00au9lCZnZIbpDZOVNz8swDQYJKoZIhvcNAQEL\nBQAwgaIxCzAJBgNVBAYTAkNBMRAwDgYDVQQIDAdPbnRhcmlvMRAwDgYDVQQHDAdU\nb3JvbnRvMQ8wDQYDVQQKDAZHb29nbGUxDDAKBgNVBAsMA0dDUDErMCkGA1UEAwwi\ncHJpdmF0ZS1iaXRidWNrZXQucHJvY3Rvci10ZXN0LmNvbTEjMCEGCSqGSIb3DQEJ\nARYUbW9uaWNhbGl1QGdvb2dsZS5jb20wHhcNMjUwMTEzMjIyODU5WhcNMzUwMTEx\nMjIyODU5WjCBojELMAkGA1UEBhMCQ0ExEDAOBgNVBAgMB09udGFyaW8xEDAOBgNV\nBAcMB1Rvcm9udG8xDzANBgNVBAoMBkdvb2dsZTEMMAoGA1UECwwDR0NQMSswKQYD\nVQQDDCJwcml2YXRlLWJpdGJ1Y2tldC5wcm9jdG9yLXRlc3QuY29tMSMwIQYJKoZI\nhvcNAQkBFhRtb25pY2FsaXVAZ29vZ2xlLmNvbTCCASIwDQYJKoZIhvcNAQEBBQAD\nggEPADCCAQoCggEBAKNbLKjUD04cq5S9Z0HIdPjOSNsswegSDy4+DCN/tWYU+CiB\nKFFHVT+WUa5IGWCzUh2qXtJAls3zpsEP/EwiF2gnIR2nerLv5ppQdd5ejo57jo/u\nPqm7NVnjWEnruCt9UXyVbvCocj/FBcubBDkRzNsEx7e/aPk/deaj3YjJBbdKbNJu\nXmU5bOfnHjAqsiAsAj09W9f/ZifMZnQdGCpopbaJA+0Rr8ZcxMPsBauI5MClIy2R\n2hNWtiOLJpp4hplnIy1M2npn/sjT8FBTrClzpaDDicI4EiBVZPQTOwERd1Gdk3Us\nXBxUIi3Jje9utZeVQTEPuiUnOqIQ7GHn9ynRW3kCAwEAAaOBgzCBgDAdBgNVHQ4E\nFgQUpAZEKba/ZJUJGJ0+4q9kCCfEOv4wHwYDVR0jBBgwFoAUpAZEKba/ZJUJGJ0+\n4q9kCCfEOv4wDwYDVR0TAQH/BAUwAwEB/zAtBgNVHREEJjAkgiJwcml2YXRlLWJp\ndGJ1Y2tldC5wcm9jdG9yLXRlc3QuY29tMA0GCSqGSIb3DQEBCwUAA4IBAQA8TqtB\nQGF+ibVmcwQZeI295w8Xfy7hBiKPrl6h+ReB1zJKyspCfvSLzfFyvBWIzbVCaGIh\nRbeDPh9divTKI4w1jhNhUbL7pLVnpvX4kAvnZzbAljQwzvHfwyuMsZNtfp0c7Rc/\nbowtxNce5Mgqver477od2zwLlQjyeKWaolILKGGL0NfRIx2VeZzpXblo0pksKpLb\n3Ncw41hFYI552FTQ3eqjbCYNNWn2nzBg+FqEL8eYRHIUGCj9bcm8dvBGp1fffuNp\nlFQt8ifUATTRqUt8q3/ukN9IYCJSKc5TGrWu34/QVyReOnZ6EBL0JFSd9u+/ckXn\ntOIt3W2yI+EOFLUJ\n-----END CERTIFICATE-----\n"
   }
 
   lifecycle {
