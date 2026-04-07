@@ -97,26 +97,32 @@ resource "google_project" "project" {
   deletion_policy = "DELETE"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.project]
+}
+
 resource "google_project_service" "apigee" {
   project = google_project.project.project_id
   service = "apigee.googleapis.com"
-}
-
-resource "google_project_service" "compute" {
-  project = google_project.project.project_id
-  service = "compute.googleapis.com"
-  depends_on = [google_project_service.apigee]
+  depends_on = [time_sleep.wait_60_seconds]
 }
 
 resource "google_project_service" "servicenetworking" {
   project = google_project.project.project_id
   service = "servicenetworking.googleapis.com"
-  depends_on = [google_project_service.compute]
+  depends_on = [google_project_service.apigee]
+}
+
+resource "google_project_service" "compute" {
+  project = google_project.project.project_id
+  service = "compute.googleapis.com"
+  depends_on = [google_project_service.servicenetworking]
 }
 
 resource "time_sleep" "wait_300_seconds" {
   create_duration = "300s"
-  depends_on = [google_project_service.servicenetworking]
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_compute_network" "apigee_network" {
@@ -138,7 +144,6 @@ resource "google_service_networking_connection" "apigee_vpc_connection" {
   network                 = google_compute_network.apigee_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.apigee_range.name]
-  depends_on              = [google_project_service.servicenetworking]
 }
 
 resource "google_apigee_organization" "apigee_org" {
