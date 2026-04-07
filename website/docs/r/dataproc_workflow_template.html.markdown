@@ -169,6 +169,13 @@ The following arguments are supported:
 
 * `encryption_config` - (Optional) Encryption settings for encrypting workflow template job arguments. Structure is [documented below](#nested_encryption_config)
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "ABANDON", the command will remove the resource from Terraform
+    management without updating or deleting the resource in the API.
+    When set to "DELETE", deleting the resource is allowed.
+
 <a name="nested_encryption_config"></a>The `encryption_config` block supports:
 
 * `kms_key` - (Optional) The Cloud KMS key name to use for encrypting workflow template [job arguments](https://docs.docs.cloud.google.com/dataproc/docs/concepts/workflows/use-workflows).

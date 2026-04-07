@@ -28,3 +28,5 @@ fields:
   - api_field: 'webSettings.allowedDomains'
   - api_field: 'webSettings.challengeSecurityPreference'
   - api_field: 'webSettings.integrationType'
+  - field: 'deletion_policy'
+    provider_only: true

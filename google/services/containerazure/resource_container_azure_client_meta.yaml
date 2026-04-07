@@ -14,3 +14,5 @@ fields:
   - field: 'project'
   - api_field: 'tenantId'
   - api_field: 'uid'
+  - field: 'deletion_policy'
+    provider_only: true

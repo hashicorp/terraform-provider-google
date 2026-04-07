@@ -12,3 +12,5 @@ fields:
   - field: 'project'
   - api_field: 'rulesetName'
   - api_field: 'updateTime'
+  - field: 'deletion_policy'
+    provider_only: true

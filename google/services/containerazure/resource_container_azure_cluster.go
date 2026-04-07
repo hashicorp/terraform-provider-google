@@ -48,6 +48,7 @@ func ResourceContainerAzureCluster() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 			tpgresource.SetAnnotationsDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -207,6 +208,9 @@ func ResourceContainerAzureCluster() *schema.Resource {
 				Description: "Output only. Workload Identity settings.",
 				Elem:        ContainerAzureClusterWorkloadIdentityConfigSchema(),
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 	}
 }
@@ -699,10 +703,20 @@ func resourceContainerAzureClusterRead(d *schema.ResourceData, meta interface{})
 	if err = d.Set("workload_identity_config", flattenContainerAzureClusterWorkloadIdentityConfig(res.WorkloadIdentityConfig)); err != nil {
 		return fmt.Errorf("error setting workload_identity_config in state: %s", err)
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	return nil
 }
 func resourceContainerAzureClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceContainerAzureCluster) {
+		return ResourceContainerAzureCluster().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
@@ -758,6 +772,13 @@ func resourceContainerAzureClusterUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceContainerAzureClusterDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {

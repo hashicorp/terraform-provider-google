@@ -48,6 +48,7 @@ func ResourceContainerAzureNodePool() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 			tpgresource.SetAnnotationsDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -185,6 +186,9 @@ func ResourceContainerAzureNodePool() *schema.Resource {
 				Computed:    true,
 				Description: "Output only. The time at which this node pool was last updated.",
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 	}
 }
@@ -496,10 +500,20 @@ func resourceContainerAzureNodePoolRead(d *schema.ResourceData, meta interface{}
 	if err = d.Set("update_time", res.UpdateTime); err != nil {
 		return fmt.Errorf("error setting update_time in state: %s", err)
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	return nil
 }
 func resourceContainerAzureNodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceContainerAzureNodePool) {
+		return ResourceContainerAzureNodePool().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
@@ -554,6 +568,13 @@ func resourceContainerAzureNodePoolUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceContainerAzureNodePoolDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
