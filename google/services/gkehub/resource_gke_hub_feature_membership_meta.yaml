@@ -74,3 +74,5 @@ fields:
   - field: 'policycontroller.policy_controller_hub_config.referential_rules_enabled'
   - field: 'policycontroller.version'
   - field: 'project'
+  - field: 'deletion_policy'
+    provider_only: true
