@@ -15,7 +15,7 @@ FEATURES:
 IMPROVEMENTS:
 * compute: added `SEV_LIVE_MIGRATABLE_V2` to `guest_os_features` enum for `google_compute_region_disk` resource ([#26735](https://github.com/hashicorp/terraform-provider-google/pull/26735))
 * compute: added `SNP_SVSM_CAPABLE` to `guest_os_features` enum for `google_compute_image` and `google_compute_region_disk` resources ([#26735](https://github.com/hashicorp/terraform-provider-google/pull/26735))
-* compute: added `excluded_folders` and `excluded_projects` fields  to `google_compute_organization_security_policy_association` resource ([#26694](https://github.com/hashicorp/terraform-provider-google/pull/26694))
+* compute: added `excluded_folders` and `excluded_projects` fields to `google_compute_organization_security_policy_association` resource ([#26694](https://github.com/hashicorp/terraform-provider-google/pull/26694))
 * compute: supported in-place update for `secondary_ip_range` field in `google_compute_subnetwork` resource ([#26689](https://github.com/hashicorp/terraform-provider-google/pull/26689))
 * container: added `autopilot_privileged_admission` field to `google_container_cluster` resource for Customer-Driven Allowlisting ([#26668](https://github.com/hashicorp/terraform-provider-google/pull/26668))
 * dataplex: added `aspects` field to `google_dataplex_entry_link` resource ([#26664](https://github.com/hashicorp/terraform-provider-google/pull/26664))
@@ -32,7 +32,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * compute: fixed a permadiff on the `adaptive_protection_config` field in `google_compute_security_policy` resource ([#26692](https://github.com/hashicorp/terraform-provider-google/pull/26692))
 * compute: fixed panic when setting `google_compute_project_metadata` on a project with no existing metadata ([#26630](https://github.com/hashicorp/terraform-provider-google/pull/26630))
-* biglakeiceberg: changed the primary-location parameter to primary_location in the create URL of google_biglake_iceberg_catalog resource ([#26695](https://github.com/hashicorp/terraform-provider-google/pull/26695))
+* biglakeiceberg: changed the `primary-location` parameter to `primary_location` in the create URL of google_biglake_iceberg_catalog resource ([#26695](https://github.com/hashicorp/terraform-provider-google/pull/26695))
 * securityposture: always sent value of `enforce` in `policies.constraint.org_policy_constraint.policy_rules` to the api in `google_securityposture_posture` resource ([#26645](https://github.com/hashicorp/terraform-provider-google/pull/26645))
 * vertexai: fixed missing Private Service Connect service attachment for `service_attachment` field in `google_vertex_ai_endpoint_with_model_garden_deployment` resource ([#26690](https://github.com/hashicorp/terraform-provider-google/pull/26690))
 * workstations: fixed update of `private_cluster_config.allowed_projects` in `google_workstations_workstation_cluster` resource ([#26705](https://github.com/hashicorp/terraform-provider-google/pull/26705))
