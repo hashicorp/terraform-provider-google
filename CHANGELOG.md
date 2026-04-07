@@ -1,4 +1,5 @@
 ## 7.27.0 (Unreleased)
+
 BREAKING CHANGES:
 * lustre: marked `maintenance_policy.weekly_maintenance_windows` field required in `google_lustre_instance` resource. Configuring `maintenance_policy` without `weekly_maintenance_windows` will cause an API error. ([#26741](https://github.com/hashicorp/terraform-provider-google/pull/26741))
 
@@ -38,6 +39,7 @@ BUG FIXES:
 * workstations: fixed update of `private_cluster_config.allowed_projects` in `google_workstations_workstation_cluster` resource ([#26705](https://github.com/hashicorp/terraform-provider-google/pull/26705))
 
 ## 7.26.0 (Mar 31, 2026)
+
 BREAKING CHANGES:
 * compute: Removed `google_compute_region_backend_bucket` from the `google` (GA) provider. It is currently beta-only, and calls to the nonexistent GA API always returned a 404. Until released in `google`, use `google-beta` instead. ([#26597](https://github.com/hashicorp/terraform-provider-google/pull/26597))
 
