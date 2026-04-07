@@ -121,6 +121,68 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_reasoning_engine_byoc&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Reasoning Engine Byoc
+
+
+```hcl
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "reasoning-engine"
+  description  = "Deployed with BYOC through Terraform"
+  region       = "us-central1"
+
+  spec {
+    container_spec {
+      image_uri = "us-central1-docker.pkg.dev/${data.google_project.project.project_id}/vertex-byoc/byoc-agent:latest" # image path
+    }
+  }
+
+  depends_on = [google_project_iam_member.vertex_ar_reader, google_project_iam_member.tenant_ar_reader]
+}
+
+
+# Provision and retrieve the tenant service agent through another agent
+resource "google_vertex_ai_reasoning_engine" "tenant_mds" {
+  display_name = "reasoning-engine-mds"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/mds_agent_src.tar.gz")
+      }
+
+      python_spec {
+        entrypoint_module = "metadata_agent"
+        entrypoint_object = "root_agent"
+      }
+    }
+  }
+}
+
+data "google_vertex_ai_reasoning_engine_query" "tenant_mds" {
+  region              = "us-central1"
+  reasoning_engine_id = google_vertex_ai_reasoning_engine.tenant_mds.name
+}
+
+data "google_project" "project" {}
+
+resource "google_project_iam_member" "vertex_ar_reader" {
+  project = data.google_project.project.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "tenant_ar_reader" {
+  project = data.google_project.project.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${jsondecode(data.google_vertex_ai_reasoning_engine_query.tenant_mds.output).output}"
+}
+```
 ## Example Usage - Vertex Ai Reasoning Engine Psc Interface
 
 
@@ -559,6 +621,11 @@ The following arguments are supported:
   field_behavior to avoid introducing breaking changes.
   Structure is [documented below](#nested_spec_package_spec).
 
+* `container_spec` -
+  (Optional)
+  Deploy from a container image with a defined entrypoint and commands.
+  Structure is [documented below](#nested_spec_container_spec).
+
 * `source_code_spec` -
   (Optional)
   Specification for deploying from source code.
@@ -742,6 +809,14 @@ The following arguments are supported:
 * `requirements_gcs_uri` -
   (Optional)
   Optional. The Cloud Storage URI of the requirements.txtfile
+
+<a name="nested_spec_container_spec"></a>The `container_spec` block supports:
+
+* `image_uri` -
+  (Required)
+  The Artifact Registry Docker image URI (e.g.,
+  `us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag`) of the
+  container image that is to be run on each worker replica.
 
 <a name="nested_spec_source_code_spec"></a>The `source_code_spec` block supports:
 

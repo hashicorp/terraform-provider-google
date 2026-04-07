@@ -19,6 +19,7 @@ fields:
     - api_field: spec.agentFramework
     - api_field: spec.classMethods
       json: true
+    - api_field: spec.containerSpec.imageUri
     - api_field: spec.deploymentSpec.containerConcurrency
     - api_field: spec.deploymentSpec.env.name
     - api_field: spec.deploymentSpec.env.value
