@@ -74,6 +74,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -118,6 +124,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicDependsOnExample(t *te
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -179,6 +191,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolLimitsExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -232,6 +250,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSqlExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -343,6 +367,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolDirectvpcExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -394,6 +424,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolGpuExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -451,6 +487,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSecretExample(t *testing.T)
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -536,6 +578,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMulticontainerExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -597,6 +645,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountGcsExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -662,6 +716,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountNfsExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -746,6 +806,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolStartupLivenessProbeExample
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

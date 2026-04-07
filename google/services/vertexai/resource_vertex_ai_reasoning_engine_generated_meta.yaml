@@ -32,6 +32,8 @@ fields:
     - api_field: spec.deploymentSpec.secretEnv.name
     - api_field: spec.deploymentSpec.secretEnv.secretRef.secret
     - api_field: spec.deploymentSpec.secretEnv.secretRef.version
+    - api_field: spec.effectiveIdentity
+    - api_field: spec.identityType
     - api_field: spec.packageSpec.dependencyFilesGcsUri
     - api_field: spec.packageSpec.pickleObjectGcsUri
     - api_field: spec.packageSpec.pythonVersion
@@ -40,6 +42,7 @@ fields:
     - api_field: spec.sourceCodeSpec.developerConnectSource.config.dir
     - api_field: spec.sourceCodeSpec.developerConnectSource.config.gitRepositoryLink
     - api_field: spec.sourceCodeSpec.developerConnectSource.config.revision
+    - api_field: spec.sourceCodeSpec.imageSpec.buildArgs
     - api_field: spec.sourceCodeSpec.inlineSource.sourceArchive
     - api_field: spec.sourceCodeSpec.pythonSpec.entrypointModule
     - api_field: spec.sourceCodeSpec.pythonSpec.entrypointObject

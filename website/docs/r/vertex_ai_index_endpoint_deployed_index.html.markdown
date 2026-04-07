@@ -409,6 +409,19 @@ IndexEndpointDeployedIndex can be imported using any of these accepted formats:
 * `{{region}}/{{index_endpoint}}/{{deployed_index_id}}`
 * `{{index_endpoint}}/{{deployed_index_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import IndexEndpointDeployedIndex using identity values. For example:
+
+```tf
+import {
+  identity = {
+    deployedIndexId = "<-required value->"
+    indexEndpoint = "<-required value->"
+    region = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_vertex_ai_index_endpoint_deployed_index.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import IndexEndpointDeployedIndex using one of the formats above. For example:
 

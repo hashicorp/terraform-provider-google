@@ -235,6 +235,17 @@ Job can be imported using any of these accepted formats:
 * `{{project}}/{{job_id}}`
 * `{{job_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Job using identity values. For example:
+
+```tf
+import {
+  identity = {
+    jobId = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_storage_batch_operations_job.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Job using one of the formats above. For example:
 

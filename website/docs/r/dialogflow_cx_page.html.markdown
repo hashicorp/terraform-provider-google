@@ -2132,6 +2132,17 @@ Page can be imported using any of these accepted formats:
 * `{{parent}}/pages/{{name}}`
 * `{{parent}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Page using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-optional value->"
+    parent = "<-optional value->"
+  }
+  to = google_dialogflow_cx_page.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Page using one of the formats above. For example:
 

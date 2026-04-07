@@ -497,6 +497,18 @@ CloudVmCluster can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{cloud_vm_cluster_id}}`
 * `{{location}}/{{cloud_vm_cluster_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import CloudVmCluster using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    cloudVmClusterId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_oracle_database_cloud_vm_cluster.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import CloudVmCluster using one of the formats above. For example:
 

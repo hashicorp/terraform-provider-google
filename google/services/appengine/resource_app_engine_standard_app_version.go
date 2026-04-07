@@ -117,6 +117,26 @@ func ResourceAppEngineStandardAppVersion() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"version_id": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"service": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"deployment": {
 				Type:        schema.TypeList,
@@ -704,6 +724,27 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if versionIdValue, ok := d.GetOk("version_id"); ok && versionIdValue.(string) != "" {
+			if err = identity.Set("version_id", versionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting version_id: %s", err)
+			}
+		}
+		if serviceValue, ok := d.GetOk("service"); ok && serviceValue.(string) != "" {
+			if err = identity.Set("service", serviceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting service: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = AppEngineOperationWaitTime(
 		config, res, project, "Creating StandardAppVersion", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -818,6 +859,30 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("version_id"); !ok && v == "" {
+			err = identity.Set("version_id", d.Get("version_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting version_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("service"); !ok && v == "" {
+			err = identity.Set("service", d.Get("service").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting service: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -826,6 +891,26 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if versionIdValue, ok := d.GetOk("version_id"); ok && versionIdValue.(string) != "" {
+			if err = identity.Set("version_id", versionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting version_id: %s", err)
+			}
+		}
+		if serviceValue, ok := d.GetOk("service"); ok && serviceValue.(string) != "" {
+			if err = identity.Set("service", serviceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting service: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

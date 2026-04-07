@@ -118,6 +118,26 @@ func ResourceNetworkSecurityMirroringEndpoint() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"mirroring_endpoint_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -287,6 +307,27 @@ func resourceNetworkSecurityMirroringEndpointCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if mirroringEndpointIdValue, ok := d.GetOk("mirroring_endpoint_id"); ok && mirroringEndpointIdValue.(string) != "" {
+			if err = identity.Set("mirroring_endpoint_id", mirroringEndpointIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting mirroring_endpoint_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = NetworkSecurityOperationWaitTime(
 		config, res, project, "Creating MirroringEndpoint", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -377,6 +418,30 @@ func resourceNetworkSecurityMirroringEndpointRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading MirroringEndpoint: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("mirroring_endpoint_id"); !ok && v == "" {
+			err = identity.Set("mirroring_endpoint_id", d.Get("mirroring_endpoint_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting mirroring_endpoint_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -385,6 +450,26 @@ func resourceNetworkSecurityMirroringEndpointUpdate(d *schema.ResourceData, meta
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if mirroringEndpointIdValue, ok := d.GetOk("mirroring_endpoint_id"); ok && mirroringEndpointIdValue.(string) != "" {
+			if err = identity.Set("mirroring_endpoint_id", mirroringEndpointIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting mirroring_endpoint_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

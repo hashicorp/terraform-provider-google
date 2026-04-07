@@ -119,6 +119,30 @@ func ResourceDeveloperConnectGitRepositoryLink() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"parent_connection": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"git_repository_link_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"clone_uri": {
 				Type:        schema.TypeString,
@@ -311,6 +335,32 @@ func resourceDeveloperConnectGitRepositoryLinkCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if parentConnectionValue, ok := d.GetOk("parent_connection"); ok && parentConnectionValue.(string) != "" {
+			if err = identity.Set("parent_connection", parentConnectionValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent_connection: %s", err)
+			}
+		}
+		if gitRepositoryLinkIdValue, ok := d.GetOk("git_repository_link_id"); ok && gitRepositoryLinkIdValue.(string) != "" {
+			if err = identity.Set("git_repository_link_id", gitRepositoryLinkIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting git_repository_link_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = DeveloperConnectOperationWaitTime(
 		config, res, project, "Creating GitRepositoryLink", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -408,6 +458,36 @@ func resourceDeveloperConnectGitRepositoryLinkRead(d *schema.ResourceData, meta 
 	}
 	if err := d.Set("effective_annotations", flattenDeveloperConnectGitRepositoryLinkEffectiveAnnotations(res["annotations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GitRepositoryLink: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("parent_connection"); !ok && v == "" {
+			err = identity.Set("parent_connection", d.Get("parent_connection").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parent_connection: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("git_repository_link_id"); !ok && v == "" {
+			err = identity.Set("git_repository_link_id", d.Get("git_repository_link_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting git_repository_link_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

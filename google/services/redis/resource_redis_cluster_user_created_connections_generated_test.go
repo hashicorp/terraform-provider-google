@@ -86,6 +86,12 @@ func TestAccRedisClusterUserCreatedConnections_redisClusterUserCreatedConnection
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "region"},
 			},
+			{
+				ResourceName:       "google_redis_cluster_user_created_connections.cluster-user-conn",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -276,6 +282,12 @@ func TestAccRedisClusterUserCreatedConnections_redisClusterUserAndAutoCreatedCon
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "region"},
+			},
+			{
+				ResourceName:       "google_redis_cluster_user_created_connections.cluster-user-auto-conn",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

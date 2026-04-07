@@ -160,6 +160,20 @@ DataTableRow can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{instance}}/{{data_table_id}}/{{data_table_row}}`
 * `{{location}}/{{instance}}/{{data_table_id}}/{{data_table_row}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import DataTableRow using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    instance = "<-required value->"
+    dataTableId = "<-required value->"
+    dataTableRow = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_chronicle_data_table_row.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DataTableRow using one of the formats above. For example:
 

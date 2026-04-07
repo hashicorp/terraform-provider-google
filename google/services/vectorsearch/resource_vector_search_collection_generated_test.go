@@ -74,6 +74,12 @@ func TestAccVectorSearchCollection_vectorsearchCollectionBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_vector_search_collection.example-collection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

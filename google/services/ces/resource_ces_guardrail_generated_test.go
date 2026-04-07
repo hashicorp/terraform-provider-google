@@ -77,6 +77,12 @@ func TestAccCESGuardrail_cesGuardrailBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app", "guardrail_id", "location"},
 			},
+			{
+				ResourceName:       "google_ces_guardrail.ces_guardrail_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -152,6 +158,12 @@ func TestAccCESGuardrail_cesGuardrailTransferAgentContentFilterExample(t *testin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app", "guardrail_id", "location"},
 			},
+			{
+				ResourceName:       "google_ces_guardrail.ces_guardrail_transfer_agent_content_filter",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -224,6 +236,12 @@ func TestAccCESGuardrail_cesGuardrailGenerativeAnswerLlmPromptSecurityExample(t 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app", "guardrail_id", "location"},
+			},
+			{
+				ResourceName:       "google_ces_guardrail.ces_guardrail_generative_answer_llm_prompt_security",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -303,6 +321,12 @@ func TestAccCESGuardrail_cesGuardrailCodeCallbackExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app", "guardrail_id", "location"},
+			},
+			{
+				ResourceName:       "google_ces_guardrail.ces_guardrail_code_callback",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -391,6 +415,12 @@ func TestAccCESGuardrail_cesGuardrailLlmPolicyExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app", "guardrail_id", "location"},
+			},
+			{
+				ResourceName:       "google_ces_guardrail.ces_guardrail_llm_policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

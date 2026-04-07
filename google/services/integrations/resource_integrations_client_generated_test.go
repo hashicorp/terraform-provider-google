@@ -73,6 +73,12 @@ func TestAccIntegrationsClient_integrationsClientBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "location", "run_as_service_account"},
 			},
+			{
+				ResourceName:       "google_integrations_client.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -117,6 +123,12 @@ func TestAccIntegrationsClient_integrationsClientFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "location", "run_as_service_account"},
+			},
+			{
+				ResourceName:       "google_integrations_client.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -178,6 +190,12 @@ func TestAccIntegrationsClient_integrationsClientServiceAccountExample(t *testin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "location", "run_as_service_account"},
+			},
+			{
+				ResourceName:       "google_integrations_client.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

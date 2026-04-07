@@ -74,6 +74,12 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"architecture", "labels", "params", "snapshot", "source_storage_object", "terraform_labels", "type", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_disk.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -117,6 +123,12 @@ func TestAccComputeDisk_diskAsyncExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"architecture", "labels", "params", "snapshot", "source_storage_object", "terraform_labels", "type", "zone"},
+			},
+			{
+				ResourceName:       "google_compute_disk.secondary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -169,6 +181,12 @@ func TestAccComputeDisk_diskFeaturesExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"architecture", "labels", "params", "snapshot", "source_storage_object", "terraform_labels", "type", "zone"},
+			},
+			{
+				ResourceName:       "google_compute_disk.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

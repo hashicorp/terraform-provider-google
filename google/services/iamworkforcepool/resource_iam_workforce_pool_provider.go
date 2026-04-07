@@ -132,6 +132,26 @@ func ResourceIAMWorkforcePoolWorkforcePoolProvider() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"workforce_pool_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"provider_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -745,6 +765,27 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if workforcePoolIdValue, ok := d.GetOk("workforce_pool_id"); ok && workforcePoolIdValue.(string) != "" {
+			if err = identity.Set("workforce_pool_id", workforcePoolIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting workforce_pool_id: %s", err)
+			}
+		}
+		if providerIdValue, ok := d.GetOk("provider_id"); ok && providerIdValue.(string) != "" {
+			if err = identity.Set("provider_id", providerIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting provider_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = IAMWorkforcePoolOperationWaitTime(
 		config, res, "Creating WorkforcePoolProvider", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -893,6 +934,30 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading WorkforcePoolProvider: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("workforce_pool_id"); !ok && v == "" {
+			err = identity.Set("workforce_pool_id", d.Get("workforce_pool_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting workforce_pool_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("provider_id"); !ok && v == "" {
+			err = identity.Set("provider_id", d.Get("provider_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting provider_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -901,6 +966,26 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if workforcePoolIdValue, ok := d.GetOk("workforce_pool_id"); ok && workforcePoolIdValue.(string) != "" {
+			if err = identity.Set("workforce_pool_id", workforcePoolIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting workforce_pool_id: %s", err)
+			}
+		}
+		if providerIdValue, ok := d.GetOk("provider_id"); ok && providerIdValue.(string) != "" {
+			if err = identity.Set("provider_id", providerIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting provider_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

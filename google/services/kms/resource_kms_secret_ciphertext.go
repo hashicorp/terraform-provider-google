@@ -107,6 +107,18 @@ func ResourceKMSSecretCiphertext() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"crypto_key": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"crypto_key": {
 				Type:     schema.TypeString,
@@ -199,6 +211,17 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if cryptoKeyValue, ok := d.GetOk("crypto_key"); ok && cryptoKeyValue.(string) != "" {
+			if err = identity.Set("crypto_key", cryptoKeyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting crypto_key: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	// we don't set anything on read and instead do it all in create
 	ciphertext, ok := res["ciphertext"]
 	if !ok {
@@ -267,6 +290,18 @@ func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) e
 		log.Printf("[DEBUG] Removing KMSSecretCiphertext because it no longer exists.")
 		d.SetId("")
 		return nil
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("crypto_key"); !ok && v == "" {
+			err = identity.Set("crypto_key", d.Get("crypto_key").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting crypto_key: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

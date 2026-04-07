@@ -174,6 +174,18 @@ FolderSccBigQueryExport can be imported using any of these accepted formats:
 * `folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}`
 * `{{folder}}/{{location}}/{{big_query_export_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import FolderSccBigQueryExport using identity values. For example:
+
+```tf
+import {
+  identity = {
+    folder = "<-required value->"
+    bigQueryExportId = "<-required value->"
+    location = "<-optional value->"
+  }
+  to = google_scc_v2_folder_scc_big_query_export.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import FolderSccBigQueryExport using one of the formats above. For example:
 

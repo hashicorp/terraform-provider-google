@@ -74,6 +74,12 @@ func TestAccMigrationCenterPreferenceSet_preferenceSetBasicExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "preference_set_id"},
 			},
+			{
+				ResourceName:       "google_migration_center_preference_set.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -119,6 +125,12 @@ func TestAccMigrationCenterPreferenceSet_preferenceSetFullExample(t *testing.T) 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "preference_set_id"},
+			},
+			{
+				ResourceName:       "google_migration_center_preference_set.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -187,6 +199,12 @@ func TestAccMigrationCenterPreferenceSet_preferenceSetComputeEnginePreferencesDi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "preference_set_id"},
+			},
+			{
+				ResourceName:       "google_migration_center_preference_set.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

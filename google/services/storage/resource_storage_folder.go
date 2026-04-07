@@ -123,6 +123,22 @@ func ResourceStorageFolder() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"bucket": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"bucket": {
 				Type:        schema.TypeString,
@@ -219,6 +235,22 @@ func resourceStorageFolderCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if bucketValue, ok := d.GetOk("bucket"); ok && bucketValue.(string) != "" {
+			if err = identity.Set("bucket", bucketValue.(string)); err != nil {
+				return fmt.Errorf("Error setting bucket: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating Folder %q: %#v", d.Id(), res)
 
 	return resourceStorageFolderRead(d, meta)
@@ -281,6 +313,24 @@ func resourceStorageFolderRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Folder: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("bucket"); !ok && v == "" {
+			err = identity.Set("bucket", d.Get("bucket").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting bucket: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -292,6 +342,24 @@ func resourceStorageFolderUpdate(d *schema.ResourceData, meta interface{}) error
 		if err := d.Set("force_destroy", d.Get("force_destroy")); err != nil {
 			return fmt.Errorf("Error updating force_destroy: %s", err)
 		}
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("bucket"); !ok && v == "" {
+			err = identity.Set("bucket", d.Get("bucket").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting bucket: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	// all other fields are immutable, don't do anything else

@@ -76,6 +76,12 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization"},
 			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -274,6 +280,12 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization"},
 			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -367,6 +379,12 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization"},
+			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

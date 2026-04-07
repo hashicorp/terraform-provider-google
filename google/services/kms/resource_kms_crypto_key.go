@@ -126,6 +126,22 @@ func ResourceKMSCryptoKey() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"key_ring": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"key_ring": {
 				Type:             schema.TypeString,
@@ -358,6 +374,22 @@ func resourceKMSCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if keyRingValue, ok := d.GetOk("key_ring"); ok && keyRingValue.(string) != "" {
+			if err = identity.Set("key_ring", keyRingValue.(string)); err != nil {
+				return fmt.Errorf("Error setting key_ring: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating CryptoKey %q: %#v", d.Id(), res)
 
 	return resourceKMSCryptoKeyRead(d, meta)
@@ -444,6 +476,24 @@ func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("key_ring"); !ok && v == "" {
+			err = identity.Set("key_ring", d.Get("key_ring").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting key_ring: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -452,6 +502,21 @@ func resourceKMSCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if keyRingValue, ok := d.GetOk("key_ring"); ok && keyRingValue.(string) != "" {
+			if err = identity.Set("key_ring", keyRingValue.(string)); err != nil {
+				return fmt.Errorf("Error setting key_ring: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

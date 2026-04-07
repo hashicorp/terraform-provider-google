@@ -192,6 +192,19 @@ GatewayAdvertisedRoute can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{spoke}}/{{name}}`
 * `{{location}}/{{spoke}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import GatewayAdvertisedRoute using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-required value->"
+    location = "<-required value->"
+    spoke = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_network_connectivity_gateway_advertised_route.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import GatewayAdvertisedRoute using one of the formats above. For example:
 

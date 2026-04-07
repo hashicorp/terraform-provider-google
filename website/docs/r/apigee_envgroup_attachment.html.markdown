@@ -151,6 +151,17 @@ EnvgroupAttachment can be imported using any of these accepted formats:
 * `{{envgroup_id}}/attachments/{{name}}`
 * `{{envgroup_id}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import EnvgroupAttachment using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-optional value->"
+    envgroupId = "<-required value->"
+  }
+  to = google_apigee_envgroup_attachment.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import EnvgroupAttachment using one of the formats above. For example:
 

@@ -77,6 +77,12 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"url_map"},
 			},
+			{
+				ResourceName:       "google_compute_target_http_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -152,6 +158,12 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyHttpKeepAliveTimeoutExample(t 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"url_map"},
+			},
+			{
+				ResourceName:       "google_compute_target_http_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -229,6 +241,12 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(t *testin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"url_map"},
 			},
+			{
+				ResourceName:       "google_compute_target_http_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -276,6 +294,12 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyFingerprintExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"url_map"},
+			},
+			{
+				ResourceName:       "google_compute_target_http_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

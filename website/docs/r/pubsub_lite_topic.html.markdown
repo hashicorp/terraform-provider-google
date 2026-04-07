@@ -178,6 +178,18 @@ Topic can be imported using any of these accepted formats:
 * `{{zone}}/{{name}}`
 * `{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Topic using identity values. For example:
+
+```tf
+import {
+  identity = {
+    zone = "<-optional value->"
+    name = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_pubsub_lite_topic.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Topic using one of the formats above. For example:
 

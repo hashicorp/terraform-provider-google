@@ -117,6 +117,22 @@ func ResourceDNSResponsePolicy() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"response_policy_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"response_policy_name": {
 				Type:        schema.TypeString,
@@ -248,6 +264,22 @@ func resourceDNSResponsePolicyCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if responsePolicyNameValue, ok := d.GetOk("response_policy_name"); ok && responsePolicyNameValue.(string) != "" {
+			if err = identity.Set("response_policy_name", responsePolicyNameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting response_policy_name: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating ResponsePolicy %q: %#v", d.Id(), res)
 
 	return resourceDNSResponsePolicyRead(d, meta)
@@ -310,6 +342,24 @@ func resourceDNSResponsePolicyRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading ResponsePolicy: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("response_policy_name"); !ok && v == "" {
+			err = identity.Set("response_policy_name", d.Get("response_policy_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting response_policy_name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -318,6 +368,21 @@ func resourceDNSResponsePolicyUpdate(d *schema.ResourceData, meta interface{}) e
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if responsePolicyNameValue, ok := d.GetOk("response_policy_name"); ok && responsePolicyNameValue.(string) != "" {
+			if err = identity.Set("response_policy_name", responsePolicyNameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting response_policy_name: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

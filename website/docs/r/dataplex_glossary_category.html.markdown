@@ -158,6 +158,19 @@ GlossaryCategory can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{glossary_id}}/{{category_id}}`
 * `{{location}}/{{glossary_id}}/{{category_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import GlossaryCategory using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    glossaryId = "<-optional value->"
+    categoryId = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_dataplex_glossary_category.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import GlossaryCategory using one of the formats above. For example:
 

@@ -218,6 +218,18 @@ RegionalSecretVersion can be imported using any of these accepted formats:
 
 * `projects/{{project}}/locations/{{location}}/secrets/{{secret_id}}/versions/{{version}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import RegionalSecretVersion using identity values. For example:
+
+```tf
+import {
+  identity = {
+    version = "<-optional value->"
+    location = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_secret_manager_regional_secret_version.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RegionalSecretVersion using one of the formats above. For example:
 

@@ -224,6 +224,22 @@ func resourceDocumentAIWarehouseLocationCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if projectNumberValue, ok := d.GetOk("project_number"); ok && projectNumberValue.(string) != "" {
+			if err = identity.Set("project_number", projectNumberValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project_number: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = DocumentAIWarehouseOperationWaitTime(
 		config, res, "Creating Location", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -241,6 +257,8 @@ func resourceDocumentAIWarehouseLocationCreate(d *schema.ResourceData, meta inte
 
 func resourceDocumentAIWarehouseLocationRead(d *schema.ResourceData, meta interface{}) error {
 	// This resource could not be read from the API.
+	return nil
+
 	return nil
 }
 

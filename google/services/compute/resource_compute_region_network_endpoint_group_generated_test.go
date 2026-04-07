@@ -77,6 +77,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunction
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
+			{
+				ResourceName:       "google_compute_region_network_endpoint_group.function_neg",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -143,6 +149,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrun
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
+			{
+				ResourceName:       "google_compute_region_network_endpoint_group.cloudrun_neg",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -202,6 +214,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
+			},
+			{
+				ResourceName:       "google_compute_region_network_endpoint_group.appengine_neg",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -311,6 +329,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
+			{
+				ResourceName:       "google_compute_region_network_endpoint_group.appengine_neg",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -351,6 +375,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExamp
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
+			},
+			{
+				ResourceName:       "google_compute_region_network_endpoint_group.psc_neg",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -398,6 +428,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
+			},
+			{
+				ResourceName:       "google_compute_region_network_endpoint_group.psc_neg_service_attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -501,6 +537,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternet
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
+			{
+				ResourceName:       "google_compute_region_network_endpoint_group.region_network_endpoint_group_internet_ip_port",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -545,6 +587,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternet
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
+			},
+			{
+				ResourceName:       "google_compute_region_network_endpoint_group.region_network_endpoint_group_internet_fqdn_port",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

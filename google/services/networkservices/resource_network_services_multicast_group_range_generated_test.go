@@ -77,6 +77,12 @@ func TestAccNetworkServicesMulticastGroupRange_networkServicesMulticastGroupRang
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "multicast_group_range_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_services_multicast_group_range.mgr_test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -77,6 +77,12 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "source_config", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_oracle_database_autonomous_database.myADB",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -136,6 +142,12 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "source_config", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_autonomous_database.myADB",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -215,6 +227,12 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseOdb
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "source_config", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_oracle_database_autonomous_database.myADB",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -267,6 +285,12 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabasePub
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "source_config", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_autonomous_database.myADB",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -321,6 +345,12 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseDis
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "source_config", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_autonomous_database.myADB",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

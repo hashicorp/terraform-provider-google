@@ -806,6 +806,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Serviceusage",
         "path" to "./google-beta/services/serviceusage"
     ),
+    "serviceusagev2" to mapOf(
+        "name" to "serviceusagev2",
+        "displayName" to "Serviceusagev2",
+        "path" to "./google-beta/services/serviceusagev2"
+    ),
     "siteverification" to mapOf(
         "name" to "siteverification",
         "displayName" to "Siteverification",
@@ -890,6 +895,11 @@ var ServicesListBeta = mapOf(
         "name" to "workbench",
         "displayName" to "Workbench",
         "path" to "./google-beta/services/workbench"
+    ),
+    "workloadidentity" to mapOf(
+        "name" to "workloadidentity",
+        "displayName" to "Workload Identity",
+        "path" to "./google-beta/services/workloadidentity"
     ),
     "workflows" to mapOf(
         "name" to "workflows",

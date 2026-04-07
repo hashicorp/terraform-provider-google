@@ -75,6 +75,12 @@ func TestAccDataprocMetastoreFederation_dataprocMetastoreFederationBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "federation_id", "labels", "location", "tags", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_metastore_federation.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -132,6 +138,12 @@ func TestAccDataprocMetastoreFederation_dataprocMetastoreFederationBigqueryExamp
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"federation_id", "labels", "location", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_metastore_federation.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

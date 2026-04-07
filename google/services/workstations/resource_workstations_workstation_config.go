@@ -119,6 +119,30 @@ func ResourceWorkstationsWorkstationConfig() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"workstation_config_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"workstation_cluster_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -878,6 +902,32 @@ func resourceWorkstationsWorkstationConfigCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if workstationConfigIdValue, ok := d.GetOk("workstation_config_id"); ok && workstationConfigIdValue.(string) != "" {
+			if err = identity.Set("workstation_config_id", workstationConfigIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting workstation_config_id: %s", err)
+			}
+		}
+		if workstationClusterIdValue, ok := d.GetOk("workstation_cluster_id"); ok && workstationClusterIdValue.(string) != "" {
+			if err = identity.Set("workstation_cluster_id", workstationClusterIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting workstation_cluster_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = WorkstationsOperationWaitTime(
 		config, res, project, "Creating WorkstationConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -1010,6 +1060,36 @@ func resourceWorkstationsWorkstationConfigRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("workstation_config_id"); !ok && v == "" {
+			err = identity.Set("workstation_config_id", d.Get("workstation_config_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting workstation_config_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("workstation_cluster_id"); !ok && v == "" {
+			err = identity.Set("workstation_cluster_id", d.Get("workstation_cluster_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting workstation_cluster_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -1018,6 +1098,31 @@ func resourceWorkstationsWorkstationConfigUpdate(d *schema.ResourceData, meta in
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if workstationConfigIdValue, ok := d.GetOk("workstation_config_id"); ok && workstationConfigIdValue.(string) != "" {
+			if err = identity.Set("workstation_config_id", workstationConfigIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting workstation_config_id: %s", err)
+			}
+		}
+		if workstationClusterIdValue, ok := d.GetOk("workstation_cluster_id"); ok && workstationClusterIdValue.(string) != "" {
+			if err = identity.Set("workstation_cluster_id", workstationClusterIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting workstation_cluster_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

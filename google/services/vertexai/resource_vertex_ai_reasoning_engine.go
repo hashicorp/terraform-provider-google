@@ -117,6 +117,26 @@ func ResourceVertexAIReasoningEngine() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"region": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:        schema.TypeString,
@@ -299,6 +319,17 @@ Platform Reasoning Engine service Agent.`,
 								},
 							},
 						},
+						"identity_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"SERVICE_ACCOUNT", "AGENT_IDENTITY", ""}),
+							Description: `Optional. The identity type to use for the Reasoning Engine.
+If not specified, the 'service_account' field will be used if set,
+otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used.
+Possible values:
+* 'SERVICE_ACCOUNT': Use a custom service account if the 'service_account' field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project.
+* 'AGENT_IDENTITY': Use Agent Identity. The 'service_account' field must not be set. Possible values: ["SERVICE_ACCOUNT", "AGENT_IDENTITY"]`,
+						},
 						"package_spec": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -385,6 +416,23 @@ Agent in the project will be used.`,
 											},
 										},
 									},
+									"image_spec": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for building an image with custom config file.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"build_args": {
+													Type:        schema.TypeMap,
+													Optional:    true,
+													Description: `Build arguments to be used. They will be passed through --build-arg flags.`,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+												},
+											},
+										},
+										ConflictsWith: []string{"spec.0.source_code_spec.0.python_spec"},
+									},
 									"inline_source": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -440,9 +488,15 @@ default value is 3.10.`,
 												},
 											},
 										},
+										ConflictsWith: []string{"spec.0.source_code_spec.0.image_spec"},
 									},
 								},
 							},
+						},
+						"effective_identity": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The identity to use for the Reasoning Engine.`,
 						},
 					},
 				},
@@ -618,6 +672,27 @@ func resourceVertexAIReasoningEngineCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
+			if err = identity.Set("region", regionValue.(string)); err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
@@ -714,6 +789,30 @@ func resourceVertexAIReasoningEngineRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("region"); !ok && v == "" {
+			err = identity.Set("region", d.Get("region").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -722,6 +821,26 @@ func resourceVertexAIReasoningEngineUpdate(d *schema.ResourceData, meta interfac
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
+			if err = identity.Set("region", regionValue.(string)); err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
@@ -963,6 +1082,10 @@ func flattenVertexAIReasoningEngineSpec(v interface{}, d *schema.ResourceData, c
 		flattenVertexAIReasoningEngineSpecSourceCodeSpec(original["sourceCodeSpec"], d, config)
 	transformed["service_account"] =
 		flattenVertexAIReasoningEngineSpecServiceAccount(original["serviceAccount"], d, config)
+	transformed["identity_type"] =
+		flattenVertexAIReasoningEngineSpecIdentityType(original["identityType"], d, config)
+	transformed["effective_identity"] =
+		flattenVertexAIReasoningEngineSpecEffectiveIdentity(original["effectiveIdentity"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIReasoningEngineSpecAgentFramework(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1231,6 +1354,8 @@ func flattenVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d *schema.R
 	transformed := make(map[string]interface{})
 	transformed["inline_source"] =
 		flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(original["inlineSource"], d, config)
+	transformed["image_spec"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecImageSpec(original["imageSpec"], d, config)
 	transformed["python_spec"] =
 		flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(original["pythonSpec"], d, config)
 	transformed["developer_connect_source"] =
@@ -1242,6 +1367,20 @@ func flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(v interface{},
 }
 func flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSourceSourceArchive(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("spec.0.source_code_spec.0.inline_source.0.source_archive")
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecImageSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["build_args"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecImageSpecBuildArgs(original["buildArgs"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecImageSpecBuildArgs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1322,6 +1461,14 @@ func flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfi
 }
 
 func flattenVertexAIReasoningEngineSpecServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecIdentityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecEffectiveIdentity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1411,6 +1558,20 @@ func expandVertexAIReasoningEngineSpec(v interface{}, d tpgresource.TerraformRes
 		return nil, err
 	} else if val := reflect.ValueOf(transformedServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["serviceAccount"] = transformedServiceAccount
+	}
+
+	transformedIdentityType, err := expandVertexAIReasoningEngineSpecIdentityType(original["identity_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdentityType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["identityType"] = transformedIdentityType
+	}
+
+	transformedEffectiveIdentity, err := expandVertexAIReasoningEngineSpecEffectiveIdentity(original["effective_identity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEffectiveIdentity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["effectiveIdentity"] = transformedEffectiveIdentity
 	}
 
 	return transformed, nil
@@ -1796,6 +1957,13 @@ func expandVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d tpgresourc
 		transformed["inlineSource"] = transformedInlineSource
 	}
 
+	transformedImageSpec, err := expandVertexAIReasoningEngineSpecSourceCodeSpecImageSpec(original["image_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["imageSpec"] = transformedImageSpec
+	}
+
 	transformedPythonSpec, err := expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(original["python_spec"], d, config)
 	if err != nil {
 		return nil, err
@@ -1837,6 +2005,44 @@ func expandVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(v interface{}, 
 
 func expandVertexAIReasoningEngineSpecSourceCodeSpecInlineSourceSourceArchive(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecImageSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBuildArgs, err := expandVertexAIReasoningEngineSpecSourceCodeSpecImageSpecBuildArgs(original["build_args"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["buildArgs"] = transformedBuildArgs
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecImageSpecBuildArgs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1969,5 +2175,13 @@ func expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfig
 }
 
 func expandVertexAIReasoningEngineSpecServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecIdentityType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecEffectiveIdentity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

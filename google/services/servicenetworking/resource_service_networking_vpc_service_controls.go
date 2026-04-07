@@ -190,6 +190,26 @@ func ResourceServiceNetworkingVPCServiceControls() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"network": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"service": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"enabled": {
 				Type:     schema.TypeBool,
@@ -279,6 +299,30 @@ func resourceServiceNetworkingVPCServiceControlsRead(d *schema.ResourceData, met
 
 	if err := d.Set("enabled", flattenServiceNetworkingVPCServiceControlsEnabled(res["enabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VPCServiceControls: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("network"); !ok && v == "" {
+			err = identity.Set("network", d.Get("network").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting network: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("service"); !ok && v == "" {
+			err = identity.Set("service", d.Get("service").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting service: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil
