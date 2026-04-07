@@ -267,16 +267,6 @@ func ResourceNetworkServicesGateway() *schema.Resource {
 				Required:    true,
 				Description: `Name of the Gateway resource.`,
 			},
-			"ports": {
-				Type:     schema.TypeList,
-				Required: true,
-				Description: `One or more port numbers (1-65535), on which the Gateway will receive traffic.
-The proxy binds to the specified ports.
- Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6 and support multiple ports.`,
-				Elem: &schema.Schema{
-					Type: schema.TypeInt,
-				},
-			},
 			"type": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -297,6 +287,16 @@ Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"all_ports": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `Configures this gateway to ​listen on all ports.
+By enabling the wildcard ports feature on​ ​your Secure Web Proxy Gateway,
+it will accept traffic destined for any port (1-65535) on its​ assigned IP address.​
+This field is configurable only for gateways of type SECURE_WEB_GATEWAY.`,
+				ConflictsWith: []string{"ports"},
 			},
 			"certificate_urls": {
 				Type:     schema.TypeList,
@@ -358,6 +358,17 @@ The default value is 'global'.`,
 For example: 'projects/*/global/networks/network-1'.
 
 Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.`,
+			},
+			"ports": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `One or more port numbers (1-65535), on which the Gateway will receive traffic.
+The proxy binds to the specified ports.
+ Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6 and support multiple ports.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				ConflictsWith: []string{"all_ports"},
 			},
 			"routing_mode": {
 				Type:             schema.TypeString,
@@ -460,6 +471,12 @@ func resourceNetworkServicesGatewayCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("addresses"); !tpgresource.IsEmptyValue(reflect.ValueOf(addressesProp)) && (ok || !reflect.DeepEqual(v, addressesProp)) {
 		obj["addresses"] = addressesProp
+	}
+	allPortsProp, err := expandNetworkServicesGatewayAllPorts(d.Get("all_ports"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("all_ports"); !tpgresource.IsEmptyValue(reflect.ValueOf(allPortsProp)) && (ok || !reflect.DeepEqual(v, allPortsProp)) {
+		obj["allPorts"] = allPortsProp
 	}
 	portsProp, err := expandNetworkServicesGatewayPorts(d.Get("ports"), d, config)
 	if err != nil {
@@ -674,6 +691,9 @@ func resourceNetworkServicesGatewayRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
 	if err := d.Set("addresses", flattenNetworkServicesGatewayAddresses(res["addresses"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Gateway: %s", err)
+	}
+	if err := d.Set("all_ports", flattenNetworkServicesGatewayAllPorts(res["allPorts"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
 	if err := d.Set("ports", flattenNetworkServicesGatewayPorts(res["ports"], d, config)); err != nil {
@@ -1058,6 +1078,10 @@ func flattenNetworkServicesGatewayAddresses(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenNetworkServicesGatewayAllPorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkServicesGatewayPorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1126,6 +1150,10 @@ func expandNetworkServicesGatewayType(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandNetworkServicesGatewayAddresses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesGatewayAllPorts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

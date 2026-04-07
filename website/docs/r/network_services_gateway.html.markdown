@@ -237,12 +237,6 @@ The following arguments are supported:
   Immutable. The type of the customer managed gateway.
   Possible values are: `OPEN_MESH`, `SECURE_WEB_GATEWAY`.
 
-* `ports` -
-  (Required)
-  One or more port numbers (1-65535), on which the Gateway will receive traffic.
-  The proxy binds to the specified ports.
-   Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6 and support multiple ports.
-
 * `name` -
   (Required)
   Name of the Gateway resource.
@@ -265,6 +259,19 @@ The following arguments are supported:
   When no address is provided, an IP from the subnetwork is allocated.
   This field only applies to gateways of type 'SECURE_WEB_GATEWAY'.
   Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6.
+
+* `all_ports` -
+  (Optional)
+  Configures this gateway to ​listen on all ports.
+  By enabling the wildcard ports feature on​ ​your Secure Web Proxy Gateway,
+  it will accept traffic destined for any port (1-65535) on its​ assigned IP address.​
+  This field is configurable only for gateways of type SECURE_WEB_GATEWAY.
+
+* `ports` -
+  (Optional)
+  One or more port numbers (1-65535), on which the Gateway will receive traffic.
+  The proxy binds to the specified ports.
+   Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6 and support multiple ports.
 
 * `scope` -
   (Optional)
