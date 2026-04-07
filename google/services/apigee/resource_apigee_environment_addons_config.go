@@ -387,6 +387,10 @@ func expandApigeeEnvironmentAddonsConfigAnalyticsEnabled(v interface{}, d tpgres
 }
 
 func resourceApigeeEnvironmentAddonsConfigDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	res["analyticsEnabled"] = res["analyticsConfig"].(map[string]interface{})["enabled"]
+	if analyticsConfig, ok := res["analyticsConfig"].(map[string]interface{}); ok {
+		res["analyticsEnabled"] = analyticsConfig["enabled"]
+	} else {
+		res["analyticsEnabled"] = false
+	}
 	return res, nil
 }
