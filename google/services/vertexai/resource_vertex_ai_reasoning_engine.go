@@ -197,6 +197,24 @@ is created.`,
 							Description: `Optional. Declarations for object class methods in OpenAPI
 specification format.`,
 						},
+						"container_spec": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Deploy from a container image with a defined entrypoint and commands.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"image_uri": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The Artifact Registry Docker image URI (e.g.,
+'us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag') of the
+container image that is to be run on each worker replica.`,
+									},
+								},
+							},
+							ConflictsWith: []string{"spec.0.source_code_spec"},
+						},
 						"deployment_spec": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -492,6 +510,7 @@ default value is 3.10.`,
 									},
 								},
 							},
+							ConflictsWith: []string{"spec.0.container_spec"},
 						},
 						"effective_identity": {
 							Type:        schema.TypeString,
@@ -1078,6 +1097,8 @@ func flattenVertexAIReasoningEngineSpec(v interface{}, d *schema.ResourceData, c
 		flattenVertexAIReasoningEngineSpecDeploymentSpec(original["deploymentSpec"], d, config)
 	transformed["package_spec"] =
 		flattenVertexAIReasoningEngineSpecPackageSpec(original["packageSpec"], d, config)
+	transformed["container_spec"] =
+		flattenVertexAIReasoningEngineSpecContainerSpec(original["containerSpec"], d, config)
 	transformed["source_code_spec"] =
 		flattenVertexAIReasoningEngineSpecSourceCodeSpec(original["sourceCodeSpec"], d, config)
 	transformed["service_account"] =
@@ -1343,6 +1364,23 @@ func flattenVertexAIReasoningEngineSpecPackageSpecRequirementsGcsUri(v interface
 	return v
 }
 
+func flattenVertexAIReasoningEngineSpecContainerSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["image_uri"] =
+		flattenVertexAIReasoningEngineSpecContainerSpecImageUri(original["imageUri"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecContainerSpecImageUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1544,6 +1582,13 @@ func expandVertexAIReasoningEngineSpec(v interface{}, d tpgresource.TerraformRes
 		return nil, err
 	} else if val := reflect.ValueOf(transformedPackageSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["packageSpec"] = transformedPackageSpec
+	}
+
+	transformedContainerSpec, err := expandVertexAIReasoningEngineSpecContainerSpec(original["container_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContainerSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["containerSpec"] = transformedContainerSpec
 	}
 
 	transformedSourceCodeSpec, err := expandVertexAIReasoningEngineSpecSourceCodeSpec(original["source_code_spec"], d, config)
@@ -1935,6 +1980,32 @@ func expandVertexAIReasoningEngineSpecPackageSpecPythonVersion(v interface{}, d 
 }
 
 func expandVertexAIReasoningEngineSpecPackageSpecRequirementsGcsUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecContainerSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedImageUri, err := expandVertexAIReasoningEngineSpecContainerSpecImageUri(original["image_uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedImageUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["imageUri"] = transformedImageUri
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecContainerSpecImageUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
