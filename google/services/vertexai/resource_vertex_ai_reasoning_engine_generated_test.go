@@ -74,6 +74,12 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeletionPolicyExample
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -113,6 +119,12 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -150,6 +162,12 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasedDeployment
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -203,6 +221,12 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeveloperConnectSourc
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -230,6 +254,62 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
         version           = "3.14"
         entrypoint_module = "simple_agent"
         entrypoint_object = "fixed_name_generator"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineImageSpecExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"name":          "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_vertexAiReasoningEngineImageSpecExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_vertexAiReasoningEngineImageSpecExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "%{name}"
+  description  = "Deployed with BYOC Dockerfile through Terraform"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/agent_src.tar.gz")
+      }
+
+      image_spec {
+        build_args = {}
       }
     }
   }
@@ -273,6 +353,12 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineFullExample(t *testin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

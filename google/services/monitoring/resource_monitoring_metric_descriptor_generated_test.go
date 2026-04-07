@@ -75,6 +75,12 @@ func TestAccMonitoringMetricDescriptor_monitoringMetricDescriptorBasicExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"launch_stage", "metadata"},
 			},
+			{
+				ResourceName:       "google_monitoring_metric_descriptor.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -126,6 +132,12 @@ func TestAccMonitoringMetricDescriptor_monitoringMetricDescriptorAlertExample(t 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"launch_stage", "metadata"},
+			},
+			{
+				ResourceName:       "google_monitoring_metric_descriptor.with_alert",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

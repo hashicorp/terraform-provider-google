@@ -177,6 +177,17 @@ SecurityFeedback can be imported using any of these accepted formats:
 * `{{org_id}}/securityFeedback/{{feedback_id}}`
 * `{{org_id}}/{{feedback_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import SecurityFeedback using identity values. For example:
+
+```tf
+import {
+  identity = {
+    orgId = "<-required value->"
+    feedbackId = "<-required value->"
+  }
+  to = google_apigee_security_feedback.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import SecurityFeedback using one of the formats above. For example:
 

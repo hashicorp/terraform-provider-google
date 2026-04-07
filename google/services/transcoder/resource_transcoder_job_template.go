@@ -118,6 +118,26 @@ func ResourceTranscoderJobTemplate() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"job_template_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"job_template_id": {
 				Type:        schema.TypeString,
@@ -896,6 +916,27 @@ func resourceTranscoderJobTemplateCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if jobTemplateIdValue, ok := d.GetOk("job_template_id"); ok && jobTemplateIdValue.(string) != "" {
+			if err = identity.Set("job_template_id", jobTemplateIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting job_template_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating JobTemplate %q: %#v", d.Id(), res)
 
 	return resourceTranscoderJobTemplateRead(d, meta)
@@ -959,6 +1000,30 @@ func resourceTranscoderJobTemplateRead(d *schema.ResourceData, meta interface{})
 	}
 	if err := d.Set("effective_labels", flattenTranscoderJobTemplateEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading JobTemplate: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("job_template_id"); !ok && v == "" {
+			err = identity.Set("job_template_id", d.Get("job_template_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting job_template_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

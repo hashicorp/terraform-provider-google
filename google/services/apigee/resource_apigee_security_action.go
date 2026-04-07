@@ -111,6 +111,26 @@ func ResourceApigeeSecurityAction() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"env_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"security_action_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"condition_config": {
 				Type:        schema.TypeList,
@@ -471,6 +491,27 @@ func resourceApigeeSecurityActionCreate(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if envIdValue, ok := d.GetOk("env_id"); ok && envIdValue.(string) != "" {
+			if err = identity.Set("env_id", envIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting env_id: %s", err)
+			}
+		}
+		if securityActionIdValue, ok := d.GetOk("security_action_id"); ok && securityActionIdValue.(string) != "" {
+			if err = identity.Set("security_action_id", securityActionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting security_action_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating SecurityAction %q: %#v", d.Id(), res)
 
 	return resourceApigeeSecurityActionRead(d, meta)
@@ -542,6 +583,30 @@ func resourceApigeeSecurityActionRead(d *schema.ResourceData, meta interface{}) 
 	}
 	if err := d.Set("ttl", flattenApigeeSecurityActionTtl(res["ttl"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); !ok && v == "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("env_id"); !ok && v == "" {
+			err = identity.Set("env_id", d.Get("env_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting env_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("security_action_id"); !ok && v == "" {
+			err = identity.Set("security_action_id", d.Get("security_action_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting security_action_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

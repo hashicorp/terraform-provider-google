@@ -75,6 +75,12 @@ func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGheExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "parent_connection"},
 			},
+			{
+				ResourceName:       "google_cloudbuildv2_repository.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -133,6 +139,12 @@ func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGithubExample(t *testin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "parent_connection"},
+			},
+			{
+				ResourceName:       "google_cloudbuildv2_repository.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -194,6 +206,12 @@ func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGleExample(t *testing.T
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "parent_connection"},
+			},
+			{
+				ResourceName:       "google_cloudbuildv2_repository.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

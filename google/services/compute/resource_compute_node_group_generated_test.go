@@ -75,6 +75,12 @@ func TestAccComputeNodeGroup_nodeGroupBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"initial_size", "node_template", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_node_group.nodes",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -122,6 +128,12 @@ func TestAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"initial_size", "node_template", "zone"},
+			},
+			{
+				ResourceName:       "google_compute_node_group.nodes",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -181,6 +193,12 @@ func TestAccComputeNodeGroup_nodeGroupShareSettingsExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"initial_size", "node_template", "zone"},
+			},
+			{
+				ResourceName:       "google_compute_node_group.nodes",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

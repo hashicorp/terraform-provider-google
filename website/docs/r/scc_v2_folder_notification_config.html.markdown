@@ -146,6 +146,18 @@ FolderNotificationConfig can be imported using any of these accepted formats:
 * `folders/{{folder}}/locations/{{location}}/notificationConfigs/{{config_id}}`
 * `{{folder}}/{{location}}/{{config_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import FolderNotificationConfig using identity values. For example:
+
+```tf
+import {
+  identity = {
+    folder = "<-required value->"
+    location = "<-optional value->"
+    configId = "<-required value->"
+  }
+  to = google_scc_v2_folder_notification_config.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import FolderNotificationConfig using one of the formats above. For example:
 

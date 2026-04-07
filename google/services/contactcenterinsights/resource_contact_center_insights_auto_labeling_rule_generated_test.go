@@ -75,6 +75,12 @@ func TestAccContactCenterInsightsAutoLabelingRule_contactCenterInsightsAutoLabel
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"auto_labeling_rule_id", "location"},
 			},
+			{
+				ResourceName:       "google_contact_center_insights_auto_labeling_rule.auto_labeling_rule_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

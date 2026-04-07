@@ -77,6 +77,12 @@ func TestAccComputeRegionUrlMap_regionUrlMapBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
+			{
+				ResourceName:       "google_compute_region_url_map.regionurlmap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -180,6 +186,12 @@ func TestAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(t *testing
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"default_service", "region"},
+			},
+			{
+				ResourceName:       "google_compute_region_url_map.regionurlmap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -385,6 +397,12 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
+			{
+				ResourceName:       "google_compute_region_url_map.regionurlmap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -521,6 +539,12 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
+			{
+				ResourceName:       "google_compute_region_url_map.regionurlmap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -624,6 +648,12 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"default_service", "region"},
+			},
+			{
+				ResourceName:       "google_compute_region_url_map.regionurlmap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -742,6 +772,12 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
+			{
+				ResourceName:       "google_compute_region_url_map.regionurlmap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -835,6 +871,12 @@ func TestAccComputeRegionUrlMap_regionUrlMapPathTemplateMatchExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"default_service", "region"},
+			},
+			{
+				ResourceName:       "google_compute_region_url_map.urlmap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -958,6 +1000,12 @@ func TestAccComputeRegionUrlMap_regionUrlMapPathMatcherDefaultRouteActionExample
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"default_service", "region"},
+			},
+			{
+				ResourceName:       "google_compute_region_url_map.regionurlmap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

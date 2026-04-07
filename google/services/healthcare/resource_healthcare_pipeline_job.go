@@ -117,6 +117,22 @@ func ResourceHealthcarePipelineJob() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"dataset": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"dataset": {
 				Type:        schema.TypeString,
@@ -433,6 +449,22 @@ func resourceHealthcarePipelineJobCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if datasetValue, ok := d.GetOk("dataset"); ok && datasetValue.(string) != "" {
+			if err = identity.Set("dataset", datasetValue.(string)); err != nil {
+				return fmt.Errorf("Error setting dataset: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = HealthcareOperationWaitTime(
 		config, res, "Creating PipelineJob", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -519,6 +551,24 @@ func resourceHealthcarePipelineJobRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading PipelineJob: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("dataset"); !ok && v == "" {
+			err = identity.Set("dataset", d.Get("dataset").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting dataset: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -527,6 +577,21 @@ func resourceHealthcarePipelineJobUpdate(d *schema.ResourceData, meta interface{
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if datasetValue, ok := d.GetOk("dataset"); ok && datasetValue.(string) != "" {
+			if err = identity.Set("dataset", datasetValue.(string)); err != nil {
+				return fmt.Errorf("Error setting dataset: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

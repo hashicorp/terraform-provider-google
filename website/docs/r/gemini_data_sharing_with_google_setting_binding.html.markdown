@@ -127,6 +127,19 @@ DataSharingWithGoogleSettingBinding can be imported using any of these accepted 
 * `{{project}}/{{location}}/{{data_sharing_with_google_setting_id}}/{{setting_binding_id}}`
 * `{{location}}/{{data_sharing_with_google_setting_id}}/{{setting_binding_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import DataSharingWithGoogleSettingBinding using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-optional value->"
+    dataSharingWithGoogleSettingId = "<-required value->"
+    settingBindingId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_gemini_data_sharing_with_google_setting_binding.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DataSharingWithGoogleSettingBinding using one of the formats above. For example:
 

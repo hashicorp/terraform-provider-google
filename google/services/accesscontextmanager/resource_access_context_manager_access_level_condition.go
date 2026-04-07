@@ -107,6 +107,18 @@ func ResourceAccessContextManagerAccessLevelCondition() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"access_level": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"access_level": {
 				Type:             schema.TypeString,
@@ -414,6 +426,17 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if accessLevelValue, ok := d.GetOk("access_level"); ok && accessLevelValue.(string) != "" {
+			if err = identity.Set("access_level", accessLevelValue.(string)); err != nil {
+				return fmt.Errorf("Error setting access_level: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = transport_tpg.PollingWaitTime(resourceAccessContextManagerAccessLevelConditionPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating AccessLevelCondition", d.Timeout(schema.TimeoutCreate), 1)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create AccessLevelCondition: %s", err)
@@ -535,6 +558,18 @@ func resourceAccessContextManagerAccessLevelConditionRead(d *schema.ResourceData
 	}
 	if err := d.Set("vpc_network_sources", flattenNestedAccessContextManagerAccessLevelConditionVpcNetworkSources(res["vpcNetworkSources"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessLevelCondition: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("access_level"); !ok && v == "" {
+			err = identity.Set("access_level", d.Get("access_level").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting access_level: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

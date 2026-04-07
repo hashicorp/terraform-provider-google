@@ -74,6 +74,12 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"policy_id"},
 			},
+			{
+				ResourceName:       "google_compute_organization_security_policy_rule.policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -124,6 +130,12 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"policy_id"},
+			},
+			{
+				ResourceName:       "google_compute_organization_security_policy_rule.policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

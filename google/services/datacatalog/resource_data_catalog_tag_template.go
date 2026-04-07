@@ -180,6 +180,18 @@ func ResourceDataCatalogTagTemplate() *schema.Resource {
 
 		DeprecationMessage: "`google_data_catalog_tag_template` is deprecated and will be removed in a future major release. Use `google_dataplex_aspect_type` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.",
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"fields": {
 				Type:        schema.TypeSet,
@@ -386,6 +398,17 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating TagTemplate %q: %#v", d.Id(), res)
 
 	return resourceDataCatalogTagTemplateRead(d, meta)
@@ -453,6 +476,18 @@ func resourceDataCatalogTagTemplateRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading TagTemplate: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -461,6 +496,16 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

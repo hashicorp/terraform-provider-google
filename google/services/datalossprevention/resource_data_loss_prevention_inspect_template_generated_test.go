@@ -75,6 +75,12 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(t *
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_inspect_template.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -213,6 +219,12 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExampl
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_inspect_template.custom",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -308,6 +320,12 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeSurrog
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_inspect_template.custom_type_surrogate",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -402,6 +420,12 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateWithTemplateIdEx
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_inspect_template.with_template_id",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -481,6 +505,12 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateMaxInfotypePerFi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "template_id"},
+			},
+			{
+				ResourceName:       "google_data_loss_prevention_inspect_template.max_infotype_per_finding_default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

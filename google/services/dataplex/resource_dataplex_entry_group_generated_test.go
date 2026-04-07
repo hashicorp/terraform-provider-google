@@ -75,6 +75,12 @@ func TestAccDataplexEntryGroup_dataplexEntryGroupBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"entry_group_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataplex_entry_group.test_entry_group_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -113,6 +119,12 @@ func TestAccDataplexEntryGroup_dataplexEntryGroupFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"entry_group_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataplex_entry_group.test_entry_group_full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

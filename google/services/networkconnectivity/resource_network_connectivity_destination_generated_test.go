@@ -75,6 +75,12 @@ func TestAccNetworkConnectivityDestination_networkConnectivityDestinationBasicEx
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "multicloud_data_transfer_config", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_destination.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

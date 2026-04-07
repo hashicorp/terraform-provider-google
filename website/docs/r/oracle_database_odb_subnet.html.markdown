@@ -142,6 +142,19 @@ OdbSubnet can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{odbnetwork}}/{{odb_subnet_id}}`
 * `{{location}}/{{odbnetwork}}/{{odb_subnet_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import OdbSubnet using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    odbnetwork = "<-required value->"
+    odbSubnetId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_oracle_database_odb_subnet.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import OdbSubnet using one of the formats above. For example:
 

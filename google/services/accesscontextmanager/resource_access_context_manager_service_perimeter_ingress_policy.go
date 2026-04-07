@@ -219,6 +219,18 @@ func ResourceAccessContextManagerServicePerimeterIngressPolicy() *schema.Resourc
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"perimeter": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"perimeter": {
 				Type:             schema.TypeString,
@@ -506,6 +518,17 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyCreate(d *schema.R
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if perimeterValue, ok := d.GetOk("perimeter"); ok && perimeterValue.(string) != "" {
+			if err = identity.Set("perimeter", perimeterValue.(string)); err != nil {
+				return fmt.Errorf("Error setting perimeter: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = AccessContextManagerOperationWaitTime(
 		config, res, "Creating ServicePerimeterIngressPolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -581,6 +604,18 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyRead(d *schema.Res
 	}
 	if err := d.Set("etag", flattenNestedAccessContextManagerServicePerimeterIngressPolicyEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("perimeter"); !ok && v == "" {
+			err = identity.Set("perimeter", d.Get("perimeter").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting perimeter: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

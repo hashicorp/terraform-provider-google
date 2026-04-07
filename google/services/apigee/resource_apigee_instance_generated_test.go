@@ -79,6 +79,12 @@ func TestAccApigeeInstance_apigeeInstanceBasicTestExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"ip_range", "org_id"},
 			},
+			{
+				ResourceName:       "google_apigee_instance.apigee_instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -189,6 +195,12 @@ func TestAccApigeeInstance_apigeeInstanceCidrRangeTestExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"ip_range", "org_id"},
+			},
+			{
+				ResourceName:       "google_apigee_instance.apigee_instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -302,6 +314,12 @@ func TestAccApigeeInstance_apigeeInstanceIpRangeTestExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"ip_range", "org_id"},
 			},
+			{
+				ResourceName:       "google_apigee_instance.apigee_instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -413,6 +431,12 @@ func TestAccApigeeInstance_apigeeInstanceServiceAttachmentBasicTestExample(t *te
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"ip_range", "org_id"},
+			},
+			{
+				ResourceName:       "google_apigee_instance.apigee_instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

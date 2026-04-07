@@ -152,6 +152,18 @@ Namespace can be imported using any of these accepted formats:
 * `{{project}}/{{scope_id}}/{{scope_namespace_id}}`
 * `{{scope_id}}/{{scope_namespace_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Namespace using identity values. For example:
+
+```tf
+import {
+  identity = {
+    scopeNamespaceId = "<-required value->"
+    scope_id = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_gke_hub_namespace.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Namespace using one of the formats above. For example:
 

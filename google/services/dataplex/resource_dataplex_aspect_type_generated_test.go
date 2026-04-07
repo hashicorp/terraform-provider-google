@@ -75,6 +75,12 @@ func TestAccDataplexAspectType_dataplexAspectTypeBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"aspect_type_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataplex_aspect_type.test_aspect_type_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -141,6 +147,12 @@ func TestAccDataplexAspectType_dataplexAspectTypeFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"aspect_type_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataplex_aspect_type.test_aspect_type_full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

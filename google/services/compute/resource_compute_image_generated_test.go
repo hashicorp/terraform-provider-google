@@ -75,6 +75,12 @@ func TestAccComputeImage_imageBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"image_encryption_key.0.raw_key", "image_encryption_key.0.rsa_encrypted_key", "labels", "raw_disk", "source_disk", "source_disk_encryption_key", "source_image", "source_image_encryption_key", "source_snapshot", "source_snapshot_encryption_key", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_compute_image.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -126,6 +132,12 @@ func TestAccComputeImage_imageGuestOsExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"image_encryption_key.0.raw_key", "image_encryption_key.0.rsa_encrypted_key", "labels", "raw_disk", "source_disk", "source_disk_encryption_key", "source_image", "source_image_encryption_key", "source_snapshot", "source_snapshot_encryption_key", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_compute_image.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -198,6 +210,12 @@ func TestAccComputeImage_imageBasicStorageLocationExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"image_encryption_key.0.raw_key", "image_encryption_key.0.rsa_encrypted_key", "labels", "raw_disk", "source_disk", "source_disk_encryption_key", "source_image", "source_image_encryption_key", "source_snapshot", "source_snapshot_encryption_key", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_compute_image.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

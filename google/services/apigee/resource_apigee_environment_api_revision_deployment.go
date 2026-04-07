@@ -111,6 +111,30 @@ func ResourceApigeeEnvironmentApiRevisionDeployment() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"environment": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"api": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"revision": {
+						Type:              schema.TypeInt,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"api": {
 				Type:        schema.TypeString,
@@ -223,6 +247,33 @@ func resourceApigeeEnvironmentApiRevisionDeploymentCreate(d *schema.ResourceData
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if environmentValue, ok := d.GetOk("environment"); ok && environmentValue.(string) != "" {
+			if err = identity.Set("environment", environmentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting environment: %s", err)
+			}
+		}
+		if apiValue, ok := d.GetOk("api"); ok && apiValue.(string) != "" {
+			if err = identity.Set("api", apiValue.(string)); err != nil {
+				return fmt.Errorf("Error setting api: %s", err)
+			}
+		}
+		if _, ok := d.GetOk("revision"); ok {
+			err = identity.Set("revision", d.Get("revision").(int))
+			if err != nil {
+				return fmt.Errorf("Error setting revision: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating EnvironmentApiRevisionDeployment %q: %#v", d.Id(), res)
 
 	return resourceApigeeEnvironmentApiRevisionDeploymentRead(d, meta)
@@ -270,6 +321,36 @@ func resourceApigeeEnvironmentApiRevisionDeploymentRead(d *schema.ResourceData, 
 	}
 	if err := d.Set("deploy_start_time", flattenApigeeEnvironmentApiRevisionDeploymentDeployStartTime(res["deployStartTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EnvironmentApiRevisionDeployment: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); !ok && v == "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("environment"); !ok && v == "" {
+			err = identity.Set("environment", d.Get("environment").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting environment: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("api"); !ok && v == "" {
+			err = identity.Set("api", d.Get("api").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting api: %s", err)
+			}
+		}
+		if _, ok := identity.GetOk("revision"); !ok {
+			err = identity.Set("revision", d.Get("revision").(int))
+			if err != nil {
+				return fmt.Errorf("Error setting revision: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

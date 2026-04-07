@@ -218,6 +218,18 @@ MulticastGroupRangeActivation can be imported using any of these accepted format
 * `{{project}}/{{location}}/{{multicast_group_range_activation_id}}`
 * `{{location}}/{{multicast_group_range_activation_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import MulticastGroupRangeActivation using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    multicastGroupRangeActivationId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_network_services_multicast_group_range_activation.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import MulticastGroupRangeActivation using one of the formats above. For example:
 

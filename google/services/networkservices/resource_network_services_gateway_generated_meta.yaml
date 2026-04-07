@@ -8,6 +8,7 @@ api_version: v1
 api_resource_type_kind: Gateway
 fields:
     - api_field: addresses
+    - api_field: allPorts
     - api_field: certificateUrls
     - api_field: createTime
     - field: delete_swg_autogen_router_on_destroy

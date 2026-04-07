@@ -76,6 +76,12 @@ func TestAccComputeInterconnectAttachment_interconnectAttachmentBasicExample(t *
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "params", "region", "router", "subnet_length", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_compute_interconnect_attachment.on_prem",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -132,6 +138,12 @@ func TestAccComputeInterconnectAttachment_interconnectAttachmentDedicatedExample
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "params", "region", "router", "subnet_length", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_compute_interconnect_attachment.on_prem",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -206,6 +218,12 @@ func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncr
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "params", "region", "router", "subnet_length", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_compute_interconnect_attachment.ipsec-encrypted-interconnect-attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -273,6 +291,12 @@ func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentCustomRan
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "params", "region", "router", "subnet_length", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_compute_interconnect_attachment.custom-ranges-interconnect-attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

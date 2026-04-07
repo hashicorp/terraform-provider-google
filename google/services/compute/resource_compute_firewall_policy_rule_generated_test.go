@@ -80,6 +80,12 @@ func TestAccComputeFirewallPolicyRule_firewallPolicyRuleExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
 			},
+			{
+				ResourceName:       "google_compute_firewall_policy_rule.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -185,6 +191,12 @@ func TestAccComputeFirewallPolicyRule_firewallPolicyRuleNetworkContextExample(t 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+			{
+				ResourceName:       "google_compute_firewall_policy_rule.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -294,6 +306,12 @@ func TestAccComputeFirewallPolicyRule_firewallPolicyRuleSecureTagsExample(t *tes
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+			{
+				ResourceName:       "google_compute_firewall_policy_rule.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -75,6 +75,12 @@ func TestAccBiglakeIcebergIcebergNamespace_biglakeIcebergNamespaceExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"catalog"},
 			},
+			{
+				ResourceName:       "google_biglake_iceberg_namespace.my_iceberg_namespace",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

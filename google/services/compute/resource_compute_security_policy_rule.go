@@ -117,6 +117,26 @@ func ResourceComputeSecurityPolicyRule() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"priority": {
+						Type:              schema.TypeInt,
+						RequiredForImport: true,
+					},
+					"security_policy": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"action": {
 				Type:     schema.TypeString,
@@ -712,6 +732,28 @@ func resourceComputeSecurityPolicyRuleCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if _, ok := d.GetOk("priority"); ok {
+			err = identity.Set("priority", d.Get("priority").(int))
+			if err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
+		}
+		if securityPolicyValue, ok := d.GetOk("security_policy"); ok && securityPolicyValue.(string) != "" {
+			if err = identity.Set("security_policy", securityPolicyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting security_policy: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = ComputeOperationWaitTime(
 		config, res, project, "Creating SecurityPolicyRule", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -799,6 +841,30 @@ func resourceComputeSecurityPolicyRuleRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if _, ok := identity.GetOk("priority"); !ok {
+			err = identity.Set("priority", d.Get("priority").(int))
+			if err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("security_policy"); !ok && v == "" {
+			err = identity.Set("security_policy", d.Get("security_policy").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting security_policy: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -807,6 +873,27 @@ func resourceComputeSecurityPolicyRuleUpdate(d *schema.ResourceData, meta interf
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if _, ok := d.GetOk("priority"); ok {
+			err = identity.Set("priority", d.Get("priority").(int))
+			if err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
+		}
+		if securityPolicyValue, ok := d.GetOk("security_policy"); ok && securityPolicyValue.(string) != "" {
+			if err = identity.Set("security_policy", securityPolicyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting security_policy: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

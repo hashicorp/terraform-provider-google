@@ -131,6 +131,17 @@ EnvironmentKeyvaluemaps can be imported using any of these accepted formats:
 * `{{env_id}}/keyvaluemaps/{{name}}`
 * `{{env_id}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import EnvironmentKeyvaluemaps using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-required value->"
+    envId = "<-required value->"
+  }
+  to = google_apigee_environment_keyvaluemaps.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import EnvironmentKeyvaluemaps using one of the formats above. For example:
 

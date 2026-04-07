@@ -223,6 +223,18 @@ MulticastGroupConsumerActivation can be imported using any of these accepted for
 * `{{project}}/{{location}}/{{multicast_group_consumer_activation_id}}`
 * `{{location}}/{{multicast_group_consumer_activation_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import MulticastGroupConsumerActivation using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    multicastGroupConsumerActivationId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_network_services_multicast_group_consumer_activation.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import MulticastGroupConsumerActivation using one of the formats above. For example:
 

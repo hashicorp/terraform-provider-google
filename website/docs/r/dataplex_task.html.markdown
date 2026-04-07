@@ -593,6 +593,19 @@ Task can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{lake}}/{{task_id}}`
 * `{{location}}/{{lake}}/{{task_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Task using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-optional value->"
+    lake = "<-optional value->"
+    taskId = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_dataplex_task.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Task using one of the formats above. For example:
 

@@ -113,6 +113,22 @@ func ResourceSecurityCenterEventThreatDetectionCustomModule() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"organization": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"config": {
 				Type:         schema.TypeString,
@@ -250,6 +266,22 @@ func resourceSecurityCenterEventThreatDetectionCustomModuleCreate(d *schema.Reso
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
+			if err = identity.Set("organization", organizationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating EventThreatDetectionCustomModule %q: %#v", d.Id(), res)
 
 	return resourceSecurityCenterEventThreatDetectionCustomModuleRead(d, meta)
@@ -311,6 +343,24 @@ func resourceSecurityCenterEventThreatDetectionCustomModuleRead(d *schema.Resour
 		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("organization"); !ok && v == "" {
+			err = identity.Set("organization", d.Get("organization").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -319,6 +369,21 @@ func resourceSecurityCenterEventThreatDetectionCustomModuleUpdate(d *schema.Reso
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
+			if err = identity.Set("organization", organizationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

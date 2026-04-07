@@ -76,6 +76,12 @@ func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableBasicExample(t *testin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"catalog", "namespace"},
 			},
+			{
+				ResourceName:       "google_biglake_iceberg_table.my_iceberg_table",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -158,6 +164,12 @@ func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableUpdateExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"catalog", "namespace"},
+			},
+			{
+				ResourceName:       "google_biglake_iceberg_table.my_iceberg_table",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

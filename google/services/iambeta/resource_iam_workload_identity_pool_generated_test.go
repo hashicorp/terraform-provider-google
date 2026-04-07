@@ -74,6 +74,12 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolBasicExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"workload_identity_pool_id"},
 			},
+			{
+				ResourceName:       "google_iam_workload_identity_pool.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -109,6 +115,12 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullFederationOnl
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"workload_identity_pool_id"},
+			},
+			{
+				ResourceName:       "google_iam_workload_identity_pool.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -150,6 +162,12 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullTrustDomainMo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"workload_identity_pool_id"},
+			},
+			{
+				ResourceName:       "google_iam_workload_identity_pool.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -223,6 +241,12 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullTrustDomainMo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"workload_identity_pool_id"},
+			},
+			{
+				ResourceName:       "google_iam_workload_identity_pool.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

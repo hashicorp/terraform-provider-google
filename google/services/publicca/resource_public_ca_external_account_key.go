@@ -220,6 +220,37 @@ func resourcePublicCAExternalAccountKeyCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if keyIdValue, ok := d.GetOk("key_id"); ok && keyIdValue.(string) != "" {
+			if err = identity.Set("key_id", keyIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting key_id: %s", err)
+			}
+		}
+		if b64MacKeyValue, ok := d.GetOk("b64_mac_key"); ok && b64MacKeyValue.(string) != "" {
+			if err = identity.Set("b64_mac_key", b64MacKeyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting b64_mac_key: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	if err := d.Set("b64_mac_key", flattenPublicCAExternalAccountKeyB64MacKey(res["b64MacKey"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ExternalAccountKey: %s", err)
 	}
@@ -239,6 +270,8 @@ func resourcePublicCAExternalAccountKeyCreate(d *schema.ResourceData, meta inter
 
 func resourcePublicCAExternalAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
 	// This resource could not be read from the API.
+	return nil
+
 	return nil
 }
 

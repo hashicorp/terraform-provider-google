@@ -153,6 +153,18 @@ OrganizationVpcFlowLogsConfig can be imported using any of these accepted format
 * `organizations/{{organization}}/locations/{{location}}/vpcFlowLogsConfigs/{{vpc_flow_logs_config_id}}`
 * `{{organization}}/{{location}}/{{vpc_flow_logs_config_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import OrganizationVpcFlowLogsConfig using identity values. For example:
+
+```tf
+import {
+  identity = {
+    organization = "<-required value->"
+    location = "<-required value->"
+    vpcFlowLogsConfigId = "<-required value->"
+  }
+  to = google_network_management_organization_vpc_flow_logs_config.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import OrganizationVpcFlowLogsConfig using one of the formats above. For example:
 

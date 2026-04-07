@@ -118,6 +118,22 @@ func ResourceOSConfigV2PolicyOrchestrator() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"policy_orchestrator_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"action": {
 				Type:     schema.TypeString,
@@ -1836,6 +1852,22 @@ func resourceOSConfigV2PolicyOrchestratorCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if policyOrchestratorIdValue, ok := d.GetOk("policy_orchestrator_id"); ok && policyOrchestratorIdValue.(string) != "" {
+			if err = identity.Set("policy_orchestrator_id", policyOrchestratorIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = OSConfigV2OperationWaitTime(
 		config, res, project, "Creating PolicyOrchestrator", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -1935,6 +1967,24 @@ func resourceOSConfigV2PolicyOrchestratorRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading PolicyOrchestrator: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("policy_orchestrator_id"); !ok && v == "" {
+			err = identity.Set("policy_orchestrator_id", d.Get("policy_orchestrator_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -1943,6 +1993,21 @@ func resourceOSConfigV2PolicyOrchestratorUpdate(d *schema.ResourceData, meta int
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if policyOrchestratorIdValue, ok := d.GetOk("policy_orchestrator_id"); ok && policyOrchestratorIdValue.(string) != "" {
+			if err = identity.Set("policy_orchestrator_id", policyOrchestratorIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

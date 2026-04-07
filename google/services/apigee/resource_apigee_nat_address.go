@@ -134,6 +134,22 @@ func ResourceApigeeNatAddress() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"instance_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"instance_id": {
 				Type:     schema.TypeString,
@@ -230,6 +246,22 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if instanceIdValue, ok := d.GetOk("instance_id"); ok && instanceIdValue.(string) != "" {
+			if err = identity.Set("instance_id", instanceIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting instance_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = ApigeeOperationWaitTime(
 		config, res, "Creating NatAddress", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -313,6 +345,24 @@ func resourceApigeeNatAddressRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	if err := d.Set("state", flattenApigeeNatAddressState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NatAddress: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("instance_id"); !ok && v == "" {
+			err = identity.Set("instance_id", d.Get("instance_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting instance_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

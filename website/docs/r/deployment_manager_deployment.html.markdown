@@ -233,6 +233,17 @@ Deployment can be imported using any of these accepted formats:
 * `{{project}}/{{name}}`
 * `{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Deployment using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_deployment_manager_deployment.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Deployment using one of the formats above. For example:
 

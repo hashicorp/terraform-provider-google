@@ -117,6 +117,26 @@ func ResourceSecurityCenterV2ProjectMuteConfig() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"mute_config_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"filter": {
 				Type:     schema.TypeString,
@@ -257,6 +277,27 @@ func resourceSecurityCenterV2ProjectMuteConfigCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if muteConfigIdValue, ok := d.GetOk("mute_config_id"); ok && muteConfigIdValue.(string) != "" {
+			if err = identity.Set("mute_config_id", muteConfigIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting mute_config_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating ProjectMuteConfig %q: %#v", d.Id(), res)
 
 	return resourceSecurityCenterV2ProjectMuteConfigRead(d, meta)
@@ -328,6 +369,30 @@ func resourceSecurityCenterV2ProjectMuteConfigRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("mute_config_id"); !ok && v == "" {
+			err = identity.Set("mute_config_id", d.Get("mute_config_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting mute_config_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -336,6 +401,26 @@ func resourceSecurityCenterV2ProjectMuteConfigUpdate(d *schema.ResourceData, met
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if muteConfigIdValue, ok := d.GetOk("mute_config_id"); ok && muteConfigIdValue.(string) != "" {
+			if err = identity.Set("mute_config_id", muteConfigIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting mute_config_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

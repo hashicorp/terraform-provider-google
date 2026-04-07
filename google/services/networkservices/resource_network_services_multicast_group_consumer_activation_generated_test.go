@@ -81,6 +81,12 @@ func TestAccNetworkServicesMulticastGroupConsumerActivation_networkServicesMulti
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "multicast_group_consumer_activation_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_services_multicast_group_consumer_activation.mgca_test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

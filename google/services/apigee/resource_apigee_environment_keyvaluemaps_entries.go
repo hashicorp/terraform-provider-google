@@ -111,6 +111,22 @@ func ResourceApigeeEnvironmentKeyvaluemapsEntries() *schema.Resource {
 			Delete: schema.DefaultTimeout(1 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"env_keyvaluemap_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"env_keyvaluemap_id": {
 				Type:     schema.TypeString,
@@ -192,6 +208,22 @@ func resourceApigeeEnvironmentKeyvaluemapsEntriesCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if envKeyvaluemapIdValue, ok := d.GetOk("env_keyvaluemap_id"); ok && envKeyvaluemapIdValue.(string) != "" {
+			if err = identity.Set("env_keyvaluemap_id", envKeyvaluemapIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting env_keyvaluemap_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating EnvironmentKeyvaluemapsEntries %q: %#v", d.Id(), res)
 
 	return resourceApigeeEnvironmentKeyvaluemapsEntriesRead(d, meta)
@@ -236,6 +268,24 @@ func resourceApigeeEnvironmentKeyvaluemapsEntriesRead(d *schema.ResourceData, me
 	}
 	if err := d.Set("value", flattenApigeeEnvironmentKeyvaluemapsEntriesValue(res["value"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EnvironmentKeyvaluemapsEntries: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("env_keyvaluemap_id"); !ok && v == "" {
+			err = identity.Set("env_keyvaluemap_id", d.Get("env_keyvaluemap_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting env_keyvaluemap_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

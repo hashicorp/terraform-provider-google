@@ -267,6 +267,17 @@ FeaturestoreEntitytype can be imported using any of these accepted formats:
 
 * `{{featurestore}}/entityTypes/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import FeaturestoreEntitytype using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-optional value->"
+    featurestore = "<-required value->"
+  }
+  to = google_vertex_ai_featurestore_entitytype.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import FeaturestoreEntitytype using one of the formats above. For example:
 

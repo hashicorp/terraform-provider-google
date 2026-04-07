@@ -172,6 +172,20 @@ ConsumerQuotaOverride can be imported using any of these accepted formats:
 * `services/{{service}}/consumerQuotaMetrics/{{metric}}/limits/{{limit}}/consumerOverrides/{{name}}`
 * `{{service}}/{{metric}}/{{limit}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import ConsumerQuotaOverride using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-optional value->"
+    service = "<-required value->"
+    metric = "<-required value->"
+    limit = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_service_usage_consumer_quota_override.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ConsumerQuotaOverride using one of the formats above. For example:
 

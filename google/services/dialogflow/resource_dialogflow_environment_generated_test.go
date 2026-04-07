@@ -79,6 +79,12 @@ func TestAccDialogflowEnvironment_dialogflowEnvironmentBasicExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"environmentid", "location"},
 			},
+			{
+				ResourceName:       "google_dialogflow_environment.basic_environment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

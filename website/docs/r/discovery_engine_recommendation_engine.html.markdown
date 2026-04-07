@@ -278,6 +278,18 @@ RecommendationEngine can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{engine_id}}`
 * `{{location}}/{{engine_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import RecommendationEngine using identity values. For example:
+
+```tf
+import {
+  identity = {
+    engineId = "<-required value->"
+    location = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_discovery_engine_recommendation_engine.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RecommendationEngine using one of the formats above. For example:
 
