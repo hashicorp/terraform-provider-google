@@ -3,7 +3,7 @@ BREAKING CHANGES:
 * lustre: marked `maintenance_policy.weekly_maintenance_windows` field required in `google_lustre_instance` resource. Configuring `maintenance_policy` without `weekly_maintenance_windows` will cause an API error. ([#26741](https://github.com/hashicorp/terraform-provider-google/pull/26741))
 
 FEATURES:
-* **New Data Source:** added `google_discovery_engine_data_store` data source for reading a single Discovery Engine data store by ID or display name ([#26651](https://github.com/hashicorp/terraform-provider-google/pull/26651))
+* **New Data Source:** `google_discovery_engine_data_store` ([#26651](https://github.com/hashicorp/terraform-provider-google/pull/26651))
 * **New Data Source:** added `google_discovery_engine_data_stores` data source for listing all Discovery Engine data stores in a project and location ([#26651](https://github.com/hashicorp/terraform-provider-google/pull/26651))
 * **New Data Source:** `google_dns_record_sets` ([#26736](https://github.com/hashicorp/terraform-provider-google/pull/26736))
 * **New Resource:** `google_chronicle_dashboard_chart` ([#26707](https://github.com/hashicorp/terraform-provider-google/pull/26707))
