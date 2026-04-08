@@ -124,6 +124,9 @@ locals {
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name = "sample-reasoning-engine"
   description  = "A sample reasoning engine"
+  labels       = {
+    "key" = "value"
+  }
   region       = "us-central1"
 
   encryption_spec {
@@ -303,6 +306,9 @@ locals {
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name = "sample-reasoning-engine-updated"
   description  = "A sample reasoning engine updated"
+  labels       = {
+    "key" = "updated"
+  }
   region       = "us-central1"
 
   encryption_spec {
@@ -532,6 +538,9 @@ func testAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasic() string 
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name = "sample-reasoning-engine"
   description  = "A basic reasoning engine"
+  labels       = {
+    "key" = "value"
+  }
   region       = "us-central1"
 
   spec {
@@ -557,6 +566,9 @@ func testAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceUpdate() string
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name = "sample-reasoning-engine"
   description  = "A basic reasoning engine"
+  labels       = {
+    "key" = "updated"
+  }
   region       = "us-central1"
 
   spec {

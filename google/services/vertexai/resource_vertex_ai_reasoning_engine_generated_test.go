@@ -72,7 +72,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeletionPolicyExample
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
@@ -117,7 +117,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(t *testi
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
@@ -134,6 +134,9 @@ func testAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(context 
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name = "%{name}"
   description  = "A basic reasoning engine"
+  labels       = {
+    "key" = "value"
+  }
   region       = "us-central1"
 }
 `, context)
@@ -161,7 +164,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasedDeployment
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
@@ -219,7 +222,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeveloperConnectSourc
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
@@ -283,7 +286,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineImageSpecExample(t *t
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
@@ -341,7 +344,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineByocExample(t *testin
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
@@ -445,7 +448,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineFullExample(t *testin
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
