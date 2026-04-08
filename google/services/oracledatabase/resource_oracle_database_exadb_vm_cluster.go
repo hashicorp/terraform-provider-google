@@ -751,6 +751,13 @@ func resourceOracleDatabaseExadbVmClusterUpdate(d *schema.ResourceData, meta int
 }
 
 func resourceOracleDatabaseExadbVmClusterDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy OracleDatabaseExadbVmCluster without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing ExadbVmCluster %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -780,13 +787,6 @@ func resourceOracleDatabaseExadbVmClusterDelete(d *schema.ResourceData, meta int
 	headers := make(http.Header)
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("cannot destroy google_oracle_database_exadb_vm_cluster resource with id : %q  without setting deletion_protection=false and running `terraform apply`", d.Id())
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy OracleDatabaseExadbVmCluster without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing ExadbVmCluster %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting ExadbVmCluster %q", d.Id())

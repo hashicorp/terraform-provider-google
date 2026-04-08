@@ -720,6 +720,13 @@ func resourceVertexAIIndexEndpointDeployedIndexUpdate(d *schema.ResourceData, me
 }
 
 func resourceVertexAIIndexEndpointDeployedIndexDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy VertexAIIndexEndpointDeployedIndex without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing IndexEndpointDeployedIndex %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	var project string
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -744,13 +751,6 @@ func resourceVertexAIIndexEndpointDeployedIndexDelete(d *schema.ResourceData, me
 	headers := make(http.Header)
 	obj = map[string]interface{}{
 		"deployedIndexId": d.Get("deployed_index_id"),
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy VertexAIIndexEndpointDeployedIndex without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing IndexEndpointDeployedIndex %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting IndexEndpointDeployedIndex %q", d.Id())

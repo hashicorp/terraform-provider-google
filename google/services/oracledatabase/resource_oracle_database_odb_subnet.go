@@ -408,6 +408,13 @@ func resourceOracleDatabaseOdbSubnetUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceOracleDatabaseOdbSubnetDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy OracleDatabaseOdbSubnet without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing OdbSubnet %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -437,13 +444,6 @@ func resourceOracleDatabaseOdbSubnetDelete(d *schema.ResourceData, meta interfac
 	headers := make(http.Header)
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("cannot destroy google_oracle_database_odb_subnet resource with id : %q without setting deletion_protection=false and running `terraform apply`", d.Id())
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy OracleDatabaseOdbSubnet without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing OdbSubnet %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting OdbSubnet %q", d.Id())

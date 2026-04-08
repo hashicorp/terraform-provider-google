@@ -460,6 +460,13 @@ func resourceMemorystoreInstanceDesiredUserCreatedEndpointsUpdate(d *schema.Reso
 }
 
 func resourceMemorystoreInstanceDesiredUserCreatedEndpointsDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy MemorystoreInstanceDesiredUserCreatedEndpoints without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing InstanceDesiredUserCreatedEndpoints %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

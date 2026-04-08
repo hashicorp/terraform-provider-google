@@ -547,6 +547,13 @@ func resourceComputeRouterNatAddressUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceComputeRouterNatAddressDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy ComputeRouterNatAddress without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing RouterNatAddress %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -590,13 +597,6 @@ func resourceComputeRouterNatAddressDelete(d *schema.ResourceData, meta interfac
 	obj, err = resourceComputeRouterNatAddressDeleteOnlyNatIps(d, meta, obj)
 	if err != nil {
 		return err
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy ComputeRouterNatAddress without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing RouterNatAddress %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting RouterNatAddress %q", d.Id())

@@ -424,6 +424,13 @@ func resourceComputeRegionNetworkEndpointUpdate(d *schema.ResourceData, meta int
 }
 
 func resourceComputeRegionNetworkEndpointDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy ComputeRegionNetworkEndpoint without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing RegionNetworkEndpoint %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -489,13 +496,6 @@ func resourceComputeRegionNetworkEndpointDelete(d *schema.ResourceData, meta int
 
 	obj = map[string]interface{}{
 		"networkEndpoints": []map[string]interface{}{toDelete},
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy ComputeRegionNetworkEndpoint without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing RegionNetworkEndpoint %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting RegionNetworkEndpoint %q", d.Id())

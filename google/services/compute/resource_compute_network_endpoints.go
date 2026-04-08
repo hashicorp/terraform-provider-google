@@ -638,6 +638,13 @@ func resourceComputeNetworkEndpointsUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceComputeNetworkEndpointsDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy ComputeNetworkEndpoints without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing NetworkEndpoints %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -712,13 +719,6 @@ func resourceComputeNetworkEndpointsDelete(d *schema.ResourceData, meta interfac
 
 	obj = map[string]interface{}{
 		"networkEndpoints": lastPage,
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy ComputeNetworkEndpoints without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing NetworkEndpoints %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting NetworkEndpoints %q", d.Id())

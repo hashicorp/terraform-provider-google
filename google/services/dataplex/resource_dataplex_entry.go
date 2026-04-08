@@ -878,6 +878,13 @@ func resourceDataplexEntryUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceDataplexEntryDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy DataplexEntry without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Entry %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -908,13 +915,6 @@ func resourceDataplexEntryDelete(d *schema.ResourceData, meta interface{}) error
 	if v, ok := d.GetOkExists("entry_group_id"); ok && strings.HasPrefix(v.(string), "@") {
 		// Ingestion based resources need to be removed from terraform state but cannot be deleted in Dataplex.
 		d.SetId("")
-		return nil
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy DataplexEntry without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Entry %q from Terraform state without deletion", d.Id())
 		return nil
 	}
 
