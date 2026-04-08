@@ -17,7 +17,6 @@
 package compute
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 
@@ -25,8 +24,6 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
-	"google.golang.org/api/compute/v1"
 )
 
 func DataSourceGoogleComputeRegionInstanceTemplate() *schema.Resource {
@@ -101,19 +98,15 @@ func datasourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta in
 			return fmt.Errorf("error retrieving list of region instance templates: %s", err)
 		}
 
-		instanceTemplates := templates["items"]
-
-		instanceTemplatesList, err := json.Marshal(instanceTemplates)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-
-		var items []*compute.InstanceTemplate
-
-		if err := json.Unmarshal(instanceTemplatesList, &items); err != nil {
-			fmt.Println(err)
-			return err
+		var items []map[string]interface{}
+		if rawItems, ok := templates["items"].([]interface{}); ok {
+			for _, rawItem := range rawItems {
+				item, ok := rawItem.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				items = append(items, item)
+			}
 		}
 
 		mostRecent := d.Get("most_recent").(bool)
@@ -123,7 +116,7 @@ func datasourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta in
 
 		count := len(items)
 		if count == 1 || count > 1 && mostRecent {
-			return retrieveInstances(d, meta, project, region, items[0].Name)
+			return retrieveInstances(d, meta, project, region, items[0]["name"].(string))
 		}
 
 		return fmt.Errorf("your filter has returned %d region instance template(s). Please refine your filter or set most_recent to return exactly one region instance template", len(items))
