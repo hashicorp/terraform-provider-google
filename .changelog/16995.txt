@@ -1,0 +1,13 @@
+```release-note:enhancement
+netapp: added `scaleType` field to `google_netapp_storage_pool` resource
+```
+This commit introduces the ability to specify a scale type for NetApp Storage Pools.
+
+Changes include:
+
+-   **StoragePool.yaml:**
+    -   Added `scaleType` enum field to `google_netapp_storage_pool`. The scale type of the storage pool. Defaults to `SCALE_TYPE_DEFAULT` if not specified.
+
+```release-note:enhancement
+netapp: added `scaleType` field to `google_netapp_storage_pool` resource
+```

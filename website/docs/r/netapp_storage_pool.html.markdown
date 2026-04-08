@@ -205,10 +205,17 @@ The following arguments are supported:
   Possible values are: `STORAGE_POOL_TYPE_UNSPECIFIED`, `FILE`, `UNIFIED`.
 
 * `scale_tier` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional, [Beta](../guides/provider_versions.html.markdown), Deprecated)
   The effective scale tier of the storage pool. If `scale_tier` is not
   specified during creation, this defaults to `SCALE_TIER_STANDARD`.
   Possible values are: `SCALE_TIER_UNSPECIFIED`, `SCALE_TIER_STANDARD`, `SCALE_TIER_ENTERPRISE`.
+
+  ~> **Warning:** `scaleTier` is deprecated and will be removed in a future major release. Use `scaleType` instead.
+
+* `scale_type` -
+  (Optional)
+  The scale type of the storage pool. Defaults to `SCALE_TYPE_DEFAULT` if not specified.
+  Possible values are: `SCALE_TYPE_UNSPECIFIED`, `SCALE_TYPE_DEFAULT`, `SCALE_TYPE_SCALEOUT`.
 
 * `mode` -
   (Optional)
