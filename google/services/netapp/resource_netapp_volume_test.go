@@ -1484,3 +1484,107 @@ func TestSuppressHasRootAccessDiff(t *testing.T) {
 		})
 	}
 }
+
+func TestAccNetappVolume_LargeCapacityScaleTypeConfig(t *testing.T) {
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderBetaFactories(t),
+		CheckDestroy:             testAccCheckNetappVolumeDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetappVolume_LargeCapacityScaleTypeConfig_basic(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetappVolume_LargeCapacityScaleTypeConfig_updated(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetappVolume_LargeCapacityScaleTypeConfig_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+    resource "google_netapp_storage_pool" "default" {
+        provider = google-beta
+        name = "tf-test-test-pool%{random_suffix}"
+        location = "us-central1-c"
+        service_level = "FLEX"
+        capacity_gib = "13312"
+        type = "UNIFIED"
+        scale_type = "SCALE_TYPE_SCALEOUT"
+        network = data.google_compute_network.default.id
+    }
+
+    resource "google_netapp_volume" "test_volume" {
+        provider = google-beta
+        location = "us-central1-c"
+        name = "tf_test_test_volume%{random_suffix}"
+        capacity_gib = "13312"
+        storage_pool = google_netapp_storage_pool.default.name
+        protocols = ["NFSV3"]
+        share_name = "tf-test-volume-%{random_suffix}"
+        security_style = "UNIX"
+        large_capacity_config {
+            constituent_count = 6
+        }
+    }
+
+    data "google_compute_network" "default" {
+        provider = google-beta
+        name = "%{network_name}"
+    }
+    `, context)
+}
+
+func testAccNetappVolume_LargeCapacityScaleTypeConfig_updated(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+    resource "google_netapp_storage_pool" "default" {
+        provider = google-beta
+        name = "tf-test-test-pool%{random_suffix}"
+        location = "us-central1-c"
+        service_level = "FLEX"
+        capacity_gib = "13312"
+        type = "UNIFIED"
+        scale_type = "SCALE_TYPE_SCALEOUT"
+        network = data.google_compute_network.default.id
+    }
+
+    resource "google_netapp_volume" "test_volume" {
+        provider = google-beta
+        location = "us-central1-c"
+        name = "tf_test_test_volume%{random_suffix}"
+        capacity_gib = "13311"
+        storage_pool = google_netapp_storage_pool.default.name
+        protocols = ["NFSV3"]
+        share_name = "tf-test-volume-%{random_suffix}"
+        security_style = "UNIX"
+        large_capacity_config {
+            constituent_count = 6
+        }
+    }
+
+    data "google_compute_network" "default" {
+        provider = google-beta
+        name = "%{network_name}"
+    }
+    `, context)
+}
