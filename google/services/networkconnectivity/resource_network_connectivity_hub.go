@@ -548,6 +548,13 @@ func resourceNetworkConnectivityHubUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceNetworkConnectivityHubDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy NetworkConnectivityHub without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Hub %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -575,13 +582,6 @@ func resourceNetworkConnectivityHubDelete(d *schema.ResourceData, meta interface
 	}
 
 	headers := make(http.Header)
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy NetworkConnectivityHub without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Hub %q from Terraform state without deletion", d.Id())
-		return nil
-	}
 
 	log.Printf("[DEBUG] Deleting Hub %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

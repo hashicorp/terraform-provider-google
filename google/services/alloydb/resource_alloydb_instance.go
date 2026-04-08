@@ -1076,6 +1076,13 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlloydbInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy AlloydbInstance without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Instance %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	var project string
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -1114,13 +1121,6 @@ func resourceAlloydbInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	if instanceType != nil && instanceType == "SECONDARY" {
 		log.Printf("[WARNING] This operation didn't delete the Secondary Instance %q. Please delete the associated Secondary Cluster as well to delete the entire cluster and the secondary instance.\n", d.Id())
-		return nil
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy AlloydbInstance without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Instance %q from Terraform state without deletion", d.Id())
 		return nil
 	}
 

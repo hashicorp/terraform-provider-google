@@ -803,6 +803,13 @@ func resourceDialogflowCXToolUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceDialogflowCXToolDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy DialogflowCXTool without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Tool %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -847,13 +854,6 @@ func resourceDialogflowCXToolDelete(d *schema.ResourceData, meta interface{}) er
 	if isDefaultStartFlow || isDefaultWelcomeIntent || isDefaultNegativeIntent {
 		// we can't delete these resources so do nothing
 		log.Printf("[DEBUG] Not deleting default DialogflowCXTool")
-		return nil
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy DialogflowCXTool without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Tool %q from Terraform state without deletion", d.Id())
 		return nil
 	}
 

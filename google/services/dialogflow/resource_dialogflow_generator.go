@@ -747,6 +747,13 @@ func resourceDialogflowGeneratorUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceDialogflowGeneratorDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy DialogflowGenerator without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Generator %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -785,13 +792,6 @@ func resourceDialogflowGeneratorDelete(d *schema.ResourceData, meta interface{})
 		if location != "" && location != "global" {
 			url = strings.Replace(url, "https://dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
 		}
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy DialogflowGenerator without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Generator %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting Generator %q", d.Id())

@@ -619,6 +619,13 @@ func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyUpdate(d *sc
 }
 
 func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy AccessContextManagerServicePerimeterDryRunIngressPolicy without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing ServicePerimeterDryRunIngressPolicy %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -672,13 +679,6 @@ func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyDelete(d *sc
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy AccessContextManagerServicePerimeterDryRunIngressPolicy without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing ServicePerimeterDryRunIngressPolicy %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting ServicePerimeterDryRunIngressPolicy %q", d.Id())

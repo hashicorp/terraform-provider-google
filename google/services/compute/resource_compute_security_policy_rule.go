@@ -1009,6 +1009,13 @@ func resourceComputeSecurityPolicyRuleUpdate(d *schema.ResourceData, meta interf
 }
 
 func resourceComputeSecurityPolicyRuleDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy ComputeSecurityPolicyRule without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing SecurityPolicyRule %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -1041,13 +1048,6 @@ func resourceComputeSecurityPolicyRuleDelete(d *schema.ResourceData, meta interf
 
 	if ok && rulePriority.(int) == 2147483647 {
 		log.Printf("[WARN] SecurityPolicyRule represents a default rule, skipping Delete request")
-		return nil
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy ComputeSecurityPolicyRule without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing SecurityPolicyRule %q from Terraform state without deletion", d.Id())
 		return nil
 	}
 

@@ -724,6 +724,13 @@ func resourceComputeRouteUpdate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy ComputeRoute without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Route %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -758,13 +765,6 @@ func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	headers := make(http.Header)
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy ComputeRoute without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Route %q from Terraform state without deletion", d.Id())
-		return nil
-	}
 
 	log.Printf("[DEBUG] Deleting Route %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

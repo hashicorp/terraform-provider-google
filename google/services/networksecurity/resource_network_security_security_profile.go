@@ -745,6 +745,13 @@ func resourceNetworkSecuritySecurityProfileUpdate(d *schema.ResourceData, meta i
 }
 
 func resourceNetworkSecuritySecurityProfileDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy NetworkSecuritySecurityProfile without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing SecurityProfile %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	var project string
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -767,13 +774,6 @@ func resourceNetworkSecuritySecurityProfileDelete(d *schema.ResourceData, meta i
 	}
 
 	headers := make(http.Header)
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy NetworkSecuritySecurityProfile without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing SecurityProfile %q from Terraform state without deletion", d.Id())
-		return nil
-	}
 
 	log.Printf("[DEBUG] Deleting SecurityProfile %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

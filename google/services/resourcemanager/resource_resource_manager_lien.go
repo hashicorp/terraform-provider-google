@@ -357,6 +357,13 @@ func resourceResourceManagerLienUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy ResourceManagerLien without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Lien %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -385,13 +392,6 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 	url, err = tpgresource.ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens/{{name}}")
 	if err != nil {
 		return err
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy ResourceManagerLien without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Lien %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting Lien %q", d.Id())

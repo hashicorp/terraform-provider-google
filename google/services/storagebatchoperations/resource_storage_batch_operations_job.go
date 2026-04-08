@@ -592,6 +592,13 @@ func resourceStorageBatchOperationsJobUpdate(d *schema.ResourceData, meta interf
 }
 
 func resourceStorageBatchOperationsJobDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy StorageBatchOperationsJob without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Job %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -621,13 +628,6 @@ func resourceStorageBatchOperationsJobDelete(d *schema.ResourceData, meta interf
 	headers := make(http.Header)
 	if d.Get("delete_protection").(bool) {
 		return fmt.Errorf("[ERROR] delete_protection set to true, existing resource on cloud will not be deleted")
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy StorageBatchOperationsJob without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Job %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting Job %q", d.Id())

@@ -931,6 +931,13 @@ func resourceDialogflowCXWebhookUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceDialogflowCXWebhookDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy DialogflowCXWebhook without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Webhook %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -971,13 +978,6 @@ func resourceDialogflowCXWebhookDelete(d *schema.ResourceData, meta interface{})
 		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
 		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
 		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy DialogflowCXWebhook without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Webhook %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting Webhook %q", d.Id())

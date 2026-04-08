@@ -1044,6 +1044,13 @@ func resourceVmwareenginePrivateCloudUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceVmwareenginePrivateCloudDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy VmwareenginePrivateCloud without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing PrivateCloud %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -1078,13 +1085,6 @@ func resourceVmwareenginePrivateCloudDelete(d *schema.ResourceData, meta interfa
 		url = url + "?delay_hours=" + fmt.Sprintf("%v", delationDelayHours)
 	} else {
 		log.Printf("[DEBUG] No deletion delay provided, triggering DELETE API without setting delay hours.\n")
-	}
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy VmwareenginePrivateCloud without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing PrivateCloud %q from Terraform state without deletion", d.Id())
-		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting PrivateCloud %q", d.Id())

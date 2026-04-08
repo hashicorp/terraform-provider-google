@@ -585,6 +585,13 @@ func resourceComputeNetworkAttachmentUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceComputeNetworkAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy ComputeNetworkAttachment without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing NetworkAttachment %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -612,13 +619,6 @@ func resourceComputeNetworkAttachmentDelete(d *schema.ResourceData, meta interfa
 	}
 
 	headers := make(http.Header)
-	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy ComputeNetworkAttachment without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing NetworkAttachment %q from Terraform state without deletion", d.Id())
-		return nil
-	}
 
 	log.Printf("[DEBUG] Deleting NetworkAttachment %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
