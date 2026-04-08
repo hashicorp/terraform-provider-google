@@ -1176,9 +1176,37 @@ func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyPatchCreateE
 		return nil, fmt.Errorf("Unable to create ServicePerimeterDryRunIngressPolicy, existing object already found: %+v", found)
 	}
 
-	// Return list with the resource to create appended
+	// With create_before_destroy, an old item with the same title but different
+	// content may still exist. Replace it in-place to avoid a duplicate-title error.
+	expectedTitle, err := expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyTitle(d.Get("title"), d, meta.(*transport_tpg.Config))
+	if err != nil {
+		return nil, err
+	}
+	expectedFlattenedTitle := flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyTitle(expectedTitle, d, meta.(*transport_tpg.Config))
+	titleIdx := -1
+	for idx, itemRaw := range currItems {
+		if itemRaw == nil {
+			continue
+		}
+		item := itemRaw.(map[string]interface{})
+		itemTitle := flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyTitle(item["title"], d, meta.(*transport_tpg.Config))
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemTitle)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedTitle))) && reflect.DeepEqual(itemTitle, expectedFlattenedTitle) {
+			titleIdx = idx
+			break
+		}
+	}
+
+	var newItems []interface{}
+	if titleIdx >= 0 {
+		newItems = make([]interface{}, len(currItems))
+		copy(newItems, currItems)
+		newItems[titleIdx] = obj
+	} else {
+		newItems = append(currItems, obj)
+	}
+
 	res := map[string]interface{}{
-		"ingressPolicies": append(currItems, obj),
+		"ingressPolicies": newItems,
 	}
 	wrapped := map[string]interface{}{
 		"spec": res,
