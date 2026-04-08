@@ -19,7 +19,7 @@ description: |-
   You can combine policies and resources into a shared flow that you can consume from multiple API proxies, and even from other shared flows.
 ---
 
-# google_apigee_shared_flow
+# google_apigee_sharedflow
 
 You can combine policies and resources into a shared flow that you can consume from multiple API proxies, and even from other shared flows. Although it's like a proxy, a shared flow has no endpoint. It can be used only from an API proxy or shared flow that's in the same organization as the shared flow itself.
 
@@ -30,6 +30,98 @@ To get more information about SharedFlow, see:
 * How-to Guides
     * [Sharedflows](https://cloud.google.com/apigee/docs/resources)
 
+
+## Example Usage - Apigee Sharedflow Basic
+
+```hcl
+data "archive_file" "bundle" {
+  type             = "zip"
+  source_dir       = "${path.module}/bundle"
+  output_path      = "${path.module}/bundle.zip"
+  output_file_mode = "0644"
+}
+
+resource "google_apigee_sharedflow" "sharedflow" {
+  name          = "sharedflow1"
+  org_id        = var.org_id
+  config_bundle = data.archive_file.bundle.output_path
+}
+```
+
+## Example Usage - Apigee Sharedflow With Organization
+
+```hcl
+resource "google_project" "project" {
+  project_id      = "my-project"
+  name            = "my-project"
+  org_id          = var.org_id
+  billing_account = var.billing_account
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "apigee" {
+  project = google_project.project.project_id
+  service = "apigee.googleapis.com"
+}
+
+resource "google_project_service" "compute" {
+  project    = google_project.project.project_id
+  service    = "compute.googleapis.com"
+  depends_on = [google_project_service.apigee]
+}
+
+resource "google_project_service" "servicenetworking" {
+  project    = google_project.project.project_id
+  service    = "servicenetworking.googleapis.com"
+  depends_on = [google_project_service.compute]
+}
+
+resource "google_compute_network" "apigee_network" {
+  name       = "apigee-network"
+  project    = google_project.project.project_id
+  depends_on = [google_project_service.compute]
+}
+
+resource "google_compute_global_address" "apigee_range" {
+  name          = "apigee-range"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.apigee_network.id
+  project       = google_project.project.project_id
+}
+
+resource "google_service_networking_connection" "apigee_vpc_connection" {
+  network                 = google_compute_network.apigee_network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.apigee_range.name]
+  depends_on              = [google_project_service.servicenetworking]
+}
+
+resource "google_apigee_organization" "apigee_org" {
+  analytics_region   = "us-central1"
+  project_id         = google_project.project.project_id
+  authorized_network = google_compute_network.apigee_network.id
+  depends_on = [
+    google_service_networking_connection.apigee_vpc_connection,
+    google_project_service.apigee,
+  ]
+}
+
+data "archive_file" "bundle" {
+  type             = "zip"
+  source_dir       = "${path.module}/bundle"
+  output_path      = "${path.module}/bundle.zip"
+  output_file_mode = "0644"
+}
+
+resource "google_apigee_sharedflow" "sharedflow" {
+  name          = "sharedflow1"
+  org_id        = google_project.project.project_id
+  config_bundle = data.archive_file.bundle.output_path
+  depends_on    = [google_apigee_organization.apigee_org]
+}
+```
 
 ## Argument Reference
 
@@ -79,11 +171,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` -
   (Optional)
-  Time at which the API proxy was created, in milliseconds since epoch.
+  Time at which the shared flow was created, in milliseconds since epoch.
 
 * `last_modified_at` -
   (Optional)
-  Time at which the API proxy was most recently modified, in milliseconds since epoch.
+  Time at which the shared flow was most recently modified, in milliseconds since epoch.
 
 * `sub_type` -
   (Optional)
