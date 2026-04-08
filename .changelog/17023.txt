@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_service_usage_v2_folder_consumer_policy` (beta) (revert)
+```
