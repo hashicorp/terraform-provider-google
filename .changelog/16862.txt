@@ -1,0 +1,3 @@
+```release-note:note
+compute: migrated `data_source_google_compute_instance_template` datasource to use direct HTTP rather then a client library
+```
