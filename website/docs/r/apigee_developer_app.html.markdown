@@ -34,7 +34,7 @@ To get more information about DeveloperApp, see:
     * [Creating a developer](https://cloud.google.com/apigee/docs/api-platform/publish/creating-apps-surface-your-api)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `credentials.consumer_secret`.
+values will be stored in the raw state as plain text: `consumer_secret`, `credentials.consumer_secret`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 ## Example Usage - Apigee Developer App Basic
@@ -244,6 +244,19 @@ The following arguments are supported:
   (Optional)
   Developer attributes (name/value pairs). The custom attribute limit is 18.
   Structure is [documented below](#nested_attributes).
+
+* `consumer_key` -
+  (Optional)
+  Optionally specify a static consumer key. If not set, the API auto-generates a key.
+  The consumer key must be unique across all developer apps in an organization.
+  ForceNew: changing this field requires recreating the resource.
+
+* `consumer_secret` -
+  (Optional)
+  Optionally specify a static consumer secret. If not set, the API auto-generates a secret.
+  Required if `consumer_key` is specified.
+  ForceNew: changing this field requires recreating the resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 
 

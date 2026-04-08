@@ -195,6 +195,23 @@ in the format 'organizations/{{org_name}}'.`,
 					},
 				},
 			},
+			"consumer_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Optionally specify a static consumer key. If not set, the API auto-generates a key.
+The consumer key must be unique across all developer apps in an organization.
+ForceNew: changing this field requires recreating the resource.`,
+			},
+			"consumer_secret": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Optionally specify a static consumer secret. If not set, the API auto-generates a secret.
+Required if 'consumer_key' is specified.
+ForceNew: changing this field requires recreating the resource.`,
+				Sensitive: true,
+			},
 			"key_expires_in": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -388,6 +405,18 @@ func resourceApigeeDeveloperAppCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("attributes"); !tpgresource.IsEmptyValue(reflect.ValueOf(attributesProp)) && (ok || !reflect.DeepEqual(v, attributesProp)) {
 		obj["attributes"] = attributesProp
 	}
+	consumerKeyProp, err := expandApigeeDeveloperAppConsumerKey(d.Get("consumer_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("consumer_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(consumerKeyProp)) && (ok || !reflect.DeepEqual(v, consumerKeyProp)) {
+		obj["consumerKey"] = consumerKeyProp
+	}
+	consumerSecretProp, err := expandApigeeDeveloperAppConsumerSecret(d.Get("consumer_secret"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("consumer_secret"); !tpgresource.IsEmptyValue(reflect.ValueOf(consumerSecretProp)) && (ok || !reflect.DeepEqual(v, consumerSecretProp)) {
+		obj["consumerSecret"] = consumerSecretProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/developers/{{developer_email}}/apps")
 	if err != nil {
@@ -443,6 +472,104 @@ func resourceApigeeDeveloperAppCreate(d *schema.ResourceData, meta interface{}) 
 		}
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
+	// If a static consumer_key was specified, replace the auto-generated credential
+	// with the user-supplied key/secret.
+	if consumerKey, ok := d.GetOk("consumer_key"); ok {
+		consumerSecret := d.Get("consumer_secret").(string)
+
+		// First, obtain the auto-generated consumer key to delete it later.
+		readURL, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/developers/{{developer_email}}/apps/{{name}}")
+		if err != nil {
+			return fmt.Errorf("Error constructing URL for DeveloperApp read: %s", err)
+		}
+		appRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    readURL,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return fmt.Errorf("Error reading DeveloperApp for credential replacement: %s", err)
+		}
+
+		// Collect auto-generated consumer keys to delete after creating the static key.
+		var autoKeys []string
+		if creds, ok := appRes["credentials"].([]interface{}); ok {
+			for _, cred := range creds {
+				if cm, ok := cred.(map[string]interface{}); ok {
+					if k, ok := cm["consumerKey"].(string); ok {
+						autoKeys = append(autoKeys, k)
+					}
+				}
+			}
+		}
+
+		// Create the static credential via the keys API.
+		keysURL, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/developers/{{developer_email}}/apps/{{name}}/keys")
+		if err != nil {
+			return fmt.Errorf("Error constructing keys URL for DeveloperApp: %s", err)
+		}
+		keyBody := map[string]interface{}{
+			"consumerKey":    consumerKey.(string),
+			"consumerSecret": consumerSecret,
+		}
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    keysURL,
+			UserAgent: userAgent,
+			Body:      keyBody,
+			Timeout:   d.Timeout(schema.TimeoutCreate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error creating static credential for DeveloperApp: %s", err)
+		}
+
+		// Associate api_products and scopes with the new key if specified.
+		if apiProducts, ok := d.GetOk("api_products"); ok {
+			products := apiProducts.(*schema.Set).List()
+			if len(products) > 0 {
+				keyUpdateURL := keysURL + "/" + consumerKey.(string)
+				keyUpdateBody := map[string]interface{}{
+					"apiProducts": products,
+				}
+				if scopes, ok := d.GetOk("scopes"); ok {
+					keyUpdateBody["scopes"] = scopes.(*schema.Set).List()
+				}
+				_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "POST",
+					Project:   billingProject,
+					RawURL:    keyUpdateURL,
+					UserAgent: userAgent,
+					Body:      keyUpdateBody,
+					Timeout:   d.Timeout(schema.TimeoutCreate),
+				})
+				if err != nil {
+					return fmt.Errorf("Error associating API products with static credential for DeveloperApp: %s", err)
+				}
+			}
+		}
+
+		// Delete the auto-generated key(s).
+		for _, autoKey := range autoKeys {
+			deleteKeyURL := keysURL + "/" + autoKey
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "DELETE",
+				Project:   billingProject,
+				RawURL:    deleteKeyURL,
+				UserAgent: userAgent,
+				Timeout:   d.Timeout(schema.TimeoutCreate),
+			})
+			if err != nil && !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+				return fmt.Errorf("Error deleting auto-generated credential for DeveloperApp: %s", err)
+			}
+		}
 	}
 
 	log.Printf("[DEBUG] Finished creating DeveloperApp %q: %#v", d.Id(), res)
@@ -640,6 +767,18 @@ func resourceApigeeDeveloperAppUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("attributes"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, attributesProp)) {
 		obj["attributes"] = attributesProp
+	}
+	consumerKeyProp, err := expandApigeeDeveloperAppConsumerKey(d.Get("consumer_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("consumer_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, consumerKeyProp)) {
+		obj["consumerKey"] = consumerKeyProp
+	}
+	consumerSecretProp, err := expandApigeeDeveloperAppConsumerSecret(d.Get("consumer_secret"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("consumer_secret"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, consumerSecretProp)) {
+		obj["consumerSecret"] = consumerSecretProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/developers/{{developer_email}}/apps/{{name}}")
@@ -982,6 +1121,14 @@ func expandApigeeDeveloperAppAttributesName(v interface{}, d tpgresource.Terrafo
 }
 
 func expandApigeeDeveloperAppAttributesValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeDeveloperAppConsumerKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeDeveloperAppConsumerSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
