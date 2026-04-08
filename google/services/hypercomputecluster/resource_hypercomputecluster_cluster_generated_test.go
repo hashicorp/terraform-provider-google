@@ -57,6 +57,7 @@ func TestAccHypercomputeclusterCluster_hypercomputeclusterClusterBasicExample(t 
 
 	context := map[string]interface{}{
 		"cluster_id":    fmt.Sprintf("tf%s", acctest.RandString(t, 8)),
+		"network_id":    fmt.Sprintf("cluster-net1-%s", acctest.RandString(t, 10)),
 		"random_suffix": randomSuffix,
 	}
 
@@ -102,7 +103,7 @@ resource "google_hypercomputecluster_cluster" "cluster" {
     config {
       new_network {
         description = "Network one"
-        network = "projects/${local.project_id}/global/networks/cluster-net1"
+        network = "projects/${local.project_id}/global/networks/%{network_id}"
       }
     }
   }
