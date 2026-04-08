@@ -2549,6 +2549,37 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			"autopilot_cluster_policy_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Computed:    true,
+				Description: `Configuration for the cluster policy.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"no_system_mutation": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, prevents creation and mutation of resources in GKE managed namespaces and cluster-scoped GKE managed resources.`,
+						},
+						"no_system_impersonation": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, prevents impersonation and CSRs for GKE System users.`,
+						},
+						"no_unsafe_webhooks": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, unsafe webhooks are not allowed.`,
+						},
+						"no_standard_node_pools": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, prevents standard node pools and requires only autopilot node pools.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -2665,6 +2696,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			AllowNetAdmin: allowed,
 		}
 	}
+	var autopilotClusterPolicyConfig *container.ClusterPolicyConfig
+	if v, ok := d.GetOk("autopilot_cluster_policy_config"); ok {
+		autopilotClusterPolicyConfig = expandAutopilotClusterPolicyConfig(v)
+	}
 
 	var privilegedAdmissionConfig *container.PrivilegedAdmissionConfig
 	if v, ok := d.GetOk("autopilot_privileged_admission"); ok {
@@ -2704,6 +2739,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Enabled:                   d.Get("enable_autopilot").(bool),
 			WorkloadPolicyConfig:      workloadPolicyConfig,
 			PrivilegedAdmissionConfig: privilegedAdmissionConfig,
+			ClusterPolicyConfig:       autopilotClusterPolicyConfig,
 			ForceSendFields:           []string{"Enabled"},
 		},
 		ReleaseChannel:       expandReleaseChannel(d.Get("release_channel")),
@@ -3263,6 +3299,11 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		if autopilot.PrivilegedAdmissionConfig != nil && len(autopilot.PrivilegedAdmissionConfig.AllowlistPaths) > 0 {
 			allowlistPaths = autopilot.PrivilegedAdmissionConfig.AllowlistPaths
+		}
+		if autopilot.ClusterPolicyConfig != nil {
+			if err := d.Set("autopilot_cluster_policy_config", flattenClusterPolicyConfig(autopilot.ClusterPolicyConfig)); err != nil {
+				return err
+			}
 		}
 	}
 	// Always set autopilot_privileged_admission due to it being a computed
@@ -5070,6 +5111,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s's RBAC binding config has been updated", d.Id())
 	}
 
+	if d.HasChange("autopilot_cluster_policy_config") {
+		if v, ok := d.GetOk("autopilot_cluster_policy_config"); ok {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredAutopilotClusterPolicyConfig: expandAutopilotClusterPolicyConfig(v),
+				},
+			}
+			updateF := updateFunc(req, "updating autopilot_cluster_policy_config")
+			if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+			log.Printf("[INFO] GKE cluster %s autopilot_cluster_policy_config has been updated", d.Id())
+		}
+	}
+
 	d.Partial(false)
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
@@ -5687,6 +5743,20 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	npd.MinCpuPlatform = cpu
 
 	return npd
+}
+
+func expandAutopilotClusterPolicyConfig(configured interface{}) *container.ClusterPolicyConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &container.ClusterPolicyConfig{
+		NoSystemMutation:      config["no_system_mutation"].(bool),
+		NoSystemImpersonation: config["no_system_impersonation"].(bool),
+		NoUnsafeWebhooks:      config["no_unsafe_webhooks"].(bool),
+		NoStandardNodePools:   config["no_standard_node_pools"].(bool),
+	}
 }
 
 func expandUpgradeSettings(configured interface{}, d *schema.ResourceData) *container.UpgradeSettings {
@@ -7282,6 +7352,20 @@ func flattenUpgradeSettings(a *container.UpgradeSettings) []map[string]interface
 	r["blue_green_settings"] = flattenBlueGreenSettings(a.BlueGreenSettings)
 
 	return []map[string]interface{}{r}
+}
+
+func flattenClusterPolicyConfig(c *container.ClusterPolicyConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"no_system_mutation":      c.NoSystemMutation,
+			"no_system_impersonation": c.NoSystemImpersonation,
+			"no_unsafe_webhooks":      c.NoUnsafeWebhooks,
+			"no_standard_node_pools":  c.NoStandardNodePools,
+		},
+	}
 }
 
 func flattenBlueGreenSettings(a *container.BlueGreenSettings) []map[string]interface{} {

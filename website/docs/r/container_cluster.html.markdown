@@ -154,6 +154,9 @@ Autopilot clusters. See the Cluster API's
 [PrivilegedAdmissionConfig](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters#privilegedadmissionconfig)
 documentation for more details.
 
+* `autopilot_cluster_policy_config` - (Optional)
+Per-cluster configuration of Autopilot cluster policies in GKE clusters. This field can only be configured in non Autopilot clusters. Structure is [documented below](#nested_autopilot_cluster_policy_config).
+
 * `cluster_ipv4_cidr` - (Optional) The IP address range of the Kubernetes pods
 in this cluster in CIDR notation (e.g. `10.96.0.0/14`). Leave blank to have one
 automatically chosen or specify a `/14` block in `10.0.0.0/8`. This field will
@@ -1821,6 +1824,13 @@ registry_hosts {
 
 * `enable_insecure_binding_system_unauthenticated` - (Optional) Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:anonymous or system:unauthenticated.
 * `enable_insecure_binding_system_authenticated` - (Optional) Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:authenticated.
+
+<a name="nested_autopilot_cluster_policy_config"></a>The `autopilot_cluster_policy_config` block supports:
+
+* `no_system_mutation` - (Optional) Whether to block mutation of resources in system namespaces and non-namespaced system resources.
+* `no_system_impersonation` - (Optional) Whether to block impersonation of system accounts in the cluster.
+* `no_unsafe_webhooks` - (Optional) Whether to block unsafe webhooks in the cluster.
+* `no_standard_node_pools` - (Optional) Whether to block non autopilot managed node pools in the cluster.
 
 
 ## Attributes Reference

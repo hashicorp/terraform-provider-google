@@ -4285,6 +4285,112 @@ resource "google_container_cluster" "primary" {
 	return res
 }
 
+func TestAccContainerCluster_withAutopilotClusterPolicy(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAutopilotClusterPolicy(
+					clusterName, networkName, subnetworkName,
+					map[string]bool{
+						"no_system_mutation":      true,
+						"no_system_impersonation": true,
+						"no_unsafe_webhooks":      true,
+						"no_standard_node_pools":  false,
+					},
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_system_mutation", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_system_impersonation", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_unsafe_webhooks", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_standard_node_pools", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withAutopilotClusterPolicy(
+					clusterName, networkName, subnetworkName,
+					map[string]bool{
+						"no_system_mutation":      true,
+						"no_system_impersonation": true,
+						"no_unsafe_webhooks":      true,
+						"no_standard_node_pools":  true,
+					},
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_system_mutation", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_system_impersonation", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_unsafe_webhooks", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_standard_node_pools", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withAutopilotClusterPolicy(
+					clusterName, networkName, subnetworkName,
+					map[string]bool{
+						"no_system_mutation":      false,
+						"no_system_impersonation": false,
+						"no_unsafe_webhooks":      false,
+						"no_standard_node_pools":  false,
+					},
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_system_mutation", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_system_impersonation", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_unsafe_webhooks", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "autopilot_cluster_policy_config.0.no_standard_node_pools", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withAutopilotClusterPolicy(clusterName, networkName, subnetworkName string, policies map[string]bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  remove_default_node_pool = true
+  network            = "%s"
+  subnetwork         = "%s"
+  deletion_protection = false
+
+  autopilot_cluster_policy_config {
+      no_system_mutation = %t
+      no_system_impersonation = %t
+      no_unsafe_webhooks = %t
+	  no_standard_node_pools = %t
+  }
+}
+`, clusterName, networkName, subnetworkName, policies["no_system_mutation"], policies["no_system_impersonation"], policies["no_unsafe_webhooks"], policies["no_standard_node_pools"])
+}
+
 func TestAccContainerCluster_withShieldedNodes(t *testing.T) {
 	t.Parallel()
 
