@@ -573,6 +573,23 @@ func ResourceComputeInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
+			"target_size_policy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: `The policy that specifies how the MIG creates its VMs to achieve the target size.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mode": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							Description:  `The mode of target size policy based on which the MIG creates its VMs individually or all at once.`,
+							ValidateFunc: validation.StringInSlice([]string{"BULK", "INDIVIDUAL"}, false),
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -671,6 +688,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		AllInstancesConfig:          expandAllInstancesConfig(nil, d.Get("all_instances_config").([]interface{})),
 		StatefulPolicy:              expandStatefulPolicy(d),
 		ResourcePolicies:            expandResourcePolicies(d.Get("resource_policies").([]interface{})),
+		TargetSizePolicy:            expandTargetSizePolicy(d.Get("target_size_policy").([]interface{})),
 
 		// Force send TargetSize to allow a value of 0.
 		ForceSendFields: []string{"TargetSize"},
@@ -917,6 +935,9 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	}
 	if err = d.Set("resource_policies", flattenResourcePolicies(manager.ResourcePolicies)); err != nil {
 		return fmt.Errorf("Error setting resource_policies in state: %s", err.Error())
+	}
+	if err = d.Set("target_size_policy", flattenTargetSizePolicy(manager.TargetSizePolicy)); err != nil {
+		return fmt.Errorf("Error setting target_size_policy in state: %s", err.Error())
 	}
 
 	// If unset in state set to default value
@@ -1293,6 +1314,16 @@ func expandVersions(configured []interface{}) []*compute.InstanceGroupManagerVer
 	return versions
 }
 
+func expandTargetSizePolicy(configured []interface{}) *compute.InstanceGroupManagerTargetSizePolicy {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+	data := configured[0].(map[string]interface{})
+	return &compute.InstanceGroupManagerTargetSizePolicy{
+		Mode: data["mode"].(string),
+	}
+}
+
 func expandResourcePolicies(configured []interface{}) *compute.InstanceGroupManagerResourcePolicies {
 	resourcePolicies := &compute.InstanceGroupManagerResourcePolicies{}
 
@@ -1623,6 +1654,17 @@ func flattenStatusAllInstancesConfig(allInstancesConfig *compute.InstanceGroupMa
 	}
 	results = append(results, data)
 	return results
+}
+
+func flattenTargetSizePolicy(targetSizePolicy *compute.InstanceGroupManagerTargetSizePolicy) []map[string]interface{} {
+	if targetSizePolicy == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"mode": targetSizePolicy.Mode,
+		},
+	}
 }
 
 func flattenResourcePolicies(resourcePolicies *compute.InstanceGroupManagerResourcePolicies) []map[string]interface{} {
