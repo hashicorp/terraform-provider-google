@@ -420,6 +420,8 @@ func resourceApigeeKeystoresAliasesSelfSignedCertCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating KeystoresAliasesSelfSignedCert %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
@@ -445,8 +447,6 @@ func resourceApigeeKeystoresAliasesSelfSignedCertCreate(d *schema.ResourceData, 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating KeystoresAliasesSelfSignedCert %q: %#v", d.Id(), res)
 
 	return resourceApigeeKeystoresAliasesSelfSignedCertRead(d, meta)
 }

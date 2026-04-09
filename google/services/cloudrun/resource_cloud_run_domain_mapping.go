@@ -467,6 +467,13 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	err = transport_tpg.PollingWaitTime(resourceCloudRunDomainMappingPollRead(d, meta), PollCheckKnativeStatusFunc(res), "Creating DomainMapping", d.Timeout(schema.TimeoutCreate), 1)
+	if err != nil {
+		return fmt.Errorf("Error waiting to create DomainMapping: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating DomainMapping %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -487,13 +494,6 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = transport_tpg.PollingWaitTime(resourceCloudRunDomainMappingPollRead(d, meta), PollCheckKnativeStatusFunc(res), "Creating DomainMapping", d.Timeout(schema.TimeoutCreate), 1)
-	if err != nil {
-		return fmt.Errorf("Error waiting to create DomainMapping: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating DomainMapping %q: %#v", d.Id(), res)
 
 	return resourceCloudRunDomainMappingRead(d, meta)
 }

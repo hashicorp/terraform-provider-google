@@ -267,6 +267,8 @@ func resourceHealthcareDatasetCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating Dataset %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -287,8 +289,6 @@ func resourceHealthcareDatasetCreate(d *schema.ResourceData, meta interface{}) e
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Dataset %q: %#v", d.Id(), res)
 
 	return resourceHealthcareDatasetRead(d, meta)
 }

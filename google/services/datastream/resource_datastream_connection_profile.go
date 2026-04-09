@@ -864,6 +864,18 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	err = DatastreamOperationWaitTime(
+		config, res, project, "Creating ConnectionProfile", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ConnectionProfile: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ConnectionProfile %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if connectionProfileIdValue, ok := d.GetOk("connection_profile_id"); ok && connectionProfileIdValue.(string) != "" {
@@ -884,18 +896,6 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = DatastreamOperationWaitTime(
-		config, res, project, "Creating ConnectionProfile", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ConnectionProfile: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ConnectionProfile %q: %#v", d.Id(), res)
 
 	return resourceDatastreamConnectionProfileRead(d, meta)
 }

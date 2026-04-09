@@ -379,6 +379,8 @@ func resourceBigqueryReservationReservationCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating Reservation %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -399,8 +401,6 @@ func resourceBigqueryReservationReservationCreate(d *schema.ResourceData, meta i
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Reservation %q: %#v", d.Id(), res)
 
 	return resourceBigqueryReservationReservationRead(d, meta)
 }

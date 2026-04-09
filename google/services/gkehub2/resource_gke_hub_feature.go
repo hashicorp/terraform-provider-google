@@ -945,6 +945,18 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
+	err = GKEHub2OperationWaitTime(
+		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Creating Feature", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Feature: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Feature %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -965,18 +977,6 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = GKEHub2OperationWaitTime(
-		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Creating Feature", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Feature: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Feature %q: %#v", d.Id(), res)
 
 	return resourceGKEHub2FeatureRead(d, meta)
 }

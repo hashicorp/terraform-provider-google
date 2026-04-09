@@ -243,6 +243,8 @@ func resourceBigtableMaterializedViewCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating MaterializedView %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if materializedViewIdValue, ok := d.GetOk("materialized_view_id"); ok && materializedViewIdValue.(string) != "" {
@@ -263,8 +265,6 @@ func resourceBigtableMaterializedViewCreate(d *schema.ResourceData, meta interfa
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating MaterializedView %q: %#v", d.Id(), res)
 
 	return resourceBigtableMaterializedViewRead(d, meta)
 }

@@ -220,6 +220,20 @@ func resourcePublicCAExternalAccountKeyCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
+	if err := d.Set("b64_mac_key", flattenPublicCAExternalAccountKeyB64MacKey(res["b64MacKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccountKey: %s", err)
+	}
+
+	if err := d.Set("b64url_mac_key", flattenPublicCAExternalAccountKeyB64urlMacKey(res["b64MacKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccountKey: %s", err)
+	}
+
+	if err := d.Set("mac_key", flattenPublicCAExternalAccountKeyMacKey(res["b64MacKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccountKey: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ExternalAccountKey %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -250,20 +264,6 @@ func resourcePublicCAExternalAccountKeyCreate(d *schema.ResourceData, meta inter
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	if err := d.Set("b64_mac_key", flattenPublicCAExternalAccountKeyB64MacKey(res["b64MacKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccountKey: %s", err)
-	}
-
-	if err := d.Set("b64url_mac_key", flattenPublicCAExternalAccountKeyB64urlMacKey(res["b64MacKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccountKey: %s", err)
-	}
-
-	if err := d.Set("mac_key", flattenPublicCAExternalAccountKeyMacKey(res["b64MacKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccountKey: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ExternalAccountKey %q: %#v", d.Id(), res)
 
 	return resourcePublicCAExternalAccountKeyRead(d, meta)
 }

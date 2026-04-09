@@ -300,6 +300,18 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
+	err = AppEngineOperationWaitTime(
+		config, res, project, "Creating DomainMapping", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create DomainMapping: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating DomainMapping %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if domainNameValue, ok := d.GetOk("domain_name"); ok && domainNameValue.(string) != "" {
@@ -315,18 +327,6 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = AppEngineOperationWaitTime(
-		config, res, project, "Creating DomainMapping", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create DomainMapping: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating DomainMapping %q: %#v", d.Id(), res)
 
 	return resourceAppEngineDomainMappingRead(d, meta)
 }

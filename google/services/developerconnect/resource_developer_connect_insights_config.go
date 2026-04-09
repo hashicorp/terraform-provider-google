@@ -521,6 +521,18 @@ func resourceDeveloperConnectInsightsConfigCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	err = DeveloperConnectOperationWaitTime(
+		config, res, project, "Creating InsightsConfig", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create InsightsConfig: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating InsightsConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -541,18 +553,6 @@ func resourceDeveloperConnectInsightsConfigCreate(d *schema.ResourceData, meta i
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = DeveloperConnectOperationWaitTime(
-		config, res, project, "Creating InsightsConfig", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create InsightsConfig: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating InsightsConfig %q: %#v", d.Id(), res)
 
 	return resourceDeveloperConnectInsightsConfigRead(d, meta)
 }

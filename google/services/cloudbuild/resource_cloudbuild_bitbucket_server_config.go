@@ -353,27 +353,6 @@ func resourceCloudBuildBitbucketServerConfigCreate(d *schema.ResourceData, meta 
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if configIdValue, ok := d.GetOk("config_id"); ok && configIdValue.(string) != "" {
-			if err = identity.Set("config_id", configIdValue.(string)); err != nil {
-				return fmt.Errorf("Error setting config_id: %s", err)
-			}
-		}
-		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
-			if err = identity.Set("location", locationValue.(string)); err != nil {
-				return fmt.Errorf("Error setting location: %s", err)
-			}
-		}
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = CloudBuildOperationWaitTime(
 		config, res, project, "Creating BitbucketServerConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -436,6 +415,27 @@ func resourceCloudBuildBitbucketServerConfigCreate(d *schema.ResourceData, meta 
 	}
 
 	log.Printf("[DEBUG] Finished creating BitbucketServerConfig %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if configIdValue, ok := d.GetOk("config_id"); ok && configIdValue.(string) != "" {
+			if err = identity.Set("config_id", configIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting config_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceCloudBuildBitbucketServerConfigRead(d, meta)
 }

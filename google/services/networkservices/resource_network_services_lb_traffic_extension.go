@@ -407,6 +407,18 @@ func resourceNetworkServicesLbTrafficExtensionCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	err = NetworkServicesOperationWaitTime(
+		config, res, project, "Creating LbTrafficExtension", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create LbTrafficExtension: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating LbTrafficExtension %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -427,18 +439,6 @@ func resourceNetworkServicesLbTrafficExtensionCreate(d *schema.ResourceData, met
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetworkServicesOperationWaitTime(
-		config, res, project, "Creating LbTrafficExtension", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create LbTrafficExtension: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating LbTrafficExtension %q: %#v", d.Id(), res)
 
 	return resourceNetworkServicesLbTrafficExtensionRead(d, meta)
 }

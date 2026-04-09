@@ -239,6 +239,18 @@ func resourceAppEngineServiceNetworkSettingsCreate(d *schema.ResourceData, meta 
 	}
 	d.SetId(id)
 
+	err = AppEngineOperationWaitTime(
+		config, res, project, "Creating ServiceNetworkSettings", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ServiceNetworkSettings: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ServiceNetworkSettings %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if serviceValue, ok := d.GetOk("service"); ok && serviceValue.(string) != "" {
@@ -254,18 +266,6 @@ func resourceAppEngineServiceNetworkSettingsCreate(d *schema.ResourceData, meta 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = AppEngineOperationWaitTime(
-		config, res, project, "Creating ServiceNetworkSettings", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ServiceNetworkSettings: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ServiceNetworkSettings %q: %#v", d.Id(), res)
 
 	return resourceAppEngineServiceNetworkSettingsRead(d, meta)
 }

@@ -504,6 +504,13 @@ func resourceModelArmorGlobalFloorsettingCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
+	// This is useful if the resource in question doesn't have a perfectly consistent API
+	// That is, the Operation for Create might return before the Get operation shows the
+	// completed state of the resource.
+	time.Sleep(30 * time.Second)
+
+	log.Printf("[DEBUG] Finished creating Floorsetting %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -519,13 +526,6 @@ func resourceModelArmorGlobalFloorsettingCreate(d *schema.ResourceData, meta int
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	// This is useful if the resource in question doesn't have a perfectly consistent API
-	// That is, the Operation for Create might return before the Get operation shows the
-	// completed state of the resource.
-	time.Sleep(30 * time.Second)
-
-	log.Printf("[DEBUG] Finished creating Floorsetting %q: %#v", d.Id(), res)
 
 	return resourceModelArmorGlobalFloorsettingRead(d, meta)
 }

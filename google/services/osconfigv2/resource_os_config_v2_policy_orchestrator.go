@@ -1855,6 +1855,18 @@ func resourceOSConfigV2PolicyOrchestratorCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
+	err = OSConfigV2OperationWaitTime(
+		config, res, project, "Creating PolicyOrchestrator", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create PolicyOrchestrator: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating PolicyOrchestrator %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if policyOrchestratorIdValue, ok := d.GetOk("policy_orchestrator_id"); ok && policyOrchestratorIdValue.(string) != "" {
@@ -1870,18 +1882,6 @@ func resourceOSConfigV2PolicyOrchestratorCreate(d *schema.ResourceData, meta int
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = OSConfigV2OperationWaitTime(
-		config, res, project, "Creating PolicyOrchestrator", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create PolicyOrchestrator: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating PolicyOrchestrator %q: %#v", d.Id(), res)
 
 	return resourceOSConfigV2PolicyOrchestratorRead(d, meta)
 }

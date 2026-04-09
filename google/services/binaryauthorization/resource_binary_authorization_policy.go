@@ -388,6 +388,8 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating Policy %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
@@ -398,8 +400,6 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Policy %q: %#v", d.Id(), res)
 
 	return resourceBinaryAuthorizationPolicyRead(d, meta)
 }

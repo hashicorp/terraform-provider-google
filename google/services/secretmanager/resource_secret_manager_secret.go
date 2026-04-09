@@ -546,6 +546,8 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating Secret %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if secretIdValue, ok := d.GetOk("secret_id"); ok && secretIdValue.(string) != "" {
@@ -561,8 +563,6 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Secret %q: %#v", d.Id(), res)
 
 	return resourceSecretManagerSecretRead(d, meta)
 }

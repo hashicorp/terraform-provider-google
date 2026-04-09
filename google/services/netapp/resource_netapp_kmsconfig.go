@@ -278,27 +278,6 @@ func resourceNetappkmsconfigCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
-			if err = identity.Set("location", locationValue.(string)); err != nil {
-				return fmt.Errorf("Error setting location: %s", err)
-			}
-		}
-		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
-			if err = identity.Set("name", nameValue.(string)); err != nil {
-				return fmt.Errorf("Error setting name: %s", err)
-			}
-		}
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = NetappOperationWaitTime(
 		config, res, project, "Creating kmsconfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -328,6 +307,27 @@ func resourceNetappkmsconfigCreate(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Finished verifying kmsconfig : %#v", res_kms_verify)
 
 	log.Printf("[DEBUG] Finished creating kmsconfig %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceNetappkmsconfigRead(d, meta)
 }

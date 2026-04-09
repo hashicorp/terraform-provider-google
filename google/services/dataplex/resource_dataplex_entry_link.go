@@ -508,6 +508,8 @@ func resourceDataplexEntryLinkCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating EntryLink %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if entryGroupIdValue, ok := d.GetOk("entry_group_id"); ok && entryGroupIdValue.(string) != "" {
@@ -533,8 +535,6 @@ func resourceDataplexEntryLinkCreate(d *schema.ResourceData, meta interface{}) e
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating EntryLink %q: %#v", d.Id(), res)
 
 	return resourceDataplexEntryLinkRead(d, meta)
 }

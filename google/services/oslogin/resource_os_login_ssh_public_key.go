@@ -236,22 +236,6 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if fingerprintValue, ok := d.GetOk("fingerprint"); ok && fingerprintValue.(string) != "" {
-			if err = identity.Set("fingerprint", fingerprintValue.(string)); err != nil {
-				return fmt.Errorf("Error setting fingerprint: %s", err)
-			}
-		}
-		if userValue, ok := d.GetOk("user"); ok && userValue.(string) != "" {
-			if err = identity.Set("user", userValue.(string)); err != nil {
-				return fmt.Errorf("Error setting user: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	loginProfile, ok := res["loginProfile"]
 	if !ok {
 		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
@@ -279,6 +263,22 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 	time.Sleep(10 * time.Second)
 
 	log.Printf("[DEBUG] Finished creating SSHPublicKey %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if fingerprintValue, ok := d.GetOk("fingerprint"); ok && fingerprintValue.(string) != "" {
+			if err = identity.Set("fingerprint", fingerprintValue.(string)); err != nil {
+				return fmt.Errorf("Error setting fingerprint: %s", err)
+			}
+		}
+		if userValue, ok := d.GetOk("user"); ok && userValue.(string) != "" {
+			if err = identity.Set("user", userValue.(string)); err != nil {
+				return fmt.Errorf("Error setting user: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceOSLoginSSHPublicKeyRead(d, meta)
 }

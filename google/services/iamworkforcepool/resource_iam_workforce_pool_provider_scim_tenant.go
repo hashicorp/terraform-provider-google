@@ -288,6 +288,13 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantCreate(d *schema.Res
 	}
 	d.SetId(id)
 
+	// This is useful if the resource in question doesn't have a perfectly consistent API
+	// That is, the Operation for Create might return before the Get operation shows the
+	// completed state of the resource.
+	time.Sleep(5 * time.Second)
+
+	log.Printf("[DEBUG] Finished creating WorkforcePoolProviderScimTenant %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -313,13 +320,6 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantCreate(d *schema.Res
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	// This is useful if the resource in question doesn't have a perfectly consistent API
-	// That is, the Operation for Create might return before the Get operation shows the
-	// completed state of the resource.
-	time.Sleep(5 * time.Second)
-
-	log.Printf("[DEBUG] Finished creating WorkforcePoolProviderScimTenant %q: %#v", d.Id(), res)
 
 	return resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantRead(d, meta)
 }

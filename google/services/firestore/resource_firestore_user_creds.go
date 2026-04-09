@@ -259,6 +259,17 @@ func resourceFirestoreUserCredsCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
+	securePassword, ok := res["securePassword"]
+	if !ok {
+		return fmt.Errorf("Create response did not contain secure_password. Create may not have succeeded.")
+	}
+	if err := d.Set("secure_password", securePassword); err != nil {
+		// securePassword is only returned in the create call.
+		return fmt.Errorf("Error setting secure_password: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating UserCreds %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if databaseValue, ok := d.GetOk("database"); ok && databaseValue.(string) != "" {
@@ -279,17 +290,6 @@ func resourceFirestoreUserCredsCreate(d *schema.ResourceData, meta interface{}) 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	securePassword, ok := res["securePassword"]
-	if !ok {
-		return fmt.Errorf("Create response did not contain secure_password. Create may not have succeeded.")
-	}
-	if err := d.Set("secure_password", securePassword); err != nil {
-		// securePassword is only returned in the create call.
-		return fmt.Errorf("Error setting secure_password: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating UserCreds %q: %#v", d.Id(), res)
 
 	return resourceFirestoreUserCredsRead(d, meta)
 }

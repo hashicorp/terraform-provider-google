@@ -520,6 +520,18 @@ func resourceNetappStoragePoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	err = NetappOperationWaitTime(
+		config, res, project, "Creating StoragePool", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create StoragePool: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating StoragePool %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -540,18 +552,6 @@ func resourceNetappStoragePoolCreate(d *schema.ResourceData, meta interface{}) e
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetappOperationWaitTime(
-		config, res, project, "Creating StoragePool", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create StoragePool: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating StoragePool %q: %#v", d.Id(), res)
 
 	return resourceNetappStoragePoolRead(d, meta)
 }

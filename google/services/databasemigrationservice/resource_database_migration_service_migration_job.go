@@ -503,6 +503,18 @@ func resourceDatabaseMigrationServiceMigrationJobCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
+	err = DatabaseMigrationServiceOperationWaitTime(
+		config, res, project, "Creating MigrationJob", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create MigrationJob: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating MigrationJob %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if migrationJobIdValue, ok := d.GetOk("migration_job_id"); ok && migrationJobIdValue.(string) != "" {
@@ -523,18 +535,6 @@ func resourceDatabaseMigrationServiceMigrationJobCreate(d *schema.ResourceData, 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = DatabaseMigrationServiceOperationWaitTime(
-		config, res, project, "Creating MigrationJob", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create MigrationJob: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating MigrationJob %q: %#v", d.Id(), res)
 
 	return resourceDatabaseMigrationServiceMigrationJobRead(d, meta)
 }

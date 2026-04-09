@@ -1445,6 +1445,17 @@ func resourceGkeonpremBareMetalClusterCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	err = GkeonpremOperationWaitTime(
+		config, res, project, "Creating BareMetalCluster", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+
+		return fmt.Errorf("Error waiting to create BareMetalCluster: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating BareMetalCluster %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -1465,17 +1476,6 @@ func resourceGkeonpremBareMetalClusterCreate(d *schema.ResourceData, meta interf
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = GkeonpremOperationWaitTime(
-		config, res, project, "Creating BareMetalCluster", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-
-		return fmt.Errorf("Error waiting to create BareMetalCluster: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating BareMetalCluster %q: %#v", d.Id(), res)
 
 	return resourceGkeonpremBareMetalClusterRead(d, meta)
 }

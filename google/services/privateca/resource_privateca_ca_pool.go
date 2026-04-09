@@ -815,6 +815,18 @@ func resourcePrivatecaCaPoolCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
+	err = PrivatecaOperationWaitTime(
+		config, res, project, "Creating CaPool", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create CaPool: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating CaPool %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -835,18 +847,6 @@ func resourcePrivatecaCaPoolCreate(d *schema.ResourceData, meta interface{}) err
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = PrivatecaOperationWaitTime(
-		config, res, project, "Creating CaPool", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create CaPool: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating CaPool %q: %#v", d.Id(), res)
 
 	return resourcePrivatecaCaPoolRead(d, meta)
 }

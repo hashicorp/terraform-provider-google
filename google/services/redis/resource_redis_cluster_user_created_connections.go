@@ -299,6 +299,18 @@ func resourceRedisClusterUserCreatedConnectionsCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
+	err = RedisOperationWaitTime(
+		config, res, project, "Creating ClusterUserCreatedConnections", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ClusterUserCreatedConnections: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ClusterUserCreatedConnections %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -319,18 +331,6 @@ func resourceRedisClusterUserCreatedConnectionsCreate(d *schema.ResourceData, me
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = RedisOperationWaitTime(
-		config, res, project, "Creating ClusterUserCreatedConnections", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ClusterUserCreatedConnections: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ClusterUserCreatedConnections %q: %#v", d.Id(), res)
 
 	return resourceRedisClusterUserCreatedConnectionsRead(d, meta)
 }

@@ -354,6 +354,11 @@ func resourceCloudAssetProjectFeedCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	// Restore the original value of user_project_override.
+	config.UserProjectOverride = origUserProjectOverride
+
+	log.Printf("[DEBUG] Finished creating ProjectFeed %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -369,11 +374,6 @@ func resourceCloudAssetProjectFeedCreate(d *schema.ResourceData, meta interface{
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	// Restore the original value of user_project_override.
-	config.UserProjectOverride = origUserProjectOverride
-
-	log.Printf("[DEBUG] Finished creating ProjectFeed %q: %#v", d.Id(), res)
 
 	return resourceCloudAssetProjectFeedRead(d, meta)
 }

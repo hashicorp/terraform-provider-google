@@ -524,6 +524,18 @@ func resourceFirebaseAppHostingBuildCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	err = FirebaseAppHostingOperationWaitTime(
+		config, res, project, "Creating Build", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Build: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Build %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -549,18 +561,6 @@ func resourceFirebaseAppHostingBuildCreate(d *schema.ResourceData, meta interfac
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = FirebaseAppHostingOperationWaitTime(
-		config, res, project, "Creating Build", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Build: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Build %q: %#v", d.Id(), res)
 
 	return resourceFirebaseAppHostingBuildRead(d, meta)
 }

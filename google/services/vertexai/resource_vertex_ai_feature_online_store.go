@@ -412,6 +412,18 @@ func resourceVertexAIFeatureOnlineStoreCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
+	err = VertexAIOperationWaitTime(
+		config, res, project, "Creating FeatureOnlineStore", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create FeatureOnlineStore: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating FeatureOnlineStore %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -432,18 +444,6 @@ func resourceVertexAIFeatureOnlineStoreCreate(d *schema.ResourceData, meta inter
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating FeatureOnlineStore", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create FeatureOnlineStore: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating FeatureOnlineStore %q: %#v", d.Id(), res)
 
 	return resourceVertexAIFeatureOnlineStoreRead(d, meta)
 }

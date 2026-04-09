@@ -249,6 +249,18 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceCreate(d *schema.
 	}
 	d.SetId(id)
 
+	err = AccessContextManagerOperationWaitTime(
+		config, res, "Creating ServicePerimeterDryRunResource", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ServicePerimeterDryRunResource: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ServicePerimeterDryRunResource %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if resourceValue, ok := d.GetOk("resource"); ok && resourceValue.(string) != "" {
@@ -264,18 +276,6 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceCreate(d *schema.
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = AccessContextManagerOperationWaitTime(
-		config, res, "Creating ServicePerimeterDryRunResource", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ServicePerimeterDryRunResource: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ServicePerimeterDryRunResource %q: %#v", d.Id(), res)
 
 	return resourceAccessContextManagerServicePerimeterDryRunResourceRead(d, meta)
 }

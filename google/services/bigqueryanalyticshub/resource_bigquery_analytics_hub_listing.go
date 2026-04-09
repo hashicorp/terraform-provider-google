@@ -588,6 +588,8 @@ func resourceBigqueryAnalyticsHubListingCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating Listing %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if dataExchangeIdValue, ok := d.GetOk("data_exchange_id"); ok && dataExchangeIdValue.(string) != "" {
@@ -613,8 +615,6 @@ func resourceBigqueryAnalyticsHubListingCreate(d *schema.ResourceData, meta inte
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Listing %q: %#v", d.Id(), res)
 
 	return resourceBigqueryAnalyticsHubListingRead(d, meta)
 }

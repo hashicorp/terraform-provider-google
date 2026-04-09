@@ -348,6 +348,18 @@ func resourceEventarcMessageBusCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
+	err = EventarcOperationWaitTime(
+		config, res, project, "Creating MessageBus", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create MessageBus: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating MessageBus %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -368,18 +380,6 @@ func resourceEventarcMessageBusCreate(d *schema.ResourceData, meta interface{}) 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = EventarcOperationWaitTime(
-		config, res, project, "Creating MessageBus", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create MessageBus: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating MessageBus %q: %#v", d.Id(), res)
 
 	return resourceEventarcMessageBusRead(d, meta)
 }

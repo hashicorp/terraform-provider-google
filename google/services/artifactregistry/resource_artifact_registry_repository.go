@@ -1042,6 +1042,18 @@ func resourceArtifactRegistryRepositoryCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
+	err = ArtifactRegistryOperationWaitTime(
+		config, res, project, "Creating Repository", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Repository: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if repositoryIdValue, ok := d.GetOk("repository_id"); ok && repositoryIdValue.(string) != "" {
@@ -1062,18 +1074,6 @@ func resourceArtifactRegistryRepositoryCreate(d *schema.ResourceData, meta inter
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ArtifactRegistryOperationWaitTime(
-		config, res, project, "Creating Repository", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Repository: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
 
 	return resourceArtifactRegistryRepositoryRead(d, meta)
 }

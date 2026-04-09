@@ -321,6 +321,8 @@ func resourceParameterManagerRegionalRegionalParameterCreate(d *schema.ResourceD
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating RegionalParameter %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -341,8 +343,6 @@ func resourceParameterManagerRegionalRegionalParameterCreate(d *schema.ResourceD
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating RegionalParameter %q: %#v", d.Id(), res)
 
 	return resourceParameterManagerRegionalRegionalParameterRead(d, meta)
 }

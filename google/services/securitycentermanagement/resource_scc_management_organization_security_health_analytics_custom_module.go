@@ -414,6 +414,8 @@ func resourceSecurityCenterManagementOrganizationSecurityHealthAnalyticsCustomMo
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating OrganizationSecurityHealthAnalyticsCustomModule %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -434,8 +436,6 @@ func resourceSecurityCenterManagementOrganizationSecurityHealthAnalyticsCustomMo
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating OrganizationSecurityHealthAnalyticsCustomModule %q: %#v", d.Id(), res)
 
 	return resourceSecurityCenterManagementOrganizationSecurityHealthAnalyticsCustomModuleRead(d, meta)
 }

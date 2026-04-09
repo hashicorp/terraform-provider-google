@@ -342,6 +342,18 @@ func resourceSecureSourceManagerRepositoryCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
+	err = SecureSourceManagerOperationWaitTime(
+		config, res, project, "Creating Repository", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Repository: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -362,18 +374,6 @@ func resourceSecureSourceManagerRepositoryCreate(d *schema.ResourceData, meta in
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = SecureSourceManagerOperationWaitTime(
-		config, res, project, "Creating Repository", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Repository: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
 
 	return resourceSecureSourceManagerRepositoryRead(d, meta)
 }

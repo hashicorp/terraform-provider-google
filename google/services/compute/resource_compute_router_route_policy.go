@@ -339,6 +339,18 @@ func resourceComputeRouterRoutePolicyCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	err = ComputeOperationWaitTime(
+		config, res, project, "Creating RouterRoutePolicy", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create RouterRoutePolicy: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating RouterRoutePolicy %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if routerValue, ok := d.GetOk("router"); ok && routerValue.(string) != "" {
@@ -364,18 +376,6 @@ func resourceComputeRouterRoutePolicyCreate(d *schema.ResourceData, meta interfa
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ComputeOperationWaitTime(
-		config, res, project, "Creating RouterRoutePolicy", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create RouterRoutePolicy: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating RouterRoutePolicy %q: %#v", d.Id(), res)
 
 	return resourceComputeRouterRoutePolicyRead(d, meta)
 }

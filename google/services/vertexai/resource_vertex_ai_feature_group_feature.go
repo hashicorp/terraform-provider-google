@@ -286,6 +286,18 @@ func resourceVertexAIFeatureGroupFeatureCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	err = VertexAIOperationWaitTime(
+		config, res, project, "Creating FeatureGroupFeature", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create FeatureGroupFeature: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating FeatureGroupFeature %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -311,18 +323,6 @@ func resourceVertexAIFeatureGroupFeatureCreate(d *schema.ResourceData, meta inte
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating FeatureGroupFeature", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create FeatureGroupFeature: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating FeatureGroupFeature %q: %#v", d.Id(), res)
 
 	return resourceVertexAIFeatureGroupFeatureRead(d, meta)
 }

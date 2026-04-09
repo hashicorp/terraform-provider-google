@@ -417,6 +417,8 @@ func resourceStorageInsightsReportConfigCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating ReportConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -437,8 +439,6 @@ func resourceStorageInsightsReportConfigCreate(d *schema.ResourceData, meta inte
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating ReportConfig %q: %#v", d.Id(), res)
 
 	return resourceStorageInsightsReportConfigRead(d, meta)
 }

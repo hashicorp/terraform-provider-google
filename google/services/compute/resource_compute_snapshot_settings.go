@@ -243,17 +243,6 @@ func resourceComputeSnapshotSettingsCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = ComputeOperationWaitTime(
 		config, res, project, "Creating SnapshotSettings", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -265,6 +254,17 @@ func resourceComputeSnapshotSettingsCreate(d *schema.ResourceData, meta interfac
 	}
 
 	log.Printf("[DEBUG] Finished creating SnapshotSettings %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceComputeSnapshotSettingsRead(d, meta)
 }

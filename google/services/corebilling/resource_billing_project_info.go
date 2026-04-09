@@ -212,6 +212,8 @@ func resourceCoreBillingProjectInfoCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating ProjectInfo %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
@@ -222,8 +224,6 @@ func resourceCoreBillingProjectInfoCreate(d *schema.ResourceData, meta interface
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating ProjectInfo %q: %#v", d.Id(), res)
 
 	return resourceCoreBillingProjectInfoRead(d, meta)
 }

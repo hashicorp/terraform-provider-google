@@ -1835,6 +1835,18 @@ func resourceOSConfigV2PolicyOrchestratorForFolderCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
+	err = OSConfigV2OperationWaitTime(
+		config, res, project, "Creating PolicyOrchestratorForFolder", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create PolicyOrchestratorForFolder: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating PolicyOrchestratorForFolder %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if folderIdValue, ok := d.GetOk("folder_id"); ok && folderIdValue.(string) != "" {
@@ -1850,18 +1862,6 @@ func resourceOSConfigV2PolicyOrchestratorForFolderCreate(d *schema.ResourceData,
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = OSConfigV2OperationWaitTime(
-		config, res, project, "Creating PolicyOrchestratorForFolder", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create PolicyOrchestratorForFolder: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating PolicyOrchestratorForFolder %q: %#v", d.Id(), res)
 
 	return resourceOSConfigV2PolicyOrchestratorForFolderRead(d, meta)
 }

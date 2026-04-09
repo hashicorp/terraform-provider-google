@@ -412,6 +412,8 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating NotificationChannel %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -422,8 +424,6 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating NotificationChannel %q: %#v", d.Id(), res)
 
 	return resourceMonitoringNotificationChannelRead(d, meta)
 }

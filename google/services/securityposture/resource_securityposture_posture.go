@@ -787,6 +787,18 @@ func resourceSecurityposturePostureCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
+	err = SecuritypostureOperationWaitTime(
+		config, res, "Creating Posture", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Posture: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Posture %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
@@ -807,18 +819,6 @@ func resourceSecurityposturePostureCreate(d *schema.ResourceData, meta interface
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = SecuritypostureOperationWaitTime(
-		config, res, "Creating Posture", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Posture: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Posture %q: %#v", d.Id(), res)
 
 	return resourceSecurityposturePostureRead(d, meta)
 }

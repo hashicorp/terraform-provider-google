@@ -313,6 +313,8 @@ func resourceDiscoveryEngineServingConfigCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating ServingConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -343,8 +345,6 @@ func resourceDiscoveryEngineServingConfigCreate(d *schema.ResourceData, meta int
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating ServingConfig %q: %#v", d.Id(), res)
 
 	return resourceDiscoveryEngineServingConfigRead(d, meta)
 }

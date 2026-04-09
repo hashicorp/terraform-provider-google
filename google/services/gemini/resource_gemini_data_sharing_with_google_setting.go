@@ -288,6 +288,8 @@ func resourceGeminiDataSharingWithGoogleSettingCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating DataSharingWithGoogleSetting %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -308,8 +310,6 @@ func resourceGeminiDataSharingWithGoogleSettingCreate(d *schema.ResourceData, me
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating DataSharingWithGoogleSetting %q: %#v", d.Id(), res)
 
 	return resourceGeminiDataSharingWithGoogleSettingRead(d, meta)
 }

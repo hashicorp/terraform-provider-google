@@ -293,6 +293,8 @@ func resourceIdentityPlatformOauthIdpConfigCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating OauthIdpConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -308,8 +310,6 @@ func resourceIdentityPlatformOauthIdpConfigCreate(d *schema.ResourceData, meta i
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating OauthIdpConfig %q: %#v", d.Id(), res)
 
 	return resourceIdentityPlatformOauthIdpConfigRead(d, meta)
 }

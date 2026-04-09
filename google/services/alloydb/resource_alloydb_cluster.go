@@ -1144,6 +1144,18 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
+	err = AlloydbOperationWaitTime(
+		config, res, project, "Creating Cluster", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Cluster: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Cluster %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if clusterIdValue, ok := d.GetOk("cluster_id"); ok && clusterIdValue.(string) != "" {
@@ -1164,18 +1176,6 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = AlloydbOperationWaitTime(
-		config, res, project, "Creating Cluster", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Cluster: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Cluster %q: %#v", d.Id(), res)
 
 	return resourceAlloydbClusterRead(d, meta)
 }

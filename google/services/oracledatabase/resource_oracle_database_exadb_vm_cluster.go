@@ -542,6 +542,18 @@ func resourceOracleDatabaseExadbVmClusterCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
+	err = OracleDatabaseOperationWaitTime(
+		config, res, project, "Creating ExadbVmCluster", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ExadbVmCluster: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ExadbVmCluster %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -562,18 +574,6 @@ func resourceOracleDatabaseExadbVmClusterCreate(d *schema.ResourceData, meta int
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = OracleDatabaseOperationWaitTime(
-		config, res, project, "Creating ExadbVmCluster", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ExadbVmCluster: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ExadbVmCluster %q: %#v", d.Id(), res)
 
 	return resourceOracleDatabaseExadbVmClusterRead(d, meta)
 }

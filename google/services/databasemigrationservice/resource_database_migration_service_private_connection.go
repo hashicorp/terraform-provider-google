@@ -325,6 +325,18 @@ func resourceDatabaseMigrationServicePrivateConnectionCreate(d *schema.ResourceD
 	}
 	d.SetId(id)
 
+	err = DatabaseMigrationServiceOperationWaitTime(
+		config, res, project, "Creating PrivateConnection", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create PrivateConnection: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating PrivateConnection %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if privateConnectionIdValue, ok := d.GetOk("private_connection_id"); ok && privateConnectionIdValue.(string) != "" {
@@ -345,18 +357,6 @@ func resourceDatabaseMigrationServicePrivateConnectionCreate(d *schema.ResourceD
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = DatabaseMigrationServiceOperationWaitTime(
-		config, res, project, "Creating PrivateConnection", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create PrivateConnection: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating PrivateConnection %q: %#v", d.Id(), res)
 
 	return resourceDatabaseMigrationServicePrivateConnectionRead(d, meta)
 }

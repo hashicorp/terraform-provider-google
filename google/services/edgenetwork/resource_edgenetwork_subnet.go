@@ -349,6 +349,18 @@ func resourceEdgenetworkSubnetCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	err = EdgenetworkOperationWaitTime(
+		config, res, project, "Creating Subnet", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Subnet: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Subnet %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -374,18 +386,6 @@ func resourceEdgenetworkSubnetCreate(d *schema.ResourceData, meta interface{}) e
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = EdgenetworkOperationWaitTime(
-		config, res, project, "Creating Subnet", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Subnet: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Subnet %q: %#v", d.Id(), res)
 
 	return resourceEdgenetworkSubnetRead(d, meta)
 }

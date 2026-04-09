@@ -1308,6 +1308,17 @@ func resourceCloudRunV2WorkerPoolCreate(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId(id)
 
+	err = CloudRunV2OperationWaitTime(
+		config, res, project, "Creating WorkerPool", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+
+		return fmt.Errorf("Error waiting to create WorkerPool: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating WorkerPool %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -1328,17 +1339,6 @@ func resourceCloudRunV2WorkerPoolCreate(d *schema.ResourceData, meta interface{}
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = CloudRunV2OperationWaitTime(
-		config, res, project, "Creating WorkerPool", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-
-		return fmt.Errorf("Error waiting to create WorkerPool: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating WorkerPool %q: %#v", d.Id(), res)
 
 	return resourceCloudRunV2WorkerPoolRead(d, meta)
 }

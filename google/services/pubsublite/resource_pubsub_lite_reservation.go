@@ -229,6 +229,8 @@ func resourcePubsubLiteReservationCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating Reservation %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
@@ -249,8 +251,6 @@ func resourcePubsubLiteReservationCreate(d *schema.ResourceData, meta interface{
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Reservation %q: %#v", d.Id(), res)
 
 	return resourcePubsubLiteReservationRead(d, meta)
 }

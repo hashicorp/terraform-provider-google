@@ -267,22 +267,6 @@ func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
-			if err = identity.Set("name", nameValue.(string)); err != nil {
-				return fmt.Errorf("Error setting name: %s", err)
-			}
-		}
-		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
-			if err = identity.Set("parent", parentValue.(string)); err != nil {
-				return fmt.Errorf("Error setting parent: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
@@ -308,6 +292,22 @@ func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interfac
 	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Environment %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceDialogflowCXEnvironmentRead(d, meta)
 }

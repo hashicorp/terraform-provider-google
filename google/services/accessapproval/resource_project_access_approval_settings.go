@@ -320,6 +320,13 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
+	// This is useful if the resource in question doesn't have a perfectly consistent API
+	// That is, the Operation for Create might return before the Get operation shows the
+	// completed state of the resource.
+	time.Sleep(4 * time.Minute)
+
+	log.Printf("[DEBUG] Finished creating ProjectSettings %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if projectIdValue, ok := d.GetOk("project_id"); ok && projectIdValue.(string) != "" {
@@ -330,13 +337,6 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	// This is useful if the resource in question doesn't have a perfectly consistent API
-	// That is, the Operation for Create might return before the Get operation shows the
-	// completed state of the resource.
-	time.Sleep(4 * time.Minute)
-
-	log.Printf("[DEBUG] Finished creating ProjectSettings %q: %#v", d.Id(), res)
 
 	return resourceAccessApprovalProjectSettingsRead(d, meta)
 }

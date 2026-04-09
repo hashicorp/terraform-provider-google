@@ -238,6 +238,8 @@ func resourceFirebaseAppCheckRecaptchaEnterpriseConfigCreate(d *schema.ResourceD
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating RecaptchaEnterpriseConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if appIdValue, ok := d.GetOk("app_id"); ok && appIdValue.(string) != "" {
@@ -253,8 +255,6 @@ func resourceFirebaseAppCheckRecaptchaEnterpriseConfigCreate(d *schema.ResourceD
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating RecaptchaEnterpriseConfig %q: %#v", d.Id(), res)
 
 	return resourceFirebaseAppCheckRecaptchaEnterpriseConfigRead(d, meta)
 }

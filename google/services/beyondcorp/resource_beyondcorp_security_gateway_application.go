@@ -476,6 +476,18 @@ func resourceBeyondcorpSecurityGatewayApplicationCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
+	err = BeyondcorpOperationWaitTime(
+		config, res, project, "Creating SecurityGatewayApplication", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create SecurityGatewayApplication: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating SecurityGatewayApplication %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if securityGatewayIdValue, ok := d.GetOk("security_gateway_id"); ok && securityGatewayIdValue.(string) != "" {
@@ -496,18 +508,6 @@ func resourceBeyondcorpSecurityGatewayApplicationCreate(d *schema.ResourceData, 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = BeyondcorpOperationWaitTime(
-		config, res, project, "Creating SecurityGatewayApplication", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create SecurityGatewayApplication: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating SecurityGatewayApplication %q: %#v", d.Id(), res)
 
 	return resourceBeyondcorpSecurityGatewayApplicationRead(d, meta)
 }

@@ -490,6 +490,18 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	err = FirestoreOperationWaitTime(
+		config, res, project, "Creating Database", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Database: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -505,18 +517,6 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = FirestoreOperationWaitTime(
-		config, res, project, "Creating Database", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Database: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
 
 	return resourceFirestoreDatabaseRead(d, meta)
 }

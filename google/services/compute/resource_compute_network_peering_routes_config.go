@@ -281,6 +281,18 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	err = ComputeOperationWaitTime(
+		config, res, project, "Creating NetworkPeeringRoutesConfig", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create NetworkPeeringRoutesConfig: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating NetworkPeeringRoutesConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if peeringValue, ok := d.GetOk("peering"); ok && peeringValue.(string) != "" {
@@ -301,18 +313,6 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ComputeOperationWaitTime(
-		config, res, project, "Creating NetworkPeeringRoutesConfig", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create NetworkPeeringRoutesConfig: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating NetworkPeeringRoutesConfig %q: %#v", d.Id(), res)
 
 	return resourceComputeNetworkPeeringRoutesConfigRead(d, meta)
 }

@@ -272,6 +272,8 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigCreate(d *schema.Res
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating TenantDefaultSupportedIdpConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if idpIdValue, ok := d.GetOk("idp_id"); ok && idpIdValue.(string) != "" {
@@ -292,8 +294,6 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigCreate(d *schema.Res
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating TenantDefaultSupportedIdpConfig %q: %#v", d.Id(), res)
 
 	return resourceIdentityPlatformTenantDefaultSupportedIdpConfigRead(d, meta)
 }

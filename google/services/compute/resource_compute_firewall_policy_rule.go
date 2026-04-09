@@ -537,6 +537,20 @@ func resourceComputeFirewallPolicyRuleCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	parent := d.Get("firewall_policy").(string)
+	var opRes map[string]interface{}
+	err = ComputeOrgOperationWaitTimeWithResponse(
+		config, res, &opRes, parent, "Creating FirewallPolicyRule", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create FirewallPolicyRule: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating FirewallPolicyRule %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if _, ok := d.GetOk("priority"); ok {
@@ -553,20 +567,6 @@ func resourceComputeFirewallPolicyRuleCreate(d *schema.ResourceData, meta interf
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	parent := d.Get("firewall_policy").(string)
-	var opRes map[string]interface{}
-	err = ComputeOrgOperationWaitTimeWithResponse(
-		config, res, &opRes, parent, "Creating FirewallPolicyRule", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create FirewallPolicyRule: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating FirewallPolicyRule %q: %#v", d.Id(), res)
 
 	return resourceComputeFirewallPolicyRuleRead(d, meta)
 }

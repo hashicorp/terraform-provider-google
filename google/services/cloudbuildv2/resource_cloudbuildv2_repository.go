@@ -286,6 +286,18 @@ func resourceCloudbuildv2RepositoryCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
+	err = Cloudbuildv2OperationWaitTime(
+		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Creating Repository", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Repository: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -311,18 +323,6 @@ func resourceCloudbuildv2RepositoryCreate(d *schema.ResourceData, meta interface
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = Cloudbuildv2OperationWaitTime(
-		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Creating Repository", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Repository: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
 
 	return resourceCloudbuildv2RepositoryRead(d, meta)
 }

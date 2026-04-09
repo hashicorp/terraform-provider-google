@@ -295,6 +295,18 @@ func resourceFilestoreSnapshotCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	err = FilestoreOperationWaitTime(
+		config, res, project, "Creating Snapshot", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Snapshot: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Snapshot %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -320,18 +332,6 @@ func resourceFilestoreSnapshotCreate(d *schema.ResourceData, meta interface{}) e
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = FilestoreOperationWaitTime(
-		config, res, project, "Creating Snapshot", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Snapshot: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Snapshot %q: %#v", d.Id(), res)
 
 	return resourceFilestoreSnapshotRead(d, meta)
 }

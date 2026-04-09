@@ -421,6 +421,18 @@ func resourceDiscoveryEngineRecommendationEngineCreate(d *schema.ResourceData, m
 	}
 	d.SetId(id)
 
+	err = DiscoveryEngineOperationWaitTime(
+		config, res, project, "Creating RecommendationEngine", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create RecommendationEngine: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating RecommendationEngine %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if engineIdValue, ok := d.GetOk("engine_id"); ok && engineIdValue.(string) != "" {
@@ -441,18 +453,6 @@ func resourceDiscoveryEngineRecommendationEngineCreate(d *schema.ResourceData, m
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Creating RecommendationEngine", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create RecommendationEngine: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating RecommendationEngine %q: %#v", d.Id(), res)
 
 	return resourceDiscoveryEngineRecommendationEngineRead(d, meta)
 }

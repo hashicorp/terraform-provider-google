@@ -401,6 +401,8 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating TagTemplate %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -411,8 +413,6 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating TagTemplate %q: %#v", d.Id(), res)
 
 	return resourceDataCatalogTagTemplateRead(d, meta)
 }

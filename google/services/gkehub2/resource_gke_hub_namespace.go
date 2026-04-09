@@ -312,6 +312,18 @@ func resourceGKEHub2NamespaceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
+	err = GKEHub2OperationWaitTime(
+		config, res, project, "Creating Namespace", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Namespace: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Namespace %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if scopeNamespaceIdValue, ok := d.GetOk("scope_namespace_id"); ok && scopeNamespaceIdValue.(string) != "" {
@@ -332,18 +344,6 @@ func resourceGKEHub2NamespaceCreate(d *schema.ResourceData, meta interface{}) er
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = GKEHub2OperationWaitTime(
-		config, res, project, "Creating Namespace", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Namespace: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Namespace %q: %#v", d.Id(), res)
 
 	return resourceGKEHub2NamespaceRead(d, meta)
 }

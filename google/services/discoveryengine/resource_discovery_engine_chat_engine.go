@@ -395,6 +395,18 @@ func resourceDiscoveryEngineChatEngineCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	err = DiscoveryEngineOperationWaitTime(
+		config, res, project, "Creating ChatEngine", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ChatEngine: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ChatEngine %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if engineIdValue, ok := d.GetOk("engine_id"); ok && engineIdValue.(string) != "" {
@@ -420,18 +432,6 @@ func resourceDiscoveryEngineChatEngineCreate(d *schema.ResourceData, meta interf
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Creating ChatEngine", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ChatEngine: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ChatEngine %q: %#v", d.Id(), res)
 
 	return resourceDiscoveryEngineChatEngineRead(d, meta)
 }

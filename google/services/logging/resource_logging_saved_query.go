@@ -320,6 +320,8 @@ func resourceLoggingSavedQueryCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating SavedQuery %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
@@ -340,8 +342,6 @@ func resourceLoggingSavedQueryCreate(d *schema.ResourceData, meta interface{}) e
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating SavedQuery %q: %#v", d.Id(), res)
 
 	return resourceLoggingSavedQueryRead(d, meta)
 }

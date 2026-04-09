@@ -382,6 +382,18 @@ func resourceNetworkConnectivityDestinationCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	err = NetworkConnectivityOperationWaitTime(
+		config, res, project, "Creating Destination", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Destination: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Destination %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if multicloudDataTransferConfigValue, ok := d.GetOk("multicloud_data_transfer_config"); ok && multicloudDataTransferConfigValue.(string) != "" {
@@ -407,18 +419,6 @@ func resourceNetworkConnectivityDestinationCreate(d *schema.ResourceData, meta i
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetworkConnectivityOperationWaitTime(
-		config, res, project, "Creating Destination", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Destination: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Destination %q: %#v", d.Id(), res)
 
 	return resourceNetworkConnectivityDestinationRead(d, meta)
 }

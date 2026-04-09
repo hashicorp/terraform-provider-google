@@ -308,6 +308,18 @@ func resourceComputeRegionCompositeHealthCheckCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	err = ComputeOperationWaitTime(
+		config, res, project, "Creating RegionCompositeHealthCheck", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create RegionCompositeHealthCheck: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating RegionCompositeHealthCheck %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
@@ -328,18 +340,6 @@ func resourceComputeRegionCompositeHealthCheckCreate(d *schema.ResourceData, met
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ComputeOperationWaitTime(
-		config, res, project, "Creating RegionCompositeHealthCheck", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create RegionCompositeHealthCheck: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating RegionCompositeHealthCheck %q: %#v", d.Id(), res)
 
 	return resourceComputeRegionCompositeHealthCheckRead(d, meta)
 }

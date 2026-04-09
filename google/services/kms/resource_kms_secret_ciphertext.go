@@ -214,17 +214,6 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if cryptoKeyValue, ok := d.GetOk("crypto_key"); ok && cryptoKeyValue.(string) != "" {
-			if err = identity.Set("crypto_key", cryptoKeyValue.(string)); err != nil {
-				return fmt.Errorf("Error setting crypto_key: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	// we don't set anything on read and instead do it all in create
 	ciphertext, ok := res["ciphertext"]
 	if !ok {
@@ -241,6 +230,17 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating SecretCiphertext %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if cryptoKeyValue, ok := d.GetOk("crypto_key"); ok && cryptoKeyValue.(string) != "" {
+			if err = identity.Set("crypto_key", cryptoKeyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting crypto_key: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceKMSSecretCiphertextRead(d, meta)
 }

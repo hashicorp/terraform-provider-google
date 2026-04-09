@@ -420,6 +420,18 @@ func resourceComputePerInstanceConfigCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	err = ComputeOperationWaitTime(
+		config, res, project, "Creating PerInstanceConfig", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create PerInstanceConfig: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating PerInstanceConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -445,18 +457,6 @@ func resourceComputePerInstanceConfigCreate(d *schema.ResourceData, meta interfa
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ComputeOperationWaitTime(
-		config, res, project, "Creating PerInstanceConfig", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create PerInstanceConfig: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating PerInstanceConfig %q: %#v", d.Id(), res)
 
 	return resourceComputePerInstanceConfigRead(d, meta)
 }

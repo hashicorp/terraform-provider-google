@@ -368,6 +368,18 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationCreate(d *schema.Re
 	}
 	d.SetId(id)
 
+	err = NetworkSecurityOperationWaitTime(
+		config, res, project, "Creating MirroringEndpointGroupAssociation", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create MirroringEndpointGroupAssociation: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating MirroringEndpointGroupAssociation %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -388,18 +400,6 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationCreate(d *schema.Re
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetworkSecurityOperationWaitTime(
-		config, res, project, "Creating MirroringEndpointGroupAssociation", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create MirroringEndpointGroupAssociation: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating MirroringEndpointGroupAssociation %q: %#v", d.Id(), res)
 
 	return resourceNetworkSecurityMirroringEndpointGroupAssociationRead(d, meta)
 }

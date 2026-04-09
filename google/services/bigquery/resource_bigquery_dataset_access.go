@@ -623,22 +623,6 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if datasetIdValue, ok := d.GetOk("dataset_id"); ok && datasetIdValue.(string) != "" {
-			if err = identity.Set("dataset_id", datasetIdValue.(string)); err != nil {
-				return fmt.Errorf("Error setting dataset_id: %s", err)
-			}
-		}
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	// by default, we are not updating the member
 	if err := d.Set("api_updated_member", false); err != nil {
 		return fmt.Errorf("Error setting api_updated_member: %s", err)
@@ -668,6 +652,22 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Finished creating DatasetAccess %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if datasetIdValue, ok := d.GetOk("dataset_id"); ok && datasetIdValue.(string) != "" {
+			if err = identity.Set("dataset_id", datasetIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting dataset_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceBigQueryDatasetAccessRead(d, meta)
 }

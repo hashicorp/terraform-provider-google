@@ -300,6 +300,18 @@ func resourceGeminiReleaseChannelSettingBindingCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
+	err = GeminiOperationWaitTime(
+		config, res, project, "Creating ReleaseChannelSettingBinding", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ReleaseChannelSettingBinding: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ReleaseChannelSettingBinding %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -325,18 +337,6 @@ func resourceGeminiReleaseChannelSettingBindingCreate(d *schema.ResourceData, me
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = GeminiOperationWaitTime(
-		config, res, project, "Creating ReleaseChannelSettingBinding", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ReleaseChannelSettingBinding: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ReleaseChannelSettingBinding %q: %#v", d.Id(), res)
 
 	return resourceGeminiReleaseChannelSettingBindingRead(d, meta)
 }

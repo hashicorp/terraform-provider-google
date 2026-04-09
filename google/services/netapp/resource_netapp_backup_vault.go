@@ -345,6 +345,18 @@ func resourceNetappBackupVaultCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	err = NetappOperationWaitTime(
+		config, res, project, "Creating BackupVault", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create BackupVault: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating BackupVault %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -365,18 +377,6 @@ func resourceNetappBackupVaultCreate(d *schema.ResourceData, meta interface{}) e
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetappOperationWaitTime(
-		config, res, project, "Creating BackupVault", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create BackupVault: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating BackupVault %q: %#v", d.Id(), res)
 
 	return resourceNetappBackupVaultRead(d, meta)
 }

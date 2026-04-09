@@ -360,6 +360,18 @@ func resourceEventarcGoogleApiSourceCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	err = EventarcOperationWaitTime(
+		config, res, project, "Creating GoogleApiSource", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create GoogleApiSource: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating GoogleApiSource %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -380,18 +392,6 @@ func resourceEventarcGoogleApiSourceCreate(d *schema.ResourceData, meta interfac
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = EventarcOperationWaitTime(
-		config, res, project, "Creating GoogleApiSource", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create GoogleApiSource: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating GoogleApiSource %q: %#v", d.Id(), res)
 
 	return resourceEventarcGoogleApiSourceRead(d, meta)
 }

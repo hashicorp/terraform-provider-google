@@ -403,6 +403,8 @@ func resourceSecurityCenterFolderCustomModuleCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating FolderCustomModule %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -418,8 +420,6 @@ func resourceSecurityCenterFolderCustomModuleCreate(d *schema.ResourceData, meta
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating FolderCustomModule %q: %#v", d.Id(), res)
 
 	return resourceSecurityCenterFolderCustomModuleRead(d, meta)
 }

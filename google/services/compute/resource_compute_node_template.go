@@ -433,6 +433,18 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
+	err = ComputeOperationWaitTime(
+		config, res, project, "Creating NodeTemplate", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create NodeTemplate: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating NodeTemplate %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -453,18 +465,6 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ComputeOperationWaitTime(
-		config, res, project, "Creating NodeTemplate", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create NodeTemplate: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating NodeTemplate %q: %#v", d.Id(), res)
 
 	return resourceComputeNodeTemplateRead(d, meta)
 }

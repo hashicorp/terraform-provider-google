@@ -642,6 +642,25 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
+	// Handle desired state after queue creation
+	if v, ok := d.GetOk("desired_state"); ok && v.(string) == "PAUSED" {
+		pauseUrl := fmt.Sprintf("%s%s:pause", config.CloudTasksBasePath, id)
+
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    pauseUrl,
+			UserAgent: userAgent,
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error pausing queue %q: %s", d.Id(), err)
+		}
+	}
+
+	log.Printf("[DEBUG] Finished creating Queue %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -662,25 +681,6 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	// Handle desired state after queue creation
-	if v, ok := d.GetOk("desired_state"); ok && v.(string) == "PAUSED" {
-		pauseUrl := fmt.Sprintf("%s%s:pause", config.CloudTasksBasePath, id)
-
-		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "POST",
-			Project:   billingProject,
-			RawURL:    pauseUrl,
-			UserAgent: userAgent,
-		})
-
-		if err != nil {
-			return fmt.Errorf("Error pausing queue %q: %s", d.Id(), err)
-		}
-	}
-
-	log.Printf("[DEBUG] Finished creating Queue %q: %#v", d.Id(), res)
 
 	return resourceCloudTasksQueueRead(d, meta)
 }

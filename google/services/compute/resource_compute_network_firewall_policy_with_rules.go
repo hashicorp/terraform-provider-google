@@ -881,22 +881,6 @@ func resourceComputeNetworkFirewallPolicyWithRulesCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
-			if err = identity.Set("name", nameValue.(string)); err != nil {
-				return fmt.Errorf("Error setting name: %s", err)
-			}
-		}
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = ComputeOperationWaitTime(
 		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Creating NetworkFirewallPolicyWithRules", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -940,6 +924,22 @@ func resourceComputeNetworkFirewallPolicyWithRulesCreate(d *schema.ResourceData,
 	return resourceComputeNetworkFirewallPolicyWithRulesUpdate(d, meta)
 
 	log.Printf("[DEBUG] Finished creating NetworkFirewallPolicyWithRules %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceComputeNetworkFirewallPolicyWithRulesRead(d, meta)
 }

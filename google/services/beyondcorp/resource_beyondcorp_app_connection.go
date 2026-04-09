@@ -348,6 +348,18 @@ func resourceBeyondcorpAppConnectionCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	err = BeyondcorpOperationWaitTime(
+		config, res, project, "Creating AppConnection", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create AppConnection: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating AppConnection %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -368,18 +380,6 @@ func resourceBeyondcorpAppConnectionCreate(d *schema.ResourceData, meta interfac
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = BeyondcorpOperationWaitTime(
-		config, res, project, "Creating AppConnection", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create AppConnection: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating AppConnection %q: %#v", d.Id(), res)
 
 	return resourceBeyondcorpAppConnectionRead(d, meta)
 }

@@ -392,6 +392,18 @@ func resourceNetworkServicesMulticastDomainActivationCreate(d *schema.ResourceDa
 	}
 	d.SetId(id)
 
+	err = NetworkServicesOperationWaitTime(
+		config, res, project, "Creating MulticastDomainActivation", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create MulticastDomainActivation: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating MulticastDomainActivation %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -412,18 +424,6 @@ func resourceNetworkServicesMulticastDomainActivationCreate(d *schema.ResourceDa
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetworkServicesOperationWaitTime(
-		config, res, project, "Creating MulticastDomainActivation", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create MulticastDomainActivation: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating MulticastDomainActivation %q: %#v", d.Id(), res)
 
 	return resourceNetworkServicesMulticastDomainActivationRead(d, meta)
 }

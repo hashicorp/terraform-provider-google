@@ -275,6 +275,8 @@ func resourceIdentityPlatformTenantOauthIdpConfigCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating TenantOauthIdpConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -295,8 +297,6 @@ func resourceIdentityPlatformTenantOauthIdpConfigCreate(d *schema.ResourceData, 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating TenantOauthIdpConfig %q: %#v", d.Id(), res)
 
 	return resourceIdentityPlatformTenantOauthIdpConfigRead(d, meta)
 }

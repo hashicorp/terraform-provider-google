@@ -516,6 +516,18 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
+	err = ComputeOperationWaitTime(
+		config, res, project, "Creating Snapshot", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Snapshot: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Snapshot %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -531,18 +543,6 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ComputeOperationWaitTime(
-		config, res, project, "Creating Snapshot", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Snapshot: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Snapshot %q: %#v", d.Id(), res)
 
 	return resourceComputeSnapshotRead(d, meta)
 }

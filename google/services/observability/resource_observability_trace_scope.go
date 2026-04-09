@@ -264,6 +264,8 @@ func resourceObservabilityTraceScopeCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating TraceScope %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -284,8 +286,6 @@ func resourceObservabilityTraceScopeCreate(d *schema.ResourceData, meta interfac
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating TraceScope %q: %#v", d.Id(), res)
 
 	return resourceObservabilityTraceScopeRead(d, meta)
 }

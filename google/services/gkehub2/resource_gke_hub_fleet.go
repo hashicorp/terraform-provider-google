@@ -312,17 +312,6 @@ func resourceGKEHub2FleetCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = GKEHub2OperationWaitTime(
 		config, res, project, "Creating Fleet", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -334,6 +323,17 @@ func resourceGKEHub2FleetCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	log.Printf("[DEBUG] Finished creating Fleet %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceGKEHub2FleetRead(d, meta)
 }

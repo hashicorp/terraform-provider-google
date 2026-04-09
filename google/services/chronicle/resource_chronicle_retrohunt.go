@@ -327,37 +327,6 @@ func resourceChronicleRetrohuntCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
-			if err = identity.Set("location", locationValue.(string)); err != nil {
-				return fmt.Errorf("Error setting location: %s", err)
-			}
-		}
-		if instanceValue, ok := d.GetOk("instance"); ok && instanceValue.(string) != "" {
-			if err = identity.Set("instance", instanceValue.(string)); err != nil {
-				return fmt.Errorf("Error setting instance: %s", err)
-			}
-		}
-		if ruleValue, ok := d.GetOk("rule"); ok && ruleValue.(string) != "" {
-			if err = identity.Set("rule", ruleValue.(string)); err != nil {
-				return fmt.Errorf("Error setting rule: %s", err)
-			}
-		}
-		if retrohuntValue, ok := d.GetOk("retrohunt"); ok && retrohuntValue.(string) != "" {
-			if err = identity.Set("retrohunt", retrohuntValue.(string)); err != nil {
-				return fmt.Errorf("Error setting retrohunt: %s", err)
-			}
-		}
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = ChronicleOperationWaitTime(
 		config, res, project, "Creating Retrohunt", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -389,6 +358,37 @@ func resourceChronicleRetrohuntCreate(d *schema.ResourceData, meta interface{}) 
 	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Retrohunt %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if instanceValue, ok := d.GetOk("instance"); ok && instanceValue.(string) != "" {
+			if err = identity.Set("instance", instanceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting instance: %s", err)
+			}
+		}
+		if ruleValue, ok := d.GetOk("rule"); ok && ruleValue.(string) != "" {
+			if err = identity.Set("rule", ruleValue.(string)); err != nil {
+				return fmt.Errorf("Error setting rule: %s", err)
+			}
+		}
+		if retrohuntValue, ok := d.GetOk("retrohunt"); ok && retrohuntValue.(string) != "" {
+			if err = identity.Set("retrohunt", retrohuntValue.(string)); err != nil {
+				return fmt.Errorf("Error setting retrohunt: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceChronicleRetrohuntRead(d, meta)
 }
