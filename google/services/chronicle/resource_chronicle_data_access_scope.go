@@ -140,6 +140,9 @@ func ResourceChronicleDataAccessScope() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"data_access_scope_id": {

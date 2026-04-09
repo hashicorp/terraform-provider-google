@@ -134,6 +134,9 @@ func ResourceComputePublicDelegatedPrefix() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"ip_cidr_range": {

@@ -132,6 +132,9 @@ func ResourceStorageHmacKey() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"service_account_email": {

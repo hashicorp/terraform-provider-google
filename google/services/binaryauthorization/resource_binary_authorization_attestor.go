@@ -160,6 +160,9 @@ func ResourceBinaryAuthorizationAttestor() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"attestation_authority_note": {

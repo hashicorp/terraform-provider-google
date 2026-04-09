@@ -137,6 +137,9 @@ func ResourceNetworkSecurityInterceptEndpointGroup() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"intercept_deployment_group": {

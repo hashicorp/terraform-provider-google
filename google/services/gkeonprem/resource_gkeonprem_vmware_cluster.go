@@ -137,6 +137,9 @@ func ResourceGkeonpremVmwareCluster() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"admin_cluster_membership": {

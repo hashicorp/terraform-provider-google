@@ -137,6 +137,9 @@ func ResourceGeminiDataSharingWithGoogleSetting() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"data_sharing_with_google_setting_id": {

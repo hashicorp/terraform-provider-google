@@ -136,6 +136,9 @@ func ResourceComputeNetworkPeeringRoutesConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"export_custom_routes": {

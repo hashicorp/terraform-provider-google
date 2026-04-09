@@ -137,6 +137,9 @@ func ResourceNetworkServicesLbTrafficExtension() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"extension_chains": {

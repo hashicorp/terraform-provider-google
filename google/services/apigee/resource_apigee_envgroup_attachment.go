@@ -126,6 +126,9 @@ func ResourceApigeeEnvgroupAttachment() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"envgroup_id": {

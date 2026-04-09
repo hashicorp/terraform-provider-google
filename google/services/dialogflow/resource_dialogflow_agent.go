@@ -128,6 +128,9 @@ func ResourceDialogflowAgent() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"default_language_code": {

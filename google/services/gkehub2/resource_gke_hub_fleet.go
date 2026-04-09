@@ -128,6 +128,9 @@ func ResourceGKEHub2Fleet() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"default_cluster_config": {

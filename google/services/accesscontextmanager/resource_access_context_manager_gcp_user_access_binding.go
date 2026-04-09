@@ -124,6 +124,9 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"group_key": {

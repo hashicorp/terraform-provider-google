@@ -138,6 +138,9 @@ func ResourceDeveloperConnectInsightsConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"insights_config_id": {

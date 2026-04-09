@@ -136,6 +136,9 @@ func ResourceBigtableMaterializedView() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"materialized_view_id": {

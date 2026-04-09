@@ -132,6 +132,9 @@ func ResourceVertexAIRagEngineConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"rag_managed_db_config": {

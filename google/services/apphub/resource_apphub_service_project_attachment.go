@@ -135,6 +135,9 @@ func ResourceApphubServiceProjectAttachment() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"service_project_attachment_id": {

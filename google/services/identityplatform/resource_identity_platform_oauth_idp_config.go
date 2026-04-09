@@ -132,6 +132,9 @@ func ResourceIdentityPlatformOauthIdpConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"client_id": {

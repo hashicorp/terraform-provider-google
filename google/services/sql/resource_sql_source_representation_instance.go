@@ -130,6 +130,9 @@ func ResourceSQLSourceRepresentationInstance() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"database_version": {

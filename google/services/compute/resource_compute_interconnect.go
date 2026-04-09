@@ -137,6 +137,9 @@ func ResourceComputeInterconnect() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"interconnect_type": {

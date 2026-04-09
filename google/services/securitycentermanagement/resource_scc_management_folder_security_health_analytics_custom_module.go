@@ -132,6 +132,9 @@ func ResourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModule()
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"folder": {

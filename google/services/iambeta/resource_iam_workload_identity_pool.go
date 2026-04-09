@@ -165,6 +165,9 @@ func ResourceIAMBetaWorkloadIdentityPool() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"workload_identity_pool_id": {

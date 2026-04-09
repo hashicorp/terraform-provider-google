@@ -149,6 +149,9 @@ func ResourceBeyondcorpSecurityGateway() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"security_gateway_id": {

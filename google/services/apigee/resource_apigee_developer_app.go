@@ -132,6 +132,9 @@ func ResourceApigeeDeveloperApp() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"callback_url": {

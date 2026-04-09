@@ -136,6 +136,9 @@ func ResourceSecurityCenterV2ProjectMuteConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"filter": {

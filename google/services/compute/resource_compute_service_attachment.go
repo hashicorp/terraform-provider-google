@@ -173,6 +173,9 @@ func ResourceComputeServiceAttachment() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"connection_preference": {

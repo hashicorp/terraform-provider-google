@@ -144,6 +144,9 @@ func ResourceDiscoveryEngineControl() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"control_id": {

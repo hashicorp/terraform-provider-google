@@ -128,6 +128,9 @@ func ResourceResourceManager3Capability() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"capability_name": {

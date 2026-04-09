@@ -132,6 +132,9 @@ func ResourceFirebaseAppCheckDeviceCheckConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"app_id": {

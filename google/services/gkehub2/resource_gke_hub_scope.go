@@ -133,6 +133,9 @@ func ResourceGKEHub2Scope() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"scope_id": {

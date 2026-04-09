@@ -132,6 +132,9 @@ func ResourceSecurityCenterManagementOrganizationEventThreatDetectionCustomModul
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"organization": {

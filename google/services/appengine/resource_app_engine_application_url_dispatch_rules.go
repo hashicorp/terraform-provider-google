@@ -128,6 +128,9 @@ func ResourceAppEngineApplicationUrlDispatchRules() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"dispatch_rules": {

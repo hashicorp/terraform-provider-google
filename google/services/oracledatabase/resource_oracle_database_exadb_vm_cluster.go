@@ -137,6 +137,9 @@ func ResourceOracleDatabaseExadbVmCluster() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"backup_odb_subnet": {

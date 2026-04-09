@@ -126,6 +126,9 @@ func ResourceAccessContextManagerServicePerimeterDryRunResource() *schema.Resour
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"perimeter_name": {

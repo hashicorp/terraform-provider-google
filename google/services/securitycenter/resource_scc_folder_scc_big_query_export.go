@@ -128,6 +128,9 @@ func ResourceSecurityCenterFolderSccBigQueryExport() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"big_query_export_id": {

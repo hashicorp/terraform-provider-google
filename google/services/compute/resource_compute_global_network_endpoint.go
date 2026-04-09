@@ -142,6 +142,9 @@ func ResourceComputeGlobalNetworkEndpoint() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"global_network_endpoint_group": {

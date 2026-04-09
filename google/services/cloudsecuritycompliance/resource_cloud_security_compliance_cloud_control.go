@@ -132,6 +132,9 @@ func ResourceCloudSecurityComplianceCloudControl() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"cloud_control_id": {

@@ -136,6 +136,9 @@ func ResourceAppEngineFlexibleAppVersion() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"liveness_check": {

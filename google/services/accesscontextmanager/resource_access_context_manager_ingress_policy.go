@@ -126,6 +126,9 @@ func ResourceAccessContextManagerIngressPolicy() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"ingress_policy_name": {

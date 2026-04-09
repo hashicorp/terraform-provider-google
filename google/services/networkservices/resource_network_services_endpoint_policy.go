@@ -133,6 +133,9 @@ func ResourceNetworkServicesEndpointPolicy() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"endpoint_matcher": {
