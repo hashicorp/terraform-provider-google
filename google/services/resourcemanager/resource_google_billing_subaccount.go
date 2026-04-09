@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/services/billing"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -175,4 +176,13 @@ func resourceBillingSubaccountDelete(d *schema.ResourceData, meta interface{}) e
 	d.SetId("")
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_billing_subaccount",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceBillingSubaccount(),
+	}.Register()
 }

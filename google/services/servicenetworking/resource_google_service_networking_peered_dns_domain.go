@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -279,4 +280,13 @@ func getProjectNumber(d *schema.ResourceData, config *transport_tpg.Config, proj
 	}
 
 	return strconv.FormatInt(projectCall.ProjectNumber, 10), nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_service_networking_peered_dns_domain",
+		ProductName: "servicenetworking",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceGoogleServiceNetworkingPeeredDNSDomain(),
+	}.Register()
 }

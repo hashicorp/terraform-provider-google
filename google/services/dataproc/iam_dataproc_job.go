@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -173,4 +174,31 @@ func dataprocToResourceManagerPolicy(p *dataproc.Policy) (*cloudresourcemanager.
 		return nil, errwrap.Wrapf("Cannot convert a cloudresourcemanager policy to a dataproc policy: {{err}}", err)
 	}
 	return out, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_dataproc_job_iam_member",
+		ProductName: "dataproc",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_dataproc_job_iam_binding",
+		ProductName: "dataproc",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_dataproc_job_iam_policy",
+		ProductName: "dataproc",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_dataproc_job_iam_policy",
+		ProductName: "dataproc",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamDataprocJobSchema, NewDataprocJobUpdater),
+	}.Register()
 }

@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -119,4 +120,37 @@ func CompareProjectName(_, old, new string, _ *schema.ResourceData) bool {
 
 func getProjectIamPolicyMutexKey(pid string) string {
 	return fmt.Sprintf("iam-project-%s", pid)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_project_iam_audit_config",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamAuditConfig(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, tpgiamresource.IamWithBatching),
+	}.Register()
+	registry.Schema{
+		Name:        "google_project_iam_member",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, tpgiamresource.IamWithBatching),
+	}.Register()
+	registry.Schema{
+		Name:        "google_project_iam_binding",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, tpgiamresource.IamWithBatching),
+	}.Register()
+	registry.Schema{
+		Name:        "google_project_iam_policy",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_project_iam_policy",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamProjectSchema, NewProjectIamUpdater),
+	}.Register()
 }

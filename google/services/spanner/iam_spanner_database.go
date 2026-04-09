@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -203,4 +204,31 @@ func (s SpannerDatabaseId) parentInstanceUri() string {
 
 func (s SpannerDatabaseId) databaseUri() string {
 	return fmt.Sprintf("%s/databases/%s", s.parentInstanceUri(), s.Database)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_spanner_database_iam_member",
+		ProductName: "spanner",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_spanner_database_iam_binding",
+		ProductName: "spanner",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_spanner_database_iam_policy",
+		ProductName: "spanner",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_spanner_database_iam_policy",
+		ProductName: "spanner",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater),
+	}.Register()
 }

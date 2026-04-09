@@ -18,6 +18,7 @@ package servicenetworking
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
 func DataSourceGoogleServiceNetworkingPeeredDNSDomain() *schema.Resource {
@@ -50,4 +51,13 @@ func DataSourceGoogleServiceNetworkingPeeredDNSDomain() *schema.Resource {
 			},
 		},
 	}
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_service_networking_peered_dns_domain",
+		ProductName: "servicenetworking",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleServiceNetworkingPeeredDNSDomain(),
+	}.Register()
 }

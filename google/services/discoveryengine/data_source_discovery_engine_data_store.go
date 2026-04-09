@@ -22,6 +22,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -177,4 +178,13 @@ func dataSourceGoogleDiscoveryEngineDataStoreRead(d *schema.ResourceData, meta i
 	d.SetId(fmt.Sprintf("projects/%s/locations/%s/collections/default_collection/dataStores/%s", project, location, resolvedId))
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_discovery_engine_data_store",
+		ProductName: "discoveryengine",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleDiscoveryEngineDataStore(),
+	}.Register()
 }

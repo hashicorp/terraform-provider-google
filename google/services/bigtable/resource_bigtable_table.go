@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -764,4 +765,13 @@ func getRowKeySchema(input interface{}) (*bigtable.StructType, error) {
 		return nil, fmt.Errorf("only struct type is accepted as row key schema")
 	}
 	return &structRks, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_bigtable_table",
+		ProductName: "bigtable",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceBigtableTable(),
+	}.Register()
 }

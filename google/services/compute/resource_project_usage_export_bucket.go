@@ -21,6 +21,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -174,4 +175,13 @@ func resourceProjectUsageBucketImportState(d *schema.ResourceData, meta interfac
 		return nil, fmt.Errorf("Error setting project: %s", err)
 	}
 	return []*schema.ResourceData{d}, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_project_usage_export_bucket",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceProjectUsageBucket(),
+	}.Register()
 }

@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -168,4 +169,13 @@ func flattenDatasourceGoogleBucketObjectsList(v interface{}) []map[string]interf
 	}
 
 	return bucketObjects
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_storage_bucket_objects",
+		ProductName: "storage",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleStorageBucketObjects(),
+	}.Register()
 }

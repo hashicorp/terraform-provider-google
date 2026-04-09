@@ -19,6 +19,7 @@ package compute
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -60,4 +61,13 @@ func dataSourceGoogleComputeReservationRead(d *schema.ResourceData, meta interfa
 
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/reservations/%s", project, zone, name))
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_reservation",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleComputeReservation(),
+	}.Register()
 }

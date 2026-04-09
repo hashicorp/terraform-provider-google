@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -49,4 +50,13 @@ func folderBucketConfigID(d *schema.ResourceData, config *transport_tpg.Config) 
 // Create Logging Bucket config
 func ResourceLoggingFolderBucketConfig() *schema.Resource {
 	return ResourceLoggingBucketConfig("folder", loggingFolderBucketConfigSchema, folderBucketConfigID)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_logging_folder_bucket_config",
+		ProductName: "logging",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceLoggingFolderBucketConfig(),
+	}.Register()
 }

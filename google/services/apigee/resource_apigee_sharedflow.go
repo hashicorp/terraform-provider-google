@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -416,4 +417,13 @@ func apigeeSharedflowDetectBundleUpdate(_ context.Context, diff *schema.Resource
 		return true
 	}
 	return diff.HasChange("config_bundle") || diff.HasChange("md5hash")
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_apigee_sharedflow",
+		ProductName: "apigee",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceApigeeSharedFlow(),
+	}.Register()
 }

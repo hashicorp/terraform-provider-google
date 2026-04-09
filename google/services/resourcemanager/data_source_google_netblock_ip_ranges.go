@@ -25,6 +25,7 @@ import (
 	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"go4.org/netipx"
 )
 
@@ -323,4 +324,13 @@ func getCidrsDifference(reference, excluded map[string][]string) (map[string][]s
 	}
 
 	return result, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_netblock_ip_ranges",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleNetblockIpRanges(),
+	}.Register()
 }

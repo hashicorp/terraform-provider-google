@@ -19,6 +19,7 @@ package bigtable
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -158,4 +159,31 @@ func (u *BigtableTableIamUpdater) GetMutexKey() string {
 
 func (u *BigtableTableIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("Bigtable Table %s/%s-%s", u.project, u.instanceName, u.table)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_bigtable_table_iam_member",
+		ProductName: "bigtable",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamBigtableTableSchema, NewBigtableTableUpdater, BigtableTableIdParseFunc, tpgiamresource.IamWithStateUpgraders(BigtableTableIamStateUpgraders), tpgiamresource.IamWithSchemaVersion(1)),
+	}.Register()
+	registry.Schema{
+		Name:        "google_bigtable_table_iam_binding",
+		ProductName: "bigtable",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamBigtableTableSchema, NewBigtableTableUpdater, BigtableTableIdParseFunc, tpgiamresource.IamWithStateUpgraders(BigtableTableIamStateUpgraders), tpgiamresource.IamWithSchemaVersion(1)),
+	}.Register()
+	registry.Schema{
+		Name:        "google_bigtable_table_iam_policy",
+		ProductName: "bigtable",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamBigtableTableSchema, NewBigtableTableUpdater, BigtableTableIdParseFunc, tpgiamresource.IamWithStateUpgraders(BigtableTableIamStateUpgraders), tpgiamresource.IamWithSchemaVersion(1)),
+	}.Register()
+	registry.Schema{
+		Name:        "google_bigtable_table_iam_policy",
+		ProductName: "bigtable",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamBigtableTableSchema, NewBigtableTableUpdater),
+	}.Register()
 }

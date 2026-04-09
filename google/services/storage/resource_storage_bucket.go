@@ -28,6 +28,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -2534,4 +2535,13 @@ func hierachicalNamespaceDiffSuppress(k, old, new string, r *schema.ResourceData
 	}
 
 	return false
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_storage_bucket",
+		ProductName: "storage",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceStorageBucket(),
+	}.Register()
 }

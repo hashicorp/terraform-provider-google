@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -182,4 +183,13 @@ func dataSourceParameterManagerParameterVersionRead(d *schema.ResourceData, meta
 
 	d.SetId(nameValue.(string))
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_parameter_manager_parameter_version",
+		ProductName: "parametermanager",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceParameterManagerParameterVersion(),
+	}.Register()
 }

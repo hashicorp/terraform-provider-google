@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -63,4 +64,13 @@ func dataSourceGoogleGkeHubFeatureRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("%s not found", id)
 	}
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_gke_hub_feature",
+		ProductName: "gkehub2",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleGkeHubFeature(),
+	}.Register()
 }

@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/compute/v1"
@@ -144,4 +145,13 @@ func flattenRoutes(routes []*compute.Route) []map[string]interface{} {
 	}
 
 	return results
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_router_status",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleComputeRouterStatus(),
+	}.Register()
 }
