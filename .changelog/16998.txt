@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `managed_machine_learning_diagnostics_config` block to `google_container_cluster` resource (beta)
+```
