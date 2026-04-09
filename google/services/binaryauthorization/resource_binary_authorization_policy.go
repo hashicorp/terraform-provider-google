@@ -143,6 +143,9 @@ func ResourceBinaryAuthorizationPolicy() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"default_admission_rule": {

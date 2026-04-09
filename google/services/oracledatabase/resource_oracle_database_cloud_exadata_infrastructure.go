@@ -137,6 +137,9 @@ func ResourceOracleDatabaseCloudExadataInfrastructure() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"cloud_exadata_infrastructure_id": {

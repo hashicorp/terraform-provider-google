@@ -140,6 +140,9 @@ func ResourceDiscoveryEngineChatEngine() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"chat_engine_config": {

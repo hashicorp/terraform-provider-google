@@ -155,6 +155,9 @@ func ResourceColabSchedule() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"create_notebook_execution_job_request": {

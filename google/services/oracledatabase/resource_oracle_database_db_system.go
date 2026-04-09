@@ -137,6 +137,9 @@ func ResourceOracleDatabaseDbSystem() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"db_system_id": {

@@ -133,6 +133,9 @@ func ResourceOSConfigV2PolicyOrchestrator() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"action": {

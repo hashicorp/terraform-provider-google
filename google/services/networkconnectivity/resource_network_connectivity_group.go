@@ -137,6 +137,9 @@ func ResourceNetworkConnectivityGroup() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"hub": {

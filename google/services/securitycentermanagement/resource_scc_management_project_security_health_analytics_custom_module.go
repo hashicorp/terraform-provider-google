@@ -136,6 +136,9 @@ func ResourceSecurityCenterManagementProjectSecurityHealthAnalyticsCustomModule(
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"custom_config": {

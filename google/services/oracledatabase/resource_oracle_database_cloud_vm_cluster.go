@@ -137,6 +137,9 @@ func ResourceOracleDatabaseCloudVmCluster() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"cloud_vm_cluster_id": {

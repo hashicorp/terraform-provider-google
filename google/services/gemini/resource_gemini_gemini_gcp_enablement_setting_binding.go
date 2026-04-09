@@ -141,6 +141,9 @@ func ResourceGeminiGeminiGcpEnablementSettingBinding() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"gemini_gcp_enablement_setting_id": {

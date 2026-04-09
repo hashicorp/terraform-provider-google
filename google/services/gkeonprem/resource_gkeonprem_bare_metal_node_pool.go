@@ -141,6 +141,9 @@ func ResourceGkeonpremBareMetalNodePool() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"bare_metal_cluster": {

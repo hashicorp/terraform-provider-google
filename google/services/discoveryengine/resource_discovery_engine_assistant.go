@@ -144,6 +144,9 @@ func ResourceDiscoveryEngineAssistant() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"assistant_id": {

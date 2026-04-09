@@ -128,6 +128,9 @@ func ResourceIdentityPlatformConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"authorized_domains": {

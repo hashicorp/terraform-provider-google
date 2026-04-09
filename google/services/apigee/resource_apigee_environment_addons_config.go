@@ -124,6 +124,9 @@ func ResourceApigeeEnvironmentAddonsConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"env_id": {

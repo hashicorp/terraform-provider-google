@@ -126,6 +126,9 @@ func ResourceAccessContextManagerEgressPolicy() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"egress_policy_name": {

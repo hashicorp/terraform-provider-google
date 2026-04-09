@@ -144,6 +144,9 @@ func ResourceDiscoveryEngineWidgetConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"engine_id": {

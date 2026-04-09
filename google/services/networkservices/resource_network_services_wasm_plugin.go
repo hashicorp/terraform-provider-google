@@ -137,6 +137,9 @@ func ResourceNetworkServicesWasmPlugin() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"main_version_id": {

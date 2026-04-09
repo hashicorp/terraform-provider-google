@@ -142,6 +142,9 @@ func ResourceWorkflowsWorkflow() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"call_log_level": {

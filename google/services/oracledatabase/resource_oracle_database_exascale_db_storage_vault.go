@@ -137,6 +137,9 @@ func ResourceOracleDatabaseExascaleDbStorageVault() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"display_name": {

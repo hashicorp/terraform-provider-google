@@ -146,6 +146,9 @@ func ResourceCertificateManagerCertificateIssuanceConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"certificate_authority_config": {

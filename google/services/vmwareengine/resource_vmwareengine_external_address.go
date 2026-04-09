@@ -128,6 +128,9 @@ func ResourceVmwareengineExternalAddress() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"internal_ip": {

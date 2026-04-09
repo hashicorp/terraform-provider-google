@@ -132,6 +132,9 @@ func ResourceAppEngineServiceNetworkSettings() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"network_settings": {

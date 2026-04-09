@@ -137,6 +137,9 @@ func ResourceNetworkSecurityMirroringDeployment() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"forwarding_rule": {

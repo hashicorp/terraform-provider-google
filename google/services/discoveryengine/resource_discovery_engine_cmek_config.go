@@ -136,6 +136,9 @@ func ResourceDiscoveryEngineCmekConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"cmek_config_id": {

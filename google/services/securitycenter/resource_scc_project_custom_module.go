@@ -132,6 +132,9 @@ func ResourceSecurityCenterProjectCustomModule() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"custom_config": {

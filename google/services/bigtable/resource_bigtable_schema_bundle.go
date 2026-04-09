@@ -140,6 +140,9 @@ func ResourceBigtableSchemaBundle() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"proto_schema": {

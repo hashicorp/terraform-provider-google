@@ -128,6 +128,9 @@ func ResourceKMSProjectAutokeyConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"key_project_resolution_mode": {

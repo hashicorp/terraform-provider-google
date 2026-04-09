@@ -137,6 +137,9 @@ func ResourceOracleDatabaseAutonomousDatabase() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"autonomous_database_id": {

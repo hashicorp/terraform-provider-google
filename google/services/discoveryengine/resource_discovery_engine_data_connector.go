@@ -149,6 +149,9 @@ func ResourceDiscoveryEngineDataConnector() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"collection_display_name": {

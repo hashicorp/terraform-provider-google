@@ -128,6 +128,9 @@ func ResourceApigeeSecurityProfileV2() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"org_id": {

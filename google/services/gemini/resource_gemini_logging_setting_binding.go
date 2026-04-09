@@ -141,6 +141,9 @@ func ResourceGeminiLoggingSettingBinding() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"logging_setting_id": {

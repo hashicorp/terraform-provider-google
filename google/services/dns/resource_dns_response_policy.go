@@ -132,6 +132,9 @@ func ResourceDNSResponsePolicy() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"response_policy_name": {

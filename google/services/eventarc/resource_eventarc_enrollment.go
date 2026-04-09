@@ -138,6 +138,9 @@ func ResourceEventarcEnrollment() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"cel_match": {

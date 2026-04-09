@@ -132,6 +132,9 @@ func ResourceMonitoringMetricDescriptor() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"metric_kind": {

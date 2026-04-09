@@ -230,6 +230,9 @@ func ResourceAccessContextManagerServicePerimeterDryRunIngressPolicy() *schema.R
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"perimeter": {

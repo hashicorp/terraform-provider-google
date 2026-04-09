@@ -137,6 +137,9 @@ func ResourceNetworkConnectivityv1ServiceConnectionPolicy() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"location": {

@@ -136,6 +136,9 @@ func ResourceDiscoveryEngineLicenseConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"license_config_id": {

@@ -128,6 +128,9 @@ func ResourceApigeeSecurityMonitoringCondition() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"condition_id": {

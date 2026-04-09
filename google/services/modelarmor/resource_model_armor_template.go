@@ -137,6 +137,9 @@ func ResourceModelArmorTemplate() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"filter_config": {

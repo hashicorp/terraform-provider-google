@@ -141,6 +141,9 @@ func ResourceGeminiCodeToolsSettingBinding() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"code_tools_setting_id": {

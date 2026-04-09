@@ -131,6 +131,9 @@ func ResourceDataCatalogEntryGroup() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"entry_group_id": {

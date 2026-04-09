@@ -141,6 +141,9 @@ func ResourceKMSCryptoKey() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"key_ring": {

@@ -247,6 +247,9 @@ func ResourceComputeNetworkEndpoints() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"network_endpoint_group": {

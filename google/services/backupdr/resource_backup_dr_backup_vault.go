@@ -138,6 +138,9 @@ func ResourceBackupDRBackupVault() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"backup_minimum_enforced_retention_duration": {

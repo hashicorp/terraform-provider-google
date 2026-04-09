@@ -176,6 +176,9 @@ func ResourceRedisInstance() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"memory_size_gb": {

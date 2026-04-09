@@ -137,6 +137,9 @@ func ResourceNetappBackupPolicy() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"daily_backup_limit": {

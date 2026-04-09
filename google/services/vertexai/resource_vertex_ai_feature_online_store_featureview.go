@@ -141,6 +141,9 @@ func ResourceVertexAIFeatureOnlineStoreFeatureview() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"feature_online_store": {

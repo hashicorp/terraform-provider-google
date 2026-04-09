@@ -122,6 +122,9 @@ func ResourceKMSKeyRingImportJob() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"import_job_id": {

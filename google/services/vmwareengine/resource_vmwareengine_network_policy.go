@@ -136,6 +136,9 @@ func ResourceVmwareengineNetworkPolicy() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"edge_services_cidr": {

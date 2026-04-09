@@ -209,6 +209,9 @@ func ResourceBigqueryDataTransferConfig() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"data_source_id": {

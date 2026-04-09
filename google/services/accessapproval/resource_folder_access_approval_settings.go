@@ -148,6 +148,9 @@ func ResourceAccessApprovalFolderSettings() *schema.Resource {
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"enrolled_services": {

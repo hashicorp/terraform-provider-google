@@ -137,6 +137,9 @@ func ResourceNetworkSecurityInterceptEndpointGroupAssociation() *schema.Resource
 				}
 			},
 		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"intercept_endpoint_group": {
