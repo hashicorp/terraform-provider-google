@@ -1003,6 +1003,8 @@ func resourceVertexAIReasoningEngineUpdate(d *schema.ResourceData, meta interfac
 		}
 	}
 
+	// Sleep for 10 seconds after update to allow for propagation.
+	time.Sleep(10 * time.Second)
 	return resourceVertexAIReasoningEngineRead(d, meta)
 }
 
