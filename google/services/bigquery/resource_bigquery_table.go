@@ -2863,7 +2863,7 @@ func flattenGoogleSheetsOptions(opts *bigquery.GoogleSheetsOptions) []map[string
 }
 
 func expandHivePartitioningOptions(configured interface{}) *bigquery.HivePartitioningOptions {
-	if len(configured.([]interface{})) == 0 {
+	if len(configured.([]interface{})) == 0 || configured.([]interface{})[0] == nil {
 		return nil
 	}
 

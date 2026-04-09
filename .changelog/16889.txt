@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed crash in `google_bigquery_table` when `hive_partitioning_options` is defined with all null values
+```
