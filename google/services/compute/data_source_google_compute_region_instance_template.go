@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -132,4 +133,13 @@ func retrieveInstances(d *schema.ResourceData, meta interface{}, project, region
 		return err
 	}
 	return tpgresource.SetDataSourceLabels(d)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_region_instance_template",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleComputeRegionInstanceTemplate(),
+	}.Register()
 }

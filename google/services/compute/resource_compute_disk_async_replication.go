@@ -22,6 +22,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -312,4 +313,13 @@ func resourceDiskAsyncReplicationDelete(d *schema.ResourceData, meta interface{}
 		time.Sleep(5000 * time.Millisecond)
 	}
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_disk_async_replication",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceComputeDiskAsyncReplication(),
+	}.Register()
 }

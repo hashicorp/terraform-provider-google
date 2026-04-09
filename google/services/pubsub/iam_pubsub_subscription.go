@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -142,4 +143,31 @@ func pubsubToResourceManagerPolicy(in *pubsub.Policy) (*cloudresourcemanager.Pol
 		return nil, errwrap.Wrapf("Cannot convert a pubsub policy to a v1 policy: {{err}}", err)
 	}
 	return out, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_pubsub_subscription_iam_member",
+		ProductName: "pubsub",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_pubsub_subscription_iam_binding",
+		ProductName: "pubsub",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_pubsub_subscription_iam_policy",
+		ProductName: "pubsub",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_pubsub_subscription_iam_policy",
+		ProductName: "pubsub",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater),
+	}.Register()
 }

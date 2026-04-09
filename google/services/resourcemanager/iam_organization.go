@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -106,4 +107,37 @@ func (u *OrganizationIamUpdater) GetMutexKey() string {
 
 func (u *OrganizationIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("organization %q", u.resourceId)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_organization_iam_audit_config",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamAuditConfig(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_organization_iam_member",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_organization_iam_binding",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_organization_iam_policy",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_organization_iam_policy",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamOrganizationSchema, NewOrganizationIamUpdater),
+	}.Register()
 }

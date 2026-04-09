@@ -22,6 +22,7 @@ import (
 	"path"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/iam/v1"
@@ -159,4 +160,13 @@ func dataSourceProjectIamCustomRolesRead(d *schema.ResourceData, meta interface{
 	d.SetId("projects/" + project)
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_project_iam_custom_roles",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleProjectIamCustomRoles(),
+	}.Register()
 }

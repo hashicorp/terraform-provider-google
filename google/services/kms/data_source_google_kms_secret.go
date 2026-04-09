@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -97,4 +98,13 @@ func dataSourceGoogleKmsSecretRead(d *schema.ResourceData, meta interface{}) err
 	d.SetId(fmt.Sprintf("%s:%s", d.Get("crypto_key").(string), ciphertext))
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_kms_secret",
+		ProductName: "kms",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleKmsSecret(),
+	}.Register()
 }

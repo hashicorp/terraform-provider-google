@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -422,4 +423,13 @@ func validateRoleEntityPair(v interface{}, k string) (ws []string, errors []erro
 func getValidatedRoleEntityPair(roleEntity string) *RoleEntity {
 	split := strings.Split(roleEntity, ":")
 	return &RoleEntity{Role: split[0], Entity: split[1]}
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_storage_object_acl",
+		ProductName: "storage",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceStorageObjectAcl(),
+	}.Register()
 }

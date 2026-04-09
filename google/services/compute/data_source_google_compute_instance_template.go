@@ -21,6 +21,7 @@ import (
 	neturl "net/url"
 	"sort"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -149,4 +150,13 @@ func (a ByCreationTimestamp) Less(i, j int) bool {
 	ti, _ := a[i]["creationTimestamp"].(string)
 	tj, _ := a[j]["creationTimestamp"].(string)
 	return ti > tj
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_instance_template",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleComputeInstanceTemplate(),
+	}.Register()
 }

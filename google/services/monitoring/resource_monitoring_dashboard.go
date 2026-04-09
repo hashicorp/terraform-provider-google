@@ -21,6 +21,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -289,4 +290,13 @@ func resourceMonitoringDashboardImport(d *schema.ResourceData, meta interface{})
 	d.SetId(fmt.Sprintf("projects/%s/dashboards/%s", parts["project"], parts["id"]))
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_monitoring_dashboard",
+		ProductName: "monitoring",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceMonitoringDashboard(),
+	}.Register()
 }

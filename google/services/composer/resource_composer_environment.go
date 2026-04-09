@@ -29,7 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -3142,4 +3142,13 @@ func gscBucketNameDiffSuppress(_, old, new string, _ *schema.ResourceData) bool 
 		return true
 	}
 	return false
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_composer_environment",
+		ProductName: "composer",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceComposerEnvironment(),
+	}.Register()
 }

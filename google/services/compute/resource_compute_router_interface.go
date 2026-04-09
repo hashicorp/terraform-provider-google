@@ -23,6 +23,7 @@ import (
 
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -438,4 +439,13 @@ func resourceComputeRouterInterfaceImportState(d *schema.ResourceData, meta inte
 	}
 
 	return nil, fmt.Errorf("invalid router interface specifier. Expecting either {region}/{router}/{interface} or {project}/{region}/{router}/{interface} import id format")
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_router_interface",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceComputeRouterInterface(),
+	}.Register()
 }

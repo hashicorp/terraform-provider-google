@@ -19,6 +19,7 @@ package resourcemanager
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -130,4 +131,31 @@ func iamToResourceManagerPolicy(p *iam.Policy) (*cloudresourcemanager.Policy, er
 		return nil, errwrap.Wrapf("Cannot convert a iam policy to a v1 policy: {{err}}", err)
 	}
 	return out, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_service_account_iam_member",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_service_account_iam_binding",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_service_account_iam_policy",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_service_account_iam_policy",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamServiceAccountSchema, NewServiceAccountIamUpdater),
+	}.Register()
 }

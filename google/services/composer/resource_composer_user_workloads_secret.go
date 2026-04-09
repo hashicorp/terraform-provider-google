@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -276,4 +277,13 @@ func (n *UserWorkloadsSecretName) ResourceName() string {
 
 func (n *UserWorkloadsSecretName) ParentName() string {
 	return fmt.Sprintf("projects/%s/locations/%s/environments/%s", n.Project, n.Region, n.Environment)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_composer_user_workloads_secret",
+		ProductName: "composer",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceComposerUserWorkloadsSecret(),
+	}.Register()
 }

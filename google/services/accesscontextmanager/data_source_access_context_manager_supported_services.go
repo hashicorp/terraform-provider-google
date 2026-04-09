@@ -22,6 +22,7 @@ import (
 	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -155,4 +156,13 @@ func dataSourceAccessContextManagerSupportedServicesRead(d *schema.ResourceData,
 	d.SetId("accessContextManager/supportedServices")
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_access_context_manager_supported_services",
+		ProductName: "accesscontextmanager",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceAccessContextManagerSupportedServices(),
+	}.Register()
 }

@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -52,4 +53,13 @@ func dataSourceGoogleGkeHubMembershipRead(d *schema.ResourceData, meta interface
 
 	// No labels or annotations for Membership datasource
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_gke_hub_membership",
+		ProductName: "gkehub",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleGkeHubMembership(),
+	}.Register()
 }

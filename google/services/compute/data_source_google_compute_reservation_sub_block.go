@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -333,4 +334,13 @@ func dataSourceGoogleComputeReservationSubBlockRead(d *schema.ResourceData, meta
 
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/reservations/%s/reservationBlocks/%s/reservationSubBlocks/%s", project, zone, reservation, reservationBlock, name))
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_reservation_sub_block",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleComputeReservationSubBlock(),
+	}.Register()
 }

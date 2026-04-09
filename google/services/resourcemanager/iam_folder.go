@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -150,4 +151,37 @@ func GetFolderIamPolicyByFolderName(folderName, userAgent string, config *transp
 	}
 
 	return v1Policy, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_folder_iam_audit_config",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamAuditConfig(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_folder_iam_binding",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_folder_iam_member",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_folder_iam_policy",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_folder_iam_policy",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamFolderSchema, NewFolderIamUpdater),
+	}.Register()
 }

@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -483,4 +484,13 @@ func flattenVmwareengineUpgradesTimeOfDay(v interface{}, d *schema.ResourceData,
 	}
 
 	return []interface{}{v}
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_vmwareengine_upgrades",
+		ProductName: "vmwareengine",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceVmwareengineUpgrades(),
+	}.Register()
 }

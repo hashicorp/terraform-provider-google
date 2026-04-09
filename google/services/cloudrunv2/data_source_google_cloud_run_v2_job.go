@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -65,4 +66,13 @@ func dataSourceGoogleCloudRunV2JobRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("%s not found", id)
 	}
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_cloud_run_v2_job",
+		ProductName: "cloudrunv2",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleCloudRunV2Job(),
+	}.Register()
 }

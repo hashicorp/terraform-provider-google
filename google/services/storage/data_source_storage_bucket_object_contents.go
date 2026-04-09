@@ -27,6 +27,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -201,4 +202,13 @@ func dataSourceGoogleStorageBucketObjectContentsRead(d *schema.ResourceData, met
 
 	d.SetId(dataSourceId)
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_storage_bucket_object_contents",
+		ProductName: "storage",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleStorageBucketObjectContents(),
+	}.Register()
 }

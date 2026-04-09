@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -288,4 +289,13 @@ func resourceSiteVerificationOwnerImport(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Finished importing Owner %q", d.Id())
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_site_verification_owner",
+		ProductName: "siteverification",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceSiteVerificationOwner(),
+	}.Register()
 }

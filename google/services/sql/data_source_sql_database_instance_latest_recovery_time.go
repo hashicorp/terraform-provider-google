@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -86,4 +87,13 @@ func dataSourceSqlDatabaseInstanceLatestRecoveryTimeRead(d *schema.ResourceData,
 	}
 	d.SetId(fmt.Sprintf("projects/%s/instance/%s", project, instance))
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_sql_database_instance_latest_recovery_time",
+		ProductName: "sql",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceSqlDatabaseInstanceLatestRecoveryTime(),
+	}.Register()
 }
