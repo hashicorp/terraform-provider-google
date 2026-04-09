@@ -424,6 +424,103 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
 `, context)
 }
 
+func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingDcrRoutineExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"data_exchange_id": "tf_test_tf_test_data_exchange" + randomSuffix,
+		"dataset_id":       "tf_test_tf_test_dataset" + randomSuffix,
+		"desc":             "Example for listing with routine" + randomSuffix,
+		"listing_id":       "tf_test_tf_test_listing_routine" + randomSuffix,
+		"routine_id":       "tf_test_tf_test_routine" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryAnalyticsHubListingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingDcrRoutineExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_analytics_hub_listing.listing",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_exchange_id", "listing_id", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_analytics_hub_listing.listing",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingDcrRoutineExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_analytics_hub_data_exchange" "dcr_data_exchange_example" {
+  location         = "us"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{desc}"
+  sharing_environment_config {
+    dcr_exchange_config {}
+  }
+}
+
+resource "google_bigquery_dataset" "listing" {
+  dataset_id    = "%{dataset_id}"
+  friendly_name = "%{dataset_id}"
+  description   = "%{desc}"
+  location      = "us"
+}
+
+resource "google_bigquery_routine" "listing" {
+  dataset_id      = google_bigquery_dataset.listing.dataset_id
+  routine_id      = "%{routine_id}"
+  routine_type    = "TABLE_VALUED_FUNCTION"
+  language        = "SQL"
+  description     = "A DCR routine example."
+  definition_body = <<-EOS
+    SELECT 1 + value AS value
+  EOS
+  arguments {
+    name          = "value"
+    argument_kind = "FIXED_TYPE"
+    data_type     = jsonencode({ "typeKind" : "INT64" })
+  }
+  return_table_type = jsonencode({
+    "columns" : [
+      { "name" : "value", "type" : { "typeKind" : "INT64" } },
+    ]
+  })
+}
+
+resource "google_bigquery_analytics_hub_listing" "listing" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.dcr_data_exchange_example.data_exchange_id
+  listing_id       = "%{listing_id}"
+  display_name     = "%{listing_id}"
+  description      = "%{desc}"
+  bigquery_dataset {
+    dataset = google_bigquery_dataset.listing.id
+    selected_resources {
+      routine = google_bigquery_routine.listing.id
+    }
+  }
+  restricted_export_config {
+    enabled = true
+  }
+}
+`, context)
+}
+
 func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubPublicListingExample(t *testing.T) {
 	t.Parallel()
 

@@ -257,7 +257,6 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
 
 ```hcl
 resource "google_bigquery_analytics_hub_data_exchange" "dcr_data_exchange_example" {
-  provider = google-beta
   location         = "us"
   data_exchange_id = "tf_test_data_exchange"
   display_name     = "tf_test_data_exchange"
@@ -268,7 +267,6 @@ resource "google_bigquery_analytics_hub_data_exchange" "dcr_data_exchange_exampl
 }
 
 resource "google_bigquery_dataset" "listing" {
-  provider = google-beta
   dataset_id    = "tf_test_dataset"
   friendly_name = "tf_test_dataset"
   description   = "Example for listing with routine"
@@ -276,7 +274,6 @@ resource "google_bigquery_dataset" "listing" {
 }
 
 resource "google_bigquery_routine" "listing" {
-  provider = google-beta
   dataset_id      = google_bigquery_dataset.listing.dataset_id
   routine_id      = "tf_test_routine"
   routine_type    = "TABLE_VALUED_FUNCTION"
@@ -298,7 +295,6 @@ resource "google_bigquery_routine" "listing" {
 }
 
 resource "google_bigquery_analytics_hub_listing" "listing" {
-  provider = google-beta
   location         = "US"
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.dcr_data_exchange_example.data_exchange_id
   listing_id       = "tf_test_listing_routine"
@@ -535,11 +531,11 @@ The following arguments are supported:
   Structure is [documented below](#nested_bigquery_dataset_selected_resources).
 
 * `replica_locations` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   A list of regions where the publisher has created shared dataset replicas.
 
 * `effective_replicas` -
-  (Output, [Beta](../guides/provider_versions.html.markdown))
+  (Output)
   Server owned effective state of replicas. Contains both primary and secondary replicas.
   Each replica includes a system-computed (output-only) state and primary designation.
   Structure is [documented below](#nested_bigquery_dataset_effective_replicas).
@@ -552,22 +548,22 @@ The following arguments are supported:
   Format: For table: projects/{projectId}/datasets/{datasetId}/tables/{tableId} Example:"projects/test_project/datasets/test_dataset/tables/test_table"
 
 * `routine` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Format: For routine: projects/{projectId}/datasets/{datasetId}/routines/{routineId} Example:"projects/test_project/datasets/test_dataset/routines/test_routine"
 
 <a name="nested_bigquery_dataset_effective_replicas"></a>The `effective_replicas` block contains:
 
 * `location` -
-  (Output, [Beta](../guides/provider_versions.html.markdown))
+  (Output)
   The geographic location where the replica resides.
 
 * `replica_state` -
-  (Output, [Beta](../guides/provider_versions.html.markdown))
+  (Output)
   Output-only. Assigned by Analytics Hub based on real BigQuery replication state.
   Possible values: REPLICA_STATE_UNSPECIFIED, READY_TO_USE, UNAVAILABLE
 
 * `primary_state` -
-  (Output, [Beta](../guides/provider_versions.html.markdown))
+  (Output)
   Output-only. Indicates that this replica is the primary replica.
   Possible values: PRIMARY_STATE_UNSPECIFIED, PRIMARY_REPLICA
 
