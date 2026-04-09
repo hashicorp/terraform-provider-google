@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: fixed permadiff on `policy_profile` field in `google_network_security_authz_policy` resource
+```

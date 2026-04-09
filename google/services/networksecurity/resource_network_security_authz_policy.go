@@ -1099,6 +1099,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			},
 			"policy_profile": {
 				Type:         schema.TypeString,
+				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"REQUEST_AUTHZ", "CONTENT_AUTHZ", ""}),
