@@ -1,0 +1,18 @@
+```release-note:new-resource
+`google_iap_location_web_iam_binding` (beta)
+```
+```release-note:new-resource
+`google_iap_location_web_iam_member` (beta)
+```
+```release-note:new-resource
+`google_iap_location_web_iam_policy` (beta)
+```
+```release-note:new-resource
+`google_iap_agent_registry_iam_binding` (beta)
+```
+```release-note:new-resource
+`google_iap_agent_registry_iam_member` (beta)
+```
+```release-note:new-resource
+`google_iap_agent_registry_iam_policy` (beta)
+```
