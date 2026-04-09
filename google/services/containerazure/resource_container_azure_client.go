@@ -27,6 +27,7 @@ import (
 
 	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -285,4 +286,13 @@ func resourceContainerAzureClientImport(d *schema.ResourceData, meta interface{}
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_container_azure_client",
+		ProductName: "containerazure",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceContainerAzureClient(),
+	}.Register()
 }

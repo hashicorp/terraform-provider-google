@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 	"google.golang.org/api/googleapi"
 )
@@ -543,4 +544,13 @@ func applyRulesetDiff(c *Client, ctx context.Context, desired *Ruleset, rawDesir
 	}
 	c.Config.Logger.InfoWithContext(ctx, "Done Apply.")
 	return newState, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_firebaserules_ruleset",
+		ProductName: "firebaserules",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceFirebaserulesRuleset(),
+	}.Register()
 }
