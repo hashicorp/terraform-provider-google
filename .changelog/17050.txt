@@ -1,0 +1,3 @@
+```release-note:enhancement
+composer: increased `google_composer_environment` default delete timeout to 120m from 30m, as deletions sometimes took longer than 30m
+```

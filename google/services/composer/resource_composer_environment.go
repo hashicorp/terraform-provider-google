@@ -168,7 +168,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 			// Composer takes <= 1 hr for create/update.
 			Create: schema.DefaultTimeout(120 * time.Minute),
 			Update: schema.DefaultTimeout(120 * time.Minute),
-			Delete: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(120 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
