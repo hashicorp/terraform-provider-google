@@ -9,6 +9,11 @@ api_resource_type_kind: Listing
 fields:
     - api_field: allowOnlyMetadataSharing
     - api_field: bigqueryDataset.dataset
+    - api_field: bigqueryDataset.effectiveReplicas.location
+    - api_field: bigqueryDataset.effectiveReplicas.primaryState
+    - api_field: bigqueryDataset.effectiveReplicas.replicaState
+    - api_field: bigqueryDataset.replicaLocations
+    - api_field: bigqueryDataset.selectedResources.routine
     - api_field: bigqueryDataset.selectedResources.table
     - api_field: categories
     - api_field: commercialInfo.cloudMarketplace.commercialState

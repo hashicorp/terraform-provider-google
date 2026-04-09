@@ -17,6 +17,7 @@ fields:
     - api_field: destinationDataset.friendlyName
     - api_field: destinationDataset.labels
     - api_field: destinationDataset.location
+    - api_field: destinationDataset.replicaLocations
     - api_field: lastModifyTime
     - api_field: linkedDatasetMap.key
       field: linked_dataset_map.resource_name

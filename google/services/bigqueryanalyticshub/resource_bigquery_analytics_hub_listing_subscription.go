@@ -204,6 +204,17 @@ See https://cloud.google.com/bigquery/docs/locations for supported locations.`,
 organize and group your datasets.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
+						"replica_locations": {
+							Type:             schema.TypeSet,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.CaseDiffSuppress,
+							Description:      `List of regions where the subscriber wants dataset replicas.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Set: tpgresource.CaseInsensitiveHash,
+						},
 					},
 				},
 			},
@@ -712,6 +723,8 @@ func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDataset(v interfac
 		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDescription(original["description"], d, config)
 	transformed["labels"] =
 		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLabels(original["labels"], d, config)
+	transformed["replica_locations"] =
+		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetReplicaLocations(original["replicaLocations"], d, config)
 	return []interface{}{transformed}
 }
 
@@ -758,6 +771,13 @@ func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDescription
 
 func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetReplicaLocations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(tpgresource.CaseInsensitiveHash, v.([]interface{}))
 }
 
 func flattenBigqueryAnalyticsHubListingSubscriptionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -929,6 +949,13 @@ func expandBigqueryAnalyticsHubListingSubscriptionDestinationDataset(v interface
 		transformed["labels"] = transformedLabels
 	}
 
+	transformedReplicaLocations, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationDatasetReplicaLocations(original["replica_locations"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReplicaLocations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["replicaLocations"] = transformedReplicaLocations
+	}
+
 	return transformed, nil
 }
 
@@ -990,6 +1017,11 @@ func expandBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLabels(v int
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationDatasetReplicaLocations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
 }
 
 func resourceBigqueryAnalyticsHubListingSubscriptionDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
