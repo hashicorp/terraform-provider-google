@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 )
 
@@ -1652,4 +1653,13 @@ func applyFeatureMembershipDiff(c *Client, ctx context.Context, desired *Feature
 	}
 	c.Config.Logger.InfoWithContext(ctx, "Done Apply.")
 	return newState, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_gke_hub_feature_membership",
+		ProductName: "gkehub",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceGkeHubFeatureMembership(),
+	}.Register()
 }

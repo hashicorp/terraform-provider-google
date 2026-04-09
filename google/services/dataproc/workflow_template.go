@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 	"google.golang.org/api/googleapi"
 )
@@ -3496,4 +3497,13 @@ func applyWorkflowTemplateDiff(c *Client, ctx context.Context, desired *Workflow
 	}
 	c.Config.Logger.InfoWithContext(ctx, "Done Apply.")
 	return newState, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_dataproc_workflow_template",
+		ProductName: "dataproc",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceDataprocWorkflowTemplate(),
+	}.Register()
 }

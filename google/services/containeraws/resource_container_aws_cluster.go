@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -1382,4 +1383,13 @@ func flattenContainerAwsClusterAnnotations(v map[string]string, d *schema.Resour
 	}
 
 	return transformed
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_container_aws_cluster",
+		ProductName: "containeraws",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceContainerAwsCluster(),
+	}.Register()
 }

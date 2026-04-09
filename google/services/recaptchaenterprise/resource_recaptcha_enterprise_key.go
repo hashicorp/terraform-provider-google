@@ -27,6 +27,7 @@ import (
 
 	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -702,4 +703,13 @@ func flattenRecaptchaEnterpriseKeyTerraformLabels(v map[string]string, d *schema
 	}
 
 	return transformed
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_recaptcha_enterprise_key",
+		ProductName: "recaptchaenterprise",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceRecaptchaEnterpriseKey(),
+	}.Register()
 }
