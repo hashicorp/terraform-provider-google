@@ -474,27 +474,6 @@ func resourceColabNotebookExecutionCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
-			if err = identity.Set("location", locationValue.(string)); err != nil {
-				return fmt.Errorf("Error setting location: %s", err)
-			}
-		}
-		if notebookExecutionJobIdValue, ok := d.GetOk("notebook_execution_job_id"); ok && notebookExecutionJobIdValue.(string) != "" {
-			if err = identity.Set("notebook_execution_job_id", notebookExecutionJobIdValue.(string)); err != nil {
-				return fmt.Errorf("Error setting notebook_execution_job_id: %s", err)
-			}
-		}
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = ColabOperationWaitTime(
 		config, res, project, "Creating NotebookExecution", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -523,6 +502,27 @@ func resourceColabNotebookExecutionCreate(d *schema.ResourceData, meta interface
 	d.SetId(longName)
 
 	log.Printf("[DEBUG] Finished creating NotebookExecution %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if notebookExecutionJobIdValue, ok := d.GetOk("notebook_execution_job_id"); ok && notebookExecutionJobIdValue.(string) != "" {
+			if err = identity.Set("notebook_execution_job_id", notebookExecutionJobIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting notebook_execution_job_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceColabNotebookExecutionRead(d, meta)
 }

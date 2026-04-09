@@ -331,6 +331,18 @@ func resourceIAM3PrincipalAccessBoundaryPolicyCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	err = IAM3OperationWaitTime(
+		config, res, project, "Creating PrincipalAccessBoundaryPolicy", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create PrincipalAccessBoundaryPolicy: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating PrincipalAccessBoundaryPolicy %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
@@ -351,18 +363,6 @@ func resourceIAM3PrincipalAccessBoundaryPolicyCreate(d *schema.ResourceData, met
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = IAM3OperationWaitTime(
-		config, res, project, "Creating PrincipalAccessBoundaryPolicy", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create PrincipalAccessBoundaryPolicy: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating PrincipalAccessBoundaryPolicy %q: %#v", d.Id(), res)
 
 	return resourceIAM3PrincipalAccessBoundaryPolicyRead(d, meta)
 }

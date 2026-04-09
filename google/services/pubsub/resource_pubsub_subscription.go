@@ -929,6 +929,13 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
+	err = transport_tpg.PollingWaitTime(resourcePubsubSubscriptionPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating Subscription", d.Timeout(schema.TimeoutCreate), 1)
+	if err != nil {
+		log.Printf("[ERROR] Unable to confirm eventually consistent Subscription %q finished updating: %q", d.Id(), err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Subscription %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -944,13 +951,6 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = transport_tpg.PollingWaitTime(resourcePubsubSubscriptionPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating Subscription", d.Timeout(schema.TimeoutCreate), 1)
-	if err != nil {
-		log.Printf("[ERROR] Unable to confirm eventually consistent Subscription %q finished updating: %q", d.Id(), err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Subscription %q: %#v", d.Id(), res)
 
 	return resourcePubsubSubscriptionRead(d, meta)
 }

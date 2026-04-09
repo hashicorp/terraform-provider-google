@@ -560,6 +560,8 @@ func resourceDiscoveryEngineControlCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating Control %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -590,8 +592,6 @@ func resourceDiscoveryEngineControlCreate(d *schema.ResourceData, meta interface
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Control %q: %#v", d.Id(), res)
 
 	return resourceDiscoveryEngineControlRead(d, meta)
 }

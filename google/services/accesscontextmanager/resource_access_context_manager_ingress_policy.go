@@ -225,6 +225,18 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	err = AccessContextManagerOperationWaitTime(
+		config, res, "Creating IngressPolicy", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create IngressPolicy: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating IngressPolicy %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if resourceValue, ok := d.GetOk("resource"); ok && resourceValue.(string) != "" {
@@ -240,18 +252,6 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = AccessContextManagerOperationWaitTime(
-		config, res, "Creating IngressPolicy", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create IngressPolicy: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating IngressPolicy %q: %#v", d.Id(), res)
 
 	return resourceAccessContextManagerIngressPolicyRead(d, meta)
 }

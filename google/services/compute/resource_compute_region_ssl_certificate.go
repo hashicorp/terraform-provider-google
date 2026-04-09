@@ -348,6 +348,18 @@ func resourceComputeRegionSslCertificateCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	err = ComputeOperationWaitTime(
+		config, res, project, "Creating RegionSslCertificate", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create RegionSslCertificate: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating RegionSslCertificate %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -368,18 +380,6 @@ func resourceComputeRegionSslCertificateCreate(d *schema.ResourceData, meta inte
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ComputeOperationWaitTime(
-		config, res, project, "Creating RegionSslCertificate", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create RegionSslCertificate: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating RegionSslCertificate %q: %#v", d.Id(), res)
 
 	return resourceComputeRegionSslCertificateRead(d, meta)
 }

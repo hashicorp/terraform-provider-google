@@ -242,6 +242,18 @@ func resourceApphubServiceProjectAttachmentCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	err = ApphubOperationWaitTime(
+		config, res, project, "Creating ServiceProjectAttachment", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ServiceProjectAttachment: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ServiceProjectAttachment %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if serviceProjectAttachmentIdValue, ok := d.GetOk("service_project_attachment_id"); ok && serviceProjectAttachmentIdValue.(string) != "" {
@@ -257,18 +269,6 @@ func resourceApphubServiceProjectAttachmentCreate(d *schema.ResourceData, meta i
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ApphubOperationWaitTime(
-		config, res, project, "Creating ServiceProjectAttachment", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ServiceProjectAttachment: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ServiceProjectAttachment %q: %#v", d.Id(), res)
 
 	return resourceApphubServiceProjectAttachmentRead(d, meta)
 }

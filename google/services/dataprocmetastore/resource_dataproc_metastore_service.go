@@ -745,6 +745,18 @@ func resourceDataprocMetastoreServiceCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	err = DataprocMetastoreOperationWaitTime(
+		config, res, project, "Creating Service", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Service: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Service %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if serviceIdValue, ok := d.GetOk("service_id"); ok && serviceIdValue.(string) != "" {
@@ -765,18 +777,6 @@ func resourceDataprocMetastoreServiceCreate(d *schema.ResourceData, meta interfa
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = DataprocMetastoreOperationWaitTime(
-		config, res, project, "Creating Service", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Service: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Service %q: %#v", d.Id(), res)
 
 	return resourceDataprocMetastoreServiceRead(d, meta)
 }

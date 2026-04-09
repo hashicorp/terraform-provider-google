@@ -262,6 +262,8 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigCreate(d *schema.ResourceD
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating DefaultSupportedIdpConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if idpIdValue, ok := d.GetOk("idp_id"); ok && idpIdValue.(string) != "" {
@@ -277,8 +279,6 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigCreate(d *schema.ResourceD
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating DefaultSupportedIdpConfig %q: %#v", d.Id(), res)
 
 	return resourceIdentityPlatformDefaultSupportedIdpConfigRead(d, meta)
 }

@@ -334,6 +334,18 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
+	err = GKEHubOperationWaitTime(
+		config, res, project, "Creating Membership", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Membership: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Membership %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if membershipIdValue, ok := d.GetOk("membership_id"); ok && membershipIdValue.(string) != "" {
@@ -354,18 +366,6 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = GKEHubOperationWaitTime(
-		config, res, project, "Creating Membership", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Membership: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Membership %q: %#v", d.Id(), res)
 
 	return resourceGKEHubMembershipRead(d, meta)
 }

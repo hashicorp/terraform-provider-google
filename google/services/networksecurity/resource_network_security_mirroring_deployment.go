@@ -324,6 +324,18 @@ func resourceNetworkSecurityMirroringDeploymentCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
+	err = NetworkSecurityOperationWaitTime(
+		config, res, project, "Creating MirroringDeployment", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create MirroringDeployment: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating MirroringDeployment %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -344,18 +356,6 @@ func resourceNetworkSecurityMirroringDeploymentCreate(d *schema.ResourceData, me
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetworkSecurityOperationWaitTime(
-		config, res, project, "Creating MirroringDeployment", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create MirroringDeployment: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating MirroringDeployment %q: %#v", d.Id(), res)
 
 	return resourceNetworkSecurityMirroringDeploymentRead(d, meta)
 }

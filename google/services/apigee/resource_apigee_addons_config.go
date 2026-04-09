@@ -285,17 +285,6 @@ func resourceApigeeAddonsConfigCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if orgValue, ok := d.GetOk("org"); ok && orgValue.(string) != "" {
-			if err = identity.Set("org", orgValue.(string)); err != nil {
-				return fmt.Errorf("Error setting org: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = ApigeeOperationWaitTime(
 		config, res, "Creating AddonsConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -307,6 +296,17 @@ func resourceApigeeAddonsConfigCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Finished creating AddonsConfig %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if orgValue, ok := d.GetOk("org"); ok && orgValue.(string) != "" {
+			if err = identity.Set("org", orgValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceApigeeAddonsConfigRead(d, meta)
 }

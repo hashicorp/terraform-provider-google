@@ -1167,6 +1167,17 @@ func resourceGkeonpremVmwareClusterCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
+	err = GkeonpremOperationWaitTime(
+		config, res, project, "Creating VmwareCluster", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+
+		return fmt.Errorf("Error waiting to create VmwareCluster: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating VmwareCluster %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -1187,17 +1198,6 @@ func resourceGkeonpremVmwareClusterCreate(d *schema.ResourceData, meta interface
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = GkeonpremOperationWaitTime(
-		config, res, project, "Creating VmwareCluster", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-
-		return fmt.Errorf("Error waiting to create VmwareCluster: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating VmwareCluster %q: %#v", d.Id(), res)
 
 	return resourceGkeonpremVmwareClusterRead(d, meta)
 }

@@ -279,6 +279,8 @@ func resourceBigqueryDatapolicyDataPolicyCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating DataPolicy %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if dataPolicyIdValue, ok := d.GetOk("data_policy_id"); ok && dataPolicyIdValue.(string) != "" {
@@ -299,8 +301,6 @@ func resourceBigqueryDatapolicyDataPolicyCreate(d *schema.ResourceData, meta int
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating DataPolicy %q: %#v", d.Id(), res)
 
 	return resourceBigqueryDatapolicyDataPolicyRead(d, meta)
 }

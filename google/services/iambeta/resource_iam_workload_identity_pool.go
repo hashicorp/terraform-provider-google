@@ -501,22 +501,6 @@ func resourceIAMBetaWorkloadIdentityPoolCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if workloadIdentityPoolIdValue, ok := d.GetOk("workload_identity_pool_id"); ok && workloadIdentityPoolIdValue.(string) != "" {
-			if err = identity.Set("workload_identity_pool_id", workloadIdentityPoolIdValue.(string)); err != nil {
-				return fmt.Errorf("Error setting workload_identity_pool_id: %s", err)
-			}
-		}
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = IAMBetaOperationWaitTime(
 		config, res, project, "Creating WorkloadIdentityPool", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -561,6 +545,22 @@ func resourceIAMBetaWorkloadIdentityPoolCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Finished creating WorkloadIdentityPool %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if workloadIdentityPoolIdValue, ok := d.GetOk("workload_identity_pool_id"); ok && workloadIdentityPoolIdValue.(string) != "" {
+			if err = identity.Set("workload_identity_pool_id", workloadIdentityPoolIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting workload_identity_pool_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceIAMBetaWorkloadIdentityPoolRead(d, meta)
 }

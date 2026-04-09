@@ -1169,6 +1169,17 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
+	err = CloudRunV2OperationWaitTime(
+		config, res, project, "Creating Job", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+
+		return fmt.Errorf("Error waiting to create Job: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Job %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -1189,17 +1200,6 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = CloudRunV2OperationWaitTime(
-		config, res, project, "Creating Job", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-
-		return fmt.Errorf("Error waiting to create Job: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Job %q: %#v", d.Id(), res)
 
 	return resourceCloudRunV2JobRead(d, meta)
 }

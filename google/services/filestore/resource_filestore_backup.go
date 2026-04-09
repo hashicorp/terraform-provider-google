@@ -344,6 +344,18 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
+	err = FilestoreOperationWaitTime(
+		config, res, project, "Creating Backup", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Backup: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Backup %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -364,18 +376,6 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = FilestoreOperationWaitTime(
-		config, res, project, "Creating Backup", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Backup: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Backup %q: %#v", d.Id(), res)
 
 	return resourceFilestoreBackupRead(d, meta)
 }

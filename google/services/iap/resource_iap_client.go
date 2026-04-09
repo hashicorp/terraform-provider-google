@@ -220,6 +220,8 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating Client %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if clientIdValue, ok := d.GetOk("client_id"); ok && clientIdValue.(string) != "" {
@@ -235,8 +237,6 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Client %q: %#v", d.Id(), res)
 
 	return resourceIapClientRead(d, meta)
 }

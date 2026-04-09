@@ -456,27 +456,6 @@ func resourceApigeeDeveloperAppCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
-			if err = identity.Set("name", nameValue.(string)); err != nil {
-				return fmt.Errorf("Error setting name: %s", err)
-			}
-		}
-		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
-			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
-				return fmt.Errorf("Error setting org_id: %s", err)
-			}
-		}
-		if developerEmailValue, ok := d.GetOk("developer_email"); ok && developerEmailValue.(string) != "" {
-			if err = identity.Set("developer_email", developerEmailValue.(string)); err != nil {
-				return fmt.Errorf("Error setting developer_email: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	// If a static consumer_key was specified, replace the auto-generated credential
 	// with the user-supplied key/secret.
 	if consumerKey, ok := d.GetOk("consumer_key"); ok {
@@ -576,6 +555,27 @@ func resourceApigeeDeveloperAppCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Finished creating DeveloperApp %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if developerEmailValue, ok := d.GetOk("developer_email"); ok && developerEmailValue.(string) != "" {
+			if err = identity.Set("developer_email", developerEmailValue.(string)); err != nil {
+				return fmt.Errorf("Error setting developer_email: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceApigeeDeveloperAppRead(d, meta)
 }

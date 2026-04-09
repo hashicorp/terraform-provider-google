@@ -316,6 +316,18 @@ func resourceNetappBackupPolicyCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
+	err = NetappOperationWaitTime(
+		config, res, project, "Creating BackupPolicy", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create BackupPolicy: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating BackupPolicy %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -336,18 +348,6 @@ func resourceNetappBackupPolicyCreate(d *schema.ResourceData, meta interface{}) 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetappOperationWaitTime(
-		config, res, project, "Creating BackupPolicy", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create BackupPolicy: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating BackupPolicy %q: %#v", d.Id(), res)
 
 	return resourceNetappBackupPolicyRead(d, meta)
 }

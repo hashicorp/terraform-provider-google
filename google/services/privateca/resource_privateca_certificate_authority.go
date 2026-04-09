@@ -1075,32 +1075,6 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
-			if err = identity.Set("location", locationValue.(string)); err != nil {
-				return fmt.Errorf("Error setting location: %s", err)
-			}
-		}
-		if certificateAuthorityIdValue, ok := d.GetOk("certificate_authority_id"); ok && certificateAuthorityIdValue.(string) != "" {
-			if err = identity.Set("certificate_authority_id", certificateAuthorityIdValue.(string)); err != nil {
-				return fmt.Errorf("Error setting certificate_authority_id: %s", err)
-			}
-		}
-		if poolValue, ok := d.GetOk("pool"); ok && poolValue.(string) != "" {
-			if err = identity.Set("pool", poolValue.(string)); err != nil {
-				return fmt.Errorf("Error setting pool: %s", err)
-			}
-		}
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = PrivatecaOperationWaitTime(
 		config, res, project, "Creating CertificateAuthority", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -1135,6 +1109,32 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Finished creating CertificateAuthority %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if certificateAuthorityIdValue, ok := d.GetOk("certificate_authority_id"); ok && certificateAuthorityIdValue.(string) != "" {
+			if err = identity.Set("certificate_authority_id", certificateAuthorityIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting certificate_authority_id: %s", err)
+			}
+		}
+		if poolValue, ok := d.GetOk("pool"); ok && poolValue.(string) != "" {
+			if err = identity.Set("pool", poolValue.(string)); err != nil {
+				return fmt.Errorf("Error setting pool: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourcePrivatecaCertificateAuthorityRead(d, meta)
 }

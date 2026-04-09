@@ -505,6 +505,18 @@ func resourceApphubServiceCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
+	err = ApphubOperationWaitTime(
+		config, res, project, "Creating Service", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Service: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Service %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -530,18 +542,6 @@ func resourceApphubServiceCreate(d *schema.ResourceData, meta interface{}) error
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ApphubOperationWaitTime(
-		config, res, project, "Creating Service", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Service: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Service %q: %#v", d.Id(), res)
 
 	return resourceApphubServiceRead(d, meta)
 }

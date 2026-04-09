@@ -588,6 +588,18 @@ func resourceOracleDatabaseCloudExadataInfrastructureCreate(d *schema.ResourceDa
 	}
 	d.SetId(id)
 
+	err = OracleDatabaseOperationWaitTime(
+		config, res, project, "Creating CloudExadataInfrastructure", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create CloudExadataInfrastructure: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating CloudExadataInfrastructure %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -608,18 +620,6 @@ func resourceOracleDatabaseCloudExadataInfrastructureCreate(d *schema.ResourceDa
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = OracleDatabaseOperationWaitTime(
-		config, res, project, "Creating CloudExadataInfrastructure", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create CloudExadataInfrastructure: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating CloudExadataInfrastructure %q: %#v", d.Id(), res)
 
 	return resourceOracleDatabaseCloudExadataInfrastructureRead(d, meta)
 }

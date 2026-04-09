@@ -445,6 +445,18 @@ func resourceAlloydbBackupCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
+	err = AlloydbOperationWaitTime(
+		config, res, project, "Creating Backup", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Backup: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Backup %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if backupIdValue, ok := d.GetOk("backup_id"); ok && backupIdValue.(string) != "" {
@@ -465,18 +477,6 @@ func resourceAlloydbBackupCreate(d *schema.ResourceData, meta interface{}) error
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = AlloydbOperationWaitTime(
-		config, res, project, "Creating Backup", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Backup: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Backup %q: %#v", d.Id(), res)
 
 	return resourceAlloydbBackupRead(d, meta)
 }

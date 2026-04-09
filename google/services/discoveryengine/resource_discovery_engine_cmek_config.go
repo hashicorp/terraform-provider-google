@@ -292,6 +292,18 @@ func resourceDiscoveryEngineCmekConfigCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	err = DiscoveryEngineOperationWaitTime(
+		config, res, project, "Creating CmekConfig", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create CmekConfig: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating CmekConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -312,18 +324,6 @@ func resourceDiscoveryEngineCmekConfigCreate(d *schema.ResourceData, meta interf
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Creating CmekConfig", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create CmekConfig: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating CmekConfig %q: %#v", d.Id(), res)
 
 	return resourceDiscoveryEngineCmekConfigRead(d, meta)
 }

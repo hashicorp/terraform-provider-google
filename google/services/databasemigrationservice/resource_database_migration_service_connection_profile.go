@@ -972,6 +972,18 @@ func resourceDatabaseMigrationServiceConnectionProfileCreate(d *schema.ResourceD
 	}
 	d.SetId(id)
 
+	err = DatabaseMigrationServiceOperationWaitTime(
+		config, res, project, "Creating ConnectionProfile", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ConnectionProfile: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ConnectionProfile %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if connectionProfileIdValue, ok := d.GetOk("connection_profile_id"); ok && connectionProfileIdValue.(string) != "" {
@@ -992,18 +1004,6 @@ func resourceDatabaseMigrationServiceConnectionProfileCreate(d *schema.ResourceD
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = DatabaseMigrationServiceOperationWaitTime(
-		config, res, project, "Creating ConnectionProfile", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ConnectionProfile: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ConnectionProfile %q: %#v", d.Id(), res)
 
 	return resourceDatabaseMigrationServiceConnectionProfileRead(d, meta)
 }

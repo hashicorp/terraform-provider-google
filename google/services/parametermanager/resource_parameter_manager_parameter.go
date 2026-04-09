@@ -312,6 +312,8 @@ func resourceParameterManagerParameterCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating Parameter %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if parameterIdValue, ok := d.GetOk("parameter_id"); ok && parameterIdValue.(string) != "" {
@@ -327,8 +329,6 @@ func resourceParameterManagerParameterCreate(d *schema.ResourceData, meta interf
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Parameter %q: %#v", d.Id(), res)
 
 	return resourceParameterManagerParameterRead(d, meta)
 }

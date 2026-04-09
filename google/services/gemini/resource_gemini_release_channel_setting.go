@@ -280,6 +280,8 @@ func resourceGeminiReleaseChannelSettingCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating ReleaseChannelSetting %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -300,8 +302,6 @@ func resourceGeminiReleaseChannelSettingCreate(d *schema.ResourceData, meta inte
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating ReleaseChannelSetting %q: %#v", d.Id(), res)
 
 	return resourceGeminiReleaseChannelSettingRead(d, meta)
 }

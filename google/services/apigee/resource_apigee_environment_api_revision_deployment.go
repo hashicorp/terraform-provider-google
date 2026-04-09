@@ -250,6 +250,8 @@ func resourceApigeeEnvironmentApiRevisionDeploymentCreate(d *schema.ResourceData
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating EnvironmentApiRevisionDeployment %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
@@ -276,8 +278,6 @@ func resourceApigeeEnvironmentApiRevisionDeploymentCreate(d *schema.ResourceData
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating EnvironmentApiRevisionDeployment %q: %#v", d.Id(), res)
 
 	return resourceApigeeEnvironmentApiRevisionDeploymentRead(d, meta)
 }

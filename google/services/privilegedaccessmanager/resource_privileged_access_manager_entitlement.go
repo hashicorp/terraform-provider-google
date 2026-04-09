@@ -516,6 +516,18 @@ func resourcePrivilegedAccessManagerEntitlementCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
+	err = PrivilegedAccessManagerOperationWaitTime(
+		config, res, "Creating Entitlement", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Entitlement: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Entitlement %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -536,18 +548,6 @@ func resourcePrivilegedAccessManagerEntitlementCreate(d *schema.ResourceData, me
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = PrivilegedAccessManagerOperationWaitTime(
-		config, res, "Creating Entitlement", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Entitlement: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Entitlement %q: %#v", d.Id(), res)
 
 	return resourcePrivilegedAccessManagerEntitlementRead(d, meta)
 }

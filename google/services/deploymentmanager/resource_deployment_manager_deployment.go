@@ -385,6 +385,19 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	err = DeploymentManagerOperationWaitTime(
+		config, res, project, "Creating Deployment", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		resourceDeploymentManagerDeploymentPostCreateFailure(d, meta)
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Deployment: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Deployment %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -400,19 +413,6 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = DeploymentManagerOperationWaitTime(
-		config, res, project, "Creating Deployment", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		resourceDeploymentManagerDeploymentPostCreateFailure(d, meta)
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Deployment: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Deployment %q: %#v", d.Id(), res)
 
 	return resourceDeploymentManagerDeploymentRead(d, meta)
 }

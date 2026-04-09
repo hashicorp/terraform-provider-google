@@ -263,6 +263,18 @@ func resourceFirebaseAppHostingDefaultDomainCreate(d *schema.ResourceData, meta 
 	}
 	d.SetId(id)
 
+	err = FirebaseAppHostingOperationWaitTime(
+		config, res, project, "Creating DefaultDomain", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create DefaultDomain: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating DefaultDomain %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -288,18 +300,6 @@ func resourceFirebaseAppHostingDefaultDomainCreate(d *schema.ResourceData, meta 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = FirebaseAppHostingOperationWaitTime(
-		config, res, project, "Creating DefaultDomain", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create DefaultDomain: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating DefaultDomain %q: %#v", d.Id(), res)
 
 	return resourceFirebaseAppHostingDefaultDomainRead(d, meta)
 }

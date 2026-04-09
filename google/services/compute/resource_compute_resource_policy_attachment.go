@@ -238,6 +238,18 @@ func resourceComputeResourcePolicyAttachmentCreate(d *schema.ResourceData, meta 
 	}
 	d.SetId(id)
 
+	err = ComputeOperationWaitTime(
+		config, res, project, "Creating ResourcePolicyAttachment", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ResourcePolicyAttachment: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ResourcePolicyAttachment %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -263,18 +275,6 @@ func resourceComputeResourcePolicyAttachmentCreate(d *schema.ResourceData, meta 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ComputeOperationWaitTime(
-		config, res, project, "Creating ResourcePolicyAttachment", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ResourcePolicyAttachment: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ResourcePolicyAttachment %q: %#v", d.Id(), res)
 
 	return resourceComputeResourcePolicyAttachmentRead(d, meta)
 }

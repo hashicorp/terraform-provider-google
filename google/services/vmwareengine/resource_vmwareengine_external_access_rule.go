@@ -346,6 +346,18 @@ func resourceVmwareengineExternalAccessRuleCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	err = VmwareengineOperationWaitTime(
+		config, res, project, "Creating ExternalAccessRule", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ExternalAccessRule: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ExternalAccessRule %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
@@ -361,18 +373,6 @@ func resourceVmwareengineExternalAccessRuleCreate(d *schema.ResourceData, meta i
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = VmwareengineOperationWaitTime(
-		config, res, project, "Creating ExternalAccessRule", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ExternalAccessRule: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ExternalAccessRule %q: %#v", d.Id(), res)
 
 	return resourceVmwareengineExternalAccessRuleRead(d, meta)
 }

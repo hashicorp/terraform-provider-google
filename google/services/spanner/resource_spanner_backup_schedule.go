@@ -369,6 +369,8 @@ func resourceSpannerBackupScheduleCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating BackupSchedule %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -394,8 +396,6 @@ func resourceSpannerBackupScheduleCreate(d *schema.ResourceData, meta interface{
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating BackupSchedule %q: %#v", d.Id(), res)
 
 	return resourceSpannerBackupScheduleRead(d, meta)
 }

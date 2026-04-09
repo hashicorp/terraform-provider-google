@@ -292,6 +292,8 @@ func resourceNetworkSecurityDnsThreatDetectorCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating DnsThreatDetector %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -312,8 +314,6 @@ func resourceNetworkSecurityDnsThreatDetectorCreate(d *schema.ResourceData, meta
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating DnsThreatDetector %q: %#v", d.Id(), res)
 
 	return resourceNetworkSecurityDnsThreatDetectorRead(d, meta)
 }

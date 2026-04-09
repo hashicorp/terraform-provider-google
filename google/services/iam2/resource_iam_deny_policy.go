@@ -315,6 +315,18 @@ func resourceIAM2DenyPolicyCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
+	err = IAM2OperationWaitTime(
+		config, res, "Creating DenyPolicy", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create DenyPolicy: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating DenyPolicy %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -330,18 +342,6 @@ func resourceIAM2DenyPolicyCreate(d *schema.ResourceData, meta interface{}) erro
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = IAM2OperationWaitTime(
-		config, res, "Creating DenyPolicy", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create DenyPolicy: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating DenyPolicy %q: %#v", d.Id(), res)
 
 	return resourceIAM2DenyPolicyRead(d, meta)
 }

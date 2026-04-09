@@ -361,6 +361,18 @@ func resourceCertificateManagerCertificateIssuanceConfigCreate(d *schema.Resourc
 	}
 	d.SetId(id)
 
+	err = CertificateManagerOperationWaitTime(
+		config, res, project, "Creating CertificateIssuanceConfig", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create CertificateIssuanceConfig: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating CertificateIssuanceConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -381,18 +393,6 @@ func resourceCertificateManagerCertificateIssuanceConfigCreate(d *schema.Resourc
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = CertificateManagerOperationWaitTime(
-		config, res, project, "Creating CertificateIssuanceConfig", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create CertificateIssuanceConfig: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating CertificateIssuanceConfig %q: %#v", d.Id(), res)
 
 	return resourceCertificateManagerCertificateIssuanceConfigRead(d, meta)
 }

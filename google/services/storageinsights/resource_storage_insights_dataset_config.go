@@ -545,27 +545,6 @@ func resourceStorageInsightsDatasetConfigCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
-			if err = identity.Set("location", locationValue.(string)); err != nil {
-				return fmt.Errorf("Error setting location: %s", err)
-			}
-		}
-		if datasetConfigIdValue, ok := d.GetOk("dataset_config_id"); ok && datasetConfigIdValue.(string) != "" {
-			if err = identity.Set("dataset_config_id", datasetConfigIdValue.(string)); err != nil {
-				return fmt.Errorf("Error setting dataset_config_id: %s", err)
-			}
-		}
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = StorageInsightsOperationWaitTime(
 		config, res, project, "Creating DatasetConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -611,6 +590,27 @@ func resourceStorageInsightsDatasetConfigCreate(d *schema.ResourceData, meta int
 	}
 
 	log.Printf("[DEBUG] Finished creating DatasetConfig %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if datasetConfigIdValue, ok := d.GetOk("dataset_config_id"); ok && datasetConfigIdValue.(string) != "" {
+			if err = identity.Set("dataset_config_id", datasetConfigIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting dataset_config_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceStorageInsightsDatasetConfigRead(d, meta)
 }

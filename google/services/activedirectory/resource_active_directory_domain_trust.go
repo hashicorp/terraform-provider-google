@@ -291,6 +291,18 @@ func resourceActiveDirectoryDomainTrustCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
+	err = ActiveDirectoryOperationWaitTime(
+		config, res, project, "Creating DomainTrust", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create DomainTrust: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating DomainTrust %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if targetDomainNameValue, ok := d.GetOk("target_domain_name"); ok && targetDomainNameValue.(string) != "" {
@@ -311,18 +323,6 @@ func resourceActiveDirectoryDomainTrustCreate(d *schema.ResourceData, meta inter
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ActiveDirectoryOperationWaitTime(
-		config, res, project, "Creating DomainTrust", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create DomainTrust: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating DomainTrust %q: %#v", d.Id(), res)
 
 	return resourceActiveDirectoryDomainTrustRead(d, meta)
 }

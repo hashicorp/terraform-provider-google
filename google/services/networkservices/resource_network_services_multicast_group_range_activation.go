@@ -371,6 +371,18 @@ func resourceNetworkServicesMulticastGroupRangeActivationCreate(d *schema.Resour
 	}
 	d.SetId(id)
 
+	err = NetworkServicesOperationWaitTime(
+		config, res, project, "Creating MulticastGroupRangeActivation", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create MulticastGroupRangeActivation: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating MulticastGroupRangeActivation %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -391,18 +403,6 @@ func resourceNetworkServicesMulticastGroupRangeActivationCreate(d *schema.Resour
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetworkServicesOperationWaitTime(
-		config, res, project, "Creating MulticastGroupRangeActivation", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create MulticastGroupRangeActivation: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating MulticastGroupRangeActivation %q: %#v", d.Id(), res)
 
 	return resourceNetworkServicesMulticastGroupRangeActivationRead(d, meta)
 }

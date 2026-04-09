@@ -288,6 +288,18 @@ func resourceIntegrationConnectorsManagedZoneCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
+	err = IntegrationConnectorsOperationWaitTime(
+		config, res, project, "Creating ManagedZone", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ManagedZone: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ManagedZone %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -303,18 +315,6 @@ func resourceIntegrationConnectorsManagedZoneCreate(d *schema.ResourceData, meta
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = IntegrationConnectorsOperationWaitTime(
-		config, res, project, "Creating ManagedZone", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ManagedZone: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ManagedZone %q: %#v", d.Id(), res)
 
 	return resourceIntegrationConnectorsManagedZoneRead(d, meta)
 }

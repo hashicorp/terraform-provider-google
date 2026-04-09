@@ -224,6 +224,11 @@ func resourceKMSAutokeyConfigCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
+	// custom code to sleep for 10 seconds to allow the KMS key to be fully available before proceeding with any operations that depend on it
+	time.Sleep(10 * time.Second)
+
+	log.Printf("[DEBUG] Finished creating AutokeyConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if folderValue, ok := d.GetOk("folder"); ok && folderValue.(string) != "" {
@@ -234,11 +239,6 @@ func resourceKMSAutokeyConfigCreate(d *schema.ResourceData, meta interface{}) er
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	// custom code to sleep for 10 seconds to allow the KMS key to be fully available before proceeding with any operations that depend on it
-	time.Sleep(10 * time.Second)
-
-	log.Printf("[DEBUG] Finished creating AutokeyConfig %q: %#v", d.Id(), res)
 
 	return resourceKMSAutokeyConfigRead(d, meta)
 }

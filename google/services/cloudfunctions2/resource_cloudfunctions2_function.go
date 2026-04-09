@@ -812,6 +812,17 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	err = Cloudfunctions2OperationWaitTime(
+		config, res, project, "Creating function", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+
+		return fmt.Errorf("Error waiting to create function: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating function %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -832,17 +843,6 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = Cloudfunctions2OperationWaitTime(
-		config, res, project, "Creating function", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-
-		return fmt.Errorf("Error waiting to create function: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating function %q: %#v", d.Id(), res)
 
 	return resourceCloudfunctions2functionRead(d, meta)
 }

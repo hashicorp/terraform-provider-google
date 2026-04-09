@@ -249,6 +249,18 @@ func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
+	err = AppEngineOperationWaitTime(
+		config, res, project, "Creating ServiceSplitTraffic", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ServiceSplitTraffic: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ServiceSplitTraffic %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if serviceValue, ok := d.GetOk("service"); ok && serviceValue.(string) != "" {
@@ -264,18 +276,6 @@ func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta int
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = AppEngineOperationWaitTime(
-		config, res, project, "Creating ServiceSplitTraffic", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ServiceSplitTraffic: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ServiceSplitTraffic %q: %#v", d.Id(), res)
 
 	return resourceAppEngineServiceSplitTrafficRead(d, meta)
 }

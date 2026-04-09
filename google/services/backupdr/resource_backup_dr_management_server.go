@@ -280,6 +280,18 @@ func resourceBackupDRManagementServerCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	err = BackupDROperationWaitTime(
+		config, res, project, "Creating ManagementServer", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ManagementServer: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ManagementServer %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -300,18 +312,6 @@ func resourceBackupDRManagementServerCreate(d *schema.ResourceData, meta interfa
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = BackupDROperationWaitTime(
-		config, res, project, "Creating ManagementServer", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ManagementServer: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ManagementServer %q: %#v", d.Id(), res)
 
 	return resourceBackupDRManagementServerRead(d, meta)
 }

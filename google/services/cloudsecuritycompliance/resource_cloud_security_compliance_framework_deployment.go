@@ -606,6 +606,18 @@ func resourceCloudSecurityComplianceFrameworkDeploymentCreate(d *schema.Resource
 	}
 	d.SetId(id)
 
+	err = CloudSecurityComplianceOperationWaitTime(
+		config, res, "Creating FrameworkDeployment", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create FrameworkDeployment: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating FrameworkDeployment %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
@@ -626,18 +638,6 @@ func resourceCloudSecurityComplianceFrameworkDeploymentCreate(d *schema.Resource
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = CloudSecurityComplianceOperationWaitTime(
-		config, res, "Creating FrameworkDeployment", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create FrameworkDeployment: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating FrameworkDeployment %q: %#v", d.Id(), res)
 
 	return resourceCloudSecurityComplianceFrameworkDeploymentRead(d, meta)
 }

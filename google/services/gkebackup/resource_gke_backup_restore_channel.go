@@ -298,6 +298,18 @@ func resourceGKEBackupRestoreChannelCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	err = GKEBackupOperationWaitTime(
+		config, res, project, "Creating RestoreChannel", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create RestoreChannel: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating RestoreChannel %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -318,18 +330,6 @@ func resourceGKEBackupRestoreChannelCreate(d *schema.ResourceData, meta interfac
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = GKEBackupOperationWaitTime(
-		config, res, project, "Creating RestoreChannel", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create RestoreChannel: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating RestoreChannel %q: %#v", d.Id(), res)
 
 	return resourceGKEBackupRestoreChannelRead(d, meta)
 }

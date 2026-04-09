@@ -2761,27 +2761,6 @@ func resourceDatastreamStreamCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if streamIdValue, ok := d.GetOk("stream_id"); ok && streamIdValue.(string) != "" {
-			if err = identity.Set("stream_id", streamIdValue.(string)); err != nil {
-				return fmt.Errorf("Error setting stream_id: %s", err)
-			}
-		}
-		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
-			if err = identity.Set("location", locationValue.(string)); err != nil {
-				return fmt.Errorf("Error setting location: %s", err)
-			}
-		}
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = DatastreamOperationWaitTime(
 		config, res, project, "Creating Stream", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -2804,6 +2783,27 @@ func resourceDatastreamStreamCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Finished creating Stream %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if streamIdValue, ok := d.GetOk("stream_id"); ok && streamIdValue.(string) != "" {
+			if err = identity.Set("stream_id", streamIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting stream_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceDatastreamStreamRead(d, meta)
 }

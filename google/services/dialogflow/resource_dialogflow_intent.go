@@ -389,6 +389,8 @@ func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating Intent %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -399,8 +401,6 @@ func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) er
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Intent %q: %#v", d.Id(), res)
 
 	return resourceDialogflowIntentRead(d, meta)
 }

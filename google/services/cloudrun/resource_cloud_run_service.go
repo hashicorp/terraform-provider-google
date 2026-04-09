@@ -1511,6 +1511,13 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
+	err = transport_tpg.PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatusFunc(res), "Creating Service", d.Timeout(schema.TimeoutCreate), 1)
+	if err != nil {
+		return fmt.Errorf("Error waiting to create Service: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Service %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -1531,13 +1538,6 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = transport_tpg.PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatusFunc(res), "Creating Service", d.Timeout(schema.TimeoutCreate), 1)
-	if err != nil {
-		return fmt.Errorf("Error waiting to create Service: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Service %q: %#v", d.Id(), res)
 
 	return resourceCloudRunServiceRead(d, meta)
 }

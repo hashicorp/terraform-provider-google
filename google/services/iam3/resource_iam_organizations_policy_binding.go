@@ -383,6 +383,18 @@ func resourceIAM3OrganizationsPolicyBindingCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	err = IAM3OperationWaitTime(
+		config, res, project, "Creating OrganizationsPolicyBinding", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create OrganizationsPolicyBinding: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating OrganizationsPolicyBinding %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
@@ -403,18 +415,6 @@ func resourceIAM3OrganizationsPolicyBindingCreate(d *schema.ResourceData, meta i
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = IAM3OperationWaitTime(
-		config, res, project, "Creating OrganizationsPolicyBinding", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create OrganizationsPolicyBinding: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating OrganizationsPolicyBinding %q: %#v", d.Id(), res)
 
 	return resourceIAM3OrganizationsPolicyBindingRead(d, meta)
 }

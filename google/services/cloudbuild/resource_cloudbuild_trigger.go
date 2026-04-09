@@ -1757,6 +1757,12 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	// Force legacy id format for global triggers.
+	id = strings.ReplaceAll(id, "/locations/global/", "/")
+	d.SetId(id)
+
+	log.Printf("[DEBUG] Finished creating Trigger %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if triggerIdValue, ok := d.GetOk("trigger_id"); ok && triggerIdValue.(string) != "" {
@@ -1777,12 +1783,6 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	// Force legacy id format for global triggers.
-	id = strings.ReplaceAll(id, "/locations/global/", "/")
-	d.SetId(id)
-
-	log.Printf("[DEBUG] Finished creating Trigger %q: %#v", d.Id(), res)
 
 	return resourceCloudBuildTriggerRead(d, meta)
 }

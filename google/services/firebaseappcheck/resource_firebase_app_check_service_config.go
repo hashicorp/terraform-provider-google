@@ -254,6 +254,8 @@ func resourceFirebaseAppCheckServiceConfigCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating ServiceConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if serviceIdValue, ok := d.GetOk("service_id"); ok && serviceIdValue.(string) != "" {
@@ -269,8 +271,6 @@ func resourceFirebaseAppCheckServiceConfigCreate(d *schema.ResourceData, meta in
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating ServiceConfig %q: %#v", d.Id(), res)
 
 	return resourceFirebaseAppCheckServiceConfigRead(d, meta)
 }

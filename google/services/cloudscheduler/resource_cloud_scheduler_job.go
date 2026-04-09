@@ -667,27 +667,6 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
-			if err = identity.Set("name", nameValue.(string)); err != nil {
-				return fmt.Errorf("Error setting name: %s", err)
-			}
-		}
-		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
-			if err = identity.Set("region", regionValue.(string)); err != nil {
-				return fmt.Errorf("Error setting region: %s", err)
-			}
-		}
-		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
-			if err = identity.Set("project", projectValue.(string)); err != nil {
-				return fmt.Errorf("Error setting project: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	endpoint := "resume" // Default to enabled
 	logSuccessMsg := "Job state has been set to ENABLED"
 	if paused, pausedOk := d.GetOk("paused"); pausedOk && paused.(bool) {
@@ -719,6 +698,27 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Finished updating Job %q status: %s", d.Id(), logSuccessMsg)
 
 	log.Printf("[DEBUG] Finished creating Job %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
+			if err = identity.Set("region", regionValue.(string)); err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceCloudSchedulerJobRead(d, meta)
 }

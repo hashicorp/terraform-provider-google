@@ -338,6 +338,18 @@ func resourceNetworkConnectivityRegionalEndpointCreate(d *schema.ResourceData, m
 	}
 	d.SetId(id)
 
+	err = NetworkConnectivityOperationWaitTime(
+		config, res, project, "Creating RegionalEndpoint", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create RegionalEndpoint: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating RegionalEndpoint %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -358,18 +370,6 @@ func resourceNetworkConnectivityRegionalEndpointCreate(d *schema.ResourceData, m
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetworkConnectivityOperationWaitTime(
-		config, res, project, "Creating RegionalEndpoint", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create RegionalEndpoint: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating RegionalEndpoint %q: %#v", d.Id(), res)
 
 	return resourceNetworkConnectivityRegionalEndpointRead(d, meta)
 }

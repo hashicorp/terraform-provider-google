@@ -358,6 +358,18 @@ func resourceManagedKafkaConnectClusterCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
+	err = ManagedKafkaOperationWaitTime(
+		config, res, project, "Creating ConnectCluster", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ConnectCluster: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ConnectCluster %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -378,18 +390,6 @@ func resourceManagedKafkaConnectClusterCreate(d *schema.ResourceData, meta inter
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ManagedKafkaOperationWaitTime(
-		config, res, project, "Creating ConnectCluster", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ConnectCluster: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ConnectCluster %q: %#v", d.Id(), res)
 
 	return resourceManagedKafkaConnectClusterRead(d, meta)
 }

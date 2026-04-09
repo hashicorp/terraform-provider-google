@@ -391,6 +391,13 @@ func resourceDialogflowCXSecuritySettingsCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
+	// This is useful if the resource in question doesn't have a perfectly consistent API
+	// That is, the Operation for Create might return before the Get operation shows the
+	// completed state of the resource.
+	time.Sleep(5 * time.Second)
+
+	log.Printf("[DEBUG] Finished creating SecuritySettings %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -411,13 +418,6 @@ func resourceDialogflowCXSecuritySettingsCreate(d *schema.ResourceData, meta int
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	// This is useful if the resource in question doesn't have a perfectly consistent API
-	// That is, the Operation for Create might return before the Get operation shows the
-	// completed state of the resource.
-	time.Sleep(5 * time.Second)
-
-	log.Printf("[DEBUG] Finished creating SecuritySettings %q: %#v", d.Id(), res)
 
 	return resourceDialogflowCXSecuritySettingsRead(d, meta)
 }

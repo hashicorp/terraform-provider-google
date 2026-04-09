@@ -454,6 +454,13 @@ func resourceDataLossPreventionStoredInfoTypeCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
+	err = transport_tpg.PollingWaitTime(resourceDataLossPreventionStoredInfoTypePollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating StoredInfoType", d.Timeout(schema.TimeoutCreate), 1)
+	if err != nil {
+		return fmt.Errorf("Error waiting to create StoredInfoType: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating StoredInfoType %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -469,13 +476,6 @@ func resourceDataLossPreventionStoredInfoTypeCreate(d *schema.ResourceData, meta
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = transport_tpg.PollingWaitTime(resourceDataLossPreventionStoredInfoTypePollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating StoredInfoType", d.Timeout(schema.TimeoutCreate), 1)
-	if err != nil {
-		return fmt.Errorf("Error waiting to create StoredInfoType: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating StoredInfoType %q: %#v", d.Id(), res)
 
 	return resourceDataLossPreventionStoredInfoTypeRead(d, meta)
 }

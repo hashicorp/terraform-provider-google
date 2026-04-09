@@ -299,6 +299,18 @@ func resourceGeminiDataSharingWithGoogleSettingBindingCreate(d *schema.ResourceD
 	}
 	d.SetId(id)
 
+	err = GeminiOperationWaitTime(
+		config, res, project, "Creating DataSharingWithGoogleSettingBinding", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create DataSharingWithGoogleSettingBinding: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating DataSharingWithGoogleSettingBinding %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -324,18 +336,6 @@ func resourceGeminiDataSharingWithGoogleSettingBindingCreate(d *schema.ResourceD
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = GeminiOperationWaitTime(
-		config, res, project, "Creating DataSharingWithGoogleSettingBinding", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create DataSharingWithGoogleSettingBinding: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating DataSharingWithGoogleSettingBinding %q: %#v", d.Id(), res)
 
 	return resourceGeminiDataSharingWithGoogleSettingBindingRead(d, meta)
 }

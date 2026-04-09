@@ -1204,6 +1204,18 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	err = AppEngineOperationWaitTime(
+		config, res, project, "Creating FlexibleAppVersion", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create FlexibleAppVersion: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating FlexibleAppVersion %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if versionIdValue, ok := d.GetOk("version_id"); ok && versionIdValue.(string) != "" {
@@ -1224,18 +1236,6 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = AppEngineOperationWaitTime(
-		config, res, project, "Creating FlexibleAppVersion", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create FlexibleAppVersion: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating FlexibleAppVersion %q: %#v", d.Id(), res)
 
 	return resourceAppEngineFlexibleAppVersionRead(d, meta)
 }

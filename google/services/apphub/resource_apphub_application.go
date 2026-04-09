@@ -416,6 +416,18 @@ func resourceApphubApplicationCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	err = ApphubOperationWaitTime(
+		config, res, project, "Creating Application", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Application: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Application %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -436,18 +448,6 @@ func resourceApphubApplicationCreate(d *schema.ResourceData, meta interface{}) e
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ApphubOperationWaitTime(
-		config, res, project, "Creating Application", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Application: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Application %q: %#v", d.Id(), res)
 
 	return resourceApphubApplicationRead(d, meta)
 }

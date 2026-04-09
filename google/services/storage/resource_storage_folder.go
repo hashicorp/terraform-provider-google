@@ -238,6 +238,8 @@ func resourceStorageFolderCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating Folder %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if bucketValue, ok := d.GetOk("bucket"); ok && bucketValue.(string) != "" {
@@ -253,8 +255,6 @@ func resourceStorageFolderCreate(d *schema.ResourceData, meta interface{}) error
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Folder %q: %#v", d.Id(), res)
 
 	return resourceStorageFolderRead(d, meta)
 }

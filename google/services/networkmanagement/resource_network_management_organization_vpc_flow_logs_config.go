@@ -367,6 +367,18 @@ func resourceNetworkManagementOrganizationVpcFlowLogsConfigCreate(d *schema.Reso
 	}
 	d.SetId(id)
 
+	err = NetworkManagementOperationWaitTime(
+		config, res, project, "Creating OrganizationVpcFlowLogsConfig", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create OrganizationVpcFlowLogsConfig: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating OrganizationVpcFlowLogsConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
@@ -387,18 +399,6 @@ func resourceNetworkManagementOrganizationVpcFlowLogsConfigCreate(d *schema.Reso
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetworkManagementOperationWaitTime(
-		config, res, project, "Creating OrganizationVpcFlowLogsConfig", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create OrganizationVpcFlowLogsConfig: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating OrganizationVpcFlowLogsConfig %q: %#v", d.Id(), res)
 
 	return resourceNetworkManagementOrganizationVpcFlowLogsConfigRead(d, meta)
 }

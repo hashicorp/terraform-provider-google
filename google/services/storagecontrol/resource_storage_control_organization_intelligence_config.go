@@ -352,6 +352,8 @@ func resourceStorageControlOrganizationIntelligenceConfigCreate(d *schema.Resour
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating OrganizationIntelligenceConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -362,8 +364,6 @@ func resourceStorageControlOrganizationIntelligenceConfigCreate(d *schema.Resour
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating OrganizationIntelligenceConfig %q: %#v", d.Id(), res)
 
 	return resourceStorageControlOrganizationIntelligenceConfigRead(d, meta)
 }

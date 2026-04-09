@@ -283,6 +283,8 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating DefaultObjectAccessControl %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if bucketValue, ok := d.GetOk("bucket"); ok && bucketValue.(string) != "" {
@@ -298,8 +300,6 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating DefaultObjectAccessControl %q: %#v", d.Id(), res)
 
 	return resourceStorageDefaultObjectAccessControlRead(d, meta)
 }

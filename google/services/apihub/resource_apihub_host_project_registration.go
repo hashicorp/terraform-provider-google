@@ -242,6 +242,8 @@ func resourceApihubHostProjectRegistrationCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating HostProjectRegistration %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -262,8 +264,6 @@ func resourceApihubHostProjectRegistrationCreate(d *schema.ResourceData, meta in
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating HostProjectRegistration %q: %#v", d.Id(), res)
 
 	return resourceApihubHostProjectRegistrationRead(d, meta)
 }

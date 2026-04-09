@@ -300,6 +300,8 @@ func resourceSecurityCenterV2FolderSccBigQueryExportCreate(d *schema.ResourceDat
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating FolderSccBigQueryExport %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if folderValue, ok := d.GetOk("folder"); ok && folderValue.(string) != "" {
@@ -320,8 +322,6 @@ func resourceSecurityCenterV2FolderSccBigQueryExportCreate(d *schema.ResourceDat
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating FolderSccBigQueryExport %q: %#v", d.Id(), res)
 
 	return resourceSecurityCenterV2FolderSccBigQueryExportRead(d, meta)
 }

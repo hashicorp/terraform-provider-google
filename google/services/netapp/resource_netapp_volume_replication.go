@@ -597,6 +597,26 @@ func resourceNetappVolumeReplicationCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	err = NetappOperationWaitTime(
+		config, res, project, "Creating VolumeReplication", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create VolumeReplication: %s", err)
+	}
+
+	if d.Get("wait_for_mirror").(bool) == true {
+		// Wait for mirrorState=MIRRORED before treating the resource as created
+		err = NetappVolumeReplicationWaitForMirror(d, meta, "MIRRORED")
+		if err != nil {
+			return fmt.Errorf("Error waiting for volume replication to reach mirror_state==MIRRORED: %s", err)
+		}
+	}
+
+	log.Printf("[DEBUG] Finished creating VolumeReplication %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -622,26 +642,6 @@ func resourceNetappVolumeReplicationCreate(d *schema.ResourceData, meta interfac
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetappOperationWaitTime(
-		config, res, project, "Creating VolumeReplication", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create VolumeReplication: %s", err)
-	}
-
-	if d.Get("wait_for_mirror").(bool) == true {
-		// Wait for mirrorState=MIRRORED before treating the resource as created
-		err = NetappVolumeReplicationWaitForMirror(d, meta, "MIRRORED")
-		if err != nil {
-			return fmt.Errorf("Error waiting for volume replication to reach mirror_state==MIRRORED: %s", err)
-		}
-	}
-
-	log.Printf("[DEBUG] Finished creating VolumeReplication %q: %#v", d.Id(), res)
 
 	return resourceNetappVolumeReplicationRead(d, meta)
 }

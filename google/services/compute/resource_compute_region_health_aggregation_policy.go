@@ -331,6 +331,18 @@ func resourceComputeRegionHealthAggregationPolicyCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
+	err = ComputeOperationWaitTime(
+		config, res, project, "Creating RegionHealthAggregationPolicy", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create RegionHealthAggregationPolicy: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating RegionHealthAggregationPolicy %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
@@ -351,18 +363,6 @@ func resourceComputeRegionHealthAggregationPolicyCreate(d *schema.ResourceData, 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ComputeOperationWaitTime(
-		config, res, project, "Creating RegionHealthAggregationPolicy", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create RegionHealthAggregationPolicy: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating RegionHealthAggregationPolicy %q: %#v", d.Id(), res)
 
 	return resourceComputeRegionHealthAggregationPolicyRead(d, meta)
 }

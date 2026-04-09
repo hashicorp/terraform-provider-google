@@ -468,17 +468,6 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
-			if err = identity.Set("parent", parentValue.(string)); err != nil {
-				return fmt.Errorf("Error setting parent: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = AccessContextManagerOperationWaitTime(
 		config, res, "Creating AccessLevels", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -490,6 +479,17 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Finished creating AccessLevels %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceAccessContextManagerAccessLevelsRead(d, meta)
 }

@@ -249,22 +249,6 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
-			if err = identity.Set("name", nameValue.(string)); err != nil {
-				return fmt.Errorf("Error setting name: %s", err)
-			}
-		}
-		if instanceIdValue, ok := d.GetOk("instance_id"); ok && instanceIdValue.(string) != "" {
-			if err = identity.Set("instance_id", instanceIdValue.(string)); err != nil {
-				return fmt.Errorf("Error setting instance_id: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = ApigeeOperationWaitTime(
 		config, res, "Creating NatAddress", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -287,6 +271,22 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Finished creating NatAddress %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if instanceIdValue, ok := d.GetOk("instance_id"); ok && instanceIdValue.(string) != "" {
+			if err = identity.Set("instance_id", instanceIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting instance_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceApigeeNatAddressRead(d, meta)
 }

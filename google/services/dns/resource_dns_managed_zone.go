@@ -591,6 +591,8 @@ func resourceDNSManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating ManagedZone %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -606,8 +608,6 @@ func resourceDNSManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating ManagedZone %q: %#v", d.Id(), res)
 
 	return resourceDNSManagedZoneRead(d, meta)
 }

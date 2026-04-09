@@ -215,6 +215,18 @@ func resourceApigeeEnvgroupCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
+	err = ApigeeOperationWaitTime(
+		config, res, "Creating Envgroup", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Envgroup: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Envgroup %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -230,18 +242,6 @@ func resourceApigeeEnvgroupCreate(d *schema.ResourceData, meta interface{}) erro
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ApigeeOperationWaitTime(
-		config, res, "Creating Envgroup", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Envgroup: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Envgroup %q: %#v", d.Id(), res)
 
 	return resourceApigeeEnvgroupRead(d, meta)
 }

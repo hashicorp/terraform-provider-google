@@ -340,6 +340,18 @@ func resourceIAMWorkforcePoolWorkforcePoolCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
+	err = IAMWorkforcePoolOperationWaitTime(
+		config, res, "Creating WorkforcePool", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create WorkforcePool: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating WorkforcePool %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -355,18 +367,6 @@ func resourceIAMWorkforcePoolWorkforcePoolCreate(d *schema.ResourceData, meta in
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = IAMWorkforcePoolOperationWaitTime(
-		config, res, "Creating WorkforcePool", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create WorkforcePool: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating WorkforcePool %q: %#v", d.Id(), res)
 
 	return resourceIAMWorkforcePoolWorkforcePoolRead(d, meta)
 }

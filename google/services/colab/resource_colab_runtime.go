@@ -349,6 +349,24 @@ func resourceColabRuntimeCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.SetId(id)
 
+	err = ColabOperationWaitTime(
+		config, res, project, "Creating Runtime", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Runtime: %s", err)
+	}
+
+	if p, ok := d.GetOk("desired_state"); ok && p.(string) == "STOPPED" {
+		if err := ModifyColabRuntime(config, d, project, billingProject, userAgent, "stop"); err != nil {
+			return err
+		}
+	}
+
+	log.Printf("[DEBUG] Finished creating Runtime %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -369,24 +387,6 @@ func resourceColabRuntimeCreate(d *schema.ResourceData, meta interface{}) error 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ColabOperationWaitTime(
-		config, res, project, "Creating Runtime", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Runtime: %s", err)
-	}
-
-	if p, ok := d.GetOk("desired_state"); ok && p.(string) == "STOPPED" {
-		if err := ModifyColabRuntime(config, d, project, billingProject, userAgent, "stop"); err != nil {
-			return err
-		}
-	}
-
-	log.Printf("[DEBUG] Finished creating Runtime %q: %#v", d.Id(), res)
 
 	return resourceColabRuntimeRead(d, meta)
 }

@@ -595,6 +595,18 @@ func resourceIAMBetaWorkloadIdentityPoolProviderCreate(d *schema.ResourceData, m
 	}
 	d.SetId(id)
 
+	err = IAMBetaOperationWaitTime(
+		config, res, project, "Creating WorkloadIdentityPoolProvider", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create WorkloadIdentityPoolProvider: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating WorkloadIdentityPoolProvider %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if workloadIdentityPoolIdValue, ok := d.GetOk("workload_identity_pool_id"); ok && workloadIdentityPoolIdValue.(string) != "" {
@@ -615,18 +627,6 @@ func resourceIAMBetaWorkloadIdentityPoolProviderCreate(d *schema.ResourceData, m
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = IAMBetaOperationWaitTime(
-		config, res, project, "Creating WorkloadIdentityPoolProvider", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create WorkloadIdentityPoolProvider: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating WorkloadIdentityPoolProvider %q: %#v", d.Id(), res)
 
 	return resourceIAMBetaWorkloadIdentityPoolProviderRead(d, meta)
 }

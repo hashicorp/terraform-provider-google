@@ -871,6 +871,22 @@ func resourceClouddomainsRegistrationCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	err = ClouddomainsOperationWaitTime(
+		config, res, project, "Creating Registration", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Registration: %s", err)
+	}
+
+	if err := waitForRegistrationActive(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
+		return fmt.Errorf("Error waiting for Registration %q to be ACTIVE during creation: %q", d.Get("name").(string), err)
+	}
+
+	log.Printf("[DEBUG] Finished creating Registration %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -891,22 +907,6 @@ func resourceClouddomainsRegistrationCreate(d *schema.ResourceData, meta interfa
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ClouddomainsOperationWaitTime(
-		config, res, project, "Creating Registration", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Registration: %s", err)
-	}
-
-	if err := waitForRegistrationActive(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
-		return fmt.Errorf("Error waiting for Registration %q to be ACTIVE during creation: %q", d.Get("name").(string), err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Registration %q: %#v", d.Id(), res)
 
 	return resourceClouddomainsRegistrationRead(d, meta)
 }

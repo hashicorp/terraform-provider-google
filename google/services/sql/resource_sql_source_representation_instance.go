@@ -298,6 +298,18 @@ func resourceSQLSourceRepresentationInstanceCreate(d *schema.ResourceData, meta 
 	}
 	d.SetId(id)
 
+	err = SqlAdminOperationWaitTime(
+		config, res, project, "Creating SourceRepresentationInstance", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create SourceRepresentationInstance: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating SourceRepresentationInstance %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -313,18 +325,6 @@ func resourceSQLSourceRepresentationInstanceCreate(d *schema.ResourceData, meta 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = SqlAdminOperationWaitTime(
-		config, res, project, "Creating SourceRepresentationInstance", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create SourceRepresentationInstance: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating SourceRepresentationInstance %q: %#v", d.Id(), res)
 
 	return resourceSQLSourceRepresentationInstanceRead(d, meta)
 }

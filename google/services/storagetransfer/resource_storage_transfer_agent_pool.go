@@ -271,6 +271,12 @@ func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	if err := waitForAgentPoolReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
+		return fmt.Errorf("Error waiting for AgentPool %q to be CREATED during creation: %q", d.Get("name").(string), err)
+	}
+
+	log.Printf("[DEBUG] Finished creating AgentPool %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -286,12 +292,6 @@ func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interfa
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	if err := waitForAgentPoolReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
-		return fmt.Errorf("Error waiting for AgentPool %q to be CREATED during creation: %q", d.Get("name").(string), err)
-	}
-
-	log.Printf("[DEBUG] Finished creating AgentPool %q: %#v", d.Id(), res)
 
 	return resourceStorageTransferAgentPoolRead(d, meta)
 }

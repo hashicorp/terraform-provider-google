@@ -271,6 +271,8 @@ func resourceSecurityCenterV2FolderMuteConfigCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating FolderMuteConfig %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if folderValue, ok := d.GetOk("folder"); ok && folderValue.(string) != "" {
@@ -291,8 +293,6 @@ func resourceSecurityCenterV2FolderMuteConfigCreate(d *schema.ResourceData, meta
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating FolderMuteConfig %q: %#v", d.Id(), res)
 
 	return resourceSecurityCenterV2FolderMuteConfigRead(d, meta)
 }

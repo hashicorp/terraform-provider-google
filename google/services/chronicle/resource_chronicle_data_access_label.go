@@ -281,6 +281,8 @@ func resourceChronicleDataAccessLabelCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	log.Printf("[DEBUG] Finished creating DataAccessLabel %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -306,8 +308,6 @@ func resourceChronicleDataAccessLabelCreate(d *schema.ResourceData, meta interfa
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating DataAccessLabel %q: %#v", d.Id(), res)
 
 	return resourceChronicleDataAccessLabelRead(d, meta)
 }

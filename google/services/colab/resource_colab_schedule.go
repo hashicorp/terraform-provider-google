@@ -433,6 +433,15 @@ func resourceColabScheduleCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
+	if p, ok := d.GetOk("desired_state"); ok && p.(string) == "PAUSED" {
+		_, err := modifyScheduleState(config, d, project, billingProject, userAgent, "pause")
+		if err != nil {
+			return err
+		}
+	}
+
+	log.Printf("[DEBUG] Finished creating Schedule %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -453,15 +462,6 @@ func resourceColabScheduleCreate(d *schema.ResourceData, meta interface{}) error
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	if p, ok := d.GetOk("desired_state"); ok && p.(string) == "PAUSED" {
-		_, err := modifyScheduleState(config, d, project, billingProject, userAgent, "pause")
-		if err != nil {
-			return err
-		}
-	}
-
-	log.Printf("[DEBUG] Finished creating Schedule %q: %#v", d.Id(), res)
 
 	return resourceColabScheduleRead(d, meta)
 }

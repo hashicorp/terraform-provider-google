@@ -514,6 +514,18 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	err = NetworkManagementOperationWaitTime(
+		config, res, project, "Creating ConnectivityTest", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create ConnectivityTest: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ConnectivityTest %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -529,18 +541,6 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetworkManagementOperationWaitTime(
-		config, res, project, "Creating ConnectivityTest", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ConnectivityTest: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating ConnectivityTest %q: %#v", d.Id(), res)
 
 	return resourceNetworkManagementConnectivityTestRead(d, meta)
 }

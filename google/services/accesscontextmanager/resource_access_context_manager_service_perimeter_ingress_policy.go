@@ -521,17 +521,6 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyCreate(d *schema.R
 	}
 	d.SetId(id)
 
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if perimeterValue, ok := d.GetOk("perimeter"); ok && perimeterValue.(string) != "" {
-			if err = identity.Set("perimeter", perimeterValue.(string)); err != nil {
-				return fmt.Errorf("Error setting perimeter: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Create) identity not set: %s", err)
-	}
-
 	err = AccessContextManagerOperationWaitTime(
 		config, res, "Creating ServicePerimeterIngressPolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -543,6 +532,17 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyCreate(d *schema.R
 	}
 
 	log.Printf("[DEBUG] Finished creating ServicePerimeterIngressPolicy %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if perimeterValue, ok := d.GetOk("perimeter"); ok && perimeterValue.(string) != "" {
+			if err = identity.Set("perimeter", perimeterValue.(string)); err != nil {
+				return fmt.Errorf("Error setting perimeter: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceAccessContextManagerServicePerimeterIngressPolicyRead(d, meta)
 }

@@ -302,6 +302,13 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
+	// This is useful if the resource in question doesn't have a perfectly consistent API
+	// That is, the Operation for Create might return before the Get operation shows the
+	// completed state of the resource.
+	time.Sleep(4 * time.Minute)
+
+	log.Printf("[DEBUG] Finished creating OrganizationSettings %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if organizationIdValue, ok := d.GetOk("organization_id"); ok && organizationIdValue.(string) != "" {
@@ -312,13 +319,6 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	// This is useful if the resource in question doesn't have a perfectly consistent API
-	// That is, the Operation for Create might return before the Get operation shows the
-	// completed state of the resource.
-	time.Sleep(4 * time.Minute)
-
-	log.Printf("[DEBUG] Finished creating OrganizationSettings %q: %#v", d.Id(), res)
 
 	return resourceAccessApprovalOrganizationSettingsRead(d, meta)
 }

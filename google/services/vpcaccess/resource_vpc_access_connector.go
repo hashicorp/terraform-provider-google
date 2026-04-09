@@ -389,6 +389,23 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
+	err = VPCAccessOperationWaitTime(
+		config, res, project, "Creating Connector", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Connector: %s", err)
+	}
+
+	// This is useful if the resource in question doesn't have a perfectly consistent API
+	// That is, the Operation for Create might return before the Get operation shows the
+	// completed state of the resource.
+	time.Sleep(5 * time.Second)
+
+	log.Printf("[DEBUG] Finished creating Connector %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -409,23 +426,6 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = VPCAccessOperationWaitTime(
-		config, res, project, "Creating Connector", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Connector: %s", err)
-	}
-
-	// This is useful if the resource in question doesn't have a perfectly consistent API
-	// That is, the Operation for Create might return before the Get operation shows the
-	// completed state of the resource.
-	time.Sleep(5 * time.Second)
-
-	log.Printf("[DEBUG] Finished creating Connector %q: %#v", d.Id(), res)
 
 	return resourceVPCAccessConnectorRead(d, meta)
 }

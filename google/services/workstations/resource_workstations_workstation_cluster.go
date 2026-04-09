@@ -452,6 +452,18 @@ func resourceWorkstationsWorkstationClusterCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	err = WorkstationsOperationWaitTime(
+		config, res, project, "Creating WorkstationCluster", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create WorkstationCluster: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating WorkstationCluster %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if workstationClusterIdValue, ok := d.GetOk("workstation_cluster_id"); ok && workstationClusterIdValue.(string) != "" {
@@ -472,18 +484,6 @@ func resourceWorkstationsWorkstationClusterCreate(d *schema.ResourceData, meta i
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = WorkstationsOperationWaitTime(
-		config, res, project, "Creating WorkstationCluster", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create WorkstationCluster: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating WorkstationCluster %q: %#v", d.Id(), res)
 
 	return resourceWorkstationsWorkstationClusterRead(d, meta)
 }

@@ -552,6 +552,18 @@ func resourceComputeNetworkFirewallPolicyRuleCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
+	err = ComputeOperationWaitTime(
+		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Creating NetworkFirewallPolicyRule", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create NetworkFirewallPolicyRule: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating NetworkFirewallPolicyRule %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if _, ok := d.GetOk("priority"); ok {
@@ -573,18 +585,6 @@ func resourceComputeNetworkFirewallPolicyRuleCreate(d *schema.ResourceData, meta
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = ComputeOperationWaitTime(
-		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Creating NetworkFirewallPolicyRule", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create NetworkFirewallPolicyRule: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating NetworkFirewallPolicyRule %q: %#v", d.Id(), res)
 
 	return resourceComputeNetworkFirewallPolicyRuleRead(d, meta)
 }

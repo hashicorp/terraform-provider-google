@@ -300,6 +300,18 @@ func resourceGeminiCodeToolsSettingBindingCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
+	err = GeminiOperationWaitTime(
+		config, res, project, "Creating CodeToolsSettingBinding", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create CodeToolsSettingBinding: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating CodeToolsSettingBinding %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
@@ -325,18 +337,6 @@ func resourceGeminiCodeToolsSettingBindingCreate(d *schema.ResourceData, meta in
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = GeminiOperationWaitTime(
-		config, res, project, "Creating CodeToolsSettingBinding", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create CodeToolsSettingBinding: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating CodeToolsSettingBinding %q: %#v", d.Id(), res)
 
 	return resourceGeminiCodeToolsSettingBindingRead(d, meta)
 }

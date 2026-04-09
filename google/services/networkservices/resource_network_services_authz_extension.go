@@ -395,6 +395,18 @@ func resourceNetworkServicesAuthzExtensionCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
+	err = NetworkServicesOperationWaitTime(
+		config, res, project, "Creating AuthzExtension", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create AuthzExtension: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating AuthzExtension %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -415,18 +427,6 @@ func resourceNetworkServicesAuthzExtensionCreate(d *schema.ResourceData, meta in
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = NetworkServicesOperationWaitTime(
-		config, res, project, "Creating AuthzExtension", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create AuthzExtension: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating AuthzExtension %q: %#v", d.Id(), res)
 
 	return resourceNetworkServicesAuthzExtensionRead(d, meta)
 }

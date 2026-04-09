@@ -285,6 +285,18 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
+	err = VertexAIOperationWaitTime(
+		config, res, project, "Creating FeaturestoreEntitytypeFeature", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create FeaturestoreEntitytypeFeature: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating FeaturestoreEntitytypeFeature %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -300,18 +312,6 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating FeaturestoreEntitytypeFeature", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create FeaturestoreEntitytypeFeature: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating FeaturestoreEntitytypeFeature %q: %#v", d.Id(), res)
 
 	return resourceVertexAIFeaturestoreEntitytypeFeatureRead(d, meta)
 }

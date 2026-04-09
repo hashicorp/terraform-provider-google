@@ -452,6 +452,17 @@ func resourceGkeonpremBareMetalNodePoolCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
+	err = GkeonpremOperationWaitTime(
+		config, res, project, "Creating BareMetalNodePool", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+
+		return fmt.Errorf("Error waiting to create BareMetalNodePool: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating BareMetalNodePool %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -477,17 +488,6 @@ func resourceGkeonpremBareMetalNodePoolCreate(d *schema.ResourceData, meta inter
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = GkeonpremOperationWaitTime(
-		config, res, project, "Creating BareMetalNodePool", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-
-		return fmt.Errorf("Error waiting to create BareMetalNodePool: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating BareMetalNodePool %q: %#v", d.Id(), res)
 
 	return resourceGkeonpremBareMetalNodePoolRead(d, meta)
 }

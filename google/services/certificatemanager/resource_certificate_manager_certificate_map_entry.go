@@ -330,6 +330,18 @@ func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
+	err = CertificateManagerOperationWaitTime(
+		config, res, project, "Creating CertificateMapEntry", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create CertificateMapEntry: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating CertificateMapEntry %q: %#v", d.Id(), res)
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
@@ -350,18 +362,6 @@ func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData,
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
-
-	err = CertificateManagerOperationWaitTime(
-		config, res, project, "Creating CertificateMapEntry", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create CertificateMapEntry: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating CertificateMapEntry %q: %#v", d.Id(), res)
 
 	return resourceCertificateManagerCertificateMapEntryRead(d, meta)
 }
