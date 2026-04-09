@@ -1,0 +1,3 @@
+```release-note:bug
+vertexai: updates to `google_vertex_ai_reasoning_engine` will wait 10 seconds before reading the updated resource, preventing stale values getting written to state
+```
