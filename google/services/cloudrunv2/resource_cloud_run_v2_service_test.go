@@ -87,7 +87,6 @@ resource "google_cloud_run_v2_worker_pool" "primary" {
   name                = "tf-crwp-%[1]s"
   location            = "%[2]s"
   deletion_protection = false
-  launch_stage        = "BETA"
 
   template {
     containers {
