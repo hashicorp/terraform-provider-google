@@ -997,6 +997,7 @@ func resourceNetworkServicesGatewayDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+
 	if d.Get("delete_swg_autogen_router_on_destroy").(bool) {
 		log.Print("[DEBUG] The field delete_swg_autogen_router_on_destroy is true. Deleting swg_autogen_router.")
 		gateways, err := gatewaysSameLocation(d, config, billingProject, userAgent)
