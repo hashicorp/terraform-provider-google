@@ -2303,3 +2303,91 @@ resource "google_compute_instance_group_manager" "igm-workload-policy" {
 }
 `, suffix, suffix)
 }
+
+func TestAccInstanceGroupManager_targetSizePolicy(t *testing.T) {
+	t.Parallel()
+
+	templateName := fmt.Sprintf("tf-test-igm-%s", acctest.RandString(t, 10))
+	igmName := fmt.Sprintf("tf-test-igm-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccInstanceGroupManager_targetSizePolicy(templateName, igmName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_instance_group_manager.igm-tsp", "target_size_policy.0.mode", "BULK"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_instance_group_manager.igm-tsp",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+		},
+	})
+}
+
+func testAccInstanceGroupManager_targetSizePolicy(template, igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+
+  scheduling {
+    instance_termination_action  = "DELETE"
+    provisioning_model = "FLEX_START"
+    on_host_maintenance = "TERMINATE"
+    max_run_duration {
+      seconds = 900
+    }
+  }
+}
+
+resource "google_compute_instance_group_manager" "igm-tsp" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+
+  instance_lifecycle_policy {
+    default_action_on_failure = "DO_NOTHING"
+  }
+
+  version {
+    name              = "primary"
+    instance_template = google_compute_instance_template.igm-basic.self_link
+  }
+
+  base_instance_name = "tf-test-igm-tsp"
+  zone               = "us-central1-c"
+  target_size        = 2
+
+  target_size_policy {
+    mode = "BULK"
+  }
+}
+`, template, igm)
+}

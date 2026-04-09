@@ -219,6 +219,9 @@ group. You can specify one or more values. For more information, see the [offici
 * `params` - (Optional [Beta](../guides/provider_versions.html.markdown)) Input only additional params for instance group manager creation. Structure is [documented below](#nested_params). For more information, see [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/insert).
 
 * `instance_flexibility_policy` - (Optional) The flexibility policy for managed instance group. Instance flexibility allows managed instance group to create VMs from multiple types of machines. Instance flexibility configuration on managed instance group overrides instance template configuration. Structure is [documented below](#nested_instance_flexibility_policy).
+
+* `target_size_policy` - (Optional) The policy that specifies how the MIG creates its VMs to achieve the target size. Structure is [documented below](#nested_target_size_policy).
+* 
 - - -
 
 The `standby_policy` block supports:
@@ -606,6 +609,10 @@ params{
 ```
 
 * `resource_manager_tags` - (Optional) Resource manager tags to bind to the managed instance group. The tags are key-value pairs. Keys must be in the format tagKeys/123 and values in the format tagValues/456. For more information, see [Manage tags for resources](https://cloud.google.com/compute/docs/tag-resources)
+
+<a name="nested_target_size_policy"></a>The `target_size_policy` block supports:
+
+* `mode` - (Required)The mode of target size policy based on which the MIG creates its VMs individually or all at once. Values: "BULK", "INDIVIDUAL".
 
 ## Attributes Reference
 
