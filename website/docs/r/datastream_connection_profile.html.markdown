@@ -299,7 +299,7 @@ resource "google_datastream_connection_profile" "default" {
 ```hcl
 resource "google_sql_database_instance" "instance" {
     name                = "sql-server"
-    database_version    = "SQLSERVER_2019_STANDARD"
+    database_version    = "SQLSERVER_2022_STANDARD"
     region              = "us-central1"
     root_password       = "root-password"
     deletion_protection = true
