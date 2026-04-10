@@ -296,7 +296,7 @@ func resourceApigeeTargetServerCreate(d *schema.ResourceData, meta interface{}) 
 	isEnabledProp, err := expandApigeeTargetServerIsEnabled(d.Get("is_enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("is_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(isEnabledProp)) && (ok || !reflect.DeepEqual(v, isEnabledProp)) {
+	} else if v, ok := d.GetOkExists("is_enabled"); ok || !reflect.DeepEqual(v, isEnabledProp) {
 		obj["isEnabled"] = isEnabledProp
 	}
 	sSLInfoProp, err := expandApigeeTargetServerSSLInfo(d.Get("s_sl_info"), d, config)
@@ -497,7 +497,7 @@ func resourceApigeeTargetServerUpdate(d *schema.ResourceData, meta interface{}) 
 	isEnabledProp, err := expandApigeeTargetServerIsEnabled(d.Get("is_enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("is_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, isEnabledProp)) {
+	} else if v, ok := d.GetOkExists("is_enabled"); ok || !reflect.DeepEqual(v, isEnabledProp) {
 		obj["isEnabled"] = isEnabledProp
 	}
 	sSLInfoProp, err := expandApigeeTargetServerSSLInfo(d.Get("s_sl_info"), d, config)
