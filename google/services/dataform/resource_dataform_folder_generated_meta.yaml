@@ -1,0 +1,16 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dataform_folder
+generation_type: mmv1
+source_file: products/dataform/Folder.yaml
+api_service_name: dataform.googleapis.com
+api_version: v1
+api_resource_type_kind: Folder
+fields:
+    - api_field: containingFolder
+    - api_field: displayName
+    - api_field: name
+      field: folder_id
+    - api_field: name
+    - field: region
+      provider_only: true
