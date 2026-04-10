@@ -14,7 +14,7 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
-subcategory: "SaaS Runtime"
+subcategory: "App Lifecycle Manager (SaaS Runtime)"
 description: |-
   A Unit is the fundamental structural building block of a SaaS offering.
 ---

@@ -14,7 +14,7 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
-subcategory: "SaaS Runtime"
+subcategory: "App Lifecycle Manager (SaaS Runtime)"
 description: |-
   A version to be propagated and deployed to Units.
 ---
