@@ -14,7 +14,7 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
-subcategory: "SaaS Runtime"
+subcategory: "App Lifecycle Manager (SaaS Runtime)"
 description: |-
   A UnitKind serves as a template or type definition for a group of Units.
 ---
@@ -80,7 +80,7 @@ The following arguments are supported:
 * `saas` -
   (Required)
   A reference to the Saas that defines the product (managed service) that
-  the producer wants to manage with SaaS Runtime. Part of the SaaS Runtime
+  the producer wants to manage with App Lifecycle Manager. Part of the App Lifecycle Manager
   common data model. Immutable once set.
 
 * `location` -
@@ -184,7 +184,7 @@ The following arguments are supported:
 
 * `ignore_for_lookup` -
   (Optional)
-  Tells SaaS Runtime if this mapping should be used during lookup or not
+  Tells App Lifecycle Manager if this mapping should be used during lookup or not
 
 * `input_variable` -
   (Required)
@@ -225,7 +225,7 @@ The following arguments are supported:
 
 * `ignore_for_lookup` -
   (Optional)
-  Tells SaaS Runtime if this mapping should be used during lookup or not
+  Tells App Lifecycle Manager if this mapping should be used during lookup or not
 
 * `input_variable` -
   (Required)

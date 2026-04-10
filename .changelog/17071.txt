@@ -1,0 +1,3 @@
+```release-note:note
+saasservicemgmt: updated documentation to reflect the product rebranding from SaaS Runtime to App Lifecycle Manager
+```
