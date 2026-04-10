@@ -105,6 +105,7 @@ type ProviderModel struct {
 	CoreBillingCustomEndpoint              types.String `tfsdk:"core_billing_custom_endpoint"`
 	DatabaseMigrationServiceCustomEndpoint types.String `tfsdk:"database_migration_service_custom_endpoint"`
 	DataCatalogCustomEndpoint              types.String `tfsdk:"data_catalog_custom_endpoint"`
+	DataformCustomEndpoint                 types.String `tfsdk:"dataform_custom_endpoint"`
 	DataFusionCustomEndpoint               types.String `tfsdk:"data_fusion_custom_endpoint"`
 	DataLossPreventionCustomEndpoint       types.String `tfsdk:"data_loss_prevention_custom_endpoint"`
 	DataPipelineCustomEndpoint             types.String `tfsdk:"data_pipeline_custom_endpoint"`

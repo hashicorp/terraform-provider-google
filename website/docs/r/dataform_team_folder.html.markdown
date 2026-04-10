@@ -23,12 +23,10 @@ description: |-
 
 A resource represents a Dataform TeamFolder
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about TeamFolder, see:
 
-* [API documentation](https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations.teamFolders)
+* [API documentation](https://cloud.google.com/dataform/reference/rest/v1/projects.locations.teamFolders)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dataform/docs/)
 
@@ -42,7 +40,6 @@ To get more information about TeamFolder, see:
 
 ```hcl
 resource "google_dataform_team_folder" "dataform_team_folder_basic" {
-  provider = google-beta
   region = "us-central1"
   display_name = "Basic TeamFolder-%{random_suffix}"
 }

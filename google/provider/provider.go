@@ -453,6 +453,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"dataform_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"data_fusion_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1237,6 +1242,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.CoreBillingBasePath = d.Get("core_billing_custom_endpoint").(string)
 	config.DatabaseMigrationServiceBasePath = d.Get("database_migration_service_custom_endpoint").(string)
 	config.DataCatalogBasePath = d.Get("data_catalog_custom_endpoint").(string)
+	config.DataformBasePath = d.Get("dataform_custom_endpoint").(string)
 	config.DataFusionBasePath = d.Get("data_fusion_custom_endpoint").(string)
 	config.DataLossPreventionBasePath = d.Get("data_loss_prevention_custom_endpoint").(string)
 	config.DataPipelineBasePath = d.Get("data_pipeline_custom_endpoint").(string)

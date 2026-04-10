@@ -1,0 +1,6 @@
+```release-note:enhancement
+dataform: promoted `google_dataform_folder` to GA
+```
+```release-note:enhancement
+dataform: promoted `google_dataform_team_folder` to GA
+```

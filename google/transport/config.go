@@ -309,6 +309,7 @@ type Config struct {
 	CoreBillingBasePath              string
 	DatabaseMigrationServiceBasePath string
 	DataCatalogBasePath              string
+	DataformBasePath                 string
 	DataFusionBasePath               string
 	DataLossPreventionBasePath       string
 	DataPipelineBasePath             string
@@ -488,6 +489,7 @@ const ContainerAttachedBasePathKey = "ContainerAttached"
 const CoreBillingBasePathKey = "CoreBilling"
 const DatabaseMigrationServiceBasePathKey = "DatabaseMigrationService"
 const DataCatalogBasePathKey = "DataCatalog"
+const DataformBasePathKey = "Dataform"
 const DataFusionBasePathKey = "DataFusion"
 const DataLossPreventionBasePathKey = "DataLossPrevention"
 const DataPipelineBasePathKey = "DataPipeline"
@@ -657,6 +659,7 @@ var DefaultBasePaths = map[string]string{
 	CoreBillingBasePathKey:              "https://cloudbilling.googleapis.com/v1/",
 	DatabaseMigrationServiceBasePathKey: "https://datamigration.googleapis.com/v1/",
 	DataCatalogBasePathKey:              "https://datacatalog.googleapis.com/v1/",
+	DataformBasePathKey:                 "https://dataform.googleapis.com/v1/",
 	DataFusionBasePathKey:               "https://datafusion.googleapis.com/v1/",
 	DataLossPreventionBasePathKey:       "https://dlp.googleapis.com/v2/",
 	DataPipelineBasePathKey:             "https://datapipelines.googleapis.com/v1/",
@@ -1110,6 +1113,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("data_catalog_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_DATA_CATALOG_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[DataCatalogBasePathKey]))
+	}
+	if d.Get("dataform_custom_endpoint") == "" {
+		d.Set("dataform_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_DATAFORM_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[DataformBasePathKey]))
 	}
 	if d.Get("data_fusion_custom_endpoint") == "" {
 		d.Set("data_fusion_custom_endpoint", MultiEnvDefault([]string{
@@ -2738,6 +2746,7 @@ func ConfigureBasePaths(c *Config) {
 	c.CoreBillingBasePath = DefaultBasePaths[CoreBillingBasePathKey]
 	c.DatabaseMigrationServiceBasePath = DefaultBasePaths[DatabaseMigrationServiceBasePathKey]
 	c.DataCatalogBasePath = DefaultBasePaths[DataCatalogBasePathKey]
+	c.DataformBasePath = DefaultBasePaths[DataformBasePathKey]
 	c.DataFusionBasePath = DefaultBasePaths[DataFusionBasePathKey]
 	c.DataLossPreventionBasePath = DefaultBasePaths[DataLossPreventionBasePathKey]
 	c.DataPipelineBasePath = DefaultBasePaths[DataPipelineBasePathKey]
