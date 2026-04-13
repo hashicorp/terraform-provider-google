@@ -1,0 +1,3 @@
+```release-note:bug
+ces: fixed a diff on `logging_settings` when unspecified in `google_ces_app`. Removing the value from config will now preserve the existing settings instead of removing them.
+```
