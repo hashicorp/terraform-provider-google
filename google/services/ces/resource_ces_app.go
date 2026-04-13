@@ -551,6 +551,7 @@ to terminate the conversation.`,
 			},
 			"logging_settings": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Settings to describe the logging behaviors for the app.`,
 				MaxItems:    1,
