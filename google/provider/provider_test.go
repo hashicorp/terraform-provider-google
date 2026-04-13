@@ -239,8 +239,7 @@ func TestAccProvider_external_credentials_upgrade(t *testing.T) {
 			},
 			// old provider - credentials
 			{
-				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-				ExternalProviders:        oldVersion,
+				ExternalProviders: oldVersion,
 				PreConfig: func() {
 					for _, env := range envvar.CredsEnvVars {
 						t.Setenv(env, "")
@@ -249,9 +248,9 @@ func TestAccProvider_external_credentials_upgrade(t *testing.T) {
 				Config: testAccProviderExternalCredentialsUpgrade_CredentialsConfig(map[string]interface{}{
 					"credentials": credentials,
 				}),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_provider_config_sdk.default", "credentials", credentials),
-				),
+				// google_provider_config_sdk is test-specific datasource
+				// not available in the real provider, so we cannot verify credentials here.
+				// The fact that this step succeeds implies the provider accepted the credentials.
 			},
 			{
 				// new provider - credentials
@@ -261,7 +260,7 @@ func TestAccProvider_external_credentials_upgrade(t *testing.T) {
 						t.Setenv(env, "")
 					}
 				},
-				Config: testAccProviderExternalCredentialsUpgrade_CredentialsConfig(map[string]interface{}{
+				Config: testAccProviderExternalCredentialsUpgrade_CredentialsConfigNew(map[string]interface{}{
 					"credentials": credentials,
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -283,6 +282,14 @@ data "google_client_config" "default" {}
 }
 
 func testAccProviderExternalCredentialsUpgrade_CredentialsConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  credentials = "%{credentials}"
+}
+`, context)
+}
+
+func testAccProviderExternalCredentialsUpgrade_CredentialsConfigNew(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 provider "google" {
   credentials = "%{credentials}"
