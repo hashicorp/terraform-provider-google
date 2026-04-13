@@ -13,8 +13,6 @@ fields:
     - api_field: attributes.name
     - api_field: attributes.value
     - api_field: callbackUrl
-    - api_field: consumerKey
-    - api_field: consumerSecret
     - api_field: createdAt
     - api_field: credentials.apiProducts.apiproduct
     - api_field: credentials.apiProducts.status
