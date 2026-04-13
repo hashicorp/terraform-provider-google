@@ -15,7 +15,6 @@ FEATURES:
 * **New Resource:** `google_workload_identity_service_agent` ([#26780](https://github.com/hashicorp/terraform-provider-google/pull/26780))
 
 IMPROVEMENTS:
-* apigee: added `consumer_key` and `consumer_secret` fields to `google_apigee_developer_app` resource ([#26828](https://github.com/hashicorp/terraform-provider-google/pull/26828))
 * bigqueryanalyticshub: added `replica_locations` and `effective_replicas` fields to `google_bigquery_analytics_hub_listing` resource ([#26843](https://github.com/hashicorp/terraform-provider-google/pull/26843))
 * bigqueryanalyticshub: added `replica_locations` field to `google_bigquery_analytics_hub_listing_subscription` resource ([#26843](https://github.com/hashicorp/terraform-provider-google/pull/26843))
 * composer: increased `google_composer_environment` default delete timeout to 120m from 30m ([#26851](https://github.com/hashicorp/terraform-provider-google/pull/26851))
