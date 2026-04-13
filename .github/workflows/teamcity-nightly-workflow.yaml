@@ -10,7 +10,8 @@ on:
         dayThreshold:
           default: '3'
     schedule:
-        - cron: '0 2 * * *' # UTC 2AM (-7)-> 7PM PST
+        - cron: '0 19 * * *' # 7PM PST
+          timezone: 'America/Los_Angeles'
 
 jobs:
   rename-TC-nightly-branch:
