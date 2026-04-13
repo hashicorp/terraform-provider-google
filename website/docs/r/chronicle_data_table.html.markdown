@@ -23,12 +23,10 @@ description: |-
 
 Represents a Chronicle Data Table, a multicolumn structure used to ingest your own data into Google SecOps.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about DataTable, see:
 
-* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1beta/projects.locations.instances.dataTables)
+* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.dataTables)
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
@@ -37,7 +35,6 @@ To get more information about DataTable, see:
 
 ```hcl
 resource "google_chronicle_data_table" "example" {
-  provider       = google-beta
   location       = "us"
   instance = "00000000-0000-0000-0000-000000000000"
   data_table_id  = "terraform_test"
@@ -84,7 +81,6 @@ output "data_table_create_time" {
 
 ```hcl
 resource "google_chronicle_data_access_scope" "test_scope_allow_everyone" {
-provider             = google-beta
  location = "us"
  instance = "00000000-0000-0000-0000-000000000000"
  data_access_scope_id = "tf-scope-opt"
@@ -95,7 +91,6 @@ provider             = google-beta
 }
 
 resource "google_chronicle_data_table" "example_dt" {
-  provider         = google-beta
   location         = "us"
   instance = "00000000-0000-0000-0000-000000000000"
   data_table_id  = "tf_test_full"
