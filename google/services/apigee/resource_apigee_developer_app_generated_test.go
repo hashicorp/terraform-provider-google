@@ -82,7 +82,7 @@ func TestAccApigeeDeveloperApp_apigeeDeveloperAppBasicTestExample(t *testing.T) 
 				ResourceName:            "google_apigee_developer_app.apigee_developer_app",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"consumer_key", "consumer_secret", "developer_email", "org_id"},
+				ImportStateVerifyIgnore: []string{"developer_email", "org_id"},
 			},
 			{
 				ResourceName:       "google_apigee_developer_app.apigee_developer_app",

@@ -1,0 +1,3 @@
+```release-note:enhancement
+apigee: added support for `consumer_key` and `consumer_secret` fields to `google_apigee_developer_app` resource (revert)
+```
