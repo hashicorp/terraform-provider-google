@@ -18,8 +18,8 @@ for doc in $docs; do
       fi
       ;;
 
-    "d" | "r")
-      # Resources and datasources require a subcategory
+    "d" | "r" | "list-resources")
+      # Resources, data sources, and list resources require a subcategory
       grep "^subcategory: " "$doc" > /dev/null
       if [[ "$?" == "1" ]]; then
         echo "Doc is missing a subcategory: $doc"
@@ -48,7 +48,7 @@ for doc in $docs; do
     *)
       error=true
       echo "Unknown category \"$category\". " \
-        "Docs can only exist in r/, d/, ephemeral-resources/, functions/ or guides/ folders."
+        "Docs can only exist in r/, d/, list-resources/, ephemeral-resources/, functions/ or guides/ folders."
       ;;
   esac
 done
