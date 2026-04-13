@@ -1,0 +1,37 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_chronicle_data_table
+generation_type: mmv1
+source_file: products/chronicle/DataTable.yaml
+api_service_name: chronicle.googleapis.com
+api_version: v1
+api_resource_type_kind: DataTable
+autogen_status: true
+fields:
+    - api_field: approximateRowCount
+    - api_field: columnInfo.columnIndex
+    - api_field: columnInfo.columnType
+    - api_field: columnInfo.keyColumn
+    - api_field: columnInfo.mappedColumnPath
+    - api_field: columnInfo.originalColumn
+    - api_field: columnInfo.repeatedValues
+    - api_field: createTime
+    - field: data_table_id
+      provider_only: true
+    - api_field: dataTableUuid
+    - field: deletion_policy
+      provider_only: true
+    - api_field: description
+    - api_field: displayName
+    - field: instance
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: rowTimeToLive
+    - api_field: rowTimeToLiveUpdateTime
+    - api_field: ruleAssociationsCount
+    - api_field: rules
+    - api_field: scopeInfo.dataAccessScopes
+    - api_field: updateSource
+    - api_field: updateTime
