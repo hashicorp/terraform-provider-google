@@ -58,6 +58,11 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `ignored_clusters_selector` -
+  (Optional)
+  Selector for clusters to exclude from the Rollout Sequence.
+  Structure is [documented below](#nested_ignored_clusters_selector).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -82,6 +87,13 @@ The following arguments are supported:
 
 
 <a name="nested_stages_cluster_selector"></a>The `cluster_selector` block supports:
+
+* `label_selector` -
+  (Required)
+  The label selector must be a valid CEL (Common Expression Language) expression which
+  evaluates resource.labels.
+
+<a name="nested_ignored_clusters_selector"></a>The `ignored_clusters_selector` block supports:
 
 * `label_selector` -
   (Required)
