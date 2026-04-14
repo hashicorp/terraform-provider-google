@@ -631,6 +631,166 @@ resource "google_dataplex_datascan" "onetime_documentation" {
   project = "my-project-name"
 }
 ```
+## Example Usage - Dataplex Datascan Execution Identity User Credential
+
+
+```hcl
+resource "google_bigquery_dataset" "tf_test_dataset" {
+  dataset_id = "tf_test_ds_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+  delete_contents_on_destroy = true
+  project = "my-project-name"
+}
+
+resource "google_bigquery_table" "tf_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_test_dataset.dataset_id
+  table_id            = "tf_test_tbl_%{random_suffix}"
+  deletion_protection = false
+  project = "my-project-name"
+  schema              = <<EOF
+    [
+      {
+        "name": "word",
+        "type": "STRING",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "word_count",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+      }
+    ]
+EOF
+}
+
+resource "google_dataplex_datascan" "identity_user_credential" {
+  location     = "us-central1"
+  data_scan_id = "dataplex-id-user-cred"
+
+  data {
+    resource = "//bigquery.googleapis.com/projects/my-project-name/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table.table_id}"
+  }
+
+  execution_spec {
+    trigger {
+      one_time {}
+    }
+  }
+
+  execution_identity {
+    user_credential {}
+  }
+
+  data_profile_spec {}
+
+  project = "my-project-name"
+
+  depends_on = [
+    google_bigquery_table.tf_test_table
+  ]
+}
+```
+## Example Usage - Dataplex Datascan Execution Identity Service Account
+
+
+```hcl
+data "google_project" "project" {
+  project_id = "my-project-name"
+}
+
+resource "google_service_account" "sa" {
+  account_id   = "tf-test-sa-%{random_suffix}"
+  display_name = "DataScan Service Account"
+  project      = "my-project-name"
+}
+
+resource "google_service_account_iam_member" "dataplex_sa_impersonate" {
+  service_account_id = google_service_account.sa.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-dataplex.iam.gserviceaccount.com"
+}
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_service_account_iam_member.dataplex_sa_impersonate]
+  create_duration = "120s"
+}
+
+
+resource "google_project_iam_member" "sa_bq_data_viewer" {
+  project = "my-project-name"
+  role    = "roles/bigquery.dataViewer"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
+resource "google_project_iam_member" "sa_bq_job_user" {
+  project = "my-project-name"
+  role    = "roles/bigquery.jobUser"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
+resource "google_bigquery_dataset" "tf_test_dataset" {
+  dataset_id = "tf_test_ds_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+  delete_contents_on_destroy = true
+  project = "my-project-name"
+
+  depends_on = [
+    google_service_account_iam_member.dataplex_sa_impersonate,
+    google_project_iam_member.sa_bq_data_viewer,
+    google_project_iam_member.sa_bq_job_user
+  ]
+}
+
+resource "google_bigquery_table" "tf_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_test_dataset.dataset_id
+  table_id            = "tf_test_tbl_%{random_suffix}"
+  deletion_protection = false
+  project = "my-project-name"
+  schema              = <<EOF
+    [
+      {
+        "name": "word",
+        "type": "STRING",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "word_count",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+      }
+    ]
+EOF
+}
+
+resource "google_dataplex_datascan" "identity_service_account" {
+  location     = "us-central1"
+  data_scan_id = "dataplex-id-sa"
+
+  data {
+    resource = "//bigquery.googleapis.com/projects/my-project-name/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table.table_id}"
+  }
+
+  execution_spec {
+    trigger {
+      on_demand {}
+    }
+  }
+
+  execution_identity {
+    service_account {
+      email = google_service_account.sa.email
+    }
+  }
+
+  data_profile_spec {}
+
+  project = "my-project-name"
+
+  depends_on = [
+    google_bigquery_table.tf_test_table,
+    time_sleep.wait_120_seconds
+  ]
+}
+```
 
 ## Argument Reference
 
@@ -670,6 +830,11 @@ The following arguments are supported:
 
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `execution_identity` -
+  (Optional)
+  The identity to run the datascan. If not specified, defaults to the Dataplex Service Agent.
+  Structure is [documented below](#nested_execution_identity).
 
 * `data_quality_spec` -
   (Optional)
@@ -746,6 +911,28 @@ The following arguments are supported:
 * `ttl_after_scan_completion` -
   (Optional)
   Time to live for the DataScan and its results after the one-time run completes. Accepts a string with a unit suffix 's' (e.g., '7200s'). Default is 24 hours. Ranges between 0 and 31536000 seconds (1 year).
+
+<a name="nested_execution_identity"></a>The `execution_identity` block supports:
+
+* `dataplex_service_agent` -
+  (Optional)
+  The Dataplex service agent associated with the user's project.
+
+* `user_credential` -
+  (Optional)
+  The credential of the calling user. Supports only ONE_TIME trigger type.
+
+* `service_account` -
+  (Optional)
+  Service account to use to execute a datascan.
+  Structure is [documented below](#nested_execution_identity_service_account).
+
+
+<a name="nested_execution_identity_service_account"></a>The `service_account` block supports:
+
+* `email` -
+  (Required)
+  Service account email.
 
 <a name="nested_data_quality_spec"></a>The `data_quality_spec` block supports:
 
@@ -1173,11 +1360,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `latest_job_end_time` -
   (Output)
-  The time when the latest DataScanJob started.
+  The time when the latest DataScanJob ended.
 
 * `latest_job_start_time` -
   (Output)
-  The time when the latest DataScanJob ended.
+  The time when the latest DataScanJob started.
 
 ## Timeouts
 

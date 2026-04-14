@@ -67,6 +67,9 @@ fields:
     - api_field: displayName
     - field: effective_labels
       provider_only: true
+    - api_field: executionIdentity.dataplexServiceAgent
+    - api_field: executionIdentity.serviceAccount.email
+    - api_field: executionIdentity.userCredential
     - api_field: executionSpec.field
     - api_field: executionSpec.trigger.onDemand
     - api_field: executionSpec.trigger.oneTime.ttlAfterScanCompletion
