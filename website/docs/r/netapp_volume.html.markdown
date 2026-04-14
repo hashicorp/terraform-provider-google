@@ -195,7 +195,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_block_devices).
 
 * `large_capacity_config` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Configuration for a Large Capacity Volume. A Large Capacity Volume
   supports sizes ranging from 12 TiB to 20 PiB, it is composed of multiple
   internal constituents, and must be created in a large capacity pool.
