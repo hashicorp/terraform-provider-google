@@ -995,6 +995,241 @@ resource "google_dataplex_datascan" "onetime_documentation" {
 `, context)
 }
 
+func TestAccDataplexDatascan_dataplexDatascanExecutionIdentityUserCredentialExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"location":      envvar.GetTestRegionFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"datascan_name": "tf-test-dataplex-id-user-cred" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexDatascan_dataplexDatascanExecutionIdentityUserCredentialExample(context),
+			},
+			{
+				ResourceName:            "google_dataplex_datascan.identity_user_credential",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_scan_id", "execution_status.0.latest_job_end_time", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataplex_datascan.identity_user_credential",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDataplexDatascan_dataplexDatascanExecutionIdentityUserCredentialExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "tf_test_dataset" {
+  dataset_id = "tf_test_ds_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+  delete_contents_on_destroy = true
+  project = "%{project_name}"
+}
+
+resource "google_bigquery_table" "tf_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_test_dataset.dataset_id
+  table_id            = "tf_test_tbl_%{random_suffix}"
+  deletion_protection = false
+  project = "%{project_name}"
+  schema              = <<EOF
+    [
+      {
+        "name": "word",
+        "type": "STRING",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "word_count",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+      }
+    ]
+EOF
+}
+
+resource "google_dataplex_datascan" "identity_user_credential" {
+  location     = "us-central1"
+  data_scan_id = "%{datascan_name}"
+
+  data {
+    resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table.table_id}"
+  }
+
+  execution_spec {
+    trigger {
+      one_time {}
+    }
+  }
+
+  execution_identity {
+    user_credential {}
+  }
+
+  data_profile_spec {}
+
+  project = "%{project_name}"
+
+  depends_on = [
+    google_bigquery_table.tf_test_table
+  ]
+}
+`, context)
+}
+
+func TestAccDataplexDatascan_dataplexDatascanExecutionIdentityServiceAccountExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"location":      envvar.GetTestRegionFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"datascan_name": "tf-test-dataplex-id-sa" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckDataplexDatascanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexDatascan_dataplexDatascanExecutionIdentityServiceAccountExample(context),
+			},
+			{
+				ResourceName:            "google_dataplex_datascan.identity_service_account",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_scan_id", "execution_status.0.latest_job_end_time", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataplex_datascan.identity_service_account",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDataplexDatascan_dataplexDatascanExecutionIdentityServiceAccountExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+  project_id = "%{project_name}"
+}
+
+resource "google_service_account" "sa" {
+  account_id   = "tf-test-sa-%{random_suffix}"
+  display_name = "DataScan Service Account"
+  project      = "%{project_name}"
+}
+
+resource "google_service_account_iam_member" "dataplex_sa_impersonate" {
+  service_account_id = google_service_account.sa.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-dataplex.iam.gserviceaccount.com"
+}
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_service_account_iam_member.dataplex_sa_impersonate]
+  create_duration = "120s"
+}
+
+
+resource "google_project_iam_member" "sa_bq_data_viewer" {
+  project = "%{project_name}"
+  role    = "roles/bigquery.dataViewer"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
+resource "google_project_iam_member" "sa_bq_job_user" {
+  project = "%{project_name}"
+  role    = "roles/bigquery.jobUser"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
+resource "google_bigquery_dataset" "tf_test_dataset" {
+  dataset_id = "tf_test_ds_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+  delete_contents_on_destroy = true
+  project = "%{project_name}"
+
+  depends_on = [
+    google_service_account_iam_member.dataplex_sa_impersonate,
+    google_project_iam_member.sa_bq_data_viewer,
+    google_project_iam_member.sa_bq_job_user
+  ]
+}
+
+resource "google_bigquery_table" "tf_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_test_dataset.dataset_id
+  table_id            = "tf_test_tbl_%{random_suffix}"
+  deletion_protection = false
+  project = "%{project_name}"
+  schema              = <<EOF
+    [
+      {
+        "name": "word",
+        "type": "STRING",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "word_count",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+      }
+    ]
+EOF
+}
+
+resource "google_dataplex_datascan" "identity_service_account" {
+  location     = "us-central1"
+  data_scan_id = "%{datascan_name}"
+
+  data {
+    resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table.table_id}"
+  }
+
+  execution_spec {
+    trigger {
+      on_demand {}
+    }
+  }
+
+  execution_identity {
+    service_account {
+      email = google_service_account.sa.email
+    }
+  }
+
+  data_profile_spec {}
+
+  project = "%{project_name}"
+
+  depends_on = [
+    google_bigquery_table.tf_test_table,
+    time_sleep.wait_120_seconds
+  ]
+}
+`, context)
+}
+
 func testAccCheckDataplexDatascanDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

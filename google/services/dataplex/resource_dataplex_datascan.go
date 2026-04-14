@@ -826,6 +826,53 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 				Optional:    true,
 				Description: `User friendly display name.`,
 			},
+			"execution_identity": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The identity to run the datascan. If not specified, defaults to the Dataplex Service Agent.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dataplex_service_agent": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The Dataplex service agent associated with the user's project.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+							ExactlyOneOf: []string{"execution_identity.0.dataplex_service_agent", "execution_identity.0.service_account", "execution_identity.0.user_credential"},
+						},
+						"service_account": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Service account to use to execute a datascan.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"email": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Service account email.`,
+									},
+								},
+							},
+							ExactlyOneOf: []string{"execution_identity.0.dataplex_service_agent", "execution_identity.0.service_account", "execution_identity.0.user_credential"},
+						},
+						"user_credential": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The credential of the calling user. Supports only ONE_TIME trigger type.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+							ExactlyOneOf: []string{"execution_identity.0.dataplex_service_agent", "execution_identity.0.service_account", "execution_identity.0.user_credential"},
+						},
+					},
+				},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -856,12 +903,12 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						"latest_job_end_time": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `The time when the latest DataScanJob started.`,
+							Description: `The time when the latest DataScanJob ended.`,
 						},
 						"latest_job_start_time": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `The time when the latest DataScanJob ended.`,
+							Description: `The time when the latest DataScanJob started.`,
 						},
 					},
 				},
@@ -940,6 +987,12 @@ func resourceDataplexDatascanCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("execution_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(executionSpecProp)) && (ok || !reflect.DeepEqual(v, executionSpecProp)) {
 		obj["executionSpec"] = executionSpecProp
+	}
+	executionIdentityProp, err := expandDataplexDatascanExecutionIdentity(d.Get("execution_identity"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("execution_identity"); !tpgresource.IsEmptyValue(reflect.ValueOf(executionIdentityProp)) && (ok || !reflect.DeepEqual(v, executionIdentityProp)) {
+		obj["executionIdentity"] = executionIdentityProp
 	}
 	dataQualitySpecProp, err := expandDataplexDatascanDataQualitySpec(d.Get("data_quality_spec"), d, config)
 	if err != nil {
@@ -1124,6 +1177,9 @@ func resourceDataplexDatascanRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Datascan: %s", err)
 	}
 	if err := d.Set("execution_status", flattenDataplexDatascanExecutionStatus(res["executionStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err := d.Set("execution_identity", flattenDataplexDatascanExecutionIdentity(res["executionIdentity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Datascan: %s", err)
 	}
 	if err := d.Set("type", flattenDataplexDatascanType(res["type"], d, config)); err != nil {
@@ -1581,6 +1637,56 @@ func flattenDataplexDatascanExecutionStatusLatestJobEndTime(v interface{}, d *sc
 }
 
 func flattenDataplexDatascanExecutionStatusLatestJobStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanExecutionIdentity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dataplex_service_agent"] =
+		flattenDataplexDatascanExecutionIdentityDataplexServiceAgent(original["dataplexServiceAgent"], d, config)
+	transformed["user_credential"] =
+		flattenDataplexDatascanExecutionIdentityUserCredential(original["userCredential"], d, config)
+	transformed["service_account"] =
+		flattenDataplexDatascanExecutionIdentityServiceAccount(original["serviceAccount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanExecutionIdentityDataplexServiceAgent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataplexDatascanExecutionIdentityUserCredential(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataplexDatascanExecutionIdentityServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["email"] =
+		flattenDataplexDatascanExecutionIdentityServiceAccountEmail(original["email"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanExecutionIdentityServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2420,6 +2526,104 @@ func expandDataplexDatascanExecutionSpecTriggerOneTimeTtlAfterScanCompletion(v i
 }
 
 func expandDataplexDatascanExecutionSpecField(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanExecutionIdentity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDataplexServiceAgent, err := expandDataplexDatascanExecutionIdentityDataplexServiceAgent(original["dataplex_service_agent"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["dataplexServiceAgent"] = transformedDataplexServiceAgent
+	}
+
+	transformedUserCredential, err := expandDataplexDatascanExecutionIdentityUserCredential(original["user_credential"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["userCredential"] = transformedUserCredential
+	}
+
+	transformedServiceAccount, err := expandDataplexDatascanExecutionIdentityServiceAccount(original["service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccount"] = transformedServiceAccount
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanExecutionIdentityDataplexServiceAgent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanExecutionIdentityUserCredential(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanExecutionIdentityServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEmail, err := expandDataplexDatascanExecutionIdentityServiceAccountEmail(original["email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["email"] = transformedEmail
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanExecutionIdentityServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
