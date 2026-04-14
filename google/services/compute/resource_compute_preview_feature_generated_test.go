@@ -51,6 +51,7 @@ var (
 )
 
 func TestAccComputePreviewFeature_previewFeatureBasicExample(t *testing.T) {
+	t.Skip("Needs to be fixed; test cannot run against the primary project")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
