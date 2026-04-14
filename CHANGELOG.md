@@ -34,7 +34,7 @@ IMPROVEMENTS:
 * vertexai: added `spec.identity_type` and `spec.effective_identity` fields to `google_vertex_ai_reasoning_engine` resource ([#26788](https://github.com/hashicorp/terraform-provider-google/pull/26788))
 
 BUG FIXES:
-* apigee: fixed panic when `analyticsConfig` is absent from API response in `google_apigee_environment_addons_config` resource  ([#26810](https://github.com/hashicorp/terraform-provider-google/pull/26810))
+* apigee: fixed a crash in `google_apigee_environment_addons_config` resource when analytics are not configured  ([#26810](https://github.com/hashicorp/terraform-provider-google/pull/26810))
 * apigee: fixed overly restrictive validation of `name` field in `google_apigee_api_product` that rejected uppercase letters, aligning provider behavior with the Apigee API ([#26756](https://github.com/hashicorp/terraform-provider-google/pull/26756))
 * bigquery: fixed crash when `hive_partitioning_options` is defined with all null values in `google_bigquery_table` resource ([#26846](https://github.com/hashicorp/terraform-provider-google/pull/26846))
 * firebaseailogic: fixed permadiff on `traffic_filter` field in `google_firebase_ai_logic_config` resource ([#26749](https://github.com/hashicorp/terraform-provider-google/pull/26749))
