@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed inability to set `default_collation` to empty string in `google_bigquery_dataset`
+```
