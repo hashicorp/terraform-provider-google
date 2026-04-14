@@ -1,5 +1,46 @@
 ## 7.28.0 (Unreleased)
 
+NOTES:
+* compute: migrated `data_source_google_compute_instance_template` datasource to use direct HTTP rather then a client library ([#26831](https://github.com/hashicorp/terraform-provider-google/pull/26831))
+* compute: migrated `google_compute_instance_guest_attributes` datasource to use direct HTTP rather then a client library ([#26826](https://github.com/hashicorp/terraform-provider-google/pull/26826))
+* provider: added provider-wide `Identity()` schema support, allowing imports with MMv1 resources to occur using the identity block instead of id field ([#26783](https://github.com/hashicorp/terraform-provider-google/pull/26783))
+
+FEATURES:
+* **New Data Source:** `google_vertex_ai_reasoning_engine_query` ([#26787](https://github.com/hashicorp/terraform-provider-google/pull/26787))
+* **New Resource:** `google_apigee_space` ([#26857](https://github.com/hashicorp/terraform-provider-google/pull/26857))
+* **New Resource:** `google_chronicle_feed` ([#26742](https://github.com/hashicorp/terraform-provider-google/pull/26742))
+* **New Resource:** `google_vertex_ai_reasoning_engine_iam_binding` ([#26785](https://github.com/hashicorp/terraform-provider-google/pull/26785))
+* **New Resource:** `google_vertex_ai_reasoning_engine_iam_member` ([#26785](https://github.com/hashicorp/terraform-provider-google/pull/26785))
+* **New Resource:** `google_vertex_ai_reasoning_engine_iam_policy` ([#26785](https://github.com/hashicorp/terraform-provider-google/pull/26785))
+* **New Resource:** `google_workload_identity_service_agent` ([#26780](https://github.com/hashicorp/terraform-provider-google/pull/26780))
+
+IMPROVEMENTS:
+* bigqueryanalyticshub: added `replica_locations` and `effective_replicas` fields to `google_bigquery_analytics_hub_listing` resource ([#26843](https://github.com/hashicorp/terraform-provider-google/pull/26843))
+* bigqueryanalyticshub: added `replica_locations` field to `google_bigquery_analytics_hub_listing_subscription` resource ([#26843](https://github.com/hashicorp/terraform-provider-google/pull/26843))
+* composer: increased `google_composer_environment` default delete timeout to 120m from 30m ([#26851](https://github.com/hashicorp/terraform-provider-google/pull/26851))
+* compute: added `target_size_policy` field to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` resources ([#26849](https://github.com/hashicorp/terraform-provider-google/pull/26849))
+* compute: increased `google_compute_security_policy` default timeout to 60m from 30m ([#26850](https://github.com/hashicorp/terraform-provider-google/pull/26850))
+* compute: supported simultaneous updates for Hyperdisk IOPS and throughput in `google_compute_disk` and `google_compute_region_disk` resources ([#26815](https://github.com/hashicorp/terraform-provider-google/pull/26815))
+* container: added `autopilot_cluster_policy_config` field to `google_container_cluster` resource ([#26822](https://github.com/hashicorp/terraform-provider-google/pull/26822))
+* container: added `disable_multi_nic` field to `lustre_csi_driver_config` in `google_container_cluster` resource ([#26759](https://github.com/hashicorp/terraform-provider-google/pull/26759))
+* developerconnect: added `custom_oauth_config`, `etag`, and `proxy_config` fields to `google_developer_connect_account_connector` resource ([#26751](https://github.com/hashicorp/terraform-provider-google/pull/26751))
+* netapp: added `scale_type` field to `google_netapp_storage_pool` resource ([#26821](https://github.com/hashicorp/terraform-provider-google/pull/26821))
+* netapp: added `mode` field to `google_netapp_storage_pool` resource ([#26778](https://github.com/hashicorp/terraform-provider-google/pull/26778))
+* networkservices: added `all_ports` field to `google_network_services_gateway` resource ([#26808](https://github.com/hashicorp/terraform-provider-google/pull/26808))
+* sql: added `SQLSERVER_2025` value to `database_version` field in `database_instance` resource ([#26845](https://github.com/hashicorp/terraform-provider-google/pull/26845))
+* vertexai: add `labels` field to `google_vertex_ai_reasoning_engine` resource ([#26825](https://github.com/hashicorp/terraform-provider-google/pull/26825))
+* vertexai: added `spec.source_code_spec.image_spec` field to `google_vertex_ai_reasoning_engine` resource ([#26790](https://github.com/hashicorp/terraform-provider-google/pull/26790))
+* vertexai: added `container_spec` field to `google_vertex_ai_reasoning_engine` resource ([#26813](https://github.com/hashicorp/terraform-provider-google/pull/26813))
+* vertexai: added `spec.identity_type` and `spec.effective_identity` fields to `google_vertex_ai_reasoning_engine` resource ([#26788](https://github.com/hashicorp/terraform-provider-google/pull/26788))
+
+BUG FIXES:
+* apigee: fixed a crash in `google_apigee_environment_addons_config` resource when analytics are not configured  ([#26810](https://github.com/hashicorp/terraform-provider-google/pull/26810))
+* apigee: fixed overly restrictive validation of `name` field in `google_apigee_api_product` that rejected uppercase letters, aligning provider behavior with the Apigee API ([#26756](https://github.com/hashicorp/terraform-provider-google/pull/26756))
+* bigquery: fixed crash when `hive_partitioning_options` is defined with all null values in `google_bigquery_table` resource ([#26846](https://github.com/hashicorp/terraform-provider-google/pull/26846))
+* firebaseailogic: fixed permadiff on `traffic_filter` field in `google_firebase_ai_logic_config` resource ([#26749](https://github.com/hashicorp/terraform-provider-google/pull/26749))
+* networksecurity: fixed permadiff on `policy_profile` field in `google_network_security_authz_policy` resource ([#26865](https://github.com/hashicorp/terraform-provider-google/pull/26865))
+* vertexai: added 10-second wait before reading the updated resource in `google_vertex_ai_reasoning_engine`, preventing stale values getting written to state ([#26852](https://github.com/hashicorp/terraform-provider-google/pull/26852))
+
 ## 7.27.0 (Apr 07, 2026)
 
 BREAKING CHANGES:
