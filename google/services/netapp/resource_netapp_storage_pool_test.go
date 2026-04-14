@@ -916,7 +916,7 @@ func TestAccNetappStoragePool_ScaleType(t *testing.T) {
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderBetaFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetappVolumeDestroyProducer(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"time": {},
@@ -947,14 +947,13 @@ func TestAccNetappStoragePool_ScaleType(t *testing.T) {
 func testAccNetappStoragePool_ScaleType(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_netapp_storage_pool" "test_pool" {
-	provider = google-beta
     name = "tf-test-pool%{random_suffix}"
     location = "us-central1-c"
     service_level = "FLEX"
     type = "UNIFIED"
     capacity_gib = "12288"
     network = data.google_compute_network.default.id
-    description           = "this is a test description"
+    description           = "this is a ScaleType test description"
     labels                = {
         key = "test"
         value = "pool"
@@ -963,7 +962,6 @@ resource "google_netapp_storage_pool" "test_pool" {
 }
 
 data "google_compute_network" "default" {
-	provider = google-beta
     name = "%{network_name}"
 }
 `, context)
@@ -972,14 +970,13 @@ data "google_compute_network" "default" {
 func testAccNetappStoragePool_ScaleType_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_netapp_storage_pool" "test_pool" {
-	provider = google-beta
     name = "tf-test-pool%{random_suffix}"
     location = "us-central1-c"
     service_level = "FLEX"
     type = "UNIFIED"
     capacity_gib = "13312"
     network = data.google_compute_network.default.id
-    description           = "this is a test description"
+    description           = "this is a ScaleType test description"
     labels                = {
         key = "test"
         value = "pool"
@@ -988,7 +985,6 @@ resource "google_netapp_storage_pool" "test_pool" {
 }
 
 data "google_compute_network" "default" {
-	provider = google-beta
     name = "%{network_name}"
 }
 `, context)
