@@ -848,7 +848,7 @@ func IsPartialSelfLink(s string) bool {
 
 // IsSelfLink returns true if this string represents a full self link.
 func IsSelfLink(s string) bool {
-	r := regexp.MustCompile(`(https:\/\/)?(www\.)?([a-z]*)?googleapis.com\/`)
+	r := regexp.MustCompile(`(https:\/\/)?(www\.)?([a-z]*)?googleapis\.com\/`)
 	return r.MatchString(s)
 }
 
