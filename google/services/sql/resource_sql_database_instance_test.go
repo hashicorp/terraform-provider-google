@@ -188,6 +188,50 @@ func TestAccSqlDatabaseInstance_sqlServer2025Enterprise(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_basicMSSQL_withEntraid(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+	rootPassword := "sqlserver@123"
+	appId1 := "0de4a942-1697-4c1c-92be-90ded91b73a1"
+	tenantId1 := "177130ab-8a53-4be7-a2fd-c9b49cad95d1"
+	appId2 := "0de4a942-1697-4c1c-92be-90ded91b73a2"
+	tenantId2 := "177130ab-8a53-4be7-a2fd-c9b49cad95d2"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic_mssql_with_entraid, databaseName, rootPassword, appId1, tenantId1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.entraid_config.0.application_id", appId1),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.entraid_config.0.tenant_id", tenantId1),
+				),
+			},
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic_mssql_with_entraid, databaseName, rootPassword, appId2, tenantId2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.entraid_config.0.application_id", appId2),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.entraid_config.0.tenant_id", tenantId2),
+				),
+			},
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic_mssql_with_entraid, databaseName, rootPassword, "", ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_sql_database_instance.instance", "settings.0.entraid_config.0.application_id"),
+					resource.TestCheckNoResourceAttr("google_sql_database_instance.instance", "settings.0.entraid_config.0.tenant_id"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.entraid_config.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_basicMSSQL_passwordWo(t *testing.T) {
 	t.Parallel()
 
@@ -5150,6 +5194,23 @@ resource "google_sql_database_instance" "instance" {
     tier = "db-custom-1-3840"
     collation = "Polish_CI_AS"
   }
+}
+`
+
+var testGoogleSqlDatabaseInstance_basic_mssql_with_entraid = `
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-west2"
+  database_version = "SQLSERVER_2022_STANDARD"
+  root_password    = "%s"
+  settings {
+    tier = "db-custom-2-8192"
+    entraid_config {
+      application_id = "%s"
+      tenant_id      = "%s"
+    }
+  }
+  deletion_protection = false
 }
 `
 

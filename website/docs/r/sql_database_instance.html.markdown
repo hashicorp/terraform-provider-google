@@ -516,6 +516,12 @@ The optional `settings.active_directory_config` subblock supports:
 * `domain` - (Required) The domain name for the active directory (e.g., mydomain.com).
     Can only be used with SQL Server.
 
+The optional `settings.entraid_config` block supports:
+
+* `application_id` - (Optional) The application ID for the Entra ID configuration. This must be paired with a tenant_id to be valid.
+
+* `tenant_id` - (Optional) The tenant ID for the Entra ID configuration. This must be paired with an application_id to be valid.
+
 The optional `settings.data_cache_config` subblock supports:
 
 * `data_cache_enabled` - (Optional) Whether data cache is enabled for the instance. Defaults to `true` for MYSQL Enterprise Plus and PostgreSQL Enterprise Plus instances only. For SQL Server Enterprise Plus instances it defaults to `false`.

@@ -847,6 +847,27 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							},
 							Description: `Configuration of Query Insights.`,
 						},
+						"entraid_config": {
+							Type:             schema.TypeList,
+							Optional:         true,
+							MaxItems:         1,
+							DiffSuppressFunc: entraidDiffSuppressFunc,
+							Description:      `The Microsoft Entra ID configuration for the SQL Server instance.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"application_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The application ID for the Entra ID configuration.`,
+									},
+									"tenant_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The tenant ID for the Entra ID configuration.`,
+									},
+								},
+							},
+						},
 						"password_validation_policy": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1812,6 +1833,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		ActiveDirectoryConfig:     expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
 		DenyMaintenancePeriods:    expandDenyMaintenancePeriod(_settings["deny_maintenance_period"].([]interface{})),
 		SqlServerAuditConfig:      expandSqlServerAuditConfig(_settings["sql_server_audit_config"].([]interface{})),
+		EntraidConfig:             expandEntraidConfig(_settings["entraid_config"].([]interface{})),
 		TimeZone:                  _settings["time_zone"].(string),
 		AvailabilityType:          _settings["availability_type"].(string),
 		ConnectorEnforcement:      _settings["connector_enforcement"].(string),
@@ -2137,6 +2159,22 @@ func expandDenyMaintenancePeriod(configured []interface{}) []*sqladmin.DenyMaint
 	}
 	return denyMaintenancePeriod
 
+}
+
+func expandEntraidConfig(configured []interface{}) *sqladmin.SqlServerEntraIdConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	entraidConfig := configured[0].(map[string]interface{})
+	appID, _ := entraidConfig["application_id"].(string)
+	tenantID, _ := entraidConfig["tenant_id"].(string)
+
+	return &sqladmin.SqlServerEntraIdConfig{
+		ApplicationId:   appID,
+		TenantId:        tenantID,
+		ForceSendFields: []string{"ApplicationId", "TenantId"},
+	}
 }
 
 func expandSqlServerAdvancedMachineFeatures(configured interface{}) *sqladmin.AdvancedMachineFeatures {
@@ -2632,6 +2670,39 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
+	if d.HasChange("settings.0.entraid_config") {
+		entraidConfig := expandEntraidConfig(d.Get("settings.0.entraid_config").([]interface{}))
+
+		patchSettings := &sqladmin.Settings{
+			EntraidConfig: entraidConfig,
+		}
+
+		instance := &sqladmin.DatabaseInstance{
+			Settings: patchSettings,
+		}
+
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
+		if err != nil {
+			return fmt.Errorf("Error, failed to patch entraid_config for %s: %s", instance.Name, err)
+		}
+		err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance Entra ID", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+		err = resourceSqlDatabaseInstanceRead(d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
 	instance = &sqladmin.DatabaseInstance{
 		Settings: expandSqlDatabaseInstanceSettings(desiredSetting.([]interface{}), databaseVersion),
 	}
@@ -2776,6 +2847,34 @@ func maintenanceVersionDiffSuppress(_, old, new string, _ *schema.ResourceData) 
 	} else {
 		return false
 	}
+}
+
+// entraidDiffSuppressFunc handles a specific behavior of the Google SQL API where
+// disabling Microsoft Entra ID integration (by sending empty strings for application_id
+// and tenant_id) causes the API to omit the 'entraid_config' block entirely from the response.
+//
+// Without this suppressor, Terraform would see a "Permanent Diff":
+// - Configuration: entraid_config { application_id = "", tenant_id = "" } (Count: 1)
+// - State (from API): null/absent (Count: 0)
+//
+// This function suppresses the diff only when the config intentionally defines an
+// "empty" block that the API has subsequently removed.
+func entraidDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if strings.HasSuffix(k, "entraid_config.#") {
+		// Only suppress when transitioning from 'Absent' in State (0)
+		// to 'Present' in Config (1).
+		if old == "0" && new == "1" {
+			// Check if the proposed values are actually empty
+			// This ensures we only suppress 'empty' blocks, not 'real' ones
+			appId := d.Get("settings.0.entraid_config.0.application_id").(string)
+			tenantId := d.Get("settings.0.entraid_config.0.tenant_id").(string)
+
+			if appId == "" && tenantId == "" {
+				return true // "Shhh, it's fine that the API deleted this block."
+			}
+		}
+	}
+	return false // "Show the diff for everything else!"
 }
 
 // enhancedBackupManagerDiffSuppressFunc suppresses diff changes to settings.backup_configuration
@@ -2940,6 +3039,10 @@ func flattenSettings(settings *sqladmin.Settings, iType string, d *schema.Resour
 
 	if settings.SqlServerAuditConfig != nil {
 		data["sql_server_audit_config"] = flattenSqlServerAuditConfig(settings.SqlServerAuditConfig)
+	}
+
+	if settings.EntraidConfig != nil {
+		data["entraid_config"] = flattenEntraidConfig(settings.EntraidConfig)
 	}
 
 	if settings.BackupConfiguration != nil {
@@ -3117,6 +3220,18 @@ func flattenSqlServerAuditConfig(sqlServerAuditConfig *sqladmin.SqlServerAuditCo
 			"bucket":             sqlServerAuditConfig.Bucket,
 			"retention_interval": sqlServerAuditConfig.RetentionInterval,
 			"upload_interval":    sqlServerAuditConfig.UploadInterval,
+		},
+	}
+}
+
+func flattenEntraidConfig(entraidConfig *sqladmin.SqlServerEntraIdConfig) []map[string]interface{} {
+	if entraidConfig == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"application_id": entraidConfig.ApplicationId,
+			"tenant_id":      entraidConfig.TenantId,
 		},
 	}
 }
