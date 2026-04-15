@@ -84,6 +84,12 @@ The following arguments are supported:
   Backup retention policy defining the retention of the backups.
   Structure is [documented below](#nested_backup_retention_policy).
 
+* `kms_config` -
+  (Optional)
+  Specifies the Key Management System (KMS) configuration to be used for
+  backup encryption. Format:
+  `projects/{{project}}/locations/{{location}}/kmsConfigs/{{kms_config}}`
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -131,6 +137,14 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `destination_backup_vault` -
   Name of the Backup vault created in backup region.
+
+* `encryption_state` -
+  Encryption state of customer-managed encryption keys (CMEK) backups.
+
+* `backups_crypto_key_version` -
+  The crypto key version used to encrypt the backup vault.
+  Format:
+  `projects/{{project}}/locations/{{location}}/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}/cryptoKeyVersions/{{crypto_key_version}}`
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

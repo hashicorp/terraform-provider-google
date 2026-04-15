@@ -14,11 +14,14 @@ fields:
     - api_field: backupRetentionPolicy.monthlyBackupImmutable
     - api_field: backupRetentionPolicy.weeklyBackupImmutable
     - api_field: backupVaultType
+    - api_field: backupsCryptoKeyVersion
     - api_field: createTime
     - api_field: description
     - api_field: destinationBackupVault
     - field: effective_labels
       provider_only: true
+    - api_field: encryptionState
+    - api_field: kmsConfig
     - api_field: labels
     - field: location
       provider_only: true
