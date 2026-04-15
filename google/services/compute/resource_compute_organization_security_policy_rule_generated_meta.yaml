@@ -11,6 +11,10 @@ fields:
       field: action
     - api_field: rules.description
       field: description
+    - api_field: rules.headerAction.requestHeadersToAdds.headerName
+      field: header_action.request_headers_to_adds.header_name
+    - api_field: rules.headerAction.requestHeadersToAdds.headerValue
+      field: header_action.request_headers_to_adds.header_value
     - api_field: rules.match.config.srcIpRanges
       field: match.config.src_ip_ranges
     - api_field: rules.match.description
@@ -21,7 +25,31 @@ fields:
       field: match.versioned_expr
     - field: policy_id
       provider_only: true
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.op
+      field: preconfigured_waf_config.exclusion.request_cookie.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.val
+      field: preconfigured_waf_config.exclusion.request_cookie.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestHeadersToExclude.op
+      field: preconfigured_waf_config.exclusion.request_header.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestHeadersToExclude.val
+      field: preconfigured_waf_config.exclusion.request_header.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestQueryParamsToExclude.op
+      field: preconfigured_waf_config.exclusion.request_query_param.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestQueryParamsToExclude.val
+      field: preconfigured_waf_config.exclusion.request_query_param.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestUrisToExclude.op
+      field: preconfigured_waf_config.exclusion.request_uri.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestUrisToExclude.val
+      field: preconfigured_waf_config.exclusion.request_uri.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.targetRuleIds
+      field: preconfigured_waf_config.exclusion.target_rule_ids
+    - api_field: rules.preconfiguredWafConfig.exclusions.targetRuleSet
+      field: preconfigured_waf_config.exclusion.target_rule_set
     - api_field: rules.preview
       field: preview
     - api_field: rules.priority
       field: priority
+    - api_field: rules.redirectOptions.target
+      field: redirect_options.target
+    - api_field: rules.redirectOptions.type
+      field: redirect_options.type

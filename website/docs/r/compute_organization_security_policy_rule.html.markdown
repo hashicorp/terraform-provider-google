@@ -76,6 +76,115 @@ resource "google_compute_organization_security_policy_rule" "policy" {
   priority = 100
 }
 ```
+## Example Usage - Organization Security Policy Rule With Preconfigured Waf Config
+
+
+```hcl
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = "organizations/123456789"
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action    = "allow"
+
+  match {
+    expr {
+      expression = "evaluatePreconfiguredWaf('sqli-stable', {'sensitivity': 2})"
+    }
+    versioned_expr = ""
+  }
+
+  preconfigured_waf_config {
+    exclusion {
+      request_header {
+        operator = "STARTS_WITH"
+        value    = "User-Agent"
+      }
+      request_uri {
+        operator = "CONTAINS"
+        value    = "/admin/"
+      }
+      target_rule_set = "sqli-stable"
+    }
+    exclusion {
+      request_query_param {
+        operator = "EQUALS"
+        value    = "user_input"
+      }
+      target_rule_set = "sqli-stable"
+    }
+  }
+
+  priority = 100
+}
+```
+## Example Usage - Organization Security Policy Rule With Header Action
+
+
+```hcl
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = "organizations/123456789"
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action    = "allow"
+
+  match {
+    expr {
+      expression = "request.path.contains('/login/')"
+    }
+    versioned_expr = ""
+  }
+
+  header_action {
+    request_headers_to_adds {
+      header_name  = "X-Forwarded-For"
+      header_value = "true"
+    }
+    request_headers_to_adds {
+      header_name  = "X-Custom-Header"
+      header_value = "custom-value"
+    }
+  }
+
+  priority = 100
+}
+```
+## Example Usage - Organization Security Policy Rule With Redirect
+
+
+```hcl
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = "organizations/123456789"
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action    = "redirect"
+
+  match {
+    config {
+      src_ip_ranges = ["10.0.1.0/24"]
+    }
+    versioned_expr = "SRC_IPS_V1"
+  }
+
+  redirect_options {
+    type   = "EXTERNAL_302"
+    target = "https://www.example.com/blocked"
+  }
+
+  priority = 100
+}
+```
 ## Example Usage - Organization Security Policy Rule Firewall
 
 
@@ -129,8 +238,11 @@ The following arguments are supported:
 
 * `action` -
   (Required)
-  The Action to perform when the client connection triggers the rule. Can currently be either
-  "allow", "deny" or "goto_next".
+  The Action to perform when the client connection triggers the rule. Valid actions are:
+  "allow": allow access to target.
+  "deny": deny access to target.
+  "goto_next": forward the request to the next hierarchical policy for evaluation.
+  "redirect": redirect to a different target. Parameters for this action can be configured via redirectOptions. Only EXTERNAL_302 redirect type is supported for organization security policies.
 
 * `policy_id` -
   (Required)
@@ -141,9 +253,26 @@ The following arguments are supported:
   (Optional)
   A description of the rule.
 
+* `preconfigured_waf_config` -
+  (Optional)
+  Preconfigured WAF configuration to be applied for the rule.
+  If the rule does not evaluate preconfigured WAF rules, i.e., if evaluatePreconfiguredWaf() is not used, this field will have no effect.
+  Structure is [documented below](#nested_preconfigured_waf_config).
+
 * `preview` -
   (Optional)
   If set to true, the specified action is not enforced.
+
+* `redirect_options` -
+  (Optional)
+  Parameters defining the redirect action. Cannot be specified for any other actions.
+  Note: For organization security policies, only EXTERNAL_302 redirect type is supported. GOOGLE_RECAPTCHA is not supported.
+  Structure is [documented below](#nested_redirect_options).
+
+* `header_action` -
+  (Optional)
+  Optional, additional actions that are performed on headers.
+  Structure is [documented below](#nested_header_action).
 
 * `direction` -
   (Optional, [Beta](../guides/provider_versions.html.markdown))
@@ -238,6 +367,144 @@ The following arguments are supported:
   applies to connections through any port.
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
+
+<a name="nested_preconfigured_waf_config"></a>The `preconfigured_waf_config` block supports:
+
+* `exclusion` -
+  (Optional)
+  An exclusion to apply during preconfigured WAF evaluation.
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion).
+
+
+<a name="nested_preconfigured_waf_config_exclusion"></a>The `exclusion` block supports:
+
+* `request_header` -
+  (Optional)
+  Request header whose value will be excluded from inspection during preconfigured WAF evaluation.
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_header).
+
+* `request_cookie` -
+  (Optional)
+  Request cookie whose value will be excluded from inspection during preconfigured WAF evaluation.
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_cookie).
+
+* `request_uri` -
+  (Optional)
+  Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation.
+  When specifying this field, the query or fragment part should be excluded.
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_uri).
+
+* `request_query_param` -
+  (Optional)
+  Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation.
+  Note that the parameter can be in the query string or in the POST body.
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_query_param).
+
+* `target_rule_set` -
+  (Required)
+  Target WAF rule set to apply the preconfigured WAF exclusion.
+
+* `target_rule_ids` -
+  (Optional)
+  A list of target rule IDs under the WAF rule set to apply the preconfigured WAF exclusion.
+  If omitted, it refers to all the rule IDs under the WAF rule set.
+
+
+<a name="nested_preconfigured_waf_config_exclusion_request_header"></a>The `request_header` block supports:
+
+* `operator` -
+  (Required)
+  You can specify an exact match or a partial match by using a field operator and a field value.
+  Available options:
+  EQUALS: The operator matches if the field value equals the specified value.
+  STARTS_WITH: The operator matches if the field value starts with the specified value.
+  ENDS_WITH: The operator matches if the field value ends with the specified value.
+  CONTAINS: The operator matches if the field value contains the specified value.
+  EQUALS_ANY: The operator matches if the field value is any value.
+
+* `value` -
+  (Optional)
+  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
+
+<a name="nested_preconfigured_waf_config_exclusion_request_cookie"></a>The `request_cookie` block supports:
+
+* `operator` -
+  (Required)
+  You can specify an exact match or a partial match by using a field operator and a field value.
+  Available options:
+  EQUALS: The operator matches if the field value equals the specified value.
+  STARTS_WITH: The operator matches if the field value starts with the specified value.
+  ENDS_WITH: The operator matches if the field value ends with the specified value.
+  CONTAINS: The operator matches if the field value contains the specified value.
+  EQUALS_ANY: The operator matches if the field value is any value.
+
+* `value` -
+  (Optional)
+  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
+
+<a name="nested_preconfigured_waf_config_exclusion_request_uri"></a>The `request_uri` block supports:
+
+* `operator` -
+  (Required)
+  You can specify an exact match or a partial match by using a field operator and a field value.
+  Available options:
+  EQUALS: The operator matches if the field value equals the specified value.
+  STARTS_WITH: The operator matches if the field value starts with the specified value.
+  ENDS_WITH: The operator matches if the field value ends with the specified value.
+  CONTAINS: The operator matches if the field value contains the specified value.
+  EQUALS_ANY: The operator matches if the field value is any value.
+
+* `value` -
+  (Optional)
+  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
+
+<a name="nested_preconfigured_waf_config_exclusion_request_query_param"></a>The `request_query_param` block supports:
+
+* `operator` -
+  (Required)
+  You can specify an exact match or a partial match by using a field operator and a field value.
+  Available options:
+  EQUALS: The operator matches if the field value equals the specified value.
+  STARTS_WITH: The operator matches if the field value starts with the specified value.
+  ENDS_WITH: The operator matches if the field value ends with the specified value.
+  CONTAINS: The operator matches if the field value contains the specified value.
+  EQUALS_ANY: The operator matches if the field value is any value.
+
+* `value` -
+  (Optional)
+  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
+
+<a name="nested_redirect_options"></a>The `redirect_options` block supports:
+
+* `type` -
+  (Required)
+  Type of the redirect action. For organization security policies, only EXTERNAL_302 is supported.
+
+* `target` -
+  (Optional)
+  Target for the redirect action. This is required if the type is EXTERNAL_302.
+
+<a name="nested_header_action"></a>The `header_action` block supports:
+
+* `request_headers_to_adds` -
+  (Optional)
+  The list of request headers to add or overwrite if they're already present.
+  Structure is [documented below](#nested_header_action_request_headers_to_adds).
+
+
+<a name="nested_header_action_request_headers_to_adds"></a>The `request_headers_to_adds` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header to set.
+
+* `header_value` -
+  (Optional)
+  The value to set the named header to.
 
 ## Attributes Reference
 
