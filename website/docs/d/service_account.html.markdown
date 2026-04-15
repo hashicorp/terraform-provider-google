@@ -55,7 +55,7 @@ resource "kubernetes_secret" "google-application-credentials" {
 
 The following arguments are supported:
 
-* `account_id` - (Required) The Google service account ID. This be one of:
+* `account_id` - (Required) The Google service account ID. This be must one of:
 
     * The name of the service account within the project (e.g. `my-service`)
 
