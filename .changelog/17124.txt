@@ -1,0 +1,3 @@
+```release-note:note
+workloadidentity: fixed typo in the healthcare service producer URL in the `google_workload_identity_service_agent` example
+```
