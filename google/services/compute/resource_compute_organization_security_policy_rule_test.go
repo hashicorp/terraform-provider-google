@@ -149,6 +149,417 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 	})
 }
 
+func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfig(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeOrganizationSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfigCreate(context),
+			},
+			{
+				ResourceName:      "google_compute_organization_security_policy_rule.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfigUpdate(context),
+			},
+			{
+				ResourceName:      "google_compute_organization_security_policy_rule.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfigClear(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_organization_security_policy_rule.policy", "preconfigured_waf_config.#", "0"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_organization_security_policy_rule.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfigCreate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "security_policy_target" {
+  display_name = "tf-test-secpol-%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent       = google_folder.security_policy_target.name
+  type         = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action    = "allow"
+
+  description = "Rule with preconfiguredWafConfig - create"
+  match {
+    expr {
+      expression = "evaluatePreconfiguredWaf('sqli-stable', {'sensitivity': 2})"
+    }
+    versioned_expr = ""
+  }
+  preconfigured_waf_config {
+    exclusion {
+      request_cookie {
+        operator = "EQUALS_ANY"
+      }
+      request_header {
+        operator = "EQUALS"
+        value    = "Referer"
+      }
+      request_uri {
+        operator = "STARTS_WITH"
+        value    = "/admin"
+      }
+      request_query_param {
+        operator = "EQUALS"
+        value    = "password"
+      }
+      request_query_param {
+        operator = "STARTS_WITH"
+        value    = "freeform"
+      }
+      target_rule_set = "sqli-stable"
+    }
+    exclusion {
+      request_query_param {
+        operator = "CONTAINS"
+        value    = "password"
+      }
+      request_query_param {
+        operator = "STARTS_WITH"
+        value    = "freeform"
+      }
+      target_rule_set = "sqli-stable"
+    }
+  }
+  priority = 100
+}
+`, context)
+}
+
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfigUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "security_policy_target" {
+  display_name = "tf-test-secpol-%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent       = google_folder.security_policy_target.name
+  type         = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action    = "allow"
+
+  description = "Rule with preconfiguredWafConfig - update"
+  match {
+    expr {
+      expression = "evaluatePreconfiguredWaf('xss-stable', {'sensitivity': 2})"
+    }
+    versioned_expr = ""
+  }
+  preconfigured_waf_config {
+    exclusion {
+      request_uri {
+        operator = "STARTS_WITH"
+        value    = "/admin"
+      }
+      target_rule_set = "xss-stable"
+    }
+    exclusion {
+      request_query_param {
+        operator = "CONTAINS"
+        value    = "password"
+      }
+      request_query_param {
+        operator = "STARTS_WITH"
+        value    = "freeform"
+      }
+      request_query_param {
+        operator = "EQUALS"
+        value    = "description"
+      }
+      request_cookie {
+        operator = "CONTAINS"
+        value    = "TokenExpired"
+      }
+      target_rule_set = "xss-stable"
+    }
+  }
+  priority = 100
+}
+`, context)
+}
+
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfigClear(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "security_policy_target" {
+  display_name = "tf-test-secpol-%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent       = google_folder.security_policy_target.name
+  type         = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action    = "allow"
+
+  description = "Rule with preconfiguredWafConfig - clear"
+  match {
+    expr {
+      expression = "evaluatePreconfiguredWaf('xss-stable', {'sensitivity': 2})"
+    }
+    versioned_expr = ""
+  }
+  priority = 100
+}
+`, context)
+}
+
+func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithHeaderAction(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeOrganizationSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithHeaderActionCreate(context),
+			},
+			{
+				ResourceName:      "google_compute_organization_security_policy_rule.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithHeaderActionUpdate(context),
+			},
+			{
+				ResourceName:      "google_compute_organization_security_policy_rule.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithRedirect(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeOrganizationSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithRedirectCreate(context),
+			},
+			{
+				ResourceName:      "google_compute_organization_security_policy_rule.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithRedirectUpdate(context),
+			},
+			{
+				ResourceName:      "google_compute_organization_security_policy_rule.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithHeaderActionCreate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "security_policy_target" {
+  display_name = "tf-test-secpol-%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = google_folder.security_policy_target.name
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action    = "allow"
+
+  match {
+    expr {
+      expression = "request.path.contains('/login/')"
+    }
+    versioned_expr = ""
+  }
+
+  header_action {
+    request_headers_to_adds {
+      header_name  = "X-Custom-Header"
+      header_value = "custom-value"
+    }
+  }
+
+  priority = 100
+}
+`, context)
+}
+
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithHeaderActionUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "security_policy_target" {
+  display_name = "tf-test-secpol-%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = google_folder.security_policy_target.name
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action    = "allow"
+
+  match {
+    expr {
+      expression = "request.path.contains('/login/')"
+    }
+    versioned_expr = ""
+  }
+
+  header_action {
+    request_headers_to_adds {
+      header_name  = "X-Custom-Header"
+      header_value = "updated-value"
+    }
+    request_headers_to_adds {
+      header_name  = "X-Extra-Header"
+      header_value = "extra"
+    }
+  }
+
+  priority = 100
+}
+`, context)
+}
+
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithRedirectCreate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "security_policy_target" {
+  display_name = "tf-test-secpol-%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = google_folder.security_policy_target.name
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action    = "redirect"
+
+  match {
+    config {
+      src_ip_ranges = ["10.0.1.0/24"]
+    }
+    versioned_expr = "SRC_IPS_V1"
+  }
+
+  redirect_options {
+    type   = "EXTERNAL_302"
+    target = "https://www.example.com/blocked"
+  }
+
+  priority = 100
+}
+`, context)
+}
+
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithRedirectUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "security_policy_target" {
+  display_name = "tf-test-secpol-%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = google_folder.security_policy_target.name
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action    = "redirect"
+
+  match {
+    config {
+      src_ip_ranges = ["172.16.1.0/24"]
+    }
+    versioned_expr = "SRC_IPS_V1"
+  }
+
+  redirect_options {
+    type   = "EXTERNAL_302"
+    target = "https://www.example.com/new-blocked"
+  }
+
+  priority = 100
+}
+`, context)
+}
+
 func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleExpressionCreate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_folder" "security_policy_target" {
