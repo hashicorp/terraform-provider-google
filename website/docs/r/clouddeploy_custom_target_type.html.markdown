@@ -139,6 +139,34 @@ resource "google_clouddeploy_custom_target_type" "custom-target-type" {
     }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=clouddeploy_custom_target_type_tasks&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Clouddeploy Custom Target Type Tasks
+
+
+```hcl
+resource "google_clouddeploy_custom_target_type" "custom-target-type" {
+  location    = "us-central1"
+  name        = "my-custom-target-type"
+  description = "My custom target type"
+
+  tasks {
+    render {
+      container {
+        image = "gcr.io/my-project/my-render-image"
+      }
+    }
+    deploy {
+      container {
+        image = "gcr.io/my-project/my-deploy-image"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -174,6 +202,11 @@ The following arguments are supported:
   (Optional)
   Configures render and deploy for the `CustomTargetType` using Skaffold custom actions.
   Structure is [documented below](#nested_custom_actions).
+
+* `tasks` -
+  (Optional)
+  Configures render and deploy for the `CustomTargetType` using tasks.
+  Structure is [documented below](#nested_tasks).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -255,6 +288,71 @@ The following arguments are supported:
 * `ref` -
   (Optional)
   Branch or tag to use when cloning the repository.
+
+<a name="nested_tasks"></a>The `tasks` block supports:
+
+* `render` -
+  (Optional)
+  The task responsible for render operations. If not provided then Cloud Deploy will perform its default rendering operation.
+  Structure is [documented below](#nested_tasks_render).
+
+* `deploy` -
+  (Required)
+  The task responsible for deploy operations.
+  Structure is [documented below](#nested_tasks_deploy).
+
+
+<a name="nested_tasks_render"></a>The `render` block supports:
+
+* `container` -
+  (Optional)
+  This task is represented by a container that is executed in the Cloud Build execution environment.
+  Structure is [documented below](#nested_tasks_render_container).
+
+
+<a name="nested_tasks_render_container"></a>The `container` block supports:
+
+* `image` -
+  (Required)
+  Image is the container image to use.
+
+* `command` -
+  (Optional)
+  Command is the container entrypoint to use. This overrides the default entrypoint defined in the container image.
+
+* `args` -
+  (Optional)
+  Args is the container arguments to use. This overrides the default arguments defined in the container image.
+
+* `env` -
+  (Optional)
+  Environment variables that are set in the container.
+
+<a name="nested_tasks_deploy"></a>The `deploy` block supports:
+
+* `container` -
+  (Optional)
+  This task is represented by a container that is executed in the Cloud Build execution environment.
+  Structure is [documented below](#nested_tasks_deploy_container).
+
+
+<a name="nested_tasks_deploy_container"></a>The `container` block supports:
+
+* `image` -
+  (Required)
+  Image is the container image to use.
+
+* `command` -
+  (Optional)
+  Command is the container entrypoint to use. This overrides the default entrypoint defined in the container image.
+
+* `args` -
+  (Optional)
+  Args is the container arguments to use. This overrides the default arguments defined in the container image.
+
+* `env` -
+  (Optional)
+  Environment variables that are set in the container.
 
 ## Attributes Reference
 
