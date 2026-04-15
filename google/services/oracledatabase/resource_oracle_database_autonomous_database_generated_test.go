@@ -125,6 +125,8 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 		"database_name":          fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
 		"deletion_protection":    false,
 		"endpoint_name":          fmt.Sprintf("tftestendpoint%s", acctest.RandString(t, 10)),
+		"odb_network":            "projects/oci-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":             "projects/oci-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
 		"project":                "oci-terraform-testing-prod",
 		"random_suffix":          randomSuffix,
 	}
@@ -162,6 +164,8 @@ resource "google_oracle_database_autonomous_database" "myADB"{
   display_name = "autonomousDatabase displayname"
   database = "%{database_name}"
   admin_password = "123Abpassword"
+  odb_network = "%{odb_network}"
+  odb_subnet = "%{odb_subnet}"
   network = data.google_compute_network.default.id
   cidr = "10.5.0.0/24"
   labels = {
