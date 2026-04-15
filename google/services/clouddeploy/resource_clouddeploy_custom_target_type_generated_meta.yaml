@@ -32,6 +32,14 @@ fields:
       provider_only: true
     - field: name
       provider_only: true
+    - api_field: tasks.deploy.container.args
+    - api_field: tasks.deploy.container.command
+    - api_field: tasks.deploy.container.env
+    - api_field: tasks.deploy.container.image
+    - api_field: tasks.render.container.args
+    - api_field: tasks.render.container.command
+    - api_field: tasks.render.container.env
+    - api_field: tasks.render.container.image
     - field: terraform_labels
       provider_only: true
     - api_field: uid
