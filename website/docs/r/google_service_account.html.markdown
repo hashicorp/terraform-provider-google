@@ -106,6 +106,18 @@ import {
 }
 ```
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import service accounts using identity values. For example:
+
+```tf
+import {
+  identity = {
+    project = {{project_id}}
+    email = {{email}}
+  }
+  to = google_service_account.default
+}
+```
+
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), service accounts can be imported using one of the formats above. For example:
 
 ```

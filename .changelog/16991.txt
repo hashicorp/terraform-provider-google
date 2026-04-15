@@ -1,0 +1,7 @@
+```release-note:note
+FEATURE: List resources are now supported in both google and google-beta providers with the introduction of `google_service_account` list resource - more info can be found [here](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/using_list_resources_with_terraform_query)
+```
+
+```release-note:note
+resourcemanager: add resource-identity support to `google_service_account` resource
+```

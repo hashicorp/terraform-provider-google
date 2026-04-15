@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
 	"github.com/hashicorp/terraform-plugin-framework/function"
+	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/metaschema"
@@ -51,6 +52,7 @@ var (
 	_ provider.ProviderWithMetaSchema         = &FrameworkProvider{}
 	_ provider.ProviderWithFunctions          = &FrameworkProvider{}
 	_ provider.ProviderWithEphemeralResources = &FrameworkProvider{}
+	_ provider.ProviderWithListResources      = &FrameworkProvider{}
 )
 
 // New is a helper function to simplify provider server and testing implementation.
@@ -1286,12 +1288,14 @@ func (p *FrameworkProvider) Configure(ctx context.Context, req provider.Configur
 	//    E.g. GetProjectFramework treats Null and "" the same way : https://github.com/hashicorp/terraform-provider-google/blob/74c815ee4ad059453e06b84448af244d80490ec1/google/fwresource/field_helpers.go#L21-L36
 	//    See also, new approaches to handle this: https://github.com/GoogleCloudPlatform/magic-modules/pull/11925
 
-	// This is how we make provider configuration info (configured clients, default project, etc) available to resources and data sources
-	// implemented using the plugin-framework. The resources' Configure functions receive this data in the ConfigureRequest argument.
+	// This is how we make provider configuration info (configured clients, default project, etc) available to resources, data sources,
+	// ephemeral resources, and list resources implemented using the plugin-framework. Their Configure functions receive this data via ConfigureRequest.ProviderData
+	// (list resources use ConfigureResponse.ListResourceData — see terraform-plugin-framework list.ConfigureRequest).
 	meta := p.Primary.Meta().(*transport_tpg.Config)
 	resp.DataSourceData = meta
 	resp.ResourceData = meta
 	resp.EphemeralResourceData = meta
+	resp.ListResourceData = meta
 }
 
 // DataSources defines the data sources implemented in the provider.
@@ -1332,4 +1336,11 @@ func (p *FrameworkProvider) EphemeralResources(_ context.Context) []func() ephem
 		resourcemanager.GoogleEphemeralServiceAccountKey,
 		secretmanager.GoogleEphemeralSecretManagerSecretVersion,
 	}
+}
+
+func (p *FrameworkProvider) ListResources(_ context.Context) []func() list.ListResource {
+	var listResources []func() list.ListResource
+	listResources = append(listResources, generatedListResources...)
+	listResources = append(listResources, handwrittenListResources...)
+	return listResources
 }

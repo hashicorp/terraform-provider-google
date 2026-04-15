@@ -24,6 +24,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgresourcemanager "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
@@ -249,6 +250,41 @@ func TestAccServiceAccount_Disabled(t *testing.T) {
 				ResourceName:      "google_service_account.acceptance",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+// TestAccServiceAccount_importBlockWithResourceIdentity exercises plannable import using the resource identity block (Terraform 1.12+).
+func TestAccServiceAccount_importBlockWithResourceIdentity(t *testing.T) {
+	t.Parallel()
+
+	accountId := "a" + acctest.RandString(t, 10)
+	displayName := "Terraform Test"
+	desc := "test description"
+	project := envvar.GetTestProjectFromEnv()
+	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
+
+	acctest.VcrTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_12_0),
+		},
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccServiceAccountBasic(accountId, displayName, desc),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_service_account.acceptance", "project", project),
+					resource.TestCheckResourceAttr(
+						"google_service_account.acceptance", "email", expectedEmail),
+				),
+			},
+			{
+				ResourceName:    "google_service_account.acceptance",
+				ImportState:     true,
+				ImportStateKind: resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
