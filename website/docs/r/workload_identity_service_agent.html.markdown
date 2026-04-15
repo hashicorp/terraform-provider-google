@@ -33,7 +33,7 @@ data "google_project" "project" {
 }
 
 resource "google_workload_identity_service_agent" "primary" {
-  parent   = "projects/${data.google_project.project.number}/locations/global/serviceProducers/healthcare.google.apis.com"
+  parent   = "projects/${data.google_project.project.number}/locations/global/serviceProducers/healthcare.googleapis.com"
 }
 ```
 
