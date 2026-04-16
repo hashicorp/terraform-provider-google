@@ -66,6 +66,10 @@ resource "google_network_connectivity_destination" "example" {
 The following arguments are supported:
 
 
+* `name` -
+  (Required)
+  The name of the destination.
+
 * `ip_prefix` -
   (Required)
   The IP prefix that represents your workload on another CSP.
@@ -82,10 +86,6 @@ The following arguments are supported:
 * `location` -
   (Required)
   The location of the destination.
-
-* `name` -
-  (Required)
-  The name of the destination.
 
 
 * `labels` -
@@ -204,9 +204,9 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 ```tf
 import {
   identity = {
+    name = "<-required value->"
     multicloudDataTransferConfig = "<-required value->"
     location = "<-required value->"
-    name = "<-required value->"
     project = "<-optional value->"
   }
   to = google_network_connectivity_destination.default
