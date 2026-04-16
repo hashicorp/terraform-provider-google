@@ -1,0 +1,3 @@
+```release-note:enhancement
+iambeta: added `trust_default_shared_ca` field to `google_iam_workload_identity_pool` resource
+```
