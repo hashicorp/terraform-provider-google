@@ -6158,17 +6158,17 @@ func expandControlPlaneEndpointsConfig(d *schema.ResourceData) *container.Contro
 	dns := &container.DNSEndpointConfig{}
 	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.allow_external_traffic"); v != nil {
 		dns.AllowExternalTraffic = v.(bool)
-		dns.ForceSendFields = []string{"AllowExternalTraffic"}
+		dns.ForceSendFields = append(dns.ForceSendFields, "AllowExternalTraffic")
 	}
 
 	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_tokens_via_dns"); v != nil {
 		dns.EnableK8sTokensViaDns = v.(bool)
-		dns.ForceSendFields = []string{"EnableK8sTokensViaDns"}
+		dns.ForceSendFields = append(dns.ForceSendFields, "EnableK8sTokensViaDns")
 	}
 
 	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_certs_via_dns"); v != nil {
 		dns.EnableK8sCertsViaDns = v.(bool)
-		dns.ForceSendFields = []string{"EnableK8sCertsViaDns"}
+		dns.ForceSendFields = append(dns.ForceSendFields, "EnableK8sCertsViaDns")
 	}
 
 	ip := &container.IPEndpointsConfig{

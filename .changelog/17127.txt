@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a bug in `google_container_cluster` where setting multiple fields in `dns_endpoint_config` failed to apply all changes
+```
