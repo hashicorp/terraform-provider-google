@@ -604,6 +604,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 									},
 									"reclaim_policy": {
 										Type:         schema.TypeString,
+										Computed:     true,
 										Optional:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"DELETE", "RETAIN", ""}),
 										Description:  `Whether the persistent disk should be deleted when the workstation is deleted. Valid values are 'DELETE' and 'RETAIN'. Defaults to 'DELETE'. Possible values: ["DELETE", "RETAIN"]`,
