@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_firebase_storage_default_bucket`
+```
