@@ -338,6 +338,10 @@ The following arguments are supported:
   (Optional)
   Track actively running queries. If not set, default value is "off".
 
+* `track_client_address` -
+  (Optional)
+  Track client address for an instance. If not set, default value is "off".
+
 * `assistive_experiences_enabled` -
   (Optional)
   Whether assistive experiences are enabled for this AlloyDB instance.
