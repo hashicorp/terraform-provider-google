@@ -1504,6 +1504,84 @@ resource "google_dataproc_cluster" "tier_cluster" {
 `, bucketName, clusterName, tierConfig, subnetworkName)
 }
 
+func TestAccDataprocCluster_withEngine(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				// Set tier to ENGINE_UNSPECIFIED
+				Config: testAccDataprocCluster_withEngine(rnd, subnetworkName, "ENGINE_UNSPECIFIED"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.engine_cluster", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.engine_cluster", "cluster_config.0.engine", "ENGINE_UNSPECIFIED"),
+				),
+			},
+			{
+				// Set tier to DEFAULT
+				Config: testAccDataprocCluster_withEngine(rnd, subnetworkName, "DEFAULT"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.engine_cluster", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.engine_cluster", "cluster_config.0.engine", "DEFAULT"),
+				),
+			},
+			{
+				// Set tier to LIGHTNING
+				Config: testAccDataprocCluster_withEngine(rnd, subnetworkName, "LIGHTNING"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.engine_cluster", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.engine_cluster", "cluster_config.0.engine", "LIGHTNING"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataprocCluster_withEngine(rnd, subnetworkName, engine string) string {
+	engineConfig := ""
+	if engine != "" {
+		engineConfig = fmt.Sprintf(`engine = "%s"`, engine)
+	}
+	clusterName := fmt.Sprintf("tf-test-dproc-tier-%s", rnd)
+	bucketName := clusterName + "-temp-bucket"
+
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = "true"
+}
+
+resource "google_dataproc_cluster" "engine_cluster" {
+  name   = "%s"
+  region = "us-central1"
+
+  cluster_config {
+	%s
+	staging_bucket = google_storage_bucket.bucket.name
+	temp_bucket = google_storage_bucket.bucket.name
+
+    software_config {
+      image_version = "2.3.4-debian12"
+    }
+
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+  }
+}
+`, bucketName, clusterName, engineConfig, subnetworkName)
+}
+
 func TestAccDataprocCluster_withClusterTypeSingleNode(t *testing.T) {
 	t.Parallel()
 
