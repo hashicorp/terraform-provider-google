@@ -1,0 +1,6 @@
+```release-note:enhancement
+`resoucemanager`: add resource-identity support to `google_project_service` resource
+```
+```release-note:new-list-resource
+`resoucemanager`: add list `google_project_service` resource
+```
