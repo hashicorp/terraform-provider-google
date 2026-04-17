@@ -51,7 +51,6 @@ var (
 )
 
 func TestAccDialogflowCXTestCase_dialogflowcxTestCaseFullExample(t *testing.T) {
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
