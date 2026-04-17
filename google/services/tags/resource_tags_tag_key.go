@@ -625,7 +625,7 @@ func flattenTagsTagKeyPurposeData(v interface{}, d *schema.ResourceData, config 
 	return v
 }
 
-func flattenTagsTagKeyAllowedValuesRegex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{}
+func flattenTagsTagKeyAllowedValuesRegex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
