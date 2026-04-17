@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed permadiff for `iap.oauth2_client_id` in `google_compute_backend_service` and `google_compute_region_backend_service` when the API returns a single space
+```

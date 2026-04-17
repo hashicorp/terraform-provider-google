@@ -788,9 +788,10 @@ If OAuth client is not set, the Google-managed OAuth client is used.`,
 							Description: `Whether the serving infrastructure will authenticate and authorize all incoming requests.`,
 						},
 						"oauth2_client_id": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `OAuth2 Client ID for IAP`,
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress(" "),
+							Description:      `OAuth2 Client ID for IAP`,
 						},
 						"oauth2_client_secret": {
 							Type:        schema.TypeString,
