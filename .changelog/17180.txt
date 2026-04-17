@@ -1,0 +1,3 @@
+```release-note:bug
+dialogflowcx: fixed a perma-diff in `google_dialogflow_cx_test_case` when `session_parameters` was omitted from the configuration
+```
