@@ -1001,6 +1001,118 @@ func TestAccContainerNodePool_withLinuxNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withSwapConfig_bootDisk(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withSwapConfig(cluster, np, networkName, subnetworkName, "boot_disk_profile", ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_swap_config", "node_config.0.linux_node_config.0.swap_config.0.boot_disk_profile.0.swap_size_gib", "10"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_swap_config", "node_config.0.linux_node_config.0.swap_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_swap_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Test disable encryption
+			{
+				Config: testAccContainerNodePool_withSwapConfig(cluster, np, networkName, subnetworkName, "encryption_disabled_false", ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_swap_config", "node_config.0.linux_node_config.0.swap_config.0.encryption_config.0.disabled", "false"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_swap_config", "node_config.0.linux_node_config.0.swap_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_swap_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Test disable swap
+			{
+				Config: testAccContainerNodePool_withSwapConfig(cluster, np, networkName, subnetworkName, "disabled", ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_swap_config", "node_config.0.linux_node_config.0.swap_config.0.enabled", "false"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_swap_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withSwapConfig_ephemeralLocalSsd(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withSwapConfig(cluster, np, networkName, subnetworkName, "ephemeral_local_ssd_profile", "1"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_swap_config", "node_config.0.linux_node_config.0.swap_config.0.ephemeral_local_ssd_profile.0.swap_size_gib", "10"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_swap_config", "node_config.0.linux_node_config.0.swap_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_swap_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withSwapConfig_dedicatedLocalSsd(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withSwapConfig(cluster, np, networkName, subnetworkName, "dedicated_local_ssd_profile", ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_swap_config", "node_config.0.linux_node_config.0.swap_config.0.dedicated_local_ssd_profile.0.disk_count", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_swap_config", "node_config.0.linux_node_config.0.swap_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_swap_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withWindowsNodeConfig(t *testing.T) {
 	t.Parallel()
 
@@ -3855,6 +3967,75 @@ resource "google_container_node_pool" "with_linux_node_config" {
 `, cluster, networkName, subnetworkName, np, linuxNodeConfig)
 }
 
+func testAccContainerNodePool_withSwapConfig(cluster, np, networkName, subnetworkName, swapMode, extraLSSDCount string) string {
+	swapConfig := ""
+	switch swapMode {
+	case "boot_disk_profile":
+		swapConfig = `enabled = true
+        boot_disk_profile {
+          swap_size_gib = 10
+        }`
+	case "ephemeral_local_ssd_profile":
+		swapConfig = `enabled = true
+        ephemeral_local_ssd_profile {
+          swap_size_gib = 10
+        }`
+	case "dedicated_local_ssd_profile":
+		swapConfig = `enabled = true
+        dedicated_local_ssd_profile {
+          disk_count = 1
+        }`
+	case "disabled":
+		swapConfig = `enabled = false`
+	case "encryption_disabled_false":
+		swapConfig = `enabled = true
+        encryption_config {
+          disabled = false
+        }
+        boot_disk_profile {
+          swap_size_gib = 10
+        }`
+	}
+
+	lssdConfig := ""
+	if extraLSSDCount != "" {
+		lssdConfig = fmt.Sprintf(`ephemeral_storage_local_ssd_config {
+      local_ssd_count = %s
+    }`, extraLSSDCount)
+	}
+
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  network            = "%s"
+  subnetwork         = "%s"
+  deletion_protection = false
+}
+
+resource "google_container_node_pool" "with_swap_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  node_count         = 1
+  node_config {
+    machine_type = "n1-standard-1"
+    %s
+    linux_node_config {
+      swap_config {
+        %s
+      }
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, np, lssdConfig, swapConfig)
+}
 func testAccContainerNodePool_withWindowsNodeConfig(cluster, np string, osversion string) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
