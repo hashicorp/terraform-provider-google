@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: fixed `google_alloydb_cluster` so that `maintenance_update_policy.maintenance_windows.start_time.hours` can be set to `0` (midnight)
+```
