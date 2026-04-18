@@ -121,6 +121,14 @@ func Resource(name string) *schema.Resource {
 	return r.Schema
 }
 
+func ResourceMap() map[string]*schema.Resource {
+	ret := map[string]*schema.Resource{}
+	for k, v := range schemas.r {
+		ret[k] = v.Schema
+	}
+	return ret
+}
+
 // DataSource returns the Terraform schema for the requested data source. The function panics
 // if the requested data source is not registered. This function is called during provider
 // intitialization when the absence of a data source is an unrecoverable error.
@@ -132,4 +140,12 @@ func DataSource(name string) *schema.Resource {
 		log.Fatalf("No data source schema for %q registered", name)
 	}
 	return d.Schema
+}
+
+func DatasourceMap() map[string]*schema.Resource {
+	ret := map[string]*schema.Resource{}
+	for k, v := range schemas.d {
+		ret[k] = v.Schema
+	}
+	return ret
 }
