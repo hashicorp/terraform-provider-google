@@ -27,7 +27,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/compute/v1"
 )
 
 func DataSourceGoogleComputeAddresses() *schema.Resource {
@@ -137,34 +136,96 @@ func dataSourceGoogleComputeAddressesRead(context context.Context, d *schema.Res
 
 	allAddresses := make([]map[string]interface{}, 0)
 
-	client := config.NewComputeClient(userAgent).Addresses
-	if region, has_region := d.GetOk("region"); has_region {
-		request := client.List(project, region.(string))
-		if filter, has_filter := d.GetOk("filter"); has_filter {
-			request = request.Filter(filter.(string))
-		}
-		err = request.Pages(context, func(addresses *compute.AddressList) error {
-			for _, address := range addresses.Items {
-				allAddresses = append(allAddresses, generateTfAddress(address))
+	filter, hasFilter := d.GetOk("filter")
+
+	if region, hasRegion := d.GetOk("region"); hasRegion {
+		baseURL := fmt.Sprintf("%sprojects/%s/regions/%s/addresses", config.ComputeBasePath, project, region.(string))
+		pageToken := ""
+		for {
+			params := map[string]string{}
+			if hasFilter {
+				params["filter"] = filter.(string)
 			}
-			return nil
-		})
-	} else {
-		request := client.AggregatedList(project)
-		if filter, has_filter := d.GetOk("filter"); has_filter {
-			request = request.Filter(filter.(string))
-		}
-		err = request.Pages(context, func(addresses *compute.AddressAggregatedList) error {
-			for _, items := range addresses.Items {
-				for _, address := range items.Addresses {
+			if pageToken != "" {
+				params["pageToken"] = pageToken
+			}
+			url, err := transport_tpg.AddQueryParams(baseURL, params)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    url,
+				UserAgent: userAgent,
+			})
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			if items, ok := resp["items"].([]interface{}); ok {
+				for _, item := range items {
+					address, ok := item.(map[string]interface{})
+					if !ok {
+						continue
+					}
 					allAddresses = append(allAddresses, generateTfAddress(address))
 				}
 			}
-			return nil
-		})
-	}
-	if err != nil {
-		return diag.FromErr(err)
+			pageToken, _ = resp["nextPageToken"].(string)
+			if pageToken == "" {
+				break
+			}
+		}
+	} else {
+		baseURL := fmt.Sprintf("%sprojects/%s/aggregated/addresses", config.ComputeBasePath, project)
+		pageToken := ""
+		for {
+			params := map[string]string{}
+			if hasFilter {
+				params["filter"] = filter.(string)
+			}
+			if pageToken != "" {
+				params["pageToken"] = pageToken
+			}
+			url, err := transport_tpg.AddQueryParams(baseURL, params)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    url,
+				UserAgent: userAgent,
+			})
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			if items, ok := resp["items"].(map[string]interface{}); ok {
+				for _, scopeVal := range items {
+					scopeData, ok := scopeVal.(map[string]interface{})
+					if !ok {
+						continue
+					}
+					addresses, ok := scopeData["addresses"].([]interface{})
+					if !ok {
+						continue
+					}
+					for _, item := range addresses {
+						address, ok := item.(map[string]interface{})
+						if !ok {
+							continue
+						}
+						allAddresses = append(allAddresses, generateTfAddress(address))
+					}
+				}
+			}
+			pageToken, _ = resp["nextPageToken"].(string)
+			if pageToken == "" {
+				break
+			}
+		}
 	}
 
 	if err := d.Set("addresses", allAddresses); err != nil {
@@ -178,17 +239,20 @@ func dataSourceGoogleComputeAddressesRead(context context.Context, d *schema.Res
 	return nil
 }
 
-func generateTfAddress(address *compute.Address) map[string]interface{} {
-	return map[string]interface{}{
-		"name":          address.Name,
-		"address":       address.Address,
-		"address_type":  address.AddressType,
-		"description":   address.Description,
-		"prefix_length": address.PrefixLength,
-		"region":        regionFromUrl(address.Region),
-		"status":        address.Status,
-		"self_link":     address.SelfLink,
+func generateTfAddress(address map[string]interface{}) map[string]interface{} {
+	region, _ := address["region"].(string)
+	prefixLength, _ := address["prefixLength"].(float64)
+	result := map[string]interface{}{
+		"name":          address["name"],
+		"address":       address["address"],
+		"address_type":  address["addressType"],
+		"description":   address["description"],
+		"prefix_length": int(prefixLength),
+		"region":        regionFromUrl(region),
+		"status":        address["status"],
+		"self_link":     address["selfLink"],
 	}
+	return result
 }
 
 func computeId(project string, d *schema.ResourceData) string {
