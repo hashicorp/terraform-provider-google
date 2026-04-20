@@ -25,6 +25,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 	"github.com/hashicorp/terraform-provider-google/version"
@@ -1014,8 +1015,8 @@ func Provider() *schema.Provider {
 			},
 		},
 
-		DataSourcesMap: DatasourceMap(),
-		ResourcesMap:   ResourceMap(),
+		DataSourcesMap: registry.DatasourceMap(),
+		ResourcesMap:   registry.ResourceMap(),
 	}
 
 	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
@@ -1024,31 +1025,14 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-func DatasourceMap() map[string]*schema.Resource {
-	datasourceMap, _ := DatasourceMapWithErrors()
-	return datasourceMap
-}
-
-func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
-	return mergeResourceMaps(
-		handwrittenDatasources,
-		generatedIAMDatasources,
-		handwrittenIAMDatasources,
-	)
-}
-
+// Compatibility shim for diff-processor.
 func ResourceMap() map[string]*schema.Resource {
-	resourceMap, _ := ResourceMapWithErrors()
-	return resourceMap
+	return registry.ResourceMap()
 }
 
-func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
-	return mergeResourceMaps(
-		generatedResources,
-		handwrittenResources,
-		handwrittenIAMResources,
-		dclResources,
-	)
+// Compatibility shim for diff-processor.
+func DatasourceMap() map[string]*schema.Resource {
+	return registry.DatasourceMap()
 }
 
 func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider) (interface{}, diag.Diagnostics) {
@@ -1386,26 +1370,4 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	}
 
 	return &config, nil
-}
-
-func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Resource, error) {
-	merged := make(map[string]*schema.Resource)
-	duplicates := []string{}
-
-	for _, m := range ms {
-		for k, v := range m {
-			if _, ok := merged[k]; ok {
-				duplicates = append(duplicates, k)
-			}
-
-			merged[k] = v
-		}
-	}
-
-	var err error
-	if len(duplicates) > 0 {
-		err = fmt.Errorf("saw duplicates in mergeResourceMaps: %v", duplicates)
-	}
-
-	return merged, err
 }

@@ -44,20 +44,6 @@ func TestProvider_impl(t *testing.T) {
 	var _ *schema.Provider = provider.Provider()
 }
 
-func TestProvider_noDuplicatesInResourceMap(t *testing.T) {
-	_, err := provider.ResourceMapWithErrors()
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func TestProvider_noDuplicatesInDatasourceMap(t *testing.T) {
-	_, err := provider.DatasourceMapWithErrors()
-	if err != nil {
-		t.Error(err)
-	}
-}
-
 func TestAccProviderBasePath_setBasePath(t *testing.T) {
 	t.Parallel()
 
