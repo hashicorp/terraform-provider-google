@@ -266,6 +266,7 @@ type Config struct {
 	AppEngineBasePath                string
 	ApphubBasePath                   string
 	ArtifactRegistryBasePath         string
+	ArtifactRegistryRepBasePath      string
 	BackupDRBasePath                 string
 	BeyondcorpBasePath               string
 	BiglakeBasePath                  string
@@ -435,6 +436,9 @@ type Config struct {
 
 	RequestBatcherServiceUsage *RequestBatcher
 	RequestBatcherIam          *RequestBatcher
+
+	PreferGlobalEndpoints   bool
+	PreferRegionalEndpoints bool
 }
 
 const AccessApprovalBasePathKey = "AccessApproval"
@@ -780,6 +784,171 @@ var DefaultBasePaths = map[string]string{
 	CloudResourceManagerEndpointEntryKey: "https://cloudresourcemanager.googleapis.com/",
 	FirebaserulesEndpointEntryKey:        "https://firebaserules.googleapis.com/v1/",
 	RecaptchaEnterpriseEndpointEntryKey:  "https://recaptchaenterprise.googleapis.com/v1/",
+}
+
+// Contains the REP status for each generated product. This allows us to track
+// default REP enablement across versions and have a central place to look up
+// product support
+var DefaultRepStatus = map[string]bool{
+	AccessApprovalBasePathKey:           false,
+	AccessContextManagerBasePathKey:     false,
+	ActiveDirectoryBasePathKey:          false,
+	AlloydbBasePathKey:                  false,
+	ApigeeBasePathKey:                   false,
+	ApihubBasePathKey:                   false,
+	AppEngineBasePathKey:                false,
+	ApphubBasePathKey:                   false,
+	ArtifactRegistryBasePathKey:         false,
+	BackupDRBasePathKey:                 false,
+	BeyondcorpBasePathKey:               false,
+	BiglakeBasePathKey:                  false,
+	BiglakeIcebergBasePathKey:           false,
+	BigQueryBasePathKey:                 false,
+	BigqueryAnalyticsHubBasePathKey:     false,
+	BigqueryConnectionBasePathKey:       false,
+	BigqueryDatapolicyBasePathKey:       false,
+	BigqueryDatapolicyv2BasePathKey:     false,
+	BigqueryDataTransferBasePathKey:     false,
+	BigqueryReservationBasePathKey:      false,
+	BigtableBasePathKey:                 false,
+	BillingBasePathKey:                  false,
+	BinaryAuthorizationBasePathKey:      false,
+	BlockchainNodeEngineBasePathKey:     false,
+	CertificateManagerBasePathKey:       false,
+	CESBasePathKey:                      false,
+	ChronicleBasePathKey:                false,
+	CloudAssetBasePathKey:               false,
+	CloudBuildBasePathKey:               false,
+	Cloudbuildv2BasePathKey:             false,
+	ClouddeployBasePathKey:              false,
+	ClouddomainsBasePathKey:             false,
+	CloudFunctionsBasePathKey:           false,
+	Cloudfunctions2BasePathKey:          false,
+	CloudIdentityBasePathKey:            false,
+	CloudIdsBasePathKey:                 false,
+	CloudQuotasBasePathKey:              false,
+	CloudRunBasePathKey:                 false,
+	CloudRunV2BasePathKey:               false,
+	CloudSchedulerBasePathKey:           false,
+	CloudSecurityComplianceBasePathKey:  false,
+	CloudTasksBasePathKey:               false,
+	ColabBasePathKey:                    false,
+	ComposerBasePathKey:                 false,
+	ComputeBasePathKey:                  false,
+	ContactCenterInsightsBasePathKey:    false,
+	ContainerBasePathKey:                false,
+	ContainerAnalysisBasePathKey:        false,
+	ContainerAttachedBasePathKey:        false,
+	CoreBillingBasePathKey:              false,
+	DatabaseMigrationServiceBasePathKey: false,
+	DataCatalogBasePathKey:              false,
+	DataformBasePathKey:                 false,
+	DataFusionBasePathKey:               false,
+	DataLossPreventionBasePathKey:       false,
+	DataPipelineBasePathKey:             false,
+	DataplexBasePathKey:                 false,
+	DataprocBasePathKey:                 false,
+	DataprocGdcBasePathKey:              false,
+	DataprocMetastoreBasePathKey:        false,
+	DatastreamBasePathKey:               false,
+	DeploymentManagerBasePathKey:        false,
+	DeveloperConnectBasePathKey:         false,
+	DialogflowBasePathKey:               false,
+	DialogflowCXBasePathKey:             false,
+	DiscoveryEngineBasePathKey:          false,
+	DNSBasePathKey:                      false,
+	DocumentAIBasePathKey:               false,
+	DocumentAIWarehouseBasePathKey:      false,
+	EdgecontainerBasePathKey:            false,
+	EdgenetworkBasePathKey:              false,
+	EssentialContactsBasePathKey:        false,
+	EventarcBasePathKey:                 false,
+	FilestoreBasePathKey:                false,
+	FirebaseAppCheckBasePathKey:         false,
+	FirebaseAppHostingBasePathKey:       false,
+	FirebaseDataConnectBasePathKey:      false,
+	FirestoreBasePathKey:                false,
+	GeminiBasePathKey:                   false,
+	GKEBackupBasePathKey:                false,
+	GKEHubBasePathKey:                   false,
+	GKEHub2BasePathKey:                  false,
+	GkeonpremBasePathKey:                false,
+	HealthcareBasePathKey:               false,
+	HypercomputeclusterBasePathKey:      false,
+	IAM2BasePathKey:                     false,
+	IAM3BasePathKey:                     false,
+	IAMBetaBasePathKey:                  false,
+	IAMWorkforcePoolBasePathKey:         false,
+	IapBasePathKey:                      false,
+	IdentityPlatformBasePathKey:         false,
+	IntegrationConnectorsBasePathKey:    false,
+	IntegrationsBasePathKey:             false,
+	KMSBasePathKey:                      false,
+	LoggingBasePathKey:                  false,
+	LookerBasePathKey:                   false,
+	LustreBasePathKey:                   false,
+	ManagedKafkaBasePathKey:             false,
+	MemcacheBasePathKey:                 false,
+	MemorystoreBasePathKey:              false,
+	MigrationCenterBasePathKey:          false,
+	MLEngineBasePathKey:                 false,
+	ModelArmorBasePathKey:               false,
+	ModelArmorGlobalBasePathKey:         false,
+	MonitoringBasePathKey:               false,
+	NetappBasePathKey:                   false,
+	NetworkConnectivityBasePathKey:      false,
+	NetworkConnectivityv1BasePathKey:    false,
+	NetworkManagementBasePathKey:        false,
+	NetworkSecurityBasePathKey:          false,
+	NetworkServicesBasePathKey:          false,
+	NotebooksBasePathKey:                false,
+	ObservabilityBasePathKey:            false,
+	OracleDatabaseBasePathKey:           false,
+	OrgPolicyBasePathKey:                false,
+	OSConfigBasePathKey:                 false,
+	OSConfigV2BasePathKey:               false,
+	OSLoginBasePathKey:                  false,
+	ParallelstoreBasePathKey:            false,
+	ParameterManagerBasePathKey:         false,
+	ParameterManagerRegionalBasePathKey: false,
+	PrivatecaBasePathKey:                false,
+	PrivilegedAccessManagerBasePathKey:  false,
+	PublicCABasePathKey:                 false,
+	PubsubBasePathKey:                   false,
+	PubsubLiteBasePathKey:               false,
+	RedisBasePathKey:                    false,
+	ResourceManagerBasePathKey:          false,
+	ResourceManager3BasePathKey:         false,
+	SecretManagerBasePathKey:            false,
+	SecretManagerRegionalBasePathKey:    false,
+	SecureSourceManagerBasePathKey:      false,
+	SecurityCenterBasePathKey:           false,
+	SecurityCenterManagementBasePathKey: false,
+	SecurityCenterV2BasePathKey:         false,
+	SecuritypostureBasePathKey:          false,
+	ServiceDirectoryBasePathKey:         false,
+	ServiceManagementBasePathKey:        false,
+	ServiceNetworkingBasePathKey:        false,
+	ServiceUsageBasePathKey:             false,
+	SiteVerificationBasePathKey:         false,
+	SourceRepoBasePathKey:               false,
+	SpannerBasePathKey:                  false,
+	SQLBasePathKey:                      false,
+	StorageBasePathKey:                  false,
+	StorageBatchOperationsBasePathKey:   false,
+	StorageControlBasePathKey:           false,
+	StorageInsightsBasePathKey:          false,
+	StorageTransferBasePathKey:          false,
+	TagsBasePathKey:                     false,
+	TranscoderBasePathKey:               false,
+	VectorSearchBasePathKey:             false,
+	VertexAIBasePathKey:                 false,
+	VmwareengineBasePathKey:             false,
+	VPCAccessBasePathKey:                false,
+	WorkbenchBasePathKey:                false,
+	WorkflowsBasePathKey:                false,
+	WorkloadIdentityBasePathKey:         false,
+	WorkstationsBasePathKey:             false,
 }
 
 var DefaultClientScopes = []string{
@@ -2948,4 +3117,36 @@ func GetUniverseDomainFromMeta(meta interface{}) string {
 		return "googleapis.com"
 	}
 	return config.UniverseDomain
+}
+
+// Returns the base path for a resource taking into account the following rules:
+// Overridden path takes precedence over everything
+// Regional endpoint should be returned if preferred
+// Global endpoint should be returned if preferred
+// If no preferences, return the product default based on DefaultRepStatus map
+func ResourceBasePath(basePath, repPath, basePathKey string, config *Config, location string) (string, error) {
+	var path string
+	// Set the default to the product-level default
+	if DefaultRepStatus[basePathKey] {
+		path = repPath
+	} else {
+		path = basePath
+	}
+	// If product default has been overridden, use override
+	if basePath != DefaultBasePaths[basePathKey] {
+		path = basePath
+	} else if config.PreferRegionalEndpoints {
+		// If user has specified a preference, switch to that
+		path = repPath
+	} else if config.PreferGlobalEndpoints {
+		// If user has specified a preference, switch to that
+		path = basePath
+	}
+	if strings.Contains(path, "{{location}}") && location == "" {
+		log.Printf("[WARN] Found base path with location but no location provided: %s", path)
+		return path, fmt.Errorf("failed to find location for a resource with a regionalized endpoint %s", path)
+	}
+	// Still try to replace location even if it may not exist, this allows
+	// for products that only support REP on their base_url
+	return strings.ReplaceAll(path, "{{location}}", location), nil
 }

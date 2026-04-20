@@ -184,6 +184,29 @@ func TestAccArtifactRegistryRepository_cleanup(t *testing.T) {
 	})
 }
 
+func TestAccArtifactRegistryRepository_preferRegionalEndpoints(t *testing.T) {
+	t.Parallel()
+
+	repositoryID := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_preferRegionalEndpoints(repositoryID),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccArtifactRegistryRepository_cleanup(repositoryID string) string {
 	return fmt.Sprintf(`
 resource "google_artifact_registry_repository" "test" {
@@ -218,6 +241,21 @@ resource "google_artifact_registry_repository" "test" {
       older_than = "10d"
     }
   }
+}
+`, repositoryID)
+}
+
+func testAccArtifactRegistryRepository_preferRegionalEndpoints(repositoryID string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  prefer_regional_endpoints = true
+}
+
+resource "google_artifact_registry_repository" "test" {
+  repository_id = "%s"
+  location = "us-central1"
+  description = "test with prefer_regional_endpoints"
+  format = "DOCKER"
 }
 `, repositoryID)
 }

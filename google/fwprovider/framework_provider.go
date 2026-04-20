@@ -185,6 +185,13 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 			"terraform_attribution_label_addition_strategy": schema.StringAttribute{
 				Optional: true,
 			},
+			"prefer_global_endpoints": schema.BoolAttribute{
+				Optional: true,
+			},
+
+			"prefer_regional_endpoints": schema.BoolAttribute{
+				Optional: true,
+			},
 			// Generated Products
 			"access_approval_custom_endpoint": &schema.StringAttribute{
 				Optional: true,

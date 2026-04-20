@@ -1,0 +1,7 @@
+```release-note:enhancement
+artifactregistry: added support for regionalized endpoints
+```
+
+```release-note:enhancement
+provider: added support for `prefer_global_endpoints` and `prefer_regional_endpoints` to the provider configuration. Support for regional endpoints will be rolled out on a per-product level
+```

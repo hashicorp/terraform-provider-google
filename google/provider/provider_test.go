@@ -257,6 +257,22 @@ func TestAccProvider_external_credentials_upgrade(t *testing.T) {
 	})
 }
 
+func TestAccProviderInvalidRepConfig(t *testing.T) {
+	t.Parallel()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccProviderInvalidRepConfig(),
+				ExpectError: regexp.MustCompile("conflict between prefer_global_endpoints and prefer_regional_endpoints"),
+			},
+		},
+	})
+}
+
 func testAccProviderExternalCredentialsUpgrade_AccessTokenConfig(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 provider "google" {
@@ -389,4 +405,15 @@ resource "google_pubsub_topic" "example" {
   name = "tf-test-planned-resource-%s"
 }
 `, providerArgument, randString)
+}
+
+func testAccProviderInvalidRepConfig() string {
+	return `
+provider "google" {
+  prefer_global_endpoints = true
+  prefer_regional_endpoints = true
+}
+
+data "google_client_config" "default" {}
+`
 }

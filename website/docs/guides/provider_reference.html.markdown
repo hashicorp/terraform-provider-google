@@ -398,6 +398,21 @@ being considered a breaking change.
 
 ---
 
+* `prefer_regional_endpoints` - (Optional) Whether resources should prefer using
+regional endpoints when sending requests. This setting should be used when
+regional endpoints are partially available for a resource and a user wants to
+opt-in to using those endpoints. Setting this may result in calls being sent to
+regional endpoints that do not exist. Users should evaluate if regional
+endpoints are available prior to using this setting.
+
+* `prefer_global_endpoints` - (Optional) Whether resources should prefer using
+global endpoints when sending requests.
+
+To find out what regional endpoints are available, check the
+[official documentation](https://docs.cloud.google.com/vpc/docs/regional-service-endpoints).
+
+---
+
 * `batching` - (Optional) Controls batching for specific GCP request types
 where users have encountered quota or speed issues using many resources of
 the same type, typically `google_project_service`.
