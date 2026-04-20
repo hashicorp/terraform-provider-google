@@ -1932,17 +1932,9 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
 		}
 
-		spr := emptySecurityPolicyReference()
-		spr.SecurityPolicy = pol.RelativeLink()
-
-		bodyBytes, err := json.Marshal(spr)
-		if err != nil {
-			return errwrap.Wrapf("Error marshaling security policy reference: {{err}}", err)
-		}
-
-		var sBody map[string]interface{}
-		if err := json.Unmarshal(bodyBytes, &sBody); err != nil {
-			return errwrap.Wrapf("Error unmarshaling security into map: {{err}}", err)
+		sBody := emptySecurityPolicyReference()
+		if link := pol.RelativeLink(); link != "" {
+			sBody["securityPolicy"] = link
 		}
 
 		securityPolicyPath := "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}/setSecurityPolicy?prettyPrint=false"
@@ -1977,16 +1969,9 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 			return errwrap.Wrapf("Error parsing Backend Service edge security policy: {{err}}", err)
 		}
 
-		spr := emptySecurityPolicyReference()
-		spr.SecurityPolicy = pol.RelativeLink()
-		bodyBytes, err := json.Marshal(spr)
-		if err != nil {
-			return errwrap.Wrapf("Error marshaling security policy reference: {{err}}", err)
-		}
-
-		var eBody map[string]interface{}
-		if err := json.Unmarshal(bodyBytes, &eBody); err != nil {
-			return errwrap.Wrapf("Error unmarshaling security into map: {{err}}", err)
+		eBody := emptySecurityPolicyReference()
+		if link := pol.RelativeLink(); link != "" {
+			eBody["securityPolicy"] = link
 		}
 
 		edgeSecurityPolicyPath := "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}/setEdgeSecurityPolicy?prettyPrint=false"
@@ -2537,17 +2522,9 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
 		}
 
-		spr := emptySecurityPolicyReference()
-		spr.SecurityPolicy = pol.RelativeLink()
-
-		bodyBytes, err := json.Marshal(spr)
-		if err != nil {
-			return errwrap.Wrapf("Error marshaling security policy reference: {{err}}", err)
-		}
-
-		var sBody map[string]interface{}
-		if err := json.Unmarshal(bodyBytes, &sBody); err != nil {
-			return errwrap.Wrapf("Error unmarshaling security into map: {{err}}", err)
+		sBody := emptySecurityPolicyReference()
+		if link := pol.RelativeLink(); link != "" {
+			sBody["securityPolicy"] = link
 		}
 
 		securityPolicyPath := "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}/setSecurityPolicy?prettyPrint=false"
@@ -2582,16 +2559,9 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 			return errwrap.Wrapf("Error parsing Backend Service edge security policy: {{err}}", err)
 		}
 
-		spr := emptySecurityPolicyReference()
-		spr.SecurityPolicy = pol.RelativeLink()
-		bodyBytes, err := json.Marshal(spr)
-		if err != nil {
-			return errwrap.Wrapf("Error marshaling security policy reference: {{err}}", err)
-		}
-
-		var eBody map[string]interface{}
-		if err := json.Unmarshal(bodyBytes, &eBody); err != nil {
-			return errwrap.Wrapf("Error unmarshaling security into map: {{err}}", err)
+		eBody := emptySecurityPolicyReference()
+		if link := pol.RelativeLink(); link != "" {
+			eBody["securityPolicy"] = link
 		}
 
 		edgeSecurityPolicyPath := "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}/setEdgeSecurityPolicy?prettyPrint=false"
