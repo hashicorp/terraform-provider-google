@@ -354,6 +354,7 @@ func resourceAccessContextManagerIngressPolicyDelete(d *schema.ResourceData, met
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "IngressPolicy")
 	}
+
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
 	if err != nil {
 		return err

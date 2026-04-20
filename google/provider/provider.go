@@ -18,6 +18,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -190,6 +191,16 @@ func Provider() *schema.Provider {
 
 			"terraform_attribution_label_addition_strategy": {
 				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"prefer_global_endpoints": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
+			"prefer_regional_endpoints": {
+				Type:     schema.TypeBool,
 				Optional: true,
 			},
 
@@ -1183,6 +1194,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.AppEngineBasePath = d.Get("app_engine_custom_endpoint").(string)
 	config.ApphubBasePath = d.Get("apphub_custom_endpoint").(string)
 	config.ArtifactRegistryBasePath = d.Get("artifact_registry_custom_endpoint").(string)
+	config.ArtifactRegistryRepBasePath = "https://artifactregistry.{{location}}.rep.googleapis.com/v1/"
 	config.BackupDRBasePath = d.Get("backup_dr_custom_endpoint").(string)
 	config.BeyondcorpBasePath = d.Get("beyondcorp_custom_endpoint").(string)
 	config.BiglakeBasePath = d.Get("biglake_custom_endpoint").(string)
@@ -1367,6 +1379,14 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		}
 	} else if config.UniverseDomain != "" && config.UniverseDomain != "googleapis.com" {
 		return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: Universe domain '%s' was found in credentials without a corresponding 'universe_domain' provider configuration set. Please set 'universe_domain' to '%s' or use different credentials.", config.UniverseDomain, config.UniverseDomain))
+	}
+
+	// Verify that prefer global and regional configurations are not in conflict
+	if d.Get("prefer_global_endpoints").(bool) && d.Get("prefer_regional_endpoints").(bool) {
+		return nil, diag.FromErr(errors.New("Found conflict between prefer_global_endpoints and prefer_regional_endpoints, only one of these may be set at a time."))
+	} else {
+		config.PreferGlobalEndpoints = d.Get("prefer_global_endpoints").(bool)
+		config.PreferRegionalEndpoints = d.Get("prefer_regional_endpoints").(bool)
 	}
 
 	return &config, nil
