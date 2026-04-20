@@ -121,7 +121,7 @@ func ResourceApigeeEnvKeystore() *schema.Resource {
 					},
 					"name": {
 						Type:              schema.TypeString,
-						OptionalForImport: true,
+						RequiredForImport: true,
 					},
 				}
 			},
@@ -140,7 +140,7 @@ in the format 'organizations/{{org_name}}/environments/{{env_name}}'.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				ForceNew:    true,
 				Description: `The name of the newly created keystore.`,
 			},
