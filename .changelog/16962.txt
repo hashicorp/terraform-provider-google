@@ -1,0 +1,3 @@
+```release-note:breaking-change
+apigee: fixed `google_apigee_env_keystore` to require the `name` field which is mandatory in the Apigee API
+```
