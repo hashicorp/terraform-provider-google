@@ -585,7 +585,10 @@ func resourceNetworkConnectivityHubImport(d *schema.ResourceData, meta interface
 }
 
 func flattenNetworkConnectivityHubName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenNetworkConnectivityHubCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -677,7 +680,7 @@ func flattenNetworkConnectivityHubEffectiveLabels(v interface{}, d *schema.Resou
 }
 
 func expandNetworkConnectivityHubName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	return tpgresource.GetResourceNameFromSelfLink(v.(string)), nil
 }
 
 func expandNetworkConnectivityHubDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
