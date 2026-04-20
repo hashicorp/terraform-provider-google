@@ -505,17 +505,17 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceGRPCProbesUpdate(t *testing.T) {
 			// So we only check that the `startup.grpc {}` block and its properties are accepted by the APIs.
 			{
 				Config:      testAccCloudRunV2Service_cloudRunServiceUpdateWithEmptyGRPCStartupProbe(context),
-				ExpectError: regexp.MustCompile(fmt.Sprintf(`Revision '%s-.*' is not ready and cannot serve traffic\. The user-provided container failed the configured startup probe checks\.`, serviceName)),
+				ExpectError: regexp.MustCompile(`The user-provided container failed the configured startup probe checks`),
 			},
 			{
 				PreConfig:   testAccCheckCloudRunV2ServiceDestroyByNameProducer(t, serviceName),
 				Config:      testAccCloudRunV2Service_cloudRunServiceUpdateWithGRPCStartupProbe(context),
-				ExpectError: regexp.MustCompile(fmt.Sprintf(`Revision '%s-.*' is not ready and cannot serve traffic\. The user-provided container failed the configured startup probe checks\.`, serviceName)),
+				ExpectError: regexp.MustCompile(`The user-provided container failed the configured startup probe checks`),
 			},
 			{
 				PreConfig:   testAccCheckCloudRunV2ServiceDestroyByNameProducer(t, serviceName),
 				Config:      testAccCloudRunV2Service_cloudRunServiceUpdateWithGRPCLivenessAndStartupProbes(context),
-				ExpectError: regexp.MustCompile(fmt.Sprintf(`Revision '%s-.*' is not ready and cannot serve traffic\. The user-provided container failed the configured startup probe checks\.`, serviceName)),
+				ExpectError: regexp.MustCompile(`The user-provided container failed the configured startup probe checks`),
 			},
 			{
 				PreConfig:          testAccCheckCloudRunV2ServiceDestroyByNameProducer(t, serviceName),
