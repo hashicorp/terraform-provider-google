@@ -1,0 +1,3 @@
+```release-note:bug
+google_tags_tag_key: remove ignore_read: true from purposeData to fix issue #20073
+```
