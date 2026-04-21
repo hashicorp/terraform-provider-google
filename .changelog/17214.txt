@@ -1,0 +1,1 @@
+unknown: Add new partner SPAIN_DATA_BOUNDARY_BY_TELEFONICA to AW partners list
