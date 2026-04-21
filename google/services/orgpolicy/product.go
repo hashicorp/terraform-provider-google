@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "orgpolicy"
+var Product = registry.Product{
+	Name:                 "orgpolicy",
+	BaseUrl:              "https://orgpolicy.googleapis.com/v2/",
+	CustomEndpointField:  "org_policy_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_ORG_POLICY_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "orgpolicy",
-		BaseUrl: "https://orgpolicy.googleapis.com/v2/",
-	}.Register()
+	Product.Register()
 }

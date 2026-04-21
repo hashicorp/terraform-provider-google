@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "developerconnect"
+var Product = registry.Product{
+	Name:                 "developerconnect",
+	BaseUrl:              "https://developerconnect.googleapis.com/v1/",
+	CustomEndpointField:  "developer_connect_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_DEVELOPER_CONNECT_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "developerconnect",
-		BaseUrl: "https://developerconnect.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }
