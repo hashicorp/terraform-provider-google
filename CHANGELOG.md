@@ -44,7 +44,6 @@ NOTES:
 FEATURES:
 * **New Data Source:** `google_vertex_ai_reasoning_engine_query` ([#26787](https://github.com/hashicorp/terraform-provider-google/pull/26787))
 * **New Resource:** `google_apigee_space` ([#26857](https://github.com/hashicorp/terraform-provider-google/pull/26857))
-* **New Resource:** `google_chronicle_feed` ([#26742](https://github.com/hashicorp/terraform-provider-google/pull/26742))
 * **New Resource:** `google_vertex_ai_reasoning_engine_iam_binding` ([#26785](https://github.com/hashicorp/terraform-provider-google/pull/26785))
 * **New Resource:** `google_vertex_ai_reasoning_engine_iam_member` ([#26785](https://github.com/hashicorp/terraform-provider-google/pull/26785))
 * **New Resource:** `google_vertex_ai_reasoning_engine_iam_policy` ([#26785](https://github.com/hashicorp/terraform-provider-google/pull/26785))
