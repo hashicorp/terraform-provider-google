@@ -1,0 +1,3 @@
+```release-note:note
+compute: migrated `resource_compute_disk_async_replication` resource to use direct HTTP rather then a client library
+```
