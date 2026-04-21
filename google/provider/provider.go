@@ -34,18 +34,6 @@ import (
 
 // Provider returns a *schema.Provider.
 func Provider() *schema.Provider {
-
-	// The mtls service client gives the type of endpoint (mtls/regular)
-	// at client creation. Since we use a shared client for requests we must
-	// rewrite the endpoints to be mtls endpoints for the scenario where
-	// mtls is enabled.
-	if isMtls() {
-		// if mtls is enabled switch all default endpoints to use the mtls endpoint
-		for key, bp := range transport_tpg.DefaultBasePaths {
-			transport_tpg.DefaultBasePaths[key] = getMtlsEndpoint(bp)
-		}
-	}
-
 	provider := &schema.Provider{
 		// See: https://developer.hashicorp.com/terraform/plugin/framework/migrating/mux
 		// "The schema and configuration handling must exactly match between all underlying providers of the mux server"
@@ -1117,6 +1105,17 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		config.AccessToken = transport_tpg.MultiEnvSearch([]string{
 			"GOOGLE_OAUTH_ACCESS_TOKEN",
 		})
+	}
+
+	// The mtls service client gives the type of endpoint (mtls/regular)
+	// at client creation. Since we use a shared client for requests we must
+	// rewrite the endpoints to be mtls endpoints for the scenario where
+	// mtls is enabled.
+	if isMtls() {
+		// if mtls is enabled switch all default endpoints to use the mtls endpoint
+		for key, bp := range transport_tpg.DefaultBasePaths {
+			transport_tpg.DefaultBasePaths[key] = getMtlsEndpoint(bp)
+		}
 	}
 
 	// Set the universe domain to the configured value, if any
