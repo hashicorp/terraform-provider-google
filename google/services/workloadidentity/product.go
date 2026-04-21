@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "workloadidentity"
+var Product = registry.Product{
+	Name:                 "workloadidentity",
+	BaseUrl:              "https://workloadidentity.googleapis.com/v1/",
+	CustomEndpointField:  "workload_identity_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_WORKLOAD_IDENTITY_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "workloadidentity",
-		BaseUrl: "https://workloadidentity.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

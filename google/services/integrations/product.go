@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "integrations"
+var Product = registry.Product{
+	Name:                 "integrations",
+	BaseUrl:              "https://integrations.googleapis.com/v1/",
+	CustomEndpointField:  "integrations_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_INTEGRATIONS_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "integrations",
-		BaseUrl: "https://integrations.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

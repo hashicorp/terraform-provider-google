@@ -18,6 +18,9 @@ package registry
 
 import (
 	"log"
+	"maps"
+	"slices"
+	"strings"
 	"sync"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -30,6 +33,12 @@ type Product struct {
 	Name string
 	// BaseUrl is the base URL for API requests. It may contain Magic Modules templating directives.
 	BaseUrl string
+	// RepUrl is the base URL for regional API requests. It may contain Magic Modules templating directives.
+	RepUrl string
+	// CustomEndpointField is the name of the product's custom endpoint field in the provider schema.
+	CustomEndpointField string
+	// CustomEndpointEnvVar is the name of the product's custom endpoint environment variable.
+	CustomEndpointEnvVar string
 }
 
 // Register adds the product definition to the internal product registry.
@@ -40,6 +49,14 @@ func (p Product) Register() {
 		log.Fatalf("Duplicate registration attempt for product %q", p.Name)
 	}
 	products.m[p.Name] = p
+}
+
+func ListProducts() []Product {
+	l := slices.Collect(maps.Values(products.m))
+	slices.SortFunc(l, func(a, b Product) int {
+		return strings.Compare(a.Name, b.Name)
+	})
+	return l
 }
 
 type registeredProducts struct {

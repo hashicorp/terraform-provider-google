@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "cloudfunctions2"
+var Product = registry.Product{
+	Name:                 "cloudfunctions2",
+	BaseUrl:              "https://cloudfunctions.googleapis.com/v2/",
+	CustomEndpointField:  "cloudfunctions2_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_CLOUDFUNCTIONS2_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "cloudfunctions2",
-		BaseUrl: "https://cloudfunctions.googleapis.com/v2/",
-	}.Register()
+	Product.Register()
 }

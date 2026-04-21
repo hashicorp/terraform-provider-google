@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "cloudasset"
+var Product = registry.Product{
+	Name:                 "cloudasset",
+	BaseUrl:              "https://cloudasset.googleapis.com/v1/",
+	CustomEndpointField:  "cloud_asset_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_CLOUD_ASSET_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "cloudasset",
-		BaseUrl: "https://cloudasset.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

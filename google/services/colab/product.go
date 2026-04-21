@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "colab"
+var Product = registry.Product{
+	Name:                 "colab",
+	BaseUrl:              "https://{{location}}-aiplatform.googleapis.com/v1/",
+	CustomEndpointField:  "colab_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_COLAB_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "colab",
-		BaseUrl: "https://{{location}}-aiplatform.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }
