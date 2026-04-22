@@ -473,6 +473,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.FirebaseAppCheckBasePath = d.Get("firebase_app_check_custom_endpoint").(string)
 	config.FirebaseAppHostingBasePath = d.Get("firebase_app_hosting_custom_endpoint").(string)
 	config.FirebaseDataConnectBasePath = d.Get("firebase_data_connect_custom_endpoint").(string)
+	config.FirebaseRemoteConfigBasePath = d.Get("firebase_remote_config_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
 	config.GeminiBasePath = d.Get("gemini_custom_endpoint").(string)
 	config.GKEBackupBasePath = d.Get("gke_backup_custom_endpoint").(string)

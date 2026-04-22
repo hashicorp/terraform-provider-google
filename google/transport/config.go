@@ -335,6 +335,7 @@ type Config struct {
 	FirebaseAppCheckBasePath         string
 	FirebaseAppHostingBasePath       string
 	FirebaseDataConnectBasePath      string
+	FirebaseRemoteConfigBasePath     string
 	FirestoreBasePath                string
 	GeminiBasePath                   string
 	GKEBackupBasePath                string
@@ -518,6 +519,7 @@ const FilestoreBasePathKey = "Filestore"
 const FirebaseAppCheckBasePathKey = "FirebaseAppCheck"
 const FirebaseAppHostingBasePathKey = "FirebaseAppHosting"
 const FirebaseDataConnectBasePathKey = "FirebaseDataConnect"
+const FirebaseRemoteConfigBasePathKey = "FirebaseRemoteConfig"
 const FirestoreBasePathKey = "Firestore"
 const GeminiBasePathKey = "Gemini"
 const GKEBackupBasePathKey = "GKEBackup"
@@ -688,6 +690,7 @@ var DefaultBasePaths = map[string]string{
 	FirebaseAppCheckBasePathKey:         "https://firebaseappcheck.googleapis.com/v1/",
 	FirebaseAppHostingBasePathKey:       "https://firebaseapphosting.googleapis.com/v1/",
 	FirebaseDataConnectBasePathKey:      "https://firebasedataconnect.googleapis.com/v1/",
+	FirebaseRemoteConfigBasePathKey:     "https://firebaseremoteconfig.googleapis.com/v1/",
 	FirestoreBasePathKey:                "https://firestore.googleapis.com/v1/",
 	GeminiBasePathKey:                   "https://cloudaicompanion.googleapis.com/v1/",
 	GKEBackupBasePathKey:                "https://gkebackup.googleapis.com/v1/",
@@ -867,6 +870,7 @@ var DefaultRepStatus = map[string]bool{
 	FirebaseAppCheckBasePathKey:         false,
 	FirebaseAppHostingBasePathKey:       false,
 	FirebaseDataConnectBasePathKey:      false,
+	FirebaseRemoteConfigBasePathKey:     false,
 	FirestoreBasePathKey:                false,
 	GeminiBasePathKey:                   false,
 	GKEBackupBasePathKey:                false,
@@ -1407,6 +1411,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("firebase_data_connect_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_FIREBASE_DATA_CONNECT_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[FirebaseDataConnectBasePathKey]))
+	}
+	if d.Get("firebase_remote_config_custom_endpoint") == "" {
+		d.Set("firebase_remote_config_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_FIREBASE_REMOTE_CONFIG_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[FirebaseRemoteConfigBasePathKey]))
 	}
 	if d.Get("firestore_custom_endpoint") == "" {
 		d.Set("firestore_custom_endpoint", MultiEnvDefault([]string{
@@ -2940,6 +2949,7 @@ func ConfigureBasePaths(c *Config) {
 	c.FirebaseAppCheckBasePath = DefaultBasePaths[FirebaseAppCheckBasePathKey]
 	c.FirebaseAppHostingBasePath = DefaultBasePaths[FirebaseAppHostingBasePathKey]
 	c.FirebaseDataConnectBasePath = DefaultBasePaths[FirebaseDataConnectBasePathKey]
+	c.FirebaseRemoteConfigBasePath = DefaultBasePaths[FirebaseRemoteConfigBasePathKey]
 	c.FirestoreBasePath = DefaultBasePaths[FirestoreBasePathKey]
 	c.GeminiBasePath = DefaultBasePaths[GeminiBasePathKey]
 	c.GKEBackupBasePath = DefaultBasePaths[GKEBackupBasePathKey]
