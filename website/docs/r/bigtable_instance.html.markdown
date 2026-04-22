@@ -128,6 +128,8 @@ to default to the backend value. See [structure below](#nested_cluster).
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+* `tags` - (Optional) A set of key/value label pairs to assign to the resource. Tags must follow the requirements at [create and manage tags](https://docs.cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing).
+
 -----
 
 <a name="nested_cluster"></a>The `cluster` block supports the following arguments:
