@@ -117,6 +117,7 @@ func ResourceAlloydbCluster() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 			tpgresource.SetAnnotationsDiff,
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderDeletionPolicy("DEFAULT"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -827,15 +828,6 @@ This can happen due to user-triggered updates or system actions like failover or
 				Computed:    true,
 				Description: `The system-generated UID of the resource.`,
 			},
-			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `Policy to determine if the cluster should be deleted forcefully.
-Deleting a cluster forcefully, deletes the cluster and all its associated instances within the cluster.
-Deleting a Secondary cluster with a secondary instance REQUIRES setting deletion_policy = "FORCE" otherwise an error is returned. This is needed as there is no support to delete just the secondary instance, and the only way to delete secondary instance is to delete the associated secondary cluster forcefully which also deletes the secondary instance.
-Possible values: DEFAULT, FORCE`,
-				Default: "DEFAULT",
-			},
 			"deletion_protection": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -858,6 +850,12 @@ Default value: "true"`,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"deletion_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `This field uses a custom implementation please refer to documentation under /hashicorp/terraform-provider-google-beta/website/docs/r/alloydb_cluster.html.markdown for specifics`,
 			},
 		},
 		UseJSONNumber: true,
@@ -1177,11 +1175,6 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Finished reading AlloydbCluster %q: %#v", d.Id(), res)
 
 	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOkExists("deletion_policy"); !ok {
-		if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
-			return fmt.Errorf("Error setting deletion_policy: %s", err)
-		}
-	}
 	if _, ok := d.GetOkExists("deletion_protection"); !ok {
 		if err := d.Set("deletion_protection", true); err != nil {
 			return fmt.Errorf("Error setting deletion_protection: %s", err)
@@ -1190,6 +1183,18 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 	if _, ok := d.GetOkExists("skip_await_major_version_upgrade"); !ok {
 		if err := d.Set("skip_await_major_version_upgrade", true); err != nil {
 			return fmt.Errorf("Error setting skip_await_major_version_upgrade: %s", err)
+		}
+	}
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		//prioritize config's value if present
+		if config.DeletionPolicy != "" {
+			if err := d.Set("deletion_policy", config.DeletionPolicy); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		} else {
+			if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
 		}
 	}
 	if err := d.Set("project", project); err != nil {
@@ -1285,6 +1290,18 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceAlloydbCluster().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceAlloydbClusterRead(d, meta)
+	}
 
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -1643,6 +1660,13 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy AlloydbCluster without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Cluster %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -1732,9 +1756,6 @@ func resourceAlloydbClusterImport(d *schema.ResourceData, meta interface{}) ([]*
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
-		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
-	}
 	if err := d.Set("deletion_protection", true); err != nil {
 		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
 	}

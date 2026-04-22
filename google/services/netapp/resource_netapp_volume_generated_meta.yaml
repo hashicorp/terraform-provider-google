@@ -30,8 +30,6 @@ fields:
     - api_field: capacityGib
     - api_field: coldTierSizeGib
     - api_field: createTime
-    - field: deletion_policy
-      provider_only: true
     - api_field: description
     - field: effective_labels
       provider_only: true
@@ -115,3 +113,5 @@ fields:
     - api_field: unixPermissions
     - api_field: usedGib
     - api_field: zone
+    - field: deletion_policy
+      provider_only: true

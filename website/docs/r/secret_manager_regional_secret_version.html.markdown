@@ -159,12 +159,18 @@ The following arguments are supported:
   (Optional)
   The current state of the regional secret version.
 
-* `deletion_policy` - (Optional) The deletion policy for the regional secret version. Setting `ABANDON` allows the resource
+* `deletion_policy` - (Optional) The deletion policy for the secret version. Setting `ABANDON` allows the resource
 to be abandoned rather than deleted. Setting `DISABLE` allows the resource to be
-disabled rather than deleted. Default is `DELETE`. Possible values are:
+disabled rather than deleted.
+
+When a 'terraform destroy' or 'terraform apply' would delete the resource,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+
+Default is `DELETE`. Possible values are:
   * DELETE
   * DISABLE
   * ABANDON
+  * PREVENT
 
 * `is_secret_data_base64` - (Optional) If set to 'true', the secret data is expected to be base64-encoded string and would be sent as is.
 
