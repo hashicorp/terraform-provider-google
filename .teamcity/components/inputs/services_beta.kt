@@ -456,6 +456,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Firebasehosting",
         "path" to "./google-beta/services/firebasehosting"
     ),
+    "firebaseremoteconfig" to mapOf(
+        "name" to "firebaseremoteconfig",
+        "displayName" to "Firebaseremoteconfig",
+        "path" to "./google-beta/services/firebaseremoteconfig"
+    ),
     "firebaserules" to mapOf(
         "name" to "firebaserules",
         "displayName" to "Firebaserules",

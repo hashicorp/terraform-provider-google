@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_firebase_remote_config_remote_config`
+```
