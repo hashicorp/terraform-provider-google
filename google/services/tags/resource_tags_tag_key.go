@@ -389,9 +389,6 @@ func resourceTagsTagKeyRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("purpose", flattenTagsTagKeyPurpose(res["purpose"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TagKey: %s", err)
 	}
-	if err := d.Set("purpose_data", flattenTagsTagKeyPurposeData(res["purposeData"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagKey: %s", err)
-	}
 	if err := d.Set("allowed_values_regex", flattenTagsTagKeyAllowedValuesRegex(res["allowedValuesRegex"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TagKey: %s", err)
 	}
@@ -618,10 +615,6 @@ func flattenTagsTagKeyUpdateTime(v interface{}, d *schema.ResourceData, config *
 }
 
 func flattenTagsTagKeyPurpose(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenTagsTagKeyPurposeData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
