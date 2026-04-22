@@ -170,7 +170,14 @@ The following arguments are supported:
 * `deletion_policy` - (Optional) The policy governing the deletion of the data table.
 If set to `FORCE`, allows the deletion of the data table even if it contains rows.
 If set to `DEFAULT`,or if the field is omitted, the data table must be empty before it can be deleted.
-Possible values: DEFAULT, FORCE
+
+When a 'terraform destroy' or 'terraform apply' would delete the resource,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", the command will behave as if set to "DEFAULT".
+
+Possible values: DEFAULT, FORCE, PREVENT, ABANDON, DELETE
 
 
 

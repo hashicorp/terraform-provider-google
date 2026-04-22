@@ -35,8 +35,6 @@ fields:
     - api_field: continuousBackupInfo.schedule
     - api_field: databaseVersion
     - api_field: dataplexConfig.enabled
-    - field: deletion_policy
-      provider_only: true
     - field: deletion_protection
       provider_only: true
     - api_field: displayName
@@ -89,3 +87,5 @@ fields:
     - api_field: trialMetadata.startTime
     - api_field: trialMetadata.upgradeTime
     - api_field: uid
+    - field: deletion_policy
+      provider_only: true

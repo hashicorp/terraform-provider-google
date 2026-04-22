@@ -15,8 +15,6 @@ fields:
     - api_field: createTime
     - api_field: customDomain.domain
     - api_field: customDomain.state
-    - field: deletion_policy
-      provider_only: true
     - api_field: denyMaintenancePeriod.endDate.day
     - api_field: denyMaintenancePeriod.endDate.month
     - api_field: denyMaintenancePeriod.endDate.year
@@ -68,3 +66,5 @@ fields:
     - api_field: userMetadata.additionalDeveloperUserCount
     - api_field: userMetadata.additionalStandardUserCount
     - api_field: userMetadata.additionalViewerUserCount
+    - field: deletion_policy
+      provider_only: true

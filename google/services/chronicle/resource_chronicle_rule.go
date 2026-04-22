@@ -115,6 +115,7 @@ func ResourceChronicleRule() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderDeletionPolicy("DEFAULT"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -337,23 +338,17 @@ RULE_TYPE_UNSPECIFIED
 SINGLE_EVENT
 MULTI_EVENT`,
 			},
-			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `Policy to determine if the rule should be deleted forcefully.
-If deletion_policy = "FORCE", any retrohunts and any detections associated with the rule
-will also be deleted. If deletion_policy = "DEFAULT", the call will only succeed if the
-rule has no associated retrohunts, including completed retrohunts, and no
-associated detections. Regardless of this field's value, the rule
-deployment associated with this rule will also be deleted.
-Possible values: DEFAULT, FORCE`,
-				Default: "DEFAULT",
-			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"deletion_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `This field uses a custom implementation please refer to documentation under /hashicorp/terraform-provider-google-beta/website/docs/r/chronicle_rule.html.markdown for specifics`,
 			},
 		},
 		UseJSONNumber: true,
@@ -481,8 +476,15 @@ func resourceChronicleRuleRead(d *schema.ResourceData, meta interface{}) error {
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
-		if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
-			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		//prioritize config's value if present
+		if config.DeletionPolicy != "" {
+			if err := d.Set("deletion_policy", config.DeletionPolicy); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		} else {
+			if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
 		}
 	}
 	if err := d.Set("project", project); err != nil {
@@ -551,6 +553,18 @@ func resourceChronicleRuleRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceChronicleRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceChronicleRule().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceChronicleRuleRead(d, meta)
+	}
 
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -643,6 +657,13 @@ func resourceChronicleRuleUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceChronicleRuleDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy ChronicleRule without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Rule %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -712,9 +733,6 @@ func resourceChronicleRuleImport(d *schema.ResourceData, meta interface{}) ([]*s
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
-		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
-	}
 
 	return []*schema.ResourceData{d}, nil
 }

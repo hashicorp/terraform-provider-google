@@ -214,22 +214,18 @@ the provider project is used`,
 				Computed:    true,
 				Description: `The version of the Secret.`,
 			},
-			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `The deletion policy for the secret version. Setting 'ABANDON' allows the resource
-to be abandoned rather than deleted. Setting 'DISABLE' allows the resource to be
-disabled rather than deleted. Default is 'DELETE'. Possible values are:
-  * DELETE
-  * DISABLE
-  * ABANDON`,
-				Default: "DELETE",
-			},
 			"is_secret_data_base64": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `If set to 'true', the secret data is expected to be base64-encoded string and would be sent as is.`,
+			},
+
+			"deletion_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `This field uses a custom implementation please refer to documentation under /hashicorp/terraform-provider-google-beta/website/docs/r/secret_manager_secret_version.html.markdown for specifics`,
 			},
 		},
 		UseJSONNumber: true,
@@ -405,8 +401,15 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
-		if err := d.Set("deletion_policy", "DELETE"); err != nil {
-			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		//prioritize config's value if present
+		if config.DeletionPolicy != "" {
+			if err := d.Set("deletion_policy", config.DeletionPolicy); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		} else {
+			if err := d.Set("deletion_policy", "DELETE"); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
 		}
 	}
 
@@ -445,6 +448,18 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceSecretManagerSecretVersionUpdate(d *schema.ResourceData, meta interface{}) error {
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceSecretManagerSecretVersion().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceSecretManagerSecretVersionRead(d, meta)
+	}
 
 	config := meta.(*transport_tpg.Config)
 	err := setEnabled(d.Get("enabled"), d, config)
@@ -456,6 +471,13 @@ func resourceSecretManagerSecretVersionUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy SecretManagerSecretVersion without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing SecretVersion %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -478,10 +500,7 @@ func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta inter
 
 	headers := make(http.Header)
 	deletionPolicy := d.Get("deletion_policy")
-
-	if deletionPolicy == "ABANDON" {
-		return nil
-	} else if deletionPolicy == "DISABLE" {
+	if deletionPolicy == "DISABLE" {
 		url, err = tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}:disable")
 		if err != nil {
 			return err

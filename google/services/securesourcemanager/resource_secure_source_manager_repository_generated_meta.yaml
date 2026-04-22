@@ -8,8 +8,6 @@ api_version: v1
 api_resource_type_kind: Repository
 fields:
     - api_field: createTime
-    - field: deletion_policy
-      provider_only: true
     - api_field: description
     - api_field: initialConfig.defaultBranch
     - api_field: initialConfig.gitignores
@@ -26,3 +24,5 @@ fields:
     - api_field: uris.api
     - api_field: uris.gitHttps
     - api_field: uris.html
+    - field: deletion_policy
+      provider_only: true
