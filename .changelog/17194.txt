@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: added `node_pool.node_config.linux_node_config.accurate_time_config` and `node_config.linux_node_config.accurate_time_config` fields to `google_container_cluster` resource
+```
+```release-note:enhancement
+container: added `node_config.linux_node_config.accurate_time_config` field to `google_container_node_pool` resource
+```

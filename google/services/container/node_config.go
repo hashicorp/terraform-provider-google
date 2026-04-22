@@ -1120,6 +1120,21 @@ func schemaNodeConfig() *schema.Schema {
 									},
 								},
 							},
+							"accurate_time_config": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								MaxItems:    1,
+								Description: `The settings for the accurate time configuration.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"enable_ptp_kvm_time_sync": {
+											Type:        schema.TypeBool,
+											Optional:    true,
+											Description: `Whether to enable accurate time synchronization with PTP-KVM.`,
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -2099,6 +2114,10 @@ func expandLinuxNodeConfig(v interface{}) *container.LinuxNodeConfig {
 		linuxNodeConfig.SwapConfig = expandSwapConfig(v)
 	}
 
+	if v, ok := cfg["accurate_time_config"]; ok {
+		linuxNodeConfig.AccurateTimeConfig = expandAccurateTimeConfig(v)
+	}
+
 	return linuxNodeConfig
 }
 
@@ -2187,6 +2206,28 @@ func expandNodeKernelModuleLoading(v interface{}) *container.NodeKernelModuleLoa
 	}
 
 	return NodeKernelModuleLoading
+}
+
+func expandAccurateTimeConfig(v interface{}) *container.AccurateTimeConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.AccurateTimeConfig{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	accurateTimeConfig := &container.AccurateTimeConfig{}
+
+	if v, ok := cfg["enable_ptp_kvm_time_sync"]; ok {
+		accurateTimeConfig.EnablePtpKvmTimeSync = v.(bool)
+	}
+
+	return accurateTimeConfig
 }
 
 func expandSwapConfig(v interface{}) *container.SwapConfig {
@@ -3091,6 +3132,17 @@ func flattenLinuxNodeConfig(c *container.LinuxNodeConfig) []map[string]interface
 			"transparent_hugepage_defrag":  c.TransparentHugepageDefrag,
 			"node_kernel_module_loading":   flattenNodeKernelModuleLoading(c.NodeKernelModuleLoading),
 			"swap_config":                  flattenSwapConfig(c.SwapConfig),
+			"accurate_time_config":         flattenAccurateTimeConfig(c.AccurateTimeConfig),
+		})
+	}
+	return result
+}
+
+func flattenAccurateTimeConfig(c *container.AccurateTimeConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"enable_ptp_kvm_time_sync": c.EnablePtpKvmTimeSync,
 		})
 	}
 	return result
