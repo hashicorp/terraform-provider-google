@@ -197,7 +197,7 @@ func ResourceComputeRouterRoutePolicy() *schema.Resource {
 						"priority": {
 							Type:        schema.TypeInt,
 							Required:    true,
-							Description: `The evaluation priority for this term, which must be between 0 (inclusive) and 231 (exclusive), and unique within the list.`,
+							Description: `The evaluation priority for this term, which must be between 0 (inclusive) and 2147483648 (exclusive), and unique within the list.`,
 						},
 						"actions": {
 							Type:        schema.TypeList,
