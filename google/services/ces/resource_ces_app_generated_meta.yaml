@@ -75,6 +75,7 @@ fields:
     - api_field: variableDeclarations.schema.anyOf
       json: true
     - api_field: variableDeclarations.schema.default
+      json: true
     - api_field: variableDeclarations.schema.defs
       json: true
     - api_field: variableDeclarations.schema.description

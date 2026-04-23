@@ -762,8 +762,9 @@ https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata`,
 							},
 						},
 						"max_results": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:       schema.TypeInt,
+							Optional:   true,
+							Deprecated: "`max_results` is deprecated and will be removed in a future release.",
 							Description: `Number of search results to return per query.
 The default value is 10. The maximum allowed value is 10.`,
 						},
