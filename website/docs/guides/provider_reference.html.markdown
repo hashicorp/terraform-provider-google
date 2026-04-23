@@ -392,6 +392,24 @@ Support for custom endpoints is on a best-effort basis. The underlying
 endpoint and default values for a resource can be changed at any time without
 being considered a breaking change.
 
+**Data residency at rest and advanced data residency**
+
+For services that support data residency at rest, you can specify a regional endpoint 
+to ensure your data is processed and stored in a specific geographic location.
+
+For services offering advanced data residency, it is critical to use the correct regional 
+endpoint to ensure data remains within the chosen region when at use, in use, and in transit.
+
+Example of Apigee regional endpoint for the European Union:
+
+```
+provider "google" {
+  apigee_custom_endpoint = "https://apigee.eu.rep.googleapis.com/v1/"
+}
+```
+
+Always consult the specific service documentation for the correct regional or multi-regional endpoint to use.
+
 ---
 
 * `universe_domain` - (Optional) Specify the GCP universe to deploy in.

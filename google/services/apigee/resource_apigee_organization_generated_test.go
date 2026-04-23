@@ -281,6 +281,8 @@ func TestAccApigeeOrganization_apigeeOrganizationCloudBasicDataResidencyTestExam
 
 func testAccApigeeOrganization_apigeeOrganizationCloudBasicDataResidencyTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+// For advanced data residency customers: To ensure advanced data residency compliance for data
+// in transit, you must use the appropriate regional endpoint for the 'apigee_custom_endpoint'.
 provider "google" {
   apigee_custom_endpoint = "https://eu-apigee.googleapis.com/v1/"
 }
