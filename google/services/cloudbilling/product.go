@@ -15,18 +15,18 @@
 //
 // ----------------------------------------------------------------------------
 
-// Package corebilling contains resources, datasources, etc. for the cloud billing service.
-package corebilling
+// Package cloudbilling contains resources, datasources, etc. for the cloud billing service.
+package cloudbilling
 
 import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
 var Product = registry.Product{
-	Name:                 "corebilling",
+	Name:                 "cloudbilling",
 	BaseUrl:              "https://cloudbilling.googleapis.com/v1/",
-	CustomEndpointField:  "core_billing_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_CORE_BILLING_CUSTOM_ENDPOINT",
+	CustomEndpointField:  "cloud_billing_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_CLOUD_BILLING_CUSTOM_ENDPOINT",
 }
 
 func init() {
