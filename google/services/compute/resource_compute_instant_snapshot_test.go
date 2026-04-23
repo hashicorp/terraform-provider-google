@@ -168,3 +168,52 @@ resource "google_compute_instant_snapshot" "foobar" {
 }
 `, context)
 }
+
+func TestAccComputeInstantSnapshot_resourceManagerTags(t *testing.T) {
+	t.Parallel()
+
+	org := envvar.GetTestOrgFromEnv(t)
+	suffix := acctest.RandString(t, 10)
+	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-instant-snapshots-tagkey", "organizations/"+org, make(map[string]interface{}))
+	sharedTagKey, _ := tagKeyResult["shared_tag_key"]
+	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-instant-snapshots-tagvalue", sharedTagKey, org)
+
+	context := map[string]interface{}{
+		"random_suffix": suffix,
+		"tag_key_id":    tagKeyResult["name"],
+		"tag_value_id":  tagValueResult["name"],
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstantSnapshotDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstantSnapshot_resourceManagerTags(context),
+			},
+		},
+	})
+}
+
+func testAccComputeInstantSnapshot_resourceManagerTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_disk" "disk" {
+  name = "tf-test-disk-%{random_suffix}"
+  type = "pd-standard"
+  zone = "us-central1-a"
+  size = 10
+}
+
+resource "google_compute_instant_snapshot" "foobar" {
+  name        = "tf-test-instant-snapshot-%{random_suffix}"
+  source_disk = google_compute_disk.disk.self_link
+  zone        = google_compute_disk.disk.zone
+  params {
+    resource_manager_tags = {
+      "%{tag_key_id}" = "%{tag_value_id}"
+    }
+  }
+}
+`, context)
+}

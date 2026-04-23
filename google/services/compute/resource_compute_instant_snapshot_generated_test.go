@@ -73,7 +73,7 @@ func TestAccComputeInstantSnapshot_instantSnapshotBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_instant_snapshot.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "source_disk", "terraform_labels", "zone"},
+				ImportStateVerifyIgnore: []string{"labels", "params", "source_disk", "terraform_labels", "zone"},
 			},
 			{
 				ResourceName:       "google_compute_instant_snapshot.default",
