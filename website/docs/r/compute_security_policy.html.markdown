@@ -172,6 +172,31 @@ resource "google_compute_security_policy" "policy" {
 }
 ```
 
+## Example Usage - With advanced options config
+
+```hcl
+resource "google_compute_security_policy" "policy" {
+	name = "my-policy"
+
+  advanced_options_config {
+    json_parsing = "STANDARD"
+    json_custom_config {
+      content_types = [
+        "application/json",
+        "application/vnd.api+json",
+        "application/vnd.collection+json",
+        "application/vnd.hyper+json"
+      ]
+    }
+    log_level    = "VERBOSE"
+    user_ip_request_headers = [
+      "True-Client-IP",
+      "x-custom-ip"
+    ]
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
