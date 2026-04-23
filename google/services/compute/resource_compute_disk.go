@@ -365,10 +365,6 @@ func ExpandStoragePoolUrl(v interface{}, d tpgresource.TerraformResourceData, co
 	if err != nil {
 		return "", err
 	}
-	zone, err := tpgresource.GetZone(d, config)
-	if err != nil {
-		return "", err
-	}
 
 	formattedStr := v.(string)
 	if strings.HasPrefix(v.(string), "/") {
@@ -386,6 +382,12 @@ func ExpandStoragePoolUrl(v interface{}, d tpgresource.TerraformResourceData, co
 		// For regional or zonal resources which include their region or zone, just put the project in front.
 		replacedStr = config.ComputeBasePath + "projects/" + project + "/" + formattedStr
 	} else {
+		// Resources like instance template do not have a zone argument.
+		// In this case, run GetZone when it is strictly necessary.
+		zone, err := tpgresource.GetZone(d, config)
+		if err != nil {
+			return "", err
+		}
 		// Anything else is assumed to be a zonal resource, with a partial link that begins with the resource name.
 		replacedStr = config.ComputeBasePath + "projects/" + project + "/zones/" + zone + "/storagePools/" + formattedStr
 	}
