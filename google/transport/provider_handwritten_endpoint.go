@@ -25,13 +25,6 @@ import (
 // files. Collect handwritten ones here. If any of these are modified, be sure
 // to update the provider_reference docs page.
 
-var CloudBillingCustomEndpointEntryKey = "cloud_billing_custom_endpoint"
-var CloudBillingCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: ValidateCustomEndpoint,
-}
-
 var DataflowCustomEndpointEntryKey = "dataflow_custom_endpoint"
 var DataflowCustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,
