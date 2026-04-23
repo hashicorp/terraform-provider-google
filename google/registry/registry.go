@@ -51,6 +51,19 @@ func (p Product) Register() {
 	products.m[p.Name] = p
 }
 
+// Product returns the product information for the given product name. The function panics
+// if the requested product is not registered. This function is called during provider
+// intitialization when the absence of a product is an unrecoverable error.
+func GetProduct(name string) Product {
+	products.RLock()
+	defer products.RUnlock()
+	p, ok := products.m[name]
+	if !ok {
+		log.Fatalf("No product %q registered", name)
+	}
+	return p
+}
+
 func ListProducts() []Product {
 	l := slices.Collect(maps.Values(products.m))
 	slices.SortFunc(l, func(a, b Product) int {
