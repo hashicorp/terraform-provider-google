@@ -1,0 +1,3 @@
+```release-note:bug
+ces: fixed type mismatch in `google_ces_app` variable default value
+```

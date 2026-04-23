@@ -282,7 +282,7 @@ resource "google_ces_guardrail" "ces_guardrail_generative_answer_llm_prompt_secu
     custom_policy {
       max_conversation_messages = 10
       model_settings {
-        model = "gemini-2.5-flash-001"
+        model = "gemini-3.0-flash-001"
         temperature = 50
       }
       prompt = "example_prompt"
@@ -460,7 +460,7 @@ resource "google_ces_guardrail" "ces_guardrail_llm_policy" {
   llm_policy {
     max_conversation_messages = 10
     model_settings {
-        model = "gemini-2.5-flash-001"
+        model = "gemini-3.0-flash-001"
         temperature = 50
     }
     prompt = "example_prompt"

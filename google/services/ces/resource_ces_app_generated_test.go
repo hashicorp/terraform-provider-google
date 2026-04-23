@@ -174,7 +174,7 @@ resource "google_ces_app" "ces_app_basic" {
   }
 
   model_settings {
-    model       = "gemini-2.5-flash-001"
+    model       = "gemini-3.0-flash-001"
     temperature = 0.5
   }
 
@@ -266,7 +266,6 @@ variable_declarations {
   client_certificate_settings {
     tls_certificate = file("test-fixtures/cert.pem")
     private_key = google_secret_manager_secret_version.fake_secret_version.name
-    passphrase = google_secret_manager_secret_version.fake_secret_version.name
   }
 
   # Root agent should not be specified when creating an app
@@ -376,7 +375,7 @@ resource "google_ces_app" "ces_app_ambient_sound_gcs_uri" {
   }
 
   model_settings {
-    model       = "gemini-2.5-flash-001"
+    model       = "gemini-3.0-flash-001"
     temperature = 0.5
   }
 
