@@ -1,0 +1,3 @@
+```release-note:note
+compute: migrated `google_disk_test` to use direct HTTP rather than a client library
+```
