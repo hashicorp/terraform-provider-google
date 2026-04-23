@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "datacatalog",
-	BaseUrl:              "https://datacatalog.googleapis.com/v1/",
-	CustomEndpointField:  "data_catalog_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_DATA_CATALOG_CUSTOM_ENDPOINT",
-}
+const ProductName = "datacatalog"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "datacatalog",
+		BaseUrl: "https://datacatalog.googleapis.com/v1/",
+	}.Register()
 }

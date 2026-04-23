@@ -55,7 +55,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func DataConnectorJsonStructFieldsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+func DataConnectorEntitiesFieldsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return (old == "" && new == "{}") || (old == "{}" && new == "")
 }
 
@@ -351,11 +351,6 @@ used to configure where data is served.`,
 										Description: `The host of the destination, for example
 'https://example.atlassian.net'.`,
 									},
-									"port": {
-										Type:        schema.TypeInt,
-										Optional:    true,
-										Description: `Target port number accepted by the destination.`,
-									},
 								},
 							},
 						},
@@ -363,14 +358,6 @@ used to configure where data is served.`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `The key of the destination configuration, for example 'url'.`,
-						},
-						"params": {
-							Type:             schema.TypeString,
-							Optional:         true,
-							ValidateFunc:     validation.StringIsJSON,
-							DiffSuppressFunc: DataConnectorJsonStructFieldsDiffSuppress,
-							StateFunc:        func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-							Description:      `Additional parameters for this destination config in structured json format.`,
 						},
 					},
 				},
@@ -394,7 +381,7 @@ used to configure where data is served.`,
 							Type:             schema.TypeMap,
 							Computed:         true,
 							Optional:         true,
-							DiffSuppressFunc: DataConnectorJsonStructFieldsDiffSuppress,
+							DiffSuppressFunc: DataConnectorEntitiesFieldsDiffSuppress,
 							Description: `Attributes for indexing.
 Key: Field name.
 Value: The key property to map a field to, such as 'title', and
@@ -409,7 +396,7 @@ Value: The key property to map a field to, such as 'title', and
 							Type:             schema.TypeString,
 							Optional:         true,
 							ValidateFunc:     validation.StringIsJSON,
-							DiffSuppressFunc: DataConnectorJsonStructFieldsDiffSuppress,
+							DiffSuppressFunc: DataConnectorEntitiesFieldsDiffSuppress,
 							StateFunc:        func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 							Description:      `The parameters for the entity to facilitate data ingestion.`,
 						},
@@ -1419,7 +1406,6 @@ func flattenDiscoveryEngineDataConnectorDestinationConfigs(v interface{}, d *sch
 		transformed = append(transformed, map[string]interface{}{
 			"key":          flattenDiscoveryEngineDataConnectorDestinationConfigsKey(original["key"], d, config),
 			"destinations": flattenDiscoveryEngineDataConnectorDestinationConfigsDestinations(original["destinations"], d, config),
-			"params":       flattenDiscoveryEngineDataConnectorDestinationConfigsParams(original["params"], d, config),
 		})
 	}
 	return transformed
@@ -1442,42 +1428,12 @@ func flattenDiscoveryEngineDataConnectorDestinationConfigsDestinations(v interfa
 		}
 		transformed = append(transformed, map[string]interface{}{
 			"host": flattenDiscoveryEngineDataConnectorDestinationConfigsDestinationsHost(original["host"], d, config),
-			"port": flattenDiscoveryEngineDataConnectorDestinationConfigsDestinationsPort(original["port"], d, config),
 		})
 	}
 	return transformed
 }
 func flattenDiscoveryEngineDataConnectorDestinationConfigsDestinationsHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
-}
-
-func flattenDiscoveryEngineDataConnectorDestinationConfigsDestinationsPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenDiscoveryEngineDataConnectorDestinationConfigsParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	b, err := json.Marshal(v)
-	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
-		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
-	}
-	return string(b)
 }
 
 func flattenDiscoveryEngineDataConnectorStaticIpAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1739,13 +1695,6 @@ func expandDiscoveryEngineDataConnectorDestinationConfigs(v interface{}, d tpgre
 			transformed["destinations"] = transformedDestinations
 		}
 
-		transformedParams, err := expandDiscoveryEngineDataConnectorDestinationConfigsParams(original["params"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedParams); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["params"] = transformedParams
-		}
-
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1775,13 +1724,6 @@ func expandDiscoveryEngineDataConnectorDestinationConfigsDestinations(v interfac
 			transformed["host"] = transformedHost
 		}
 
-		transformedPort, err := expandDiscoveryEngineDataConnectorDestinationConfigsDestinationsPort(original["port"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["port"] = transformedPort
-		}
-
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1789,22 +1731,6 @@ func expandDiscoveryEngineDataConnectorDestinationConfigsDestinations(v interfac
 
 func expandDiscoveryEngineDataConnectorDestinationConfigsDestinationsHost(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandDiscoveryEngineDataConnectorDestinationConfigsDestinationsPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDiscoveryEngineDataConnectorDestinationConfigsParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	b := []byte(v.(string))
-	if len(b) == 0 {
-		return nil, nil
-	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
-		return nil, err
-	}
-	return m, nil
 }
 
 func expandDiscoveryEngineDataConnectorConnectorModes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "databasemigrationservice",
-	BaseUrl:              "https://datamigration.googleapis.com/v1/",
-	CustomEndpointField:  "database_migration_service_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_DATABASE_MIGRATION_SERVICE_CUSTOM_ENDPOINT",
-}
+const ProductName = "databasemigrationservice"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "databasemigrationservice",
+		BaseUrl: "https://datamigration.googleapis.com/v1/",
+	}.Register()
 }

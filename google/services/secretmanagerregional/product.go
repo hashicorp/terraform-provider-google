@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "secretmanagerregional",
-	BaseUrl:              "https://secretmanager.{{location}}.rep.googleapis.com/v1/",
-	CustomEndpointField:  "secret_manager_regional_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_SECRET_MANAGER_REGIONAL_CUSTOM_ENDPOINT",
-}
+const ProductName = "secretmanagerregional"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "secretmanagerregional",
+		BaseUrl: "https://secretmanager.{{location}}.rep.googleapis.com/v1/",
+	}.Register()
 }

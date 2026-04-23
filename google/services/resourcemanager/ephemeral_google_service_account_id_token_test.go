@@ -34,6 +34,9 @@ func TestAccEphemeralServiceAccountIdToken_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEphemeralServiceAccountIdToken_basic(targetServiceAccountEmail),
@@ -53,6 +56,9 @@ func TestAccEphemeralServiceAccountIdToken_withDelegates(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEphemeralServiceAccountIdToken_withDelegates(delegateServiceAccountEmailOne, delegateServiceAccountEmailTwo, targetServiceAccountEmail),
@@ -90,6 +96,9 @@ func TestAccEphemeralServiceAccountIdToken_withIncludeEmail(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEphemeralServiceAccountIdToken_withIncludeEmail(targetServiceAccountEmail),

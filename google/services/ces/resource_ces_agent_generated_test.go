@@ -164,7 +164,7 @@ resource "google_ces_agent" "ces_child_agent" {
   instruction = "You are a helpful assistant for this example."
 
   model_settings {
-    model       = "gemini-2.5-flash-001"
+    model       = "gemini-2.5-flash"
     temperature = 0.5
   }
 
@@ -209,7 +209,7 @@ resource "google_ces_agent" "ces_agent_basic" {
   instruction = "You are a helpful assistant for this example."
 
   model_settings {
-    model       = "gemini-2.5-flash-001"
+    model       = "gemini-2.5-flash"
     temperature = 0.5
   }
 
@@ -333,7 +333,7 @@ resource "google_ces_agent" "ces_agent_remote_dialogflow_agent" {
   display_name = "%{agent_display_name}"
 
   model_settings {
-    model       = "gemini-2.5-flash-001"
+    model       = "gemini-1.5-flash"
     temperature = 0.5
   }
 
@@ -416,7 +416,7 @@ resource "google_ces_agent" "ces_agent_remote_dialogflow_agent_interruption" {
   display_name = "%{agent_display_name}"
 
   model_settings {
-    model       = "gemini-2.5-flash-001"
+    model       = "gemini-1.5-flash"
     temperature = 0.5
   }
 

@@ -456,11 +456,6 @@ var ServicesListGa = mapOf(
         "displayName" to "Firebasehosting",
         "path" to "./google/services/firebasehosting"
     ),
-    "firebaseremoteconfig" to mapOf(
-        "name" to "firebaseremoteconfig",
-        "displayName" to "Firebaseremoteconfig",
-        "path" to "./google/services/firebaseremoteconfig"
-    ),
     "firebaserules" to mapOf(
         "name" to "firebaserules",
         "displayName" to "Firebaserules",

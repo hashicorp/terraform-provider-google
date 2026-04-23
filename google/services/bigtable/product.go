@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "bigtable",
-	BaseUrl:              "https://bigtableadmin.googleapis.com/v2/",
-	CustomEndpointField:  "bigtable_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_BIGTABLE_CUSTOM_ENDPOINT",
-}
+const ProductName = "bigtable"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "bigtable",
+		BaseUrl: "https://bigtableadmin.googleapis.com/v2/",
+	}.Register()
 }

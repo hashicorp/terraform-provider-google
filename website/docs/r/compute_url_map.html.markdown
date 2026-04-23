@@ -778,6 +778,7 @@ resource "google_compute_health_check" "default" {
 
 ```hcl
 resource "google_compute_url_map" "urlmap" {
+  provider = google-beta
   name     = "urlmap"
   
   default_service = google_compute_backend_service.default.id
@@ -805,6 +806,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "default" {
+  provider = google-beta
   name     = "home"
   
   protocol              = "HTTP"
@@ -814,6 +816,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
+  provider = google-beta
   name     = "health-check"
   http_health_check {
     port = 80
@@ -830,6 +833,7 @@ resource "google_compute_health_check" "default" {
 
 ```hcl
 resource "google_compute_url_map" "urlmap" {
+  provider = google-beta
   name     = "urlmap"
   
   default_service = google_compute_backend_service.default.id
@@ -960,6 +964,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "default" {
+  provider = google-beta
   name     = "home"
   
   protocol              = "HTTP"
@@ -969,6 +974,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
+  provider = google-beta
   name     = "health-check"
   http_health_check {
     port = 80
@@ -2182,7 +2188,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher_path_rule_route_action_weighted_backend_services).
 
 * `cache_policy` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Specifies the cache policy configuration for matched traffic. Available
   only for Global EXTERNAL_MANAGED load balancer schemes. At least one
   property must be specified. This policy cannot be specified if any target
@@ -3164,7 +3170,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher_route_rules_route_action_weighted_backend_services).
 
 * `cache_policy` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Specifies the cache policy configuration for matched traffic. Available
   only for Global EXTERNAL_MANAGED load balancer schemes. At least one
   property must be specified. This policy cannot be specified if any target
@@ -3939,7 +3945,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher_default_route_action_fault_injection_policy).
 
 * `cache_policy` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Specifies the cache policy configuration for matched traffic. Available
   only for Global EXTERNAL_MANAGED load balancer schemes. At least one
   property must be specified. This policy cannot be specified if any target
@@ -4654,7 +4660,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_default_route_action_fault_injection_policy).
 
 * `cache_policy` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Specifies the cache policy configuration for matched traffic. Available
   only for Global EXTERNAL_MANAGED load balancer schemes. At least one
   property must be specified. This policy cannot be specified if any target

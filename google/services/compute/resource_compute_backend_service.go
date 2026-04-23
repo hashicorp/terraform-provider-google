@@ -788,10 +788,9 @@ If OAuth client is not set, the Google-managed OAuth client is used.`,
 							Description: `Whether the serving infrastructure will authenticate and authorize all incoming requests.`,
 						},
 						"oauth2_client_id": {
-							Type:             schema.TypeString,
-							Optional:         true,
-							DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress(" "),
-							Description:      `OAuth2 Client ID for IAP`,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `OAuth2 Client ID for IAP`,
 						},
 						"oauth2_client_secret": {
 							Type:        schema.TypeString,
@@ -1932,9 +1931,17 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
 		}
 
-		sBody := emptySecurityPolicyReference()
-		if link := pol.RelativeLink(); link != "" {
-			sBody["securityPolicy"] = link
+		spr := emptySecurityPolicyReference()
+		spr.SecurityPolicy = pol.RelativeLink()
+
+		bodyBytes, err := json.Marshal(spr)
+		if err != nil {
+			return errwrap.Wrapf("Error marshaling security policy reference: {{err}}", err)
+		}
+
+		var sBody map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &sBody); err != nil {
+			return errwrap.Wrapf("Error unmarshaling security into map: {{err}}", err)
 		}
 
 		securityPolicyPath := "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}/setSecurityPolicy?prettyPrint=false"
@@ -1969,9 +1976,16 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 			return errwrap.Wrapf("Error parsing Backend Service edge security policy: {{err}}", err)
 		}
 
-		eBody := emptySecurityPolicyReference()
-		if link := pol.RelativeLink(); link != "" {
-			eBody["securityPolicy"] = link
+		spr := emptySecurityPolicyReference()
+		spr.SecurityPolicy = pol.RelativeLink()
+		bodyBytes, err := json.Marshal(spr)
+		if err != nil {
+			return errwrap.Wrapf("Error marshaling security policy reference: {{err}}", err)
+		}
+
+		var eBody map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &eBody); err != nil {
+			return errwrap.Wrapf("Error unmarshaling security into map: {{err}}", err)
 		}
 
 		edgeSecurityPolicyPath := "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}/setEdgeSecurityPolicy?prettyPrint=false"
@@ -2522,9 +2536,17 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
 		}
 
-		sBody := emptySecurityPolicyReference()
-		if link := pol.RelativeLink(); link != "" {
-			sBody["securityPolicy"] = link
+		spr := emptySecurityPolicyReference()
+		spr.SecurityPolicy = pol.RelativeLink()
+
+		bodyBytes, err := json.Marshal(spr)
+		if err != nil {
+			return errwrap.Wrapf("Error marshaling security policy reference: {{err}}", err)
+		}
+
+		var sBody map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &sBody); err != nil {
+			return errwrap.Wrapf("Error unmarshaling security into map: {{err}}", err)
 		}
 
 		securityPolicyPath := "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}/setSecurityPolicy?prettyPrint=false"
@@ -2559,9 +2581,16 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 			return errwrap.Wrapf("Error parsing Backend Service edge security policy: {{err}}", err)
 		}
 
-		eBody := emptySecurityPolicyReference()
-		if link := pol.RelativeLink(); link != "" {
-			eBody["securityPolicy"] = link
+		spr := emptySecurityPolicyReference()
+		spr.SecurityPolicy = pol.RelativeLink()
+		bodyBytes, err := json.Marshal(spr)
+		if err != nil {
+			return errwrap.Wrapf("Error marshaling security policy reference: {{err}}", err)
+		}
+
+		var eBody map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &eBody); err != nil {
+			return errwrap.Wrapf("Error unmarshaling security into map: {{err}}", err)
 		}
 
 		edgeSecurityPolicyPath := "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}/setEdgeSecurityPolicy?prettyPrint=false"

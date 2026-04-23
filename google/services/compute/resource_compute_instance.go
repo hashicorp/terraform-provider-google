@@ -3328,7 +3328,6 @@ func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
-
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil

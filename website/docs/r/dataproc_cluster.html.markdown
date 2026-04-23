@@ -59,7 +59,7 @@ resource "google_dataproc_cluster" "mycluster" {
   cluster_config {
     staging_bucket = "dataproc-staging-bucket"
 
-    engine = "DEFAULT"
+    cluster_tier = "CLUSTER_TIER_STANDARD"
 
     master_config {
       num_instances = 1
@@ -358,8 +358,6 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
    Note: If you don't explicitly specify a `temp_bucket` then GCP will auto create / assign one for you.
 
 * `cluster_tier` - (Optional) The tier of the cluster.
-
-* `engine` - (Optional) The cluster engine.
 
 * `gce_cluster_config` (Optional) Common config settings for resources of Google Compute Engine cluster
    instances, applicable to all instances in the cluster. Structure [defined below](#nested_gce_cluster_config).

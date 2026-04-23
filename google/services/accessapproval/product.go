@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "accessapproval",
-	BaseUrl:              "https://accessapproval.googleapis.com/v1/",
-	CustomEndpointField:  "access_approval_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_ACCESS_APPROVAL_CUSTOM_ENDPOINT",
-}
+const ProductName = "accessapproval"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "accessapproval",
+		BaseUrl: "https://accessapproval.googleapis.com/v1/",
+	}.Register()
 }

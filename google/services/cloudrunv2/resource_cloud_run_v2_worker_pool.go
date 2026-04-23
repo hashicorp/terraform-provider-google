@@ -589,8 +589,8 @@ All system labels in v1 now have a corresponding field in v2 WorkerPoolRevisionT
 												"medium": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: verify.ValidateEnum([]string{"MEMORY", "DISK", ""}),
-													Description:  `The different types of medium supported for EmptyDir. Default value: "MEMORY" Possible values: ["MEMORY", "DISK"]`,
+													ValidateFunc: verify.ValidateEnum([]string{"MEMORY", ""}),
+													Description:  `The different types of medium supported for EmptyDir. Default value: "MEMORY" Possible values: ["MEMORY"]`,
 													Default:      "MEMORY",
 												},
 												"size_limit": {

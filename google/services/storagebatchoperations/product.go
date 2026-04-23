@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "storagebatchoperations",
-	BaseUrl:              "https://storagebatchoperations.googleapis.com/v1/",
-	CustomEndpointField:  "storage_batch_operations_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_STORAGE_BATCH_OPERATIONS_CUSTOM_ENDPOINT",
-}
+const ProductName = "storagebatchoperations"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "storagebatchoperations",
+		BaseUrl: "https://storagebatchoperations.googleapis.com/v1/",
+	}.Register()
 }

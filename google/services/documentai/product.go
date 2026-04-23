@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "documentai",
-	BaseUrl:              "https://{{location}}-documentai.googleapis.com/v1/",
-	CustomEndpointField:  "document_ai_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_DOCUMENT_AI_CUSTOM_ENDPOINT",
-}
+const ProductName = "documentai"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "documentai",
+		BaseUrl: "https://{{location}}-documentai.googleapis.com/v1/",
+	}.Register()
 }

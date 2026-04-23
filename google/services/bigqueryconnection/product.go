@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "bigqueryconnection",
-	BaseUrl:              "https://bigqueryconnection.googleapis.com/v1/",
-	CustomEndpointField:  "bigquery_connection_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_BIGQUERY_CONNECTION_CUSTOM_ENDPOINT",
-}
+const ProductName = "bigqueryconnection"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "bigqueryconnection",
+		BaseUrl: "https://bigqueryconnection.googleapis.com/v1/",
+	}.Register()
 }

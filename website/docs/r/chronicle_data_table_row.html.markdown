@@ -23,10 +23,12 @@ description: |-
 
 Represents a single row in a data table.
 
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about DataTableRow, see:
 
-* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.dataTables.dataTableRows)
+* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1beta/projects.locations.instances.dataTables.dataTableRows)
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
@@ -35,6 +37,7 @@ To get more information about DataTableRow, see:
 
 ```hcl
 resource "google_chronicle_data_table" "example_dt" {
+  provider       = google-beta
   location       = "us"
   instance = "00000000-0000-0000-0000-000000000000"
   data_table_id  = "terraform_test"
@@ -52,6 +55,7 @@ resource "google_chronicle_data_table" "example_dt" {
 }
 
 resource "google_chronicle_data_table_row" "example_row" {
+  provider       = google-beta
   location       = "us"
   instance       = "00000000-0000-0000-0000-000000000000"
   data_table_id  = google_chronicle_data_table.example_dt.data_table_id

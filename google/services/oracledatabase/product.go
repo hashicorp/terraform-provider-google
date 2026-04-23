@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "oracledatabase",
-	BaseUrl:              "https://oracledatabase.googleapis.com/v1/",
-	CustomEndpointField:  "oracle_database_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_ORACLE_DATABASE_CUSTOM_ENDPOINT",
-}
+const ProductName = "oracledatabase"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "oracledatabase",
+		BaseUrl: "https://oracledatabase.googleapis.com/v1/",
+	}.Register()
 }

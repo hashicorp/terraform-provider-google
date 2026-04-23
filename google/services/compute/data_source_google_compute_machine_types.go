@@ -19,14 +19,13 @@ package compute
 import (
 	"context"
 	"fmt"
-	neturl "net/url"
-	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"google.golang.org/api/compute/v1"
 )
 
 func DataSourceGoogleComputeMachineTypes() *schema.Resource {
@@ -162,31 +161,15 @@ func dataSourceGoogleComputeMachineTypesRead(ctx context.Context, d *schema.Reso
 	token := ""
 
 	for paginate := true; paginate; {
-		params := neturl.Values{}
-		if filter != "" {
-			params.Set("filter", filter)
-		}
-		if token != "" {
-			params.Set("pageToken", token)
-		}
-		url := fmt.Sprintf("%sprojects/%s/zones/%s/machineTypes", config.ComputeBasePath, project, zone)
-		if len(params) > 0 {
-			url = fmt.Sprintf("%s?%s", url, params.Encode())
-		}
-		resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "GET",
-			Project:   project,
-			RawURL:    url,
-			UserAgent: userAgent,
-		})
+		resp, err := config.NewComputeClient(userAgent).MachineTypes.List(project, zone).Context(ctx).Filter(filter).PageToken(token).Do()
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Error retrieving machine types: %w", err))
+
 		}
-		pageMachineTypes := flattenDatasourceGoogleComputeMachineTypesListV2(resp["items"])
+		pageMachineTypes := flattenDatasourceGoogleComputeMachineTypesList(ctx, resp.Items)
 		machineTypes = append(machineTypes, pageMachineTypes...)
 
-		token, _ = resp["nextPageToken"].(string)
+		token = resp.NextPageToken
 		paginate = token != ""
 	}
 
@@ -207,51 +190,35 @@ func dataSourceGoogleComputeMachineTypesRead(ctx context.Context, d *schema.Reso
 	return diag.Diagnostics{}
 }
 
-func flattenDatasourceGoogleComputeMachineTypesListV2(v interface{}) []map[string]interface{} {
-	items, ok := v.([]interface{})
-	if !ok || items == nil {
+func flattenDatasourceGoogleComputeMachineTypesList(ctx context.Context, v []*compute.MachineType) []map[string]interface{} {
+	if v == nil {
 		return make([]map[string]interface{}, 0)
 	}
 
-	machineTypes := make([]map[string]interface{}, 0, len(items))
-	for _, raw := range items {
-		mt, ok := raw.(map[string]interface{})
-		if !ok {
-			continue
-		}
-		var accelerators []map[string]interface{}
-		if rawAccels, ok := mt["accelerators"].([]interface{}); ok {
-			accelerators = make([]map[string]interface{}, 0, len(rawAccels))
-			for _, rawAccel := range rawAccels {
-				a, ok := rawAccel.(map[string]interface{})
-				if !ok {
-					continue
-				}
-				accelerators = append(accelerators, map[string]interface{}{
-					"guest_accelerator_type":  a["guestAcceleratorType"],
-					"guest_accelerator_count": a["guestAcceleratorCount"],
-				})
+	machineTypes := make([]map[string]interface{}, 0, len(v))
+	for _, mt := range v {
+		accelerators := make([]map[string]interface{}, len(mt.Accelerators))
+		for i, a := range mt.Accelerators {
+			accelerators[i] = map[string]interface{}{
+				"guest_accelerator_type":  a.GuestAcceleratorType,
+				"guest_accelerator_count": a.GuestAcceleratorCount,
 			}
 		}
-		var maxPersistentDisksSizeGb int64
-		if s, ok := mt["maximumPersistentDisksSizeGb"].(string); ok {
-			maxPersistentDisksSizeGb, _ = strconv.ParseInt(s, 10, 64)
-		}
 		machineType := map[string]interface{}{
-			"name":                             mt["name"],
-			"guest_cpus":                       mt["guestCpus"],
-			"memory_mb":                        mt["memoryMb"],
-			"maximum_persistent_disks":         mt["maximumPersistentDisks"],
-			"maximum_persistent_disks_size_gb": maxPersistentDisksSizeGb,
-			"description":                      mt["description"],
-			"is_shared_cpus":                   mt["isSharedCpu"],
+			"name":                             mt.Name,
+			"guest_cpus":                       mt.GuestCpus,
+			"memory_mb":                        mt.MemoryMb,
+			"maximum_persistent_disks":         mt.MaximumPersistentDisks,
+			"maximum_persistent_disks_size_gb": mt.MaximumPersistentDisksSizeGb,
+			"description":                      mt.Description,
+			"is_shared_cpus":                   mt.IsSharedCpu,
 			"accelerators":                     accelerators,
-			"self_link":                        mt["selfLink"],
+			"self_link":                        mt.SelfLink,
 		}
-		if dep, ok := mt["deprecated"].(map[string]interface{}); ok {
+		if dep := mt.Deprecated; dep != nil {
 			d := map[string]interface{}{
-				"replacement": dep["replacement"],
-				"state":       dep["state"],
+				"replacement": dep.Replacement,
+				"state":       dep.State,
 			}
 			machineType["deprecated"] = []map[string]interface{}{d}
 		}

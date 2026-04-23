@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "billingbudgets",
-	BaseUrl:              "https://billingbudgets.googleapis.com/v1/",
-	CustomEndpointField:  "billing_budgets_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_BILLING_BUDGETS_CUSTOM_ENDPOINT",
-}
+const ProductName = "billingbudgets"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "billingbudgets",
+		BaseUrl: "https://billingbudgets.googleapis.com/v1/",
+	}.Register()
 }

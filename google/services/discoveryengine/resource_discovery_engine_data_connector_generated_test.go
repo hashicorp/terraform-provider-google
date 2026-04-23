@@ -207,11 +207,7 @@ resource "google_discovery_engine_data_connector" "jira-with-actions" {
     key = "url"
     destinations {
       host = "https://example.atlassian.net"
-      port = 123
     }
-    params                     = jsonencode({
-      "destination_type": "private"
-    })
   }
   connector_modes              = ["FEDERATED", "ACTIONS"]
   sync_mode                    = "PERIODIC"

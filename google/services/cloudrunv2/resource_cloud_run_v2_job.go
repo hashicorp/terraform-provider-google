@@ -508,8 +508,8 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 															"medium": {
 																Type:         schema.TypeString,
 																Optional:     true,
-																ValidateFunc: verify.ValidateEnum([]string{"MEMORY", "DISK", ""}),
-																Description:  `The different types of medium supported for EmptyDir. Default value: "MEMORY" Possible values: ["MEMORY", "DISK"]`,
+																ValidateFunc: verify.ValidateEnum([]string{"MEMORY", ""}),
+																Description:  `The different types of medium supported for EmptyDir. Default value: "MEMORY" Possible values: ["MEMORY"]`,
 																Default:      "MEMORY",
 															},
 															"size_limit": {

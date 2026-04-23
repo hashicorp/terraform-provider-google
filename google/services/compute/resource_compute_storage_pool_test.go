@@ -26,7 +26,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -236,86 +235,4 @@ func testAccCheckComputeStoragePoolDestroyProducer(t *testing.T) func(s *terrafo
 
 		return nil
 	}
-}
-
-func TestAccComputeStoragePool_resourceManagerTags(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"project_id":    envvar.GetTestProjectFromEnv(),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeStoragePoolDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeStoragePool_resourceManagerTags(context),
-			},
-			{
-				ResourceName:            "google_compute_storage_pool.test-storage-pool-with-resource-manager-tags",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "zone", "params"},
-			},
-		},
-	})
-}
-
-func testAccComputeStoragePool_resourceManagerTags(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_tags_tag_key" "tag_key" {
-  parent      = "projects/%{project_id}"
-  short_name  = "storage-pool-tag-%{random_suffix}"
-  description = "Tag key for storage pool acceptance tests"
-}
-
-resource "google_tags_tag_value" "tag_value_1" {
-  parent      = google_tags_tag_key.tag_key.id
-  short_name  = "value-one-%{random_suffix}"
-  description = "First tag value for storage pool acceptance tests"
-}
-
-resource "google_tags_tag_value" "tag_value_2" {
-  parent      = google_tags_tag_key.tag_key.id
-  short_name  = "value-two-%{random_suffix}"
-  description = "Second tag value for storage pool acceptance tests"
-
-  # Serialize value creation for stable VCR recordings.
-  depends_on = [google_tags_tag_value.tag_value_1]
-}
-
-resource "google_compute_storage_pool" "test-storage-pool-with-resource-manager-tags" {
-  name = "tf-test-storage-pool-rmt%{random_suffix}"
-
-  description = "Hyperdisk Balanced storage pool with resource manager tags"
-
-  capacity_provisioning_type    = "STANDARD"
-  pool_provisioned_capacity_gb  = "10240"
-  performance_provisioning_type = "STANDARD"
-  pool_provisioned_iops         = "10000"
-  pool_provisioned_throughput   = "1024"
-
-  storage_pool_type = data.google_compute_storage_pool_types.balanced.self_link
-
-  zone = "us-central1-a"
-
-  deletion_protection = false
-
-  params {
-    resource_manager_tags = {
-      (google_tags_tag_key.tag_key.id) = google_tags_tag_value.tag_value_1.id
-    }
-  }
-}
-
-data "google_project" "project" {}
-
-data "google_compute_storage_pool_types" "balanced" {
-  zone = "us-central1-a"
-	storage_pool_type = "hyperdisk-balanced"
-}
-`, context)
 }

@@ -334,7 +334,6 @@ This field does not support phone based MFA, for that use the 'enabledProviders'
 			},
 			"multi_tenant": {
 				Type:        schema.TypeList,
-				Computed:    true,
 				Optional:    true,
 				Description: `Configuration related to multi-tenant functionality.`,
 				MaxItems:    1,

@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "eventarc",
-	BaseUrl:              "https://eventarc.googleapis.com/v1/",
-	CustomEndpointField:  "eventarc_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_EVENTARC_CUSTOM_ENDPOINT",
-}
+const ProductName = "eventarc"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "eventarc",
+		BaseUrl: "https://eventarc.googleapis.com/v1/",
+	}.Register()
 }

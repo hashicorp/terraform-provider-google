@@ -9,4 +9,5 @@ api_resource_type_kind: ReservationGroup
 fields:
     - field: location
       provider_only: true
-    - api_field: name
+    - field: name
+      provider_only: true

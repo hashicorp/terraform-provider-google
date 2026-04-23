@@ -90,7 +90,6 @@ resource "google_pubsub_topic" "recognition_result_notification_profile" {
 
 ```hcl
 resource "google_dialogflow_conversation_profile" "bidi_profile" {
-  provider = google-beta
   display_name = "dialogflow-profile-bidi"
   location     = "global"
   language_code = "en-US"
@@ -101,7 +100,6 @@ resource "google_dialogflow_conversation_profile" "bidi_profile" {
 }
 
 resource "google_ces_app" "ces_app_for_agent" {
-  provider = google-beta
   app_id = "app-id"
   location = "us"
   display_name = "my-app"

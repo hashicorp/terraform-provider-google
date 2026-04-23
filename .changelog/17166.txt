@@ -1,0 +1,3 @@
+```release-note:bug
+memorystore: fixed an issue preventing updating multiple properties at once for `google_redis_cluster`
+```

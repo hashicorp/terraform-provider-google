@@ -41,10 +41,10 @@ The following arguments are supported:
   The Apigee environment group associated with the Apigee environment,
   in the format `organizations/{{org_name}}/environments/{{env_name}}`.
 
-* `name` -
-  (Required)
-  The name of the newly created keystore.
 
+* `name` -
+  (Optional)
+  The name of the newly created keystore.
 
 
 
@@ -80,7 +80,7 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 import {
   identity = {
     envId = "<-required value->"
-    name = "<-required value->"
+    name = "<-optional value->"
   }
   to = google_apigee_env_keystore.default
 }

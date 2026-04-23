@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"google.golang.org/api/compute/v1"
 )
 
 const (
@@ -35,72 +37,62 @@ const (
 
 var locales = []string{"en-US", "es-US", "es-ES", "es-MX", "de-DE"}
 
-func buildOperationError(numLocalizedMsg int, numHelpWithLinks []int) map[string]interface{} {
-	errorDetails := []interface{}{}
+func buildOperationError(numLocalizedMsg int, numHelpWithLinks []int) compute.OperationError {
+	opError := &compute.OperationErrorErrors{Message: topLevelMsg}
+	opErrorErrors := []*compute.OperationErrorErrors{opError}
 
 	for n := 1; n <= numLocalizedMsg; n++ {
-		errorDetails = append(errorDetails, map[string]interface{}{
-			"localizedMessage": map[string]interface{}{
-				"locale":  locales[n-1%len(locales)],
-				"message": formatLocalizedMsg(n),
-			},
-		})
+		opError.ErrorDetails = append(opError.ErrorDetails,
+			&compute.OperationErrorErrorsErrorDetails{
+				LocalizedMessage: &compute.LocalizedMessage{
+					Locale:  locales[n-1%len(locales)],
+					Message: formatLocalizedMsg(n),
+				},
+			})
 	}
 
 	for i := 0; i < len(numHelpWithLinks); i++ {
-		links := []interface{}{}
+		errorDetail := &compute.OperationErrorErrorsErrorDetails{
+			Help: &compute.Help{},
+		}
+
 		for nLinks := 1; nLinks <= numHelpWithLinks[i]; nLinks++ {
 			desc, url := formatLink(i+1, nLinks)
-			links = append(links, map[string]interface{}{
-				"description": desc,
-				"url":         url,
+			errorDetail.Help.Links = append(errorDetail.Help.Links, &compute.HelpLink{
+				Description: desc,
+				Url:         url,
 			})
 		}
-		errorDetails = append(errorDetails, map[string]interface{}{
-			"help": map[string]interface{}{
-				"links": links,
-			},
-		})
+
+		opError.ErrorDetails = append(opError.ErrorDetails, errorDetail)
 	}
 
-	return map[string]interface{}{
-		"errors": []interface{}{
-			map[string]interface{}{
-				"message":      topLevelMsg,
-				"errorDetails": errorDetails,
-			},
-		},
-	}
+	return compute.OperationError{Errors: opErrorErrors}
+
 }
 
-func buildOperationErrorQuotaExceeded(withDetails bool, withDimensions bool, withFutureLimit bool) map[string]interface{} {
-	opError := map[string]interface{}{
-		"message": quotaExceededMsg,
-		"code":    quotaExceededCode,
-	}
-
+func buildOperationErrorQuotaExceeded(withDetails bool, withDimensions bool, withFutureLimit bool) compute.OperationError {
+	opError := &compute.OperationErrorErrors{Message: quotaExceededMsg, Code: quotaExceededCode}
+	opErrorErrors := []*compute.OperationErrorErrors{opError}
 	if withDetails {
-		quotaInfo := map[string]interface{}{
-			"metricName": quotaMetricName,
-			"limitName":  quotaLimitName,
-			"limit":      float64(1100),
+		quotaInfo := &compute.QuotaExceededInfo{
+			MetricName: quotaMetricName,
+			LimitName:  quotaLimitName,
+			Limit:      1100,
 		}
 		if withFutureLimit {
-			quotaInfo["futureLimit"] = float64(2200)
+			quotaInfo.FutureLimit = 2200
 		}
 		if withDimensions {
-			quotaInfo["dimensions"] = map[string]interface{}{"region": "us-central1"}
+			quotaInfo.Dimensions = map[string]string{"region": "us-central1"}
 		}
-		opError["errorDetails"] = []interface{}{
-			map[string]interface{}{
-				"quotaInfo": quotaInfo,
-			},
-		}
+		opError.ErrorDetails = append(opError.ErrorDetails,
+			&compute.OperationErrorErrorsErrorDetails{
+				QuotaInfo: quotaInfo,
+			})
 	}
 
-	return map[string]interface{}{
-		"errors": []interface{}{opError},
-	}
+	return compute.OperationError{Errors: opErrorErrors}
 }
 
 func omitAlways(numLocalizedMsg int, numHelpWithLinks []int) []string {
@@ -140,7 +132,7 @@ func formatLink(helpNum, linkNum int) (string, string) {
 func TestComputeOperationError_Error(t *testing.T) {
 	testCases := []struct {
 		name           string
-		input          map[string]interface{}
+		input          compute.OperationError
 		expectContains []string
 		expectOmits    []string
 	}{

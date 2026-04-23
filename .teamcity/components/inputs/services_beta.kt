@@ -456,11 +456,6 @@ var ServicesListBeta = mapOf(
         "displayName" to "Firebasehosting",
         "path" to "./google-beta/services/firebasehosting"
     ),
-    "firebaseremoteconfig" to mapOf(
-        "name" to "firebaseremoteconfig",
-        "displayName" to "Firebaseremoteconfig",
-        "path" to "./google-beta/services/firebaseremoteconfig"
-    ),
     "firebaserules" to mapOf(
         "name" to "firebaserules",
         "displayName" to "Firebaserules",
@@ -509,7 +504,7 @@ var ServicesListBeta = mapOf(
     "hypercomputecluster" to mapOf(
         "name" to "hypercomputecluster",
         "displayName" to "ClusterDirector",
-        "path" to "./google-beta/services/hypercomputecluster"
+        "path" to "./google/services/hypercomputecluster"
     ),
     "iam2" to mapOf(
         "name" to "iam2",
@@ -679,7 +674,7 @@ var ServicesListBeta = mapOf(
     "parallelstore" to mapOf(
         "name" to "parallelstore",
         "displayName" to "Parallelstore",
-        "path" to "./google-beta/services/parallelstore"
+        "path" to "./google/services/parallelstore"
     ),
     "parametermanager" to mapOf(
         "name" to "parametermanager",

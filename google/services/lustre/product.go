@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "lustre",
-	BaseUrl:              "https://lustre.googleapis.com/v1/",
-	CustomEndpointField:  "lustre_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_LUSTRE_CUSTOM_ENDPOINT",
-}
+const ProductName = "lustre"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "lustre",
+		BaseUrl: "https://lustre.googleapis.com/v1/",
+	}.Register()
 }

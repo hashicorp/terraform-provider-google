@@ -605,7 +605,6 @@ func resourceAccessContextManagerAccessLevelConditionDelete(d *schema.ResourceDa
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "AccessLevelCondition")
 	}
-
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "basic.conditions"})
 	if err != nil {
 		return err
