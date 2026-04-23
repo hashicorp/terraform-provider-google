@@ -400,6 +400,75 @@ resource "google_dataproc_metastore_service" "metadata" {
 `, context)
 }
 
+func TestAccDataprocMetastoreService_dataprocMetastoreServicePrivateServiceConnectExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"metastore_service_name": "tf-test-metastore-srv" + randomSuffix,
+		"network_name":           "tf-test-my-network" + randomSuffix,
+		"subnet_name":            "tf-test-my-subnetwork" + randomSuffix,
+		"random_suffix":          randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocMetastoreService_dataprocMetastoreServicePrivateServiceConnectExample(context),
+			},
+			{
+				ResourceName:            "google_dataproc_metastore_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDataprocMetastoreService_dataprocMetastoreServicePrivateServiceConnectExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "net" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  name                     = "%{subnet_name}"
+  region                   = "us-central1"
+  network                  = google_compute_network.net.id
+  ip_cidr_range            = "10.0.0.0/22"
+  private_ip_google_access = true
+}
+
+resource "google_dataproc_metastore_service" "default" {
+  service_id = "%{metastore_service_name}"
+  location   = "us-central1"
+  tier       = "DEVELOPER"
+
+  hive_metastore_config {
+    version = "3.1.2"
+  }
+
+  network_config {
+    consumers {
+      subnetwork = google_compute_subnetwork.subnet.id
+    }
+  }
+}
+`, context)
+}
+
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(t *testing.T) {
 	t.Parallel()
 

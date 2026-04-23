@@ -1682,6 +1682,40 @@ linux_node_config {
 
 * `node_kernel_module_loading` - (Optional) Settings for kernel module loading. Structure is [documented below](#nested_node_kernel_module_loading_config).
 
+* `swap_config` - (Optional) Swap configuration for the node. Structure is [documented below](#nested_swap_config).
+
+<a name="nested_swap_config"></a>The `swap_config` block supports:
+
+* `enabled` - (Optional) Enables or disables swap for the node pool.
+
+* `boot_disk_profile` - (Optional) Swap on the node's boot disk. Structure is [documented below](#nested_boot_disk_profile).
+
+* `dedicated_local_ssd_profile` - (Optional) Provisions a new, separate local NVMe SSD exclusively for swap. Structure is [documented below](#nested_dedicated_local_ssd_profile).
+
+* `ephemeral_local_ssd_profile` - (Optional) Swap on the local SSD shared with pod ephemeral storage. Structure is [documented below](#nested_ephemeral_local_ssd_profile).
+
+* `encryption_config` - (Optional) If omitted, swap space is encrypted by default. Structure is [documented below](#nested_encryption_config).
+
+<a name="nested_boot_disk_profile"></a>The `boot_disk_profile` block supports:
+
+* `swap_size_gib` - (Optional) Specifies the size of the swap space in gibibytes (GiB).
+
+* `swap_size_percent` - (Optional) Specifies the size of the swap space as a percentage of the boot disk size.
+
+<a name="nested_dedicated_local_ssd_profile"></a>The `dedicated_local_ssd_profile` block supports:
+
+* `disk_count` - (Optional) The number of physical local NVMe SSD disks to attach.
+
+<a name="nested_ephemeral_local_ssd_profile"></a>The `ephemeral_local_ssd_profile` block supports:
+
+* `swap_size_gib` - (Optional) Specifies the size of the swap space in gibibytes (GiB).
+
+* `swap_size_percent` - (Optional) Specifies the size of the swap space as a percentage of the ephemeral local SSD capacity.
+
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+
+* `disabled` - (Optional) If true, swap space will not be encrypted. Defaults to false (encrypted).
+
 <a name="nested_hugepages_config"></a>The `hugepages_config` block supports:
 
 * `hugepage_size_2m` - (Optional) Amount of 2M hugepages.

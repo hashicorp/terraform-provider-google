@@ -121,7 +121,11 @@ resource "google_discovery_engine_data_connector" "servicenow-basic" {
     key = "url"
     destinations {
       host = "https://gcpconnector1.service-now.com/"
+      port = 123
     }
+    params.                    = jsonencode({
+      "destination_type": "private"
+    })
   }
   incremental_refresh_interval = "21600s"
   connector_modes              = ["DATA_INGESTION", "ACTIONS"]
@@ -204,7 +208,11 @@ resource "google_discovery_engine_data_connector" "servicenow-basic" {
     key = "url"
     destinations {
       host = "https://gcpconnector1.service-now.com/"
+      port = 123
     }
+    params                     = jsonencode({
+      "destination_type": "private"
+    })
   }
   incremental_refresh_interval = "21600s"
   connector_modes              = ["DATA_INGESTION", "ACTIONS"]
@@ -259,7 +267,7 @@ func TestAccDiscoveryEngineDataConnector_DataConnectorEntitiesParamsDiffSuppress
 	}
 
 	for tn, tc := range cases {
-		if discoveryengine.DataConnectorEntitiesFieldsDiffSuppress("entities_params_diff_supress", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if discoveryengine.DataConnectorJsonStructFieldsDiffSuppress("entities_params_diff_supress", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Errorf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}

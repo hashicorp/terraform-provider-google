@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "apphub"
+var Product = registry.Product{
+	Name:                 "apphub",
+	BaseUrl:              "https://apphub.googleapis.com/v1/",
+	CustomEndpointField:  "apphub_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_APPHUB_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "apphub",
-		BaseUrl: "https://apphub.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

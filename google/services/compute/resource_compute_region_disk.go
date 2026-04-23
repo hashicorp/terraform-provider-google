@@ -1246,9 +1246,13 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 				userAgent, d.Timeout(schema.TimeoutDelete))
 			if err != nil {
 				var opErr ComputeOperationError
-				if errors.As(err, &opErr) && len(opErr.Errors) == 1 && opErr.Errors[0].Code == "RESOURCE_NOT_FOUND" {
-					log.Printf("[WARN] instance %q was deleted while awaiting detach", call.instance)
-					continue
+				if errors.As(err, &opErr) {
+					if rawErrors, _ := opErr["errors"].([]interface{}); len(rawErrors) == 1 {
+						if errMap, _ := rawErrors[0].(map[string]interface{}); errMap["code"] == "RESOURCE_NOT_FOUND" {
+							log.Printf("[WARN] instance %q was deleted while awaiting detach", call.instance)
+							continue
+						}
+					}
 				}
 				return err
 			}

@@ -1106,7 +1106,7 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	automatedBackupConfigProp, err := expandMemorystoreInstanceAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("automated_backup_config"); ok || !reflect.DeepEqual(v, automatedBackupConfigProp) {
+	} else if v, ok := d.GetOkExists("automated_backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(automatedBackupConfigProp)) && (ok || !reflect.DeepEqual(v, automatedBackupConfigProp)) {
 		obj["automatedBackupConfig"] = automatedBackupConfigProp
 	}
 	replicaCountProp, err := expandMemorystoreInstanceReplicaCount(d.Get("replica_count"), d, config)
@@ -1544,6 +1544,72 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	automatedBackupConfigProp, err := expandMemorystoreInstanceAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("automated_backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, automatedBackupConfigProp)) {
+		obj["automatedBackupConfig"] = automatedBackupConfigProp
+	}
+	replicaCountProp, err := expandMemorystoreInstanceReplicaCount(d.Get("replica_count"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("replica_count"); ok || !reflect.DeepEqual(v, replicaCountProp) {
+		obj["replicaCount"] = replicaCountProp
+	}
+	shardCountProp, err := expandMemorystoreInstanceShardCount(d.Get("shard_count"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("shard_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, shardCountProp)) {
+		obj["shardCount"] = shardCountProp
+	}
+	nodeTypeProp, err := expandMemorystoreInstanceNodeType(d.Get("node_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("node_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeTypeProp)) {
+		obj["nodeType"] = nodeTypeProp
+	}
+	persistenceConfigProp, err := expandMemorystoreInstancePersistenceConfig(d.Get("persistence_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("persistence_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, persistenceConfigProp)) {
+		obj["persistenceConfig"] = persistenceConfigProp
+	}
+	maintenancePolicyProp, err := expandMemorystoreInstanceMaintenancePolicy(d.Get("maintenance_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
+		obj["maintenancePolicy"] = maintenancePolicyProp
+	}
+	maintenanceVersionProp, err := expandMemorystoreInstanceMaintenanceVersion(d.Get("maintenance_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenanceVersionProp)) {
+		obj["maintenanceVersion"] = maintenanceVersionProp
+	}
+	engineVersionProp, err := expandMemorystoreInstanceEngineVersion(d.Get("engine_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("engine_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, engineVersionProp)) {
+		obj["engineVersion"] = engineVersionProp
+	}
+	engineConfigsProp, err := expandMemorystoreInstanceEngineConfigs(d.Get("engine_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("engine_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, engineConfigsProp)) {
+		obj["engineConfigs"] = engineConfigsProp
+	}
+	deletionProtectionEnabledProp, err := expandMemorystoreInstanceDeletionProtectionEnabled(d.Get("deletion_protection_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_protection_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deletionProtectionEnabledProp)) {
+		obj["deletionProtectionEnabled"] = deletionProtectionEnabledProp
+	}
+	crossInstanceReplicationConfigProp, err := expandMemorystoreInstanceCrossInstanceReplicationConfig(d.Get("cross_instance_replication_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cross_instance_replication_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, crossInstanceReplicationConfigProp)) {
+		obj["crossInstanceReplicationConfig"] = crossInstanceReplicationConfigProp
+	}
 	effectiveLabelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1564,6 +1630,50 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
+
+	if d.HasChange("automated_backup_config") {
+		updateMask = append(updateMask, "automatedBackupConfig")
+	}
+
+	if d.HasChange("replica_count") {
+		updateMask = append(updateMask, "replicaCount")
+	}
+
+	if d.HasChange("shard_count") {
+		updateMask = append(updateMask, "shardCount")
+	}
+
+	if d.HasChange("node_type") {
+		updateMask = append(updateMask, "nodeType")
+	}
+
+	if d.HasChange("persistence_config") {
+		updateMask = append(updateMask, "persistenceConfig")
+	}
+
+	if d.HasChange("maintenance_policy") {
+		updateMask = append(updateMask, "maintenancePolicy")
+	}
+
+	if d.HasChange("maintenance_version") {
+		updateMask = append(updateMask, "maintenanceVersion")
+	}
+
+	if d.HasChange("engine_version") {
+		updateMask = append(updateMask, "engineVersion")
+	}
+
+	if d.HasChange("engine_configs") {
+		updateMask = append(updateMask, "engineConfigs")
+	}
+
+	if d.HasChange("deletion_protection_enabled") {
+		updateMask = append(updateMask, "deletionProtectionEnabled")
+	}
+
+	if d.HasChange("cross_instance_replication_config") {
+		updateMask = append(updateMask, "crossInstanceReplicationConfig")
+	}
 
 	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
@@ -1607,505 +1717,6 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 			return err
 		}
 	}
-	d.Partial(true)
-
-	if d.HasChange("automated_backup_config") {
-		obj := make(map[string]interface{})
-
-		automatedBackupConfigProp, err := expandMemorystoreInstanceAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("automated_backup_config"); ok || !reflect.DeepEqual(v, automatedBackupConfigProp) {
-			obj["automatedBackupConfig"] = automatedBackupConfigProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}?updateMask=automatedBackupConfig")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = MemorystoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("cross_instance_replication_config") {
-		obj := make(map[string]interface{})
-
-		crossInstanceReplicationConfigProp, err := expandMemorystoreInstanceCrossInstanceReplicationConfig(d.Get("cross_instance_replication_config"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("cross_instance_replication_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, crossInstanceReplicationConfigProp)) {
-			obj["crossInstanceReplicationConfig"] = crossInstanceReplicationConfigProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}?updateMask=crossInstanceReplicationConfig")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = MemorystoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("deletion_protection_enabled") {
-		obj := make(map[string]interface{})
-
-		deletionProtectionEnabledProp, err := expandMemorystoreInstanceDeletionProtectionEnabled(d.Get("deletion_protection_enabled"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("deletion_protection_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deletionProtectionEnabledProp)) {
-			obj["deletionProtectionEnabled"] = deletionProtectionEnabledProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}?updateMask=deletionProtectionEnabled")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = MemorystoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("engine_configs") {
-		obj := make(map[string]interface{})
-
-		engineConfigsProp, err := expandMemorystoreInstanceEngineConfigs(d.Get("engine_configs"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("engine_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, engineConfigsProp)) {
-			obj["engineConfigs"] = engineConfigsProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}?updateMask=engineConfigs")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = MemorystoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("engine_version") {
-		obj := make(map[string]interface{})
-
-		engineVersionProp, err := expandMemorystoreInstanceEngineVersion(d.Get("engine_version"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("engine_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, engineVersionProp)) {
-			obj["engineVersion"] = engineVersionProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}?updateMask=engineVersion")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = MemorystoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("maintenance_policy") {
-		obj := make(map[string]interface{})
-
-		maintenancePolicyProp, err := expandMemorystoreInstanceMaintenancePolicy(d.Get("maintenance_policy"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
-			obj["maintenancePolicy"] = maintenancePolicyProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}?updateMask=maintenancePolicy")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = MemorystoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("maintenance_version") {
-		obj := make(map[string]interface{})
-
-		maintenanceVersionProp, err := expandMemorystoreInstanceMaintenanceVersion(d.Get("maintenance_version"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("maintenance_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenanceVersionProp)) {
-			obj["maintenanceVersion"] = maintenanceVersionProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}?updateMask=maintenanceVersion")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = MemorystoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("node_type") {
-		obj := make(map[string]interface{})
-
-		nodeTypeProp, err := expandMemorystoreInstanceNodeType(d.Get("node_type"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("node_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeTypeProp)) {
-			obj["nodeType"] = nodeTypeProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}?updateMask=nodeType")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = MemorystoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("persistence_config") {
-		obj := make(map[string]interface{})
-
-		persistenceConfigProp, err := expandMemorystoreInstancePersistenceConfig(d.Get("persistence_config"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("persistence_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, persistenceConfigProp)) {
-			obj["persistenceConfig"] = persistenceConfigProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}?updateMask=persistenceConfig")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = MemorystoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("replica_count") {
-		obj := make(map[string]interface{})
-
-		replicaCountProp, err := expandMemorystoreInstanceReplicaCount(d.Get("replica_count"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("replica_count"); ok || !reflect.DeepEqual(v, replicaCountProp) {
-			obj["replicaCount"] = replicaCountProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}?updateMask=replicaCount")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = MemorystoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("shard_count") {
-		obj := make(map[string]interface{})
-
-		shardCountProp, err := expandMemorystoreInstanceShardCount(d.Get("shard_count"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("shard_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, shardCountProp)) {
-			obj["shardCount"] = shardCountProp
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}?updateMask=shardCount")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = MemorystoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-
-	d.Partial(false)
 
 	return resourceMemorystoreInstanceRead(d, meta)
 }

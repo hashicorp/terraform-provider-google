@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "essentialcontacts"
+var Product = registry.Product{
+	Name:                 "essentialcontacts",
+	BaseUrl:              "https://essentialcontacts.googleapis.com/v1/",
+	CustomEndpointField:  "essential_contacts_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_ESSENTIAL_CONTACTS_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "essentialcontacts",
-		BaseUrl: "https://essentialcontacts.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

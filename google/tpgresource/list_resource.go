@@ -23,6 +23,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
@@ -181,12 +182,13 @@ func (listR *ListResourceMetadata) GetLocation(override types.String) string {
 
 func SetResourceIdentityAttributes(d *schema.ResourceData, attrs map[string]interface{}) error {
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("error getting identity: %w", err)
-	}
-	for k, v := range attrs {
-		if err := identity.Set(k, v); err != nil {
-			return fmt.Errorf("error setting identity field %q: %w", k, err)
+	if err != nil || identity == nil {
+		log.Printf("[DEBUG] SetResourceIdentityAttributes: skipping, identity unavailable: %v", err)
+	} else {
+		for k, v := range attrs {
+			if err := identity.Set(k, v); err != nil {
+				return fmt.Errorf("error setting identity field %q: %w", k, err)
+			}
 		}
 	}
 	return nil

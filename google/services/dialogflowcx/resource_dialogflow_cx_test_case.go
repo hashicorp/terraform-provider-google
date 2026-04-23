@@ -55,6 +55,29 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func dialogflowcxTestCaseSessionParametersDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Treat empty string and empty JSON object as equivalent
+	if (old == "" || old == "{}") && (new == "" || new == "{}") {
+		return true
+	}
+
+	if old == "" || new == "" {
+		return old == new
+	}
+
+	var oldJson, newJson interface{}
+
+	if err := json.Unmarshal([]byte(old), &oldJson); err != nil {
+		return false
+	}
+
+	if err := json.Unmarshal([]byte(new), &newJson); err != nil {
+		return false
+	}
+
+	return reflect.DeepEqual(oldJson, newJson)
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -290,11 +313,12 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<F
 										},
 									},
 									"session_parameters": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringIsJSON,
-										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-										Description:  `The session parameters available to the bot at this point.`,
+										Type:             schema.TypeString,
+										Optional:         true,
+										ValidateFunc:     validation.StringIsJSON,
+										DiffSuppressFunc: dialogflowcxTestCaseSessionParametersDiffSuppress,
+										StateFunc:        func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+										Description:      `The session parameters available to the bot at this point.`,
 									},
 									"text_responses": {
 										Type:        schema.TypeList,

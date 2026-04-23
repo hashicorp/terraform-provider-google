@@ -29,6 +29,15 @@ fields:
     - api_field: cloudSql.instanceId
     - api_field: cloudSql.serviceAccountId
     - api_field: cloudSql.type
+    - api_field: configuration.asset.database
+    - api_field: configuration.asset.googleCloudResource
+    - api_field: configuration.authentication.serviceAccount
+    - api_field: configuration.authentication.usernamePassword.password.plaintext
+    - api_field: configuration.authentication.usernamePassword.password.secretType
+    - api_field: configuration.authentication.usernamePassword.username
+    - api_field: configuration.connectorId
+    - api_field: configuration.endpoint.hostPort
+    - api_field: configuration.network.privateServiceConnect.networkAttachment
     - api_field: connectionId
     - api_field: description
     - api_field: friendlyName

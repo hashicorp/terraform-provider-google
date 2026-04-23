@@ -94,6 +94,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firebaseappcheck"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firebaseapphosting"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firebasedataconnect"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/firebaseremoteconfig"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firestore"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gemini"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkebackup"

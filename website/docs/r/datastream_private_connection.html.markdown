@@ -58,6 +58,35 @@ resource "google_compute_network" "default" {
   name = "my-network"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_private_connection_force_delete&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Datastream Private Connection Force Delete
+
+
+```hcl
+resource "google_datastream_private_connection" "default" {
+	display_name          = "Connection profile"
+	location              = "us-central1"
+	private_connection_id = "my-connection"
+	deletion_policy       = "FORCE"
+
+	labels = {
+		key = "value"
+	}
+
+	vpc_peering_config {
+		vpc = google_compute_network.default.id
+		subnet = "10.0.0.0/29"
+	}
+}
+
+resource "google_compute_network" "default" {
+  name = "my-network"
+}
+```
 ## Example Usage - Datastream Private Connection Psc Interface
 
 
@@ -143,6 +172,11 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_policy` - (Optional) The deletion policy for the private connection. Setting `FORCE` will also delete any child
+routes that belong to this private connection. Setting `DEFAULT` will fail the delete if
+child routes exist. Defaults to `FORCE` for backwards compatibility.
+Possible values: `DEFAULT`, `FORCE`.
 
 
 

@@ -321,6 +321,16 @@ certificate(either root or intermediate cert).`,
 											},
 										},
 									},
+									"trust_default_shared_ca": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `If set to True, the trust bundle will include the private ca managed identity regional root
+public certificates.
+
+
+~> **Note** 'trust_default_shared_ca' is only supported for managed identity trust domain
+resource.`,
+									},
 								},
 							},
 						},
@@ -1056,8 +1066,9 @@ func flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundles(v
 	for k, raw := range l {
 		original := raw.(map[string]interface{})
 		transformed = append(transformed, map[string]interface{}{
-			"trust_domain":  k,
-			"trust_anchors": flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustAnchors(original["trustAnchors"], d, config),
+			"trust_domain":            k,
+			"trust_anchors":           flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustAnchors(original["trustAnchors"], d, config),
+			"trust_default_shared_ca": flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustDefaultSharedCa(original["trustDefaultSharedCa"], d, config),
 		})
 	}
 	return transformed
@@ -1081,6 +1092,10 @@ func flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTr
 	return transformed
 }
 func flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustAnchorsPemCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustDefaultSharedCa(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1237,6 +1252,13 @@ func expandIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundles(v 
 			transformed["trustAnchors"] = transformedTrustAnchors
 		}
 
+		transformedTrustDefaultSharedCa, err := expandIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustDefaultSharedCa(original["trust_default_shared_ca"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTrustDefaultSharedCa); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["trustDefaultSharedCa"] = transformedTrustDefaultSharedCa
+		}
+
 		transformedTrustDomain, err := tpgresource.ExpandString(original["trust_domain"], d, config)
 		if err != nil {
 			return nil, err
@@ -1272,6 +1294,10 @@ func expandIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTru
 }
 
 func expandIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustAnchorsPemCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustDefaultSharedCa(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

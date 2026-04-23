@@ -9,6 +9,8 @@ api_resource_type_kind: PrivateConnection
 fields:
     - field: create_without_validation
       provider_only: true
+    - field: deletion_policy
+      provider_only: true
     - api_field: displayName
     - field: effective_labels
       provider_only: true

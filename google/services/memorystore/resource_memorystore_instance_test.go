@@ -625,39 +625,6 @@ func TestAccMemorystoreInstance_switchoverAndDetachSecondary(t *testing.T) {
 	})
 }
 
-// Validate that multiple fields can be updated simultaneously.
-// The Memorystore API requires exactly 1 update_mask field per request,
-// so the provider must split multi-field updates into separate requests.
-func TestAccMemorystoreInstance_updateMultipleFields(t *testing.T) {
-	t.Parallel()
-
-	name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 1, shardCount: 3, zoneDistributionMode: "MULTI_ZONE", deletionProtectionEnabled: false, engineConfigs: map[string]string{"maxmemory-policy": "volatile-ttl"}, maintenanceDay: "MONDAY", maintenanceHours: 1, maintenanceMinutes: 0, maintenanceSeconds: 0, maintenanceNanos: 0}),
-			},
-			{
-				ResourceName:      "google_memorystore_instance.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, zoneDistributionMode: "MULTI_ZONE", deletionProtectionEnabled: false, engineConfigs: map[string]string{"maxmemory-policy": "allkeys-lru"}, maintenanceDay: "WEDNESDAY", maintenanceHours: 5, maintenanceMinutes: 0, maintenanceSeconds: 0, maintenanceNanos: 0}),
-			},
-			{
-				ResourceName:      "google_memorystore_instance.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 // Validate that instance endpoints are updated for the instance
 func TestAccMemorystoreInstance_updateInstanceEndpoints(t *testing.T) {
 	t.Parallel()
