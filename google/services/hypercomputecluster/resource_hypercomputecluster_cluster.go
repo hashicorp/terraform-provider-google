@@ -441,9 +441,10 @@ cluster over SSH.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"count": {
-													Type:        schema.TypeString,
-													Required:    true,
-													Description: `Number of login node instances to create.`,
+													Type:             schema.TypeString,
+													Required:         true,
+													DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("0"),
+													Description:      `Number of login node instances to create.`,
 												},
 												"machine_type": {
 													Type:     schema.TypeString,
@@ -625,8 +626,9 @@ to be run on each VM instance in the nodeset. Max 256KB.`,
 													},
 												},
 												"max_dynamic_node_count": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:             schema.TypeString,
+													Optional:         true,
+													DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("0"),
 													Description: `Controls how many additional nodes a cluster can bring online to handle
 workloads. Set this value to enable dynamic node creation and limit the
 number of additional nodes the cluster can bring online. Leave empty if you
@@ -634,8 +636,9 @@ do not want the cluster to create nodes dynamically, and instead rely only
 on static nodes.`,
 												},
 												"static_node_count": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:             schema.TypeString,
+													Optional:         true,
+													DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("0"),
 													Description: `Number of nodes to be statically created for this nodeset. The cluster will
 attempt to ensure that at least this many nodes exist at all times.`,
 												},
