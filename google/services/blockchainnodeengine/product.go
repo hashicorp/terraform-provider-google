@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "blockchainnodeengine",
-	BaseUrl:              "https://blockchainnodeengine.googleapis.com/v1/",
-	CustomEndpointField:  "blockchain_node_engine_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_BLOCKCHAIN_NODE_ENGINE_CUSTOM_ENDPOINT",
-}
+const ProductName = "blockchainnodeengine"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "blockchainnodeengine",
+		BaseUrl: "https://blockchainnodeengine.googleapis.com/v1/",
+	}.Register()
 }

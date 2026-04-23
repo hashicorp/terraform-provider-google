@@ -104,11 +104,11 @@ resource "google_backup_dr_management_server" "foo" {
     network      = data.google_compute_network.default.id
     peering_mode = "PRIVATE_SERVICE_ACCESS"
   }
+  depends_on = [ google_backup_dr_management_server.foo ]
 }
 
 data "google_backup_dr_management_server" "foo" {
   location =  "us-central1"
-  depends_on = [ google_backup_dr_management_server.foo ]
 }
 `, context)
 }

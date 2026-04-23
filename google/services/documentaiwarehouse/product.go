@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "documentaiwarehouse",
-	BaseUrl:              "https://contentwarehouse.googleapis.com/v1/",
-	CustomEndpointField:  "document_ai_warehouse_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_DOCUMENT_AI_WAREHOUSE_CUSTOM_ENDPOINT",
-}
+const ProductName = "documentaiwarehouse"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "documentaiwarehouse",
+		BaseUrl: "https://contentwarehouse.googleapis.com/v1/",
+	}.Register()
 }

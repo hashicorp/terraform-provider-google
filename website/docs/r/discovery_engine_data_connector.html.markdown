@@ -135,11 +135,7 @@ resource "google_discovery_engine_data_connector" "jira-with-actions" {
     key = "url"
     destinations {
       host = "https://example.atlassian.net"
-      port = 123
     }
-    params                     = jsonencode({
-      "destination_type": "private"
-    })
   }
   connector_modes              = ["FEDERATED", "ACTIONS"]
   sync_mode                    = "PERIODIC"
@@ -410,10 +406,6 @@ The following arguments are supported:
   The list of destinations for this configuration.
   Structure is [documented below](#nested_destination_configs_destinations).
 
-* `params` -
-  (Optional)
-  Additional parameters for this destination config in structured json format.
-
 
 <a name="nested_destination_configs_destinations"></a>The `destinations` block supports:
 
@@ -421,10 +413,6 @@ The following arguments are supported:
   (Optional)
   The host of the destination, for example
   `https://example.atlassian.net`.
-
-* `port` -
-  (Optional)
-  Target port number accepted by the destination.
 
 ## Attributes Reference
 

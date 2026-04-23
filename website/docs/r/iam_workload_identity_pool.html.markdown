@@ -84,8 +84,7 @@ resource "google_iam_workload_identity_pool" "example" {
   }
   inline_trust_config {
     additional_trust_bundles {
-      trust_domain            = "example.com"
-      trust_default_shared_ca = false      
+      trust_domain = "example.com"
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_1.pem")
       }
@@ -94,8 +93,7 @@ resource "google_iam_workload_identity_pool" "example" {
       }
     }
     additional_trust_bundles {
-      trust_domain            = "example.net"
-      trust_default_shared_ca = false
+      trust_domain = "example.net"
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_3.pem")
       }
@@ -127,8 +125,7 @@ resource "google_iam_workload_identity_pool" "example" {
   }
   inline_trust_config {
     additional_trust_bundles {
-      trust_domain            = "example.com"
-      trust_default_shared_ca = true
+      trust_domain = "example.com"
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_1.pem")
       }
@@ -137,8 +134,7 @@ resource "google_iam_workload_identity_pool" "example" {
       }
     }
     additional_trust_bundles {
-      trust_domain            = "example.net"
-      trust_default_shared_ca = true
+      trust_domain = "example.net"
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_3.pem")
       }
@@ -302,14 +298,6 @@ The following arguments are supported:
   `TrustStore`. The incoming end entity's certificate must be chained up to one of the
   trust anchors here.
   Structure is [documented below](#nested_inline_trust_config_additional_trust_bundles_trust_anchors).
-
-* `trust_default_shared_ca` -
-  (Optional)
-  If set to True, the trust bundle will include the private ca managed identity regional root
-  public certificates.
-  
-  ~> **Note** `trust_default_shared_ca` is only supported for managed identity trust domain
-  resource.
 
 
 <a name="nested_inline_trust_config_additional_trust_bundles_trust_anchors"></a>The `trust_anchors` block supports:

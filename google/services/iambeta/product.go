@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "iambeta",
-	BaseUrl:              "https://iam.googleapis.com/v1/",
-	CustomEndpointField:  "iam_beta_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_IAM_BETA_CUSTOM_ENDPOINT",
-}
+const ProductName = "iambeta"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "iambeta",
+		BaseUrl: "https://iam.googleapis.com/v1/",
+	}.Register()
 }

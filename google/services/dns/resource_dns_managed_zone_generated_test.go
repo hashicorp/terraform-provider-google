@@ -783,65 +783,6 @@ resource "google_dns_managed_zone" "cloud-logging-enabled-zone" {
 `, context)
 }
 
-func TestAccDNSManagedZone_dnsManagedZoneIamConditionExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"dns_name":          "conditions.example.com-" + acctest.RandString(t, 10) + ".",
-		"managed_zone_name": "tf-test-example-zone" + randomSuffix,
-		"random_suffix":     randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDNSManagedZone_dnsManagedZoneIamConditionExample(context),
-			},
-			{
-				ResourceName:            "google_dns_managed_zone.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
-			},
-			{
-				ResourceName:       "google_dns_managed_zone.default",
-				RefreshState:       true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccDNSManagedZone_dnsManagedZoneIamConditionExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_dns_managed_zone" "default" {
-  name        = "%{managed_zone_name}"
-  dns_name    = "%{dns_name}"
-  description = "Example zone for IAM conditions"
-}
-
-resource "google_dns_managed_zone_iam_member" "condition_test" {
-  project      = google_dns_managed_zone.default.project
-  managed_zone = google_dns_managed_zone.default.name
-  role         = "roles/dns.admin"
-  member       = "user:admin@hashicorptest.com"
-
-  condition {
-    title       = "Exact Record Match"
-    description = "Allow modifying only api.example.com. A records"
-    # Mandatory pass-through clause for parent Managed Zone checks
-    expression = "(resource.type == 'dns.googleapis.com/ResourceRecordSet' && resource.name.endsWith('/rrsets/api.%{dns_name}/A')) || (resource.type != 'dns.googleapis.com/ResourceRecordSet')"
-  }
-}
-`, context)
-}
-
 func testAccCheckDNSManagedZoneDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

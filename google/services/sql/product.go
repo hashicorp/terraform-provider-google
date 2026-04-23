@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "sql",
-	BaseUrl:              "https://sqladmin.googleapis.com/sql/v1beta4/",
-	CustomEndpointField:  "sql_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_SQL_CUSTOM_ENDPOINT",
-}
+const ProductName = "sql"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "sql",
+		BaseUrl: "https://sqladmin.googleapis.com/sql/v1beta4/",
+	}.Register()
 }

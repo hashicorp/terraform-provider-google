@@ -565,7 +565,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
 func testAccCloudBuildTrigger_webhook_config(name string) string {
 	return fmt.Sprintf(`
 resource "google_secret_manager_secret" "webhook_trigger_secret_key" {
-  secret_id = "%s"
+  secret_id = "webhook_trigger-secret-key"
 
   replication {
     user_managed {
@@ -624,13 +624,13 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     google_secret_manager_secret_iam_policy.policy
   ]
 }
-`, name, name)
+`, name)
 }
 
 func testAccCloudBuildTrigger_webhook_config_update(name string) string {
 	return fmt.Sprintf(`
 resource "google_secret_manager_secret" "webhook_trigger_secret_key" {
-  secret_id = "%s"
+  secret_id = "webhook_trigger-secret-key"
 
   replication {
     user_managed {
@@ -689,7 +689,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     google_secret_manager_secret_iam_policy.policy
   ]
 }
-`, name, name)
+`, name)
 }
 
 func testAccCloudBuildTrigger_customizeDiffTimeoutSum(name string) string {

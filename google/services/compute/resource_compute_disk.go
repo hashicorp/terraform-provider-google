@@ -365,6 +365,10 @@ func ExpandStoragePoolUrl(v interface{}, d tpgresource.TerraformResourceData, co
 	if err != nil {
 		return "", err
 	}
+	zone, err := tpgresource.GetZone(d, config)
+	if err != nil {
+		return "", err
+	}
 
 	formattedStr := v.(string)
 	if strings.HasPrefix(v.(string), "/") {
@@ -382,12 +386,6 @@ func ExpandStoragePoolUrl(v interface{}, d tpgresource.TerraformResourceData, co
 		// For regional or zonal resources which include their region or zone, just put the project in front.
 		replacedStr = config.ComputeBasePath + "projects/" + project + "/" + formattedStr
 	} else {
-		// Resources like instance template do not have a zone argument.
-		// In this case, run GetZone when it is strictly necessary.
-		zone, err := tpgresource.GetZone(d, config)
-		if err != nil {
-			return "", err
-		}
 		// Anything else is assumed to be a zonal resource, with a partial link that begins with the resource name.
 		replacedStr = config.ComputeBasePath + "projects/" + project + "/zones/" + zone + "/storagePools/" + formattedStr
 	}
@@ -1753,13 +1751,9 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 				userAgent, d.Timeout(schema.TimeoutDelete))
 			if err != nil {
 				var opErr ComputeOperationError
-				if errors.As(err, &opErr) {
-					if rawErrors, _ := opErr["errors"].([]interface{}); len(rawErrors) == 1 {
-						if errMap, _ := rawErrors[0].(map[string]interface{}); errMap["code"] == "RESOURCE_NOT_FOUND" {
-							log.Printf("[WARN] instance %q was deleted while awaiting detach", call.instance)
-							continue
-						}
-					}
+				if errors.As(err, &opErr) && len(opErr.Errors) == 1 && opErr.Errors[0].Code == "RESOURCE_NOT_FOUND" {
+					log.Printf("[WARN] instance %q was deleted while awaiting detach", call.instance)
+					continue
 				}
 				return err
 			}

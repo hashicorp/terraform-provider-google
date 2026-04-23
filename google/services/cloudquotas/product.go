@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "cloudquotas",
-	BaseUrl:              "https://cloudquotas.googleapis.com/v1/",
-	CustomEndpointField:  "cloud_quotas_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_CLOUD_QUOTAS_CUSTOM_ENDPOINT",
-}
+const ProductName = "cloudquotas"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "cloudquotas",
+		BaseUrl: "https://cloudquotas.googleapis.com/v1/",
+	}.Register()
 }

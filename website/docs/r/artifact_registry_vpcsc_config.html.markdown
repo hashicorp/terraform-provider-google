@@ -85,10 +85,6 @@ This resource provides the following
 - `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
-## Regional Endpoint Policies
-
-This resource supports Regional Endpoint Policies (REP). See the [provider reference](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#prefer_regional_endpoints) for more details on configuration.
-
 ## Import
 
 

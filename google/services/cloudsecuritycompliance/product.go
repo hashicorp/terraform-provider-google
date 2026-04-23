@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "cloudsecuritycompliance",
-	BaseUrl:              "https://cloudsecuritycompliance.googleapis.com/v1/",
-	CustomEndpointField:  "cloud_security_compliance_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_CLOUD_SECURITY_COMPLIANCE_CUSTOM_ENDPOINT",
-}
+const ProductName = "cloudsecuritycompliance"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "cloudsecuritycompliance",
+		BaseUrl: "https://cloudsecuritycompliance.googleapis.com/v1/",
+	}.Register()
 }

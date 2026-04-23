@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "transcoder",
-	BaseUrl:              "https://transcoder.googleapis.com/v1/",
-	CustomEndpointField:  "transcoder_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_TRANSCODER_CUSTOM_ENDPOINT",
-}
+const ProductName = "transcoder"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "transcoder",
+		BaseUrl: "https://transcoder.googleapis.com/v1/",
+	}.Register()
 }

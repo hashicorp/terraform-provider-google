@@ -175,8 +175,7 @@ resource "google_iam_workload_identity_pool" "my_pool" {
   }
   inline_trust_config {
     additional_trust_bundles {
-      trust_domain            = "ca-pool-foo.global.project-foo.workload.id.goog"
-      trust_default_shared_ca = false
+      trust_domain = "ca-pool-foo.global.project-foo.workload.id.goog"
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_1.pem")
       }
@@ -185,8 +184,7 @@ resource "google_iam_workload_identity_pool" "my_pool" {
       }
     }
     additional_trust_bundles {
-      trust_domain            = "ca-pool-bar.global.project-bar.workload.id.goog"
-      trust_default_shared_ca = false
+      trust_domain = "ca-pool-bar.global.project-bar.workload.id.goog"
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_3.pem")
       }
@@ -221,8 +219,7 @@ resource "google_iam_workload_identity_pool" "my_pool" {
   }
   inline_trust_config {
     additional_trust_bundles {
-      trust_domain            = "ca-pool-baz.global.project-baz.workload.id.goog"
-	  trust_default_shared_ca = false
+      trust_domain = "ca-pool-baz.global.project-baz.workload.id.goog"
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_updated.pem")
       }
@@ -257,8 +254,7 @@ resource "google_iam_workload_identity_pool" "my_pool" {
   }
   inline_trust_config {
     additional_trust_bundles {
-      trust_domain            = "ca-pool-baz.global.project-baz.workload.id.goog"
-	  trust_default_shared_ca = true
+      trust_domain = "ca-pool-baz.global.project-baz.workload.id.goog"
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_updated.pem")
       }

@@ -2031,7 +2031,7 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 		Steps: []resource.TestStep{
 			// First test with empty `node_config.linux_node_config` (should result in "CGROUP_MODE_UNSPECIFIED")
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", false, false, ""),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", false, ""),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						acctest.ExpectNoDelete(),
@@ -2046,7 +2046,7 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 			},
 			// Then add a config and make sure it updates.
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V2", false, false, ""),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V2", false, ""),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_container_cluster.with_linux_node_config",
@@ -2068,12 +2068,12 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 			// Lastly, update the setting in-place. V1 since UNSPECIFIED is default
 			// From version 1.35+, cgroup mode v1 will be blocked.
 			{
-				Config:      testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V1", false, false, ""),
+				Config:      testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V1", false, ""),
 				ExpectError: regexp.MustCompile("Node pools with cgroupv1 is not supported"),
 			},
 			// Update linux config transparent hugepage
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", true, false, ""),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", true, ""),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_container_cluster.with_linux_node_config",
@@ -2098,7 +2098,7 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 			},
 			// Update node kernel module loading policy
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V2", false, false, "ENFORCE_SIGNED_MODULES"),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V2", false, "ENFORCE_SIGNED_MODULES"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_container_cluster.with_linux_node_config",
@@ -2123,32 +2123,11 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 			},
 			// Unset node kernel module loading policy
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", false, false, "DO_NOT_ENFORCE_SIGNED_MODULES"),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", false, "DO_NOT_ENFORCE_SIGNED_MODULES"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_container_cluster.with_linux_node_config",
 						"node_config.0.linux_node_config.0.node_kernel_module_loading.0.policy", "DO_NOT_ENFORCE_SIGNED_MODULES",
-					),
-				),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						acctest.ExpectNoDelete(),
-					},
-				},
-			},
-			{
-				ResourceName:            "google_container_cluster.with_linux_node_config",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
-			},
-			// Update node accurate time config
-			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V2", false, true, ""),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"google_container_cluster.with_linux_node_config",
-						"node_config.0.linux_node_config.0.accurate_time_config.0.enable_ptp_kvm_time_sync", "true",
 					),
 				),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
@@ -9180,11 +9159,11 @@ resource "google_container_cluster" "with_node_config" {
 `, clusterName, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, cgroupMode string, thpEnabled, ptpEnabled bool, nkmlPolicy string) string {
+func testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, cgroupMode string, thpEnabled bool, nkmlPolicy string) string {
 	// Empty block inside node_config if sub-fields are empty
 	linuxNodeConfig := ""
 
-	if cgroupMode != "" || thpEnabled || nkmlPolicy != "" || ptpEnabled {
+	if cgroupMode != "" || thpEnabled || nkmlPolicy != "" {
 		linuxNodeConfig = `linux_node_config {
   		`
 		if cgroupMode != "" {
@@ -9202,12 +9181,6 @@ func testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkN
 				policy = "%s"
 			}
 			`, nkmlPolicy)
-		}
-		if ptpEnabled {
-			linuxNodeConfig = linuxNodeConfig + fmt.Sprintf(`accurate_time_config {
-				enable_ptp_kvm_time_sync = %t
-      }
-      `, ptpEnabled)
 		}
 		linuxNodeConfig = linuxNodeConfig + "}"
 	}
@@ -14655,19 +14628,6 @@ func TestAccContainerCluster_withDnsEndpoint(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
-			{
-				Config: testAccContainerCluster_withDnsEndpoint(clusterName, networkName, subnetworkName, false),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.endpoint"),
-					resource.TestCheckResourceAttr("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.allow_external_traffic", "false"),
-				),
-			},
-			{
-				ResourceName:            "google_container_cluster.primary",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
-			},
 		},
 	})
 }
@@ -14684,11 +14644,9 @@ resource "google_container_cluster" "primary" {
   control_plane_endpoints_config {
     dns_endpoint_config {
       allow_external_traffic = %t
-      enable_k8s_tokens_via_dns = %t
-      enable_k8s_certs_via_dns = %t
     }
   }
-}`, name, networkName, subnetworkName, enabled, enabled, enabled)
+}`, name, networkName, subnetworkName, enabled)
 }
 
 func TestAccContainerCluster_withDnsEndpointAndEnableK8sTokensViaDns(t *testing.T) {

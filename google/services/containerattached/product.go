@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "containerattached",
-	BaseUrl:              "https://{{location}}-gkemulticloud.googleapis.com/v1/",
-	CustomEndpointField:  "container_attached_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_CONTAINER_ATTACHED_CUSTOM_ENDPOINT",
-}
+const ProductName = "containerattached"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "containerattached",
+		BaseUrl: "https://{{location}}-gkemulticloud.googleapis.com/v1/",
+	}.Register()
 }

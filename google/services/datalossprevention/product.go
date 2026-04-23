@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "datalossprevention",
-	BaseUrl:              "https://dlp.googleapis.com/v2/",
-	CustomEndpointField:  "data_loss_prevention_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_DATA_LOSS_PREVENTION_CUSTOM_ENDPOINT",
-}
+const ProductName = "datalossprevention"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "datalossprevention",
+		BaseUrl: "https://dlp.googleapis.com/v2/",
+	}.Register()
 }

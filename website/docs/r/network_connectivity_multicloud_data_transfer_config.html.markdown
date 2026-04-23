@@ -60,13 +60,13 @@ resource "google_network_connectivity_multicloud_data_transfer_config" "example"
 The following arguments are supported:
 
 
-* `name` -
-  (Required)
-  The name of the MulticloudDataTransferConfig resource.
-
 * `location` -
   (Required)
   The location of the multicloud data transfer config.
+
+* `name` -
+  (Required)
+  The name of the MulticloudDataTransferConfig resource.
 
 
 * `labels` -
@@ -176,8 +176,8 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 ```tf
 import {
   identity = {
-    name = "<-required value->"
     location = "<-required value->"
+    name = "<-required value->"
     project = "<-optional value->"
   }
   to = google_network_connectivity_multicloud_data_transfer_config.default

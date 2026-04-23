@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "gemini",
-	BaseUrl:              "https://cloudaicompanion.googleapis.com/v1/",
-	CustomEndpointField:  "gemini_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_GEMINI_CUSTOM_ENDPOINT",
-}
+const ProductName = "gemini"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "gemini",
+		BaseUrl: "https://cloudaicompanion.googleapis.com/v1/",
+	}.Register()
 }

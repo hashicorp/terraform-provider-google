@@ -311,7 +311,7 @@ func TestAccLustreInstance_withKmsKey(t *testing.T) {
 				ResourceName:            "google_lustre_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "labels", "gke_support_enabled", "location", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "gke_support_enabled", "location", "terraform_labels"},
 			},
 		},
 	})

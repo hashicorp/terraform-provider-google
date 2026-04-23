@@ -19,6 +19,7 @@ package compute
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -27,15 +28,16 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
+	"google.golang.org/api/compute/v1"
 )
 
 type ComputeOperationWaiter struct {
-	Config    *transport_tpg.Config
-	UserAgent string
-	Op        map[string]interface{}
-	Context   context.Context
-	Project   string
-	Parent    string
+	Service *compute.Service
+	Op      *compute.Operation
+	Context context.Context
+	Project string
+	Parent  string
 }
 
 func (w *ComputeOperationWaiter) State() string {
@@ -43,32 +45,21 @@ func (w *ComputeOperationWaiter) State() string {
 		return "<nil>"
 	}
 
-	status, _ := w.Op["status"].(string)
-	return status
+	return w.Op.Status
 }
 
 func (w *ComputeOperationWaiter) Error() error {
-	if w != nil && w.Op != nil {
-		if opErr, ok := w.Op["error"]; ok && opErr != nil {
-			errMap, ok := opErr.(map[string]interface{})
-			if !ok {
-				return fmt.Errorf("operation error: %v", opErr)
-			}
-			return ComputeOperationError(errMap)
-		}
+	if w != nil && w.Op != nil && w.Op.Error != nil {
+		return ComputeOperationError(*w.Op.Error)
 	}
 	return nil
 }
 
 func (w *ComputeOperationWaiter) IsRetryable(err error) bool {
 	if oe, ok := err.(ComputeOperationError); ok {
-		if rawErrors, ok := oe["errors"].([]interface{}); ok {
-			for _, rawErr := range rawErrors {
-				if errMap, ok := rawErr.(map[string]interface{}); ok {
-					if code, _ := errMap["code"].(string); code == "RESOURCE_NOT_READY" {
-						return true
-					}
-				}
+		for _, e := range oe.Errors {
+			if e.Code == "RESOURCE_NOT_READY" {
+				return true
 			}
 		}
 	}
@@ -77,7 +68,7 @@ func (w *ComputeOperationWaiter) IsRetryable(err error) bool {
 
 func (w *ComputeOperationWaiter) SetOp(op interface{}) error {
 	var ok bool
-	w.Op, ok = op.(map[string]interface{})
+	w.Op, ok = op.(*compute.Operation)
 	if !ok {
 		return fmt.Errorf("Unable to set operation. Bad type!")
 	}
@@ -97,26 +88,16 @@ func (w *ComputeOperationWaiter) QueryOp() (interface{}, error) {
 			// default must be here to keep the previous case from blocking
 		}
 	}
-	opName, _ := w.Op["name"].(string)
-	var url string
-	if zone, ok := w.Op["zone"].(string); ok && zone != "" {
-		zoneName := tpgresource.GetResourceNameFromSelfLink(zone)
-		url = fmt.Sprintf("%sprojects/%s/zones/%s/operations/%s", w.Config.ComputeBasePath, w.Project, zoneName, opName)
-	} else if region, ok := w.Op["region"].(string); ok && region != "" {
-		regionName := tpgresource.GetResourceNameFromSelfLink(region)
-		url = fmt.Sprintf("%sprojects/%s/regions/%s/operations/%s", w.Config.ComputeBasePath, w.Project, regionName, opName)
+	if w.Op.Zone != "" {
+		zone := tpgresource.GetResourceNameFromSelfLink(w.Op.Zone)
+		return w.Service.ZoneOperations.Get(w.Project, zone, w.Op.Name).Do()
+	} else if w.Op.Region != "" {
+		region := tpgresource.GetResourceNameFromSelfLink(w.Op.Region)
+		return w.Service.RegionOperations.Get(w.Project, region, w.Op.Name).Do()
 	} else if w.Parent != "" {
-		url = fmt.Sprintf("%slocations/global/operations/%s?parentId=%s", w.Config.ComputeBasePath, opName, w.Parent)
-	} else {
-		url = fmt.Sprintf("%sprojects/%s/global/operations/%s", w.Config.ComputeBasePath, w.Project, opName)
+		return w.Service.GlobalOrganizationOperations.Get(w.Op.Name).ParentId(w.Parent).Do()
 	}
-	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    w.Config,
-		Method:    "GET",
-		Project:   w.Project,
-		RawURL:    url,
-		UserAgent: w.UserAgent,
-	})
+	return w.Service.GlobalOperations.Get(w.Project, w.Op.Name).Do()
 }
 
 func (w *ComputeOperationWaiter) OpName() string {
@@ -124,8 +105,7 @@ func (w *ComputeOperationWaiter) OpName() string {
 		return "<nil> Compute Op"
 	}
 
-	name, _ := w.Op["name"].(string)
-	return name
+	return w.Op.Name
 }
 
 func (w *ComputeOperationWaiter) PendingStates() []string {
@@ -137,17 +117,17 @@ func (w *ComputeOperationWaiter) TargetStates() []string {
 }
 
 func ComputeOperationWaitTime(config *transport_tpg.Config, res interface{}, project, activity, userAgent string, timeout time.Duration) error {
-	op, err := tpgresource.ConvertToMap(res)
+	op := &compute.Operation{}
+	err := tpgresource.Convert(res, op)
 	if err != nil {
 		return err
 	}
 
 	w := &ComputeOperationWaiter{
-		Config:    config,
-		UserAgent: userAgent,
-		Context:   config.Context,
-		Op:        op,
-		Project:   project,
+		Service: config.NewComputeClient(userAgent),
+		Context: config.Context,
+		Op:      op,
+		Project: project,
 	}
 
 	if err := w.SetOp(op); err != nil {
@@ -157,16 +137,16 @@ func ComputeOperationWaitTime(config *transport_tpg.Config, res interface{}, pro
 }
 
 func ComputeOrgOperationWaitTimeWithResponse(config *transport_tpg.Config, res interface{}, response *map[string]interface{}, parent, activity, userAgent string, timeout time.Duration) error {
-	op, err := tpgresource.ConvertToMap(res)
+	op := &compute.Operation{}
+	err := tpgresource.Convert(res, op)
 	if err != nil {
 		return err
 	}
 
 	w := &ComputeOperationWaiter{
-		Config:    config,
-		UserAgent: userAgent,
-		Op:        op,
-		Parent:    parent,
+		Service: config.NewComputeClient(userAgent),
+		Op:      op,
+		Parent:  parent,
 	}
 
 	if err := w.SetOp(op); err != nil {
@@ -175,22 +155,21 @@ func ComputeOrgOperationWaitTimeWithResponse(config *transport_tpg.Config, res i
 	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return err
 	}
-	*response = w.Op
-	return nil
+	e, err := json.Marshal(w.Op)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(e, response)
 }
 
-// ComputeOperationError wraps the error part of an operation response and implements the
+// ComputeOperationError wraps compute.OperationError and implements the
 // error interface so it can be returned.
-type ComputeOperationError map[string]interface{}
+type ComputeOperationError compute.OperationError
 
 func (e ComputeOperationError) Error() string {
 	buf := bytes.NewBuffer(nil)
-	if rawErrors, ok := e["errors"].([]interface{}); ok {
-		for _, rawErr := range rawErrors {
-			if errMap, ok := rawErr.(map[string]interface{}); ok {
-				writeOperationError(buf, errMap)
-			}
-		}
+	for _, err := range e.Errors {
+		writeOperationError(buf, err)
 	}
 
 	return buf.String()
@@ -198,80 +177,55 @@ func (e ComputeOperationError) Error() string {
 
 const errMsgSep = "\n\n"
 
-func writeOperationError(w io.StringWriter, opError map[string]interface{}) {
-	if msg, ok := opError["message"].(string); ok {
-		w.WriteString(msg + "\n")
-	}
+func writeOperationError(w io.StringWriter, opError *compute.OperationErrorErrors) {
+	w.WriteString(opError.Message + "\n")
 
-	code, _ := opError["code"].(string)
+	var lm *compute.LocalizedMessage
+	var link *compute.HelpLink
 
-	var lmMessage string
-	var linkDescription, linkURL string
+	for _, ed := range opError.ErrorDetails {
+		if opError.Code == "QUOTA_EXCEEDED" && ed.QuotaInfo != nil {
+			w.WriteString("\tmetric name = " + ed.QuotaInfo.MetricName + "\n")
+			w.WriteString("\tlimit name = " + ed.QuotaInfo.LimitName + "\n")
+			if ed.QuotaInfo.Limit != 0 {
+				w.WriteString("\tlimit = " + fmt.Sprint(ed.QuotaInfo.Limit) + "\n")
+			}
+			if ed.QuotaInfo.FutureLimit != 0 {
+				w.WriteString("\tfuture limit = " + fmt.Sprint(ed.QuotaInfo.FutureLimit) + "\n")
+				w.WriteString("\trollout status = in progress\n")
+			}
+			if ed.QuotaInfo.Dimensions != nil {
+				w.WriteString("\tdimensions = " + fmt.Sprint(ed.QuotaInfo.Dimensions) + "\n")
+			}
+			break
+		}
+		if lm == nil && ed.LocalizedMessage != nil {
+			lm = ed.LocalizedMessage
+		}
 
-	if rawDetails, ok := opError["errorDetails"].([]interface{}); ok {
-		for _, rawDetail := range rawDetails {
-			detail, ok := rawDetail.(map[string]interface{})
-			if !ok {
-				continue
-			}
-			if code == "QUOTA_EXCEEDED" {
-				if quotaInfo, ok := detail["quotaInfo"].(map[string]interface{}); ok {
-					if v, ok := quotaInfo["metricName"].(string); ok {
-						w.WriteString("\tmetric name = " + v + "\n")
-					}
-					if v, ok := quotaInfo["limitName"].(string); ok {
-						w.WriteString("\tlimit name = " + v + "\n")
-					}
-					if v, ok := quotaInfo["limit"].(float64); ok && v != 0 {
-						w.WriteString("\tlimit = " + fmt.Sprint(v) + "\n")
-					}
-					if v, ok := quotaInfo["futureLimit"].(float64); ok && v != 0 {
-						w.WriteString("\tfuture limit = " + fmt.Sprint(v) + "\n")
-						w.WriteString("\trollout status = in progress\n")
-					}
-					if dims, ok := quotaInfo["dimensions"]; ok && dims != nil {
-						w.WriteString("\tdimensions = " + fmt.Sprint(dims) + "\n")
-					}
-					break
-				}
-			}
-			if lmMessage == "" {
-				if lm, ok := detail["localizedMessage"].(map[string]interface{}); ok {
-					if msg, ok := lm["message"].(string); ok {
-						lmMessage = msg
-					}
-				}
-			}
+		if link == nil && ed.Help != nil && len(ed.Help.Links) > 0 {
+			link = ed.Help.Links[0]
+		}
 
-			if linkURL == "" {
-				if help, ok := detail["help"].(map[string]interface{}); ok {
-					if links, ok := help["links"].([]interface{}); ok && len(links) > 0 {
-						if link, ok := links[0].(map[string]interface{}); ok {
-							linkDescription, _ = link["description"].(string)
-							linkURL, _ = link["url"].(string)
-						}
-					}
-				}
-			}
-
-			if lmMessage != "" && linkURL != "" {
-				break
-			}
+		if lm != nil && link != nil {
+			break
 		}
 	}
 
-	if lmMessage != "" {
+	if lm != nil && lm.Message != "" {
 		w.WriteString(errMsgSep)
-		w.WriteString(lmMessage + "\n")
+		w.WriteString(lm.Message + "\n")
 	}
 
-	if linkURL != "" {
+	if link != nil {
 		w.WriteString(errMsgSep)
 
-		if linkDescription != "" {
-			w.WriteString(linkDescription + "\n")
+		if link.Description != "" {
+			w.WriteString(link.Description + "\n")
 		}
 
-		w.WriteString(linkURL + "\n")
+		if link.Url != "" {
+			w.WriteString(link.Url + "\n")
+		}
 	}
 }

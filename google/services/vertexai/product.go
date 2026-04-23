@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "vertexai",
-	BaseUrl:              "https://{{region}}-aiplatform.googleapis.com/v1/",
-	CustomEndpointField:  "vertex_ai_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_VERTEX_AI_CUSTOM_ENDPOINT",
-}
+const ProductName = "vertexai"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "vertexai",
+		BaseUrl: "https://{{region}}-aiplatform.googleapis.com/v1/",
+	}.Register()
 }

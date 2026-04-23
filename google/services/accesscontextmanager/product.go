@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "accesscontextmanager",
-	BaseUrl:              "https://accesscontextmanager.googleapis.com/v1/",
-	CustomEndpointField:  "access_context_manager_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_ACCESS_CONTEXT_MANAGER_CUSTOM_ENDPOINT",
-}
+const ProductName = "accesscontextmanager"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "accesscontextmanager",
+		BaseUrl: "https://accesscontextmanager.googleapis.com/v1/",
+	}.Register()
 }

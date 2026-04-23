@@ -122,11 +122,11 @@ func ResourceNetworkConnectivityMulticloudDataTransferConfig() *schema.Resource 
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
-					"name": {
+					"location": {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 					},
-					"location": {
+					"name": {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 					},
@@ -358,14 +358,14 @@ func resourceNetworkConnectivityMulticloudDataTransferConfigCreate(d *schema.Res
 
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
-		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
-			if err = identity.Set("name", nameValue.(string)); err != nil {
-				return fmt.Errorf("Error setting name: %s", err)
-			}
-		}
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
 			if err = identity.Set("location", locationValue.(string)); err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
 			}
 		}
 		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
@@ -460,16 +460,16 @@ func resourceNetworkConnectivityMulticloudDataTransferConfigRead(d *schema.Resou
 
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
-		if v, ok := identity.GetOk("name"); !ok && v == "" {
-			err = identity.Set("name", d.Get("name").(string))
-			if err != nil {
-				return fmt.Errorf("Error setting name: %s", err)
-			}
-		}
 		if v, ok := identity.GetOk("location"); !ok && v == "" {
 			err = identity.Set("location", d.Get("location").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
 			}
 		}
 		if v, ok := identity.GetOk("project"); !ok && v == "" {
@@ -493,14 +493,14 @@ func resourceNetworkConnectivityMulticloudDataTransferConfigUpdate(d *schema.Res
 	}
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
-		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
-			if err = identity.Set("name", nameValue.(string)); err != nil {
-				return fmt.Errorf("Error setting name: %s", err)
-			}
-		}
 		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
 			if err = identity.Set("location", locationValue.(string)); err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
 			}
 		}
 		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {

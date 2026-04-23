@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "datastream",
-	BaseUrl:              "https://datastream.googleapis.com/v1/",
-	CustomEndpointField:  "datastream_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_DATASTREAM_CUSTOM_ENDPOINT",
-}
+const ProductName = "datastream"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "datastream",
+		BaseUrl: "https://datastream.googleapis.com/v1/",
+	}.Register()
 }

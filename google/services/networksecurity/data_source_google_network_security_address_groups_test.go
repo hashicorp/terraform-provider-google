@@ -35,7 +35,7 @@ func TestAccDataSourceNetworkSecurityAddressGroups_basic(t *testing.T) {
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderBetaFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceNetworkSecurityAddressGroupsConfig(context),
@@ -50,7 +50,12 @@ func TestAccDataSourceNetworkSecurityAddressGroups_basic(t *testing.T) {
 
 func testAccDataSourceNetworkSecurityAddressGroupsConfig(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+provider "google-beta" {
+  region = "%{location}"
+}
+
 resource "google_network_security_address_group" "basic" {
+  provider    = google-beta
   name        = "tf-test-ag-%{random_suffix}"
   parent      = "projects/%{project}"
   location    = "%{location}"
@@ -60,6 +65,7 @@ resource "google_network_security_address_group" "basic" {
 }
 
 data "google_network_security_address_groups" "all" {
+  provider   = google-beta
   project    = "%{project}"
   location   = "%{location}"
   depends_on = [google_network_security_address_group.basic]

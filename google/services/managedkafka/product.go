@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "managedkafka",
-	BaseUrl:              "https://managedkafka.googleapis.com/v1/",
-	CustomEndpointField:  "managed_kafka_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_MANAGED_KAFKA_CUSTOM_ENDPOINT",
-}
+const ProductName = "managedkafka"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "managedkafka",
+		BaseUrl: "https://managedkafka.googleapis.com/v1/",
+	}.Register()
 }

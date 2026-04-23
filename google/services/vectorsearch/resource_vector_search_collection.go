@@ -177,28 +177,6 @@ underscores, and hyphens.`,
 				Optional:    true,
 				Description: `User-specified display name of the collection`,
 			},
-			"encryption_spec": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				Description: `Represents a customer-managed encryption key specification that can be
-applied to a Vector Search collection.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"crypto_key_name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-							Description: `Resource name of the Cloud KMS key used to protect the resource.
-
-The Cloud KMS key must be in the same region as the resource. It must have
-the format
-'projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}'.`,
-						},
-					},
-				},
-			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -353,12 +331,6 @@ func resourceVectorSearchCollectionCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	encryptionSpecProp, err := expandVectorSearchCollectionEncryptionSpec(d.Get("encryption_spec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionSpecProp)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
-		obj["encryptionSpec"] = encryptionSpecProp
-	}
 	vectorSchemaProp, err := expandVectorSearchCollectionVectorSchema(d.Get("vector_schema"), d, config)
 	if err != nil {
 		return err
@@ -503,9 +475,6 @@ func resourceVectorSearchCollectionRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Collection: %s", err)
 	}
 	if err := d.Set("display_name", flattenVectorSearchCollectionDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Collection: %s", err)
-	}
-	if err := d.Set("encryption_spec", flattenVectorSearchCollectionEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Collection: %s", err)
 	}
 	if err := d.Set("labels", flattenVectorSearchCollectionLabels(res["labels"], d, config)); err != nil {
@@ -792,23 +761,6 @@ func flattenVectorSearchCollectionDisplayName(v interface{}, d *schema.ResourceD
 	return v
 }
 
-func flattenVectorSearchCollectionEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["crypto_key_name"] =
-		flattenVectorSearchCollectionEncryptionSpecCryptoKeyName(original["cryptoKeyName"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVectorSearchCollectionEncryptionSpecCryptoKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenVectorSearchCollectionLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -953,32 +905,6 @@ func expandVectorSearchCollectionDescription(v interface{}, d tpgresource.Terraf
 }
 
 func expandVectorSearchCollectionDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandVectorSearchCollectionEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedCryptoKeyName, err := expandVectorSearchCollectionEncryptionSpecCryptoKeyName(original["crypto_key_name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCryptoKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["cryptoKeyName"] = transformedCryptoKeyName
-	}
-
-	return transformed, nil
-}
-
-func expandVectorSearchCollectionEncryptionSpecCryptoKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

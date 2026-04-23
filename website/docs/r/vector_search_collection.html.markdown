@@ -73,79 +73,6 @@ EOF
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vectorsearch_collection_cmek&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Vectorsearch Collection Cmek
-
-
-```hcl
-resource "google_vector_search_collection" "example-cmek-collection" {
-  location      = "us-central1"
-  collection_id = "example-cmek-collection"
-
-  display_name = "My Awesome Encrypted Collection"
-  description  = "This collection stores important data."
-
-  encryption_spec {
-    crypto_key_name = google_kms_crypto_key.crypto_key.id
-  }
-
-  labels = {
-    env  = "dev"
-    team = "my-team"
-  }
-
-  data_schema = <<EOF
-{
-  "type": "object",
-  "properties": {
-    "title": {
-      "type": "string"
-    },
-    "plot": {
-      "type": "string"
-    }
-  }
-}
-EOF
-
-  vector_schema {
-    field_name = "text_embedding"
-    dense_vector {
-      dimensions = 768
-      vertex_embedding_config {
-        model_id   = "textembedding-gecko@003"
-        task_type  = "RETRIEVAL_DOCUMENT"
-        text_template = "Title: {title} ---- Plot: {plot}"
-      }
-    }
-  }
-
-  depends_on = [google_kms_crypto_key_iam_member.crypto_key_member_vs_sa]
-}
-
-resource "google_kms_crypto_key" "crypto_key" {
-  name     = "example-cmek-collection"
-  key_ring = google_kms_key_ring.key_ring.id
-}
-
-resource "google_kms_key_ring" "key_ring" {
-  name     = "example-cmek-collection"
-  location = "us-central1"
-}
-
-resource "google_kms_crypto_key_iam_member" "crypto_key_member_vs_sa" {
-  crypto_key_id = google_kms_crypto_key.crypto_key.id
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-vectorsearch.iam.gserviceaccount.com"
-}
-
-data "google_project" "project" {}
-```
 
 ## Argument Reference
 
@@ -179,12 +106,6 @@ The following arguments are supported:
   (Optional)
   User-specified display name of the collection
 
-* `encryption_spec` -
-  (Optional)
-  Represents a customer-managed encryption key specification that can be
-  applied to a Vector Search collection.
-  Structure is [documented below](#nested_encryption_spec).
-
 * `labels` -
   (Optional)
   Labels as key value pairs.
@@ -203,15 +124,6 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-
-<a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
-
-* `crypto_key_name` -
-  (Required)
-  Resource name of the Cloud KMS key used to protect the resource.
-  The Cloud KMS key must be in the same region as the resource. It must have
-  the format
-  `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.
 
 <a name="nested_vector_schema"></a>The `vector_schema` block supports:
 

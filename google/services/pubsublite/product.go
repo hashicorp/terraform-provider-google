@@ -22,13 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-var Product = registry.Product{
-	Name:                 "pubsublite",
-	BaseUrl:              "https://{{region}}-pubsublite.googleapis.com/v1/admin/",
-	CustomEndpointField:  "pubsub_lite_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_PUBSUB_LITE_CUSTOM_ENDPOINT",
-}
+const ProductName = "pubsublite"
 
 func init() {
-	Product.Register()
+	registry.Product{
+		Name:    "pubsublite",
+		BaseUrl: "https://{{region}}-pubsublite.googleapis.com/v1/admin/",
+	}.Register()
 }
