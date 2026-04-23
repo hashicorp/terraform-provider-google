@@ -16,12 +16,12 @@
 subcategory: "Network Security"
 description: |-
   AddressGroups are used to group IP addresses together for use in firewall policies.
-  This data source allows you to list address groups in a project and location.
+  This data source allows you to list address groups in a project or organization and location.
 ---
 
 # google_network_security_address_groups
 
-AddressGroups are used to group IP addresses together for use in firewall policies. This data source allows you to list address groups in a project and location.
+AddressGroups are used to group IP addresses together for use in firewall policies. This data source allows you to list address groups in a project or organization and location.
 
 To get more information about Address Groups, see:
 
@@ -29,12 +29,21 @@ To get more information about Address Groups, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/firewall/docs/about-address-groups)
 
-## Example Usage
+## Example Usage - Project Level
 
 ```hcl
 data "google_network_security_address_groups" "all" {
   location = "us-central1"
   project  = "my-project-id"
+}
+```
+
+## Example Usage - Organization Level
+
+```hcl
+data "google_network_security_address_groups" "org_all" {
+  location = "us-central1"
+  parent   = "organizations/123456789"
 }
 ```
 
@@ -44,13 +53,19 @@ The following arguments are supported:
 
 * `location` - (Required) The location of the Address Group.
 
-* `project` - (Optional) The ID of the project.
+- - -
+
+* `project` - (Optional) The ID of the project. Conflicts with `parent`.
+
+* `parent` - (Optional) The parent of the Address Group. Use `organizations/{organization_id}` for organization-level address groups or `projects/{project_id}` for project-level address groups. Conflicts with `project`.
+
+~> **Note:** Exactly one of `project` or `parent` should be specified. If neither is set, the project is inferred from the provider configuration.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `address_groups` - A list of Address Groups in the selected project and location. Structure is [defined below](#nested_address_groups).
+* `address_groups` - A list of Address Groups in the selected project or organization and location. Structure is [defined below](#nested_address_groups).
 
 <a name="nested_address_groups"></a>The `address_groups` block supports:
 
