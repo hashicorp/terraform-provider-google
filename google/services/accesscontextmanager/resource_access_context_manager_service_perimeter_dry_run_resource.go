@@ -384,6 +384,7 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceDelete(d *schema.
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "ServicePerimeterDryRunResource")
 	}
+
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "spec.resources"})
 	if err != nil {
 		return err

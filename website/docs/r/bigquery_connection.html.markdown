@@ -31,7 +31,7 @@ To get more information about Connection, see:
     * [Cloud SQL federated queries](https://cloud.google.com/bigquery/docs/cloud-sql-federated-queries)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `cloud_sql.credential.password`.
+values will be stored in the raw state as plain text: `cloud_sql.credential.password`, `configuration.authentication.username_password.password.plaintext`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -328,6 +328,90 @@ resource "google_bigquery_connection" "bq-connection-cmek" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_connection_connector_configuration&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Connection Connector Configuration
+
+
+```hcl
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "alloydb-cluster-${local.name_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = google_compute_network.default.id
+  }
+
+  initial_user {
+    password = "alloydb-cluster-password"
+  }
+
+  deletion_protection = false
+
+  lifecycle {
+    ignore_changes = [initial_user]
+  }
+}
+
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "alloydb-instance-${local.name_suffix}"
+  instance_type = "PRIMARY"
+
+  machine_config {
+    cpu_count = 2
+  }
+
+  depends_on = [google_service_networking_connection.vpc_connection]
+}
+
+resource "google_compute_network" "default" {
+  name = "alloydb-network-${local.name_suffix}"
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          = "alloydb-ip-${local.name_suffix}"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = google_compute_network.default.id
+}
+
+resource "google_service_networking_connection" "vpc_connection" {
+  network                 = google_compute_network.default.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+}
+
+locals {
+  name_suffix = "my-connection"
+}
+
+resource "google_bigquery_connection" "connection" {
+  connection_id = "my-connection"
+  location      = "us-central1"
+  friendly_name = "alloydb connection"
+  description   = "AlloyDB connection using connector configuration"
+
+  configuration {
+    connector_id = "google-alloydb"
+    asset {
+      database              = "postgres"
+      google_cloud_resource = "//alloydb.googleapis.com/${google_alloydb_instance.default.id}"
+    }
+    authentication {
+      username_password {
+        username = "user"
+        password {
+          plaintext = "password"
+        }
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -391,6 +475,13 @@ The following arguments are supported:
   (Optional)
   Container for connection properties to execute stored procedures for Apache Spark. resources.
   Structure is [documented below](#nested_spark).
+
+* `configuration` -
+  (Optional)
+  Connector configuration. This is a generic configuration that is used to connect to
+  external data sources such as AlloyDB, MySQL, and PostgreSQL using the BigQuery
+  Connector framework.
+  Structure is [documented below](#nested_configuration).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -543,6 +634,102 @@ The following arguments are supported:
 * `dataproc_cluster` -
   (Optional)
   Resource name of an existing Dataproc Cluster to act as a Spark History Server for the connection if the form of projects/[projectId]/regions/[region]/clusters/[cluster_name].
+
+<a name="nested_configuration"></a>The `configuration` block supports:
+
+* `connector_id` -
+  (Required)
+  The ID of the connector. Possible values include `google-alloydb`, `google-cloudsql-mysql`,
+  `google-cloudsql-postgres`, and other connector IDs supported by the BigQuery Connector framework.
+
+* `endpoint` -
+  (Optional)
+  Endpoint configuration for the connector.
+  Structure is [documented below](#nested_configuration_endpoint).
+
+* `authentication` -
+  (Optional)
+  Authentication configuration for the connector.
+  Structure is [documented below](#nested_configuration_authentication).
+
+* `network` -
+  (Optional)
+  Network configuration for the connector.
+  Structure is [documented below](#nested_configuration_network).
+
+* `asset` -
+  (Required)
+  Asset configuration for the connector.
+  Structure is [documented below](#nested_configuration_asset).
+
+
+<a name="nested_configuration_endpoint"></a>The `endpoint` block supports:
+
+* `host_port` -
+  (Optional)
+  Host and port in the format of `host:port` for the connector endpoint.
+
+<a name="nested_configuration_authentication"></a>The `authentication` block supports:
+
+* `username_password` -
+  (Optional)
+  Username/password authentication configuration.
+  Structure is [documented below](#nested_configuration_authentication_username_password).
+
+* `service_account` -
+  (Output)
+  Output only. The service account used for authenticating with the connector.
+
+
+<a name="nested_configuration_authentication_username_password"></a>The `username_password` block supports:
+
+* `username` -
+  (Required)
+  Username for the connector.
+
+* `password` -
+  (Required)
+  Password configuration for the connector.
+  Structure is [documented below](#nested_configuration_authentication_username_password_password).
+
+
+<a name="nested_configuration_authentication_username_password_password"></a>The `password` block supports:
+
+* `plaintext` -
+  (Required)
+  The plaintext password.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `secret_type` -
+  (Output)
+  Output only. The type of the secret.
+
+<a name="nested_configuration_network"></a>The `network` block supports:
+
+* `private_service_connect` -
+  (Optional)
+  Private Service Connect configuration for the connector.
+  Structure is [documented below](#nested_configuration_network_private_service_connect).
+
+
+<a name="nested_configuration_network_private_service_connect"></a>The `private_service_connect` block supports:
+
+* `network_attachment` -
+  (Required)
+  The resource name of a network attachment in the format of
+  `projects/{project}/regions/{region}/networkAttachments/{networkAttachment}`.
+
+<a name="nested_configuration_asset"></a>The `asset` block supports:
+
+* `database` -
+  (Optional)
+  The name of the database.
+
+* `google_cloud_resource` -
+  (Optional)
+  The full resource name of the Google Cloud resource.
+  For AlloyDB, this is in the format of
+  `//alloydb.googleapis.com/projects/{project}/locations/{region}/clusters/{cluster}/instances/{instance}`.
 
 ## Attributes Reference
 

@@ -121,7 +121,7 @@ resource "google_ces_app" "ces_app_basic" {
   }
 
   model_settings {
-    model       = "gemini-1.5-flash"
+    model       = "gemini-2.5-flash-001"
     temperature = 0.5
   }
 
@@ -293,7 +293,7 @@ resource "google_ces_app" "ces_app_ambient_sound_gcs_uri" {
   }
 
   model_settings {
-    model       = "gemini-1.5-flash"
+    model       = "gemini-2.5-flash-001"
     temperature = 0.5
   }
 

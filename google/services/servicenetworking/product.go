@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "servicenetworking"
+var Product = registry.Product{
+	Name:                 "servicenetworking",
+	BaseUrl:              "https://servicenetworking.googleapis.com/v1/",
+	CustomEndpointField:  "service_networking_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_SERVICE_NETWORKING_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "servicenetworking",
-		BaseUrl: "https://servicenetworking.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

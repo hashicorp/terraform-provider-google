@@ -1280,10 +1280,18 @@ func testAccCheckArtifactRegistryRepositoryDestroyProducer(t *testing.T) func(s 
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ArtifactRegistryBasePath}}projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
+			urlFormatted, err := tpgresource.ReplaceVarsForTest(config, rs, "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
+
 			if err != nil {
 				return err
 			}
+
+			loc := tpgresource.LocationFromId(urlFormatted)
+			basePath, err := transport_tpg.ResourceBasePath(config.ArtifactRegistryBasePath, config.ArtifactRegistryRepBasePath, "ArtifactRegistry", config, loc)
+			if err != nil {
+				return err
+			}
+			url := fmt.Sprintf("%s%s", basePath, urlFormatted)
 
 			billingProject := ""
 

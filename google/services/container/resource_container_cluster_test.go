@@ -14628,6 +14628,19 @@ func TestAccContainerCluster_withDnsEndpoint(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
+			{
+				Config: testAccContainerCluster_withDnsEndpoint(clusterName, networkName, subnetworkName, false),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.endpoint"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.allow_external_traffic", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
 		},
 	})
 }
@@ -14644,9 +14657,11 @@ resource "google_container_cluster" "primary" {
   control_plane_endpoints_config {
     dns_endpoint_config {
       allow_external_traffic = %t
+      enable_k8s_tokens_via_dns = %t
+      enable_k8s_certs_via_dns = %t
     }
   }
-}`, name, networkName, subnetworkName, enabled)
+}`, name, networkName, subnetworkName, enabled, enabled, enabled)
 }
 
 func TestAccContainerCluster_withDnsEndpointAndEnableK8sTokensViaDns(t *testing.T) {

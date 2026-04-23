@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "cloudbuild"
+var Product = registry.Product{
+	Name:                 "cloudbuild",
+	BaseUrl:              "https://cloudbuild.googleapis.com/v1/",
+	CustomEndpointField:  "cloud_build_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_CLOUD_BUILD_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "cloudbuild",
-		BaseUrl: "https://cloudbuild.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

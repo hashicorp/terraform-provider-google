@@ -192,7 +192,8 @@ resource "google_iam_workload_identity_pool" "example" {
   }
   inline_trust_config {
     additional_trust_bundles {
-      trust_domain = "example.com"
+      trust_domain            = "example.com"
+      trust_default_shared_ca = false      
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_1.pem")
       }
@@ -201,7 +202,8 @@ resource "google_iam_workload_identity_pool" "example" {
       }
     }
     additional_trust_bundles {
-      trust_domain = "example.net"
+      trust_domain            = "example.net"
+      trust_default_shared_ca = false
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_3.pem")
       }
@@ -268,7 +270,8 @@ resource "google_iam_workload_identity_pool" "example" {
   }
   inline_trust_config {
     additional_trust_bundles {
-      trust_domain = "example.com"
+      trust_domain            = "example.com"
+      trust_default_shared_ca = true
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_1.pem")
       }
@@ -277,7 +280,8 @@ resource "google_iam_workload_identity_pool" "example" {
       }
     }
     additional_trust_bundles {
-      trust_domain = "example.net"
+      trust_domain            = "example.net"
+      trust_default_shared_ca = true
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_3.pem")
       }

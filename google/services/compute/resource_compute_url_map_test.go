@@ -22,7 +22,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
@@ -371,6 +371,41 @@ func TestAccComputeUrlMap_defaultUrlRedirect(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_url_map.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeUrlMap_cachePolicyMultiLevelUpdate(t *testing.T) {
+	t.Parallel()
+
+	randString := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_cachePolicyMultiLevel(randString),
+			},
+			{
+				ResourceName:      "google_compute_url_map.urlmap",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeUrlMap_cachePolicyMultiLevelUpdate(randString),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_url_map.urlmap", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_url_map.urlmap",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -1699,4 +1734,375 @@ resource "google_compute_url_map" "foobar" {
   }
 }
 `, randomSuffix)
+}
+
+func testAccComputeUrlMap_cachePolicyMultiLevel(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_url_map" "urlmap" {
+  name     = "urlmap-test-%s"
+  
+  default_service = google_compute_backend_service.default.id
+
+  # Level 1: Top-level default_route_action
+  default_route_action {
+    cache_policy {
+      cache_bypass_request_header_names = ["X-Internal-Bypass"]
+      cache_mode = "CACHE_ALL_STATIC"
+      cache_key_policy {
+        include_query_string = true
+        excluded_query_parameters = ["custom_parameter"]
+      }
+      client_ttl {
+        seconds = "1800"
+        nanos = 0
+      }
+      default_ttl {
+        seconds = "3600"
+        nanos = 0
+      }
+      max_ttl {
+        seconds = "7200"
+        nanos = 0
+      }
+      negative_caching = true
+      negative_caching_policy {
+        code = 404
+        ttl {
+          seconds = "100"
+          nanos = 0
+        }
+      }
+      request_coalescing = true
+      serve_while_stale {
+        seconds = "3600"
+        nanos = 0
+      }
+    }
+  }
+
+  host_rule {
+    hosts        = ["example.com"]
+    path_matcher = "main-matcher"
+  }
+
+  host_rule {
+    hosts        = ["api.example.com"]
+    path_matcher = "api-matcher"
+  }
+
+  path_matcher {
+    name            = "main-matcher"
+    default_service = google_compute_backend_service.default.id
+
+    # Level 2: PathMatcher-level default_route_action
+    default_route_action {
+      cache_policy {
+        cache_bypass_request_header_names = ["X-Internal-Bypass"]
+        cache_mode = "CACHE_ALL_STATIC"
+        cache_key_policy {
+          include_host              = true
+          include_protocol          = true
+          include_query_string      = true
+          included_cookie_names     = ["custom_cookie"]
+          included_header_names     = ["custom_header"]
+          included_query_parameters = ["custom_parameter"]
+        }
+        client_ttl {
+          nanos   = 0
+          seconds = "100"
+        }
+        default_ttl {
+          nanos   = 0
+          seconds = "7200"
+        }
+        max_ttl {
+          nanos   = 0
+          seconds = "10000"
+        }
+        negative_caching = true
+        negative_caching_policy {
+          code = 404
+          ttl {
+            seconds = "300"
+          }
+        }
+        request_coalescing = false
+        serve_while_stale {
+          nanos = 0
+          seconds = "3600"
+        }
+      }
+    }
+
+    # Level 3: PathRule route_action
+    path_rule {
+      paths   = ["/static/*"]
+      service = google_compute_backend_service.default.id
+      route_action {
+        cache_policy {
+          cache_mode = "CACHE_ALL_STATIC"
+          default_ttl {
+            seconds = "86400"
+          }
+          cache_bypass_request_header_names = ["X-Custom-Header"]
+          cache_key_policy {
+            include_host         = true
+            include_protocol     = true
+            include_query_string = true
+            excluded_query_parameters = ["custom_parameter"]
+            included_header_names     = ["X-Custom-Header"]
+            included_cookie_names = ["X-Cookie-Name"]
+          }
+          max_ttl {
+            nanos   = 0
+            seconds = "500000"
+          }
+          negative_caching = true
+          negative_caching_policy {
+            code = 501
+            ttl {
+              nanos   = 0
+              seconds = "100"
+            }
+          }
+          request_coalescing = true
+          serve_while_stale {
+            nanos   = 0
+            seconds = "3600"
+          }
+        }
+      }
+    }
+  }
+
+  path_matcher {
+    name            = "api-matcher"
+    default_service = google_compute_backend_service.default.id
+
+    default_route_action {
+      cache_policy {
+        cache_mode = "CACHE_ALL_STATIC"
+        default_ttl {
+          seconds = "0"
+        }
+        negative_caching = true
+        negative_caching_policy {
+          code = 404
+          ttl {
+            seconds = "300"
+            nanos   = 0
+          }
+        }
+      }
+    }
+
+    # Level 4: RouteRule route_action
+    route_rules {
+      priority = 1
+      match_rules {
+        prefix_match = "/api/v1"
+      }
+      service = google_compute_backend_service.default.id
+      route_action {
+        cache_policy {
+          cache_mode = "CACHE_ALL_STATIC"
+          default_ttl {
+            seconds = "60"
+            nanos = 0
+          }
+          client_ttl {
+            seconds = "90"
+            nanos = 0
+          }
+          max_ttl {
+            seconds = "120"
+            nanos = 0
+          }
+          serve_while_stale {
+            seconds = "3600"
+            nanos = 0
+          }
+          cache_bypass_request_header_names = ["X-Header"]
+          cache_key_policy {
+            include_host              = true
+            include_protocol          = false
+            include_query_string      = true
+            included_cookie_names     = ["X-Cookie"]
+            included_header_names     = ["X-Header"]
+            included_query_parameters = ["X-Query"]
+          }
+          negative_caching = true
+          negative_caching_policy {
+            code = 404
+            ttl {
+              nanos   = 0
+              seconds = "100"
+            }
+          }
+          request_coalescing = false
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name     = "backend-test-%s"
+  
+  protocol              = "HTTP"
+  # Mandatory scheme for cache_policy
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  name     = "hc-test-%s"
+  http_health_check {
+    port = 80
+  }
+}
+`, suffix, suffix, suffix)
+}
+
+func testAccComputeUrlMap_cachePolicyMultiLevelUpdate(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_url_map" "urlmap" {
+  name     = "urlmap-test-%s"
+  
+  default_service = google_compute_backend_service.default.id
+
+  # Level 1: Top-level default_route_action (UPDATED)
+  default_route_action {
+    cache_policy {
+      cache_mode = "USE_ORIGIN_HEADERS"
+      request_coalescing = false
+      cache_bypass_request_header_names = ["X-Internal-Bypass-Updated"]
+      cache_key_policy {
+        include_query_string = true
+        excluded_query_parameters = ["updated_parameter"]
+      }
+    }
+  }
+
+  host_rule {
+    hosts        = ["example.com"]
+    path_matcher = "main-matcher"
+  }
+
+  host_rule {
+    hosts        = ["api.example.com"]
+    path_matcher = "api-matcher"
+  }
+
+  path_matcher {
+    name            = "main-matcher"
+    default_service = google_compute_backend_service.default.id
+
+    # Level 2: PathMatcher-level default_route_action (UPDATED)
+    default_route_action {
+      cache_policy {
+        cache_mode = "FORCE_CACHE_ALL"
+        default_ttl {
+          seconds = "3600"
+        }
+        negative_caching = false
+      }
+    }
+
+    # Level 3: PathRule route_action (UPDATED)
+    path_rule {
+      paths   = ["/static/*"]
+      service = google_compute_backend_service.default.id
+      route_action {
+        cache_policy {
+          cache_mode = "CACHE_ALL_STATIC"
+          default_ttl {
+            seconds = "43200"
+            nanos   = 0
+          }
+          client_ttl {
+            seconds = "1800"
+            nanos   = 0
+          }
+          cache_key_policy {
+            include_host         = false
+            include_protocol     = false
+            include_query_string = true
+            included_query_parameters = ["updated_parameter"]
+          }
+        }
+      }
+    }
+  }
+
+  path_matcher {
+    name            = "api-matcher"
+    default_service = google_compute_backend_service.default.id
+
+    default_route_action {
+      cache_policy {
+        cache_mode = "CACHE_ALL_STATIC"
+        cache_key_policy {
+          include_query_string = true
+          excluded_query_parameters = ["updated_parameter"]
+        }
+        default_ttl {
+          seconds = "60"
+        }
+        negative_caching = true
+        negative_caching_policy {
+          code = 404
+          ttl {
+            seconds = "600"
+            nanos   = 0
+          }
+        }
+      }
+    }
+
+    # Level 4: RouteRule route_action (UPDATED)
+    route_rules {
+      priority = 1
+      match_rules {
+        prefix_match = "/api/v1"
+      }
+      service = google_compute_backend_service.default.id
+      route_action {
+        cache_policy {
+          cache_mode = "FORCE_CACHE_ALL"
+          cache_key_policy {
+            include_query_string = true
+            excluded_query_parameters = ["updated_parameter"]
+          }
+          default_ttl {
+            seconds = "120"
+          }
+          client_ttl {
+            seconds = "180"
+          }
+          serve_while_stale {
+            seconds = "7200"
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name     = "backend-test-%s"
+  
+  protocol              = "HTTP"
+  # Mandatory scheme for cache_policy
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  name     = "hc-test-%s"
+  http_health_check {
+    port = 80
+  }
+}
+`, suffix, suffix, suffix)
 }

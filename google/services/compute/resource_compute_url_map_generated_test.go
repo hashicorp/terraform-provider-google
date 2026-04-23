@@ -881,6 +881,275 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
+func TestAccComputeUrlMap_urlMapCachePolicyBasicExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"backend_service_name": "home" + randomSuffix,
+		"health_check_name":    "tf-test-health-check" + randomSuffix,
+		"url_map_name":         "urlmap" + randomSuffix,
+		"random_suffix":        randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_urlMapCachePolicyBasicExample(context),
+			},
+			{
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
+			},
+			{
+				ResourceName:       "google_compute_url_map.urlmap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeUrlMap_urlMapCachePolicyBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_url_map" "urlmap" {
+  name     = "%{url_map_name}"
+  
+  default_service = google_compute_backend_service.default.id
+
+  default_route_action {
+    cache_policy {
+      cache_mode = "CACHE_ALL_STATIC"
+      default_ttl {
+        seconds = "3600"
+      }
+      client_ttl {
+        seconds = "1800"
+      }
+      negative_caching = true
+      negative_caching_policy {
+        code = 404
+        ttl {
+          seconds = "300"
+        }
+      }
+      request_coalescing = true
+      cache_bypass_request_header_names = ["X-Internal-Bypass"]
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name     = "%{backend_service_name}"
+  
+  protocol              = "HTTP"
+  # Mandatory scheme for cache_policy
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  name     = "%{health_check_name}"
+  http_health_check {
+    port = 80
+  }
+}
+`, context)
+}
+
+func TestAccComputeUrlMap_urlMapCachePolicyMultiLevelExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"backend_service_name": "home" + randomSuffix,
+		"health_check_name":    "tf-test-health-check" + randomSuffix,
+		"url_map_name":         "urlmap" + randomSuffix,
+		"random_suffix":        randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_urlMapCachePolicyMultiLevelExample(context),
+			},
+			{
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_route_action.0.cache_policy.0.client_ttl.0.nanos", "default_route_action.0.cache_policy.0.default_ttl.0.nanos", "default_route_action.0.cache_policy.0.max_ttl.0.nanos", "default_route_action.0.cache_policy.0.serve_while_stale.0.nanos", "default_service"},
+			},
+			{
+				ResourceName:       "google_compute_url_map.urlmap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeUrlMap_urlMapCachePolicyMultiLevelExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_url_map" "urlmap" {
+  name     = "%{url_map_name}"
+  
+  default_service = google_compute_backend_service.default.id
+
+  # Level 1: Top-level default_route_action
+  default_route_action {
+    cache_policy {
+      cache_key_policy {
+        include_host              = true
+        include_protocol          = true
+        include_query_string      = true
+        included_cookie_names     = ["cookie1", "cookie2"]
+        included_header_names     = ["header1", "header2"]
+        included_query_parameters = ["param1", "param2"]
+      }
+      cache_mode = "FORCE_CACHE_ALL"
+      default_ttl {
+        seconds = "3600"
+      }
+      client_ttl {
+        seconds = "1800"
+      }
+      request_coalescing = true
+      cache_bypass_request_header_names = ["X-Internal-Bypass"]
+    }
+  }
+
+  host_rule {
+    hosts        = ["example.com"]
+    path_matcher = "main-matcher"
+  }
+
+  host_rule {
+    hosts        = ["api.example.com"]
+    path_matcher = "api-matcher"
+  }
+
+  path_matcher {
+    name            = "main-matcher"
+    default_service = google_compute_backend_service.default.id
+
+    # Level 2: PathMatcher-level default_route_action
+    default_route_action {
+      cache_policy {
+        cache_mode = "CACHE_ALL_STATIC"
+        default_ttl {
+          seconds = "7200"
+        }
+        negative_caching = true
+        negative_caching_policy {
+          code = 404
+          ttl {
+            seconds = "300"
+          }
+        }
+      }
+    }
+
+    # Level 3: PathRule route_action
+    path_rule {
+      paths   = ["/static/*"]
+      service = google_compute_backend_service.default.id
+      route_action {
+        cache_policy {
+          cache_mode = "CACHE_ALL_STATIC"
+          default_ttl {
+            seconds = "86400"
+          }
+          cache_key_policy {
+            include_host         = true
+            include_protocol     = true
+            include_query_string = true
+            excluded_query_parameters = ["custom_parameter"]
+            included_header_names     = ["X-Custom-Header"]
+          }
+        }
+      }
+    }
+  }
+
+  path_matcher {
+    name            = "api-matcher"
+    default_service = google_compute_backend_service.default.id
+
+    default_route_action {
+      cache_policy {
+        cache_mode = "CACHE_ALL_STATIC"
+        default_ttl {
+          seconds = "0"
+        }
+        negative_caching = true
+        negative_caching_policy {
+          code = 404
+          ttl {
+            seconds = "300"
+            nanos   = 0
+          }
+        }
+      }
+    }
+
+    # Level 4: RouteRule route_action
+    route_rules {
+      priority = 1
+      match_rules {
+        prefix_match = "/api/v1"
+      }
+      service = google_compute_backend_service.default.id
+      route_action {
+        cache_policy {
+          cache_mode = "CACHE_ALL_STATIC"
+          default_ttl {
+            seconds = "60"
+          }
+          client_ttl {
+            seconds = "90"
+          }
+          max_ttl {
+            seconds = "120"
+          }
+          serve_while_stale {
+            seconds = "3600"
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name     = "%{backend_service_name}"
+  
+  protocol              = "HTTP"
+  # Mandatory scheme for cache_policy
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  name     = "%{health_check_name}"
+  http_health_check {
+    port = 80
+  }
+}
+`, context)
+}
+
 func TestAccComputeUrlMap_urlMapTestHeadersExample(t *testing.T) {
 	t.Parallel()
 

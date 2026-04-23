@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "cloudbilling"
+var Product = registry.Product{
+	Name:                 "cloudbilling",
+	BaseUrl:              "https://cloudbilling.googleapis.com/v1/",
+	CustomEndpointField:  "cloud_billing_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_CLOUD_BILLING_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "cloudbilling",
-		BaseUrl: "https://cloudbilling.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

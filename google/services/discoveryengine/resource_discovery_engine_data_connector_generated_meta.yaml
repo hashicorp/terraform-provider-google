@@ -27,7 +27,10 @@ fields:
     - api_field: dataSource
     - api_field: dataSourceVersion
     - api_field: destinationConfigs.destinations.host
+    - api_field: destinationConfigs.destinations.port
     - api_field: destinationConfigs.key
+    - api_field: destinationConfigs.params
+      json: true
     - api_field: entities.dataStore
     - api_field: entities.entityName
     - api_field: entities.keyPropertyMappings

@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "dialogflow"
+var Product = registry.Product{
+	Name:                 "dialogflow",
+	BaseUrl:              "https://dialogflow.googleapis.com/v2/",
+	CustomEndpointField:  "dialogflow_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_DIALOGFLOW_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "dialogflow",
-		BaseUrl: "https://dialogflow.googleapis.com/v2/",
-	}.Register()
+	Product.Register()
 }
