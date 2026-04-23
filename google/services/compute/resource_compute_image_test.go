@@ -17,12 +17,14 @@
 package compute_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -265,9 +267,24 @@ func testAccCheckComputeImageExists(t *testing.T, n string, image *compute.Image
 
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := config.NewComputeClient(config.UserAgent).Images.Get(
-			config.Project, rs.Primary.Attributes["name"]).Do()
+		url := fmt.Sprintf("%sprojects/%s/global/images/%s", config.ComputeBasePath, config.Project, rs.Primary.Attributes["name"])
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
+			return err
+		}
+
+		var found compute.Image
+		resBytes, err := json.Marshal(res)
+		if err != nil {
+			return err
+		}
+		if err := json.Unmarshal(resBytes, &found); err != nil {
 			return err
 		}
 
@@ -275,7 +292,7 @@ func testAccCheckComputeImageExists(t *testing.T, n string, image *compute.Image
 			return fmt.Errorf("Image not found")
 		}
 
-		*image = *found
+		*image = found
 
 		return nil
 	}
@@ -423,17 +440,26 @@ func testAccCheckComputeImageResolution(t *testing.T, n string) resource.TestChe
 		family := rs.Primary.Attributes["family"]
 		link := rs.Primary.Attributes["self_link"]
 
-		latestDebian, err := config.NewComputeClient(config.UserAgent).Images.GetFromFamily("debian-cloud", "debian-11").Do()
+		url := fmt.Sprintf("%sprojects/%s/global/images/family/%s", config.ComputeBasePath, "debian-cloud", "debian-11")
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return fmt.Errorf("Error retrieving latest debian: %s", err)
 		}
 
+		latestDebian := res
+
 		images := map[string]string{
-			"family/" + latestDebian.Family:                            "projects/debian-cloud/global/images/family/" + latestDebian.Family,
-			"projects/debian-cloud/global/images/" + latestDebian.Name: "projects/debian-cloud/global/images/" + latestDebian.Name,
-			latestDebian.Family:                                        "projects/debian-cloud/global/images/family/" + latestDebian.Family,
-			latestDebian.Name:                                          "projects/debian-cloud/global/images/" + latestDebian.Name,
-			latestDebian.SelfLink:                                      latestDebian.SelfLink,
+			"family/" + latestDebian["family"].(string):                            "projects/debian-cloud/global/images/family/" + latestDebian["family"].(string),
+			"projects/debian-cloud/global/images/" + latestDebian["name"].(string): "projects/debian-cloud/global/images/" + latestDebian["name"].(string),
+			latestDebian["family"].(string):                                        "projects/debian-cloud/global/images/family/" + latestDebian["family"].(string),
+			latestDebian["name"].(string):                                          "projects/debian-cloud/global/images/" + latestDebian["name"].(string),
+			latestDebian["selfLink"].(string):                                      latestDebian["selfLink"].(string),
 
 			"global/images/" + name:          "global/images/" + name,
 			"global/images/family/" + family: "global/images/family/" + family,
