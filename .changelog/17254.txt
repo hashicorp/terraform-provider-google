@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue where an erroneous error could occur for having an unset `zone` field in `google_compute_instance_template`
+```
