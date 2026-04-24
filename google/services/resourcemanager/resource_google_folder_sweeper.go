@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager3"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
@@ -199,7 +199,7 @@ func disableCapability(folderName string) {
 		log.Printf("[INFO][SWEEPER_LOG] Finished disabled Capability: %s", capName)
 	}
 
-	err = resourcemanager3.ResourceManager3OperationWaitTime(
+	err = resourcemanagerv3.ResourceManagerV3OperationWaitTime(
 		config, res, "Updating Capability", config.UserAgent,
 		20*time.Minute)
 

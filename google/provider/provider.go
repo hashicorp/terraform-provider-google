@@ -192,13 +192,6 @@ func Provider() *schema.Provider {
 				Optional: true,
 			},
 
-			// Handwritten Products / Versioned / Atypical Entries
-			transport_tpg.DataflowCustomEndpointEntryKey:          transport_tpg.DataflowCustomEndpointEntry,
-			transport_tpg.IamCredentialsCustomEndpointEntryKey:    transport_tpg.IamCredentialsCustomEndpointEntry,
-			transport_tpg.ResourceManagerV3CustomEndpointEntryKey: transport_tpg.ResourceManagerV3CustomEndpointEntry,
-			transport_tpg.IAMCustomEndpointEntryKey:               transport_tpg.IAMCustomEndpointEntry,
-			transport_tpg.TagsLocationCustomEndpointEntryKey:      transport_tpg.TagsLocationCustomEndpointEntry,
-
 			// dcl
 			transport_tpg.ContainerAwsCustomEndpointEntryKey:   transport_tpg.ContainerAwsCustomEndpointEntry,
 			transport_tpg.ContainerAzureCustomEndpointEntryKey: transport_tpg.ContainerAzureCustomEndpointEntry,
@@ -208,15 +201,23 @@ func Provider() *schema.Provider {
 			transport_tpg.FirebaserulesEndpointEntryKey:        transport_tpg.FirebaserulesEndpointEntry,
 			transport_tpg.RecaptchaEnterpriseEndpointEntryKey:  transport_tpg.RecaptchaEnterpriseEndpointEntry,
 
-			// Tombstoned - nonfunctional. https://github.com/hashicorp/terraform-provider-google/issues/27037
+			// Tombstoned schema fields - nonfunctional. https://github.com/hashicorp/terraform-provider-google/issues/26814
 			"core_billing_custom_endpoint": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
-
-			// Tombstoned - nonfunctional. https://github.com/hashicorp/terraform-provider-google/issues/27038
 			"billing_custom_endpoint": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"resource_manager3_custom_endpoint": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"iam_custom_endpoint": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -454,6 +455,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.ContainerAttachedBasePath = transport_tpg.BaseUrl(registry.GetProduct("containerattached"), &config)
 	config.DatabaseMigrationServiceBasePath = transport_tpg.BaseUrl(registry.GetProduct("databasemigrationservice"), &config)
 	config.DataCatalogBasePath = transport_tpg.BaseUrl(registry.GetProduct("datacatalog"), &config)
+	config.DataflowBasePath = transport_tpg.BaseUrl(registry.GetProduct("dataflow"), &config)
 	config.DataformBasePath = transport_tpg.BaseUrl(registry.GetProduct("dataform"), &config)
 	config.DataFusionBasePath = transport_tpg.BaseUrl(registry.GetProduct("datafusion"), &config)
 	config.DataLineageBasePath = transport_tpg.BaseUrl(registry.GetProduct("datalineage"), &config)
@@ -492,6 +494,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.IAM2BasePath = transport_tpg.BaseUrl(registry.GetProduct("iam2"), &config)
 	config.IAM3BasePath = transport_tpg.BaseUrl(registry.GetProduct("iam3"), &config)
 	config.IAMBetaBasePath = transport_tpg.BaseUrl(registry.GetProduct("iambeta"), &config)
+	config.IamCredentialsBasePath = transport_tpg.BaseUrl(registry.GetProduct("iamcredentials"), &config)
 	config.IAMWorkforcePoolBasePath = transport_tpg.BaseUrl(registry.GetProduct("iamworkforcepool"), &config)
 	config.IapBasePath = transport_tpg.BaseUrl(registry.GetProduct("iap"), &config)
 	config.IdentityPlatformBasePath = transport_tpg.BaseUrl(registry.GetProduct("identityplatform"), &config)
@@ -532,7 +535,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.PubsubLiteBasePath = transport_tpg.BaseUrl(registry.GetProduct("pubsublite"), &config)
 	config.RedisBasePath = transport_tpg.BaseUrl(registry.GetProduct("redis"), &config)
 	config.ResourceManagerBasePath = transport_tpg.BaseUrl(registry.GetProduct("resourcemanager"), &config)
-	config.ResourceManager3BasePath = transport_tpg.BaseUrl(registry.GetProduct("resourcemanager3"), &config)
+	config.ResourceManagerV3BasePath = transport_tpg.BaseUrl(registry.GetProduct("resourcemanagerv3"), &config)
 	config.SecretManagerBasePath = transport_tpg.BaseUrl(registry.GetProduct("secretmanager"), &config)
 	config.SecretManagerRegionalBasePath = transport_tpg.BaseUrl(registry.GetProduct("secretmanagerregional"), &config)
 	config.SecureSourceManagerBasePath = transport_tpg.BaseUrl(registry.GetProduct("securesourcemanager"), &config)
@@ -554,6 +557,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.StorageInsightsBasePath = transport_tpg.BaseUrl(registry.GetProduct("storageinsights"), &config)
 	config.StorageTransferBasePath = transport_tpg.BaseUrl(registry.GetProduct("storagetransfer"), &config)
 	config.TagsBasePath = transport_tpg.BaseUrl(registry.GetProduct("tags"), &config)
+	config.TagsLocationBasePath = transport_tpg.BaseUrl(registry.GetProduct("tagslocation"), &config)
 	config.TranscoderBasePath = transport_tpg.BaseUrl(registry.GetProduct("transcoder"), &config)
 	config.VectorSearchBasePath = transport_tpg.BaseUrl(registry.GetProduct("vectorsearch"), &config)
 	config.VertexAIBasePath = transport_tpg.BaseUrl(registry.GetProduct("vertexai"), &config)
@@ -585,13 +589,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
-
-	// Handwritten Products / Versioned / Atypical Entries
-	config.DataflowBasePath = d.Get(transport_tpg.DataflowCustomEndpointEntryKey).(string)
-	config.IamCredentialsBasePath = d.Get(transport_tpg.IamCredentialsCustomEndpointEntryKey).(string)
-	config.ResourceManagerV3BasePath = d.Get(transport_tpg.ResourceManagerV3CustomEndpointEntryKey).(string)
-	config.IAMBasePath = d.Get(transport_tpg.IAMCustomEndpointEntryKey).(string)
-	config.TagsLocationBasePath = d.Get(transport_tpg.TagsLocationCustomEndpointEntryKey).(string)
 
 	// dcl
 	config.ContainerAwsBasePath = d.Get(transport_tpg.ContainerAwsCustomEndpointEntryKey).(string)

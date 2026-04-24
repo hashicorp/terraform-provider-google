@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MPL-2.0
 resource: google_resource_manager_capability
 generation_type: mmv1
-source_file: products/resourcemanager3/Capability.yaml
+source_file: products/resourcemanagerv3/Capability.yaml
 api_service_name: cloudresourcemanager.googleapis.com
 api_version: v3
 api_resource_type_kind: Capability
