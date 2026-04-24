@@ -21,51 +21,118 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-
-	"google.golang.org/api/compute/v1"
 )
 
-func computeInstanceDeleteAccessConfigs(d *schema.ResourceData, config *transport_tpg.Config, instNetworkInterface *compute.NetworkInterface, project, zone, userAgent, instanceName string) error {
+func computeInstanceDeleteAccessConfigs(d *schema.ResourceData, config *transport_tpg.Config, instNetworkInterface map[string]interface{}, project, zone, userAgent, instanceName string) error {
 	// Delete any accessConfig that currently exists in instNetworkInterface
-	for _, ac := range instNetworkInterface.AccessConfigs {
-		op, err := config.NewComputeClient(userAgent).Instances.DeleteAccessConfig(
-			project, zone, instanceName, ac.Name, instNetworkInterface.Name).Do()
-		if err != nil {
-			return fmt.Errorf("Error deleting old access_config: %s", err)
+	rawAccessConfigs, ok := instNetworkInterface["accessConfigs"].([]interface{})
+	if !ok {
+		return nil // No access configs to delete
+	}
+
+	for _, rawAc := range rawAccessConfigs {
+		ac, ok := rawAc.(map[string]interface{})
+		if !ok {
+			continue
 		}
-		opErr := ComputeOperationWaitTime(config, op, project, "old access_config to delete", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if opErr != nil {
-			return opErr
+		acName := ac["name"].(string)
+		nicName := instNetworkInterface["name"].(string)
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/deleteAccessConfig")
+		if err != nil {
+			return fmt.Errorf("error replacing vars for DeleteAccessConfig URL: %w", err)
+		}
+
+		params := map[string]string{
+			"accessConfig":     acName,
+			"networkInterface": nicName,
+		}
+		url, err = transport_tpg.AddQueryParams(url, params)
+		if err != nil {
+			return fmt.Errorf("error adding query params for DeleteAccessConfig: %w", err)
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return fmt.Errorf("error deleting old access_config %q: %w", acName, err)
+		}
+
+		err = ComputeOperationWaitTime(config, res, project, "old access_config to delete", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("error waiting for old access_config %q deletion: %w", acName, err)
 		}
 	}
 	return nil
 }
 
-func computeInstanceAddAccessConfigs(d *schema.ResourceData, config *transport_tpg.Config, instNetworkInterface *compute.NetworkInterface, accessConfigs []*compute.AccessConfig, project, zone, userAgent, instanceName string) error {
+func computeInstanceAddAccessConfigs(d *schema.ResourceData, config *transport_tpg.Config, instNetworkInterface map[string]interface{}, accessConfigs []interface{}, project, zone, userAgent, instanceName string) error {
+	nicName := instNetworkInterface["name"].(string)
+
 	// Create new ones
-	for _, ac := range accessConfigs {
-		op, err := config.NewComputeClient(userAgent).Instances.AddAccessConfig(project, zone, instanceName, instNetworkInterface.Name, ac).Do()
-		if err != nil {
-			return fmt.Errorf("Error adding new access_config: %s", err)
+	for _, rawAc := range accessConfigs {
+		ac, ok := rawAc.(map[string]interface{})
+		if !ok {
+			continue
 		}
-		opErr := ComputeOperationWaitTime(config, op, project, "new access_config to add", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if opErr != nil {
-			return opErr
+		acName, _ := ac["name"].(string)
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/addAccessConfig")
+		if err != nil {
+			return fmt.Errorf("error replacing vars for AddAccessConfig URL: %w", err)
+		}
+
+		params := map[string]string{
+			"networkInterface": nicName,
+		}
+		url, err = transport_tpg.AddQueryParams(url, params)
+		if err != nil {
+			return fmt.Errorf("error adding query params for AddAccessConfig: %w", err)
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      ac,
+		})
+		if err != nil {
+			return fmt.Errorf("error adding new access_config %q: %w", acName, err)
+		}
+
+		err = ComputeOperationWaitTime(config, res, project, "new access_config to add", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("error waiting for new access_config %q addition: %w", acName, err)
 		}
 	}
 	return nil
 }
 
-func computeInstanceCreateUpdateWhileStoppedCall(d *schema.ResourceData, config *transport_tpg.Config, networkInterfacePatchObj *compute.NetworkInterface, accessConfigs []*compute.AccessConfig, accessConfigsHaveChanged bool, index int, project, zone, userAgent, instanceName string) func(inst *compute.Instance) error {
+func computeInstanceCreateUpdateWhileStoppedCall(d *schema.ResourceData, config *transport_tpg.Config, networkInterfacePatchObj map[string]interface{}, accessConfigs []interface{}, accessConfigsHaveChanged bool, index int, project, zone, userAgent, instanceName string) func(inst map[string]interface{}) error {
 
 	// Access configs' ip changes when the instance stops invalidating our fingerprint
 	// expect caller to re-validate instance before calling patch this is why we expect
 	// instance to be passed in
-	return func(instance *compute.Instance) error {
+	return func(instance map[string]interface{}) error {
+		rawNics, ok := instance["networkInterfaces"].([]interface{})
+		if !ok || len(rawNics) <= index {
+			return fmt.Errorf("error updating network interface: instance has no network interface at index %d", index)
+		}
+		instNetworkInterface, ok := rawNics[index].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("error updating network interface: invalid network interface type at index %d", index)
+		}
 
-		instNetworkInterface := instance.NetworkInterfaces[index]
-		networkInterfacePatchObj.Fingerprint = instNetworkInterface.Fingerprint
+		networkInterfacePatchObj["fingerprint"] = instNetworkInterface["fingerprint"]
 
 		// Access config can run into some issues since we can't tell the difference between
 		// the users declared intent (config within their hcl file) and what we have inferred from the
@@ -79,13 +146,35 @@ func computeInstanceCreateUpdateWhileStoppedCall(d *schema.ResourceData, config 
 			}
 		}
 
-		op, err := config.NewComputeClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instanceName, instNetworkInterface.Name, networkInterfacePatchObj).Do()
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/updateNetworkInterface")
+		if err != nil {
+			return fmt.Errorf("error replacing vars for UpdateNetworkInterface URL: %w", err)
+		}
+
+		nicName := instNetworkInterface["name"].(string)
+		params := map[string]string{
+			"networkInterface": nicName,
+		}
+		url, err = transport_tpg.AddQueryParams(url, params)
+		if err != nil {
+			return fmt.Errorf("error adding query params for UpdateNetworkInterface: %w", err)
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      networkInterfacePatchObj,
+		})
 		if err != nil {
 			return errwrap.Wrapf("Error updating network interface: {{err}}", err)
 		}
-		opErr := ComputeOperationWaitTime(config, op, project, "network interface to update", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if opErr != nil {
-			return opErr
+
+		err = ComputeOperationWaitTime(config, res, project, "network interface to update", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("error waiting for network interface update: %w", err)
 		}
 
 		if accessConfigsHaveChanged {

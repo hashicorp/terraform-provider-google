@@ -2378,7 +2378,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Instance had unexpected number of network interfaces: %d", len(instance.NetworkInterfaces))
 	}
 
-	var updatesToNIWhileStopped []func(inst *compute.Instance) error
+	var updatesToNIWhileStopped []func(inst map[string]interface{}) error
 	for i := 0; i < len(networkInterfaces); i++ {
 		prefix := fmt.Sprintf("network_interface.%d", i)
 		networkInterface := networkInterfaces[i]
@@ -2427,13 +2427,25 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			// necessary, and also add before removing.
 
 			// Delete current access configs
-			err := computeInstanceDeleteAccessConfigs(d, config, instNetworkInterface, project, zone, userAgent, instance.Name)
+			instNiMap, err := tpgresource.ConvertToMap(instNetworkInterface)
+			if err != nil {
+				return fmt.Errorf("Error converting network interface to map: %w", err)
+			}
+			err = computeInstanceDeleteAccessConfigs(d, config, instNiMap, project, zone, userAgent, instance.Name)
 			if err != nil {
 				return err
 			}
 
 			// Create new ones
-			err = computeInstanceAddAccessConfigs(d, config, instNetworkInterface, networkInterface.AccessConfigs, project, zone, userAgent, instance.Name)
+			acMaps := make([]interface{}, len(networkInterface.AccessConfigs))
+			for j, ac := range networkInterface.AccessConfigs {
+				acMap, err := tpgresource.ConvertToMap(ac)
+				if err != nil {
+					return fmt.Errorf("Error converting access config to map: %w", err)
+				}
+				acMaps[j] = acMap
+			}
+			err = computeInstanceAddAccessConfigs(d, config, instNiMap, acMaps, project, zone, userAgent, instance.Name)
 			if err != nil {
 				return err
 			}
@@ -2585,7 +2597,20 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			// configs if we notice the configuration (user intent) changes.
 			accessConfigsHaveChanged := d.HasChange(prefix + ".access_config")
 
-			updateCall := computeInstanceCreateUpdateWhileStoppedCall(d, config, networkInterfacePatchObj, networkInterface.AccessConfigs, accessConfigsHaveChanged, i, project, zone, userAgent, instance.Name)
+			acMaps := make([]interface{}, len(networkInterface.AccessConfigs))
+			for j, ac := range networkInterface.AccessConfigs {
+				acMap, err := tpgresource.ConvertToMap(ac)
+				if err != nil {
+					return fmt.Errorf("Error converting access config to map: %w", err)
+				}
+				acMaps[j] = acMap
+			}
+			niPatchMap, err := tpgresource.ConvertToMap(networkInterfacePatchObj)
+			if err != nil {
+				return fmt.Errorf("Error converting network interface patch object to map: %w", err)
+			}
+
+			updateCall := computeInstanceCreateUpdateWhileStoppedCall(d, config, niPatchMap, acMaps, accessConfigsHaveChanged, i, project, zone, userAgent, instance.Name)
 			updatesToNIWhileStopped = append(updatesToNIWhileStopped, updateCall)
 		}
 	}
@@ -2993,7 +3018,11 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 		}
 		for _, patch := range updatesToNIWhileStopped {
-			err := patch(instance)
+			instanceMap, err := tpgresource.ConvertToMap(instance)
+			if err != nil {
+				return fmt.Errorf("Error converting instance to map: %w", err)
+			}
+			err = patch(instanceMap)
 			if err != nil {
 				return err
 			}
