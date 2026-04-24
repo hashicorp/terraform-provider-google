@@ -31,20 +31,19 @@ import (
 // Since access approval settings are hierarchical, and only one can exist per folder/project/org,
 // and all refer to the same organization, they need to be run serially
 func TestAccAccessApprovalSettings(t *testing.T) {
-	testCases := map[string]func(t *testing.T){
-		"folder":       testAccAccessApprovalFolderSettings,
-		"project":      testAccAccessApprovalProjectSettings,
-		"organization": testAccAccessApprovalOrganizationSettings,
+	testCases := []struct {
+		name string
+		fn   func(t *testing.T)
+	}{
+		{"organization", testAccAccessApprovalOrganizationSettings},
+		{"folder", testAccAccessApprovalFolderSettings},
+		{"project", testAccAccessApprovalProjectSettings},
 	}
 
-	for name, tc := range testCases {
-		// shadow the tc variable into scope so that when
-		// the loop continues, if t.Run hasn't executed tc(t)
-		// yet, we don't have a race condition
-		// see https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
+	for _, tc := range testCases {
 		tc := tc
-		t.Run(name, func(t *testing.T) {
-			tc(t)
+		t.Run(tc.name, func(t *testing.T) {
+			tc.fn(t)
 		})
 	}
 }
@@ -60,7 +59,10 @@ func testAccAccessApprovalOrganizationSettings(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckAccessApprovalOrganizationSettingsDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckAccessApprovalOrganizationSettingsDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessApprovalOrganizationSettings_full(context),
@@ -95,7 +97,7 @@ func testAccAccessApprovalOrganizationSettings(t *testing.T) {
 
 func testAccAccessApprovalOrganizationSettings_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_organization_access_approval_settings" "organization_access_approval" {
+ resource "google_organization_access_approval_settings" "organization_access_approval" {
   organization_id     = "%{org_id}"
   notification_emails = ["testuser@example.com"]
 
@@ -108,6 +110,13 @@ resource "google_organization_access_approval_settings" "organization_access_app
     enrollment_level = "BLOCK_ALL"
   }
 }
+
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_organization_access_approval_settings.organization_access_approval]
+
+  create_duration = "120s"
+}
+
 `, context)
 }
 
