@@ -77,6 +77,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dataflow"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dataform"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/datafusion"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/datalineage"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/datalossprevention"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/datapipeline"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dataplex"

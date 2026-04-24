@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_data_lineage_config`
+```
+```release-note:new-datasource
+`google_data_lineage_config`
+```

@@ -109,6 +109,7 @@ type ProviderModel struct {
 	DataCatalogCustomEndpoint              types.String `tfsdk:"data_catalog_custom_endpoint"`
 	DataformCustomEndpoint                 types.String `tfsdk:"dataform_custom_endpoint"`
 	DataFusionCustomEndpoint               types.String `tfsdk:"data_fusion_custom_endpoint"`
+	DataLineageCustomEndpoint              types.String `tfsdk:"data_lineage_custom_endpoint"`
 	DataLossPreventionCustomEndpoint       types.String `tfsdk:"data_loss_prevention_custom_endpoint"`
 	DataPipelineCustomEndpoint             types.String `tfsdk:"data_pipeline_custom_endpoint"`
 	DataplexCustomEndpoint                 types.String `tfsdk:"dataplex_custom_endpoint"`

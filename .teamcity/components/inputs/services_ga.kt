@@ -316,6 +316,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Datafusion",
         "path" to "./google/services/datafusion"
     ),
+    "datalineage" to mapOf(
+        "name" to "datalineage",
+        "displayName" to "Datalineage",
+        "path" to "./google/services/datalineage"
+    ),
     "datalossprevention" to mapOf(
         "name" to "datalossprevention",
         "displayName" to "Datalossprevention",

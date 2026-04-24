@@ -456,6 +456,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DataCatalogBasePath = transport_tpg.BaseUrl(registry.GetProduct("datacatalog"), &config)
 	config.DataformBasePath = transport_tpg.BaseUrl(registry.GetProduct("dataform"), &config)
 	config.DataFusionBasePath = transport_tpg.BaseUrl(registry.GetProduct("datafusion"), &config)
+	config.DataLineageBasePath = transport_tpg.BaseUrl(registry.GetProduct("datalineage"), &config)
 	config.DataLossPreventionBasePath = transport_tpg.BaseUrl(registry.GetProduct("datalossprevention"), &config)
 	config.DataPipelineBasePath = transport_tpg.BaseUrl(registry.GetProduct("datapipeline"), &config)
 	config.DataplexBasePath = transport_tpg.BaseUrl(registry.GetProduct("dataplex"), &config)
