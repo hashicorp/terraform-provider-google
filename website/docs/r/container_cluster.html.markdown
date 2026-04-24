@@ -1935,10 +1935,10 @@ exported:
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options: configuration options:
 
-- `create` - Default is 40 minutes.
-- `read`   - Default is 40 minutes.
-- `update` - Default is 60 minutes.
-- `delete` - Default is 40 minutes.
+- `create` - Default is 90 minutes.
+- `read`   - Default is 90 minutes.
+- `update` - Default is 90 minutes.
+- `delete` - Default is 90 minutes.
 
 ## Import
 
