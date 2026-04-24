@@ -251,7 +251,7 @@ func TestAccDataplexDatascan_dataplexDatascanOnetimeProfileExample(t *testing.T)
 				ResourceName:            "google_dataplex_datascan.onetime_profile",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"data_scan_id", "execution_status.0.latest_job_end_time", "labels", "location", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_dataplex_datascan.onetime_profile",
@@ -896,7 +896,7 @@ func TestAccDataplexDatascan_dataplexDatascanOnetimeDocumentationExample(t *test
 				ResourceName:            "google_dataplex_datascan.onetime_documentation",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"data_scan_id", "execution_status.0.latest_job_end_time", "labels", "location", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_dataplex_datascan.onetime_documentation",
@@ -1117,7 +1117,7 @@ func TestAccDataplexDatascan_dataplexDatascanExecutionIdentityServiceAccountExam
 				ResourceName:            "google_dataplex_datascan.identity_service_account",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"data_scan_id", "execution_status.0.latest_job_end_time", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_dataplex_datascan.identity_service_account",

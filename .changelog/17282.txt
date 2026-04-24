@@ -1,0 +1,3 @@
+```release-note:bug
+dataplex: fixed acceptance test failure for one time scans
+```
