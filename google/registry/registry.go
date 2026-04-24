@@ -51,7 +51,7 @@ func (p Product) Register() {
 	products.m[p.Name] = p
 }
 
-// Product returns the product information for the given product name. The function panics
+// GetProduct returns the product information for the given product name. The function panics
 // if the requested product is not registered. This function is called during provider
 // intitialization when the absence of a product is an unrecoverable error.
 func GetProduct(name string) Product {
