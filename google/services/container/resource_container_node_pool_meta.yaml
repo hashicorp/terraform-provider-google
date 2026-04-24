@@ -204,6 +204,8 @@ fields:
     api_field: 'config.kubeletConfig.topologyManager.scope'
   - field: 'node_config.labels'
     api_field: 'config.labels'
+  - field: 'node_config.linux_node_config.accurate_time_config.enable_ptp_kvm_time_sync'
+    api_field: 'config.linuxNodeConfig.accurateTimeConfig.enablePtpKvmTimeSync'
   - field: 'node_config.linux_node_config.cgroup_mode'
     api_field: 'config.linuxNodeConfig.cgroupMode'
   - field: 'node_config.linux_node_config.hugepages_config.hugepage_size_1g'
