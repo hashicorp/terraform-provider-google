@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_document_ai_schema`
+```
