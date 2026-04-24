@@ -17,7 +17,7 @@
 package provider
 
 import (
-	// Register services with at least one Magic Modules resource by importing them.
+	// Register all services by importing them.
 	_ "github.com/hashicorp/terraform-provider-google/google/services/accessapproval"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/accesscontextmanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/activedirectory"
@@ -114,6 +114,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/iam2"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/iam3"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/iambeta"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/iamcredentials"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/iamworkforcepool"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/iap"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/identityplatform"
@@ -155,7 +156,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/recaptchaenterprise"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/redis"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager3"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanagerregional"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
@@ -166,6 +167,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/servicedirectory"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/servicemanagement"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/serviceusage"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/siteverification"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/sourcerepo"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/spanner"
@@ -176,6 +178,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storageinsights"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storagetransfer"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/tags"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/tagslocation"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/transcoder"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vectorsearch"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vertexai"

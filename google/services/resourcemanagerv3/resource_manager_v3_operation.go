@@ -15,7 +15,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package resourcemanager3
+package resourcemanagerv3
 
 import (
 	"encoding/json"
@@ -43,18 +43,18 @@ var (
 	_ = googleapi.Error{}
 )
 
-type ResourceManager3OperationWaiter struct {
+type ResourceManagerV3OperationWaiter struct {
 	Config    *transport_tpg.Config
 	UserAgent string
 	tpgresource.CommonOperationWaiter
 }
 
-func (w *ResourceManager3OperationWaiter) QueryOp() (interface{}, error) {
+func (w *ResourceManagerV3OperationWaiter) QueryOp() (interface{}, error) {
 	if w == nil {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
 	// Returns the proper get.
-	url := fmt.Sprintf("%s%s", w.Config.ResourceManager3BasePath, w.CommonOperationWaiter.Op.Name)
+	url := fmt.Sprintf("%s%s", w.Config.ResourceManagerV3BasePath, w.CommonOperationWaiter.Op.Name)
 
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    w.Config,
@@ -64,8 +64,8 @@ func (w *ResourceManager3OperationWaiter) QueryOp() (interface{}, error) {
 	})
 }
 
-func createResourceManager3Waiter(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string) (*ResourceManager3OperationWaiter, error) {
-	w := &ResourceManager3OperationWaiter{
+func createResourceManagerV3Waiter(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string) (*ResourceManagerV3OperationWaiter, error) {
+	w := &ResourceManagerV3OperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
 	}
@@ -76,8 +76,8 @@ func createResourceManager3Waiter(config *transport_tpg.Config, op map[string]in
 }
 
 // nolint: deadcode,unused
-func ResourceManager3OperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
-	w, err := createResourceManager3Waiter(config, op, activity, userAgent)
+func ResourceManagerV3OperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+	w, err := createResourceManagerV3Waiter(config, op, activity, userAgent)
 	if err != nil {
 		return err
 	}
@@ -91,12 +91,12 @@ func ResourceManager3OperationWaitTimeWithResponse(config *transport_tpg.Config,
 	return json.Unmarshal(rawResponse, response)
 }
 
-func ResourceManager3OperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func ResourceManagerV3OperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil
 	}
-	w, err := createResourceManager3Waiter(config, op, activity, userAgent)
+	w, err := createResourceManagerV3Waiter(config, op, activity, userAgent)
 	if err != nil {
 		// If w is nil, the op was synchronous.
 		return err

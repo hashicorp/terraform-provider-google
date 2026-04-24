@@ -15,18 +15,18 @@
 //
 // ----------------------------------------------------------------------------
 
-// Package resourcemanager3 contains resources, datasources, etc. for the resource manager service.
-package resourcemanager3
+// Package iamcredentials contains resources, datasources, etc. for the iam credentials service.
+package iamcredentials
 
 import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
 var Product = registry.Product{
-	Name:                 "resourcemanager3",
-	BaseUrl:              "https://cloudresourcemanager.googleapis.com/v3/",
-	CustomEndpointField:  "resource_manager3_custom_endpoint",
-	CustomEndpointEnvVar: "GOOGLE_RESOURCE_MANAGER3_CUSTOM_ENDPOINT",
+	Name:                 "iamcredentials",
+	BaseUrl:              "https://iamcredentials.googleapis.com/v1/",
+	CustomEndpointField:  "iam_credentials_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_IAM_CREDENTIALS_CUSTOM_ENDPOINT",
 }
 
 func init() {

@@ -111,7 +111,7 @@ func ListServiceAccounts(config *transport_tpg.Config, project string, callback 
 			return fmt.Errorf("error setting project on temporary resource data: %w", err)
 		}
 	}
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMBasePath}}projects/{{project}}/serviceAccounts")
+	url, err := tpgresource.ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/serviceAccounts")
 	if err != nil {
 		return err
 	}

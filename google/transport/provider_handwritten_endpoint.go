@@ -25,41 +25,6 @@ import (
 // files. Collect handwritten ones here. If any of these are modified, be sure
 // to update the provider_reference docs page.
 
-var DataflowCustomEndpointEntryKey = "dataflow_custom_endpoint"
-var DataflowCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: ValidateCustomEndpoint,
-}
-
-var IAMCustomEndpointEntryKey = "iam_custom_endpoint"
-var IAMCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: ValidateCustomEndpoint,
-}
-
-var IamCredentialsCustomEndpointEntryKey = "iam_credentials_custom_endpoint"
-var IamCredentialsCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: ValidateCustomEndpoint,
-}
-
-var ResourceManagerV3CustomEndpointEntryKey = "resource_manager_v3_custom_endpoint"
-var ResourceManagerV3CustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: ValidateCustomEndpoint,
-}
-
-var TagsLocationCustomEndpointEntryKey = "tags_location_custom_endpoint"
-var TagsLocationCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: ValidateCustomEndpoint,
-}
-
 // DCL
 var ContainerAwsCustomEndpointEntryKey = "container_aws_custom_endpoint"
 var ContainerAwsCustomEndpointEntry = &schema.Schema{
