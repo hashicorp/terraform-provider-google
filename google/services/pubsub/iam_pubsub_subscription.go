@@ -78,7 +78,7 @@ func (u *PubsubSubscriptionIamUpdater) GetResourceIamPolicy() (*cloudresourceman
 		return nil, err
 	}
 
-	p, err := u.Config.NewPubsubClient(userAgent).Projects.Subscriptions.GetIamPolicy(u.subscription).Do()
+	p, err := NewClient(u.Config, userAgent).Projects.Subscriptions.GetIamPolicy(u.subscription).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
@@ -103,7 +103,7 @@ func (u *PubsubSubscriptionIamUpdater) SetResourceIamPolicy(policy *cloudresourc
 		return err
 	}
 
-	_, err = u.Config.NewPubsubClient(userAgent).Projects.Subscriptions.SetIamPolicy(u.subscription, &pubsub.SetIamPolicyRequest{
+	_, err = NewClient(u.Config, userAgent).Projects.Subscriptions.SetIamPolicy(u.subscription, &pubsub.SetIamPolicyRequest{
 		Policy: pubsubPolicy,
 	}).Do()
 
