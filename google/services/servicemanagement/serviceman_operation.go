@@ -40,7 +40,7 @@ func (w *ServiceManagementOperationWaiter) QueryOp() (interface{}, error) {
 
 func ServiceManagementOperationWaitTime(config *transport_tpg.Config, op *servicemanagement.Operation, activity, userAgent string, timeout time.Duration) (googleapi.RawMessage, error) {
 	w := &ServiceManagementOperationWaiter{
-		Service: config.NewServiceManClient(userAgent),
+		Service: NewClient(config, userAgent),
 	}
 
 	if err := w.SetOp(op); err != nil {

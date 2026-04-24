@@ -73,7 +73,7 @@ func dataSourceGoogleCertificateManagerCertificatesRead(d *schema.ResourceData, 
 	filter := d.Get("filter").(string)
 
 	certificates := make([]map[string]interface{}, 0)
-	certificatesList, err := config.NewCertificateManagerClient(userAgent).Projects.Locations.Certificates.List(fmt.Sprintf("projects/%s/locations/%s", project, region)).Filter(filter).Do()
+	certificatesList, err := NewClient(config, userAgent).Projects.Locations.Certificates.List(fmt.Sprintf("projects/%s/locations/%s", project, region)).Filter(filter).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Certificates : %s %s", project, region))
 	}
