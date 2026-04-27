@@ -1065,7 +1065,7 @@ func expandComputeRouteNextHopInstance(v interface{}, d tpgresource.TerraformRes
 		return nil, err
 	}
 
-	nextInstance, err := config.NewComputeClient(userAgent).Instances.Get(val.Project, val.Zone, val.Name).Do()
+	nextInstance, err := NewClient(config, userAgent).Instances.Get(val.Project, val.Zone, val.Name).Do()
 	if err != nil {
 		return nil, err
 	}

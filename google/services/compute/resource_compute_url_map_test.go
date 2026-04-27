@@ -19,6 +19,7 @@ package compute_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -179,7 +180,7 @@ func testAccCheckComputeUrlMapExists(t *testing.T, n string) resource.TestCheckF
 		config := acctest.GoogleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
-		found, err := config.NewComputeClient(config.UserAgent).UrlMaps.Get(
+		found, err := compute.NewClient(config, config.UserAgent).UrlMaps.Get(
 			config.Project, name).Do()
 		if err != nil {
 			return err

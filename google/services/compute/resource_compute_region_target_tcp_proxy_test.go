@@ -18,8 +18,10 @@ package compute_test
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -85,7 +87,7 @@ func testAccCheckComputeRegionTargetTcpProxyExists(t *testing.T, n string) resou
 		name := rs.Primary.Attributes["name"]
 		region := rs.Primary.Attributes["region"]
 
-		found, err := config.NewComputeClient(config.UserAgent).RegionTargetTcpProxies.Get(
+		found, err := compute.NewClient(config, config.UserAgent).RegionTargetTcpProxies.Get(
 			config.Project, region, name).Do()
 		if err != nil {
 			return err

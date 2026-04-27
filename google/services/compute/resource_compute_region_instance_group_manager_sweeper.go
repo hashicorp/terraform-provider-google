@@ -45,7 +45,7 @@ func testSweepComputeRegionInstanceGroupManager(region string) error {
 		return err
 	}
 
-	found, err := config.NewComputeClient(config.UserAgent).RegionInstanceGroupManagers.List(config.Project, region).Do()
+	found, err := NewClient(config, config.UserAgent).RegionInstanceGroupManagers.List(config.Project, region).Do()
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request: %s", err)
 		return nil
@@ -60,7 +60,7 @@ func testSweepComputeRegionInstanceGroupManager(region string) error {
 		}
 
 		// Don't wait on operations as we may have a lot to delete
-		_, err := config.NewComputeClient(config.UserAgent).RegionInstanceGroupManagers.Delete(config.Project, region, rigm.Name).Do()
+		_, err := NewClient(config, config.UserAgent).RegionInstanceGroupManagers.Delete(config.Project, region, rigm.Name).Do()
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, rigm.Name, err)
 		} else {

@@ -61,7 +61,6 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
 	"google.golang.org/api/composer/v1"
-	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
 	dataflow "google.golang.org/api/dataflow/v1b3"
 	"google.golang.org/api/dataproc/v1"
@@ -1294,19 +1293,6 @@ func (c *Config) getTokenSource(ctx context.Context, clientScopes []string, init
 // while most only want the host URL, some older ones also want the version and some
 // of those "projects" as well. You can find out if this is required by looking at
 // the basePath value in the client library file.
-func (c *Config) NewComputeClient(userAgent string) *compute.Service {
-	log.Printf("[INFO] Instantiating GCE client for path %s", c.ComputeBasePath)
-	clientCompute, err := compute.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client compute: %s", err)
-		return nil
-	}
-	clientCompute.UserAgent = userAgent
-	clientCompute.BasePath = c.ComputeBasePath
-
-	return clientCompute
-}
-
 func (c *Config) NewContainerClient(userAgent string) *container.Service {
 	containerClientBasePath := RemoveBasePathVersion(c.ContainerBasePath)
 	log.Printf("[INFO] Instantiating GKE client for path %s", containerClientBasePath)

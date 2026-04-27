@@ -124,7 +124,7 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 	}
 	id := fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", project, region, name)
 
-	subnetwork, err := config.NewComputeClient(userAgent).Subnetworks.Get(project, region, name).Do()
+	subnetwork, err := NewClient(config, userAgent).Subnetworks.Get(project, region, name).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Subnetwork Not Found : %s", name), id)
 	}

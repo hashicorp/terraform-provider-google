@@ -73,7 +73,7 @@ func dataSourceGoogleComputeForwardingRulesRead(d *schema.ResourceData, meta int
 	id := fmt.Sprintf("projects/%s/regions/%s/forwardingRules", project, region)
 	d.SetId(id)
 
-	forwardingRulesAggregatedList, err := config.NewComputeClient(userAgent).ForwardingRules.List(project, region).Do()
+	forwardingRulesAggregatedList, err := NewClient(config, userAgent).ForwardingRules.List(project, region).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Forwarding Rules Not Found : %s", project))
 	}

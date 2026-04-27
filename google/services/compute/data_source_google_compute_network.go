@@ -102,7 +102,7 @@ func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}
 
 	id := fmt.Sprintf("projects/%s/global/networks/%s", project, name)
 
-	network, err := config.NewComputeClient(userAgent).Networks.Get(project, name).Do()
+	network, err := NewClient(config, userAgent).Networks.Get(project, name).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Network Not Found : %s", name), id)
 	}

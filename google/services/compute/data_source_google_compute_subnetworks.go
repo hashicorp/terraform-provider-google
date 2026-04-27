@@ -110,7 +110,7 @@ func dataSourceGoogleComputeSubnetworksRead(d *schema.ResourceData, meta interfa
 
 	subnetworks := make([]map[string]interface{}, 0)
 
-	subnetworkList, err := config.NewComputeClient(userAgent).Subnetworks.List(project, region).Filter(filter).Do()
+	subnetworkList, err := NewClient(config, userAgent).Subnetworks.List(project, region).Filter(filter).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Subnetworks : %s %s", project, region))
 	}

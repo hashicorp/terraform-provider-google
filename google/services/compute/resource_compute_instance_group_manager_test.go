@@ -602,7 +602,7 @@ func testAccCheckInstanceGroupManagerDestroyProducer(t *testing.T) func(s *terra
 			if rs.Type != "google_compute_instance_group_manager" {
 				continue
 			}
-			_, err := config.NewComputeClient(config.UserAgent).InstanceGroupManagers.Get(
+			_, err := tpgcompute.NewClient(config, config.UserAgent).InstanceGroupManagers.Get(
 				config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("InstanceGroupManager still exists")

@@ -348,7 +348,7 @@ func getInstanceFromInstanceState(config *transport_tpg.Config, is *terraform.In
 		}
 	}
 
-	instance, err := config.NewComputeClient(config.UserAgent).Instances.Get(
+	instance, err := NewClient(config, config.UserAgent).Instances.Get(
 		project, zone, is.ID).Do()
 	if err != nil {
 		return nil, fmt.Errorf("error reading instance: %s", err)
@@ -379,7 +379,7 @@ func getAllDisksFromInstanceState(config *transport_tpg.Config, is *terraform.In
 	diskList := []*compute.Disk{}
 	token := ""
 	for {
-		disks, err := config.NewComputeClient(config.UserAgent).Disks.List(project, zone).PageToken(token).Do()
+		disks, err := NewClient(config, config.UserAgent).Disks.List(project, zone).PageToken(token).Do()
 		if err != nil {
 			return nil, fmt.Errorf("error reading disks: %s", err)
 		}

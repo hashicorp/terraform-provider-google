@@ -285,7 +285,7 @@ func dataSourceGoogleComputeRoutersRead(d *schema.ResourceData, meta interface{}
 
 	d.SetId(fmt.Sprintf("projects/%s/regions/%s", project, region))
 
-	list, err := config.NewComputeClient(userAgent).Routers.List(project, region).Do()
+	list, err := NewClient(config, userAgent).Routers.List(project, region).Do()
 	if err != nil {
 		return fmt.Errorf("Error retrieving list of routers: %s", err)
 	}

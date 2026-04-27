@@ -81,7 +81,7 @@ func dataSourceGoogleComputeZonesRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	zones := []string{}
-	err = config.NewComputeClient(userAgent).Zones.List(project).Filter(filter).Pages(config.Context, func(zl *compute.ZoneList) error {
+	err = NewClient(config, userAgent).Zones.List(project).Filter(filter).Pages(config.Context, func(zl *compute.ZoneList) error {
 		for _, zone := range zl.Items {
 			// We have no way to guarantee a specific base path for the region, but the built-in API-level filtering
 			// only lets us query on exact matches, so we do our own filtering here.

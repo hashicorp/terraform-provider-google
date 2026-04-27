@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	compute_tpg "github.com/hashicorp/terraform-provider-google/google/services/compute"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -250,7 +251,7 @@ func testAccCheckComputeRegionSslPolicyExists(t *testing.T, n string, sslPolicy 
 
 		name := rs.Primary.Attributes["name"]
 
-		found, err := config.NewComputeClient(config.UserAgent).RegionSslPolicies.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).RegionSslPolicies.Get(
 			project, "us-central1", name).Do()
 		if err != nil {
 			return fmt.Errorf("Error Reading SSL Policy %s: %s", name, err)

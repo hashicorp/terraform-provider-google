@@ -88,7 +88,7 @@ func resourceComputeProjectDefaultNetworkTierCreateOrUpdate(d *schema.ResourceDa
 	request := &compute.ProjectsSetDefaultNetworkTierRequest{
 		NetworkTier: d.Get("network_tier").(string),
 	}
-	op, err := config.NewComputeClient(userAgent).Projects.SetDefaultNetworkTier(projectID, request).Do()
+	op, err := NewClient(config, userAgent).Projects.SetDefaultNetworkTier(projectID, request).Do()
 	if err != nil {
 		return fmt.Errorf("SetDefaultNetworkTier failed: %s", err)
 	}
@@ -113,7 +113,7 @@ func resourceComputeProjectDefaultNetworkTierRead(d *schema.ResourceData, meta i
 
 	projectId := d.Id()
 
-	project, err := config.NewComputeClient(userAgent).Projects.Get(projectId).Do()
+	project, err := NewClient(config, userAgent).Projects.Get(projectId).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project data for project %q", projectId))
 	}

@@ -117,13 +117,13 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 		return err
 	}
 	id := fmt.Sprintf("projects/%s/regions/%s/instanceGroups/%s", project, region, name)
-	instanceGroup, err := config.NewComputeClient(userAgent).RegionInstanceGroups.Get(
+	instanceGroup, err := NewClient(config, userAgent).RegionInstanceGroups.Get(
 		project, region, name).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Region Instance Group %q", name), id)
 	}
 
-	members, err := config.NewComputeClient(userAgent).RegionInstanceGroups.ListInstances(
+	members, err := NewClient(config, userAgent).RegionInstanceGroups.ListInstances(
 		project, region, name, &compute.RegionInstanceGroupsListInstancesRequest{
 			InstanceState: "ALL",
 		}).Do()

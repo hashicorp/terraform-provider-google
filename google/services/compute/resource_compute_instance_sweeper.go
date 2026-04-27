@@ -46,7 +46,7 @@ func testSweepComputeInstance(region string) error {
 		return err
 	}
 
-	found, err := config.NewComputeClient(config.UserAgent).Instances.AggregatedList(config.Project).Do()
+	found, err := NewClient(config, config.UserAgent).Instances.AggregatedList(config.Project).Do()
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request: %s", err)
 		return nil
@@ -62,7 +62,7 @@ func testSweepComputeInstance(region string) error {
 			}
 
 			// Don't wait on operations as we may have a lot to delete
-			_, err := config.NewComputeClient(config.UserAgent).Instances.Delete(config.Project, tpgresource.GetResourceNameFromSelfLink(zone), instance.Name).Do()
+			_, err := NewClient(config, config.UserAgent).Instances.Delete(config.Project, tpgresource.GetResourceNameFromSelfLink(zone), instance.Name).Do()
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, instance.Name, err)
 			} else {

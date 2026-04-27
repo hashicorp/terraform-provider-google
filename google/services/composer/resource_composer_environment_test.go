@@ -2969,12 +2969,12 @@ func testAccCheckClearComposerEnvironmentFirewalls(t *testing.T, networkName str
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 		config.Project = envvar.GetTestProjectFromEnv()
-		network, err := config.NewComputeClient(config.UserAgent).Networks.Get(envvar.GetTestProjectFromEnv(), networkName).Do()
+		network, err := tpgcompute.NewClient(config, config.UserAgent).Networks.Get(envvar.GetTestProjectFromEnv(), networkName).Do()
 		if err != nil {
 			return err
 		}
 
-		foundFirewalls, err := config.NewComputeClient(config.UserAgent).Firewalls.List(config.Project).Do()
+		foundFirewalls, err := tpgcompute.NewClient(config, config.UserAgent).Firewalls.List(config.Project).Do()
 		if err != nil {
 			return fmt.Errorf("unable to list firewalls for network %q: %s", network.Name, err)
 		}
@@ -2985,7 +2985,7 @@ func testAccCheckClearComposerEnvironmentFirewalls(t *testing.T, networkName str
 				continue
 			}
 			log.Printf("[DEBUG] Deleting firewall %q for test-resource network %q", firewall.Name, network.Name)
-			op, err := config.NewComputeClient(config.UserAgent).Firewalls.Delete(config.Project, firewall.Name).Do()
+			op, err := tpgcompute.NewClient(config, config.UserAgent).Firewalls.Delete(config.Project, firewall.Name).Do()
 			if err != nil {
 				allErrors = errors.Join(allErrors, fmt.Errorf("unable to delete firewalls for network %q: %s", network.Name, err))
 				continue

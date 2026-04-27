@@ -46,7 +46,7 @@ func testSweepTargetPool(region string) error {
 		return err
 	}
 
-	found, err := config.NewComputeClient(config.UserAgent).TargetPools.AggregatedList(config.Project).Do()
+	found, err := NewClient(config, config.UserAgent).TargetPools.AggregatedList(config.Project).Do()
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request: %s", err)
 		return nil
@@ -62,7 +62,7 @@ func testSweepTargetPool(region string) error {
 			}
 
 			// Don't wait on operations as we may have a lot to delete
-			_, err := config.NewComputeClient(config.UserAgent).TargetPools.Delete(config.Project, tpgresource.GetResourceNameFromSelfLink(zone), tp.Name).Do()
+			_, err := NewClient(config, config.UserAgent).TargetPools.Delete(config.Project, tpgresource.GetResourceNameFromSelfLink(zone), tp.Name).Do()
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, tp.Name, err)
 			} else {

@@ -97,7 +97,7 @@ func dataSourceComputeRouterStatusRead(d *schema.ResourceData, meta interface{})
 		name = n.(string)
 	}
 
-	resp, err := config.NewComputeClient(userAgent).Routers.GetRouterStatus(project, region, name).Do()
+	resp, err := NewClient(config, userAgent).Routers.GetRouterStatus(project, region, name).Do()
 	if err != nil {
 		return err
 	}

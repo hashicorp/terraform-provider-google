@@ -603,7 +603,7 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 	}
 
 	log.Printf("[DEBUG] Getting shared test network %q", networkName)
-	_, err := config.NewComputeClient(config.UserAgent).Networks.Get(project, networkName).Do()
+	_, err := tpgcompute.NewClient(config, config.UserAgent).Networks.Get(project, networkName).Do()
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Network %q not found, bootstrapping", networkName)
 		url := fmt.Sprintf("%sprojects/%s/global/networks", config.ComputeBasePath, project)
@@ -632,7 +632,7 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 		}
 	}
 
-	network, err := config.NewComputeClient(config.UserAgent).Networks.Get(project, networkName).Do()
+	network, err := tpgcompute.NewClient(config, config.UserAgent).Networks.Get(project, networkName).Do()
 	if err != nil {
 		t.Errorf("Error getting shared test network %q: %s", networkName, err)
 	}
@@ -678,7 +678,7 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...fun
 	}
 
 	log.Printf("[DEBUG] Getting shared test global address %q", addressName)
-	_, err := config.NewComputeClient(config.UserAgent).GlobalAddresses.Get(project, addressName).Do()
+	_, err := tpgcompute.NewClient(config, config.UserAgent).GlobalAddresses.Get(project, addressName).Do()
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Global address %q not found, bootstrapping", addressName)
 		url := fmt.Sprintf("%sprojects/%s/global/addresses", config.ComputeBasePath, project)
@@ -713,7 +713,7 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...fun
 		}
 	}
 
-	address, err := config.NewComputeClient(config.UserAgent).GlobalAddresses.Get(project, addressName).Do()
+	address, err := tpgcompute.NewClient(config, config.UserAgent).GlobalAddresses.Get(project, addressName).Do()
 	if err != nil {
 		t.Errorf("Error getting shared test global address %q: %s", addressName, err)
 	}
@@ -1352,7 +1352,7 @@ func BootstrapSubnetWithOverrides(t *testing.T, subnetName string, networkName s
 		t.Fatal("Could not bootstrap config.")
 	}
 
-	computeService := config.NewComputeClient(config.UserAgent)
+	computeService := tpgcompute.NewClient(config, config.UserAgent)
 	if computeService == nil {
 		t.Fatal("Could not create compute client.")
 	}
@@ -1419,7 +1419,7 @@ func BootstrapNetworkAttachment(t *testing.T, networkAttachmentName string, subn
 		return ""
 	}
 
-	computeService := config.NewComputeClient(config.UserAgent)
+	computeService := tpgcompute.NewClient(config, config.UserAgent)
 	if computeService == nil {
 		return ""
 	}
@@ -1488,7 +1488,7 @@ func BootstrapFirewallForDataprocSharedNetwork(t *testing.T, firewallName string
 	}
 
 	log.Printf("[DEBUG] Getting Firewall %q for Network %q", firewallName, networkName)
-	_, err := config.NewComputeClient(config.UserAgent).Firewalls.Get(project, firewallName).Do()
+	_, err := tpgcompute.NewClient(config, config.UserAgent).Firewalls.Get(project, firewallName).Do()
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] firewallName %q not found, bootstrapping", firewallName)
 		url := fmt.Sprintf("%sprojects/%s/global/firewalls", config.ComputeBasePath, project)
@@ -1534,7 +1534,7 @@ func BootstrapFirewallForDataprocSharedNetwork(t *testing.T, firewallName string
 		}
 	}
 
-	firewall, err := config.NewComputeClient(config.UserAgent).Firewalls.Get(project, firewallName).Do()
+	firewall, err := tpgcompute.NewClient(config, config.UserAgent).Firewalls.Get(project, firewallName).Do()
 	if err != nil {
 		t.Errorf("Error getting Firewall %q: %s", firewallName, err)
 	}
@@ -1557,7 +1557,7 @@ func BootstrapComputeStoragePool(t *testing.T, storagePoolName, storagePoolType 
 		t.Fatal("Could not bootstrap config.")
 	}
 
-	computeService := config.NewComputeClient(config.UserAgent)
+	computeService := tpgcompute.NewClient(config, config.UserAgent)
 	if computeService == nil {
 		t.Fatal("Could not create compute client.")
 	}

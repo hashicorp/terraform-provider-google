@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 // Add two key value pairs
@@ -137,7 +138,7 @@ func testAccCheckComputeProjectMetadataDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			project, err := config.NewComputeClient(config.UserAgent).Projects.Get(rs.Primary.ID).Do()
+			project, err := compute.NewClient(config, config.UserAgent).Projects.Get(rs.Primary.ID).Do()
 			if err == nil && project.CommonInstanceMetadata != nil && len(project.CommonInstanceMetadata.Items) > 0 {
 				return fmt.Errorf("Error, metadata items still exist in %s", rs.Primary.ID)
 			}

@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 func TestAccComputeRouterNat_basic(t *testing.T) {
@@ -831,7 +832,7 @@ func testAccCheckComputeRouterNatDestroyProducer(t *testing.T) func(s *terraform
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		routersService := config.NewComputeClient(config.UserAgent).Routers
+		routersService := compute.NewClient(config, config.UserAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router" {
@@ -865,7 +866,7 @@ func testAccCheckComputeRouterNatDelete(t *testing.T, n string) resource.TestChe
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		routersService := config.NewComputeClient(config.UserAgent).Routers
+		routersService := compute.NewClient(config, config.UserAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router_nat" {

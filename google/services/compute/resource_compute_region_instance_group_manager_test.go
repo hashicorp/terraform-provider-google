@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 func TestAccRegionInstanceGroupManager_basic(t *testing.T) {
@@ -522,7 +523,7 @@ func testAccCheckRegionInstanceGroupManagerDestroyProducer(t *testing.T) func(s 
 			if rs.Type != "google_compute_region_instance_group_manager" {
 				continue
 			}
-			_, err := config.NewComputeClient(config.UserAgent).RegionInstanceGroupManagers.Get(
+			_, err := compute.NewClient(config, config.UserAgent).RegionInstanceGroupManagers.Get(
 				rs.Primary.Attributes["project"], rs.Primary.Attributes["region"], rs.Primary.Attributes["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("RegionInstanceGroupManager still exists")

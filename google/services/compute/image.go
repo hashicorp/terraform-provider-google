@@ -71,7 +71,7 @@ var ImageMap = map[string]string{
 }
 
 func resolveImageImageExists(c *transport_tpg.Config, project, name, userAgent string) (bool, error) {
-	if _, err := c.NewComputeClient(userAgent).Images.Get(project, name).Do(); err == nil {
+	if _, err := NewClient(c, userAgent).Images.Get(project, name).Do(); err == nil {
 		return true, nil
 	} else if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 		return false, nil
@@ -81,7 +81,7 @@ func resolveImageImageExists(c *transport_tpg.Config, project, name, userAgent s
 }
 
 func resolveImageFamilyExists(c *transport_tpg.Config, project, name, userAgent string) (bool, error) {
-	if _, err := c.NewComputeClient(userAgent).Images.GetFromFamily(project, name).Do(); err == nil {
+	if _, err := NewClient(c, userAgent).Images.GetFromFamily(project, name).Do(); err == nil {
 		return true, nil
 	} else if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 		return false, nil

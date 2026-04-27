@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -65,7 +66,7 @@ func testAccCheckDataSourceComputeResourcePolicyDestroy(t *testing.T, name strin
 
 			policyAttrs := rs.Primary.Attributes
 
-			_, err := config.NewComputeClient(config.UserAgent).ResourcePolicies.Get(
+			_, err := compute.NewClient(config, config.UserAgent).ResourcePolicies.Get(
 				config.Project, policyAttrs["region"], policyAttrs["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("Resource Policy still exists")

@@ -122,7 +122,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 	log.Printf("[DEBUG] Loading zone: %s", z)
-	zone, err := config.NewComputeClient(userAgent).Zones.Get(project, z).Do()
+	zone, err := NewClient(config, userAgent).Zones.Get(project, z).Do()
 	if err != nil {
 		return fmt.Errorf("Error loading zone '%s': %s", z, err)
 	}
@@ -142,7 +142,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	var relativeUrl string
 
 	if strings.Contains(sourceInstanceTemplate, "global/instanceTemplates") {
-		instanceTemplate, err := config.NewComputeClient(userAgent).InstanceTemplates.Get(project, tpl.Name).Do()
+		instanceTemplate, err := NewClient(config, userAgent).InstanceTemplates.Get(project, tpl.Name).Do()
 		if err != nil {
 			return err
 		}
@@ -220,7 +220,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
-	op, err := config.NewComputeClient(userAgent).Instances.Insert(project, zone.Name, instance).SourceInstanceTemplate(relativeUrl).Do()
+	op, err := NewClient(config, userAgent).Instances.Insert(project, zone.Name, instance).SourceInstanceTemplate(relativeUrl).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance: %s", err)
 	}

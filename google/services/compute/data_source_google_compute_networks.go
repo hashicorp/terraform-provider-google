@@ -62,7 +62,7 @@ func dataSourceGoogleComputeNetworksRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	networkList, err := config.NewComputeClient(userAgent).Networks.List(project).Do()
+	networkList, err := NewClient(config, userAgent).Networks.List(project).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Network Not Found : %s", project))
 	}

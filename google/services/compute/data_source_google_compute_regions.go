@@ -69,7 +69,7 @@ func dataSourceGoogleComputeRegionsRead(d *schema.ResourceData, meta interface{}
 		filter = fmt.Sprintf(" (status eq %s)", s)
 	}
 
-	call := config.NewComputeClient(userAgent).Regions.List(project).Filter(filter)
+	call := NewClient(config, userAgent).Regions.List(project).Filter(filter)
 
 	resp, err := call.Do()
 	if err != nil {

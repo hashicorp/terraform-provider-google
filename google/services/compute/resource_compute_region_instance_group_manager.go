@@ -691,7 +691,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		ForceSendFields: []string{"TargetSize"},
 	}
 
-	op, err := config.NewComputeClient(userAgent).RegionInstanceGroupManagers.Insert(project, region, manager).Do()
+	op, err := NewClient(config, userAgent).RegionInstanceGroupManagers.Insert(project, region, manager).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error creating RegionInstanceGroupManager: %s", err)
@@ -755,7 +755,7 @@ func getRegionalManager(d *schema.ResourceData, meta interface{}) (*compute.Inst
 	}
 
 	name := d.Get("name").(string)
-	manager, err := config.NewComputeClient(userAgent).RegionInstanceGroupManagers.Get(project, region, name).Do()
+	manager, err := NewClient(config, userAgent).RegionInstanceGroupManagers.Get(project, region, name).Do()
 	if err != nil {
 		return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Region Instance Manager %q", name))
 	}
@@ -1033,7 +1033,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 	}
 
 	if change {
-		op, err := config.NewComputeClient(userAgent).RegionInstanceGroupManagers.Patch(project, region, d.Get("name").(string), updatedManager).Do()
+		op, err := NewClient(config, userAgent).RegionInstanceGroupManagers.Patch(project, region, d.Get("name").(string), updatedManager).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating region managed group instances: %s", err)
 		}
@@ -1053,7 +1053,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 			NamedPorts: namedPorts,
 		}
 
-		op, err := config.NewComputeClient(userAgent).RegionInstanceGroups.SetNamedPorts(
+		op, err := NewClient(config, userAgent).RegionInstanceGroups.SetNamedPorts(
 			project, region, d.Get("name").(string), setNamedPorts).Do()
 
 		if err != nil {
@@ -1070,7 +1070,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 	if d.HasChange("target_size") && !targetSizePatchUpdate {
 		d.Partial(true)
 		targetSize := int64(d.Get("target_size").(int))
-		op, err := config.NewComputeClient(userAgent).RegionInstanceGroupManagers.Resize(
+		op, err := NewClient(config, userAgent).RegionInstanceGroupManagers.Resize(
 			project, region, d.Get("name").(string), targetSize).Do()
 
 		if err != nil {
@@ -1115,7 +1115,7 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 
 	name := d.Get("name").(string)
 
-	op, err := config.NewComputeClient(userAgent).RegionInstanceGroupManagers.Delete(project, region, name).Do()
+	op, err := NewClient(config, userAgent).RegionInstanceGroupManagers.Delete(project, region, name).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error deleting region instance group manager: %s", err)

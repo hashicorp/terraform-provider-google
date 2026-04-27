@@ -86,7 +86,7 @@ func dataSourceGoogleComputeVpnGatewayRead(d *schema.ResourceData, meta interfac
 	name := d.Get("name").(string)
 	id := fmt.Sprintf("projects/%s/regions/%s/targetVpnGateways/%s", project, region, name)
 
-	vpnGatewaysService := compute.NewTargetVpnGatewaysService(config.NewComputeClient(userAgent))
+	vpnGatewaysService := compute.NewTargetVpnGatewaysService(NewClient(config, userAgent))
 
 	gateway, err := vpnGatewaysService.Get(project, region, name).Do()
 	if err != nil {

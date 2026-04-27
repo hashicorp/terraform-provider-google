@@ -107,7 +107,7 @@ func testAccCheckComputeSslCertificateExists(t *testing.T, n string) resource.Te
 		// We don't specify a name, but it is saved during create
 		name := rs.Primary.Attributes["name"]
 
-		found, err := config.NewComputeClient(config.UserAgent).SslCertificates.Get(
+		found, err := compute.NewClient(config, config.UserAgent).SslCertificates.Get(
 			config.Project, name).Do()
 		if err != nil {
 			return err

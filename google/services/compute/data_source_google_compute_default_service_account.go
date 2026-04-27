@@ -70,7 +70,7 @@ func dataSourceGoogleComputeDefaultServiceAccountRead(d *schema.ResourceData, me
 		return err
 	}
 
-	projectCompResource, err := config.NewComputeClient(userAgent).Projects.Get(project).Do()
+	projectCompResource, err := NewClient(config, userAgent).Projects.Get(project).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, "GCE default service account", fmt.Sprintf("%q GCE default service account", project))
 	}

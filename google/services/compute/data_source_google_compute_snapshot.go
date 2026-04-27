@@ -88,7 +88,7 @@ func dataSourceGoogleComputeSnapshotRead(d *schema.ResourceData, meta interface{
 		allSnapshots := make([]*compute.Snapshot, 0)
 		token := ""
 		for paginate := true; paginate; {
-			snapshots, err := config.NewComputeClient(userAgent).Snapshots.List(project).Filter(v.(string)).PageToken(token).Do()
+			snapshots, err := NewClient(config, userAgent).Snapshots.List(project).Filter(v.(string)).PageToken(token).Do()
 			if err != nil {
 				return fmt.Errorf("error retrieving list of snapshots: %s", err)
 

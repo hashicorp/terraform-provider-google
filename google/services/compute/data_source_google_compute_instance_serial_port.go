@@ -78,7 +78,7 @@ func computeInstanceSerialPortRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	port := int64(d.Get("port").(int))
-	output, err := config.NewComputeClient(userAgent).Instances.GetSerialPortOutput(project, zone, d.Get("instance").(string)).Port(port).Do()
+	output, err := NewClient(config, userAgent).Instances.GetSerialPortOutput(project, zone, d.Get("instance").(string)).Port(port).Do()
 	if err != nil {
 		return err
 	}

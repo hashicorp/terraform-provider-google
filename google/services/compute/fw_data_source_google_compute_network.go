@@ -76,7 +76,7 @@ func (d *ComputeNetworkFWDataSource) Configure(ctx context.Context, req datasour
 		return
 	}
 
-	p, ok := req.ProviderData.(*transport_tpg.Config)
+	config, ok := req.ProviderData.(*transport_tpg.Config)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Data Source Configure Type",
@@ -85,11 +85,11 @@ func (d *ComputeNetworkFWDataSource) Configure(ctx context.Context, req datasour
 		return
 	}
 
-	d.client = p.NewComputeClient(p.UserAgent)
+	d.client = NewClient(config, config.UserAgent)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	d.providerConfig = p
+	d.providerConfig = config
 }
 
 // Schema defines the schema for the data source.

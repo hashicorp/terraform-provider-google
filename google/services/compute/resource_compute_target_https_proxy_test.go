@@ -19,9 +19,9 @@ package compute_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"testing"
-
+	compute_tpg "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -150,7 +150,7 @@ func testAccCheckComputeTargetHttpsProxyExists(t *testing.T, n string, proxy *co
 		config := acctest.GoogleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
-		found, err := config.NewComputeClient(config.UserAgent).TargetHttpsProxies.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).TargetHttpsProxies.Get(
 			config.Project, name).Do()
 		if err != nil {
 			return err

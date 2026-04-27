@@ -81,7 +81,7 @@ func dataSourceComputeNetworkEndpointGroupsRead(d *schema.ResourceData, meta int
 
 	networkEndpointGroups := make([]map[string]interface{}, 0)
 
-	networkEndpointGroupsList, err := config.NewComputeClient(userAgent).NetworkEndpointGroups.List(project, zone).Filter(filter).Do()
+	networkEndpointGroupsList, err := NewClient(config, userAgent).NetworkEndpointGroups.List(project, zone).Filter(filter).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkEndpointGroups : %s %s", project, zone))
 	}

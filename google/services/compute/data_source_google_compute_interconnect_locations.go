@@ -118,7 +118,7 @@ func dataSourceGoogleComputeInterconnectLocationsRead(d *schema.ResourceData, me
 		return err
 	}
 	d.SetId(fmt.Sprintf("projects/%s", project))
-	list, err := config.NewComputeClient(userAgent).InterconnectLocations.List(project).Do()
+	list, err := NewClient(config, userAgent).InterconnectLocations.List(project).Do()
 	if err != nil {
 		return fmt.Errorf("Error retrieving list of interconnect locations: %s", err)
 	}

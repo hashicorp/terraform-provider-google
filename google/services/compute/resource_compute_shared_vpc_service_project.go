@@ -95,7 +95,7 @@ func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta i
 			Type: "PROJECT",
 		},
 	}
-	op, err := config.NewComputeClient(userAgent).Projects.EnableXpnResource(hostProject, req).Do()
+	op, err := NewClient(config, userAgent).Projects.EnableXpnResource(hostProject, req).Do()
 	if err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta int
 	hostProject := split[0]
 	serviceProject := split[1]
 
-	associatedHostProject, err := config.NewComputeClient(userAgent).Projects.GetXpnHost(serviceProject).Do()
+	associatedHostProject, err := NewClient(config, userAgent).Projects.GetXpnHost(serviceProject).Do()
 	if err != nil {
 		log.Printf("[WARN] Removing shared VPC service. The service project is not associated with any host")
 
@@ -180,7 +180,7 @@ func disableXpnResource(d *schema.ResourceData, config *transport_tpg.Config, ho
 			Type: "PROJECT",
 		},
 	}
-	op, err := config.NewComputeClient(userAgent).Projects.DisableXpnResource(hostProject, req).Do()
+	op, err := NewClient(config, userAgent).Projects.DisableXpnResource(hostProject, req).Do()
 	if err != nil {
 		return err
 	}

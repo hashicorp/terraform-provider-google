@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	compute_tpg "github.com/hashicorp/terraform-provider-google/google/services/compute"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -373,7 +374,7 @@ func testAccCheckComputeInstanceFromTemplateDestroyProducer(t *testing.T) func(s
 				continue
 			}
 
-			_, err := config.NewComputeClient(config.UserAgent).Instances.Get(
+			_, err := compute_tpg.NewClient(config, config.UserAgent).Instances.Get(
 				config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 			if err == nil {
 				return fmt.Errorf("Instance still exists")

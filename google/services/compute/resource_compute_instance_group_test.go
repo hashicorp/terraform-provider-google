@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	compute_tpg "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -197,7 +198,7 @@ func testAccComputeInstanceGroup_destroyProducer(t *testing.T) func(s *terraform
 			if rs.Type != "google_compute_instance_group" {
 				continue
 			}
-			_, err := config.NewComputeClient(config.UserAgent).InstanceGroups.Get(
+			_, err := compute_tpg.NewClient(config, config.UserAgent).InstanceGroups.Get(
 				config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("InstanceGroup still exists")
@@ -221,7 +222,7 @@ func testAccComputeInstanceGroup_exists(t *testing.T, n string, instanceGroup *c
 
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := config.NewComputeClient(config.UserAgent).InstanceGroups.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -246,7 +247,7 @@ func testAccComputeInstanceGroup_updated(t *testing.T, n string, size int64, ins
 
 		config := acctest.GoogleProviderConfig(t)
 
-		instanceGroup, err := config.NewComputeClient(config.UserAgent).InstanceGroups.Get(
+		instanceGroup, err := compute_tpg.NewClient(config, config.UserAgent).InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -275,7 +276,7 @@ func testAccComputeInstanceGroup_named_ports(t *testing.T, n string, np map[stri
 
 		config := acctest.GoogleProviderConfig(t)
 
-		instanceGroup, err := config.NewComputeClient(config.UserAgent).InstanceGroups.Get(
+		instanceGroup, err := compute_tpg.NewClient(config, config.UserAgent).InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -309,7 +310,7 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(t *testing.T, nInstanceGroup 
 		if rsInstanceGroup.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		instanceGroup, err := config.NewComputeClient(config.UserAgent).InstanceGroups.Get(
+		instanceGroup, err := compute_tpg.NewClient(config, config.UserAgent).InstanceGroups.Get(
 			config.Project, rsInstanceGroup.Primary.Attributes["zone"], rsInstanceGroup.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -322,7 +323,7 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(t *testing.T, nInstanceGroup 
 		if rsNetwork.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		network, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+		network, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
 			config.Project, rsNetwork.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err

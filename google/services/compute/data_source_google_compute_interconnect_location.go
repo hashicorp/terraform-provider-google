@@ -140,7 +140,7 @@ func dataSourceGoogleComputeInterconnectLocationRead(d *schema.ResourceData, met
 	}
 	name := d.Get("name").(string)
 	id := fmt.Sprintf("projects/%s/global/interconnectlocations/%s", project, name)
-	location, err := config.NewComputeClient(userAgent).InterconnectLocations.Get(project, name).Do()
+	location, err := NewClient(config, userAgent).InterconnectLocations.Get(project, name).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("InterconnectLocation Not Found : %s", name), id)
 	}

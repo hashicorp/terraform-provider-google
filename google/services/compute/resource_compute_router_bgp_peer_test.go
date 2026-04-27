@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 func TestAccComputeRouterPeer_basic(t *testing.T) {
@@ -490,7 +491,7 @@ func testAccCheckComputeRouterPeerDestroyProducer(t *testing.T) func(s *terrafor
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		routersService := config.NewComputeClient(config.UserAgent).Routers
+		routersService := compute.NewClient(config, config.UserAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router" {
@@ -525,7 +526,7 @@ func testAccCheckComputeRouterPeerDelete(t *testing.T, n string) resource.TestCh
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		routersService := config.NewComputeClient(config.UserAgent).Routers
+		routersService := compute.NewClient(config, config.UserAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router_peer" {
@@ -590,7 +591,7 @@ func testAccCheckComputeRouterPeerExists(t *testing.T, n string) resource.TestCh
 		name := rs.Primary.Attributes["name"]
 		routerName := rs.Primary.Attributes["router"]
 
-		routersService := config.NewComputeClient(config.UserAgent).Routers
+		routersService := compute.NewClient(config, config.UserAgent).Routers
 		router, err := routersService.Get(project, region, routerName).Do()
 
 		if err != nil {

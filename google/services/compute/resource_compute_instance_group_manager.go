@@ -695,7 +695,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] InstanceGroupManager insert request: %#v", manager)
-	op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Insert(
+	op, err := NewClient(config, userAgent).InstanceGroupManagers.Insert(
 		project, zone, manager).Do()
 
 	if err != nil {
@@ -792,7 +792,7 @@ func getManager(d *schema.ResourceData, meta interface{}) (*compute.InstanceGrou
 	zone, _ := tpgresource.GetZone(d, config)
 	name := d.Get("name").(string)
 
-	manager, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Get(project, zone, name).Do()
+	manager, err := NewClient(config, userAgent).InstanceGroupManagers.Get(project, zone, name).Do()
 	if err != nil {
 		return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Instance Group Manager %q", name))
 	}
@@ -1049,7 +1049,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 	}
 
 	if change {
-		op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Patch(project, zone, d.Get("name").(string), updatedManager).Do()
+		op, err := NewClient(config, userAgent).InstanceGroupManagers.Patch(project, zone, d.Get("name").(string), updatedManager).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating managed group instances: %s", err)
 		}
@@ -1072,7 +1072,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		// Make the request:
-		op, err := config.NewComputeClient(userAgent).InstanceGroups.SetNamedPorts(
+		op, err := NewClient(config, userAgent).InstanceGroups.SetNamedPorts(
 			project, zone, d.Get("name").(string), setNamedPorts).Do()
 
 		if err != nil {
@@ -1091,7 +1091,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		d.Partial(true)
 
 		targetSize := int64(d.Get("target_size").(int))
-		op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Resize(
+		op, err := NewClient(config, userAgent).InstanceGroupManagers.Resize(
 			project, zone, d.Get("name").(string), targetSize).Do()
 
 		if err != nil {
@@ -1133,12 +1133,12 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	zone, _ := tpgresource.GetZone(d, config)
 	name := d.Get("name").(string)
 
-	op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
+	op, err := NewClient(config, userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
 	attempt := 0
 	for err != nil && attempt < 20 {
 		attempt++
 		time.Sleep(2000 * time.Millisecond)
-		op, err = config.NewComputeClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
+		op, err = NewClient(config, userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
 	}
 
 	if err != nil {
@@ -1155,7 +1155,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 			return err
 		}
 
-		instanceGroup, igErr := config.NewComputeClient(userAgent).InstanceGroups.Get(
+		instanceGroup, igErr := NewClient(config, userAgent).InstanceGroups.Get(
 			project, zone, name).Do()
 		if igErr != nil {
 			return fmt.Errorf("Error getting instance group size: %s", err)

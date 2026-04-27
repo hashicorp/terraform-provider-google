@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 func TestAccComputeNetworkPeering_basic(t *testing.T) {
@@ -202,7 +203,7 @@ func testAccComputeNetworkPeeringDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			_, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+			_, err := compute.NewClient(config, config.UserAgent).Networks.Get(
 				config.Project, rs.Primary.ID).Do()
 			if err == nil {
 				return fmt.Errorf("Network peering still exists")

@@ -120,7 +120,7 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 	}
 
 	log.Printf("[DEBUG] Loading project metadata: %s", projectID)
-	project, err := config.NewComputeClient(userAgent).Projects.Get(projectID).Do()
+	project, err := NewClient(config, userAgent).Projects.Get(projectID).Do()
 	if err != nil {
 		return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 	}
@@ -220,7 +220,7 @@ func updateComputeCommonInstanceMetadata(config *transport_tpg.Config, projectID
 		defer transport_tpg.MutexStore.Unlock(lockName)
 
 		log.Printf("[DEBUG] Loading project metadata: %s", projectID)
-		project, err := config.NewComputeClient(userAgent).Projects.Get(projectID).Do()
+		project, err := NewClient(config, userAgent).Projects.Get(projectID).Do()
 		if err != nil {
 			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 		}
@@ -256,7 +256,7 @@ func updateComputeCommonInstanceMetadata(config *transport_tpg.Config, projectID
 		}
 
 		// Attempt to write the new value now
-		op, err := config.NewComputeClient(userAgent).Projects.SetCommonInstanceMetadata(
+		op, err := NewClient(config, userAgent).Projects.SetCommonInstanceMetadata(
 			projectID,
 			&compute.Metadata{
 				Fingerprint: fingerprint,

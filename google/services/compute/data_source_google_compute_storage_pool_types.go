@@ -181,7 +181,7 @@ func dataSourceGoogleComputeStoragePoolTypesRead(d *schema.ResourceData, meta in
 	zone := d.Get("zone").(string)
 	storagePoolType := d.Get("storage_pool_type").(string)
 
-	spt, err := config.NewComputeClient(userAgent).StoragePoolTypes.Get(project, zone, storagePoolType).Do()
+	spt, err := NewClient(config, userAgent).StoragePoolTypes.Get(project, zone, storagePoolType).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, "GCE storage pool types", fmt.Sprintf("GCE storage pool types in project %s", project))
 	}

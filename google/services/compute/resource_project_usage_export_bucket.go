@@ -86,7 +86,7 @@ func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	p, err := config.NewComputeClient(userAgent).Projects.Get(project).Do()
+	p, err := NewClient(config, userAgent).Projects.Get(project).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project data for project %s", project))
 	}
@@ -121,7 +121,7 @@ func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	op, err := config.NewComputeClient(userAgent).Projects.SetUsageExportBucket(project, &compute.UsageExportLocation{
+	op, err := NewClient(config, userAgent).Projects.SetUsageExportBucket(project, &compute.UsageExportLocation{
 		ReportNamePrefix: d.Get("prefix").(string),
 		BucketName:       d.Get("bucket_name").(string),
 	}).Do()
@@ -154,7 +154,7 @@ func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	op, err := config.NewComputeClient(userAgent).Projects.SetUsageExportBucket(project, nil).Do()
+	op, err := NewClient(config, userAgent).Projects.SetUsageExportBucket(project, nil).Do()
 	if err != nil {
 		return err
 	}

@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	compute_tpg "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/dataflow"
 	dataflowapi "google.golang.org/api/dataflow/v1b3"
 
@@ -793,7 +794,7 @@ func testAccDataflowJobGetGeneratedInstanceTemplate(t *testing.T, s *terraform.S
 	var instanceTemplate *compute.InstanceTemplate
 
 	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
-		instanceTemplates, rerr := config.NewComputeClient(config.UserAgent).RegionInstanceTemplates.
+		instanceTemplates, rerr := compute_tpg.NewClient(config, config.UserAgent).RegionInstanceTemplates.
 			List(config.Project, config.Region).
 			Filter(filter).
 			MaxResults(2).

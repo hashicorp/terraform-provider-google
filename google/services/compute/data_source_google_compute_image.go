@@ -151,14 +151,14 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 	var image *compute.Image
 	if v, ok := d.GetOk("name"); ok {
 		log.Printf("[DEBUG] Fetching image %s", v.(string))
-		image, err = config.NewComputeClient(userAgent).Images.Get(project, v.(string)).Do()
+		image, err = NewClient(config, userAgent).Images.Get(project, v.(string)).Do()
 		log.Printf("[DEBUG] Fetched image %s", v.(string))
 	} else if v, ok := d.GetOk("family"); ok {
 		log.Printf("[DEBUG] Fetching latest non-deprecated image from family %s", v.(string))
-		image, err = config.NewComputeClient(userAgent).Images.GetFromFamily(project, v.(string)).Do()
+		image, err = NewClient(config, userAgent).Images.GetFromFamily(project, v.(string)).Do()
 		log.Printf("[DEBUG] Fetched latest non-deprecated image from family %s", v.(string))
 	} else if v, ok := d.GetOk("filter"); ok {
-		images, err := config.NewComputeClient(userAgent).Images.List(project).Filter(v.(string)).Do()
+		images, err := NewClient(config, userAgent).Images.List(project).Filter(v.(string)).Do()
 		if err != nil {
 			return fmt.Errorf("error retrieving list of images: %s", err)
 		}

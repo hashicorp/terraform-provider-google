@@ -127,7 +127,7 @@ func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}
 
 	id := fmt.Sprintf("projects/%s/regions/%s/addresses/%s", project, region, name)
 
-	address, err := config.NewComputeClient(userAgent).Addresses.Get(project, region, name).Do()
+	address, err := NewClient(config, userAgent).Addresses.Get(project, region, name).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Address Not Found : %s", name), id)
 	}

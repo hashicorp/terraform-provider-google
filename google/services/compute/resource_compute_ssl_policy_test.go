@@ -19,6 +19,7 @@ package compute_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	compute_tpg "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -220,7 +221,7 @@ func testAccCheckComputeSslPolicyExists(t *testing.T, n string, sslPolicy *compu
 
 		name := rs.Primary.Attributes["name"]
 
-		found, err := config.NewComputeClient(config.UserAgent).SslPolicies.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).SslPolicies.Get(
 			project, name).Do()
 		if err != nil {
 			return fmt.Errorf("Error Reading SSL Policy %s: %s", name, err)

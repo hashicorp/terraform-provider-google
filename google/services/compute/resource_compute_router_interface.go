@@ -167,7 +167,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	transport_tpg.MutexStore.Lock(routerLock)
 	defer transport_tpg.MutexStore.Unlock(routerLock)
 
-	routersService := config.NewComputeClient(userAgent).Routers
+	routersService := NewClient(config, userAgent).Routers
 	router, err := routersService.Get(project, region, routerName).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
@@ -216,7 +216,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	}
 
 	if icVal, ok := d.GetOk("interconnect_attachment"); ok {
-		interconnectAttachment, err := tpgresource.GetInterconnectAttachmentLink(config, project, region, icVal.(string), userAgent)
+		interconnectAttachment, err := GetInterconnectAttachmentLink(config, project, region, icVal.(string), userAgent)
 		if err != nil {
 			return err
 		}
@@ -268,7 +268,7 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 	routerName := d.Get("router").(string)
 	ifaceName := d.Get("name").(string)
 
-	routersService := config.NewComputeClient(userAgent).Routers
+	routersService := NewClient(config, userAgent).Routers
 	router, err := routersService.Get(project, region, routerName).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
@@ -345,7 +345,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 	transport_tpg.MutexStore.Lock(routerLock)
 	defer transport_tpg.MutexStore.Unlock(routerLock)
 
-	routersService := config.NewComputeClient(userAgent).Routers
+	routersService := NewClient(config, userAgent).Routers
 	router, err := routersService.Get(project, region, routerName).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {

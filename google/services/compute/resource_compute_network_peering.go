@@ -166,7 +166,7 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 		defer transport_tpg.MutexStore.Unlock(kn)
 	}
 
-	addOp, err := config.NewComputeClient(userAgent).Networks.AddPeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
+	addOp, err := NewClient(config, userAgent).Networks.AddPeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
 	if err != nil {
 		return fmt.Errorf("Error adding network peering: %s", err)
 	}
@@ -194,7 +194,7 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	network, err := config.NewComputeClient(userAgent).Networks.Get(networkFieldValue.Project, networkFieldValue.Name).Do()
+	network, err := NewClient(config, userAgent).Networks.Get(networkFieldValue.Project, networkFieldValue.Name).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Network %q", networkFieldValue.Name))
 	}
@@ -268,7 +268,7 @@ func resourceComputeNetworkPeeringUpdate(d *schema.ResourceData, meta interface{
 		defer transport_tpg.MutexStore.Unlock(kn)
 	}
 
-	updateOp, err := config.NewComputeClient(userAgent).Networks.UpdatePeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
+	updateOp, err := NewClient(config, userAgent).Networks.UpdatePeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
 	if err != nil {
 		return fmt.Errorf("Error updating network peering: %s", err)
 	}
@@ -311,7 +311,7 @@ func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{
 		defer transport_tpg.MutexStore.Unlock(kn)
 	}
 
-	removeOp, err := config.NewComputeClient(userAgent).Networks.RemovePeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
+	removeOp, err := NewClient(config, userAgent).Networks.RemovePeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 			log.Printf("[WARN] Peering `%s` already removed from network `%s`", name, networkFieldValue.Name)
@@ -397,7 +397,7 @@ func resourceComputeNetworkPeeringImport(d *schema.ResourceData, meta interface{
 
 	// Since the format of the network URL in the peering might be different depending on the ComputeBasePath,
 	// just read the network self link from the API.
-	net, err := config.NewComputeClient(userAgent).Networks.Get(project, network).Do()
+	net, err := NewClient(config, userAgent).Networks.Get(project, network).Do()
 	if err != nil {
 		return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Network %q", splits[1]))
 	}

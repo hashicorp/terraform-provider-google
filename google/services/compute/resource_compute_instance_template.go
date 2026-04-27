@@ -1600,7 +1600,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Name:        itName,
 	}
 
-	op, err := config.NewComputeClient(userAgent).InstanceTemplates.Insert(project, instanceTemplate).Do()
+	op, err := NewClient(config, userAgent).InstanceTemplates.Insert(project, instanceTemplate).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance template: %s", err)
 	}
@@ -1889,7 +1889,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 
 	splits := strings.Split(idStr, "/")
-	instanceTemplate, err := config.NewComputeClient(userAgent).InstanceTemplates.Get(project, splits[len(splits)-1]).Do()
+	instanceTemplate, err := NewClient(config, userAgent).InstanceTemplates.Get(project, splits[len(splits)-1]).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
 	}
@@ -2074,7 +2074,7 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 	}
 
 	splits := strings.Split(d.Id(), "/")
-	op, err := config.NewComputeClient(userAgent).InstanceTemplates.Delete(
+	op, err := NewClient(config, userAgent).InstanceTemplates.Delete(
 		project, splits[len(splits)-1]).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting instance template: %s", err)

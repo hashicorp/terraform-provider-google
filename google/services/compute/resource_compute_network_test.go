@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	compute_tpg "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	"regexp"
 	"testing"
@@ -571,7 +572,7 @@ func testAccCheckComputeNetworkExists(t *testing.T, n string, network *compute.N
 
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
 			config.Project, rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -600,7 +601,7 @@ func testAccCheckComputeNetworkDefaultRoutesDeleted(t *testing.T, n string, netw
 
 		config := acctest.GoogleProviderConfig(t)
 
-		routes, err := config.NewComputeClient(config.UserAgent).Routes.List(config.Project).Filter(fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", network.SelfLink)).Do()
+		routes, err := compute_tpg.NewClient(config, config.UserAgent).Routes.List(config.Project).Filter(fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", network.SelfLink)).Do()
 		if err != nil {
 			return err
 		}
@@ -617,7 +618,7 @@ func testAccCheckComputeNetworkIsAutoSubnet(t *testing.T, n string, network *com
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
 			config.Project, network.Name).Do()
 		if err != nil {
 			return err
@@ -639,7 +640,7 @@ func testAccCheckComputeNetworkIsCustomSubnet(t *testing.T, n string, network *c
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
 			config.Project, network.Name).Do()
 		if err != nil {
 			return err
@@ -661,7 +662,7 @@ func testAccCheckComputeNetworkIsUlaInternalIpv6Enabled(t *testing.T, n string, 
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
 			config.Project, network.Name).Do()
 		if err != nil {
 			return err
@@ -692,7 +693,7 @@ func testAccCheckComputeNetworkHasMtu(t *testing.T, n string, network *compute.N
 			return fmt.Errorf("Routing mode not found on resource")
 		}
 
-		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
 			config.Project, network.Name).Do()
 		if err != nil {
 			return err
@@ -721,7 +722,7 @@ func testAccCheckComputeNetworkHasRoutingMode(t *testing.T, n string, network *c
 			return fmt.Errorf("Routing mode not found on resource")
 		}
 
-		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
 			config.Project, network.Name).Do()
 		if err != nil {
 			return err
@@ -750,7 +751,7 @@ func testAccCheckComputeNetworkHasNetworkProfile(t *testing.T, n string, network
 			return fmt.Errorf("Network profile not found on resource")
 		}
 
-		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
 			config.Project, network.Name).Do()
 		if err != nil {
 			return err
@@ -779,7 +780,7 @@ func testAccCheckComputeNetworkHasNetworkFirewallPolicyEnforcementOrder(t *testi
 			return fmt.Errorf("Network firewall policy enforcement order not found on resource")
 		}
 
-		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
 			config.Project, network.Name).Do()
 		if err != nil {
 			return err
