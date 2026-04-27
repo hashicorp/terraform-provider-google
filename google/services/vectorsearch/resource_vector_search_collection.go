@@ -118,6 +118,29 @@ func ResourceVectorSearchCollection() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"collection_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"collection_id": {
 				Type:     schema.TypeString,
@@ -153,6 +176,28 @@ underscores, and hyphens.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `User-specified display name of the collection`,
+			},
+			"encryption_spec": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Represents a customer-managed encryption key specification that can be
+applied to a Vector Search collection.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crypto_key_name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Resource name of the Cloud KMS key used to protect the resource.
+
+The Cloud KMS key must be in the same region as the resource. It must have
+the format
+'projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}'.`,
+						},
+					},
+				},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -308,6 +353,12 @@ func resourceVectorSearchCollectionCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	encryptionSpecProp, err := expandVectorSearchCollectionEncryptionSpec(d.Get("encryption_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionSpecProp)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
+		obj["encryptionSpec"] = encryptionSpecProp
+	}
 	vectorSchemaProp, err := expandVectorSearchCollectionVectorSchema(d.Get("vector_schema"), d, config)
 	if err != nil {
 		return err
@@ -374,6 +425,27 @@ func resourceVectorSearchCollectionCreate(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Finished creating Collection %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if collectionIdValue, ok := d.GetOk("collection_id"); ok && collectionIdValue.(string) != "" {
+			if err = identity.Set("collection_id", collectionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting collection_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceVectorSearchCollectionRead(d, meta)
 }
 
@@ -433,6 +505,9 @@ func resourceVectorSearchCollectionRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("display_name", flattenVectorSearchCollectionDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Collection: %s", err)
 	}
+	if err := d.Set("encryption_spec", flattenVectorSearchCollectionEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Collection: %s", err)
+	}
 	if err := d.Set("labels", flattenVectorSearchCollectionLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Collection: %s", err)
 	}
@@ -452,6 +527,30 @@ func resourceVectorSearchCollectionRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Collection: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("collection_id"); !ok && v == "" {
+			err = identity.Set("collection_id", d.Get("collection_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting collection_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -461,6 +560,26 @@ func resourceVectorSearchCollectionUpdate(d *schema.ResourceData, meta interface
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if collectionIdValue, ok := d.GetOk("collection_id"); ok && collectionIdValue.(string) != "" {
+			if err = identity.Set("collection_id", collectionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting collection_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
@@ -674,6 +793,23 @@ func flattenVectorSearchCollectionDisplayName(v interface{}, d *schema.ResourceD
 	return v
 }
 
+func flattenVectorSearchCollectionEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["crypto_key_name"] =
+		flattenVectorSearchCollectionEncryptionSpecCryptoKeyName(original["cryptoKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVectorSearchCollectionEncryptionSpecCryptoKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVectorSearchCollectionLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -818,6 +954,32 @@ func expandVectorSearchCollectionDescription(v interface{}, d tpgresource.Terraf
 }
 
 func expandVectorSearchCollectionDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVectorSearchCollectionEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCryptoKeyName, err := expandVectorSearchCollectionEncryptionSpecCryptoKeyName(original["crypto_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cryptoKeyName"] = transformedCryptoKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandVectorSearchCollectionEncryptionSpecCryptoKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

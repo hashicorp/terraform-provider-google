@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -42,6 +43,10 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 			return fmt.Errorf("Import is not supported. Invalid regex formats.")
 		}
 
+		identity, err := d.Identity()
+		if identity == nil {
+			log.Printf("[DEBUG] identity not set: %s", err)
+		}
 		if fieldValues := re.FindStringSubmatch(d.Id()); fieldValues != nil {
 			log.Printf("[DEBUG] matching ID %s to regex %s.", d.Id(), idFormat)
 			// Starting at index 1, the first match is the full string.
@@ -63,12 +68,22 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 					if err = d.Set(fieldName, fieldValue); err != nil {
 						return err
 					}
+					if identity != nil {
+						if err = identity.Set(fieldName, fieldValue); err != nil {
+							return err
+						}
+					}
 				} else if _, ok := val.(int); ok {
 					if intVal, atoiErr := strconv.Atoi(fieldValue); atoiErr == nil {
 						// If the value can be parsed as an integer, we try to set the
 						// value as an integer.
 						if err = d.Set(fieldName, intVal); err != nil {
 							return err
+						}
+						if identity != nil {
+							if err = identity.Set(fieldName, intVal); err != nil {
+								return err
+							}
 						}
 					} else {
 						return fmt.Errorf("%s appears to be an integer, but %v cannot be parsed as an int", fieldName, fieldValue)
@@ -79,8 +94,17 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 				}
 			}
 
-			// The first id format is applied first and contains all the fields.
-			err := setDefaultValues(idRegexes[0], d, config)
+			err = setDefaultValues(idRegexes[0], identity, d, config)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		} else if d.Id() == "" {
+			if err := identityImport(re, identity, d); err != nil {
+				return err
+			}
+			err = setDefaultValues(idRegexes[0], identity, d, config)
 			if err != nil {
 				return err
 			}
@@ -91,7 +115,31 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 	return fmt.Errorf("Import id %q doesn't match any of the accepted formats: %v", d.Id(), idRegexes)
 }
 
-func setDefaultValues(idRegex string, d TerraformResourceData, config *transport_tpg.Config) error {
+func identityImport(re *regexp.Regexp, identity *schema.IdentityData, d TerraformResourceData) error {
+	if identity == nil {
+		return nil
+	}
+	log.Print("[DEBUG] Using IdentitySchema to import resource")
+	namedGroups := re.SubexpNames()
+	for _, group := range namedGroups {
+		if val, ok := d.GetOk(group); ok && group != "" {
+			log.Printf("[DEBUG] Group %s = %s Identity Group", group, val)
+			identity.Set(group, val)
+		}
+		if identityValue, identityExists := identity.GetOk(group); identityExists && group != "" {
+			log.Printf("[DEBUG] identity Importing %s = %s", group, identityValue)
+			d.Set(group, identityValue)
+		} else if group == "" {
+			continue
+		} else {
+			log.Printf("[DEBUG] No value was found for %s in identity import block", group)
+		}
+	}
+
+	return nil
+}
+
+func setDefaultValues(idRegex string, identity *schema.IdentityData, d TerraformResourceData, config *transport_tpg.Config) error {
 	if _, ok := d.GetOk("project"); !ok && strings.Contains(idRegex, "?P<project>") {
 		project, err := GetProject(d, config)
 		if err != nil {
@@ -99,6 +147,11 @@ func setDefaultValues(idRegex string, d TerraformResourceData, config *transport
 		}
 		if err := d.Set("project", project); err != nil {
 			return fmt.Errorf("Error setting project: %s", err)
+		}
+		if identity != nil {
+			if err := identity.Set("project", project); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
 	}
 	if _, ok := d.GetOk("region"); !ok && strings.Contains(idRegex, "?P<region>") {
@@ -109,6 +162,11 @@ func setDefaultValues(idRegex string, d TerraformResourceData, config *transport
 		if err := d.Set("region", region); err != nil {
 			return fmt.Errorf("Error setting region: %s", err)
 		}
+		if identity != nil {
+			if err := identity.Set("region", region); err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
 	}
 	if _, ok := d.GetOk("zone"); !ok && strings.Contains(idRegex, "?P<zone>") {
 		zone, err := GetZone(d, config)
@@ -117,6 +175,11 @@ func setDefaultValues(idRegex string, d TerraformResourceData, config *transport
 		}
 		if err := d.Set("zone", zone); err != nil {
 			return fmt.Errorf("Error setting zone: %s", err)
+		}
+		if identity != nil {
+			if err := identity.Set("zone", zone); err != nil {
+				return fmt.Errorf("Error setting zone: %s", err)
+			}
 		}
 	}
 	return nil

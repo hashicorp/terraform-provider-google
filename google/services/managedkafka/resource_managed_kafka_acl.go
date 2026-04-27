@@ -118,6 +118,33 @@ func ResourceManagedKafkaAcl() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"cluster": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"acl_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"acl_entries": {
 				Type:        schema.TypeSet,
@@ -303,6 +330,32 @@ func resourceManagedKafkaAclCreate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[DEBUG] Finished creating Acl %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if clusterValue, ok := d.GetOk("cluster"); ok && clusterValue.(string) != "" {
+			if err = identity.Set("cluster", clusterValue.(string)); err != nil {
+				return fmt.Errorf("Error setting cluster: %s", err)
+			}
+		}
+		if aclIdValue, ok := d.GetOk("acl_id"); ok && aclIdValue.(string) != "" {
+			if err = identity.Set("acl_id", aclIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting acl_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceManagedKafkaAclRead(d, meta)
 }
 
@@ -382,6 +435,36 @@ func resourceManagedKafkaAclRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Acl: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("cluster"); !ok && v == "" {
+			err = identity.Set("cluster", d.Get("cluster").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting cluster: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("acl_id"); !ok && v == "" {
+			err = identity.Set("acl_id", d.Get("acl_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting acl_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -403,6 +486,31 @@ func resourceManagedKafkaAclUpdate(d *schema.ResourceData, meta interface{}) err
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if clusterValue, ok := d.GetOk("cluster"); ok && clusterValue.(string) != "" {
+			if err = identity.Set("cluster", clusterValue.(string)); err != nil {
+				return fmt.Errorf("Error setting cluster: %s", err)
+			}
+		}
+		if aclIdValue, ok := d.GetOk("acl_id"); ok && aclIdValue.(string) != "" {
+			if err = identity.Set("acl_id", aclIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting acl_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

@@ -21,6 +21,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -318,4 +319,39 @@ func ParseLoggingExclusionId(id string) (*LoggingExclusionId, error) {
 		ResourceId:   parts[2],
 		name:         parts[3],
 	}, nil
+}
+func init() {
+	registry.Schema{
+		Name:        "google_logging_billing_account_exclusion",
+		ProductName: "logging",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceLoggingExclusion(BillingAccountLoggingExclusionSchema, NewBillingAccountLoggingExclusionUpdater, BillingAccountLoggingExclusionIdParseFunc),
+	}.Register()
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_logging_folder_exclusion",
+		ProductName: "logging",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceLoggingExclusion(FolderLoggingExclusionSchema, NewFolderLoggingExclusionUpdater, FolderLoggingExclusionIdParseFunc),
+	}.Register()
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_logging_organization_exclusion",
+		ProductName: "logging",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceLoggingExclusion(OrganizationLoggingExclusionSchema, NewOrganizationLoggingExclusionUpdater, OrganizationLoggingExclusionIdParseFunc),
+	}.Register()
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_logging_project_exclusion",
+		ProductName: "logging",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceLoggingExclusion(ProjectLoggingExclusionSchema, NewProjectLoggingExclusionUpdater, ProjectLoggingExclusionIdParseFunc),
+	}.Register()
 }

@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -245,4 +246,13 @@ func dataSourceAlloydbSupportedDatabaseFlagsRead(d *schema.ResourceData, meta in
 	}
 	d.SetId(fmt.Sprintf("projects/%s/locations/%s/supportedDbFlags", project, location))
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_alloydb_supported_database_flags",
+		ProductName: "alloydb",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceAlloydbSupportedDatabaseFlags(),
+	}.Register()
 }

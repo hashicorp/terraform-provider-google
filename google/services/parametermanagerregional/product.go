@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "parametermanagerregional"
+var Product = registry.Product{
+	Name:                 "parametermanagerregional",
+	BaseUrl:              "https://parametermanager.{{location}}.rep.googleapis.com/v1/",
+	CustomEndpointField:  "parameter_manager_regional_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_PARAMETER_MANAGER_REGIONAL_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "parametermanagerregional",
-		BaseUrl: "https://parametermanager.{{location}}.rep.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

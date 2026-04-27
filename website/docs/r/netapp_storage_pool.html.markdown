@@ -205,13 +205,20 @@ The following arguments are supported:
   Possible values are: `STORAGE_POOL_TYPE_UNSPECIFIED`, `FILE`, `UNIFIED`.
 
 * `scale_tier` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional, [Beta](../guides/provider_versions.html.markdown), Deprecated)
   The effective scale tier of the storage pool. If `scale_tier` is not
   specified during creation, this defaults to `SCALE_TIER_STANDARD`.
   Possible values are: `SCALE_TIER_UNSPECIFIED`, `SCALE_TIER_STANDARD`, `SCALE_TIER_ENTERPRISE`.
 
+  ~> **Warning:** `scaleTier` is deprecated and will be removed in a future major release. Use `scaleType` instead.
+
+* `scale_type` -
+  (Optional)
+  The scale type of the storage pool. Defaults to `SCALE_TYPE_DEFAULT` if not specified.
+  Possible values are: `SCALE_TYPE_UNSPECIFIED`, `SCALE_TYPE_DEFAULT`, `SCALE_TYPE_SCALEOUT`.
+
 * `mode` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Mode of the storage pool.
   The operational mode of the storage pool. ONTAP mode enables operations
   via ONTAP Mode APIs, while DEFAULT mode enables operations via NetApp Volumes APIs.
@@ -266,8 +273,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 45 minutes.
-- `update` - Default is 60 minutes.
+- `create` - Default is 120 minutes.
+- `update` - Default is 120 minutes.
 - `delete` - Default is 45 minutes.
 
 ## Import
@@ -279,6 +286,18 @@ StoragePool can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{name}}`
 * `{{location}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import StoragePool using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    name = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_netapp_storage_pool.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import StoragePool using one of the formats above. For example:
 

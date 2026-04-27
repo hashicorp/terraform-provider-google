@@ -76,6 +76,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkBas
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_spoke.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -143,6 +149,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkGro
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_connectivity_spoke.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -220,6 +232,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeRouterApplianceBasi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_connectivity_spoke.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -325,6 +343,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeVpnTunnelBasicExamp
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_connectivity_spoke.tunnel1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -494,6 +518,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeInterconnectAttachm
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_spoke.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -575,6 +605,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedProducerVpcNe
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_connectivity_spoke.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -662,6 +698,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeCenterGroupExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_spoke.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -731,6 +773,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkIpv
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_connectivity_spoke.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

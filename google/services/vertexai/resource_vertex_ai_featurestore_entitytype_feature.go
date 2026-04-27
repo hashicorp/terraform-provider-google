@@ -118,6 +118,25 @@ func ResourceVertexAIFeaturestoreEntitytypeFeature() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"entitytype": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"entitytype": {
 				Type:        schema.TypeString,
@@ -292,6 +311,22 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 
 	log.Printf("[DEBUG] Finished creating FeaturestoreEntitytypeFeature %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if entitytypeValue, ok := d.GetOk("entitytype"); ok && entitytypeValue.(string) != "" {
+			if err = identity.Set("entitytype", entitytypeValue.(string)); err != nil {
+				return fmt.Errorf("Error setting entitytype: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceVertexAIFeaturestoreEntitytypeFeatureRead(d, meta)
 }
 
@@ -365,6 +400,24 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading FeaturestoreEntitytypeFeature: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("entitytype"); !ok && v == "" {
+			err = identity.Set("entitytype", d.Get("entitytype").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting entitytype: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -386,6 +439,21 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if entitytypeValue, ok := d.GetOk("entitytype"); ok && entitytypeValue.(string) != "" {
+			if err = identity.Set("entitytype", entitytypeValue.(string)); err != nil {
+				return fmt.Errorf("Error setting entitytype: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

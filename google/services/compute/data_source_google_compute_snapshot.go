@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -132,4 +133,13 @@ func (a ByCreationTimestampOfSnapshot) Len() int      { return len(a) }
 func (a ByCreationTimestampOfSnapshot) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ByCreationTimestampOfSnapshot) Less(i, j int) bool {
 	return a[i].CreationTimestamp > a[j].CreationTimestamp
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_snapshot",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleComputeSnapshot(),
+	}.Register()
 }

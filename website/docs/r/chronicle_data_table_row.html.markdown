@@ -23,12 +23,10 @@ description: |-
 
 Represents a single row in a data table.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about DataTableRow, see:
 
-* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1beta/projects.locations.instances.dataTables.dataTableRows)
+* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.dataTables.dataTableRows)
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
@@ -37,7 +35,6 @@ To get more information about DataTableRow, see:
 
 ```hcl
 resource "google_chronicle_data_table" "example_dt" {
-  provider       = google-beta
   location       = "us"
   instance = "00000000-0000-0000-0000-000000000000"
   data_table_id  = "terraform_test"
@@ -55,7 +52,6 @@ resource "google_chronicle_data_table" "example_dt" {
 }
 
 resource "google_chronicle_data_table_row" "example_row" {
-  provider       = google-beta
   location       = "us"
   instance       = "00000000-0000-0000-0000-000000000000"
   data_table_id  = google_chronicle_data_table.example_dt.data_table_id
@@ -166,6 +162,20 @@ DataTableRow can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{instance}}/{{data_table_id}}/{{data_table_row}}`
 * `{{location}}/{{instance}}/{{data_table_id}}/{{data_table_row}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import DataTableRow using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    instance = "<-required value->"
+    dataTableId = "<-required value->"
+    dataTableRow = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_chronicle_data_table_row.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DataTableRow using one of the formats above. For example:
 

@@ -21,6 +21,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -134,4 +135,13 @@ func resourceComputeProjectDefaultNetworkTierDelete(d *schema.ResourceData, meta
 	log.Printf("[WARNING] Default Network Tier will be only removed from Terraform state, but will be left intact on GCP.")
 
 	return schema.RemoveFromState(d, meta)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_project_default_network_tier",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceComputeProjectDefaultNetworkTier(),
+	}.Register()
 }

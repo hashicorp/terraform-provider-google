@@ -20,6 +20,8 @@ fields:
       field: inline_trust_config.additional_trust_bundles.trust_domain
     - api_field: inlineTrustConfig.additionalTrustBundles.value.trustAnchors.pemCertificate
       field: inline_trust_config.additional_trust_bundles.trust_anchors.pem_certificate
+    - api_field: inlineTrustConfig.additionalTrustBundles.value.trustDefaultSharedCa
+      field: inline_trust_config.additional_trust_bundles.trust_default_shared_ca
     - api_field: mode
     - api_field: name
     - api_field: state

@@ -74,6 +74,12 @@ func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyBasicEx
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_security_server_tls_policy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -127,6 +133,12 @@ func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyAdvance
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_security_server_tls_policy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -171,6 +183,12 @@ func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyServerC
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_server_tls_policy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -219,6 +237,12 @@ func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyMtlsExa
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_server_tls_policy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

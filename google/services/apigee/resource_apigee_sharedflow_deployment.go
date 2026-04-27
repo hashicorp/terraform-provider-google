@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -304,4 +305,13 @@ func flattenApigeeSharedflowDeploymentRevision(v interface{}, d *schema.Resource
 
 func flattenApigeeSharedflowDeploymentServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_apigee_sharedflow_deployment",
+		ProductName: "apigee",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceApigeeSharedFlowDeployment(),
+	}.Register()
 }

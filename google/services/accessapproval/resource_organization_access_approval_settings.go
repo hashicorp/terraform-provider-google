@@ -113,6 +113,21 @@ func ResourceAccessApprovalOrganizationSettings() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"organization_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"enrolled_services": {
 				Type:     schema.TypeSet,
@@ -307,6 +322,17 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 
 	log.Printf("[DEBUG] Finished creating OrganizationSettings %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if organizationIdValue, ok := d.GetOk("organization_id"); ok && organizationIdValue.(string) != "" {
+			if err = identity.Set("organization_id", organizationIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting organization_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceAccessApprovalOrganizationSettingsRead(d, meta)
 }
 
@@ -380,6 +406,18 @@ func resourceAccessApprovalOrganizationSettingsRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("organization_id"); !ok && v == "" {
+			err = identity.Set("organization_id", d.Get("organization_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting organization_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -401,6 +439,16 @@ func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, me
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if organizationIdValue, ok := d.GetOk("organization_id"); ok && organizationIdValue.(string) != "" {
+			if err = identity.Set("organization_id", organizationIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting organization_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

@@ -79,6 +79,12 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadComputeInstanceBasicE
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backup_id", "backup_vault_id", "data_source_id", "location", "name"},
 			},
+			{
+				ResourceName:       "google_backup_dr_restore_workload.restore_compute_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -132,6 +138,12 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadComputeInstanceFullEx
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backup_id", "backup_vault_id", "data_source_id", "location", "name"},
+			},
+			{
+				ResourceName:       "google_backup_dr_restore_workload.restore_compute_full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -257,6 +269,12 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadDiskBasicExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backup_id", "backup_vault_id", "data_source_id", "location", "name"},
 			},
+			{
+				ResourceName:       "google_backup_dr_restore_workload.restore_disk_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -318,6 +336,12 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadRegionalDiskExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backup_id", "backup_vault_id", "data_source_id", "location", "name"},
+			},
+			{
+				ResourceName:       "google_backup_dr_restore_workload.restore_regional_disk",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -387,6 +411,12 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadWithoutDeleteExample(
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backup_id", "backup_vault_id", "data_source_id", "location", "name"},
+			},
+			{
+				ResourceName:       "google_backup_dr_restore_workload.restore_without_delete",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

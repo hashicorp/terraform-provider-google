@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -56,4 +57,13 @@ func dataSourceDataprocMetastoreServiceRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("%s not found", id)
 	}
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_dataproc_metastore_service",
+		ProductName: "dataprocmetastore",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceDataprocMetastoreService(),
+	}.Register()
 }

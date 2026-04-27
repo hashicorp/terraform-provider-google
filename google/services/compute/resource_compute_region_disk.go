@@ -125,6 +125,29 @@ func ResourceComputeRegionDisk() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"region": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -679,6 +702,27 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Finished creating RegionDisk %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
+			if err = identity.Set("region", regionValue.(string)); err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceComputeRegionDiskRead(d, meta)
 }
 
@@ -844,6 +888,30 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("region"); !ok && v == "" {
+			err = identity.Set("region", d.Get("region").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -862,36 +930,36 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	config := meta.(*transport_tpg.Config)
+
+	// 'config' is provided by the boilerplate.
+	// Use ':=' to declare 'userAgent', 'err', and 'project' for the first time in this scope.
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
-
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for RegionDisk: %s", err)
 	}
 	billingProject = project
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
 
 	d.Partial(true)
 
+	// 1. Handle Labels (POST to /setLabels)
 	if d.HasChange("label_fingerprint") || d.HasChange("effective_labels") {
 		obj := make(map[string]interface{})
+		if v, ok := d.GetOk("label_fingerprint"); ok {
+			obj["labelFingerprint"] = v
+		}
 
-		labelFingerprintProp, err := expandComputeRegionDiskLabelFingerprint(d.Get("label_fingerprint"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
-			obj["labelFingerprint"] = labelFingerprintProp
-		}
-		labelsProp, err := expandComputeRegionDiskEffectiveLabels(d.Get("effective_labels"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-			obj["labels"] = labelsProp
-		}
+		// FIX: Use shared ExpandEffectiveLabels for beta/regional compatibility
+		// and to avoid generator pruning issues.
+		obj["labels"] = tpgresource.ExpandEffectiveLabels(d)
 
 		obj, err = resourceComputeRegionDiskUpdateEncoder(d, meta, obj)
 		if err != nil {
@@ -903,13 +971,6 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
@@ -918,30 +979,22 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
 		})
 		if err != nil {
-			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating RegionDisk %q: %#v", d.Id(), res)
+			return fmt.Errorf("Error updating RegionDisk %q labels: %s", d.Id(), err)
 		}
 
-		err = ComputeOperationWaitTime(
-			config, res, project, "Updating RegionDisk", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
+		err = ComputeOperationWaitTime(config, res, project, "Updating RegionDisk Labels", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
 	}
+
+	// 2. Handle Size (POST to /resize)
 	if d.HasChange("size") {
 		obj := make(map[string]interface{})
-
-		sizeGbProp, err := expandComputeRegionDiskSize(d.Get("size"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("size"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sizeGbProp)) {
-			obj["sizeGb"] = sizeGbProp
-		}
+		// Use d.Get directly for simple integer fields to ensure stability.
+		obj["sizeGb"] = d.Get("size")
 
 		obj, err = resourceComputeRegionDiskUpdateEncoder(d, meta, obj)
 		if err != nil {
@@ -953,13 +1006,6 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
@@ -968,31 +1014,71 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
 		})
 		if err != nil {
-			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating RegionDisk %q: %#v", d.Id(), res)
+			return fmt.Errorf("Error resizing RegionDisk %q: %s", d.Id(), err)
 		}
 
-		err = ComputeOperationWaitTime(
-			config, res, project, "Updating RegionDisk", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
+		err = ComputeOperationWaitTime(config, res, project, "Resizing RegionDisk", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
 	}
-	if d.HasChange("access_mode") {
-		obj := make(map[string]interface{})
 
-		accessModeProp, err := expandComputeRegionDiskAccessMode(d.Get("access_mode"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("access_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessModeProp)) {
-			obj["accessMode"] = accessModeProp
+	// 3. Handle Hyperdisk Performance (Atomic Combined PATCH for Group 1)
+	// provisioned_iops and provisioned_throughput MUST be updated together
+	// to avoid API ratio validation errors.
+	if d.HasChange("provisioned_iops") || d.HasChange("provisioned_throughput") {
+		obj := make(map[string]interface{})
+		var paths []string
+
+		if d.HasChange("provisioned_iops") {
+			obj["provisionedIops"] = d.Get("provisioned_iops")
+			paths = append(paths, "provisionedIops")
+		}
+		if d.HasChange("provisioned_throughput") {
+			obj["provisionedThroughput"] = d.Get("provisioned_throughput")
+			paths = append(paths, "provisionedThroughput")
 		}
 
+		obj["name"] = d.Get("name")
+		obj, err = resourceComputeRegionDiskUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		baseUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}")
+		if err != nil {
+			return err
+		}
+		// Atomic Path Construction
+		url := fmt.Sprintf("%s?paths=%s", baseUrl, strings.Join(paths, "&paths="))
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating RegionDisk %q performance: %s", d.Id(), err)
+		}
+
+		err = ComputeOperationWaitTime(config, res, project, "Updating RegionDisk Performance", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	// 4. Handle Access Mode (Separate PATCH for Group 2)
+	// The API forbids combining 'accessMode' with performance fields in a single request.
+	if d.HasChange("access_mode") {
+		obj := make(map[string]interface{})
+		obj["accessMode"] = d.Get("access_mode")
+		obj["name"] = d.Get("name")
 		obj, err = resourceComputeRegionDiskUpdateEncoder(d, meta, obj)
 		if err != nil {
 			return err
@@ -1003,13 +1089,6 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "PATCH",
@@ -1018,124 +1097,18 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
 		})
 		if err != nil {
-			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating RegionDisk %q: %#v", d.Id(), res)
+			return fmt.Errorf("Error updating RegionDisk %q access mode: %s", d.Id(), err)
 		}
 
-		err = ComputeOperationWaitTime(
-			config, res, project, "Updating RegionDisk", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("provisioned_iops") {
-		obj := make(map[string]interface{})
-
-		provisionedIopsProp, err := expandComputeRegionDiskProvisionedIops(d.Get("provisioned_iops"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("provisioned_iops"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, provisionedIopsProp)) {
-			obj["provisionedIops"] = provisionedIopsProp
-		}
-
-		obj, err = resourceComputeRegionDiskUpdateEncoder(d, meta, obj)
-		if err != nil {
-			return err
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}?paths=provisionedIops")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating RegionDisk %q: %#v", d.Id(), res)
-		}
-
-		err = ComputeOperationWaitTime(
-			config, res, project, "Updating RegionDisk", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("provisioned_throughput") {
-		obj := make(map[string]interface{})
-
-		provisionedThroughputProp, err := expandComputeRegionDiskProvisionedThroughput(d.Get("provisioned_throughput"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("provisioned_throughput"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, provisionedThroughputProp)) {
-			obj["provisionedThroughput"] = provisionedThroughputProp
-		}
-
-		obj, err = resourceComputeRegionDiskUpdateEncoder(d, meta, obj)
-		if err != nil {
-			return err
-		}
-
-		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}?paths=provisionedThroughput")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating RegionDisk %q: %#v", d.Id(), res)
-		}
-
-		err = ComputeOperationWaitTime(
-			config, res, project, "Updating RegionDisk", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
+		err = ComputeOperationWaitTime(config, res, project, "Updating RegionDisk Access Mode", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
 	}
 
 	d.Partial(false)
-
 	return resourceComputeRegionDiskRead(d, meta)
 }
 
@@ -1318,9 +1291,13 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 				userAgent, d.Timeout(schema.TimeoutDelete))
 			if err != nil {
 				var opErr ComputeOperationError
-				if errors.As(err, &opErr) && len(opErr.Errors) == 1 && opErr.Errors[0].Code == "RESOURCE_NOT_FOUND" {
-					log.Printf("[WARN] instance %q was deleted while awaiting detach", call.instance)
-					continue
+				if errors.As(err, &opErr) {
+					if rawErrors, _ := opErr["errors"].([]interface{}); len(rawErrors) == 1 {
+						if errMap, _ := rawErrors[0].(map[string]interface{}); errMap["code"] == "RESOURCE_NOT_FOUND" {
+							log.Printf("[WARN] instance %q was deleted while awaiting detach", call.instance)
+							continue
+						}
+					}
 				}
 				return err
 			}

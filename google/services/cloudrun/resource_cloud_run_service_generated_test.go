@@ -75,6 +75,12 @@ func TestAccCloudRunService_cloudRunServiceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
 			},
+			{
+				ResourceName:       "google_cloud_run_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -125,6 +131,12 @@ func TestAccCloudRunService_cloudRunServiceGpuExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
+			},
+			{
+				ResourceName:       "google_cloud_run_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -195,6 +207,12 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"autogenerate_revision_name", "location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
 			},
+			{
+				ResourceName:       "google_cloud_run_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -261,6 +279,12 @@ func TestAccCloudRunService_cloudRunServiceNoauthExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
 			},
+			{
+				ResourceName:       "google_cloud_run_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -324,6 +348,12 @@ func TestAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"autogenerate_revision_name", "location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
+			},
+			{
+				ResourceName:       "google_cloud_run_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -397,6 +427,12 @@ func TestAccCloudRunService_cloudRunServiceSecretEnvironmentVariablesExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"autogenerate_revision_name", "location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
+			},
+			{
+				ResourceName:       "google_cloud_run_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -495,6 +531,12 @@ func TestAccCloudRunService_cloudRunServiceSecretVolumesExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"autogenerate_revision_name", "location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
+			},
+			{
+				ResourceName:       "google_cloud_run_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -599,6 +641,12 @@ func TestAccCloudRunService_cloudRunServiceProbesExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
 			},
+			{
+				ResourceName:       "google_cloud_run_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -669,6 +717,12 @@ func TestAccCloudRunService_cloudRunServiceReadinessProbeExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
+			},
+			{
+				ResourceName:       "google_cloud_run_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -741,6 +795,12 @@ func TestAccCloudRunService_cloudRunServiceIapExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
+			},
+			{
+				ResourceName:       "google_cloud_run_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

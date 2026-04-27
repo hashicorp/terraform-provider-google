@@ -77,6 +77,12 @@ func TestAccCESAppVersion_cesAppVersionBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app", "app_version_id", "location"},
 			},
+			{
+				ResourceName:       "google_ces_app_version.my-app-version",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

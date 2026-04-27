@@ -242,21 +242,34 @@ func ResourceNetworkServicesGateway() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Name of the Gateway resource.`,
-			},
-			"ports": {
-				Type:     schema.TypeList,
-				Required: true,
-				Description: `One or more port numbers (1-65535), on which the Gateway will receive traffic.
-The proxy binds to the specified ports.
- Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6 and support multiple ports.`,
-				Elem: &schema.Schema{
-					Type: schema.TypeInt,
-				},
 			},
 			"type": {
 				Type:         schema.TypeString,
@@ -278,6 +291,16 @@ Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"all_ports": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `Configures this gateway to ​listen on all ports.
+By enabling the wildcard ports feature on​ ​your Secure Web Proxy Gateway,
+it will accept traffic destined for any port (1-65535) on its​ assigned IP address.​
+This field is configurable only for gateways of type SECURE_WEB_GATEWAY.`,
+				ConflictsWith: []string{"ports"},
 			},
 			"certificate_urls": {
 				Type:     schema.TypeList,
@@ -339,6 +362,17 @@ The default value is 'global'.`,
 For example: 'projects/*/global/networks/network-1'.
 
 Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.`,
+			},
+			"ports": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `One or more port numbers (1-65535), on which the Gateway will receive traffic.
+The proxy binds to the specified ports.
+ Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6 and support multiple ports.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				ConflictsWith: []string{"all_ports"},
 			},
 			"routing_mode": {
 				Type:             schema.TypeString,
@@ -453,6 +487,12 @@ func resourceNetworkServicesGatewayCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("addresses"); !tpgresource.IsEmptyValue(reflect.ValueOf(addressesProp)) && (ok || !reflect.DeepEqual(v, addressesProp)) {
 		obj["addresses"] = addressesProp
+	}
+	allPortsProp, err := expandNetworkServicesGatewayAllPorts(d.Get("all_ports"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("all_ports"); !tpgresource.IsEmptyValue(reflect.ValueOf(allPortsProp)) && (ok || !reflect.DeepEqual(v, allPortsProp)) {
+		obj["allPorts"] = allPortsProp
 	}
 	portsProp, err := expandNetworkServicesGatewayPorts(d.Get("ports"), d, config)
 	if err != nil {
@@ -574,6 +614,27 @@ func resourceNetworkServicesGatewayCreate(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Finished creating Gateway %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceNetworkServicesGatewayRead(d, meta)
 }
 
@@ -660,6 +721,9 @@ func resourceNetworkServicesGatewayRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("addresses", flattenNetworkServicesGatewayAddresses(res["addresses"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
+	if err := d.Set("all_ports", flattenNetworkServicesGatewayAllPorts(res["allPorts"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Gateway: %s", err)
+	}
 	if err := d.Set("ports", flattenNetworkServicesGatewayPorts(res["ports"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
@@ -697,6 +761,30 @@ func resourceNetworkServicesGatewayRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -718,6 +806,26 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
@@ -934,6 +1042,7 @@ func resourceNetworkServicesGatewayDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+
 	if d.Get("delete_swg_autogen_router_on_destroy").(bool) {
 		log.Print("[DEBUG] The field delete_swg_autogen_router_on_destroy is true. Deleting swg_autogen_router.")
 		gateways, err := gatewaysSameLocation(d, config, billingProject, userAgent)
@@ -1018,6 +1127,10 @@ func flattenNetworkServicesGatewayAddresses(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenNetworkServicesGatewayAllPorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkServicesGatewayPorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1086,6 +1199,10 @@ func expandNetworkServicesGatewayType(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandNetworkServicesGatewayAddresses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesGatewayAllPorts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

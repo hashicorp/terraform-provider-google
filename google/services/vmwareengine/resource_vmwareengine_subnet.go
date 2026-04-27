@@ -113,6 +113,25 @@ func ResourceVmwareengineSubnet() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"parent": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"ip_cidr_range": {
 				Type:        schema.TypeString,
@@ -271,6 +290,22 @@ func resourceVmwareengineSubnetCreate(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[DEBUG] Finished creating Subnet %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceVmwareengineSubnetRead(d, meta)
 }
 
@@ -342,6 +377,24 @@ func resourceVmwareengineSubnetRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Subnet: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("parent"); !ok && v == "" {
+			err = identity.Set("parent", d.Get("parent").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -351,6 +404,21 @@ func resourceVmwareengineSubnetUpdate(d *schema.ResourceData, meta interface{}) 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

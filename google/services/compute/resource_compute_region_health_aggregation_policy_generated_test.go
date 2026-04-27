@@ -76,6 +76,12 @@ func TestAccComputeRegionHealthAggregationPolicy_computeRegionHealthAggregationP
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
+			{
+				ResourceName:       "google_compute_region_health_aggregation_policy.example_test_health_aggregation_policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

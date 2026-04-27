@@ -76,6 +76,12 @@ func TestAccIAMBetaWorkloadIdentityPoolManagedIdentity_iamWorkloadIdentityPoolMa
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"workload_identity_pool_id", "workload_identity_pool_managed_identity_id", "workload_identity_pool_namespace_id"},
 			},
+			{
+				ResourceName:       "google_iam_workload_identity_pool_managed_identity.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -126,6 +132,12 @@ func TestAccIAMBetaWorkloadIdentityPoolManagedIdentity_iamWorkloadIdentityPoolMa
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"workload_identity_pool_id", "workload_identity_pool_managed_identity_id", "workload_identity_pool_namespace_id"},
+			},
+			{
+				ResourceName:       "google_iam_workload_identity_pool_managed_identity.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

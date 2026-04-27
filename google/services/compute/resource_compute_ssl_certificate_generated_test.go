@@ -74,6 +74,12 @@ func TestAccComputeSslCertificate_sslCertificateBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name_prefix", "private_key", "private_key_wo", "private_key_wo_version"},
 			},
+			{
+				ResourceName:       "google_compute_ssl_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -116,6 +122,12 @@ func TestAccComputeSslCertificate_sslCertificateBasicWriteonlyExample(t *testing
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name_prefix", "private_key", "private_key_wo", "private_key_wo_version"},
+			},
+			{
+				ResourceName:       "google_compute_ssl_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -164,6 +176,12 @@ func TestAccComputeSslCertificate_sslCertificateRandomProviderExample(t *testing
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"private_key", "private_key_wo", "private_key_wo_version"},
+			},
+			{
+				ResourceName:       "google_compute_ssl_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -224,6 +242,12 @@ func TestAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(t *tes
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name_prefix", "private_key", "private_key_wo", "private_key_wo_version"},
+			},
+			{
+				ResourceName:       "google_compute_ssl_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

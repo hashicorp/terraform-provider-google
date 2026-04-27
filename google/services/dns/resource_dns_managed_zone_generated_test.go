@@ -77,6 +77,12 @@ func TestAccDNSManagedZone_dnsManagedZoneQuickstartExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force_destroy", "labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dns_managed_zone.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -164,6 +170,12 @@ func TestAccDNSManagedZone_dnsRecordSetBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dns_managed_zone.parent-zone",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -214,6 +226,12 @@ func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dns_managed_zone.example-zone",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -260,6 +278,12 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dns_managed_zone.private-zone",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -328,6 +352,12 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(t *testing.T
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dns_managed_zone.private-zone",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -483,6 +513,12 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateForwardingIpv6Example(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dns_managed_zone.private-zone",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -541,6 +577,12 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateGkeExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dns_managed_zone.private-zone-gke",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -645,6 +687,12 @@ func TestAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dns_managed_zone.peering-zone",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -708,6 +756,12 @@ func TestAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dns_managed_zone.cloud-logging-enabled-zone",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -724,6 +778,65 @@ resource "google_dns_managed_zone" "cloud-logging-enabled-zone" {
 
   cloud_logging_config {
     enable_logging = true
+  }
+}
+`, context)
+}
+
+func TestAccDNSManagedZone_dnsManagedZoneIamConditionExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"dns_name":          "conditions.example.com-" + acctest.RandString(t, 10) + ".",
+		"managed_zone_name": "tf-test-example-zone" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSManagedZone_dnsManagedZoneIamConditionExample(context),
+			},
+			{
+				ResourceName:            "google_dns_managed_zone.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dns_managed_zone.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDNSManagedZone_dnsManagedZoneIamConditionExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dns_managed_zone" "default" {
+  name        = "%{managed_zone_name}"
+  dns_name    = "%{dns_name}"
+  description = "Example zone for IAM conditions"
+}
+
+resource "google_dns_managed_zone_iam_member" "condition_test" {
+  project      = google_dns_managed_zone.default.project
+  managed_zone = google_dns_managed_zone.default.name
+  role         = "roles/dns.admin"
+  member       = "user:admin@hashicorptest.com"
+
+  condition {
+    title       = "Exact Record Match"
+    description = "Allow modifying only api.example.com. A records"
+    # Mandatory pass-through clause for parent Managed Zone checks
+    expression = "(resource.type == 'dns.googleapis.com/ResourceRecordSet' && resource.name.endsWith('/rrsets/api.%{dns_name}/A')) || (resource.type != 'dns.googleapis.com/ResourceRecordSet')"
   }
 }
 `, context)

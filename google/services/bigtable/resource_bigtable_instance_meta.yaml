@@ -28,6 +28,7 @@ fields:
   - api_field: 'labels'
   - api_field: 'name'
   - field: 'project'
+  - api_field: 'tags'
   - field: 'terraform_labels'
     provider_only: true
   - field: 'deletion_policy'

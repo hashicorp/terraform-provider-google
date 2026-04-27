@@ -74,6 +74,12 @@ func TestAccDiscoveryEngineWidgetConfig_discoveryengineWidgetconfigBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection_id", "engine_id", "location", "widget_config_id"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_widget_config.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "gkehub2"
+var Product = registry.Product{
+	Name:                 "gkehub2",
+	BaseUrl:              "https://gkehub.googleapis.com/v1/",
+	CustomEndpointField:  "gke_hub2_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_GKE_HUB2_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "gkehub2",
-		BaseUrl: "https://gkehub.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

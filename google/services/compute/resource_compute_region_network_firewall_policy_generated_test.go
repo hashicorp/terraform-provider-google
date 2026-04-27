@@ -74,6 +74,12 @@ func TestAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyFullEx
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
+			{
+				ResourceName:       "google_compute_region_network_firewall_policy.policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -110,6 +116,12 @@ func TestAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyRoceEx
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
+			},
+			{
+				ResourceName:       "google_compute_region_network_firewall_policy.policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

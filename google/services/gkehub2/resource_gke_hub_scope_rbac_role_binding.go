@@ -119,6 +119,29 @@ func ResourceGKEHub2ScopeRBACRoleBinding() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"scope_rbac_role_binding_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"scope_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"role": {
 				Type:        schema.TypeList,
@@ -343,6 +366,27 @@ func resourceGKEHub2ScopeRBACRoleBindingCreate(d *schema.ResourceData, meta inte
 
 	log.Printf("[DEBUG] Finished creating ScopeRBACRoleBinding %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if scopeRbacRoleBindingIdValue, ok := d.GetOk("scope_rbac_role_binding_id"); ok && scopeRbacRoleBindingIdValue.(string) != "" {
+			if err = identity.Set("scope_rbac_role_binding_id", scopeRbacRoleBindingIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting scope_rbac_role_binding_id: %s", err)
+			}
+		}
+		if scopeIdValue, ok := d.GetOk("scope_id"); ok && scopeIdValue.(string) != "" {
+			if err = identity.Set("scope_id", scopeIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting scope_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceGKEHub2ScopeRBACRoleBindingRead(d, meta)
 }
 
@@ -440,6 +484,30 @@ func resourceGKEHub2ScopeRBACRoleBindingRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading ScopeRBACRoleBinding: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("scope_rbac_role_binding_id"); !ok && v == "" {
+			err = identity.Set("scope_rbac_role_binding_id", d.Get("scope_rbac_role_binding_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting scope_rbac_role_binding_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("scope_id"); !ok && v == "" {
+			err = identity.Set("scope_id", d.Get("scope_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting scope_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -461,6 +529,26 @@ func resourceGKEHub2ScopeRBACRoleBindingUpdate(d *schema.ResourceData, meta inte
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if scopeRbacRoleBindingIdValue, ok := d.GetOk("scope_rbac_role_binding_id"); ok && scopeRbacRoleBindingIdValue.(string) != "" {
+			if err = identity.Set("scope_rbac_role_binding_id", scopeRbacRoleBindingIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting scope_rbac_role_binding_id: %s", err)
+			}
+		}
+		if scopeIdValue, ok := d.GetOk("scope_id"); ok && scopeIdValue.(string) != "" {
+			if err = identity.Set("scope_id", scopeIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting scope_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

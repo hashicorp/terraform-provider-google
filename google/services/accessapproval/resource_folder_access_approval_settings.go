@@ -137,6 +137,21 @@ func ResourceAccessApprovalFolderSettings() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"folder_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"enrolled_services": {
 				Type:     schema.TypeSet,
@@ -346,6 +361,17 @@ func resourceAccessApprovalFolderSettingsCreate(d *schema.ResourceData, meta int
 
 	log.Printf("[DEBUG] Finished creating FolderSettings %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if folderIdValue, ok := d.GetOk("folder_id"); ok && folderIdValue.(string) != "" {
+			if err = identity.Set("folder_id", folderIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting folder_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceAccessApprovalFolderSettingsRead(d, meta)
 }
 
@@ -419,6 +445,18 @@ func resourceAccessApprovalFolderSettingsRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading FolderSettings: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("folder_id"); !ok && v == "" {
+			err = identity.Set("folder_id", d.Get("folder_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting folder_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -440,6 +478,16 @@ func resourceAccessApprovalFolderSettingsUpdate(d *schema.ResourceData, meta int
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if folderIdValue, ok := d.GetOk("folder_id"); ok && folderIdValue.(string) != "" {
+			if err = identity.Set("folder_id", folderIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting folder_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

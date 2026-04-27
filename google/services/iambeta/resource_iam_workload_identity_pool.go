@@ -151,6 +151,25 @@ func ResourceIAMBetaWorkloadIdentityPool() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"workload_identity_pool_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"workload_identity_pool_id": {
 				Type:         schema.TypeString,
@@ -302,6 +321,16 @@ certificate(either root or intermediate cert).`,
 												},
 											},
 										},
+									},
+									"trust_default_shared_ca": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `If set to True, the trust bundle will include the private ca managed identity regional root
+public certificates.
+
+
+~> **Note** 'trust_default_shared_ca' is only supported for managed identity trust domain
+resource.`,
 									},
 								},
 							},
@@ -540,6 +569,22 @@ func resourceIAMBetaWorkloadIdentityPoolCreate(d *schema.ResourceData, meta inte
 
 	log.Printf("[DEBUG] Finished creating WorkloadIdentityPool %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if workloadIdentityPoolIdValue, ok := d.GetOk("workload_identity_pool_id"); ok && workloadIdentityPoolIdValue.(string) != "" {
+			if err = identity.Set("workload_identity_pool_id", workloadIdentityPoolIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting workload_identity_pool_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceIAMBetaWorkloadIdentityPoolRead(d, meta)
 }
 
@@ -658,6 +703,24 @@ func resourceIAMBetaWorkloadIdentityPoolRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("workload_identity_pool_id"); !ok && v == "" {
+			err = identity.Set("workload_identity_pool_id", d.Get("workload_identity_pool_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting workload_identity_pool_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -679,6 +742,21 @@ func resourceIAMBetaWorkloadIdentityPoolUpdate(d *schema.ResourceData, meta inte
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if workloadIdentityPoolIdValue, ok := d.GetOk("workload_identity_pool_id"); ok && workloadIdentityPoolIdValue.(string) != "" {
+			if err = identity.Set("workload_identity_pool_id", workloadIdentityPoolIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting workload_identity_pool_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
@@ -1034,8 +1112,9 @@ func flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundles(v
 	for k, raw := range l {
 		original := raw.(map[string]interface{})
 		transformed = append(transformed, map[string]interface{}{
-			"trust_domain":  k,
-			"trust_anchors": flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustAnchors(original["trustAnchors"], d, config),
+			"trust_domain":            k,
+			"trust_anchors":           flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustAnchors(original["trustAnchors"], d, config),
+			"trust_default_shared_ca": flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustDefaultSharedCa(original["trustDefaultSharedCa"], d, config),
 		})
 	}
 	return transformed
@@ -1059,6 +1138,10 @@ func flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTr
 	return transformed
 }
 func flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustAnchorsPemCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustDefaultSharedCa(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1215,6 +1298,13 @@ func expandIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundles(v 
 			transformed["trustAnchors"] = transformedTrustAnchors
 		}
 
+		transformedTrustDefaultSharedCa, err := expandIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustDefaultSharedCa(original["trust_default_shared_ca"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTrustDefaultSharedCa); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["trustDefaultSharedCa"] = transformedTrustDefaultSharedCa
+		}
+
 		transformedTrustDomain, err := tpgresource.ExpandString(original["trust_domain"], d, config)
 		if err != nil {
 			return nil, err
@@ -1250,6 +1340,10 @@ func expandIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTru
 }
 
 func expandIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustAnchorsPemCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMBetaWorkloadIdentityPoolInlineTrustConfigAdditionalTrustBundlesTrustDefaultSharedCa(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

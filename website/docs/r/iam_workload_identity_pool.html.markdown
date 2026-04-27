@@ -84,7 +84,8 @@ resource "google_iam_workload_identity_pool" "example" {
   }
   inline_trust_config {
     additional_trust_bundles {
-      trust_domain = "example.com"
+      trust_domain            = "example.com"
+      trust_default_shared_ca = false      
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_1.pem")
       }
@@ -93,7 +94,8 @@ resource "google_iam_workload_identity_pool" "example" {
       }
     }
     additional_trust_bundles {
-      trust_domain = "example.net"
+      trust_domain            = "example.net"
+      trust_default_shared_ca = false
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_3.pem")
       }
@@ -125,7 +127,8 @@ resource "google_iam_workload_identity_pool" "example" {
   }
   inline_trust_config {
     additional_trust_bundles {
-      trust_domain = "example.com"
+      trust_domain            = "example.com"
+      trust_default_shared_ca = true
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_1.pem")
       }
@@ -134,7 +137,8 @@ resource "google_iam_workload_identity_pool" "example" {
       }
     }
     additional_trust_bundles {
-      trust_domain = "example.net"
+      trust_domain            = "example.net"
+      trust_default_shared_ca = true
       trust_anchors {
         pem_certificate = file("test-fixtures/trust_anchor_3.pem")
       }
@@ -305,6 +309,14 @@ The following arguments are supported:
   trust anchors here.
   Structure is [documented below](#nested_inline_trust_config_additional_trust_bundles_trust_anchors).
 
+* `trust_default_shared_ca` -
+  (Optional)
+  If set to True, the trust bundle will include the private ca managed identity regional root
+  public certificates.
+  
+  ~> **Note** `trust_default_shared_ca` is only supported for managed identity trust domain
+  resource.
+
 
 <a name="nested_inline_trust_config_additional_trust_bundles_trust_anchors"></a>The `trust_anchors` block supports:
 
@@ -360,6 +372,17 @@ WorkloadIdentityPool can be imported using any of these accepted formats:
 * `{{project}}/{{workload_identity_pool_id}}`
 * `{{workload_identity_pool_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import WorkloadIdentityPool using identity values. For example:
+
+```tf
+import {
+  identity = {
+    workloadIdentityPoolId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_iam_workload_identity_pool.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import WorkloadIdentityPool using one of the formats above. For example:
 

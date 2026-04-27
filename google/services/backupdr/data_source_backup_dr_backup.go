@@ -19,6 +19,7 @@ package backupdr
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -200,4 +201,12 @@ func flattenDataSourceBackupDRBackupsDataSourceId(v interface{}, d *schema.Resou
 
 func flattenDataSourceBackupDRBackupsCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+func init() {
+	registry.Schema{
+		Name:        "google_backup_dr_backup",
+		ProductName: "backupdr",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleCloudBackupDRBackup(),
+	}.Register()
 }

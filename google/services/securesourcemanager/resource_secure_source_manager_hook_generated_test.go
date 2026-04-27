@@ -78,6 +78,12 @@ func TestAccSecureSourceManagerHook_secureSourceManagerHookBasicExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "hook_id", "location", "repository_id", "sensitive_query_string"},
 			},
+			{
+				ResourceName:       "google_secure_source_manager_hook.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -139,6 +145,12 @@ func TestAccSecureSourceManagerHook_secureSourceManagerHookWithFieldsExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "hook_id", "location", "repository_id", "sensitive_query_string"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_hook.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

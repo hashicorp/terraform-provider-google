@@ -75,6 +75,12 @@ func TestAccGkeonpremVmwareNodePool_gkeonpremVmwareNodePoolBasicExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "vmware_cluster"},
 			},
+			{
+				ResourceName:       "google_gkeonprem_vmware_node_pool.nodepool-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -156,6 +162,12 @@ func TestAccGkeonpremVmwareNodePool_gkeonpremVmwareNodePoolFullExample(t *testin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "vmware_cluster"},
+			},
+			{
+				ResourceName:       "google_gkeonprem_vmware_node_pool.nodepool-full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

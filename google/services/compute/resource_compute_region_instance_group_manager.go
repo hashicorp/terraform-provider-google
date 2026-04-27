@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -623,6 +624,23 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
+			"target_size_policy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: `The policy that specifies how the MIG creates its VMs to achieve the target size.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mode": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							Description:  `The mode of target size policy based on which the MIG creates its VMs individually or all at once.`,
+							ValidateFunc: validation.StringInSlice([]string{"BULK", "INDIVIDUAL"}, false),
+						},
+					},
+				},
+			},
 			//UDP schema start
 			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
 			//UDP schema end
@@ -672,6 +690,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		AllInstancesConfig:          expandAllInstancesConfig(nil, d.Get("all_instances_config").([]interface{})),
 		DistributionPolicy:          expandDistributionPolicyForCreate(d),
 		StatefulPolicy:              expandStatefulPolicy(d),
+		TargetSizePolicy:            expandTargetSizePolicy(d.Get("target_size_policy").([]interface{})),
 		// Force send TargetSize to allow size of 0.
 		ForceSendFields: []string{"TargetSize"},
 	}
@@ -893,6 +912,9 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	}
 	if err = d.Set("stateful_external_ip", flattenStatefulPolicyStatefulExternalIps(d, manager.StatefulPolicy)); err != nil {
 		return fmt.Errorf("Error setting stateful_external_ip in state: %s", err.Error())
+	}
+	if err = d.Set("target_size_policy", flattenTargetSizePolicy(manager.TargetSizePolicy)); err != nil {
+		return fmt.Errorf("Error setting target_size_policy in state: %s", err.Error())
 	}
 	// If unset in state set to default value
 	if d.Get("wait_for_instances_status").(string) == "" {
@@ -1379,4 +1401,13 @@ func isNullOrEmptyBlock(flexPolicy any) bool {
 	}
 
 	return false // Return false for non-empty flex policy
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_region_instance_group_manager",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceComputeRegionInstanceGroupManager(),
+	}.Register()
 }

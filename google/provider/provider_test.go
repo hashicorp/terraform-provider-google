@@ -44,20 +44,6 @@ func TestProvider_impl(t *testing.T) {
 	var _ *schema.Provider = provider.Provider()
 }
 
-func TestProvider_noDuplicatesInResourceMap(t *testing.T) {
-	_, err := provider.ResourceMapWithErrors()
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func TestProvider_noDuplicatesInDatasourceMap(t *testing.T) {
-	_, err := provider.DatasourceMapWithErrors()
-	if err != nil {
-		t.Error(err)
-	}
-}
-
 func TestAccProviderBasePath_setBasePath(t *testing.T) {
 	t.Parallel()
 
@@ -239,8 +225,7 @@ func TestAccProvider_external_credentials_upgrade(t *testing.T) {
 			},
 			// old provider - credentials
 			{
-				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-				ExternalProviders:        oldVersion,
+				ExternalProviders: oldVersion,
 				PreConfig: func() {
 					for _, env := range envvar.CredsEnvVars {
 						t.Setenv(env, "")
@@ -249,9 +234,9 @@ func TestAccProvider_external_credentials_upgrade(t *testing.T) {
 				Config: testAccProviderExternalCredentialsUpgrade_CredentialsConfig(map[string]interface{}{
 					"credentials": credentials,
 				}),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_provider_config_sdk.default", "credentials", credentials),
-				),
+				// google_provider_config_sdk is test-specific datasource
+				// not available in the real provider, so we cannot verify credentials here.
+				// The fact that this step succeeds implies the provider accepted the credentials.
 			},
 			{
 				// new provider - credentials
@@ -261,12 +246,28 @@ func TestAccProvider_external_credentials_upgrade(t *testing.T) {
 						t.Setenv(env, "")
 					}
 				},
-				Config: testAccProviderExternalCredentialsUpgrade_CredentialsConfig(map[string]interface{}{
+				Config: testAccProviderExternalCredentialsUpgrade_CredentialsConfigNew(map[string]interface{}{
 					"credentials": credentials,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_provider_config_sdk.default", "credentials", credentials),
 				),
+			},
+		},
+	})
+}
+
+func TestAccProviderInvalidRepConfig(t *testing.T) {
+	t.Parallel()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccProviderInvalidRepConfig(),
+				ExpectError: regexp.MustCompile("conflict between prefer_global_endpoints and prefer_regional_endpoints"),
 			},
 		},
 	})
@@ -283,6 +284,14 @@ data "google_client_config" "default" {}
 }
 
 func testAccProviderExternalCredentialsUpgrade_CredentialsConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  credentials = "%{credentials}"
+}
+`, context)
+}
+
+func testAccProviderExternalCredentialsUpgrade_CredentialsConfigNew(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 provider "google" {
   credentials = "%{credentials}"
@@ -396,4 +405,15 @@ resource "google_pubsub_topic" "example" {
   name = "tf-test-planned-resource-%s"
 }
 `, providerArgument, randString)
+}
+
+func testAccProviderInvalidRepConfig() string {
+	return `
+provider "google" {
+  prefer_global_endpoints = true
+  prefer_regional_endpoints = true
+}
+
+data "google_client_config" "default" {}
+`
 }

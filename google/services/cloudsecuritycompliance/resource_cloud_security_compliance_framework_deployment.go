@@ -112,6 +112,29 @@ func ResourceCloudSecurityComplianceFrameworkDeployment() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"organization": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"framework_deployment_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"cloud_control_metadata": {
 				Type:     schema.TypeList,
@@ -609,6 +632,27 @@ func resourceCloudSecurityComplianceFrameworkDeploymentCreate(d *schema.Resource
 
 	log.Printf("[DEBUG] Finished creating FrameworkDeployment %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
+			if err = identity.Set("organization", organizationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if frameworkDeploymentIdValue, ok := d.GetOk("framework_deployment_id"); ok && frameworkDeploymentIdValue.(string) != "" {
+			if err = identity.Set("framework_deployment_id", frameworkDeploymentIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting framework_deployment_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceCloudSecurityComplianceFrameworkDeploymentRead(d, meta)
 }
 
@@ -695,6 +739,30 @@ func resourceCloudSecurityComplianceFrameworkDeploymentRead(d *schema.ResourceDa
 	}
 	if err := d.Set("update_time", flattenCloudSecurityComplianceFrameworkDeploymentUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FrameworkDeployment: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("organization"); !ok && v == "" {
+			err = identity.Set("organization", d.Get("organization").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("framework_deployment_id"); !ok && v == "" {
+			err = identity.Set("framework_deployment_id", d.Get("framework_deployment_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting framework_deployment_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

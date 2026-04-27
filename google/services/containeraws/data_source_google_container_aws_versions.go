@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -99,4 +100,13 @@ func dataSourceGoogleContainerAwsVersionsRead(d *schema.ResourceData, meta inter
 
 	d.SetId(time.Now().UTC().String())
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_container_aws_versions",
+		ProductName: "containeraws",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleContainerAwsVersions(),
+	}.Register()
 }

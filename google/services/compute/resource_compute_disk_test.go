@@ -408,6 +408,62 @@ func TestAccComputeDisk_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeDisk_hyperdiskPerformanceAtomicUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"iops_init":     25000,
+		"tp_init":       1200,
+		"iops_update":   3000,
+		"tp_update":     140,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Create disk with high performance
+				Config: testAccComputeDisk_hyperdiskPerformance(context, "init"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "provisioned_iops", "25000"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "provisioned_throughput", "1200"),
+				),
+			},
+			{
+				// Step 2: Decrease both simultaneously (The Atomic Fix)
+				Config: testAccComputeDisk_hyperdiskPerformance(context, "update"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "provisioned_iops", "3000"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "provisioned_throughput", "140"),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeDisk_hyperdiskPerformance(context map[string]interface{}, stage string) string {
+	iops := context["iops_init"]
+	tp := context["tp_init"]
+	if stage == "update" {
+		iops = context["iops_update"]
+		tp = context["tp_update"]
+	}
+
+	return acctest.Nprintf(`
+resource "google_compute_disk" "foobar" {
+  name                   = "tf-test-hd-atomic-%{random_suffix}"
+  type                   = "hyperdisk-balanced"
+  zone                   = "us-central1-a"
+  size                   = 100
+  provisioned_iops       = `+fmt.Sprintf("%v", iops)+`
+  provisioned_throughput = `+fmt.Sprintf("%v", tp)+`
+}
+`, context)
+}
+
 func TestAccComputeDisk_fromTypeUrl(t *testing.T) {
 	t.Parallel()
 

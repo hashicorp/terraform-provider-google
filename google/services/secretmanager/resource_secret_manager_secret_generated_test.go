@@ -74,6 +74,12 @@ func TestAccSecretManagerSecret_secretConfigBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "secret_id", "tags", "terraform_labels", "ttl"},
 			},
+			{
+				ResourceName:       "google_secret_manager_secret.secret-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -125,6 +131,12 @@ func TestAccSecretManagerSecret_secretWithAnnotationsExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "secret_id", "tags", "terraform_labels", "ttl"},
+			},
+			{
+				ResourceName:       "google_secret_manager_secret.secret-with-annotations",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -178,6 +190,12 @@ func TestAccSecretManagerSecret_secretWithVersionDestroyTtlExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "secret_id", "tags", "terraform_labels", "ttl"},
 			},
+			{
+				ResourceName:       "google_secret_manager_secret.secret-with-version-destroy-ttl",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -220,6 +238,12 @@ func TestAccSecretManagerSecret_secretWithAutomaticCmekExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "secret_id", "tags", "terraform_labels", "ttl"},
+			},
+			{
+				ResourceName:       "google_secret_manager_secret.secret-with-automatic-cmek",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

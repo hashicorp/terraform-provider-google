@@ -77,6 +77,12 @@ func TestAccComputeWireGroup_computeWireGroupBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cross_site_network"},
 			},
+			{
+				ResourceName:       "google_compute_wire_group.example-test-wire-group",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

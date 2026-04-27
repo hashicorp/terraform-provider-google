@@ -118,6 +118,33 @@ func ResourceCESToolset() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"app": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"toolset_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"app": {
 				Type:        schema.TypeString,
@@ -763,6 +790,32 @@ func resourceCESToolsetCreate(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished creating Toolset %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if appValue, ok := d.GetOk("app"); ok && appValue.(string) != "" {
+			if err = identity.Set("app", appValue.(string)); err != nil {
+				return fmt.Errorf("Error setting app: %s", err)
+			}
+		}
+		if toolsetIdValue, ok := d.GetOk("toolset_id"); ok && toolsetIdValue.(string) != "" {
+			if err = identity.Set("toolset_id", toolsetIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting toolset_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceCESToolsetRead(d, meta)
 }
 
@@ -851,6 +904,36 @@ func resourceCESToolsetRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Toolset: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("app"); !ok && v == "" {
+			err = identity.Set("app", d.Get("app").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting app: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("toolset_id"); !ok && v == "" {
+			err = identity.Set("toolset_id", d.Get("toolset_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting toolset_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -872,6 +955,31 @@ func resourceCESToolsetUpdate(d *schema.ResourceData, meta interface{}) error {
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if appValue, ok := d.GetOk("app"); ok && appValue.(string) != "" {
+			if err = identity.Set("app", appValue.(string)); err != nil {
+				return fmt.Errorf("Error setting app: %s", err)
+			}
+		}
+		if toolsetIdValue, ok := d.GetOk("toolset_id"); ok && toolsetIdValue.(string) != "" {
+			if err = identity.Set("toolset_id", toolsetIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting toolset_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

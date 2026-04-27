@@ -75,6 +75,12 @@ func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionOpenApiExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "tool.0.open_api_spec.0.authentication.0.api_key_config.0.api_key", "tool.0.open_api_spec.0.authentication.0.bearer_token_config.0.token", "tool.0.open_api_spec.0.authentication.0.oauth_config.0.client_secret"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_tool_version.open_api_tool_version",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -262,6 +268,12 @@ func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionDataStoreExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "tool.0.open_api_spec.0.authentication.0.api_key_config.0.api_key", "tool.0.open_api_spec.0.authentication.0.bearer_token_config.0.token", "tool.0.open_api_spec.0.authentication.0.oauth_config.0.client_secret"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_tool_version.data_store_tool_version",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -357,6 +369,12 @@ func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionFunctionExample(t *te
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "tool.0.open_api_spec.0.authentication.0.api_key_config.0.api_key", "tool.0.open_api_spec.0.authentication.0.bearer_token_config.0.token", "tool.0.open_api_spec.0.authentication.0.oauth_config.0.client_secret"},
+			},
+			{
+				ResourceName:       "google_dialogflow_cx_tool_version.function_tool_version",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

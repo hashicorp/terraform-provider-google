@@ -84,6 +84,12 @@ The following arguments are supported:
   Backup retention policy defining the retention of the backups.
   Structure is [documented below](#nested_backup_retention_policy).
 
+* `kms_config` -
+  (Optional)
+  Specifies the Key Management System (KMS) configuration to be used for
+  backup encryption. Format:
+  `projects/{{project}}/locations/{{location}}/kmsConfigs/{{kms_config}}`
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -138,6 +144,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `destination_backup_vault` -
   Name of the Backup vault created in backup region.
 
+* `encryption_state` -
+  Encryption state of customer-managed encryption keys (CMEK) backups.
+
+* `backups_crypto_key_version` -
+  The crypto key version used to encrypt the backup vault.
+  Format:
+  `projects/{{project}}/locations/{{location}}/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}/cryptoKeyVersions/{{crypto_key_version}}`
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -164,6 +178,18 @@ BackupVault can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{name}}`
 * `{{location}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import BackupVault using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    name = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_netapp_backup_vault.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import BackupVault using one of the formats above. For example:
 

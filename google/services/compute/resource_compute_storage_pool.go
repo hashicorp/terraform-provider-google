@@ -119,6 +119,29 @@ func ResourceComputeStoragePool() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"zone": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -178,6 +201,30 @@ following are valid values:
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"params": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Additional params passed with the request, but not persisted as part of resource payload`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"resource_manager_tags": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							ForceNew: true,
+							Description: `Resource manager tags to be bound to the storage pool. Tag keys and values have the
+same definition as resource manager tags. Keys and values can be either in numeric format,
+such as tagKeys/{tag_key_id} and tagValues/{tag_value_id} or in namespaced format such as
+{org_id|projectId}/{tag_key_short_name} and {tag_value_short_name}. The field is ignored when empty.
+The field is immutable and causes resource replacement when mutated. This field is only
+set at create time and modifying this field after creation will trigger recreation.
+To apply tags to an existing resource, see the google_tags_tag_binding resource.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
 			},
 			"performance_provisioning_type": {
 				Type:         schema.TypeString,
@@ -455,6 +502,12 @@ func resourceComputeStoragePoolCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("performance_provisioning_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(performanceProvisioningTypeProp)) && (ok || !reflect.DeepEqual(v, performanceProvisioningTypeProp)) {
 		obj["performanceProvisioningType"] = performanceProvisioningTypeProp
 	}
+	paramsProp, err := expandComputeStoragePoolParams(d.Get("params"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("params"); !tpgresource.IsEmptyValue(reflect.ValueOf(paramsProp)) && (ok || !reflect.DeepEqual(v, paramsProp)) {
+		obj["params"] = paramsProp
+	}
 	effectiveLabelsProp, err := expandComputeStoragePoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -520,6 +573,27 @@ func resourceComputeStoragePoolCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Finished creating StoragePool %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if zoneValue, ok := d.GetOk("zone"); ok && zoneValue.(string) != "" {
+			if err = identity.Set("zone", zoneValue.(string)); err != nil {
+				return fmt.Errorf("Error setting zone: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceComputeStoragePoolRead(d, meta)
 }
@@ -641,6 +715,30 @@ func resourceComputeStoragePoolRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("zone"); !ok && v == "" {
+			err = identity.Set("zone", d.Get("zone").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting zone: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -662,6 +760,26 @@ func resourceComputeStoragePoolUpdate(d *schema.ResourceData, meta interface{}) 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if zoneValue, ok := d.GetOk("zone"); ok && zoneValue.(string) != "" {
+			if err = identity.Set("zone", zoneValue.(string)); err != nil {
+				return fmt.Errorf("Error setting zone: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
@@ -1115,6 +1233,39 @@ func expandComputeStoragePoolCapacityProvisioningType(v interface{}, d tpgresour
 
 func expandComputeStoragePoolPerformanceProvisioningType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandComputeStoragePoolParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedResourceManagerTags, err := expandComputeStoragePoolParamsResourceManagerTags(original["resource_manager_tags"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResourceManagerTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resourceManagerTags"] = transformedResourceManagerTags
+	}
+
+	return transformed, nil
+}
+
+func expandComputeStoragePoolParamsResourceManagerTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandComputeStoragePoolEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

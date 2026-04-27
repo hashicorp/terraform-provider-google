@@ -74,6 +74,12 @@ func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterBasicExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name"},
 			},
+			{
+				ResourceName:       "google_gkeonprem_bare_metal_cluster.cluster-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -178,6 +184,12 @@ func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterManuallbExample(t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name"},
 			},
+			{
+				ResourceName:       "google_gkeonprem_bare_metal_cluster.cluster-manuallb",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -272,6 +284,12 @@ func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterBgplbExample(t *t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name"},
+			},
+			{
+				ResourceName:       "google_gkeonprem_bare_metal_cluster.cluster-bgplb",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

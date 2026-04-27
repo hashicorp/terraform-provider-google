@@ -36,6 +36,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/bigquery/v2"
@@ -2878,7 +2879,7 @@ func flattenGoogleSheetsOptions(opts *bigquery.GoogleSheetsOptions) []map[string
 }
 
 func expandHivePartitioningOptions(configured interface{}) *bigquery.HivePartitioningOptions {
-	if len(configured.([]interface{})) == 0 {
+	if len(configured.([]interface{})) == 0 || configured.([]interface{})[0] == nil {
 		return nil
 	}
 
@@ -3856,4 +3857,13 @@ func resourceBigQueryTableImport(d *schema.ResourceData, meta interface{}) ([]*s
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_bigquery_table",
+		ProductName: "bigquery",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceBigQueryTable(),
+	}.Register()
 }

@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -155,4 +156,31 @@ func (u *DataprocClusterIamUpdater) GetMutexKey() string {
 
 func (u *DataprocClusterIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("Dataproc Cluster %s/%s/%s", u.project, u.region, u.cluster)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_dataproc_cluster_iam_member",
+		ProductName: "dataproc",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_dataproc_cluster_iam_binding",
+		ProductName: "dataproc",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_dataproc_cluster_iam_policy",
+		ProductName: "dataproc",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_dataproc_cluster_iam_policy",
+		ProductName: "dataproc",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamDataprocClusterSchema, NewDataprocClusterUpdater),
+	}.Register()
 }

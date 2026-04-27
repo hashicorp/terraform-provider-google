@@ -75,6 +75,12 @@ func TestAccPubsubLiteSubscription_pubsubLiteSubscriptionBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "region", "topic", "zone"},
 			},
+			{
+				ResourceName:       "google_pubsub_lite_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

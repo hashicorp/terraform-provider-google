@@ -75,6 +75,12 @@ func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkBas
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"framework_id", "location", "organization"},
 			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

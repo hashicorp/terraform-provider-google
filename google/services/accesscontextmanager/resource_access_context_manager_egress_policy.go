@@ -112,6 +112,25 @@ func ResourceAccessContextManagerEgressPolicy() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"resource": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"egress_policy_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"egress_policy_name": {
 				Type:             schema.TypeString,
@@ -232,6 +251,22 @@ func resourceAccessContextManagerEgressPolicyCreate(d *schema.ResourceData, meta
 
 	log.Printf("[DEBUG] Finished creating EgressPolicy %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if resourceValue, ok := d.GetOk("resource"); ok && resourceValue.(string) != "" {
+			if err = identity.Set("resource", resourceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
+		}
+		if egressPolicyNameValue, ok := d.GetOk("egress_policy_name"); ok && egressPolicyNameValue.(string) != "" {
+			if err = identity.Set("egress_policy_name", egressPolicyNameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting egress_policy_name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceAccessContextManagerEgressPolicyRead(d, meta)
 }
 
@@ -299,6 +334,24 @@ func resourceAccessContextManagerEgressPolicyRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading EgressPolicy: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("resource"); !ok && v == "" {
+			err = identity.Set("resource", d.Get("resource").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("egress_policy_name"); !ok && v == "" {
+			err = identity.Set("egress_policy_name", d.Get("egress_policy_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting egress_policy_name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -341,6 +394,7 @@ func resourceAccessContextManagerEgressPolicyDelete(d *schema.ResourceData, meta
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "EgressPolicy")
 	}
+
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
 	if err != nil {
 		return err

@@ -140,6 +140,7 @@ func IapWebIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) err
 		d:       d,
 		Config:  config,
 	}
+
 	if err := d.Set("project", u.project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}

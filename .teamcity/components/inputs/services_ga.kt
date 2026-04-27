@@ -456,6 +456,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Firebasehosting",
         "path" to "./google/services/firebasehosting"
     ),
+    "firebaseremoteconfig" to mapOf(
+        "name" to "firebaseremoteconfig",
+        "displayName" to "Firebaseremoteconfig",
+        "path" to "./google/services/firebaseremoteconfig"
+    ),
     "firebaserules" to mapOf(
         "name" to "firebaserules",
         "displayName" to "Firebaserules",
@@ -885,6 +890,11 @@ var ServicesListGa = mapOf(
         "name" to "workbench",
         "displayName" to "Workbench",
         "path" to "./google/services/workbench"
+    ),
+    "workloadidentity" to mapOf(
+        "name" to "workloadidentity",
+        "displayName" to "Workload Identity",
+        "path" to "./google/services/workloadidentity"
     ),
     "workflows" to mapOf(
         "name" to "workflows",

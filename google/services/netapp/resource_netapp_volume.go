@@ -162,6 +162,29 @@ func ResourceNetappVolume() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DEFAULT"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"capacity_gib": {
 				Type:        schema.TypeString,
@@ -556,6 +579,24 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Optional. Flag indicating if the volume will be a large capacity volume or a regular volume.`,
+			},
+			"large_capacity_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Configuration for a Large Capacity Volume. A Large Capacity Volume
+supports sizes ranging from 12 TiB to 20 PiB, it is composed of multiple
+internal constituents, and must be created in a large capacity pool.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"constituent_count": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The number of internal constituents (e.g., FlexVols) for this large volume.
+The minimum number of constituents is 2.`,
+						},
+					},
+				},
 			},
 			"multiple_endpoints": {
 				Type:     schema.TypeBool,
@@ -1092,6 +1133,12 @@ func resourceNetappVolumeCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("block_devices"); !tpgresource.IsEmptyValue(reflect.ValueOf(blockDevicesProp)) && (ok || !reflect.DeepEqual(v, blockDevicesProp)) {
 		obj["blockDevices"] = blockDevicesProp
 	}
+	largeCapacityConfigProp, err := expandNetappVolumeLargeCapacityConfig(d.Get("large_capacity_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("large_capacity_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(largeCapacityConfigProp)) && (ok || !reflect.DeepEqual(v, largeCapacityConfigProp)) {
+		obj["largeCapacityConfig"] = largeCapacityConfigProp
+	}
 	effectiveLabelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1151,6 +1198,27 @@ func resourceNetappVolumeCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	log.Printf("[DEBUG] Finished creating Volume %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceNetappVolumeRead(d, meta)
 }
@@ -1329,11 +1397,38 @@ func resourceNetappVolumeRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("block_devices", flattenNetappVolumeBlockDevices(res["blockDevices"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
+	if err := d.Set("large_capacity_config", flattenNetappVolumeLargeCapacityConfig(res["largeCapacityConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Volume: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetappVolumeTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
 	if err := d.Set("effective_labels", flattenNetappVolumeEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil
@@ -1357,6 +1452,26 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
@@ -1464,6 +1579,12 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("block_devices"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, blockDevicesProp)) {
 		obj["blockDevices"] = blockDevicesProp
 	}
+	largeCapacityConfigProp, err := expandNetappVolumeLargeCapacityConfig(d.Get("large_capacity_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("large_capacity_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, largeCapacityConfigProp)) {
+		obj["largeCapacityConfig"] = largeCapacityConfigProp
+	}
 	effectiveLabelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1546,6 +1667,10 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("block_devices") {
 		updateMask = append(updateMask, "blockDevices")
+	}
+
+	if d.HasChange("large_capacity_config") {
+		updateMask = append(updateMask, "largeCapacityConfig")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -2741,6 +2866,36 @@ func flattenNetappVolumeBlockDevicesOsType(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenNetappVolumeLargeCapacityConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["constituent_count"] =
+		flattenNetappVolumeLargeCapacityConfigConstituentCount(original["constituentCount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetappVolumeLargeCapacityConfigConstituentCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenNetappVolumeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -3760,6 +3915,32 @@ func expandNetappVolumeBlockDevicesSizeGib(v interface{}, d tpgresource.Terrafor
 }
 
 func expandNetappVolumeBlockDevicesOsType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeLargeCapacityConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedConstituentCount, err := expandNetappVolumeLargeCapacityConfigConstituentCount(original["constituent_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConstituentCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["constituentCount"] = transformedConstituentCount
+	}
+
+	return transformed, nil
+}
+
+func expandNetappVolumeLargeCapacityConfigConstituentCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

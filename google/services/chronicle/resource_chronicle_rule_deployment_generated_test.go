@@ -73,6 +73,12 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentBasicExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance", "location", "rule"},
 			},
+			{
+				ResourceName:       "google_chronicle_rule_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -122,6 +128,12 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentDisabledExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance", "location", "rule"},
 			},
+			{
+				ResourceName:       "google_chronicle_rule_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -168,6 +180,12 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentRunFrequencyMissingEx
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance", "location", "rule"},
+			},
+			{
+				ResourceName:       "google_chronicle_rule_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

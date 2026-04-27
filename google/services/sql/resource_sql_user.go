@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -682,4 +683,13 @@ func resourceSqlUserImporter(d *schema.ResourceData, meta interface{}) ([]*schem
 	}
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_sql_user",
+		ProductName: "sql",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceSqlUser(),
+	}.Register()
 }

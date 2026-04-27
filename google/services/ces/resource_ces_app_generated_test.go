@@ -75,6 +75,12 @@ func TestAccCESApp_cesAppBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app_id", "location"},
 			},
+			{
+				ResourceName:       "google_ces_app.ces_app_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -168,7 +174,7 @@ resource "google_ces_app" "ces_app_basic" {
   }
 
   model_settings {
-    model       = "gemini-1.5-flash"
+    model       = "gemini-2.5-flash-001"
     temperature = 0.5
   }
 
@@ -293,6 +299,12 @@ func TestAccCESApp_cesAppAmbientSoundGcsUriExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app_id", "location"},
 			},
+			{
+				ResourceName:       "google_ces_app.ces_app_ambient_sound_gcs_uri",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -364,7 +376,7 @@ resource "google_ces_app" "ces_app_ambient_sound_gcs_uri" {
   }
 
   model_settings {
-    model       = "gemini-1.5-flash"
+    model       = "gemini-2.5-flash-001"
     temperature = 0.5
   }
 

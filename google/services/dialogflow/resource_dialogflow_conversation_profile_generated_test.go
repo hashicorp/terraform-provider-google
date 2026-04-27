@@ -74,6 +74,12 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "logging_config"},
 			},
+			{
+				ResourceName:       "google_dialogflow_conversation_profile.basic_profile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -126,6 +132,12 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileRecogniti
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "logging_config"},
 			},
+			{
+				ResourceName:       "google_dialogflow_conversation_profile.recognition_result_notification_profile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -143,58 +155,6 @@ resource "google_dialogflow_conversation_profile" "recognition_result_notificati
 
 resource "google_pubsub_topic" "recognition_result_notification_profile" {
   name = "%{topic_name}"
-}
-`, context)
-}
-
-func TestAccDialogflowConversationProfile_dialogflowConversationProfileBetaBidiExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"app_id":        "tf-test-app-id" + randomSuffix,
-		"profile_name":  "tf-test-dialogflow-profile-bidi" + randomSuffix,
-		"random_suffix": randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDialogflowConversationProfileDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDialogflowConversationProfile_dialogflowConversationProfileBetaBidiExample(context),
-			},
-			{
-				ResourceName:            "google_dialogflow_conversation_profile.bidi_profile",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "logging_config"},
-			},
-		},
-	})
-}
-
-func testAccDialogflowConversationProfile_dialogflowConversationProfileBetaBidiExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_dialogflow_conversation_profile" "bidi_profile" {
-  display_name = "%{profile_name}"
-  location     = "global"
-  language_code = "en-US"
-  use_bidi_streaming = true
-  automated_agent_config {
-    agent = google_ces_app.ces_app_for_agent.id
-  }
-}
-
-resource "google_ces_app" "ces_app_for_agent" {
-  app_id = "%{app_id}"
-  location = "us"
-  display_name = "my-app"
-  time_zone_settings {
-    time_zone = "America/Los_Angeles"
-  }
 }
 `, context)
 }

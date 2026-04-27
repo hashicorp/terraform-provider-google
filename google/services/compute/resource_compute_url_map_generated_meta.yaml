@@ -15,6 +15,28 @@ fields:
     - api_field: defaultCustomErrorResponsePolicy.errorResponseRules.path
       field: default_custom_error_response_policy.error_response_rule.path
     - api_field: defaultCustomErrorResponsePolicy.errorService
+    - api_field: defaultRouteAction.cachePolicy.cacheBypassRequestHeaderNames
+    - api_field: defaultRouteAction.cachePolicy.cacheKeyPolicy.excludedQueryParameters
+    - api_field: defaultRouteAction.cachePolicy.cacheKeyPolicy.includeHost
+    - api_field: defaultRouteAction.cachePolicy.cacheKeyPolicy.includeProtocol
+    - api_field: defaultRouteAction.cachePolicy.cacheKeyPolicy.includeQueryString
+    - api_field: defaultRouteAction.cachePolicy.cacheKeyPolicy.includedCookieNames
+    - api_field: defaultRouteAction.cachePolicy.cacheKeyPolicy.includedHeaderNames
+    - api_field: defaultRouteAction.cachePolicy.cacheKeyPolicy.includedQueryParameters
+    - api_field: defaultRouteAction.cachePolicy.cacheMode
+    - api_field: defaultRouteAction.cachePolicy.clientTtl.nanos
+    - api_field: defaultRouteAction.cachePolicy.clientTtl.seconds
+    - api_field: defaultRouteAction.cachePolicy.defaultTtl.nanos
+    - api_field: defaultRouteAction.cachePolicy.defaultTtl.seconds
+    - api_field: defaultRouteAction.cachePolicy.maxTtl.nanos
+    - api_field: defaultRouteAction.cachePolicy.maxTtl.seconds
+    - api_field: defaultRouteAction.cachePolicy.negativeCaching
+    - api_field: defaultRouteAction.cachePolicy.negativeCachingPolicy.code
+    - api_field: defaultRouteAction.cachePolicy.negativeCachingPolicy.ttl.nanos
+    - api_field: defaultRouteAction.cachePolicy.negativeCachingPolicy.ttl.seconds
+    - api_field: defaultRouteAction.cachePolicy.requestCoalescing
+    - api_field: defaultRouteAction.cachePolicy.serveWhileStale.nanos
+    - api_field: defaultRouteAction.cachePolicy.serveWhileStale.seconds
     - api_field: defaultRouteAction.corsPolicy.allowCredentials
     - api_field: defaultRouteAction.corsPolicy.allowHeaders
     - api_field: defaultRouteAction.corsPolicy.allowMethods
@@ -83,6 +105,50 @@ fields:
       field: path_matcher.default_custom_error_response_policy.error_response_rule.path
     - api_field: pathMatchers.defaultCustomErrorResponsePolicy.errorService
       field: path_matcher.default_custom_error_response_policy.error_service
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.cacheBypassRequestHeaderNames
+      field: path_matcher.default_route_action.cache_policy.cache_bypass_request_header_names
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.cacheKeyPolicy.excludedQueryParameters
+      field: path_matcher.default_route_action.cache_policy.cache_key_policy.excluded_query_parameters
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.cacheKeyPolicy.includeHost
+      field: path_matcher.default_route_action.cache_policy.cache_key_policy.include_host
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.cacheKeyPolicy.includeProtocol
+      field: path_matcher.default_route_action.cache_policy.cache_key_policy.include_protocol
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.cacheKeyPolicy.includeQueryString
+      field: path_matcher.default_route_action.cache_policy.cache_key_policy.include_query_string
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.cacheKeyPolicy.includedCookieNames
+      field: path_matcher.default_route_action.cache_policy.cache_key_policy.included_cookie_names
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.cacheKeyPolicy.includedHeaderNames
+      field: path_matcher.default_route_action.cache_policy.cache_key_policy.included_header_names
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.cacheKeyPolicy.includedQueryParameters
+      field: path_matcher.default_route_action.cache_policy.cache_key_policy.included_query_parameters
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.cacheMode
+      field: path_matcher.default_route_action.cache_policy.cache_mode
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.clientTtl.nanos
+      field: path_matcher.default_route_action.cache_policy.client_ttl.nanos
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.clientTtl.seconds
+      field: path_matcher.default_route_action.cache_policy.client_ttl.seconds
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.defaultTtl.nanos
+      field: path_matcher.default_route_action.cache_policy.default_ttl.nanos
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.defaultTtl.seconds
+      field: path_matcher.default_route_action.cache_policy.default_ttl.seconds
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.maxTtl.nanos
+      field: path_matcher.default_route_action.cache_policy.max_ttl.nanos
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.maxTtl.seconds
+      field: path_matcher.default_route_action.cache_policy.max_ttl.seconds
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.negativeCaching
+      field: path_matcher.default_route_action.cache_policy.negative_caching
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.negativeCachingPolicy.code
+      field: path_matcher.default_route_action.cache_policy.negative_caching_policy.code
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.negativeCachingPolicy.ttl.nanos
+      field: path_matcher.default_route_action.cache_policy.negative_caching_policy.ttl.nanos
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.negativeCachingPolicy.ttl.seconds
+      field: path_matcher.default_route_action.cache_policy.negative_caching_policy.ttl.seconds
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.requestCoalescing
+      field: path_matcher.default_route_action.cache_policy.request_coalescing
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.serveWhileStale.nanos
+      field: path_matcher.default_route_action.cache_policy.serve_while_stale.nanos
+    - api_field: pathMatchers.defaultRouteAction.cachePolicy.serveWhileStale.seconds
+      field: path_matcher.default_route_action.cache_policy.serve_while_stale.seconds
     - api_field: pathMatchers.defaultRouteAction.corsPolicy.allowCredentials
       field: path_matcher.default_route_action.cors_policy.allow_credentials
     - api_field: pathMatchers.defaultRouteAction.corsPolicy.allowHeaders
@@ -195,6 +261,50 @@ fields:
       field: path_matcher.path_rule.custom_error_response_policy.error_service
     - api_field: pathMatchers.pathRules.paths
       field: path_matcher.path_rule.paths
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.cacheBypassRequestHeaderNames
+      field: path_matcher.path_rule.route_action.cache_policy.cache_bypass_request_header_names
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.cacheKeyPolicy.excludedQueryParameters
+      field: path_matcher.path_rule.route_action.cache_policy.cache_key_policy.excluded_query_parameters
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.cacheKeyPolicy.includeHost
+      field: path_matcher.path_rule.route_action.cache_policy.cache_key_policy.include_host
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.cacheKeyPolicy.includeProtocol
+      field: path_matcher.path_rule.route_action.cache_policy.cache_key_policy.include_protocol
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.cacheKeyPolicy.includeQueryString
+      field: path_matcher.path_rule.route_action.cache_policy.cache_key_policy.include_query_string
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.cacheKeyPolicy.includedCookieNames
+      field: path_matcher.path_rule.route_action.cache_policy.cache_key_policy.included_cookie_names
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.cacheKeyPolicy.includedHeaderNames
+      field: path_matcher.path_rule.route_action.cache_policy.cache_key_policy.included_header_names
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.cacheKeyPolicy.includedQueryParameters
+      field: path_matcher.path_rule.route_action.cache_policy.cache_key_policy.included_query_parameters
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.cacheMode
+      field: path_matcher.path_rule.route_action.cache_policy.cache_mode
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.clientTtl.nanos
+      field: path_matcher.path_rule.route_action.cache_policy.client_ttl.nanos
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.clientTtl.seconds
+      field: path_matcher.path_rule.route_action.cache_policy.client_ttl.seconds
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.defaultTtl.nanos
+      field: path_matcher.path_rule.route_action.cache_policy.default_ttl.nanos
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.defaultTtl.seconds
+      field: path_matcher.path_rule.route_action.cache_policy.default_ttl.seconds
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.maxTtl.nanos
+      field: path_matcher.path_rule.route_action.cache_policy.max_ttl.nanos
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.maxTtl.seconds
+      field: path_matcher.path_rule.route_action.cache_policy.max_ttl.seconds
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.negativeCaching
+      field: path_matcher.path_rule.route_action.cache_policy.negative_caching
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.negativeCachingPolicy.code
+      field: path_matcher.path_rule.route_action.cache_policy.negative_caching_policy.code
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.negativeCachingPolicy.ttl.nanos
+      field: path_matcher.path_rule.route_action.cache_policy.negative_caching_policy.ttl.nanos
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.negativeCachingPolicy.ttl.seconds
+      field: path_matcher.path_rule.route_action.cache_policy.negative_caching_policy.ttl.seconds
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.requestCoalescing
+      field: path_matcher.path_rule.route_action.cache_policy.request_coalescing
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.serveWhileStale.nanos
+      field: path_matcher.path_rule.route_action.cache_policy.serve_while_stale.nanos
+    - api_field: pathMatchers.pathRules.routeAction.cachePolicy.serveWhileStale.seconds
+      field: path_matcher.path_rule.route_action.cache_policy.serve_while_stale.seconds
     - api_field: pathMatchers.pathRules.routeAction.corsPolicy.allowCredentials
       field: path_matcher.path_rule.route_action.cors_policy.allow_credentials
     - api_field: pathMatchers.pathRules.routeAction.corsPolicy.allowHeaders
@@ -345,6 +455,50 @@ fields:
       field: path_matcher.route_rules.match_rules.regex_match
     - api_field: pathMatchers.routeRules.priority
       field: path_matcher.route_rules.priority
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.cacheBypassRequestHeaderNames
+      field: path_matcher.route_rules.route_action.cache_policy.cache_bypass_request_header_names
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.cacheKeyPolicy.excludedQueryParameters
+      field: path_matcher.route_rules.route_action.cache_policy.cache_key_policy.excluded_query_parameters
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.cacheKeyPolicy.includeHost
+      field: path_matcher.route_rules.route_action.cache_policy.cache_key_policy.include_host
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.cacheKeyPolicy.includeProtocol
+      field: path_matcher.route_rules.route_action.cache_policy.cache_key_policy.include_protocol
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.cacheKeyPolicy.includeQueryString
+      field: path_matcher.route_rules.route_action.cache_policy.cache_key_policy.include_query_string
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.cacheKeyPolicy.includedCookieNames
+      field: path_matcher.route_rules.route_action.cache_policy.cache_key_policy.included_cookie_names
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.cacheKeyPolicy.includedHeaderNames
+      field: path_matcher.route_rules.route_action.cache_policy.cache_key_policy.included_header_names
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.cacheKeyPolicy.includedQueryParameters
+      field: path_matcher.route_rules.route_action.cache_policy.cache_key_policy.included_query_parameters
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.cacheMode
+      field: path_matcher.route_rules.route_action.cache_policy.cache_mode
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.clientTtl.nanos
+      field: path_matcher.route_rules.route_action.cache_policy.client_ttl.nanos
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.clientTtl.seconds
+      field: path_matcher.route_rules.route_action.cache_policy.client_ttl.seconds
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.defaultTtl.nanos
+      field: path_matcher.route_rules.route_action.cache_policy.default_ttl.nanos
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.defaultTtl.seconds
+      field: path_matcher.route_rules.route_action.cache_policy.default_ttl.seconds
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.maxTtl.nanos
+      field: path_matcher.route_rules.route_action.cache_policy.max_ttl.nanos
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.maxTtl.seconds
+      field: path_matcher.route_rules.route_action.cache_policy.max_ttl.seconds
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.negativeCaching
+      field: path_matcher.route_rules.route_action.cache_policy.negative_caching
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.negativeCachingPolicy.code
+      field: path_matcher.route_rules.route_action.cache_policy.negative_caching_policy.code
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.negativeCachingPolicy.ttl.nanos
+      field: path_matcher.route_rules.route_action.cache_policy.negative_caching_policy.ttl.nanos
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.negativeCachingPolicy.ttl.seconds
+      field: path_matcher.route_rules.route_action.cache_policy.negative_caching_policy.ttl.seconds
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.requestCoalescing
+      field: path_matcher.route_rules.route_action.cache_policy.request_coalescing
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.serveWhileStale.nanos
+      field: path_matcher.route_rules.route_action.cache_policy.serve_while_stale.nanos
+    - api_field: pathMatchers.routeRules.routeAction.cachePolicy.serveWhileStale.seconds
+      field: path_matcher.route_rules.route_action.cache_policy.serve_while_stale.seconds
     - api_field: pathMatchers.routeRules.routeAction.corsPolicy.allowCredentials
       field: path_matcher.route_rules.route_action.cors_policy.allow_credentials
     - api_field: pathMatchers.routeRules.routeAction.corsPolicy.allowHeaders

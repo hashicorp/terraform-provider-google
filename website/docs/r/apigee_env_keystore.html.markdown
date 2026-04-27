@@ -41,10 +41,10 @@ The following arguments are supported:
   The Apigee environment group associated with the Apigee environment,
   in the format `organizations/{{org_name}}/environments/{{env_name}}`.
 
-
 * `name` -
-  (Optional)
+  (Required)
   The name of the newly created keystore.
+
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
@@ -80,6 +80,17 @@ EnvKeystore can be imported using any of these accepted formats:
 * `{{env_id}}/keystores/{{name}}`
 * `{{env_id}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import EnvKeystore using identity values. For example:
+
+```tf
+import {
+  identity = {
+    envId = "<-required value->"
+    name = "<-required value->"
+  }
+  to = google_apigee_env_keystore.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import EnvKeystore using one of the formats above. For example:
 

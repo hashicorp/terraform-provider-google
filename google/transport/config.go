@@ -59,7 +59,6 @@ import (
 	"google.golang.org/api/cloudbuild/v1"
 	"google.golang.org/api/cloudfunctions/v1"
 	"google.golang.org/api/cloudidentity/v1"
-	"google.golang.org/api/cloudiot/v1"
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
@@ -269,6 +268,7 @@ type Config struct {
 	AppEngineBasePath                string
 	ApphubBasePath                   string
 	ArtifactRegistryBasePath         string
+	ArtifactRegistryRepBasePath      string
 	BackupDRBasePath                 string
 	BeyondcorpBasePath               string
 	BiglakeBasePath                  string
@@ -312,6 +312,7 @@ type Config struct {
 	CoreBillingBasePath              string
 	DatabaseMigrationServiceBasePath string
 	DataCatalogBasePath              string
+	DataformBasePath                 string
 	DataFusionBasePath               string
 	DataLossPreventionBasePath       string
 	DataPipelineBasePath             string
@@ -336,6 +337,7 @@ type Config struct {
 	FirebaseAppCheckBasePath         string
 	FirebaseAppHostingBasePath       string
 	FirebaseDataConnectBasePath      string
+	FirebaseRemoteConfigBasePath     string
 	FirestoreBasePath                string
 	GeminiBasePath                   string
 	GKEBackupBasePath                string
@@ -416,6 +418,7 @@ type Config struct {
 	VPCAccessBasePath                string
 	WorkbenchBasePath                string
 	WorkflowsBasePath                string
+	WorkloadIdentityBasePath         string
 	WorkstationsBasePath             string
 
 	CloudBillingBasePath      string
@@ -423,8 +426,6 @@ type Config struct {
 	IamCredentialsBasePath    string
 	ResourceManagerV3BasePath string
 	IAMBasePath               string
-	CloudIoTBasePath          string
-	BigtableAdminBasePath     string
 	TagsLocationBasePath      string
 
 	// DCL
@@ -438,6 +439,9 @@ type Config struct {
 
 	RequestBatcherServiceUsage *RequestBatcher
 	RequestBatcherIam          *RequestBatcher
+
+	PreferGlobalEndpoints   bool
+	PreferRegionalEndpoints bool
 }
 
 const AccessApprovalBasePathKey = "AccessApproval"
@@ -492,6 +496,7 @@ const ContainerAttachedBasePathKey = "ContainerAttached"
 const CoreBillingBasePathKey = "CoreBilling"
 const DatabaseMigrationServiceBasePathKey = "DatabaseMigrationService"
 const DataCatalogBasePathKey = "DataCatalog"
+const DataformBasePathKey = "Dataform"
 const DataFusionBasePathKey = "DataFusion"
 const DataLossPreventionBasePathKey = "DataLossPrevention"
 const DataPipelineBasePathKey = "DataPipeline"
@@ -516,6 +521,7 @@ const FilestoreBasePathKey = "Filestore"
 const FirebaseAppCheckBasePathKey = "FirebaseAppCheck"
 const FirebaseAppHostingBasePathKey = "FirebaseAppHosting"
 const FirebaseDataConnectBasePathKey = "FirebaseDataConnect"
+const FirebaseRemoteConfigBasePathKey = "FirebaseRemoteConfig"
 const FirestoreBasePathKey = "Firestore"
 const GeminiBasePathKey = "Gemini"
 const GKEBackupBasePathKey = "GKEBackup"
@@ -596,13 +602,13 @@ const VmwareengineBasePathKey = "Vmwareengine"
 const VPCAccessBasePathKey = "VPCAccess"
 const WorkbenchBasePathKey = "Workbench"
 const WorkflowsBasePathKey = "Workflows"
+const WorkloadIdentityBasePathKey = "WorkloadIdentity"
 const WorkstationsBasePathKey = "Workstations"
 const CloudBillingBasePathKey = "CloudBilling"
 const DataflowBasePathKey = "Dataflow"
 const IAMBasePathKey = "IAM"
 const IamCredentialsBasePathKey = "IamCredentials"
 const ResourceManagerV3BasePathKey = "ResourceManagerV3"
-const BigtableAdminBasePathKey = "BigtableAdmin"
 const ContainerAwsBasePathKey = "ContainerAws"
 const ContainerAzureBasePathKey = "ContainerAzure"
 const TagsLocationBasePathKey = "TagsLocation"
@@ -661,6 +667,7 @@ var DefaultBasePaths = map[string]string{
 	CoreBillingBasePathKey:              "https://cloudbilling.googleapis.com/v1/",
 	DatabaseMigrationServiceBasePathKey: "https://datamigration.googleapis.com/v1/",
 	DataCatalogBasePathKey:              "https://datacatalog.googleapis.com/v1/",
+	DataformBasePathKey:                 "https://dataform.googleapis.com/v1/",
 	DataFusionBasePathKey:               "https://datafusion.googleapis.com/v1/",
 	DataLossPreventionBasePathKey:       "https://dlp.googleapis.com/v2/",
 	DataPipelineBasePathKey:             "https://datapipelines.googleapis.com/v1/",
@@ -685,6 +692,7 @@ var DefaultBasePaths = map[string]string{
 	FirebaseAppCheckBasePathKey:         "https://firebaseappcheck.googleapis.com/v1/",
 	FirebaseAppHostingBasePathKey:       "https://firebaseapphosting.googleapis.com/v1/",
 	FirebaseDataConnectBasePathKey:      "https://firebasedataconnect.googleapis.com/v1/",
+	FirebaseRemoteConfigBasePathKey:     "https://firebaseremoteconfig.googleapis.com/v1/",
 	FirestoreBasePathKey:                "https://firestore.googleapis.com/v1/",
 	GeminiBasePathKey:                   "https://cloudaicompanion.googleapis.com/v1/",
 	GKEBackupBasePathKey:                "https://gkebackup.googleapis.com/v1/",
@@ -765,13 +773,13 @@ var DefaultBasePaths = map[string]string{
 	VPCAccessBasePathKey:                "https://vpcaccess.googleapis.com/v1/",
 	WorkbenchBasePathKey:                "https://notebooks.googleapis.com/v2/",
 	WorkflowsBasePathKey:                "https://workflows.googleapis.com/v1/",
+	WorkloadIdentityBasePathKey:         "https://workloadidentity.googleapis.com/v1/",
 	WorkstationsBasePathKey:             "https://workstations.googleapis.com/v1/",
 	CloudBillingBasePathKey:             "https://cloudbilling.googleapis.com/v1/",
 	DataflowBasePathKey:                 "https://dataflow.googleapis.com/v1b3/",
 	IAMBasePathKey:                      "https://iam.googleapis.com/v1/",
 	IamCredentialsBasePathKey:           "https://iamcredentials.googleapis.com/v1/",
 	ResourceManagerV3BasePathKey:        "https://cloudresourcemanager.googleapis.com/v3/",
-	BigtableAdminBasePathKey:            "https://bigtableadmin.googleapis.com/v2/",
 	TagsLocationBasePathKey:             "https://{{location}}-cloudresourcemanager.googleapis.com/v3/",
 	// DCL
 	ContainerAwsBasePathKey:              "https://{{location}}-gkemulticloud.googleapis.com/v1/",
@@ -781,6 +789,172 @@ var DefaultBasePaths = map[string]string{
 	CloudResourceManagerEndpointEntryKey: "https://cloudresourcemanager.googleapis.com/",
 	FirebaserulesEndpointEntryKey:        "https://firebaserules.googleapis.com/v1/",
 	RecaptchaEnterpriseEndpointEntryKey:  "https://recaptchaenterprise.googleapis.com/v1/",
+}
+
+// Contains the REP status for each generated product. This allows us to track
+// default REP enablement across versions and have a central place to look up
+// product support
+var DefaultRepStatus = map[string]bool{
+	AccessApprovalBasePathKey:           false,
+	AccessContextManagerBasePathKey:     false,
+	ActiveDirectoryBasePathKey:          false,
+	AlloydbBasePathKey:                  false,
+	ApigeeBasePathKey:                   false,
+	ApihubBasePathKey:                   false,
+	AppEngineBasePathKey:                false,
+	ApphubBasePathKey:                   false,
+	ArtifactRegistryBasePathKey:         false,
+	BackupDRBasePathKey:                 false,
+	BeyondcorpBasePathKey:               false,
+	BiglakeBasePathKey:                  false,
+	BiglakeIcebergBasePathKey:           false,
+	BigQueryBasePathKey:                 false,
+	BigqueryAnalyticsHubBasePathKey:     false,
+	BigqueryConnectionBasePathKey:       false,
+	BigqueryDatapolicyBasePathKey:       false,
+	BigqueryDatapolicyv2BasePathKey:     false,
+	BigqueryDataTransferBasePathKey:     false,
+	BigqueryReservationBasePathKey:      false,
+	BigtableBasePathKey:                 false,
+	BillingBasePathKey:                  false,
+	BinaryAuthorizationBasePathKey:      false,
+	BlockchainNodeEngineBasePathKey:     false,
+	CertificateManagerBasePathKey:       false,
+	CESBasePathKey:                      false,
+	ChronicleBasePathKey:                false,
+	CloudAssetBasePathKey:               false,
+	CloudBuildBasePathKey:               false,
+	Cloudbuildv2BasePathKey:             false,
+	ClouddeployBasePathKey:              false,
+	ClouddomainsBasePathKey:             false,
+	CloudFunctionsBasePathKey:           false,
+	Cloudfunctions2BasePathKey:          false,
+	CloudIdentityBasePathKey:            false,
+	CloudIdsBasePathKey:                 false,
+	CloudQuotasBasePathKey:              false,
+	CloudRunBasePathKey:                 false,
+	CloudRunV2BasePathKey:               false,
+	CloudSchedulerBasePathKey:           false,
+	CloudSecurityComplianceBasePathKey:  false,
+	CloudTasksBasePathKey:               false,
+	ColabBasePathKey:                    false,
+	ComposerBasePathKey:                 false,
+	ComputeBasePathKey:                  false,
+	ContactCenterInsightsBasePathKey:    false,
+	ContainerBasePathKey:                false,
+	ContainerAnalysisBasePathKey:        false,
+	ContainerAttachedBasePathKey:        false,
+	CoreBillingBasePathKey:              false,
+	DatabaseMigrationServiceBasePathKey: false,
+	DataCatalogBasePathKey:              false,
+	DataformBasePathKey:                 false,
+	DataFusionBasePathKey:               false,
+	DataLossPreventionBasePathKey:       false,
+	DataPipelineBasePathKey:             false,
+	DataplexBasePathKey:                 false,
+	DataprocBasePathKey:                 false,
+	DataprocGdcBasePathKey:              false,
+	DataprocMetastoreBasePathKey:        false,
+	DatastreamBasePathKey:               false,
+	DeploymentManagerBasePathKey:        false,
+	DeveloperConnectBasePathKey:         false,
+	DialogflowBasePathKey:               false,
+	DialogflowCXBasePathKey:             false,
+	DiscoveryEngineBasePathKey:          false,
+	DNSBasePathKey:                      false,
+	DocumentAIBasePathKey:               false,
+	DocumentAIWarehouseBasePathKey:      false,
+	EdgecontainerBasePathKey:            false,
+	EdgenetworkBasePathKey:              false,
+	EssentialContactsBasePathKey:        false,
+	EventarcBasePathKey:                 false,
+	FilestoreBasePathKey:                false,
+	FirebaseAppCheckBasePathKey:         false,
+	FirebaseAppHostingBasePathKey:       false,
+	FirebaseDataConnectBasePathKey:      false,
+	FirebaseRemoteConfigBasePathKey:     false,
+	FirestoreBasePathKey:                false,
+	GeminiBasePathKey:                   false,
+	GKEBackupBasePathKey:                false,
+	GKEHubBasePathKey:                   false,
+	GKEHub2BasePathKey:                  false,
+	GkeonpremBasePathKey:                false,
+	HealthcareBasePathKey:               false,
+	HypercomputeclusterBasePathKey:      false,
+	IAM2BasePathKey:                     false,
+	IAM3BasePathKey:                     false,
+	IAMBetaBasePathKey:                  false,
+	IAMWorkforcePoolBasePathKey:         false,
+	IapBasePathKey:                      false,
+	IdentityPlatformBasePathKey:         false,
+	IntegrationConnectorsBasePathKey:    false,
+	IntegrationsBasePathKey:             false,
+	KMSBasePathKey:                      false,
+	LoggingBasePathKey:                  false,
+	LookerBasePathKey:                   false,
+	LustreBasePathKey:                   false,
+	ManagedKafkaBasePathKey:             false,
+	MemcacheBasePathKey:                 false,
+	MemorystoreBasePathKey:              false,
+	MigrationCenterBasePathKey:          false,
+	MLEngineBasePathKey:                 false,
+	ModelArmorBasePathKey:               false,
+	ModelArmorGlobalBasePathKey:         false,
+	MonitoringBasePathKey:               false,
+	NetappBasePathKey:                   false,
+	NetworkConnectivityBasePathKey:      false,
+	NetworkConnectivityv1BasePathKey:    false,
+	NetworkManagementBasePathKey:        false,
+	NetworkSecurityBasePathKey:          false,
+	NetworkServicesBasePathKey:          false,
+	NotebooksBasePathKey:                false,
+	ObservabilityBasePathKey:            false,
+	OracleDatabaseBasePathKey:           false,
+	OrgPolicyBasePathKey:                false,
+	OSConfigBasePathKey:                 false,
+	OSConfigV2BasePathKey:               false,
+	OSLoginBasePathKey:                  false,
+	ParallelstoreBasePathKey:            false,
+	ParameterManagerBasePathKey:         false,
+	ParameterManagerRegionalBasePathKey: false,
+	PrivatecaBasePathKey:                false,
+	PrivilegedAccessManagerBasePathKey:  false,
+	PublicCABasePathKey:                 false,
+	PubsubBasePathKey:                   false,
+	PubsubLiteBasePathKey:               false,
+	RedisBasePathKey:                    false,
+	ResourceManagerBasePathKey:          false,
+	ResourceManager3BasePathKey:         false,
+	SecretManagerBasePathKey:            false,
+	SecretManagerRegionalBasePathKey:    false,
+	SecureSourceManagerBasePathKey:      false,
+	SecurityCenterBasePathKey:           false,
+	SecurityCenterManagementBasePathKey: false,
+	SecurityCenterV2BasePathKey:         false,
+	SecuritypostureBasePathKey:          false,
+	ServiceDirectoryBasePathKey:         false,
+	ServiceManagementBasePathKey:        false,
+	ServiceNetworkingBasePathKey:        false,
+	ServiceUsageBasePathKey:             false,
+	SiteVerificationBasePathKey:         false,
+	SourceRepoBasePathKey:               false,
+	SpannerBasePathKey:                  false,
+	SQLBasePathKey:                      false,
+	StorageBasePathKey:                  false,
+	StorageBatchOperationsBasePathKey:   false,
+	StorageControlBasePathKey:           false,
+	StorageInsightsBasePathKey:          false,
+	StorageTransferBasePathKey:          false,
+	TagsBasePathKey:                     false,
+	TranscoderBasePathKey:               false,
+	VectorSearchBasePathKey:             false,
+	VertexAIBasePathKey:                 false,
+	VmwareengineBasePathKey:             false,
+	VPCAccessBasePathKey:                false,
+	WorkbenchBasePathKey:                false,
+	WorkflowsBasePathKey:                false,
+	WorkloadIdentityBasePathKey:         false,
+	WorkstationsBasePathKey:             false,
 }
 
 var DefaultClientScopes = []string{
@@ -1115,6 +1289,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 			"GOOGLE_DATA_CATALOG_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[DataCatalogBasePathKey]))
 	}
+	if d.Get("dataform_custom_endpoint") == "" {
+		d.Set("dataform_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_DATAFORM_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[DataformBasePathKey]))
+	}
 	if d.Get("data_fusion_custom_endpoint") == "" {
 		d.Set("data_fusion_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_DATA_FUSION_CUSTOM_ENDPOINT",
@@ -1234,6 +1413,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("firebase_data_connect_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_FIREBASE_DATA_CONNECT_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[FirebaseDataConnectBasePathKey]))
+	}
+	if d.Get("firebase_remote_config_custom_endpoint") == "" {
+		d.Set("firebase_remote_config_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_FIREBASE_REMOTE_CONFIG_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[FirebaseRemoteConfigBasePathKey]))
 	}
 	if d.Get("firestore_custom_endpoint") == "" {
 		d.Set("firestore_custom_endpoint", MultiEnvDefault([]string{
@@ -1635,6 +1819,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 			"GOOGLE_WORKFLOWS_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[WorkflowsBasePathKey]))
 	}
+	if d.Get("workload_identity_custom_endpoint") == "" {
+		d.Set("workload_identity_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_WORKLOAD_IDENTITY_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[WorkloadIdentityBasePathKey]))
+	}
 	if d.Get("workstations_custom_endpoint") == "" {
 		d.Set("workstations_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_WORKSTATIONS_CUSTOM_ENDPOINT",
@@ -1645,18 +1834,6 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set(CloudBillingCustomEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_BILLING_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[CloudBillingBasePathKey]))
-	}
-
-	if d.Get(ComposerCustomEndpointEntryKey) == "" {
-		d.Set(ComposerCustomEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_COMPOSER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ComposerBasePathKey]))
-	}
-
-	if d.Get(ContainerCustomEndpointEntryKey) == "" {
-		d.Set(ContainerCustomEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_CONTAINER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ContainerBasePathKey]))
 	}
 
 	if d.Get(DataflowCustomEndpointEntryKey) == "" {
@@ -1681,12 +1858,6 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set(IAMCustomEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_IAM_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[IAMBasePathKey]))
-	}
-
-	if d.Get(ServiceNetworkingCustomEndpointEntryKey) == "" {
-		d.Set(ServiceNetworkingCustomEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_SERVICE_NETWORKING_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ServiceNetworkingBasePathKey]))
 	}
 
 	if d.Get(TagsLocationCustomEndpointEntryKey) == "" {
@@ -2332,20 +2503,6 @@ func (c *Config) NewDataprocClient(userAgent string) *dataproc.Service {
 	return clientDataproc
 }
 
-func (c *Config) NewCloudIoTClient(userAgent string) *cloudiot.Service {
-	cloudIoTClientBasePath := RemoveBasePathVersion(c.CloudIoTBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud IoT Core client for path %s", cloudIoTClientBasePath)
-	clientCloudIoT, err := cloudiot.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client cloud iot: %s", err)
-		return nil
-	}
-	clientCloudIoT.UserAgent = userAgent
-	clientCloudIoT.BasePath = cloudIoTClientBasePath
-
-	return clientCloudIoT
-}
-
 func (c *Config) NewAppEngineClient(userAgent string) *appengine.APIService {
 	appEngineClientBasePath := RemoveBasePathVersion(c.AppEngineBasePath)
 	log.Printf("[INFO] Instantiating App Engine client for path %s", appEngineClientBasePath)
@@ -2448,7 +2605,7 @@ func (c *Config) BigTableClientFactory(userAgent string) *BigtableClientFactory 
 // we expose those directly instead of providing the `Service` object
 // as a factory.
 func (c *Config) NewBigTableProjectsInstancesClient(userAgent string) *bigtableadmin.ProjectsInstancesService {
-	bigtableAdminBasePath := RemoveBasePathVersion(c.BigtableAdminBasePath)
+	bigtableAdminBasePath := RemoveBasePathVersion(c.BigtableBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
 	clientBigtable, err := bigtableadmin.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {
@@ -2463,7 +2620,7 @@ func (c *Config) NewBigTableProjectsInstancesClient(userAgent string) *bigtablea
 }
 
 func (c *Config) NewBigTableProjectsInstancesTablesClient(userAgent string) *bigtableadmin.ProjectsInstancesTablesService {
-	bigtableAdminBasePath := RemoveBasePathVersion(c.BigtableAdminBasePath)
+	bigtableAdminBasePath := RemoveBasePathVersion(c.BigtableBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
 	clientBigtable, err := bigtableadmin.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {
@@ -2769,6 +2926,7 @@ func ConfigureBasePaths(c *Config) {
 	c.CoreBillingBasePath = DefaultBasePaths[CoreBillingBasePathKey]
 	c.DatabaseMigrationServiceBasePath = DefaultBasePaths[DatabaseMigrationServiceBasePathKey]
 	c.DataCatalogBasePath = DefaultBasePaths[DataCatalogBasePathKey]
+	c.DataformBasePath = DefaultBasePaths[DataformBasePathKey]
 	c.DataFusionBasePath = DefaultBasePaths[DataFusionBasePathKey]
 	c.DataLossPreventionBasePath = DefaultBasePaths[DataLossPreventionBasePathKey]
 	c.DataPipelineBasePath = DefaultBasePaths[DataPipelineBasePathKey]
@@ -2793,6 +2951,7 @@ func ConfigureBasePaths(c *Config) {
 	c.FirebaseAppCheckBasePath = DefaultBasePaths[FirebaseAppCheckBasePathKey]
 	c.FirebaseAppHostingBasePath = DefaultBasePaths[FirebaseAppHostingBasePathKey]
 	c.FirebaseDataConnectBasePath = DefaultBasePaths[FirebaseDataConnectBasePathKey]
+	c.FirebaseRemoteConfigBasePath = DefaultBasePaths[FirebaseRemoteConfigBasePathKey]
 	c.FirestoreBasePath = DefaultBasePaths[FirestoreBasePathKey]
 	c.GeminiBasePath = DefaultBasePaths[GeminiBasePathKey]
 	c.GKEBackupBasePath = DefaultBasePaths[GKEBackupBasePathKey]
@@ -2873,19 +3032,15 @@ func ConfigureBasePaths(c *Config) {
 	c.VPCAccessBasePath = DefaultBasePaths[VPCAccessBasePathKey]
 	c.WorkbenchBasePath = DefaultBasePaths[WorkbenchBasePathKey]
 	c.WorkflowsBasePath = DefaultBasePaths[WorkflowsBasePathKey]
+	c.WorkloadIdentityBasePath = DefaultBasePaths[WorkloadIdentityBasePathKey]
 	c.WorkstationsBasePath = DefaultBasePaths[WorkstationsBasePathKey]
 
 	// Handwritten Products / Versioned / Atypical Entries
 	c.CloudBillingBasePath = DefaultBasePaths[CloudBillingBasePathKey]
-	c.ComposerBasePath = DefaultBasePaths[ComposerBasePathKey]
-	c.ContainerBasePath = DefaultBasePaths[ContainerBasePathKey]
-	c.DataprocBasePath = DefaultBasePaths[DataprocBasePathKey]
 	c.DataflowBasePath = DefaultBasePaths[DataflowBasePathKey]
 	c.IamCredentialsBasePath = DefaultBasePaths[IamCredentialsBasePathKey]
 	c.ResourceManagerV3BasePath = DefaultBasePaths[ResourceManagerV3BasePathKey]
 	c.IAMBasePath = DefaultBasePaths[IAMBasePathKey]
-	c.BigQueryBasePath = DefaultBasePaths[BigQueryBasePathKey]
-	c.BigtableAdminBasePath = DefaultBasePaths[BigtableAdminBasePathKey]
 	c.TagsLocationBasePath = DefaultBasePaths[TagsLocationBasePathKey]
 
 	// DCL
@@ -2974,4 +3129,36 @@ func GetUniverseDomainFromMeta(meta interface{}) string {
 		return "googleapis.com"
 	}
 	return config.UniverseDomain
+}
+
+// Returns the base path for a resource taking into account the following rules:
+// Overridden path takes precedence over everything
+// Regional endpoint should be returned if preferred
+// Global endpoint should be returned if preferred
+// If no preferences, return the product default based on DefaultRepStatus map
+func ResourceBasePath(basePath, repPath, basePathKey string, config *Config, location string) (string, error) {
+	var path string
+	// Set the default to the product-level default
+	if DefaultRepStatus[basePathKey] {
+		path = repPath
+	} else {
+		path = basePath
+	}
+	// If product default has been overridden, use override
+	if basePath != DefaultBasePaths[basePathKey] {
+		path = basePath
+	} else if config.PreferRegionalEndpoints {
+		// If user has specified a preference, switch to that
+		path = repPath
+	} else if config.PreferGlobalEndpoints {
+		// If user has specified a preference, switch to that
+		path = basePath
+	}
+	if strings.Contains(path, "{{location}}") && location == "" {
+		log.Printf("[WARN] Found base path with location but no location provided: %s", path)
+		return path, fmt.Errorf("failed to find location for a resource with a regionalized endpoint %s", path)
+	}
+	// Still try to replace location even if it may not exist, this allows
+	// for products that only support REP on their base_url
+	return strings.ReplaceAll(path, "{{location}}", location), nil
 }

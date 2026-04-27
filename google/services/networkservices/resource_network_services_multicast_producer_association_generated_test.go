@@ -77,6 +77,12 @@ func TestAccNetworkServicesMulticastProducerAssociation_networkServicesMulticast
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "multicast_producer_association_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_services_multicast_producer_association.mpa_test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -49,4 +50,13 @@ func dataSourceOracleDatabaseCloudVmClusterRead(d *schema.ResourceData, meta int
 	d.SetId(id)
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_oracle_database_cloud_vm_cluster",
+		ProductName: "oracledatabase",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceOracleDatabaseCloudVmCluster(),
+	}.Register()
 }

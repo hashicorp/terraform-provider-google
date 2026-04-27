@@ -76,6 +76,12 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_exadata_infrastructure_id", "deletion_protection", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_oracle_database_cloud_exadata_infrastructure.my-cloud-exadata",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -123,6 +129,12 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_exadata_infrastructure_id", "deletion_protection", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_cloud_exadata_infrastructure.my-cloud-exadata",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

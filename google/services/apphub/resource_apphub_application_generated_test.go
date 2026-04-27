@@ -76,6 +76,12 @@ func TestAccApphubApplication_apphubApplicationBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"application_id", "location"},
 			},
+			{
+				ResourceName:       "google_apphub_application.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -117,6 +123,12 @@ func TestAccApphubApplication_apphubApplicationGlobalBasicExample(t *testing.T) 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"application_id", "location"},
+			},
+			{
+				ResourceName:       "google_apphub_application.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -165,6 +177,12 @@ func TestAccApphubApplication_apphubApplicationFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"application_id", "location"},
+			},
+			{
+				ResourceName:       "google_apphub_application.example2",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

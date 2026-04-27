@@ -140,6 +140,7 @@ func IapWebTypeComputeIdParseFunc(d *schema.ResourceData, config *transport_tpg.
 		d:       d,
 		Config:  config,
 	}
+
 	if err := d.Set("project", u.project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}

@@ -18,6 +18,7 @@ package monitoring
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
 func DataSourceMonitoringServiceAppEngine() *schema.Resource {
@@ -47,4 +48,13 @@ func dataSourceMonitoringServiceAppEngineRead(res map[string]interface{}, d *sch
 		return err
 	}
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_monitoring_app_engine_service",
+		ProductName: "monitoring",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceMonitoringServiceAppEngine(),
+	}.Register()
 }

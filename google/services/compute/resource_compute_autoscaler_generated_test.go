@@ -77,6 +77,12 @@ func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"target", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_autoscaler.foobar",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

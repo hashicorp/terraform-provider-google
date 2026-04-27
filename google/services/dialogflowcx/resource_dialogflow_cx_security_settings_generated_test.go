@@ -74,6 +74,12 @@ func TestAccDialogflowCXSecuritySettings_dialogflowcxSecuritySettingsBasicExampl
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_security_settings.basic_security_settings",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -116,6 +122,12 @@ func TestAccDialogflowCXSecuritySettings_dialogflowcxSecuritySettingsFullExample
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				ResourceName:       "google_dialogflow_cx_security_settings.basic_security_settings",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

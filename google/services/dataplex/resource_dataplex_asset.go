@@ -27,6 +27,7 @@ import (
 
 	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -943,4 +944,13 @@ func flattenDataplexAssetTerraformLabels(v map[string]string, d *schema.Resource
 	}
 
 	return transformed
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_dataplex_asset",
+		ProductName: "dataplex",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceDataplexAsset(),
+	}.Register()
 }

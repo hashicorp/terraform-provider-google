@@ -2738,3 +2738,44 @@ resource "google_compute_http_health_check" "zero" {
 }
 `, serviceName, tagKey, tagValue, checkName)
 }
+
+func TestAccComputeBackendService_iapOauthClientIdPermadiff(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Explicitly set to a single space (simulating API state)
+				Config: testAccComputeBackendService_iapOauthClientId(context, " "),
+			},
+			{
+				// Step 2: Remove it from config (set to empty)
+				// With the fix, this should NOT trigger an update.
+				Config:   testAccComputeBackendService_iapOauthClientId(context, ""),
+				PlanOnly: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendService_iapOauthClientId(context map[string]interface{}, clientId string) string {
+	context["client_id"] = clientId
+	return acctest.Nprintf(`
+resource "google_compute_backend_service" "myservice" {
+  name = "tf-test-iap-diff-%{random_suffix}"
+  iap {
+    enabled = true
+    oauth2_client_id = "%{client_id}"
+    oauth2_client_secret = "my-secret"
+  }
+  load_balancing_scheme = "EXTERNAL"
+}
+`, context)
+}

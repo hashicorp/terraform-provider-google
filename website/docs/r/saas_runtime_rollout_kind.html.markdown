@@ -14,7 +14,7 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
-subcategory: "SaaS Runtime"
+subcategory: "App Lifecycle Manager (SaaS Runtime)"
 description: |-
   A RolloutKind is a reusable configuration resource that defines the policies, strategies, and targeting for Rollout operations.
 ---
@@ -211,6 +211,18 @@ RolloutKind can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{rollout_kind_id}}`
 * `{{location}}/{{rollout_kind_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import RolloutKind using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    rolloutKindId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_saas_runtime_rollout_kind.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RolloutKind using one of the formats above. For example:
 

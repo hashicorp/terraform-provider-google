@@ -66,6 +66,10 @@ resource "google_network_connectivity_destination" "example" {
 The following arguments are supported:
 
 
+* `name` -
+  (Required)
+  The name of the destination.
+
 * `ip_prefix` -
   (Required)
   The IP prefix that represents your workload on another CSP.
@@ -82,10 +86,6 @@ The following arguments are supported:
 * `location` -
   (Required)
   The location of the destination.
-
-* `name` -
-  (Required)
-  The name of the destination.
 
 
 * `labels` -
@@ -205,6 +205,19 @@ Destination can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{multicloud_data_transfer_config}}/{{name}}`
 * `{{location}}/{{multicloud_data_transfer_config}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Destination using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-required value->"
+    multicloudDataTransferConfig = "<-required value->"
+    location = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_network_connectivity_destination.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Destination using one of the formats above. For example:
 

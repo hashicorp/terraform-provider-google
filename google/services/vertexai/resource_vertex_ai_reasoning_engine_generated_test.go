@@ -72,7 +72,13 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeletionPolicyExample
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -111,7 +117,13 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(t *testi
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -122,6 +134,9 @@ func testAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(context 
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name = "%{name}"
   description  = "A basic reasoning engine"
+  labels       = {
+    "key" = "value"
+  }
   region       = "us-central1"
 }
 `, context)
@@ -149,7 +164,13 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasedDeployment
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -201,7 +222,13 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeveloperConnectSourc
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -233,6 +260,155 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
       }
     }
   }
+}
+`, context)
+}
+
+func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineImageSpecExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"name":          "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_vertexAiReasoningEngineImageSpecExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_vertexAiReasoningEngineImageSpecExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "%{name}"
+  description  = "Deployed with BYOC Dockerfile through Terraform"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/agent_src.tar.gz")
+      }
+
+      image_spec {
+        build_args = {}
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineByocExample(t *testing.T) {
+	acctest.SkipTestUntil(t, "2026-05-15")
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"name":          "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_vertexAiReasoningEngineByocExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_vertexAiReasoningEngineByocExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "%{name}"
+  description  = "Deployed with BYOC through Terraform"
+  region       = "us-central1"
+
+  spec {
+    container_spec {
+      image_uri = "us-central1-docker.pkg.dev/${data.google_project.project.project_id}/vertex-byoc/byoc-agent:latest" # image path
+    }
+  }
+
+  depends_on = [google_project_iam_member.vertex_ar_reader, google_project_iam_member.tenant_ar_reader]
+}
+
+
+# Provision and retrieve the tenant service agent through another agent
+resource "google_vertex_ai_reasoning_engine" "tenant_mds" {
+  display_name = "%{name}-mds"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/mds_agent_src.tar.gz")
+      }
+
+      python_spec {
+        entrypoint_module = "metadata_agent"
+        entrypoint_object = "root_agent"
+      }
+    }
+  }
+}
+
+data "google_vertex_ai_reasoning_engine_query" "tenant_mds" {
+  region              = "us-central1"
+  reasoning_engine_id = google_vertex_ai_reasoning_engine.tenant_mds.name
+}
+
+data "google_project" "project" {}
+
+resource "google_project_iam_member" "vertex_ar_reader" {
+  project = data.google_project.project.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "tenant_ar_reader" {
+  project = data.google_project.project.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${jsondecode(data.google_vertex_ai_reasoning_engine_query.tenant_mds.output).output}"
 }
 `, context)
 }
@@ -272,7 +448,13 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineFullExample(t *testin
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

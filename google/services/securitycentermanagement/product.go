@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "securitycentermanagement"
+var Product = registry.Product{
+	Name:                 "securitycentermanagement",
+	BaseUrl:              "https://securitycentermanagement.googleapis.com/v1/",
+	CustomEndpointField:  "security_center_management_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_SECURITY_CENTER_MANAGEMENT_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "securitycentermanagement",
-		BaseUrl: "https://securitycentermanagement.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

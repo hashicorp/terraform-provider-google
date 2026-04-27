@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "mlengine"
+var Product = registry.Product{
+	Name:                 "mlengine",
+	BaseUrl:              "https://ml.googleapis.com/v1/",
+	CustomEndpointField:  "ml_engine_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_ML_ENGINE_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "mlengine",
-		BaseUrl: "https://ml.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

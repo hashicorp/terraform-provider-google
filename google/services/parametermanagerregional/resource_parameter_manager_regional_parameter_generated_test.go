@@ -74,6 +74,12 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -110,6 +116,12 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithForma
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-with-format",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -148,6 +160,12 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithLabel
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-with-labels",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -200,6 +218,12 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithKmsKe
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-with-kms-key",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

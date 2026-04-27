@@ -75,6 +75,12 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBas
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_exchange_id", "location"},
 			},
+			{
+				ResourceName:       "google_bigquery_analytics_hub_data_exchange.data_exchange",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -114,6 +120,12 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeDcr
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_exchange_id", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_analytics_hub_data_exchange.data_exchange",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -158,6 +170,12 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeLog
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_exchange_id", "location"},
 			},
+			{
+				ResourceName:       "google_bigquery_analytics_hub_data_exchange.data_exchange",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -198,6 +216,12 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubPublicDataExcha
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_exchange_id", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_analytics_hub_data_exchange.data_exchange",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

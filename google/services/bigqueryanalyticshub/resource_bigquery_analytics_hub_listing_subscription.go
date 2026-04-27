@@ -117,6 +117,29 @@ func ResourceBigqueryAnalyticsHubListingSubscription() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"subscription_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"data_exchange_id": {
 				Type:        schema.TypeString,
@@ -182,6 +205,17 @@ See https://cloud.google.com/bigquery/docs/locations for supported locations.`,
 							Description: `The labels associated with this dataset. You can use these to
 organize and group your datasets.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+						"replica_locations": {
+							Type:             schema.TypeSet,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.CaseDiffSuppress,
+							Description:      `List of regions where the subscriber wants dataset replicas.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Set: tpgresource.CaseInsensitiveHash,
 						},
 					},
 				},
@@ -402,6 +436,27 @@ func resourceBigqueryAnalyticsHubListingSubscriptionCreate(d *schema.ResourceDat
 
 	log.Printf("[DEBUG] Finished creating ListingSubscription %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if subscriptionIdValue, ok := d.GetOk("subscription_id"); ok && subscriptionIdValue.(string) != "" {
+			if err = identity.Set("subscription_id", subscriptionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting subscription_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceBigqueryAnalyticsHubListingSubscriptionRead(d, meta)
 }
 
@@ -544,6 +599,30 @@ func resourceBigqueryAnalyticsHubListingSubscriptionRead(d *schema.ResourceData,
 		return fmt.Errorf("Error reading ListingSubscription: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("subscription_id"); !ok && v == "" {
+			err = identity.Set("subscription_id", d.Get("subscription_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting subscription_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -683,6 +762,8 @@ func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDataset(v interfac
 		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDescription(original["description"], d, config)
 	transformed["labels"] =
 		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLabels(original["labels"], d, config)
+	transformed["replica_locations"] =
+		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetReplicaLocations(original["replicaLocations"], d, config)
 	return []interface{}{transformed}
 }
 
@@ -729,6 +810,13 @@ func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDescription
 
 func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetReplicaLocations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(tpgresource.CaseInsensitiveHash, v.([]interface{}))
 }
 
 func flattenBigqueryAnalyticsHubListingSubscriptionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -900,6 +988,13 @@ func expandBigqueryAnalyticsHubListingSubscriptionDestinationDataset(v interface
 		transformed["labels"] = transformedLabels
 	}
 
+	transformedReplicaLocations, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationDatasetReplicaLocations(original["replica_locations"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReplicaLocations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["replicaLocations"] = transformedReplicaLocations
+	}
+
 	return transformed, nil
 }
 
@@ -961,6 +1056,11 @@ func expandBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLabels(v int
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationDatasetReplicaLocations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
 }
 
 func resourceBigqueryAnalyticsHubListingSubscriptionDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {

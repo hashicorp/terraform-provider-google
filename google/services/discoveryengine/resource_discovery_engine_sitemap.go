@@ -117,6 +117,21 @@ func ResourceDiscoveryEngineSitemap() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"data_store_id": {
 				Type:        schema.TypeString,
@@ -260,6 +275,17 @@ func resourceDiscoveryEngineSitemapCreate(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Finished creating Sitemap %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceDiscoveryEngineSitemapRead(d, meta)
 }
 
@@ -363,6 +389,18 @@ func resourceDiscoveryEngineSitemapRead(d *schema.ResourceData, meta interface{}
 	}
 	if err := d.Set("create_time", flattenDiscoveryEngineSitemapCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Sitemap: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

@@ -268,3 +268,40 @@ func TestBase64DiffSuppress(t *testing.T) {
 		}
 	}
 }
+
+func TestEmptyOrDefaultStringSuppress_IAP(t *testing.T) {
+	// The fix we added: tpgresource.EmptyOrDefaultStringSuppress(" ")
+	suppressor := EmptyOrDefaultStringSuppress(" ")
+
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"API returns space, config is empty": {
+			Old:                " ",
+			New:                "",
+			ExpectDiffSuppress: true,
+		},
+		"API returns space, config is null": {
+			Old:                " ",
+			New:                "",
+			ExpectDiffSuppress: true,
+		},
+		"Config has space, API returns empty": {
+			Old:                "",
+			New:                " ",
+			ExpectDiffSuppress: true,
+		},
+		"Actual Client ID change (Should NOT suppress)": {
+			Old:                " ",
+			New:                "actual-id",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if suppressor("iap.0.oauth2_client_id", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Errorf("failed case %s: Old='%s', New='%s', expected suppress=%t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}

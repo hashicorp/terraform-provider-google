@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -59,4 +60,13 @@ func dataSourceGoogleComputeRegionDiskRead(d *schema.ResourceData, meta interfac
 	}
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_region_disk",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleComputeRegionDisk(),
+	}.Register()
 }

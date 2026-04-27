@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "privateca"
+var Product = registry.Product{
+	Name:                 "privateca",
+	BaseUrl:              "https://privateca.googleapis.com/v1/",
+	CustomEndpointField:  "privateca_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_PRIVATECA_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "privateca",
-		BaseUrl: "https://privateca.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

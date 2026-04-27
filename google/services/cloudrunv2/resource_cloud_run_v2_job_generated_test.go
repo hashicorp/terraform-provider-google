@@ -74,6 +74,12 @@ func TestAccCloudRunV2Job_cloudrunv2JobBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_job.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -119,6 +125,12 @@ func TestAccCloudRunV2Job_cloudrunv2JobLimitsExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_job.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -180,6 +192,12 @@ func TestAccCloudRunV2Job_cloudrunv2JobSqlExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_job.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -287,6 +305,12 @@ func TestAccCloudRunV2Job_cloudrunv2JobVpcaccessExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_job.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -358,6 +382,12 @@ func TestAccCloudRunV2Job_cloudrunv2JobDirectvpcExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_job.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -411,6 +441,12 @@ func TestAccCloudRunV2Job_cloudrunv2JobSecretExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_job.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -501,6 +537,12 @@ func TestAccCloudRunV2Job_cloudrunv2JobEmptydirExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_job.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -533,6 +575,76 @@ resource "google_cloud_run_v2_job" "default" {
 `, context)
 }
 
+func TestAccCloudRunV2Job_cloudrunv2JobEmptydirDiskExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"cloud_run_job_name":  "tf-test-cloudrun-job" + randomSuffix,
+		"deletion_protection": false,
+		"random_suffix":       randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobEmptydirDiskExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_job.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobEmptydirDiskExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "%{cloud_run_job_name}"
+  location = "us-central1"
+  launch_stage = "BETA"
+  deletion_protection =  "%{deletion_protection}"
+
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/job"
+	volume_mounts {
+	  name = "empty-dir-volume"
+	  mount_path = "/mnt"
+	}
+      }
+      volumes {
+        name = "empty-dir-volume"
+	empty_dir {
+	  medium = "DISK"
+	  size_limit = "10Gi"
+	}
+      }
+    }
+  }
+  lifecycle {
+    ignore_changes = [
+      launch_stage,
+    ]
+  }
+}
+`, context)
+}
+
 func TestAccCloudRunV2Job_cloudrunv2JobMulticontainerExample(t *testing.T) {
 	t.Parallel()
 
@@ -556,6 +668,12 @@ func TestAccCloudRunV2Job_cloudrunv2JobMulticontainerExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_job.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -607,6 +725,12 @@ func TestAccCloudRunV2Job_cloudrunv2JobGpuExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_job.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

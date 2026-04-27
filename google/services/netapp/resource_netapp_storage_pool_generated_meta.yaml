@@ -25,11 +25,13 @@ fields:
     - api_field: ldapEnabled
     - field: location
       provider_only: true
+    - api_field: mode
     - field: name
       provider_only: true
     - api_field: network
     - api_field: qosType
     - api_field: replicaZone
+    - api_field: scaleType
     - api_field: serviceLevel
     - field: terraform_labels
       provider_only: true

@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "firestore"
+var Product = registry.Product{
+	Name:                 "firestore",
+	BaseUrl:              "https://firestore.googleapis.com/v1/",
+	CustomEndpointField:  "firestore_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_FIRESTORE_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "firestore",
-		BaseUrl: "https://firestore.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

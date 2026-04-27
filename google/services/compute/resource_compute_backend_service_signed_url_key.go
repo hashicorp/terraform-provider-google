@@ -113,6 +113,29 @@ func ResourceComputeBackendServiceSignedUrlKey() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"backend_service": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"backend_service": {
 				Type:             schema.TypeString,
@@ -246,6 +269,27 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 
 	log.Printf("[DEBUG] Finished creating BackendServiceSignedUrlKey %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if backendServiceValue, ok := d.GetOk("backend_service"); ok && backendServiceValue.(string) != "" {
+			if err = identity.Set("backend_service", backendServiceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting backend_service: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceComputeBackendServiceSignedUrlKeyRead(d, meta)
 }
 
@@ -320,6 +364,30 @@ func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta 
 
 	if err := d.Set("name", flattenNestedComputeBackendServiceSignedUrlKeyName(res["keyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendServiceSignedUrlKey: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("backend_service"); !ok && v == "" {
+			err = identity.Set("backend_service", d.Get("backend_service").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting backend_service: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

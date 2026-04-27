@@ -79,6 +79,12 @@ func TestAccFirestoreIndex_firestoreIndexBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database"},
 			},
+			{
+				ResourceName:       "google_firestore_index.my-index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -137,6 +143,12 @@ func TestAccFirestoreIndex_firestoreIndexDatastoreModeExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database"},
+			},
+			{
+				ResourceName:       "google_firestore_index.my-index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -200,6 +212,12 @@ func TestAccFirestoreIndex_firestoreIndexVectorExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database"},
+			},
+			{
+				ResourceName:       "google_firestore_index.my-index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -268,6 +286,12 @@ func TestAccFirestoreIndex_firestoreIndexNameDescendingExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database"},
 			},
+			{
+				ResourceName:       "google_firestore_index.my-index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -321,6 +345,12 @@ func TestAccFirestoreIndex_firestoreIndexMongodbCompatibleScopeExample(t *testin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database"},
+			},
+			{
+				ResourceName:       "google_firestore_index.my-index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -387,6 +417,12 @@ func TestAccFirestoreIndex_firestoreIndexSparseAnyExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database"},
 			},
+			{
+				ResourceName:       "google_firestore_index.my-index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -451,6 +487,12 @@ func TestAccFirestoreIndex_firestoreIndexUniqueExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database"},
+			},
+			{
+				ResourceName:       "google_firestore_index.my-index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -518,6 +560,12 @@ func TestAccFirestoreIndex_firestoreIndexSkipWaitExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database", "skip_wait"},
 			},
+			{
+				ResourceName:       "google_firestore_index.my-index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -579,6 +627,12 @@ func TestAccFirestoreIndex_firestoreIndexDeletionPolicyExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database", "deletion_policy"},
+			},
+			{
+				ResourceName:       "google_firestore_index.my-index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

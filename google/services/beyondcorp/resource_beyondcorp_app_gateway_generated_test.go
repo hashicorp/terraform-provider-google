@@ -74,6 +74,12 @@ func TestAccBeyondcorpAppGateway_beyondcorpAppGatewayBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "region", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_beyondcorp_app_gateway.app_gateway",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -113,6 +119,12 @@ func TestAccBeyondcorpAppGateway_beyondcorpAppGatewayFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "region", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_beyondcorp_app_gateway.app_gateway",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

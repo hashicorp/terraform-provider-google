@@ -111,6 +111,21 @@ func ResourceDocumentAIProcessorDefaultVersion() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"processor": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"processor": {
 				Type:        schema.TypeString,
@@ -194,6 +209,17 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 
 	log.Printf("[DEBUG] Finished creating ProcessorDefaultVersion %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if processorValue, ok := d.GetOk("processor"); ok && processorValue.(string) != "" {
+			if err = identity.Set("processor", processorValue.(string)); err != nil {
+				return fmt.Errorf("Error setting processor: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceDocumentAIProcessorDefaultVersionRead(d, meta)
 }
 
@@ -238,6 +264,18 @@ func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta 
 
 	if err := d.Set("version", flattenDocumentAIProcessorDefaultVersionVersion(res["defaultProcessorVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ProcessorDefaultVersion: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("processor"); !ok && v == "" {
+			err = identity.Set("processor", d.Get("processor").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting processor: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

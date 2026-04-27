@@ -79,6 +79,12 @@ func TestAccCESAgent_cesAgentBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
 			},
+			{
+				ResourceName:       "google_ces_agent.ces_agent_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -290,6 +296,12 @@ func TestAccCESAgent_cesAgentRemoteDialogflowAgentExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
 			},
+			{
+				ResourceName:       "google_ces_agent.ces_agent_remote_dialogflow_agent",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -321,7 +333,7 @@ resource "google_ces_agent" "ces_agent_remote_dialogflow_agent" {
   display_name = "%{agent_display_name}"
 
   model_settings {
-    model       = "gemini-1.5-flash"
+    model       = "gemini-2.5-flash-001"
     temperature = 0.5
   }
 
@@ -367,6 +379,12 @@ func TestAccCESAgent_cesAgentRemoteDialogflowAgentInterruptionExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
 			},
+			{
+				ResourceName:       "google_ces_agent.ces_agent_remote_dialogflow_agent_interruption",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -398,7 +416,7 @@ resource "google_ces_agent" "ces_agent_remote_dialogflow_agent_interruption" {
   display_name = "%{agent_display_name}"
 
   model_settings {
-    model       = "gemini-1.5-flash"
+    model       = "gemini-2.5-flash-001"
     temperature = 0.5
   }
 

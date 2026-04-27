@@ -74,6 +74,12 @@ func TestAccCloudTasksQueue_queueBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_cloud_tasks_queue.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -110,6 +116,12 @@ func TestAccCloudTasksQueue_cloudTasksQueueAdvancedExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app_engine_routing_override.0.instance", "app_engine_routing_override.0.service", "app_engine_routing_override.0.version", "location"},
+			},
+			{
+				ResourceName:       "google_cloud_tasks_queue.advanced_configuration",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -170,6 +182,12 @@ func TestAccCloudTasksQueue_cloudTasksQueueHttpTargetOidcExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				ResourceName:       "google_cloud_tasks_queue.http_target_oidc",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -244,6 +262,12 @@ func TestAccCloudTasksQueue_cloudTasksQueueHttpTargetOauthExample(t *testing.T) 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				ResourceName:       "google_cloud_tasks_queue.http_target_oauth",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

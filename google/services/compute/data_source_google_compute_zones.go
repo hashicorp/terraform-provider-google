@@ -22,6 +22,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -110,4 +111,13 @@ func dataSourceGoogleComputeZonesRead(d *schema.ResourceData, meta interface{}) 
 	d.SetId(fmt.Sprintf("projects/%s/regions/%s", project, region))
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_zones",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleComputeZones(),
+	}.Register()
 }

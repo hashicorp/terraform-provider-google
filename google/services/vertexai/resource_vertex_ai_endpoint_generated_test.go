@@ -74,6 +74,12 @@ func TestAccVertexAIEndpoint_vertexAiEndpointPrivateServiceConnectExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"etag", "labels", "location", "name", "region", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_endpoint.endpoint",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -132,6 +138,12 @@ func TestAccVertexAIEndpoint_vertexAiEndpointDedicatedEndpointExample(t *testing
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"etag", "labels", "location", "name", "region", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_endpoint.endpoint",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

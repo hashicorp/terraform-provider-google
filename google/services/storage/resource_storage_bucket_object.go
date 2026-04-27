@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -884,4 +885,13 @@ func validateContexts(ctx context.Context, d *schema.ResourceDiff, meta interfac
 		keys[key] = true
 	}
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_storage_bucket_object",
+		ProductName: "storage",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceStorageBucketObject(),
+	}.Register()
 }

@@ -82,6 +82,12 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "show_nat_ips"},
 			},
+			{
+				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -201,6 +207,12 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitProjectsExample(t 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "show_nat_ips"},
+			},
+			{
+				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -329,6 +341,12 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitNetworksExample(t 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "show_nat_ips"},
+			},
+			{
+				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -468,6 +486,12 @@ func TestAccComputeServiceAttachment_serviceAttachmentReconcileConnectionsExampl
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "show_nat_ips"},
 			},
+			{
+				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -570,6 +594,12 @@ func TestAccComputeServiceAttachment_serviceAttachmentCrossRegionIlbExample(t *t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "show_nat_ips"},
+			},
+			{
+				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
