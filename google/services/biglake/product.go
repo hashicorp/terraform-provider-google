@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "biglake"
+var Product = registry.Product{
+	Name:                 "biglake",
+	BaseUrl:              "https://biglake.googleapis.com/v1/",
+	CustomEndpointField:  "biglake_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_BIGLAKE_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "biglake",
-		BaseUrl: "https://biglake.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

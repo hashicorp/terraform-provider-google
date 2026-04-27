@@ -22,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -1388,4 +1389,13 @@ func flattenJobPlacement(jp *dataproc.JobPlacement) []map[string]interface{} {
 			"cluster_uuid": jp.ClusterUuid,
 		},
 	}
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_dataproc_job",
+		ProductName: "dataproc",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceDataprocJob(),
+	}.Register()
 }

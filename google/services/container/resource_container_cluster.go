@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -523,6 +524,12 @@ func ResourceContainerCluster() *schema.Resource {
 										Optional: true,
 										Description: `If set to true, the Lustre CSI driver will initialize LNet (the virtual network layer for Lustre kernel module) using port 6988.
 										This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.`,
+									},
+									"disable_multi_nic": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `When set to true, this disables multi-NIC support for the Lustre CSI driver. By default, GKE enables multi-NIC support, which
+										allows the Lustre CSI driver to automatically detect and configure all suitable network interfaces on a node to maximize I/O performance for demanding workloads.`,
 									},
 								},
 							},
@@ -2108,10 +2115,11 @@ func ResourceContainerCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"state": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ENCRYPTED", "DECRYPTED"}, false),
-							Description:  `ENCRYPTED or DECRYPTED.`,
+							Type:             schema.TypeString,
+							Required:         true,
+							ValidateFunc:     validation.StringInSlice([]string{"ENCRYPTED", "ALL_OBJECTS_ENCRYPTION_ENABLED", "DECRYPTED"}, false),
+							Description:      `ENCRYPTED, ALL_OBJECTS_ENCRYPTION_ENABLED or DECRYPTED.`,
+							DiffSuppressFunc: DatabaseEncryptionSuppress,
 						},
 						"key_name": {
 							Type:        schema.TypeString,
@@ -2544,10 +2552,40 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			"autopilot_cluster_policy_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Computed:    true,
+				Description: `Configuration for the cluster policy.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"no_system_mutation": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, prevents creation and mutation of resources in GKE managed namespaces and cluster-scoped GKE managed resources.`,
+						},
+						"no_system_impersonation": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, prevents impersonation and CSRs for GKE System users.`,
+						},
+						"no_unsafe_webhooks": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, unsafe webhooks are not allowed.`,
+						},
+						"no_standard_node_pools": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, prevents standard node pools and requires only autopilot node pools.`,
+						},
+					},
+				},
+			},
 			//UDP schema start
 			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
 			//UDP schema end
-
 		},
 	}
 }
@@ -2664,6 +2702,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			AllowNetAdmin: allowed,
 		}
 	}
+	var autopilotClusterPolicyConfig *container.ClusterPolicyConfig
+	if v, ok := d.GetOk("autopilot_cluster_policy_config"); ok {
+		autopilotClusterPolicyConfig = expandAutopilotClusterPolicyConfig(v)
+	}
 
 	var privilegedAdmissionConfig *container.PrivilegedAdmissionConfig
 	if v, ok := d.GetOk("autopilot_privileged_admission"); ok {
@@ -2703,6 +2745,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Enabled:                   d.Get("enable_autopilot").(bool),
 			WorkloadPolicyConfig:      workloadPolicyConfig,
 			PrivilegedAdmissionConfig: privilegedAdmissionConfig,
+			ClusterPolicyConfig:       autopilotClusterPolicyConfig,
 			ForceSendFields:           []string{"Enabled"},
 		},
 		ReleaseChannel:       expandReleaseChannel(d.Get("release_channel")),
@@ -3262,6 +3305,11 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		if autopilot.PrivilegedAdmissionConfig != nil && len(autopilot.PrivilegedAdmissionConfig.AllowlistPaths) > 0 {
 			allowlistPaths = autopilot.PrivilegedAdmissionConfig.AllowlistPaths
+		}
+		if autopilot.ClusterPolicyConfig != nil {
+			if err := d.Set("autopilot_cluster_policy_config", flattenClusterPolicyConfig(autopilot.ClusterPolicyConfig)); err != nil {
+				return err
+			}
 		}
 	}
 	// Always set autopilot_privileged_admission due to it being a computed
@@ -5079,6 +5127,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s's RBAC binding config has been updated", d.Id())
 	}
 
+	if d.HasChange("autopilot_cluster_policy_config") {
+		if v, ok := d.GetOk("autopilot_cluster_policy_config"); ok {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredAutopilotClusterPolicyConfig: expandAutopilotClusterPolicyConfig(v),
+				},
+			}
+			updateF := updateFunc(req, "updating autopilot_cluster_policy_config")
+			if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+			log.Printf("[INFO] GKE cluster %s autopilot_cluster_policy_config has been updated", d.Id())
+		}
+	}
+
 	d.Partial(false)
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
@@ -5366,6 +5429,12 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		if val, ok := lustreConfig["enable_legacy_lustre_port"]; ok {
 			ac.LustreCsiDriverConfig.EnableLegacyLustrePort = val.(bool)
 			ac.LustreCsiDriverConfig.ForceSendFields = append(ac.LustreCsiDriverConfig.ForceSendFields, "EnableLegacyLustrePort")
+		}
+
+		// Check for disable_multi_nic
+		if val, ok := lustreConfig["disable_multi_nic"]; ok {
+			ac.LustreCsiDriverConfig.DisableMultiNic = val.(bool)
+			ac.LustreCsiDriverConfig.ForceSendFields = append(ac.LustreCsiDriverConfig.ForceSendFields, "DisableMultiNic")
 		}
 	}
 
@@ -5697,6 +5766,20 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	npd.MinCpuPlatform = cpu
 
 	return npd
+}
+
+func expandAutopilotClusterPolicyConfig(configured interface{}) *container.ClusterPolicyConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &container.ClusterPolicyConfig{
+		NoSystemMutation:      config["no_system_mutation"].(bool),
+		NoSystemImpersonation: config["no_system_impersonation"].(bool),
+		NoUnsafeWebhooks:      config["no_unsafe_webhooks"].(bool),
+		NoStandardNodePools:   config["no_standard_node_pools"].(bool),
+	}
 }
 
 func expandUpgradeSettings(configured interface{}, d *schema.ResourceData) *container.UpgradeSettings {
@@ -6097,17 +6180,17 @@ func expandControlPlaneEndpointsConfig(d *schema.ResourceData) *container.Contro
 	dns := &container.DNSEndpointConfig{}
 	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.allow_external_traffic"); v != nil {
 		dns.AllowExternalTraffic = v.(bool)
-		dns.ForceSendFields = []string{"AllowExternalTraffic"}
+		dns.ForceSendFields = append(dns.ForceSendFields, "AllowExternalTraffic")
 	}
 
 	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_tokens_via_dns"); v != nil {
 		dns.EnableK8sTokensViaDns = v.(bool)
-		dns.ForceSendFields = []string{"EnableK8sTokensViaDns"}
+		dns.ForceSendFields = append(dns.ForceSendFields, "EnableK8sTokensViaDns")
 	}
 
 	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_certs_via_dns"); v != nil {
 		dns.EnableK8sCertsViaDns = v.(bool)
-		dns.ForceSendFields = []string{"EnableK8sCertsViaDns"}
+		dns.ForceSendFields = append(dns.ForceSendFields, "EnableK8sCertsViaDns")
 	}
 
 	ip := &container.IPEndpointsConfig{
@@ -6842,6 +6925,7 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 			{
 				"enabled":                   lustreConfig.Enabled,
 				"enable_legacy_lustre_port": lustreConfig.EnableLegacyLustrePort,
+				"disable_multi_nic":         lustreConfig.DisableMultiNic,
 			},
 		}
 	}
@@ -7291,6 +7375,20 @@ func flattenUpgradeSettings(a *container.UpgradeSettings) []map[string]interface
 	r["blue_green_settings"] = flattenBlueGreenSettings(a.BlueGreenSettings)
 
 	return []map[string]interface{}{r}
+}
+
+func flattenClusterPolicyConfig(c *container.ClusterPolicyConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"no_system_mutation":      c.NoSystemMutation,
+			"no_system_impersonation": c.NoSystemImpersonation,
+			"no_unsafe_webhooks":      c.NoUnsafeWebhooks,
+			"no_standard_node_pools":  c.NoStandardNodePools,
+		},
+	}
 }
 
 func flattenBlueGreenSettings(a *container.BlueGreenSettings) []map[string]interface{} {
@@ -7919,6 +8017,18 @@ func SecretManagerCfgSuppress(k, old, new string, r *schema.ResourceData) bool {
 	return false
 }
 
+func DatabaseEncryptionSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// The API sometimes returns ALL_OBJECTS_ENCRYPTION_ENABLED when the user sets ENCRYPTED
+	// and vice versa (depending on the cluster version and underlying resource storage).
+	if old == "ALL_OBJECTS_ENCRYPTION_ENABLED" && new == "ENCRYPTED" {
+		return true
+	}
+	if old == "ENCRYPTED" && new == "ALL_OBJECTS_ENCRYPTION_ENABLED" {
+		return true
+	}
+	return false
+}
+
 func containerClusterNetworkPolicyDiffSuppress(k, old, new string, r *schema.ResourceData) bool {
 	// if network_policy configuration is empty, we store it as populated and enabled=false, and
 	// provider=PROVIDER_UNSPECIFIED, in the case that it was previously stored with this state,
@@ -8030,4 +8140,13 @@ func containerClusterNodeVersionCustomizeDiffFunc(diff tpgresource.TerraformReso
 	}
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_container_cluster",
+		ProductName: "container",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceContainerCluster(),
+	}.Register()
 }

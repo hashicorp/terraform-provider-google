@@ -118,6 +118,25 @@ func ResourceAppEngineFirewallRule() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"priority": {
+						Type:              schema.TypeInt,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"action": {
 				Type:         schema.TypeString,
@@ -256,6 +275,23 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Finished creating FirewallRule %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if _, ok := d.GetOk("priority"); ok {
+			err = identity.Set("priority", d.Get("priority").(int))
+			if err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceAppEngineFirewallRuleRead(d, meta)
 }
 
@@ -371,6 +407,24 @@ func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if _, ok := identity.GetOk("priority"); !ok {
+			err = identity.Set("priority", d.Get("priority").(int))
+			if err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -392,6 +446,22 @@ func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if _, ok := d.GetOk("priority"); ok {
+			err = identity.Set("priority", d.Get("priority").(int))
+			if err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

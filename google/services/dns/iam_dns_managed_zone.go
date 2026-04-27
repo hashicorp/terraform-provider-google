@@ -172,6 +172,10 @@ func (u *DNSManagedZoneIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager
 		return nil, err
 	}
 	var obj map[string]interface{}
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"options.requestedPolicyVersion": fmt.Sprintf("%d", tpgiamresource.IamPolicyVersion)})
+	if err != nil {
+		return nil, err
+	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
@@ -207,6 +211,8 @@ func (u *DNSManagedZoneIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 
 	obj := make(map[string]interface{})
 	obj["policy"] = json
+	// Core APIs require the mask to acknowledge policy version 3 (conditions)
+	obj["updateMask"] = "bindings,etag,version"
 
 	url, err := u.qualifyManagedZoneUrl("setIamPolicy")
 	if err != nil {

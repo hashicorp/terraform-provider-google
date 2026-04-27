@@ -191,7 +191,11 @@ func deleteResourceVertexAIEndpoint(config *transport_tpg.Config, d *tpgresource
 	name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
 
 	// Skip resources that shouldn't be sweeped
-	if !sweeper.IsSweepableTestResource(name) {
+	prefixes := []string{
+		"tf-test-",
+		"mg-endpoint-",
+	}
+	if !sweeper.IsSweepableTestResource(name) && !sweeper.HasAnyPrefix(name, prefixes) {
 		return nil
 	}
 

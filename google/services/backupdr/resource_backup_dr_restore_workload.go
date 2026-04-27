@@ -2431,6 +2431,8 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 func resourceBackupDRRestoreWorkloadRead(d *schema.ResourceData, meta interface{}) error {
 	// This resource could not be read from the API.
 	return nil
+
+	return nil
 }
 
 func resourceBackupDRRestoreWorkloadUpdate(d *schema.ResourceData, meta interface{}) error {

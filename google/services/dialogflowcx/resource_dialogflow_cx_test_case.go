@@ -55,6 +55,29 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func dialogflowcxTestCaseSessionParametersDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Treat empty string and empty JSON object as equivalent
+	if (old == "" || old == "{}") && (new == "" || new == "{}") {
+		return true
+	}
+
+	if old == "" || new == "" {
+		return old == new
+	}
+
+	var oldJson, newJson interface{}
+
+	if err := json.Unmarshal([]byte(old), &oldJson); err != nil {
+		return false
+	}
+
+	if err := json.Unmarshal([]byte(new), &newJson); err != nil {
+		return false
+	}
+
+	return reflect.DeepEqual(oldJson, newJson)
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -111,6 +134,25 @@ func ResourceDialogflowCXTestCase() *schema.Resource {
 			Create: schema.DefaultTimeout(40 * time.Minute),
 			Update: schema.DefaultTimeout(40 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
+		},
+
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"parent": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -271,11 +313,12 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<F
 										},
 									},
 									"session_parameters": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringIsJSON,
-										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-										Description:  `The session parameters available to the bot at this point.`,
+										Type:             schema.TypeString,
+										Optional:         true,
+										ValidateFunc:     validation.StringIsJSON,
+										DiffSuppressFunc: dialogflowcxTestCaseSessionParametersDiffSuppress,
+										StateFunc:        func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+										Description:      `The session parameters available to the bot at this point.`,
 									},
 									"text_responses": {
 										Type:        schema.TypeList,
@@ -750,6 +793,22 @@ func resourceDialogflowCXTestCaseCreate(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Finished creating TestCase %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceDialogflowCXTestCaseRead(d, meta)
 }
 
@@ -846,6 +905,24 @@ func resourceDialogflowCXTestCaseRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading TestCase: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("parent"); !ok && v == "" {
+			err = identity.Set("parent", d.Get("parent").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -867,6 +944,21 @@ func resourceDialogflowCXTestCaseUpdate(d *schema.ResourceData, meta interface{}
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

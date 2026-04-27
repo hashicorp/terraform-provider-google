@@ -113,6 +113,25 @@ func ResourceCloudAssetFolderFeed() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"folder_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"billing_project": {
 				Type:     schema.TypeString,
@@ -352,6 +371,22 @@ func resourceCloudAssetFolderFeedCreate(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Finished creating FolderFeed %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if folderIdValue, ok := d.GetOk("folder_id"); ok && folderIdValue.(string) != "" {
+			if err = identity.Set("folder_id", folderIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting folder_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceCloudAssetFolderFeedRead(d, meta)
 }
 
@@ -426,6 +461,24 @@ func resourceCloudAssetFolderFeedRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading FolderFeed: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("folder_id"); !ok && v == "" {
+			err = identity.Set("folder_id", d.Get("folder_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting folder_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -447,6 +500,21 @@ func resourceCloudAssetFolderFeedUpdate(d *schema.ResourceData, meta interface{}
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if folderIdValue, ok := d.GetOk("folder_id"); ok && folderIdValue.(string) != "" {
+			if err = identity.Set("folder_id", folderIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting folder_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

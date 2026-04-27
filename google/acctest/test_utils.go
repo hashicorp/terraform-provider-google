@@ -31,7 +31,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
+	"github.com/hashicorp/terraform-plugin-testing/echoprovider"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -205,6 +207,28 @@ func ProtoV5ProviderFactories(t *testing.T) map[string]func() (tfprotov5.Provide
 // normal beta tests should continue to use ProtoV5ProviderFactories
 func ProtoV5ProviderBetaFactories(t *testing.T) map[string]func() (tfprotov5.ProviderServer, error) {
 	return map[string]func() (tfprotov5.ProviderServer, error){}
+}
+
+// ProtoV6ProviderFactories returns a provider server for that currently
+// only contains an echo provider for testing usage of ephemeral values
+func ProtoV6ProviderFactories(t *testing.T) map[string]func() (tfprotov6.ProviderServer, error) {
+	return map[string]func() (tfprotov6.ProviderServer, error){
+		"echo": echoprovider.NewProviderServer(),
+	}
+}
+
+var EchoResourceName string = "echo.test"
+
+// EchoResourceConfig returns some HCL that configures the echo provider with a reference to an ephemeral value (e.g. an ephemeral resource)
+// and provisions an echo resource that surfaces that ephemeral data in a non-ephemeral way, for testing purposes.
+// See: https://github.com/hashicorp/terraform-plugin-testing/pull/389
+func EchoResourceConfig(ephemeralReference string) string {
+	return fmt.Sprintf(`
+provider "echo" {
+  data = %s
+}
+resource "echo" "test" {}
+`, ephemeralReference)
 }
 
 // This is a Printf sibling (Nprintf; Named Printf), which handles strings like

@@ -74,6 +74,12 @@ func TestAccColabRuntime_colabRuntimeBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "name"},
 			},
+			{
+				ResourceName:       "google_colab_runtime.runtime",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -135,6 +141,12 @@ func TestAccColabRuntime_colabRuntimeStoppedExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"desired_state", "location", "name"},
+			},
+			{
+				ResourceName:       "google_colab_runtime.runtime",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -200,6 +212,12 @@ func TestAccColabRuntime_colabRuntimeFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"auto_upgrade", "desired_state", "expiration_time", "location", "name"},
+			},
+			{
+				ResourceName:       "google_colab_runtime.runtime",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

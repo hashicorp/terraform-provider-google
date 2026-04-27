@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
 func DataSourceGoogleComputeLbIpRanges() *schema.Resource {
@@ -64,4 +65,13 @@ func dataSourceGoogleComputeLbIpRangesRead(d *schema.ResourceData, meta interfac
 	}
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_lb_ip_ranges",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleComputeLbIpRanges(),
+	}.Register()
 }

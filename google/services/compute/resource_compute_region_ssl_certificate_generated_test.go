@@ -74,6 +74,12 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateBasicExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name_prefix", "private_key", "private_key_wo", "private_key_wo_version", "region"},
 			},
+			{
+				ResourceName:       "google_compute_region_ssl_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -117,6 +123,12 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateBasicWriteonlyExampl
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name_prefix", "private_key", "private_key_wo", "private_key_wo_version", "region"},
+			},
+			{
+				ResourceName:       "google_compute_region_ssl_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -166,6 +178,12 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateRandomProviderExampl
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"private_key", "private_key_wo", "private_key_wo_version", "region"},
+			},
+			{
+				ResourceName:       "google_compute_region_ssl_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -228,6 +246,12 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesEx
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name_prefix", "private_key", "private_key_wo", "private_key_wo_version", "region"},
+			},
+			{
+				ResourceName:       "google_compute_region_ssl_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

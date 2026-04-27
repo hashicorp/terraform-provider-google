@@ -55,7 +55,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func DataConnectorEntitiesFieldsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+func DataConnectorJsonStructFieldsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return (old == "" && new == "{}") || (old == "{}" && new == "")
 }
 
@@ -131,6 +131,29 @@ func ResourceDiscoveryEngineDataConnector() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"collection_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"collection_display_name": {
 				Type:     schema.TypeString,
@@ -156,8 +179,59 @@ INVALID_ARGUMENT error is returned.`,
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `The name of the data source.
-Supported values: 'salesforce', 'jira', 'confluence', 'bigquery'.`,
+				Description: `The identifier for the data source.
+This is a partial list of supported connectors. Please refer to the
+[documentation](https://docs.cloud.google.com/gemini/enterprise/docs/connectors/introduction-to-connectors-and-data-stores)
+for the full list of connectors.
+
+Supported first-party connectors include:
+
+*   'bigquery'
+*   'gcp_fhir'
+*   'google_mail'
+*   'google_drive'
+*   'google_calendar'
+*   'google_chat'
+
+Supported third-party connectors include:
+Generally available (GA) connectors:
+
+*   'onedrive'
+*   'outlook'
+*   'confluence'
+*   'jira'
+*   'servicenow'
+*   'sharepoint'
+
+Preview connectors:
+
+*   'asana'
+*   'azure_active_directory'
+*   'box'
+*   'canva'
+*   'confluence_server'
+*   'custom_connector'
+*   'docusign'
+*   'dropbox'
+*   'dynamics365'
+*   'github'
+*   'gitlab'
+*   'hubspot'
+*   'jira_server'
+*   'linear'
+*   'native_cloud_identity'
+*   'notion'
+*   'okta'
+*   'pagerduty'
+*   'peoplesoft'
+*   'salesforce'
+*   'shopify'
+*   'slack'
+*   'snowflake'
+*   'teams'
+*   'trello'
+*   'workday'
+*   'zendesk'`,
 			},
 			"location": {
 				Type:     schema.TypeString,
@@ -278,6 +352,11 @@ used to configure where data is served.`,
 										Description: `The host of the destination, for example
 'https://example.atlassian.net'.`,
 									},
+									"port": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Target port number accepted by the destination.`,
+									},
 								},
 							},
 						},
@@ -285,6 +364,14 @@ used to configure where data is served.`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `The key of the destination configuration, for example 'url'.`,
+						},
+						"params": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ValidateFunc:     validation.StringIsJSON,
+							DiffSuppressFunc: DataConnectorJsonStructFieldsDiffSuppress,
+							StateFunc:        func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+							Description:      `Additional parameters for this destination config in structured json format.`,
 						},
 					},
 				},
@@ -308,7 +395,7 @@ used to configure where data is served.`,
 							Type:             schema.TypeMap,
 							Computed:         true,
 							Optional:         true,
-							DiffSuppressFunc: DataConnectorEntitiesFieldsDiffSuppress,
+							DiffSuppressFunc: DataConnectorJsonStructFieldsDiffSuppress,
 							Description: `Attributes for indexing.
 Key: Field name.
 Value: The key property to map a field to, such as 'title', and
@@ -323,7 +410,7 @@ Value: The key property to map a field to, such as 'title', and
 							Type:             schema.TypeString,
 							Optional:         true,
 							ValidateFunc:     validation.StringIsJSON,
-							DiffSuppressFunc: DataConnectorEntitiesFieldsDiffSuppress,
+							DiffSuppressFunc: DataConnectorJsonStructFieldsDiffSuppress,
 							StateFunc:        func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 							Description:      `The parameters for the entity to facilitate data ingestion.`,
 						},
@@ -676,6 +763,27 @@ func resourceDiscoveryEngineDataConnectorCreate(d *schema.ResourceData, meta int
 
 	log.Printf("[DEBUG] Finished creating DataConnector %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if collectionIdValue, ok := d.GetOk("collection_id"); ok && collectionIdValue.(string) != "" {
+			if err = identity.Set("collection_id", collectionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting collection_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceDiscoveryEngineDataConnectorRead(d, meta)
 }
 
@@ -809,6 +917,30 @@ func resourceDiscoveryEngineDataConnectorRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading DataConnector: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("collection_id"); !ok && v == "" {
+			err = identity.Set("collection_id", d.Get("collection_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting collection_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -830,6 +962,26 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if collectionIdValue, ok := d.GetOk("collection_id"); ok && collectionIdValue.(string) != "" {
+			if err = identity.Set("collection_id", collectionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting collection_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
@@ -1313,6 +1465,7 @@ func flattenDiscoveryEngineDataConnectorDestinationConfigs(v interface{}, d *sch
 		transformed = append(transformed, map[string]interface{}{
 			"key":          flattenDiscoveryEngineDataConnectorDestinationConfigsKey(original["key"], d, config),
 			"destinations": flattenDiscoveryEngineDataConnectorDestinationConfigsDestinations(original["destinations"], d, config),
+			"params":       flattenDiscoveryEngineDataConnectorDestinationConfigsParams(original["params"], d, config),
 		})
 	}
 	return transformed
@@ -1335,12 +1488,42 @@ func flattenDiscoveryEngineDataConnectorDestinationConfigsDestinations(v interfa
 		}
 		transformed = append(transformed, map[string]interface{}{
 			"host": flattenDiscoveryEngineDataConnectorDestinationConfigsDestinationsHost(original["host"], d, config),
+			"port": flattenDiscoveryEngineDataConnectorDestinationConfigsDestinationsPort(original["port"], d, config),
 		})
 	}
 	return transformed
 }
 func flattenDiscoveryEngineDataConnectorDestinationConfigsDestinationsHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenDiscoveryEngineDataConnectorDestinationConfigsDestinationsPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDiscoveryEngineDataConnectorDestinationConfigsParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
 }
 
 func flattenDiscoveryEngineDataConnectorStaticIpAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1602,6 +1785,13 @@ func expandDiscoveryEngineDataConnectorDestinationConfigs(v interface{}, d tpgre
 			transformed["destinations"] = transformedDestinations
 		}
 
+		transformedParams, err := expandDiscoveryEngineDataConnectorDestinationConfigsParams(original["params"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedParams); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["params"] = transformedParams
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1631,6 +1821,13 @@ func expandDiscoveryEngineDataConnectorDestinationConfigsDestinations(v interfac
 			transformed["host"] = transformedHost
 		}
 
+		transformedPort, err := expandDiscoveryEngineDataConnectorDestinationConfigsDestinationsPort(original["port"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["port"] = transformedPort
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1638,6 +1835,22 @@ func expandDiscoveryEngineDataConnectorDestinationConfigsDestinations(v interfac
 
 func expandDiscoveryEngineDataConnectorDestinationConfigsDestinationsHost(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorDestinationConfigsDestinationsPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorDestinationConfigsParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	m := make(map[string]interface{})
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func expandDiscoveryEngineDataConnectorConnectorModes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

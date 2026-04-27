@@ -75,6 +75,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -140,6 +146,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitExample(t 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
+			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.bigquery_row_limit",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -212,6 +224,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitPercentage
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.bigquery_row_limit_percentage",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -283,6 +301,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToDataplexCatalogEx
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.publish_to_dataplex_catalog",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -346,6 +370,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDataCatalogOutputExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
+			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.data_catalog_output",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -411,6 +441,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerSccOutputExample(t *testin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.scc_output",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -474,6 +510,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerJobNotificationEmailsExamp
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.job_notification_emails",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -532,6 +574,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
+			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.deidentify",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -649,6 +697,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.hybrid_trigger",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -719,6 +773,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerInspectExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
+			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.inspect",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -841,6 +901,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToStackdriverExampl
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.publish_to_stackdriver",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -899,6 +965,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerWithIdExample(t *testing.T
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
+			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.with_trigger_id",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -966,6 +1038,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerMultipleActionsExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
+			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -1041,6 +1119,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerCloudStorageOptionalTimesp
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -1110,6 +1194,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerTimespanConfigBigQueryExam
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
+			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.timespan_config_big_query",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

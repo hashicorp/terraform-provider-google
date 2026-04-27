@@ -75,6 +75,12 @@ func TestAccIAMBetaWorkloadIdentityPoolNamespace_iamWorkloadIdentityPoolNamespac
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"workload_identity_pool_id", "workload_identity_pool_namespace_id"},
 			},
+			{
+				ResourceName:       "google_iam_workload_identity_pool_namespace.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -117,6 +123,12 @@ func TestAccIAMBetaWorkloadIdentityPoolNamespace_iamWorkloadIdentityPoolNamespac
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"workload_identity_pool_id", "workload_identity_pool_namespace_id"},
+			},
+			{
+				ResourceName:       "google_iam_workload_identity_pool_namespace.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

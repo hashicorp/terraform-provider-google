@@ -20,6 +20,8 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -59,4 +61,13 @@ func dataSourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("%s not found", id)
 	}
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_secret_manager_secret",
+		ProductName: "secretmanager",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceSecretManagerSecret(),
+	}.Register()
 }

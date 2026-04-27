@@ -150,7 +150,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
   
   template {
     containers {
@@ -175,7 +174,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
   
   template {
     containers {
@@ -215,7 +213,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
   
   template {
     containers {
@@ -242,7 +239,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
   
   template {
     containers {
@@ -267,7 +263,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
   
   template {
     containers {

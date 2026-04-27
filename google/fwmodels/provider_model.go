@@ -52,6 +52,8 @@ type ProviderModel struct {
 	DefaultLabels                             types.Map                  `tfsdk:"default_labels"`
 	AddTerraformAttributionLabel              types.Bool                 `tfsdk:"add_terraform_attribution_label"`
 	TerraformAttributionLabelAdditionStrategy types.String               `tfsdk:"terraform_attribution_label_addition_strategy"`
+	PreferGlobalEndpoints                     types.Bool                 `tfsdk:"prefer_global_endpoints"`
+	PreferRegionalEndpoints                   types.Bool                 `tfsdk:"prefer_regional_endpoints"`
 
 	// Generated Products
 	AccessApprovalCustomEndpoint           types.String `tfsdk:"access_approval_custom_endpoint"`
@@ -106,6 +108,7 @@ type ProviderModel struct {
 	CoreBillingCustomEndpoint              types.String `tfsdk:"core_billing_custom_endpoint"`
 	DatabaseMigrationServiceCustomEndpoint types.String `tfsdk:"database_migration_service_custom_endpoint"`
 	DataCatalogCustomEndpoint              types.String `tfsdk:"data_catalog_custom_endpoint"`
+	DataformCustomEndpoint                 types.String `tfsdk:"dataform_custom_endpoint"`
 	DataFusionCustomEndpoint               types.String `tfsdk:"data_fusion_custom_endpoint"`
 	DataLossPreventionCustomEndpoint       types.String `tfsdk:"data_loss_prevention_custom_endpoint"`
 	DataPipelineCustomEndpoint             types.String `tfsdk:"data_pipeline_custom_endpoint"`
@@ -130,6 +133,7 @@ type ProviderModel struct {
 	FirebaseAppCheckCustomEndpoint         types.String `tfsdk:"firebase_app_check_custom_endpoint"`
 	FirebaseAppHostingCustomEndpoint       types.String `tfsdk:"firebase_app_hosting_custom_endpoint"`
 	FirebaseDataConnectCustomEndpoint      types.String `tfsdk:"firebase_data_connect_custom_endpoint"`
+	FirebaseRemoteConfigCustomEndpoint     types.String `tfsdk:"firebase_remote_config_custom_endpoint"`
 	FirestoreCustomEndpoint                types.String `tfsdk:"firestore_custom_endpoint"`
 	GeminiCustomEndpoint                   types.String `tfsdk:"gemini_custom_endpoint"`
 	GKEBackupCustomEndpoint                types.String `tfsdk:"gke_backup_custom_endpoint"`
@@ -210,6 +214,7 @@ type ProviderModel struct {
 	VPCAccessCustomEndpoint                types.String `tfsdk:"vpc_access_custom_endpoint"`
 	WorkbenchCustomEndpoint                types.String `tfsdk:"workbench_custom_endpoint"`
 	WorkflowsCustomEndpoint                types.String `tfsdk:"workflows_custom_endpoint"`
+	WorkloadIdentityCustomEndpoint         types.String `tfsdk:"workload_identity_custom_endpoint"`
 	WorkstationsCustomEndpoint             types.String `tfsdk:"workstations_custom_endpoint"`
 
 	// Handwritten Products / Versioned / Atypical Entries

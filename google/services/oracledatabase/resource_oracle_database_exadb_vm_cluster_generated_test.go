@@ -80,6 +80,12 @@ func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterBasicExampl
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "exadb_vm_cluster_id", "labels", "location", "properties.0.hostname_prefix", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_oracle_database_exadb_vm_cluster.my_exadb_vm_cluster",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -162,6 +168,12 @@ func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterFullExample
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "exadb_vm_cluster_id", "labels", "location", "properties.0.hostname_prefix", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_exadb_vm_cluster.my_exadb_vm_cluster",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

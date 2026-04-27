@@ -79,6 +79,12 @@ func TestAccNetworkServicesMulticastGroupRangeActivation_networkServicesMulticas
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "multicast_group_range_activation_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_services_multicast_group_range_activation.mgra_test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

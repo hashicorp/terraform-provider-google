@@ -118,6 +118,29 @@ func ResourceBigtableMaterializedView() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"materialized_view_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"instance": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"materialized_view_id": {
 				Type:        schema.TypeString,
@@ -235,6 +258,27 @@ func resourceBigtableMaterializedViewCreate(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Finished creating MaterializedView %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if materializedViewIdValue, ok := d.GetOk("materialized_view_id"); ok && materializedViewIdValue.(string) != "" {
+			if err = identity.Set("materialized_view_id", materializedViewIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting materialized_view_id: %s", err)
+			}
+		}
+		if instanceValue, ok := d.GetOk("instance"); ok && instanceValue.(string) != "" {
+			if err = identity.Set("instance", instanceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting instance: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceBigtableMaterializedViewRead(d, meta)
 }
 
@@ -305,6 +349,30 @@ func resourceBigtableMaterializedViewRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading MaterializedView: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("materialized_view_id"); !ok && v == "" {
+			err = identity.Set("materialized_view_id", d.Get("materialized_view_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting materialized_view_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("instance"); !ok && v == "" {
+			err = identity.Set("instance", d.Get("instance").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting instance: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -326,6 +394,26 @@ func resourceBigtableMaterializedViewUpdate(d *schema.ResourceData, meta interfa
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if materializedViewIdValue, ok := d.GetOk("materialized_view_id"); ok && materializedViewIdValue.(string) != "" {
+			if err = identity.Set("materialized_view_id", materializedViewIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting materialized_view_id: %s", err)
+			}
+		}
+		if instanceValue, ok := d.GetOk("instance"); ok && instanceValue.(string) != "" {
+			if err = identity.Set("instance", instanceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting instance: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

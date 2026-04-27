@@ -157,8 +157,31 @@ func ResourceDatastreamPrivateConnection() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
-			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+			tpgresource.DefaultProviderDeletionPolicy("FORCE"),
 		),
+
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"private_connection_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"display_name": {
@@ -297,16 +320,10 @@ Format: projects/{project}/global/{networks}/{name}`,
 				ForceNew: true,
 			},
 			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
-When a 'terraform destroy' or 'terraform apply' would delete the instance,
-the command will fail if this field is set to "PREVENT" in Terraform state.
-When set to "ABANDON", the command will remove the resource from Terraform
-management without updating or deleting the resource in the API.
-When set to "DELETE", deleting the resource is allowed.
-`,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `This field uses a custom implementation please refer to documentation under /hashicorp/terraform-provider-google-beta/website/docs/r/datastream_private_connection.html.markdown for specifics`,
 			},
 		},
 		UseJSONNumber: true,
@@ -403,6 +420,27 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 
 	log.Printf("[DEBUG] Finished creating PrivateConnection %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if privateConnectionIdValue, ok := d.GetOk("private_connection_id"); ok && privateConnectionIdValue.(string) != "" {
+			if err = identity.Set("private_connection_id", privateConnectionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting private_connection_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceDatastreamPrivateConnectionRead(d, meta)
 }
 
@@ -454,7 +492,7 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 				return fmt.Errorf("Error setting deletion_policy: %s", err)
 			}
 		} else {
-			if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			if err := d.Set("deletion_policy", "FORCE"); err != nil {
 				return fmt.Errorf("Error setting deletion_policy: %s", err)
 			}
 		}
@@ -489,6 +527,30 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 	}
 	if err := d.Set("effective_labels", flattenDatastreamPrivateConnectionEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("private_connection_id"); !ok && v == "" {
+			err = identity.Set("private_connection_id", d.Get("private_connection_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting private_connection_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil
@@ -534,10 +596,12 @@ func resourceDatastreamPrivateConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	headers := make(http.Header)
-	// Add force=true query param to force deletion of private connection sub resources like Routes
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"force": strconv.FormatBool(true)})
-	if err != nil {
-		return err
+	// Add force=true query param if deletion_policy is FORCE to delete child routes
+	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "FORCE" {
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"force": strconv.FormatBool(true)})
+		if err != nil {
+			return err
+		}
 	}
 
 	log.Printf("[DEBUG] Deleting PrivateConnection %q", d.Id())
@@ -584,6 +648,7 @@ func resourceDatastreamPrivateConnectionImport(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	// Explicitly set virtual fields to default values on import
 	if err := waitForPrivateConnectionReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
 		return nil, fmt.Errorf("Error waiting for PrivateConnection %q to be CREATED during importing: %q", d.Get("name").(string), err)
 	}

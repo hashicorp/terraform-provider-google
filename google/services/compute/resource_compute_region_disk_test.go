@@ -170,6 +170,58 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionDisk_hyperdiskPerformanceAtomicUpdate(t *testing.T) {
+	t.Parallel()
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"iops_init":     25000,
+		"tp_init":       1200,
+		"iops_update":   3000,
+		"tp_update":     140,
+	}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_hyperdiskPerformance(context, "init"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_region_disk.foobar", "provisioned_iops", "25000"),
+				),
+			},
+			{
+				Config: testAccComputeRegionDisk_hyperdiskPerformance(context, "update"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_region_disk.foobar", "provisioned_iops", "3000"),
+					resource.TestCheckResourceAttr("google_compute_region_disk.foobar", "provisioned_throughput", "140"),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDisk_hyperdiskPerformance(context map[string]interface{}, stage string) string {
+	if stage == "update" {
+		context["iops"] = context["iops_update"]
+		context["tp"] = context["tp_update"]
+	} else {
+		context["iops"] = context["iops_init"]
+		context["tp"] = context["tp_init"]
+	}
+	return acctest.Nprintf(`
+resource "google_compute_region_disk" "foobar" {
+  name                   = "tf-test-re-hd-atomic-%{random_suffix}"
+  type                   = "hyperdisk-balanced-high-availability"
+  region                 = "us-central1"
+  replica_zones          = ["us-central1-a", "us-central1-f"]
+  size                   = 100
+  provisioned_iops       = %{iops}
+  provisioned_throughput = %{tp}
+}
+`, context)
+}
+
 func TestAccComputeRegionDisk_encryption(t *testing.T) {
 	t.Parallel()
 

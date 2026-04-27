@@ -74,6 +74,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -84,7 +90,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
   
   template {
     containers {
@@ -119,6 +124,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicDependsOnExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -129,7 +140,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
   
   template {
     containers {
@@ -179,6 +189,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolLimitsExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -189,7 +205,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
 
   template {
     containers {
@@ -233,6 +248,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSqlExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -243,7 +264,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
   
   template {
   
@@ -343,6 +363,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolDirectvpcExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -353,7 +379,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
 
   template {
     containers {
@@ -395,6 +420,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolGpuExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -405,7 +436,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
 
   template {
     containers {
@@ -452,6 +482,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSecretExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -462,7 +498,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
 
   template {
     volumes {
@@ -536,6 +571,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMulticontainerExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -546,7 +587,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "%{cloud_run_worker_pool_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
 
   template {
     containers {
@@ -598,6 +638,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountGcsExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -609,7 +655,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 
   location     = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
 
   template {
     containers {
@@ -634,6 +679,74 @@ resource "google_storage_bucket" "default" {
     name     = "%{cloud_run_worker_pool_name}"
     location = "US"
     uniform_bucket_level_access = true
+}
+`, context)
+}
+
+func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolEmptydirDiskExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"cloud_run_worker_pool_name": "tf-test-cloudrun-worker-pool" + randomSuffix,
+		"deletion_protection":        false,
+		"random_suffix":              randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2WorkerPoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolEmptydirDiskExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_worker_pool.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolEmptydirDiskExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_worker_pool" "default" {
+  name     = "%{cloud_run_worker_pool_name}"
+  location     = "us-central1"
+  launch_stage = "BETA"
+  deletion_protection =  "%{deletion_protection}"
+
+  template {
+    containers {
+        image = "us-docker.pkg.dev/cloudrun/container/worker-pool"
+        volume_mounts {
+            name = "empty-dir-volume"
+            mount_path = "/mnt"
+        }
+    }
+    volumes {
+        name = "empty-dir-volume"
+        empty_dir {
+            medium = "DISK"
+            size_limit = "10Gi"
+        }
+      }
+  }
+  lifecycle {
+    ignore_changes = [
+      launch_stage,
+    ]
+  }
 }
 `, context)
 }
@@ -663,6 +776,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountNfsExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -674,7 +793,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 
   location     = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
 
   template {
     containers {
@@ -747,6 +865,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolStartupLivenessProbeExample
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -768,7 +892,6 @@ resource "google_compute_subnetwork" "custom_test" {
 resource "google_cloud_run_v2_worker_pool" "default" {
   name                = "%{cloud_run_worker_pool_name}"
   location            = "us-central1"
-  launch_stage        = "BETA"
   deletion_protection = false
 
   template {

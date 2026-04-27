@@ -118,6 +118,29 @@ func ResourceSQLDatabase() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"instance": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"instance": {
 				Type:     schema.TypeString,
@@ -274,6 +297,27 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if instanceValue, ok := d.GetOk("instance"); ok && instanceValue.(string) != "" {
+			if err = identity.Set("instance", instanceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting instance: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceSQLDatabaseRead(d, meta)
 }
 
@@ -309,6 +353,29 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	if databaseInstance.Settings != nil && databaseInstance.Settings.ActivationPolicy != "ALWAYS" {
+		identity, err := d.Identity()
+		if err == nil && identity != nil {
+			if v, ok := identity.GetOk("name"); !ok && v == "" {
+				err = identity.Set("name", d.Get("name").(string))
+				if err != nil {
+					return fmt.Errorf("Error setting name: %s", err)
+				}
+			}
+			if v, ok := identity.GetOk("instance"); !ok && v == "" {
+				err = identity.Set("instance", d.Get("instance").(string))
+				if err != nil {
+					return fmt.Errorf("Error setting instance: %s", err)
+				}
+			}
+			if v, ok := identity.GetOk("project"); !ok && v == "" {
+				err = identity.Set("project", d.Get("project").(string))
+				if err != nil {
+					return fmt.Errorf("Error setting project: %s", err)
+				}
+			}
+		} else {
+			log.Printf("[DEBUG] (Read) identity not set: %s", err)
+		}
 		return nil
 	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -358,6 +425,30 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("instance"); !ok && v == "" {
+			err = identity.Set("instance", d.Get("instance").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting instance: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -379,6 +470,26 @@ func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if instanceValue, ok := d.GetOk("instance"); ok && instanceValue.(string) != "" {
+			if err = identity.Set("instance", instanceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting instance: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

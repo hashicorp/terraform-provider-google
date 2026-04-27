@@ -113,6 +113,29 @@ func ResourceSecurityposturePostureDeployment() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"parent": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"posture_deployment_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -308,6 +331,27 @@ func resourceSecurityposturePostureDeploymentCreate(d *schema.ResourceData, meta
 
 	log.Printf("[DEBUG] Finished creating PostureDeployment %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if postureDeploymentIdValue, ok := d.GetOk("posture_deployment_id"); ok && postureDeploymentIdValue.(string) != "" {
+			if err = identity.Set("posture_deployment_id", postureDeploymentIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting posture_deployment_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceSecurityposturePostureDeploymentRead(d, meta)
 }
 
@@ -399,6 +443,30 @@ func resourceSecurityposturePostureDeploymentRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading PostureDeployment: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("parent"); !ok && v == "" {
+			err = identity.Set("parent", d.Get("parent").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("posture_deployment_id"); !ok && v == "" {
+			err = identity.Set("posture_deployment_id", d.Get("posture_deployment_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting posture_deployment_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -420,6 +488,26 @@ func resourceSecurityposturePostureDeploymentUpdate(d *schema.ResourceData, meta
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if postureDeploymentIdValue, ok := d.GetOk("posture_deployment_id"); ok && postureDeploymentIdValue.(string) != "" {
+			if err = identity.Set("posture_deployment_id", postureDeploymentIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting posture_deployment_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

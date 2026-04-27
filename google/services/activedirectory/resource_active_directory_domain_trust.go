@@ -118,6 +118,29 @@ func ResourceActiveDirectoryDomainTrust() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"target_domain_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"domain": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"domain": {
 				Type:     schema.TypeString,
@@ -293,6 +316,27 @@ func resourceActiveDirectoryDomainTrustCreate(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Finished creating DomainTrust %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if targetDomainNameValue, ok := d.GetOk("target_domain_name"); ok && targetDomainNameValue.(string) != "" {
+			if err = identity.Set("target_domain_name", targetDomainNameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting target_domain_name: %s", err)
+			}
+		}
+		if domainValue, ok := d.GetOk("domain"); ok && domainValue.(string) != "" {
+			if err = identity.Set("domain", domainValue.(string)); err != nil {
+				return fmt.Errorf("Error setting domain: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceActiveDirectoryDomainTrustRead(d, meta)
 }
 
@@ -393,6 +437,30 @@ func resourceActiveDirectoryDomainTrustRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading DomainTrust: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("target_domain_name"); !ok && v == "" {
+			err = identity.Set("target_domain_name", d.Get("target_domain_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting target_domain_name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("domain"); !ok && v == "" {
+			err = identity.Set("domain", d.Get("domain").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting domain: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -414,6 +482,26 @@ func resourceActiveDirectoryDomainTrustUpdate(d *schema.ResourceData, meta inter
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if targetDomainNameValue, ok := d.GetOk("target_domain_name"); ok && targetDomainNameValue.(string) != "" {
+			if err = identity.Set("target_domain_name", targetDomainNameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting target_domain_name: %s", err)
+			}
+		}
+		if domainValue, ok := d.GetOk("domain"); ok && domainValue.(string) != "" {
+			if err = identity.Set("domain", domainValue.(string)); err != nil {
+				return fmt.Errorf("Error setting domain: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

@@ -76,6 +76,12 @@ func TestAccVertexAIFeatureGroupFeature_vertexAiFeatureGroupFeatureExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"feature_group", "labels", "name", "region", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_feature_group_feature.feature_group_feature",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -169,6 +175,12 @@ func TestAccVertexAIFeatureGroupFeature_vertexAiFeatureGroupFeatureWithVersionCo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"feature_group", "labels", "name", "region", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_feature_group_feature.feature_group_feature",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

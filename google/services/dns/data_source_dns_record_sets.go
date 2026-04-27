@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/dns/v1"
@@ -156,4 +157,13 @@ func flattenDnsRecordSets(rrsets []*dns.ResourceRecordSet) []map[string]interfac
 	}
 
 	return result
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_dns_record_sets",
+		ProductName: "dns",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceDnsRecordSets(),
+	}.Register()
 }

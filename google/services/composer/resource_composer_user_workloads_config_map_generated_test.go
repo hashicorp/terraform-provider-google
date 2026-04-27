@@ -76,6 +76,12 @@ func TestAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicEx
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"environment", "region"},
 			},
+			{
+				ResourceName:       "google_composer_user_workloads_config_map.config_map",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

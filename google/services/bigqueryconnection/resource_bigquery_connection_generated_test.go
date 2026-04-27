@@ -78,6 +78,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -124,6 +130,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionBasicExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -207,6 +219,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionFullExample(t *testin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -287,6 +305,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAwsExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -337,6 +361,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAzureExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -386,6 +416,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerExample(t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -434,6 +470,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerDataboost
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -478,6 +520,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSparkExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -554,6 +602,12 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "location"},
 			},
+			{
+				ResourceName:       "google_bigquery_connection.bq-connection-cmek",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -595,6 +649,126 @@ resource "google_bigquery_connection" "bq-connection-cmek" {
     credential {
       username = google_sql_user.user.name
       password = google_sql_user.user.password
+    }
+  }
+}
+`, context)
+}
+
+func TestAccBigqueryConnectionConnection_bigqueryConnectionConnectorConfigurationExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"connection_id": "tf-test-my-connection" + randomSuffix,
+		"password":      "password" + randomSuffix,
+		"username":      "user" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+			"time":   {},
+		},
+		CheckDestroy: testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionConnectorConfigurationExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"configuration.0.authentication.0.username_password.0.password", "configuration.0.authentication.0.username_password.0.username", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionConnectorConfigurationExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "alloydb-cluster-${local.name_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = google_compute_network.default.id
+  }
+
+  initial_user {
+    password = "alloydb-cluster-password"
+  }
+
+  deletion_protection = false
+
+  lifecycle {
+    ignore_changes = [initial_user]
+  }
+}
+
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "alloydb-instance-${local.name_suffix}"
+  instance_type = "PRIMARY"
+
+  machine_config {
+    cpu_count = 2
+  }
+
+  depends_on = [google_service_networking_connection.vpc_connection]
+}
+
+resource "google_compute_network" "default" {
+  name = "alloydb-network-${local.name_suffix}"
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          = "alloydb-ip-${local.name_suffix}"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = google_compute_network.default.id
+}
+
+resource "google_service_networking_connection" "vpc_connection" {
+  network                 = google_compute_network.default.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+}
+
+locals {
+  name_suffix = "%{connection_id}"
+}
+
+resource "google_bigquery_connection" "connection" {
+  connection_id = "%{connection_id}"
+  location      = "us-central1"
+  friendly_name = "alloydb connection"
+  description   = "AlloyDB connection using connector configuration"
+
+  configuration {
+    connector_id = "google-alloydb"
+    asset {
+      database              = "postgres"
+      google_cloud_resource = "//alloydb.googleapis.com/${google_alloydb_instance.default.id}"
+    }
+    authentication {
+      username_password {
+        username = "%{username}"
+        password {
+          plaintext = "%{password}"
+        }
+      }
     }
   }
 }

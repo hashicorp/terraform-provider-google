@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "vectorsearch"
+var Product = registry.Product{
+	Name:                 "vectorsearch",
+	BaseUrl:              "https://vectorsearch.googleapis.com/v1/",
+	CustomEndpointField:  "vector_search_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_VECTOR_SEARCH_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "vectorsearch",
-		BaseUrl: "https://vectorsearch.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

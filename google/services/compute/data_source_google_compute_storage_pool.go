@@ -19,6 +19,7 @@ package compute
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -65,4 +66,13 @@ func dataSourceGoogleComputeStoragePoolRead(d *schema.ResourceData, meta interfa
 	}
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_storage_pool",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleComputeStoragePool(),
+	}.Register()
 }

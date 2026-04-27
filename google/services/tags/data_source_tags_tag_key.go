@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -129,4 +130,13 @@ func dataSourceGoogleTagsTagKeyRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_tags_tag_key",
+		ProductName: "tags",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleTagsTagKey(),
+	}.Register()
 }

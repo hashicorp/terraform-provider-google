@@ -23,12 +23,10 @@ description: |-
 
 A resource represents a Dataform TeamFolder
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about TeamFolder, see:
 
-* [API documentation](https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations.teamFolders)
+* [API documentation](https://cloud.google.com/dataform/reference/rest/v1/projects.locations.teamFolders)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dataform/docs/)
 
@@ -42,7 +40,6 @@ To get more information about TeamFolder, see:
 
 ```hcl
 resource "google_dataform_team_folder" "dataform_team_folder_basic" {
-  provider = google-beta
   region = "us-central1"
   display_name = "Basic TeamFolder-%{random_suffix}"
 }
@@ -106,6 +103,18 @@ TeamFolder can be imported using any of these accepted formats:
 * `{{teamfolder_id}}`
 * `{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import TeamFolder using identity values. For example:
+
+```tf
+import {
+  identity = {
+    teamfolder_id = "<-optional value->"
+    region = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_dataform_team_folder.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import TeamFolder using one of the formats above. For example:
 

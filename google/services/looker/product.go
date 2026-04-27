@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "looker"
+var Product = registry.Product{
+	Name:                 "looker",
+	BaseUrl:              "https://looker.googleapis.com/v1/",
+	CustomEndpointField:  "looker_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_LOOKER_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "looker",
-		BaseUrl: "https://looker.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

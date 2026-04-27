@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "identityplatform"
+var Product = registry.Product{
+	Name:                 "identityplatform",
+	BaseUrl:              "https://identitytoolkit.googleapis.com/v2/",
+	CustomEndpointField:  "identity_platform_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_IDENTITY_PLATFORM_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "identityplatform",
-		BaseUrl: "https://identitytoolkit.googleapis.com/v2/",
-	}.Register()
+	Product.Register()
 }

@@ -58,6 +58,40 @@ func TestAccClouddeployCustomTargetType_update(t *testing.T) {
 	})
 }
 
+func TestAccClouddeployCustomTargetType_tasks(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckClouddeployCustomTargetTypeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccClouddeployCustomTargetType_tasks(context),
+			},
+			{
+				ResourceName:            "google_clouddeploy_custom_target_type.custom-target-type",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccClouddeployCustomTargetType_tasksUpdate(context),
+			},
+			{
+				ResourceName:            "google_clouddeploy_custom_target_type.custom-target-type",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccClouddeployCustomTargetType_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_clouddeploy_custom_target_type" "custom-target-type" {
@@ -102,6 +136,56 @@ resource "google_clouddeploy_custom_target_type" "custom-target-type" {
           repository = "projects/example/locations/us-central1/connections/git/repositories/example-repo"
           path = "configs/skaffold.yaml"
           ref = "main"
+        }
+      }
+    }
+}
+`, context)
+}
+
+func testAccClouddeployCustomTargetType_tasks(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_clouddeploy_custom_target_type" "custom-target-type" {
+    location = "us-central1"
+    name = "tf-test-my-custom-target-type%{random_suffix}"
+    description = "My custom target type"
+    tasks {
+      render {
+        container {
+          image = "gcr.io/my-project/my-render-image"
+        }
+      }
+      deploy {
+        container {
+          image = "gcr.io/my-project/my-deploy-image"
+        }
+      }
+    }
+}
+`, context)
+}
+
+func testAccClouddeployCustomTargetType_tasksUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_clouddeploy_custom_target_type" "custom-target-type" {
+    location = "us-central1"
+    name = "tf-test-my-custom-target-type%{random_suffix}"
+    description = "My custom target type updated"
+    tasks {
+      render {
+        container {
+          image = "gcr.io/my-project/my-render-image"
+          command = ["/bin/render"]
+          args = ["--arg1", "val1"]
+          env = {
+            ENV_VAR = "val"
+          }
+        }
+      }
+      deploy {
+        container {
+          image = "gcr.io/my-project/my-deploy-image"
+          command = ["/bin/deploy"]
         }
       }
     }

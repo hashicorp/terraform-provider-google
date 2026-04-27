@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -145,4 +146,13 @@ func resourceContainerRegistryRead(d *schema.ResourceData, meta interface{}) err
 func resourceContainerRegistryDelete(d *schema.ResourceData, meta interface{}) error {
 	// Don't delete the backing bucket as this is not a supported GCR action
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_container_registry",
+		ProductName: "containeranalysis",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceContainerRegistry(),
+	}.Register()
 }

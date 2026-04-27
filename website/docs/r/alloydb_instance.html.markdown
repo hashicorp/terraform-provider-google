@@ -344,6 +344,10 @@ The following arguments are supported:
   (Optional)
   Track actively running queries. If not set, default value is "off".
 
+* `track_client_address` -
+  (Optional)
+  Track client address for an instance. If not set, default value is "off".
+
 * `assistive_experiences_enabled` -
   (Optional)
   Whether assistive experiences are enabled for this AlloyDB instance.
@@ -571,6 +575,18 @@ Instance can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{cluster}}/{{instance_id}}`
 * `{{location}}/{{cluster}}/{{instance_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Instance using identity values. For example:
+
+```tf
+import {
+  identity = {
+    cluster = "<-required value->"
+    instanceId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_alloydb_instance.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Instance using one of the formats above. For example:
 

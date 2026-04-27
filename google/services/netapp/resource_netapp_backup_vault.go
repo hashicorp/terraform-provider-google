@@ -119,6 +119,29 @@ func ResourceNetappBackupVault() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -184,6 +207,13 @@ func ResourceNetappBackupVault() *schema.Resource {
 				Optional:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"kms_config": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Specifies the Key Management System (KMS) configuration to be used for
+backup encryption. Format:
+'projects/{{project}}/locations/{{location}}/kmsConfigs/{{kms_config}}'`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -193,6 +223,13 @@ func ResourceNetappBackupVault() *schema.Resource {
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"backups_crypto_key_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The crypto key version used to encrypt the backup vault.
+Format:
+'projects/{{project}}/locations/{{location}}/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}/cryptoKeyVersions/{{crypto_key_version}}'`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -209,6 +246,11 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Computed:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"encryption_state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Encryption state of customer-managed encryption keys (CMEK) backups.`,
 			},
 			"source_backup_vault": {
 				Type:        schema.TypeString,
@@ -287,6 +329,12 @@ func resourceNetappBackupVaultCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("backup_retention_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupRetentionPolicyProp)) && (ok || !reflect.DeepEqual(v, backupRetentionPolicyProp)) {
 		obj["backupRetentionPolicy"] = backupRetentionPolicyProp
 	}
+	kmsConfigProp, err := expandNetappBackupVaultKmsConfig(d.Get("kms_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsConfigProp)) && (ok || !reflect.DeepEqual(v, kmsConfigProp)) {
+		obj["kmsConfig"] = kmsConfigProp
+	}
 	effectiveLabelsProp, err := expandNetappBackupVaultEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -346,6 +394,27 @@ func resourceNetappBackupVaultCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Finished creating BackupVault %q: %#v", d.Id(), res)
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
 
 	return resourceNetappBackupVaultRead(d, meta)
 }
@@ -437,11 +506,44 @@ func resourceNetappBackupVaultRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("backup_retention_policy", flattenNetappBackupVaultBackupRetentionPolicy(res["backupRetentionPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupVault: %s", err)
 	}
+	if err := d.Set("kms_config", flattenNetappBackupVaultKmsConfig(res["kmsConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err := d.Set("encryption_state", flattenNetappBackupVaultEncryptionState(res["encryptionState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err := d.Set("backups_crypto_key_version", flattenNetappBackupVaultBackupsCryptoKeyVersion(res["backupsCryptoKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetappBackupVaultTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupVault: %s", err)
 	}
 	if err := d.Set("effective_labels", flattenNetappBackupVaultEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil
@@ -465,6 +567,26 @@ func resourceNetappBackupVaultUpdate(d *schema.ResourceData, meta interface{}) e
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
@@ -500,6 +622,12 @@ func resourceNetappBackupVaultUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("backup_retention_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backupRetentionPolicyProp)) {
 		obj["backupRetentionPolicy"] = backupRetentionPolicyProp
 	}
+	kmsConfigProp, err := expandNetappBackupVaultKmsConfig(d.Get("kms_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kmsConfigProp)) {
+		obj["kmsConfig"] = kmsConfigProp
+	}
 	effectiveLabelsProp, err := expandNetappBackupVaultEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -530,6 +658,10 @@ func resourceNetappBackupVaultUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("backup_retention_policy") {
 		updateMask = append(updateMask, "backupRetentionPolicy")
+	}
+
+	if d.HasChange("kms_config") {
+		updateMask = append(updateMask, "kmsConfig")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -762,6 +894,18 @@ func flattenNetappBackupVaultBackupRetentionPolicyManualBackupImmutable(v interf
 	return v
 }
 
+func flattenNetappBackupVaultKmsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupVaultEncryptionState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupVaultBackupsCryptoKeyVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappBackupVaultTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -860,6 +1004,10 @@ func expandNetappBackupVaultBackupRetentionPolicyMonthlyBackupImmutable(v interf
 }
 
 func expandNetappBackupVaultBackupRetentionPolicyManualBackupImmutable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappBackupVaultKmsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

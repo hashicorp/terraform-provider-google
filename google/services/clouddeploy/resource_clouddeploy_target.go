@@ -27,6 +27,7 @@ import (
 
 	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -1188,4 +1189,13 @@ func expandClouddeployTargetExecutionConfigsUsagesArray(o interface{}) []TargetE
 		items = append(items, *i)
 	}
 	return items
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_clouddeploy_target",
+		ProductName: "clouddeploy",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceClouddeployTarget(),
+	}.Register()
 }

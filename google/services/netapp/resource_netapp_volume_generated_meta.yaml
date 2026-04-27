@@ -64,6 +64,7 @@ fields:
     - api_field: kmsConfig
     - api_field: labels
     - api_field: largeCapacity
+    - api_field: largeCapacityConfig.constituentCount
     - api_field: ldapEnabled
     - field: location
       provider_only: true

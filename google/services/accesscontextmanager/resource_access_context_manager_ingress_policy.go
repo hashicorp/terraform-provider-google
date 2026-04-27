@@ -112,6 +112,25 @@ func ResourceAccessContextManagerIngressPolicy() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"resource": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"ingress_policy_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"ingress_policy_name": {
 				Type:             schema.TypeString,
@@ -232,6 +251,22 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 
 	log.Printf("[DEBUG] Finished creating IngressPolicy %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if resourceValue, ok := d.GetOk("resource"); ok && resourceValue.(string) != "" {
+			if err = identity.Set("resource", resourceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
+		}
+		if ingressPolicyNameValue, ok := d.GetOk("ingress_policy_name"); ok && ingressPolicyNameValue.(string) != "" {
+			if err = identity.Set("ingress_policy_name", ingressPolicyNameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting ingress_policy_name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceAccessContextManagerIngressPolicyRead(d, meta)
 }
 
@@ -299,6 +334,24 @@ func resourceAccessContextManagerIngressPolicyRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading IngressPolicy: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("resource"); !ok && v == "" {
+			err = identity.Set("resource", d.Get("resource").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("ingress_policy_name"); !ok && v == "" {
+			err = identity.Set("ingress_policy_name", d.Get("ingress_policy_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting ingress_policy_name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -341,6 +394,7 @@ func resourceAccessContextManagerIngressPolicyDelete(d *schema.ResourceData, met
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "IngressPolicy")
 	}
+
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
 	if err != nil {
 		return err

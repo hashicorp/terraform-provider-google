@@ -113,6 +113,21 @@ func ResourceApigeeEnvironmentAddonsConfig() *schema.Resource {
 			Delete: schema.DefaultTimeout(0 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"env_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"env_id": {
 				Type:     schema.TypeString,
@@ -193,6 +208,17 @@ func resourceApigeeEnvironmentAddonsConfigCreate(d *schema.ResourceData, meta in
 
 	log.Printf("[DEBUG] Finished creating EnvironmentAddonsConfig %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if envIdValue, ok := d.GetOk("env_id"); ok && envIdValue.(string) != "" {
+			if err = identity.Set("env_id", envIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting env_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceApigeeEnvironmentAddonsConfigRead(d, meta)
 }
 
@@ -246,6 +272,18 @@ func resourceApigeeEnvironmentAddonsConfigRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading EnvironmentAddonsConfig: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("env_id"); !ok && v == "" {
+			err = identity.Set("env_id", d.Get("env_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting env_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -255,6 +293,16 @@ func resourceApigeeEnvironmentAddonsConfigUpdate(d *schema.ResourceData, meta in
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if envIdValue, ok := d.GetOk("env_id"); ok && envIdValue.(string) != "" {
+			if err = identity.Set("env_id", envIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting env_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
@@ -343,6 +391,10 @@ func expandApigeeEnvironmentAddonsConfigAnalyticsEnabled(v interface{}, d tpgres
 }
 
 func resourceApigeeEnvironmentAddonsConfigDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	res["analyticsEnabled"] = res["analyticsConfig"].(map[string]interface{})["enabled"]
+	if analyticsConfig, ok := res["analyticsConfig"].(map[string]interface{}); ok {
+		res["analyticsEnabled"] = analyticsConfig["enabled"]
+	} else {
+		res["analyticsEnabled"] = false
+	}
 	return res, nil
 }

@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -123,4 +124,31 @@ func (u *KmsCryptoKeyIamUpdater) GetMutexKey() string {
 
 func (u *KmsCryptoKeyIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("KMS CryptoKey %q", u.resourceId)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_kms_crypto_key_iam_member",
+		ProductName: "kms",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_kms_crypto_key_iam_binding",
+		ProductName: "kms",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_kms_crypto_key_iam_policy",
+		ProductName: "kms",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_kms_crypto_key_iam_policy",
+		ProductName: "kms",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater),
+	}.Register()
 }

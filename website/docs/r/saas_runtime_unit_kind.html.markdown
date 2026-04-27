@@ -14,7 +14,7 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
-subcategory: "SaaS Runtime"
+subcategory: "App Lifecycle Manager (SaaS Runtime)"
 description: |-
   A UnitKind serves as a template or type definition for a group of Units.
 ---
@@ -80,7 +80,7 @@ The following arguments are supported:
 * `saas` -
   (Required)
   A reference to the Saas that defines the product (managed service) that
-  the producer wants to manage with SaaS Runtime. Part of the SaaS Runtime
+  the producer wants to manage with App Lifecycle Manager. Part of the App Lifecycle Manager
   common data model. Immutable once set.
 
 * `location` -
@@ -190,7 +190,7 @@ The following arguments are supported:
 
 * `ignore_for_lookup` -
   (Optional)
-  Tells SaaS Runtime if this mapping should be used during lookup or not
+  Tells App Lifecycle Manager if this mapping should be used during lookup or not
 
 * `input_variable` -
   (Required)
@@ -231,7 +231,7 @@ The following arguments are supported:
 
 * `ignore_for_lookup` -
   (Optional)
-  Tells SaaS Runtime if this mapping should be used during lookup or not
+  Tells App Lifecycle Manager if this mapping should be used during lookup or not
 
 * `input_variable` -
   (Required)
@@ -297,6 +297,18 @@ UnitKind can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{unit_kind_id}}`
 * `{{location}}/{{unit_kind_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import UnitKind using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    unitKindId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_saas_runtime_unit_kind.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import UnitKind using one of the formats above. For example:
 

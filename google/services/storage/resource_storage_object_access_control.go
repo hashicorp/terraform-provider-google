@@ -113,6 +113,29 @@ func ResourceStorageObjectAccessControl() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"bucket": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"entity": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"object": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"bucket": {
 				Type:             schema.TypeString,
@@ -279,6 +302,27 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Finished creating ObjectAccessControl %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if bucketValue, ok := d.GetOk("bucket"); ok && bucketValue.(string) != "" {
+			if err = identity.Set("bucket", bucketValue.(string)); err != nil {
+				return fmt.Errorf("Error setting bucket: %s", err)
+			}
+		}
+		if entityValue, ok := d.GetOk("entity"); ok && entityValue.(string) != "" {
+			if err = identity.Set("entity", entityValue.(string)); err != nil {
+				return fmt.Errorf("Error setting entity: %s", err)
+			}
+		}
+		if objectValue, ok := d.GetOk("object"); ok && objectValue.(string) != "" {
+			if err = identity.Set("object", objectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting object: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceStorageObjectAccessControlRead(d, meta)
 }
 
@@ -358,6 +402,30 @@ func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("bucket"); !ok && v == "" {
+			err = identity.Set("bucket", d.Get("bucket").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting bucket: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("entity"); !ok && v == "" {
+			err = identity.Set("entity", d.Get("entity").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting entity: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("object"); !ok && v == "" {
+			err = identity.Set("object", d.Get("object").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting object: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -379,6 +447,26 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if bucketValue, ok := d.GetOk("bucket"); ok && bucketValue.(string) != "" {
+			if err = identity.Set("bucket", bucketValue.(string)); err != nil {
+				return fmt.Errorf("Error setting bucket: %s", err)
+			}
+		}
+		if entityValue, ok := d.GetOk("entity"); ok && entityValue.(string) != "" {
+			if err = identity.Set("entity", entityValue.(string)); err != nil {
+				return fmt.Errorf("Error setting entity: %s", err)
+			}
+		}
+		if objectValue, ok := d.GetOk("object"); ok && objectValue.(string) != "" {
+			if err = identity.Set("object", objectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting object: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

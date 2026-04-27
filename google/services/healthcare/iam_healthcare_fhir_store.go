@@ -19,6 +19,7 @@ package healthcare
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -124,4 +125,31 @@ func (u *HealthcareFhirStoreIamUpdater) GetMutexKey() string {
 
 func (u *HealthcareFhirStoreIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("Healthcare FhirStore %q", u.resourceId)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_healthcare_fhir_store_iam_member",
+		ProductName: "healthcare",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamHealthcareFhirStoreSchema, NewHealthcareFhirStoreIamUpdater, FhirStoreIdParseFunc, tpgiamresource.IamWithBatching),
+	}.Register()
+	registry.Schema{
+		Name:        "google_healthcare_fhir_store_iam_binding",
+		ProductName: "healthcare",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamHealthcareFhirStoreSchema, NewHealthcareFhirStoreIamUpdater, FhirStoreIdParseFunc, tpgiamresource.IamWithBatching),
+	}.Register()
+	registry.Schema{
+		Name:        "google_healthcare_fhir_store_iam_policy",
+		ProductName: "healthcare",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamHealthcareFhirStoreSchema, NewHealthcareFhirStoreIamUpdater, FhirStoreIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_healthcare_fhir_store_iam_policy",
+		ProductName: "healthcare",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamHealthcareFhirStoreSchema, NewHealthcareFhirStoreIamUpdater),
+	}.Register()
 }

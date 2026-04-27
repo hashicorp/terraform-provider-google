@@ -42,12 +42,12 @@ To get more information about NodeGroup, see:
 resource "google_compute_node_template" "soletenant-tmpl" {
   name      = "soletenant-tmpl"
   region    = "us-central1"
-  node_type = "n1-node-96-624"
+  node_type = "c2-node-60-240"
 }
 
 resource "google_compute_node_group" "nodes" {
   name        = "soletenant-group"
-  zone        = "us-central1-f"
+  zone        = "us-central1-c"
   description = "example google_compute_node_group for Terraform Google Provider"
 
   initial_size          = 1
@@ -73,7 +73,7 @@ resource "google_compute_node_template" "soletenant-tmpl" {
 resource "google_compute_node_group" "nodes" {
   provider    = google-beta
   name        = "soletenant-group"
-  zone        = "us-central1-a"
+  zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
 
   initial_size          = 1
@@ -94,7 +94,7 @@ resource "google_compute_node_group" "nodes" {
 resource "google_compute_node_template" "soletenant-tmpl" {
   name      = "soletenant-tmpl"
   region    = "us-central1"
-  node_type = "n1-node-96-624"
+  node_type = "c2-node-60-240"
 }
 
 resource "google_compute_node_group" "nodes" {
@@ -128,7 +128,7 @@ resource "google_project" "guest_project" {
 resource "google_compute_node_template" "soletenant-tmpl" {
   name      = "soletenant-tmpl"
   region    = "us-central1"
-  node_type = "n1-node-96-624"
+  node_type = "c2-node-60-240"
 }
 
 resource "google_compute_node_group" "nodes" {
@@ -296,6 +296,18 @@ NodeGroup can be imported using any of these accepted formats:
 * `{{zone}}/{{name}}`
 * `{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import NodeGroup using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-required value->"
+    zone = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_compute_node_group.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import NodeGroup using one of the formats above. For example:
 

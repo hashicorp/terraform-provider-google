@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -51,6 +52,23 @@ func ResourceGoogleServiceAccount() *schema.Resource {
 			resourceServiceAccountCustomDiff,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
+
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"email": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"email": {
 				Type:        schema.TypeString,
@@ -264,7 +282,10 @@ func populateResourceData(d *schema.ResourceData, sa *iam.ServiceAccount, config
 		return err
 	}
 	//UDP default read end
-	return nil
+	return tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"email":   sa.Email,
+		"project": sa.ProjectId,
+	})
 }
 
 func resourceGoogleServiceAccountDelete(d *schema.ResourceData, meta interface{}) error {
@@ -352,7 +373,10 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 	// time to ensure following reads are correct.
 	time.Sleep(time.Second * 5)
 
-	return nil
+	return tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"email":   sa.Email,
+		"project": sa.ProjectId,
+	})
 }
 
 func resourceGoogleServiceAccountImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
@@ -403,4 +427,13 @@ func resourceServiceAccountCustomDiff(_ context.Context, diff *schema.ResourceDi
 
 	// separate func to allow unit testing
 	return ResourceServiceAccountCustomDiffFunc(diff)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_service_account",
+		ProductName: "resourcemanager",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceGoogleServiceAccount(),
+	}.Register()
 }

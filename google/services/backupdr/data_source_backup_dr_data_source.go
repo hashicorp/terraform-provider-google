@@ -21,6 +21,7 @@ import (
 	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -795,4 +796,22 @@ func copySchemaMap(m map[string]*schema.Schema) map[string]*schema.Schema {
 		newMap[k] = v
 	}
 	return newMap
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_backup_dr_data_source",
+		ProductName: "backupdr",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleCloudBackupDRDataSource(),
+	}.Register()
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_backup_dr_data_sources",
+		ProductName: "backupdr",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleCloudBackupDRDataSources(),
+	}.Register()
 }

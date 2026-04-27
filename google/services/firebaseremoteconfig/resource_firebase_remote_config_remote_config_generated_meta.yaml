@@ -1,0 +1,59 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_firebase_remote_config_remote_config
+generation_type: mmv1
+source_file: products/firebaseremoteconfig/RemoteConfig.yaml
+api_service_name: firebaseremoteconfig.googleapis.com
+api_version: v1
+api_resource_type_kind: RemoteConfig
+autogen_status: true
+fields:
+    - api_field: conditions.expression
+    - api_field: conditions.name
+    - api_field: conditions.tagColor
+    - api_field: name
+    - api_field: parameterGroups.key
+      field: parameter_groups.parameter_group_name
+    - api_field: parameterGroups.value.description
+      field: parameter_groups.description
+    - api_field: parameterGroups.value.parameters.key
+      field: parameter_groups.parameters.parameter_name
+    - api_field: parameterGroups.value.parameters.value.conditionalValues.key
+      field: parameter_groups.parameters.conditional_values.condition_name
+    - api_field: parameterGroups.value.parameters.value.conditionalValues.value.useInAppDefault
+      field: parameter_groups.parameters.conditional_values.use_in_app_default
+    - api_field: parameterGroups.value.parameters.value.conditionalValues.value.value
+      field: parameter_groups.parameters.conditional_values.value
+    - api_field: parameterGroups.value.parameters.value.defaultValue.useInAppDefault
+      field: parameter_groups.parameters.default_value.use_in_app_default
+    - api_field: parameterGroups.value.parameters.value.defaultValue.value
+      field: parameter_groups.parameters.default_value.value
+    - api_field: parameterGroups.value.parameters.value.description
+      field: parameter_groups.parameters.description
+    - api_field: parameterGroups.value.parameters.value.valueType
+      field: parameter_groups.parameters.value_type
+    - api_field: parameters.key
+      field: parameters.parameter_name
+    - api_field: parameters.value.conditionalValues.key
+      field: parameters.conditional_values.condition_name
+    - api_field: parameters.value.conditionalValues.value.useInAppDefault
+      field: parameters.conditional_values.use_in_app_default
+    - api_field: parameters.value.conditionalValues.value.value
+      field: parameters.conditional_values.value
+    - api_field: parameters.value.defaultValue.useInAppDefault
+      field: parameters.default_value.use_in_app_default
+    - api_field: parameters.value.defaultValue.value
+      field: parameters.default_value.value
+    - api_field: parameters.value.description
+      field: parameters.description
+    - api_field: parameters.value.valueType
+      field: parameters.value_type
+    - api_field: version.isLegacy
+    - api_field: version.rollbackSource
+    - api_field: version.updateOrigin
+    - api_field: version.updateTime
+    - api_field: version.updateType
+    - api_field: version.updateUser.email
+    - api_field: version.updateUser.imageUrl
+    - api_field: version.updateUser.name
+    - api_field: version.versionNumber

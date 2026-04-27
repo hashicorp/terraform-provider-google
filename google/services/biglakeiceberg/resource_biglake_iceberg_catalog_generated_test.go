@@ -74,6 +74,12 @@ func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "primary_location"},
 			},
+			{
+				ResourceName:       "google_biglake_iceberg_catalog.my_iceberg_catalog",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -130,6 +136,12 @@ func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogPrimaryLocationExa
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "primary_location"},
+			},
+			{
+				ResourceName:       "google_biglake_iceberg_catalog.my_iceberg_catalog",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

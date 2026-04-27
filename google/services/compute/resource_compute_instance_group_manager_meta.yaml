@@ -56,6 +56,7 @@ fields:
   - api_field: 'status.versionTarget.isReached'
   - api_field: 'targetPools'
   - api_field: 'targetSize'
+  - api_field: 'targetSizePolicy.mode'
   - api_field: 'targetStoppedSize'
   - api_field: 'targetSuspendedSize'
   - api_field: 'updatePolicy.maxSurge.fixed'

@@ -98,7 +98,7 @@ resource "google_ces_agent" "ces_base_agent" {
     instruction = "You are a helpful assistant for this example."
 
     model_settings {
-        model       = "gemini-2.5-flash"
+        model       = "gemini-2.5-flash-001"
         temperature = 0.5
     }
 
@@ -115,7 +115,7 @@ resource "google_ces_agent" "ces_child_agent" {
     instruction = "You are a helpful assistant for this example."
 
     model_settings {
-        model       = "gemini-2.5-flash"
+        model       = "gemini-2.5-flash-001"
         temperature = 0.5
     }
 
@@ -444,6 +444,19 @@ Example can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{app}}/{{name}}`
 * `{{location}}/{{app}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Example using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-optional value->"
+    location = "<-required value->"
+    app = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_ces_example.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Example using one of the formats above. For example:
 

@@ -18,6 +18,8 @@ package sql
 
 import (
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func TestMaintenanceVersionDiffSuppress(t *testing.T) {
@@ -48,6 +50,104 @@ func TestMaintenanceVersionDiffSuppress(t *testing.T) {
 			t.Parallel()
 			if maintenanceVersionDiffSuppress("version", tc.Old, tc.New, nil) != tc.ShouldSuppress {
 				t.Fatalf("%q => %q expect DiffSuppress to return %t", tc.Old, tc.New, tc.ShouldSuppress)
+			}
+		})
+	}
+}
+
+func TestEntraidDiffSuppressFunc(t *testing.T) {
+	cases := map[string]struct {
+		K              string
+		Old, New       string
+		AppData        map[string]interface{}
+		ShouldSuppress bool
+	}{
+		"suppress when new is 1, old is 0, and app and tenant id are empty": {
+			K:   "settings.0.entraid_config.#",
+			Old: "0",
+			New: "1",
+			AppData: map[string]interface{}{
+				"settings": []interface{}{map[string]interface{}{"entraid_config": []interface{}{map[string]interface{}{"application_id": "", "tenant_id": ""}}}},
+			},
+			ShouldSuppress: true,
+		},
+		"do not suppress when key does not match": {
+			K:   "settings.0.other_config.#",
+			Old: "0",
+			New: "1",
+			AppData: map[string]interface{}{
+				"settings": []interface{}{map[string]interface{}{"entraid_config": []interface{}{map[string]interface{}{"application_id": "", "tenant_id": ""}}}},
+			},
+			ShouldSuppress: false,
+		},
+		"do not suppress when old is not 0": {
+			K:   "settings.0.entraid_config.#",
+			Old: "1",
+			New: "1",
+			AppData: map[string]interface{}{
+				"settings": []interface{}{map[string]interface{}{"entraid_config": []interface{}{map[string]interface{}{"application_id": "", "tenant_id": ""}}}},
+			},
+			ShouldSuppress: false,
+		},
+		"do not suppress when new is not 1": {
+			K:   "settings.0.entraid_config.#",
+			Old: "0",
+			New: "0",
+			AppData: map[string]interface{}{
+				"settings": []interface{}{map[string]interface{}{"entraid_config": []interface{}{map[string]interface{}{"application_id": "", "tenant_id": ""}}}},
+			},
+			ShouldSuppress: false,
+		},
+		"do not suppress when application_id is not empty": {
+			K:   "settings.0.entraid_config.#",
+			Old: "0",
+			New: "1",
+			AppData: map[string]interface{}{
+				"settings": []interface{}{map[string]interface{}{"entraid_config": []interface{}{map[string]interface{}{"application_id": "some-id", "tenant_id": ""}}}},
+			},
+			ShouldSuppress: false,
+		},
+		"do not suppress when tenant_id is not empty": {
+			K:   "settings.0.entraid_config.#",
+			Old: "0",
+			New: "1",
+			AppData: map[string]interface{}{
+				"settings": []interface{}{map[string]interface{}{"entraid_config": []interface{}{map[string]interface{}{"application_id": "", "tenant_id": "some-id"}}}},
+			},
+			ShouldSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			rd := schema.TestResourceDataRaw(t, map[string]*schema.Schema{
+				"settings": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"entraid_config": {
+								Type:     schema.TypeList,
+								Optional: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"application_id": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+										"tenant_id": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			}, tc.AppData)
+			if entraidDiffSuppressFunc(tc.K, tc.Old, tc.New, rd) != tc.ShouldSuppress {
+				t.Errorf("Expected DiffSuppress to return %t for key=%q, old=%q, new=%q", tc.ShouldSuppress, tc.K, tc.Old, tc.New)
 			}
 		})
 	}

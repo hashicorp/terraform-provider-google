@@ -19,6 +19,7 @@ package bigtable
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -159,4 +160,31 @@ func bigtableToResourceManagerPolicy(p *bigtableadmin.Policy) (*cloudresourceman
 		return nil, errwrap.Wrapf("Cannot convert a cloudresourcemanager policy to a bigtable policy: {{err}}", err)
 	}
 	return out, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_bigtable_instance_iam_binding",
+		ProductName: "bigtable",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_bigtable_instance_iam_member",
+		ProductName: "bigtable",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_bigtable_instance_iam_policy",
+		ProductName: "bigtable",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_bigtable_instance_iam_policy",
+		ProductName: "bigtable",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(IamBigtableInstanceSchema, NewBigtableInstanceUpdater),
+	}.Register()
 }

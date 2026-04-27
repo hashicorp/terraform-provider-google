@@ -79,6 +79,12 @@ func TestAccDialogflowVersion_dialogflowVersionFullExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
+			{
+				ResourceName:       "google_dialogflow_version.full_version",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -101,11 +107,6 @@ resource "time_sleep" "wait_enable_service_api" {
     google_project_service.dialogflow
   ]
   create_duration = "30s"
-}
-resource "google_project_service_identity" "gcp_sa" {
-  service    = "dialogflow.googleapis.com"
-  project    = google_project.project.project_id
-  depends_on = [time_sleep.wait_enable_service_api]
 }
 resource "google_dialogflow_agent" "basic_agent" {
   display_name = "example_agent"

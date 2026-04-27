@@ -33,11 +33,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/mitchellh/hashstructure"
-
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
+	"github.com/mitchellh/hashstructure"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -3349,6 +3349,7 @@ func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
+
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
@@ -3766,4 +3767,13 @@ func updateDisk(d *schema.ResourceData, config *transport_tpg.Config, userAgent,
 		return err
 	}
 	return nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_instance",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceComputeInstance(),
+	}.Register()
 }

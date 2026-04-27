@@ -75,6 +75,12 @@ func TestAccBackupDRBackupPlan_backupDrBackupPlanSimpleExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backup_plan_id", "location"},
 			},
+			{
+				ResourceName:       "google_backup_dr_backup_plan.my-backup-plan-1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -137,6 +143,12 @@ func TestAccBackupDRBackupPlan_backupDrBackupPlanForDiskResourceExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backup_plan_id", "location"},
+			},
+			{
+				ResourceName:       "google_backup_dr_backup_plan.my-disk-backup-plan-1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -204,6 +216,12 @@ func TestAccBackupDRBackupPlan_backupDrBackupPlanForCsqlResourceExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backup_plan_id", "location"},
 			},
+			{
+				ResourceName:       "google_backup_dr_backup_plan.my-csql-backup-plan-1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -266,6 +284,12 @@ func TestAccBackupDRBackupPlan_backupDrBackupPlanForFilestoreResourceExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backup_plan_id", "location"},
+			},
+			{
+				ResourceName:       "google_backup_dr_backup_plan.my-filestore-backup-plan-1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

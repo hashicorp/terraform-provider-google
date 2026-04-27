@@ -46,7 +46,7 @@ func testAccDataSourceGoogleProjectOrganizationPolicy_basic(project string) stri
 	return fmt.Sprintf(`
 resource "google_project_organization_policy" "resource" {
   project    = "%s"
-  constraint = "constraints/compute.trustedImageProjects"
+  constraint = "constraints/cloudscheduler.allowedTargetTypes"
 
   list_policy {
     allow {
@@ -57,7 +57,7 @@ resource "google_project_organization_policy" "resource" {
 
 data "google_project_organization_policy" "data" {
   project    = google_project_organization_policy.resource.project
-  constraint = "constraints/compute.trustedImageProjects"
+  constraint = "constraints/cloudscheduler.allowedTargetTypes"
 }
 `, project)
 }

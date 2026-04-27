@@ -80,6 +80,12 @@ func TestAccFirestoreDocument_firestoreDocumentBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database", "document_id"},
 			},
+			{
+				ResourceName:       "google_firestore_document.mydoc",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -155,6 +161,12 @@ func TestAccFirestoreDocument_firestoreDocumentNestedDocumentExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database", "document_id"},
+			},
+			{
+				ResourceName:       "google_firestore_document.mydoc",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

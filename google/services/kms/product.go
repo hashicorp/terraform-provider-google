@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "kms"
+var Product = registry.Product{
+	Name:                 "kms",
+	BaseUrl:              "https://cloudkms.googleapis.com/v1/",
+	CustomEndpointField:  "kms_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_KMS_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "kms",
-		BaseUrl: "https://cloudkms.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

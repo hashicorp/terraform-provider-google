@@ -77,6 +77,12 @@ func TestAccComputeRouterRoutePolicy_routerRoutePolicyExportExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "router"},
 			},
+			{
+				ResourceName:       "google_compute_router_route_policy.rp-export",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -145,6 +151,12 @@ func TestAccComputeRouterRoutePolicy_routerRoutePolicyImportExample(t *testing.T
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "router"},
+			},
+			{
+				ResourceName:       "google_compute_router_route_policy.rp-import",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -20,6 +20,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -54,4 +55,13 @@ func dataSourceGoogleStorageBucketRead(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
 
 	return setStorageBucket(d, config, res, bucket, userAgent)
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_storage_bucket",
+		ProductName: "storage",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleStorageBucket(),
+	}.Register()
 }

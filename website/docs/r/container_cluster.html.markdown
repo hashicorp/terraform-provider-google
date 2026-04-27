@@ -154,6 +154,9 @@ Autopilot clusters. See the Cluster API's
 [PrivilegedAdmissionConfig](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters#privilegedadmissionconfig)
 documentation for more details.
 
+* `autopilot_cluster_policy_config` - (Optional)
+Per-cluster configuration of Autopilot cluster policies in GKE clusters. This field can only be configured in non Autopilot clusters. Structure is [documented below](#nested_autopilot_cluster_policy_config).
+
 * `cluster_ipv4_cidr` - (Optional) The IP address range of the Kubernetes pods
 in this cluster in CIDR notation (e.g. `10.96.0.0/14`). Leave blank to have one
 automatically chosen or specify a `/14` block in `10.0.0.0/8`. This field will
@@ -232,6 +235,8 @@ Options are `VPC_NATIVE` or `ROUTES`. `VPC_NATIVE` enables [IP aliasing](https:/
     [documented below](#nested_maintenance_policy).
 
 * `managed_opentelemetry_config` - (Optional, [Beta](../guides/provider_versions.html.markdown)) Configuration for the [GKE Managed OpenTelemetry](https://docs.cloud.google.com/kubernetes-engine/docs/concepts/managed-otel-gke) feature. Structure is [documented below](#nested_managed_opentelemetry_config).
+
+* `managed_machine_learning_diagnostics_config` - (Optional, [Beta](../guides/provider_versions.html.markdown)) Configuration for the [GKE Managed ML Diagnostics](https://docs.cloud.google.com/kubernetes-engine/docs/concepts/TODO) feature. Structure is [documented below](#nested_managed_ml_diagnostics_config).
 
 * `master_auth` - (Optional) The authentication information for accessing the
 Kubernetes master. Some values in this block are only returned by the API if
@@ -558,10 +563,11 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
    which allows the usage of a Lustre instances as volumes.
    It is disabled by default for Standard clusters; set `enabled = true` to enable.
    It is disabled by default for Autopilot clusters; set `enabled = true` to enable.
-   Lustre CSI Driver Config has optional subfield
-   `enable_legacy_lustre_port` which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988. 
-   This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
    See [Enable Lustre CSI driver](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/lustre-csi-driver-new-volume) for more information.
+   Lustre CSI Driver Config has optional subfields:
+   * `enable_legacy_lustre_port` which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988. 
+   This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
+   * `disable_multi_nic` When set to true, this disables multi-NIC support for the Lustre CSI driver. By default, GKE enables multi-NIC support, which allows the Lustre CSI driver to automatically detect and configure all suitable network interfaces on a node to maximize I/O performance for demanding workloads.
 
 * `pod_snapshot_config` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The status of the Pod Snapshot addon. It is disabled by default. Set `enabled = true` to enable.
 
@@ -735,6 +741,10 @@ This block also contains several computed attributes, documented below.
 <a name="nested_managed_opentelemetry_config"></a>The `managed_opentelemetry_config` block supports:
 
 *  `scope` - (Required) The scope of the Managed OpenTelemetry pipeline. Supported values include: `SCOPE_UNSPECIFIED`, `NONE`, `COLLECTION_AND_INSTRUMENTATION_COMPONENTS`.
+
+<a name="nested_managed_ml_diagnostics_config"></a>The `managed_machine_learning_diagnostics_config` block supports:
+
+* `enabled` - (Required) Whether or not the managed ML diagnostics feature is enabled. To disable the feature, explicitly set this to `false`.
 
 <a name="nested_managed_prometheus"></a>The `managed_prometheus` block supports:
 
@@ -1680,6 +1690,40 @@ linux_node_config {
 
 * `node_kernel_module_loading` - (Optional) Settings for kernel module loading. Structure is [documented below](#nested_node_kernel_module_loading_config).
 
+* `swap_config` - (Optional) Swap configuration for the node. Structure is [documented below](#nested_swap_config).
+
+<a name="nested_swap_config"></a>The `swap_config` block supports:
+
+* `enabled` - (Optional) Enables or disables swap for the node pool.
+
+* `boot_disk_profile` - (Optional) Swap on the node's boot disk. Structure is [documented below](#nested_boot_disk_profile).
+
+* `dedicated_local_ssd_profile` - (Optional) Provisions a new, separate local NVMe SSD exclusively for swap. Structure is [documented below](#nested_dedicated_local_ssd_profile).
+
+* `ephemeral_local_ssd_profile` - (Optional) Swap on the local SSD shared with pod ephemeral storage. Structure is [documented below](#nested_ephemeral_local_ssd_profile).
+
+* `encryption_config` - (Optional) If omitted, swap space is encrypted by default. Structure is [documented below](#nested_encryption_config).
+
+<a name="nested_boot_disk_profile"></a>The `boot_disk_profile` block supports:
+
+* `swap_size_gib` - (Optional) Specifies the size of the swap space in gibibytes (GiB).
+
+* `swap_size_percent` - (Optional) Specifies the size of the swap space as a percentage of the boot disk size.
+
+<a name="nested_dedicated_local_ssd_profile"></a>The `dedicated_local_ssd_profile` block supports:
+
+* `disk_count` - (Optional) The number of physical local NVMe SSD disks to attach.
+
+<a name="nested_ephemeral_local_ssd_profile"></a>The `ephemeral_local_ssd_profile` block supports:
+
+* `swap_size_gib` - (Optional) Specifies the size of the swap space in gibibytes (GiB).
+
+* `swap_size_percent` - (Optional) Specifies the size of the swap space as a percentage of the ephemeral local SSD capacity.
+
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+
+* `disabled` - (Optional) If true, swap space will not be encrypted. Defaults to false (encrypted).
+
 <a name="nested_hugepages_config"></a>The `hugepages_config` block supports:
 
 * `hugepage_size_2m` - (Optional) Amount of 2M hugepages.
@@ -1828,6 +1872,13 @@ registry_hosts {
 
 * `enable_insecure_binding_system_unauthenticated` - (Optional) Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:anonymous or system:unauthenticated.
 * `enable_insecure_binding_system_authenticated` - (Optional) Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:authenticated.
+
+<a name="nested_autopilot_cluster_policy_config"></a>The `autopilot_cluster_policy_config` block supports:
+
+* `no_system_mutation` - (Optional) Whether to block mutation of resources in system namespaces and non-namespaced system resources.
+* `no_system_impersonation` - (Optional) Whether to block impersonation of system accounts in the cluster.
+* `no_unsafe_webhooks` - (Optional) Whether to block unsafe webhooks in the cluster.
+* `no_standard_node_pools` - (Optional) Whether to block non autopilot managed node pools in the cluster.
 
 
 ## Attributes Reference

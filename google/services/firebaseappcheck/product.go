@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "firebaseappcheck"
+var Product = registry.Product{
+	Name:                 "firebaseappcheck",
+	BaseUrl:              "https://firebaseappcheck.googleapis.com/v1/",
+	CustomEndpointField:  "firebase_app_check_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_FIREBASE_APP_CHECK_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "firebaseappcheck",
-		BaseUrl: "https://firebaseappcheck.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

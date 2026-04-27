@@ -21,6 +21,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -227,4 +228,13 @@ func ParseComputeAddressId(id string, config *transport_tpg.Config) (*ComputeAdd
 	}
 
 	return nil, fmt.Errorf("Invalid compute address id. Expecting resource link, `{project}/{region}/{name}`, `{region}/{name}` or `{name}` format.")
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_compute_address",
+		ProductName: "compute",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleComputeAddress(),
+	}.Register()
 }

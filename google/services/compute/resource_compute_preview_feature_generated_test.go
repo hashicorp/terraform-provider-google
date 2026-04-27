@@ -51,6 +51,7 @@ var (
 )
 
 func TestAccComputePreviewFeature_previewFeatureBasicExample(t *testing.T) {
+	t.Skip("Needs to be fixed; test cannot run against the primary project")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -71,6 +72,12 @@ func TestAccComputePreviewFeature_previewFeatureBasicExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "rollout_operation"},
+			},
+			{
+				ResourceName:       "google_compute_preview_feature.gce_preview_feature",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

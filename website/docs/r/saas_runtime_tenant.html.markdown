@@ -14,7 +14,7 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
-subcategory: "SaaS Runtime"
+subcategory: "App Lifecycle Manager (SaaS Runtime)"
 description: |-
   The Tenant resource represents the service producer's view of a service instance created for a consumer.
 ---
@@ -58,8 +58,8 @@ The following arguments are supported:
 * `saas` -
   (Required)
   A reference to the Saas that defines the product (managed service) that
-  the producer wants to manage with SaaS Runtime. Part of the
-  SaaS Runtime common data model.
+  the producer wants to manage with App Lifecycle Manager. Part of the
+  App Lifecycle Manager common data model.
 
 * `location` -
   (Required)
@@ -82,7 +82,7 @@ The following arguments are supported:
 * `consumer_resource` -
   (Optional)
   A reference to the consumer resource this SaaS Tenant is representing.
-  The relationship with a consumer resource can be used by SaaS Runtime for
+  The relationship with a consumer resource can be used by App Lifecycle Manager for
   retrieving consumer-defined settings and policies such as maintenance
   policies (using Unified Maintenance Policy API).
 
@@ -159,6 +159,18 @@ Tenant can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{tenant_id}}`
 * `{{location}}/{{tenant_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Tenant using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    tenantId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_saas_runtime_tenant.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Tenant using one of the formats above. For example:
 

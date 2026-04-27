@@ -119,6 +119,33 @@ func ResourceComputeRegionNetworkFirewallPolicyRule() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"priority": {
+						Type:              schema.TypeInt,
+						RequiredForImport: true,
+					},
+					"firewall_policy": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"region": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"action": {
 				Type:        schema.TypeString,
@@ -589,6 +616,33 @@ func resourceComputeRegionNetworkFirewallPolicyRuleCreate(d *schema.ResourceData
 
 	log.Printf("[DEBUG] Finished creating RegionNetworkFirewallPolicyRule %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if _, ok := d.GetOk("priority"); ok {
+			err = identity.Set("priority", d.Get("priority").(int))
+			if err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
+		}
+		if firewallPolicyValue, ok := d.GetOk("firewall_policy"); ok && firewallPolicyValue.(string) != "" {
+			if err = identity.Set("firewall_policy", firewallPolicyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting firewall_policy: %s", err)
+			}
+		}
+		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
+			if err = identity.Set("region", regionValue.(string)); err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceComputeRegionNetworkFirewallPolicyRuleRead(d, meta)
 }
 
@@ -701,6 +755,36 @@ func resourceComputeRegionNetworkFirewallPolicyRuleRead(d *schema.ResourceData, 
 		return fmt.Errorf("Error reading RegionNetworkFirewallPolicyRule: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if _, ok := identity.GetOk("priority"); !ok {
+			err = identity.Set("priority", d.Get("priority").(int))
+			if err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("firewall_policy"); !ok && v == "" {
+			err = identity.Set("firewall_policy", d.Get("firewall_policy").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting firewall_policy: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("region"); !ok && v == "" {
+			err = identity.Set("region", d.Get("region").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -722,6 +806,32 @@ func resourceComputeRegionNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if _, ok := d.GetOk("priority"); ok {
+			err = identity.Set("priority", d.Get("priority").(int))
+			if err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
+		}
+		if firewallPolicyValue, ok := d.GetOk("firewall_policy"); ok && firewallPolicyValue.(string) != "" {
+			if err = identity.Set("firewall_policy", firewallPolicyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting firewall_policy: %s", err)
+			}
+		}
+		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
+			if err = identity.Set("region", regionValue.(string)); err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

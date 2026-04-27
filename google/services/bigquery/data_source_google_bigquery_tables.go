@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -160,4 +161,13 @@ func flattenDataSourceGoogleBigQueryTablesList(res interface{}) []map[string]int
 	}
 
 	return tables
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_bigquery_tables",
+		ProductName: "bigquery",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleBigQueryTables(),
+	}.Register()
 }

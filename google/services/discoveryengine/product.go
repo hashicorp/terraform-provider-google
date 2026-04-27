@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "discoveryengine"
+var Product = registry.Product{
+	Name:                 "discoveryengine",
+	BaseUrl:              "https://{{location}}-discoveryengine.googleapis.com/v1/",
+	CustomEndpointField:  "discovery_engine_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_DISCOVERY_ENGINE_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "discoveryengine",
-		BaseUrl: "https://{{location}}-discoveryengine.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

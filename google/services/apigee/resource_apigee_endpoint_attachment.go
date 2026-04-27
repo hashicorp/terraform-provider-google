@@ -112,6 +112,25 @@ func ResourceApigeeEndpointAttachment() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"endpoint_attachment_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"endpoint_attachment_id": {
 				Type:        schema.TypeString,
@@ -240,6 +259,22 @@ func resourceApigeeEndpointAttachmentCreate(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Finished creating EndpointAttachment %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if endpointAttachmentIdValue, ok := d.GetOk("endpoint_attachment_id"); ok && endpointAttachmentIdValue.(string) != "" {
+			if err = identity.Set("endpoint_attachment_id", endpointAttachmentIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting endpoint_attachment_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceApigeeEndpointAttachmentRead(d, meta)
 }
 
@@ -305,6 +340,24 @@ func resourceApigeeEndpointAttachmentRead(d *schema.ResourceData, meta interface
 	}
 	if err := d.Set("connection_state", flattenApigeeEndpointAttachmentConnectionState(res["connectionState"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); !ok && v == "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("endpoint_attachment_id"); !ok && v == "" {
+			err = identity.Set("endpoint_attachment_id", d.Get("endpoint_attachment_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting endpoint_attachment_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 
 	return nil

@@ -76,6 +76,12 @@ func TestAccContactCenterInsightsAssessmentRule_contactCenterInsightsAssessmentR
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"assessment_rule_id", "location"},
 			},
+			{
+				ResourceName:       "google_contact_center_insights_assessment_rule.assessment_rule_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -122,6 +128,12 @@ func TestAccContactCenterInsightsAssessmentRule_contactCenterInsightsAssessmentR
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"assessment_rule_id", "location"},
+			},
+			{
+				ResourceName:       "google_contact_center_insights_assessment_rule.assessment_rule_full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

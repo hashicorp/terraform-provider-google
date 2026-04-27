@@ -24,8 +24,6 @@ import (
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-
-	"google.golang.org/api/compute/v1"
 )
 
 type DeploymentManagerOperationWaiter struct {
@@ -41,38 +39,30 @@ func (w *DeploymentManagerOperationWaiter) IsRetryable(error) bool {
 }
 
 func (w *DeploymentManagerOperationWaiter) QueryOp() (interface{}, error) {
-	if w == nil || w.Op == nil || w.Op.SelfLink == "" {
+	if w == nil || w.Op == nil || w.OperationUrl == "" {
 		return nil, fmt.Errorf("cannot query unset/nil operation")
 	}
 
-	resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    w.Config,
 		Method:    "GET",
 		Project:   w.Project,
-		RawURL:    w.Op.SelfLink,
+		RawURL:    w.OperationUrl,
 		UserAgent: w.UserAgent,
 	})
-	if err != nil {
-		return nil, err
-	}
-	op := &compute.Operation{}
-	if err := tpgresource.Convert(resp, op); err != nil {
-		return nil, fmt.Errorf("could not convert response to operation: %v", err)
-	}
-	return op, nil
 }
 
 func DeploymentManagerOperationWaitTime(config *transport_tpg.Config, resp interface{}, project, activity, userAgent string, timeout time.Duration) error {
-	op := &compute.Operation{}
-	err := tpgresource.Convert(resp, op)
+	op, err := tpgresource.ConvertToMap(resp)
 	if err != nil {
 		return err
 	}
 
+	selfLink, _ := op["selfLink"].(string)
 	w := &DeploymentManagerOperationWaiter{
 		Config:       config,
 		UserAgent:    userAgent,
-		OperationUrl: op.SelfLink,
+		OperationUrl: selfLink,
 		ComputeOperationWaiter: tpgcompute.ComputeOperationWaiter{
 			Project: project,
 		},
@@ -85,22 +75,43 @@ func DeploymentManagerOperationWaitTime(config *transport_tpg.Config, resp inter
 }
 
 func (w *DeploymentManagerOperationWaiter) Error() error {
-	if w != nil && w.Op != nil && w.Op.Error != nil {
-		return DeploymentManagerOperationError{
-			HTTPStatusCode: w.Op.HttpErrorStatusCode,
-			HTTPMessage:    w.Op.HttpErrorMessage,
-			OperationError: *w.Op.Error,
+	if w != nil && w.Op != nil {
+		if opErr, ok := w.Op["error"]; ok && opErr != nil {
+			errObj, ok := opErr.(map[string]interface{})
+			if !ok {
+				return fmt.Errorf("operation error: %v", opErr)
+			}
+
+			httpStatusCode, _ := w.Op["httpErrorStatusCode"].(float64)
+			httpMessage, _ := w.Op["httpErrorMessage"].(string)
+
+			var errorMessages []string
+			if rawErrors, ok := errObj["errors"].([]interface{}); ok {
+				for _, rawErr := range rawErrors {
+					if errMap, ok := rawErr.(map[string]interface{}); ok {
+						if msg, ok := errMap["message"].(string); ok {
+							errorMessages = append(errorMessages, msg)
+						}
+					}
+				}
+			}
+
+			return DeploymentManagerOperationError{
+				HTTPStatusCode: int64(httpStatusCode),
+				HTTPMessage:    httpMessage,
+				Errors:         errorMessages,
+			}
 		}
 	}
 	return nil
 }
 
-// DeploymentManagerOperationError wraps information from the compute.Operation
+// DeploymentManagerOperationError wraps information from an operation response
 // in an implementation of Error.
 type DeploymentManagerOperationError struct {
 	HTTPStatusCode int64
 	HTTPMessage    string
-	compute.OperationError
+	Errors         []string
 }
 
 func (e DeploymentManagerOperationError) Error() string {
@@ -108,8 +119,8 @@ func (e DeploymentManagerOperationError) Error() string {
 	buf.WriteString("Deployment Manager returned errors for this operation, likely due to invalid configuration.")
 	buf.WriteString(fmt.Sprintf("Operation failed with HTTP error %d: %s.", e.HTTPStatusCode, e.HTTPMessage))
 	buf.WriteString("Errors returned: \n")
-	for _, err := range e.Errors {
-		buf.WriteString(err.Message + "\n")
+	for _, msg := range e.Errors {
+		buf.WriteString(msg + "\n")
 	}
 	return buf.String()
 }

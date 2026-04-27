@@ -76,6 +76,12 @@ func TestAccNetworkServicesMulticastDomainActivation_networkServicesMulticastDom
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "multicast_domain_activation_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_services_multicast_domain_activation.mda_test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

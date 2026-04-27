@@ -118,6 +118,29 @@ func ResourceFirebaseAppCheckDebugToken() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"debug_token_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"app_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"app_id": {
 				Type:     schema.TypeString,
@@ -245,6 +268,27 @@ func resourceFirebaseAppCheckDebugTokenCreate(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Finished creating DebugToken %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if debugTokenIdValue, ok := d.GetOk("debug_token_id"); ok && debugTokenIdValue.(string) != "" {
+			if err = identity.Set("debug_token_id", debugTokenIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting debug_token_id: %s", err)
+			}
+		}
+		if appIdValue, ok := d.GetOk("app_id"); ok && appIdValue.(string) != "" {
+			if err = identity.Set("app_id", appIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting app_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceFirebaseAppCheckDebugTokenRead(d, meta)
 }
 
@@ -312,6 +356,30 @@ func resourceFirebaseAppCheckDebugTokenRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading DebugToken: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("debug_token_id"); !ok && v == "" {
+			err = identity.Set("debug_token_id", d.Get("debug_token_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting debug_token_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("app_id"); !ok && v == "" {
+			err = identity.Set("app_id", d.Get("app_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting app_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -333,6 +401,26 @@ func resourceFirebaseAppCheckDebugTokenUpdate(d *schema.ResourceData, meta inter
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if debugTokenIdValue, ok := d.GetOk("debug_token_id"); ok && debugTokenIdValue.(string) != "" {
+			if err = identity.Set("debug_token_id", debugTokenIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting debug_token_id: %s", err)
+			}
+		}
+		if appIdValue, ok := d.GetOk("app_id"); ok && appIdValue.(string) != "" {
+			if err = identity.Set("app_id", appIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting app_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

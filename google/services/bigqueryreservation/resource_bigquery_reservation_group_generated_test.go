@@ -74,6 +74,12 @@ func TestAccBigqueryReservationReservationGroup_bigqueryReservationGroupBasicExa
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "name"},
 			},
+			{
+				ResourceName:       "google_bigquery_reservation_group.reservation_group",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

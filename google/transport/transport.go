@@ -182,6 +182,15 @@ func HandleDataSourceNotFoundError(err error, d *schema.ResourceData, resource, 
 		fmt.Sprintf("Error when reading or editing %s: {{err}}", resource), err)
 }
 
+func HandleListGoogleApiError(err error, url string) error {
+	if IsGoogleApiErrorWithCode(err, 404) {
+		return fmt.Errorf("list at %s not found: %w", url, err)
+	}
+
+	return errwrap.Wrapf(
+		fmt.Sprintf("Error when reading list at %s: {{err}}", url), err)
+}
+
 func IsGoogleApiErrorWithCode(err error, errCode int) bool {
 	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
 	return ok && gerr != nil && gerr.Code == errCode
@@ -204,4 +213,84 @@ func IsApiNotEnabledError(err error) bool {
 		}
 	}
 	return false
+}
+
+type ListPagesOptions struct {
+	Config         *Config
+	TempData       *schema.ResourceData
+	ListURL        string
+	BillingProject string
+	UserAgent      string
+	ItemName       string
+	Filter         string
+	Flattener      func(item map[string]interface{}, d *schema.ResourceData, config *Config) error
+	Callback       func(rd *schema.ResourceData) error
+}
+
+// ListPages performs a paginated GET request against ListURL and processes each item in the
+// response. Rate-limited responses (HTTP 429) are retried automatically.
+//
+// On each page the function extracts the array at the JSON key ItemName (default "items"),
+// calls Flattener to write each element into TempData, then invokes Callback for further
+// processing of each item.
+func ListPages(opt ListPagesOptions) error {
+	itemKey := opt.ItemName
+	if itemKey == "" {
+		itemKey = "items"
+	}
+
+	params := make(map[string]string)
+	if opt.Filter != "" {
+		params["filter"] = opt.Filter
+	}
+
+	for {
+		// Depending on previous iterations, params might contain a pageToken param
+		url, err := AddQueryParams(opt.ListURL, params)
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+		res, err := SendRequest(SendRequestOptions{
+			Config:    opt.Config,
+			Method:    "GET",
+			Project:   opt.BillingProject,
+			RawURL:    url,
+			UserAgent: opt.UserAgent,
+			Headers:   headers,
+			// ErrorRetryPredicates used to allow retrying if rate limits are hit when requesting multiple pages in a row
+			ErrorRetryPredicates: []RetryErrorPredicateFunc{Is429RetryableQuotaError},
+		})
+		if err != nil {
+			return HandleListGoogleApiError(err, url)
+		}
+
+		if v, ok := res[itemKey].([]interface{}); ok {
+			for _, item := range v {
+				itemMap, ok := item.(map[string]interface{})
+				if !ok {
+					return fmt.Errorf("expected item to be map[string]interface{}, got %T", item)
+				}
+
+				err = opt.Flattener(itemMap, opt.TempData, opt.Config)
+				if err != nil {
+					return fmt.Errorf("Error flattening instance: %s", err)
+				}
+				err = opt.Callback(opt.TempData)
+				if err != nil {
+					return err
+				}
+			}
+		}
+		// Handle pagination for next loop, or break loop
+		v, ok := res["nextPageToken"]
+		if ok {
+			params["pageToken"] = v.(string)
+		}
+		if !ok {
+			break
+		}
+	}
+	return nil
 }

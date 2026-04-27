@@ -42,7 +42,7 @@ locals {
 }
 
 resource "google_hypercomputecluster_cluster" "cluster" {
-  cluster_id                  = "my-cluster"
+  cluster_id                  = "mycluster1"
   location                    = "us-central1"
   description                 = "Cluster Director instance created through Terraform"
   network_resources {
@@ -106,9 +106,8 @@ The following arguments are supported:
 
 * `cluster_id` -
   (Required)
-  ID of the cluster to create. Must conform to
-  [RFC-1034](https://datatracker.ietf.org/doc/html/rfc1034) (lower-case,
-  alphanumeric, and at most 63 characters).
+  ID of the cluster to create. Must start with a lowercase letter,
+  use only lowercase letters and numbers, and be at most 10 characters long.
 
 
 * `compute_resources` -
@@ -836,6 +835,18 @@ Cluster can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{cluster_id}}`
 * `{{location}}/{{cluster_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Cluster using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    clusterId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_hypercomputecluster_cluster.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Cluster using one of the formats above. For example:
 

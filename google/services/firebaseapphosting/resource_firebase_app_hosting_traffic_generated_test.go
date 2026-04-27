@@ -76,6 +76,12 @@ func TestAccFirebaseAppHostingTraffic_firebaseAppHostingTrafficTargetExample(t *
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backend", "location"},
 			},
+			{
+				ResourceName:       "google_firebase_app_hosting_traffic.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -175,6 +181,12 @@ func TestAccFirebaseAppHostingTraffic_firebaseAppHostingTrafficRolloutPolicyExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backend", "location"},
 			},
+			{
+				ResourceName:       "google_firebase_app_hosting_traffic.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -257,6 +269,12 @@ func TestAccFirebaseAppHostingTraffic_firebaseAppHostingTrafficRolloutPolicyDisa
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backend", "location"},
+			},
+			{
+				ResourceName:       "google_firebase_app_hosting_traffic.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -84,6 +84,12 @@ func TestAccManagedKafkaConnector_managedkafkaConnectorBasicExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connect_cluster", "connector_id", "location"},
 			},
+			{
+				ResourceName:       "google_managed_kafka_connector.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

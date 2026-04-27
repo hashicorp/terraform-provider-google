@@ -58,6 +58,11 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `ignored_clusters_selector` -
+  (Optional)
+  Selector for clusters to exclude from the Rollout Sequence.
+  Structure is [documented below](#nested_ignored_clusters_selector).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -88,6 +93,13 @@ The following arguments are supported:
 
 
 <a name="nested_stages_cluster_selector"></a>The `cluster_selector` block supports:
+
+* `label_selector` -
+  (Required)
+  The label selector must be a valid CEL (Common Expression Language) expression which
+  evaluates resource.labels.
+
+<a name="nested_ignored_clusters_selector"></a>The `ignored_clusters_selector` block supports:
 
 * `label_selector` -
   (Required)
@@ -144,6 +156,17 @@ RolloutSequence can be imported using any of these accepted formats:
 * `{{project}}/{{rollout_sequence_id}}`
 * `{{rollout_sequence_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import RolloutSequence using identity values. For example:
+
+```tf
+import {
+  identity = {
+    rollout_sequence_id = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_gke_hub_rollout_sequence.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RolloutSequence using one of the formats above. For example:
 

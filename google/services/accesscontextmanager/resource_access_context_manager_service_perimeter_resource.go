@@ -112,6 +112,25 @@ func ResourceAccessContextManagerServicePerimeterResource() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"resource": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"perimeter_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"perimeter_name": {
 				Type:             schema.TypeString,
@@ -254,6 +273,22 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 
 	log.Printf("[DEBUG] Finished creating ServicePerimeterResource %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if resourceValue, ok := d.GetOk("resource"); ok && resourceValue.(string) != "" {
+			if err = identity.Set("resource", resourceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
+		}
+		if perimeterNameValue, ok := d.GetOk("perimeter_name"); ok && perimeterNameValue.(string) != "" {
+			if err = identity.Set("perimeter_name", perimeterNameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting perimeter_name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceAccessContextManagerServicePerimeterResourceRead(d, meta)
 }
 
@@ -327,6 +362,24 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 		return fmt.Errorf("Error reading ServicePerimeterResource: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("resource"); !ok && v == "" {
+			err = identity.Set("resource", d.Get("resource").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("perimeter_name"); !ok && v == "" {
+			err = identity.Set("perimeter_name", d.Get("perimeter_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting perimeter_name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -369,6 +422,7 @@ func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.Resour
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "ServicePerimeterResource")
 	}
+
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
 	if err != nil {
 		return err

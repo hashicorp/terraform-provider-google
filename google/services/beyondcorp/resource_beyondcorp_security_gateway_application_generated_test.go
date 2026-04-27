@@ -75,6 +75,12 @@ func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplic
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"application_id", "security_gateway_id"},
 			},
+			{
+				ResourceName:       "google_beyondcorp_security_gateway_application.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -122,6 +128,12 @@ func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplic
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"application_id", "security_gateway_id"},
+			},
+			{
+				ResourceName:       "google_beyondcorp_security_gateway_application.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -181,6 +193,12 @@ func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplic
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"application_id", "security_gateway_id"},
 			},
+			{
+				ResourceName:       "google_beyondcorp_security_gateway_application.example-spa",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -235,6 +253,12 @@ func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplic
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"application_id", "security_gateway_id"},
+			},
+			{
+				ResourceName:       "google_beyondcorp_security_gateway_application.example-spa",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

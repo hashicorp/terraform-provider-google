@@ -81,6 +81,12 @@ func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "params", "region"},
 			},
+			{
+				ResourceName:       "google_compute_vpn_gateway.target_gateway",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -181,6 +187,12 @@ func TestAccComputeVpnGateway_targetVpnGatewayTagsExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "params", "region"},
+			},
+			{
+				ResourceName:       "google_compute_vpn_gateway.target_gateway_tags",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

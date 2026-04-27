@@ -22,11 +22,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 )
 
-const ProductName = "memcache"
+var Product = registry.Product{
+	Name:                 "memcache",
+	BaseUrl:              "https://memcache.googleapis.com/v1/",
+	CustomEndpointField:  "memcache_custom_endpoint",
+	CustomEndpointEnvVar: "GOOGLE_MEMCACHE_CUSTOM_ENDPOINT",
+}
 
 func init() {
-	registry.Product{
-		Name:    "memcache",
-		BaseUrl: "https://memcache.googleapis.com/v1/",
-	}.Register()
+	Product.Register()
 }

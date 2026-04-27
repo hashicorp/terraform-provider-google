@@ -35,6 +35,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
@@ -402,4 +403,13 @@ func SignString(toSign []byte, cfg *jwt.Config) ([]byte, error) {
 	}
 
 	return signed, nil
+}
+
+func init() {
+	registry.Schema{
+		Name:        "google_storage_object_signed_url",
+		ProductName: "storage",
+		Type:        registry.SchemaTypeDataSource,
+		Schema:      DataSourceGoogleSignedUrl(),
+	}.Register()
 }
