@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -1122,4 +1123,69 @@ resource "google_compute_image" "image" {
   ]
 }
 `, kmsRingName, kmsKeyName, suffix, suffix)
+}
+
+func TestAccComputeImage_resourceManagerTags(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project_id":    envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeImageDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeImage_resourceManagerTags(context),
+			},
+			{
+				ResourceName:            "google_compute_image.image_with_resource_manager_tags",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params", "raw_disk"},
+			},
+		},
+	})
+}
+
+func testAccComputeImage_resourceManagerTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "tag_key" {
+  parent      = "projects/%{project_id}"
+  short_name  = "image-tag-%{random_suffix}"
+  description = "Tag key for image acceptance tests"
+}
+
+resource "google_tags_tag_value" "tag_value_1" {
+  parent      = google_tags_tag_key.tag_key.id
+  short_name  = "value-one-%{random_suffix}"
+  description = "First tag value for image acceptance tests"
+}
+
+resource "google_tags_tag_value" "tag_value_2" {
+  parent      = google_tags_tag_key.tag_key.id
+  short_name  = "value-two-%{random_suffix}"
+  description = "Second tag value for image acceptance tests"
+
+  # Serialize value creation for stable VCR recordings.
+  depends_on = [google_tags_tag_value.tag_value_1]
+}
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+resource "google_compute_image" "image_with_resource_manager_tags" {
+  name = "tf-test-image-rmt%{random_suffix}"
+  source_image = data.google_compute_image.debian.self_link
+
+  params {
+    resource_manager_tags = {
+      (google_tags_tag_key.tag_key.id) = google_tags_tag_value.tag_value_1.id
+    }
+  }
+}
+`, context)
 }

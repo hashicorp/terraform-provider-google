@@ -24,6 +24,7 @@ fields:
     - api_field: labels
     - api_field: licenses
     - api_field: name
+    - api_field: params.resourceManagerTags
     - api_field: rawDisk.containerType
     - api_field: rawDisk.sha1Checksum
       field: raw_disk.sha1
