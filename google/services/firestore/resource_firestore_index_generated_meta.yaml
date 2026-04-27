@@ -16,6 +16,9 @@ fields:
     - api_field: fields.arrayConfig
     - api_field: fields.fieldPath
     - api_field: fields.order
+    - api_field: fields.searchConfig.geoSpec.geoJsonIndexingDisabled
+    - api_field: fields.searchConfig.textSpec.indexSpecs.indexType
+    - api_field: fields.searchConfig.textSpec.indexSpecs.matchType
     - api_field: fields.vectorConfig.dimension
     - api_field: fields.vectorConfig.flat
     - api_field: multikey

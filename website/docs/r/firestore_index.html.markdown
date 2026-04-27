@@ -22,7 +22,7 @@ description: |-
 # google_firestore_index
 
 Cloud Firestore indexes enable simple and complex queries against documents in a database.
- Both Firestore Native and Datastore Mode indexes are supported.
+ Firestore Native, Firestore with MongoDB compatibility and Datastore Mode indexes are all supported.
  This resource manages composite indexes and not single field indexes.
  To manage single field indexes, use the `google_firestore_field` resource instead.
 
@@ -339,6 +339,112 @@ resource "google_firestore_index" "my-index" {
   deletion_policy = ""PREVENT""
 }
 ```
+## Example Usage - Firestore Index Text Search
+
+
+```hcl
+resource "google_firestore_database" "database" {
+	project                 = "my-project-name"
+	name                    = "text-search-database-id"
+	location_id             = "nam5"
+	type                    = "FIRESTORE_NATIVE"
+	database_edition        = "ENTERPRISE"
+
+	delete_protection_state = "DELETE_PROTECTION_DISABLED"
+	deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+	project    = "my-project-name"
+	database   = google_firestore_database.database.name
+	collection = "atestcollection"
+
+	api_scope   = "MONGODB_COMPATIBLE_API"
+	query_scope = "COLLECTION_GROUP"
+	multikey    = true
+
+	fields {
+		field_path = "description"
+		search_config {
+			text_spec {
+				index_specs {
+					index_type = "TOKENIZED"
+					match_type = "MATCH_GLOBALLY"
+				}
+			}
+		}
+	}
+}
+```
+## Example Usage - Firestore Index Suppress Geojson Indexing
+
+
+```hcl
+resource "google_firestore_database" "database" {
+	project                 = "my-project-name"
+	name                    = "suppress-geojson-indexing-database-id"
+	location_id             = "nam5"
+	type                    = "FIRESTORE_NATIVE"
+	database_edition        = "ENTERPRISE"
+
+	delete_protection_state = "DELETE_PROTECTION_DISABLED"
+	deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+	project    = "my-project-name"
+	database   = google_firestore_database.database.name
+	collection = "atestcollection"
+
+	query_scope = "COLLECTION_GROUP"
+	density     = "SPARSE_ANY"
+
+	fields {
+		field_path = "location"
+		search_config {
+			geo_spec {
+				// Note that Firestore GeoPoints will still be indexed
+				geo_json_indexing_disabled = true
+			}
+		}
+	}
+}
+```
+## Example Usage - Firestore Index Geo Search
+
+
+```hcl
+resource "google_firestore_database" "database" {
+	project                 = "my-project-name"
+	name                    = "geo-search-database-id"
+	location_id             = "nam5"
+	type                    = "FIRESTORE_NATIVE"
+	database_edition        = "ENTERPRISE"
+
+	delete_protection_state = "DELETE_PROTECTION_DISABLED"
+	deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+	project    = "my-project-name"
+	database   = google_firestore_database.database.name
+	collection = "atestcollection"
+
+	api_scope   = "MONGODB_COMPATIBLE_API"
+	query_scope = "COLLECTION_GROUP"
+	multikey    = true
+
+	fields {
+		field_path = "location"
+		search_config {
+			geo_spec {
+				// Must set an explicit value for geo_json_indexing_disabled because of https://github.com/hashicorp/terraform-provider-google/issues/13201
+				geo_json_indexing_disabled = false
+			}
+		}
+	}
+}
+```
 
 ## Argument Reference
 
@@ -409,21 +515,65 @@ The default value is `DELETE`.
 * `order` -
   (Optional)
   Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
-  Only one of `order`, `arrayConfig`, and `vectorConfig` can be specified.
+  Only one of `order`, `arrayConfig`, `searchConfig` and `vectorConfig` can be specified.
   Possible values are: `ASCENDING`, `DESCENDING`.
 
 * `array_config` -
   (Optional)
-  Indicates that this field supports operations on arrayValues. Only one of `order`, `arrayConfig`, and
+  Indicates that this field supports operations on arrayValues. Only one of `order`, `arrayConfig`, `searchConfig` and
   `vectorConfig` can be specified.
   Possible values are: `CONTAINS`.
 
+* `search_config` -
+  (Optional)
+  Indicates that this field supports text or geo-search operations. Only one of `order`, `arrayConfig`, `searchConfig` and
+  `vectorConfig` can be specified.
+  Structure is [documented below](#nested_fields_search_config).
+
 * `vector_config` -
   (Optional)
-  Indicates that this field supports vector search operations. Only one of `order`, `arrayConfig`, and
+  Indicates that this field supports vector search operations. Only one of `order`, `arrayConfig`, `searchConfig` and
   `vectorConfig` can be specified. Vector Fields should come after the field path `__name__`.
   Structure is [documented below](#nested_fields_vector_config).
 
+
+<a name="nested_fields_search_config"></a>The `search_config` block supports:
+
+* `text_spec` -
+  (Optional)
+  The specification for building a text search index for a field.
+  Structure is [documented below](#nested_fields_search_config_text_spec).
+
+* `geo_spec` -
+  (Optional)
+  The specification for building a geo search index for a field.
+  Structure is [documented below](#nested_fields_search_config_geo_spec).
+
+
+<a name="nested_fields_search_config_text_spec"></a>The `text_spec` block supports:
+
+* `index_specs` -
+  (Required)
+  Specifications for how the field should be indexed. Repeated so that the field can be indexed in multiple ways.
+  Structure is [documented below](#nested_fields_search_config_text_spec_index_specs).
+
+
+<a name="nested_fields_search_config_text_spec_index_specs"></a>The `index_specs` block supports:
+
+* `index_type` -
+  (Optional)
+  Ways to index the text field value.
+
+* `match_type` -
+  (Optional)
+  How to match the text field value.
+
+<a name="nested_fields_search_config_geo_spec"></a>The `geo_spec` block supports:
+
+* `geo_json_indexing_disabled` -
+  (Required)
+  If true, disables GeoJSON indexing for the field. By default, GeoJSON points are indexed.
+  Firestore GeoPoints are indexed regardless of the value of this field.
 
 <a name="nested_fields_vector_config"></a>The `vector_config` block supports:
 
