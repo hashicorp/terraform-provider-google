@@ -1,0 +1,3 @@
+```release-note:bug
+assuredworkloads: made assuredworkloads resources use GA endpoint instead of beta (ga)
+```

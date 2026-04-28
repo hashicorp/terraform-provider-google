@@ -261,10 +261,12 @@ type Config struct {
 	AlloydbBasePath                  string
 	ApigeeBasePath                   string
 	ApihubBasePath                   string
+	ApikeysBasePath                  string
 	AppEngineBasePath                string
 	ApphubBasePath                   string
 	ArtifactRegistryBasePath         string
 	ArtifactRegistryRepBasePath      string
+	AssuredWorkloadsBasePath         string
 	BackupDRBasePath                 string
 	BeyondcorpBasePath               string
 	BiglakeBasePath                  string
@@ -306,6 +308,8 @@ type Config struct {
 	ContainerBasePath                string
 	ContainerAnalysisBasePath        string
 	ContainerAttachedBasePath        string
+	ContainerAwsBasePath             string
+	ContainerAzureBasePath           string
 	DatabaseMigrationServiceBasePath string
 	DataCatalogBasePath              string
 	DataflowBasePath                 string
@@ -336,6 +340,7 @@ type Config struct {
 	FirebaseAppHostingBasePath       string
 	FirebaseDataConnectBasePath      string
 	FirebaseRemoteConfigBasePath     string
+	FirebaserulesBasePath            string
 	FirestoreBasePath                string
 	GeminiBasePath                   string
 	GKEBackupBasePath                string
@@ -386,6 +391,7 @@ type Config struct {
 	PublicCABasePath                 string
 	PubsubBasePath                   string
 	PubsubLiteBasePath               string
+	RecaptchaEnterpriseBasePath      string
 	RedisBasePath                    string
 	ResourceManagerBasePath          string
 	ResourceManagerV3BasePath        string
@@ -421,15 +427,6 @@ type Config struct {
 	WorkloadIdentityBasePath         string
 	WorkstationsBasePath             string
 
-	// DCL
-	ContainerAwsBasePath         string
-	ContainerAzureBasePath       string
-	ApikeysBasePath              string
-	AssuredWorkloadsBasePath     string
-	CloudResourceManagerBasePath string
-	FirebaserulesBasePath        string
-	RecaptchaEnterpriseBasePath  string
-
 	RequestBatcherServiceUsage *RequestBatcher
 	RequestBatcherIam          *RequestBatcher
 
@@ -443,9 +440,11 @@ const ActiveDirectoryBasePathKey = "ActiveDirectory"
 const AlloydbBasePathKey = "Alloydb"
 const ApigeeBasePathKey = "Apigee"
 const ApihubBasePathKey = "Apihub"
+const ApikeysBasePathKey = "Apikeys"
 const AppEngineBasePathKey = "AppEngine"
 const ApphubBasePathKey = "Apphub"
 const ArtifactRegistryBasePathKey = "ArtifactRegistry"
+const AssuredWorkloadsBasePathKey = "AssuredWorkloads"
 const BackupDRBasePathKey = "BackupDR"
 const BeyondcorpBasePathKey = "Beyondcorp"
 const BiglakeBasePathKey = "Biglake"
@@ -487,6 +486,8 @@ const ContactCenterInsightsBasePathKey = "ContactCenterInsights"
 const ContainerBasePathKey = "Container"
 const ContainerAnalysisBasePathKey = "ContainerAnalysis"
 const ContainerAttachedBasePathKey = "ContainerAttached"
+const ContainerAwsBasePathKey = "ContainerAws"
+const ContainerAzureBasePathKey = "ContainerAzure"
 const DatabaseMigrationServiceBasePathKey = "DatabaseMigrationService"
 const DataCatalogBasePathKey = "DataCatalog"
 const DataflowBasePathKey = "Dataflow"
@@ -517,6 +518,7 @@ const FirebaseAppCheckBasePathKey = "FirebaseAppCheck"
 const FirebaseAppHostingBasePathKey = "FirebaseAppHosting"
 const FirebaseDataConnectBasePathKey = "FirebaseDataConnect"
 const FirebaseRemoteConfigBasePathKey = "FirebaseRemoteConfig"
+const FirebaserulesBasePathKey = "Firebaserules"
 const FirestoreBasePathKey = "Firestore"
 const GeminiBasePathKey = "Gemini"
 const GKEBackupBasePathKey = "GKEBackup"
@@ -567,6 +569,7 @@ const PrivilegedAccessManagerBasePathKey = "PrivilegedAccessManager"
 const PublicCABasePathKey = "PublicCA"
 const PubsubBasePathKey = "Pubsub"
 const PubsubLiteBasePathKey = "PubsubLite"
+const RecaptchaEnterpriseBasePathKey = "RecaptchaEnterprise"
 const RedisBasePathKey = "Redis"
 const ResourceManagerBasePathKey = "ResourceManager"
 const ResourceManagerV3BasePathKey = "ResourceManagerV3"
@@ -601,8 +604,6 @@ const WorkbenchBasePathKey = "Workbench"
 const WorkflowsBasePathKey = "Workflows"
 const WorkloadIdentityBasePathKey = "WorkloadIdentity"
 const WorkstationsBasePathKey = "Workstations"
-const ContainerAwsBasePathKey = "ContainerAws"
-const ContainerAzureBasePathKey = "ContainerAzure"
 
 // Generated product base paths
 var DefaultBasePaths = map[string]string{
@@ -612,9 +613,11 @@ var DefaultBasePaths = map[string]string{
 	AlloydbBasePathKey:                  "https://alloydb.googleapis.com/v1/",
 	ApigeeBasePathKey:                   "https://apigee.googleapis.com/v1/",
 	ApihubBasePathKey:                   "https://apihub.googleapis.com/v1/",
+	ApikeysBasePathKey:                  "https://apikeys.googleapis.com/v2/",
 	AppEngineBasePathKey:                "https://appengine.googleapis.com/v1/",
 	ApphubBasePathKey:                   "https://apphub.googleapis.com/v1/",
 	ArtifactRegistryBasePathKey:         "https://artifactregistry.googleapis.com/v1/",
+	AssuredWorkloadsBasePathKey:         "https://{{location}}-assuredworkloads.googleapis.com/v1/",
 	BackupDRBasePathKey:                 "https://backupdr.googleapis.com/v1/",
 	BeyondcorpBasePathKey:               "https://beyondcorp.googleapis.com/v1/",
 	BiglakeBasePathKey:                  "https://biglake.googleapis.com/v1/",
@@ -656,6 +659,8 @@ var DefaultBasePaths = map[string]string{
 	ContainerBasePathKey:                "https://container.googleapis.com/v1/",
 	ContainerAnalysisBasePathKey:        "https://containeranalysis.googleapis.com/v1/",
 	ContainerAttachedBasePathKey:        "https://{{location}}-gkemulticloud.googleapis.com/v1/",
+	ContainerAwsBasePathKey:             "https://{{location}}-gkemulticloud.googleapis.com/v1/",
+	ContainerAzureBasePathKey:           "https://{{location}}-gkemulticloud.googleapis.com/v1/",
 	DatabaseMigrationServiceBasePathKey: "https://datamigration.googleapis.com/v1/",
 	DataCatalogBasePathKey:              "https://datacatalog.googleapis.com/v1/",
 	DataflowBasePathKey:                 "https://dataflow.googleapis.com/v1b3/",
@@ -686,6 +691,7 @@ var DefaultBasePaths = map[string]string{
 	FirebaseAppHostingBasePathKey:       "https://firebaseapphosting.googleapis.com/v1/",
 	FirebaseDataConnectBasePathKey:      "https://firebasedataconnect.googleapis.com/v1/",
 	FirebaseRemoteConfigBasePathKey:     "https://firebaseremoteconfig.googleapis.com/v1/",
+	FirebaserulesBasePathKey:            "https://firebaserules.googleapis.com/v1/",
 	FirestoreBasePathKey:                "https://firestore.googleapis.com/v1/",
 	GeminiBasePathKey:                   "https://cloudaicompanion.googleapis.com/v1/",
 	GKEBackupBasePathKey:                "https://gkebackup.googleapis.com/v1/",
@@ -736,6 +742,7 @@ var DefaultBasePaths = map[string]string{
 	PublicCABasePathKey:                 "https://publicca.googleapis.com/v1/",
 	PubsubBasePathKey:                   "https://pubsub.googleapis.com/v1/",
 	PubsubLiteBasePathKey:               "https://{{region}}-pubsublite.googleapis.com/v1/admin/",
+	RecaptchaEnterpriseBasePathKey:      "https://recaptchaenterprise.googleapis.com/v1/",
 	RedisBasePathKey:                    "https://redis.googleapis.com/v1/",
 	ResourceManagerBasePathKey:          "https://cloudresourcemanager.googleapis.com/v1/",
 	ResourceManagerV3BasePathKey:        "https://cloudresourcemanager.googleapis.com/v3/",
@@ -770,14 +777,6 @@ var DefaultBasePaths = map[string]string{
 	WorkflowsBasePathKey:                "https://workflows.googleapis.com/v1/",
 	WorkloadIdentityBasePathKey:         "https://workloadidentity.googleapis.com/v1/",
 	WorkstationsBasePathKey:             "https://workstations.googleapis.com/v1/",
-	// DCL
-	ContainerAwsBasePathKey:              "https://{{location}}-gkemulticloud.googleapis.com/v1/",
-	ContainerAzureBasePathKey:            "https://{{location}}-gkemulticloud.googleapis.com/v1/",
-	ApikeysEndpointEntryKey:              "https://apikeys.googleapis.com/v2/",
-	AssuredWorkloadsEndpointEntryKey:     "https://{{location}}-assuredworkloads.googleapis.com/v1beta1/",
-	CloudResourceManagerEndpointEntryKey: "https://cloudresourcemanager.googleapis.com/",
-	FirebaserulesEndpointEntryKey:        "https://firebaserules.googleapis.com/v1/",
-	RecaptchaEnterpriseEndpointEntryKey:  "https://recaptchaenterprise.googleapis.com/v1/",
 }
 
 // Contains the REP status for each generated product. This allows us to track
@@ -790,9 +789,11 @@ var DefaultRepStatus = map[string]bool{
 	AlloydbBasePathKey:                  false,
 	ApigeeBasePathKey:                   false,
 	ApihubBasePathKey:                   false,
+	ApikeysBasePathKey:                  false,
 	AppEngineBasePathKey:                false,
 	ApphubBasePathKey:                   false,
 	ArtifactRegistryBasePathKey:         false,
+	AssuredWorkloadsBasePathKey:         false,
 	BackupDRBasePathKey:                 false,
 	BeyondcorpBasePathKey:               false,
 	BiglakeBasePathKey:                  false,
@@ -834,6 +835,8 @@ var DefaultRepStatus = map[string]bool{
 	ContainerBasePathKey:                false,
 	ContainerAnalysisBasePathKey:        false,
 	ContainerAttachedBasePathKey:        false,
+	ContainerAwsBasePathKey:             false,
+	ContainerAzureBasePathKey:           false,
 	DatabaseMigrationServiceBasePathKey: false,
 	DataCatalogBasePathKey:              false,
 	DataflowBasePathKey:                 false,
@@ -864,6 +867,7 @@ var DefaultRepStatus = map[string]bool{
 	FirebaseAppHostingBasePathKey:       false,
 	FirebaseDataConnectBasePathKey:      false,
 	FirebaseRemoteConfigBasePathKey:     false,
+	FirebaserulesBasePathKey:            false,
 	FirestoreBasePathKey:                false,
 	GeminiBasePathKey:                   false,
 	GKEBackupBasePathKey:                false,
@@ -914,6 +918,7 @@ var DefaultRepStatus = map[string]bool{
 	PublicCABasePathKey:                 false,
 	PubsubBasePathKey:                   false,
 	PubsubLiteBasePathKey:               false,
+	RecaptchaEnterpriseBasePathKey:      false,
 	RedisBasePathKey:                    false,
 	ResourceManagerBasePathKey:          false,
 	ResourceManagerV3BasePathKey:        false,
@@ -1017,51 +1022,6 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 			"CLOUDSDK_CORE_REQUEST_REASON",
 		}, nil))
 	}
-	return nil
-}
-
-// Legacy logic for non-registered products.
-func SetEndpointDefaults(d *schema.ResourceData) error {
-	// DCL endpoints - these are hardcoded as a workaround for the DCL not providing a way to
-	// determine base paths at generation time.
-
-	if d.Get(ContainerAwsCustomEndpointEntryKey) == "" {
-		d.Set(ContainerAwsCustomEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_CONTAINERAWS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ContainerAwsBasePathKey]))
-	}
-
-	if d.Get(ContainerAzureCustomEndpointEntryKey) == "" {
-		d.Set(ContainerAzureCustomEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_CONTAINERAZURE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ContainerAzureBasePathKey]))
-	}
-	if d.Get(ApikeysEndpointEntryKey) == "" {
-		d.Set(ApikeysEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_APIKEYS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ApikeysEndpointEntryKey]))
-	}
-	if d.Get(AssuredWorkloadsEndpointEntryKey) == "" {
-		d.Set(AssuredWorkloadsEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_ASSURED_WORKLOADS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[AssuredWorkloadsEndpointEntryKey]))
-	}
-	if d.Get(CloudResourceManagerEndpointEntryKey) == "" {
-		d.Set(CloudResourceManagerEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_CLOUD_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudResourceManagerEndpointEntryKey]))
-	}
-	if d.Get(FirebaserulesEndpointEntryKey) == "" {
-		d.Set(FirebaserulesEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_FIREBASERULES_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[FirebaserulesEndpointEntryKey]))
-	}
-	if d.Get(RecaptchaEnterpriseEndpointEntryKey) == "" {
-		d.Set(RecaptchaEnterpriseEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_RECAPTCHA_ENTERPRISE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[RecaptchaEnterpriseEndpointEntryKey]))
-	}
-
 	return nil
 }
 
@@ -1966,9 +1926,11 @@ func ConfigureBasePaths(c *Config) {
 	c.AlloydbBasePath = DefaultBasePaths[AlloydbBasePathKey]
 	c.ApigeeBasePath = DefaultBasePaths[ApigeeBasePathKey]
 	c.ApihubBasePath = DefaultBasePaths[ApihubBasePathKey]
+	c.ApikeysBasePath = DefaultBasePaths[ApikeysBasePathKey]
 	c.AppEngineBasePath = DefaultBasePaths[AppEngineBasePathKey]
 	c.ApphubBasePath = DefaultBasePaths[ApphubBasePathKey]
 	c.ArtifactRegistryBasePath = DefaultBasePaths[ArtifactRegistryBasePathKey]
+	c.AssuredWorkloadsBasePath = DefaultBasePaths[AssuredWorkloadsBasePathKey]
 	c.BackupDRBasePath = DefaultBasePaths[BackupDRBasePathKey]
 	c.BeyondcorpBasePath = DefaultBasePaths[BeyondcorpBasePathKey]
 	c.BiglakeBasePath = DefaultBasePaths[BiglakeBasePathKey]
@@ -2010,6 +1972,8 @@ func ConfigureBasePaths(c *Config) {
 	c.ContainerBasePath = DefaultBasePaths[ContainerBasePathKey]
 	c.ContainerAnalysisBasePath = DefaultBasePaths[ContainerAnalysisBasePathKey]
 	c.ContainerAttachedBasePath = DefaultBasePaths[ContainerAttachedBasePathKey]
+	c.ContainerAwsBasePath = DefaultBasePaths[ContainerAwsBasePathKey]
+	c.ContainerAzureBasePath = DefaultBasePaths[ContainerAzureBasePathKey]
 	c.DatabaseMigrationServiceBasePath = DefaultBasePaths[DatabaseMigrationServiceBasePathKey]
 	c.DataCatalogBasePath = DefaultBasePaths[DataCatalogBasePathKey]
 	c.DataflowBasePath = DefaultBasePaths[DataflowBasePathKey]
@@ -2040,6 +2004,7 @@ func ConfigureBasePaths(c *Config) {
 	c.FirebaseAppHostingBasePath = DefaultBasePaths[FirebaseAppHostingBasePathKey]
 	c.FirebaseDataConnectBasePath = DefaultBasePaths[FirebaseDataConnectBasePathKey]
 	c.FirebaseRemoteConfigBasePath = DefaultBasePaths[FirebaseRemoteConfigBasePathKey]
+	c.FirebaserulesBasePath = DefaultBasePaths[FirebaserulesBasePathKey]
 	c.FirestoreBasePath = DefaultBasePaths[FirestoreBasePathKey]
 	c.GeminiBasePath = DefaultBasePaths[GeminiBasePathKey]
 	c.GKEBackupBasePath = DefaultBasePaths[GKEBackupBasePathKey]
@@ -2090,6 +2055,7 @@ func ConfigureBasePaths(c *Config) {
 	c.PublicCABasePath = DefaultBasePaths[PublicCABasePathKey]
 	c.PubsubBasePath = DefaultBasePaths[PubsubBasePathKey]
 	c.PubsubLiteBasePath = DefaultBasePaths[PubsubLiteBasePathKey]
+	c.RecaptchaEnterpriseBasePath = DefaultBasePaths[RecaptchaEnterpriseBasePathKey]
 	c.RedisBasePath = DefaultBasePaths[RedisBasePathKey]
 	c.ResourceManagerBasePath = DefaultBasePaths[ResourceManagerBasePathKey]
 	c.ResourceManagerV3BasePath = DefaultBasePaths[ResourceManagerV3BasePathKey]
@@ -2124,15 +2090,6 @@ func ConfigureBasePaths(c *Config) {
 	c.WorkflowsBasePath = DefaultBasePaths[WorkflowsBasePathKey]
 	c.WorkloadIdentityBasePath = DefaultBasePaths[WorkloadIdentityBasePathKey]
 	c.WorkstationsBasePath = DefaultBasePaths[WorkstationsBasePathKey]
-
-	// DCL
-	c.ContainerAwsBasePath = DefaultBasePaths[ContainerAwsBasePathKey]
-	c.ContainerAzureBasePath = DefaultBasePaths[ContainerAzureBasePathKey]
-	c.ApikeysBasePath = DefaultBasePaths[ApikeysEndpointEntryKey]
-	c.AssuredWorkloadsBasePath = DefaultBasePaths[AssuredWorkloadsEndpointEntryKey]
-	c.CloudResourceManagerBasePath = DefaultBasePaths[CloudResourceManagerEndpointEntryKey]
-	c.FirebaserulesBasePath = DefaultBasePaths[FirebaserulesEndpointEntryKey]
-	c.RecaptchaEnterpriseBasePath = DefaultBasePaths[RecaptchaEnterpriseEndpointEntryKey]
 }
 
 func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {

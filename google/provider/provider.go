@@ -21,7 +21,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -192,35 +191,31 @@ func Provider() *schema.Provider {
 				Optional: true,
 			},
 
-			// dcl
-			transport_tpg.ContainerAwsCustomEndpointEntryKey:   transport_tpg.ContainerAwsCustomEndpointEntry,
-			transport_tpg.ContainerAzureCustomEndpointEntryKey: transport_tpg.ContainerAzureCustomEndpointEntry,
-			transport_tpg.ApikeysEndpointEntryKey:              transport_tpg.ApikeysEndpointEntry,
-			transport_tpg.AssuredWorkloadsEndpointEntryKey:     transport_tpg.AssuredWorkloadsEndpointEntry,
-			transport_tpg.CloudResourceManagerEndpointEntryKey: transport_tpg.CloudResourceManagerEndpointEntry,
-			transport_tpg.FirebaserulesEndpointEntryKey:        transport_tpg.FirebaserulesEndpointEntry,
-			transport_tpg.RecaptchaEnterpriseEndpointEntryKey:  transport_tpg.RecaptchaEnterpriseEndpointEntry,
-
 			// Tombstoned schema fields - nonfunctional. https://github.com/hashicorp/terraform-provider-google/issues/26814
 			"core_billing_custom_endpoint": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+				ValidateFunc: ValidateCustomEndpoint,
 			},
 			"billing_custom_endpoint": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+				ValidateFunc: ValidateCustomEndpoint,
 			},
 			"resource_manager3_custom_endpoint": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+				ValidateFunc: ValidateCustomEndpoint,
 			},
 			"iam_custom_endpoint": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+				ValidateFunc: ValidateCustomEndpoint,
+			},
+			"cloud_resource_manager_custom_endpoint": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateCustomEndpoint,
 			},
 		},
 
@@ -239,7 +234,7 @@ func Provider() *schema.Provider {
 		provider.Schema[p.CustomEndpointField] = &schema.Schema{
 			Type:         schema.TypeString,
 			Optional:     true,
-			ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			ValidateFunc: ValidateCustomEndpoint,
 		}
 	}
 
@@ -408,10 +403,12 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.AlloydbBasePath = transport_tpg.BaseUrl(registry.GetProduct("alloydb"), &config)
 	config.ApigeeBasePath = transport_tpg.BaseUrl(registry.GetProduct("apigee"), &config)
 	config.ApihubBasePath = transport_tpg.BaseUrl(registry.GetProduct("apihub"), &config)
+	config.ApikeysBasePath = transport_tpg.BaseUrl(registry.GetProduct("apikeys"), &config)
 	config.AppEngineBasePath = transport_tpg.BaseUrl(registry.GetProduct("appengine"), &config)
 	config.ApphubBasePath = transport_tpg.BaseUrl(registry.GetProduct("apphub"), &config)
 	config.ArtifactRegistryBasePath = transport_tpg.BaseUrl(registry.GetProduct("artifactregistry"), &config)
 	config.ArtifactRegistryRepBasePath = registry.GetProduct("artifactregistry").RepUrl
+	config.AssuredWorkloadsBasePath = transport_tpg.BaseUrl(registry.GetProduct("assuredworkloads"), &config)
 	config.BackupDRBasePath = transport_tpg.BaseUrl(registry.GetProduct("backupdr"), &config)
 	config.BeyondcorpBasePath = transport_tpg.BaseUrl(registry.GetProduct("beyondcorp"), &config)
 	config.BiglakeBasePath = transport_tpg.BaseUrl(registry.GetProduct("biglake"), &config)
@@ -453,6 +450,8 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.ContainerBasePath = transport_tpg.BaseUrl(registry.GetProduct("container"), &config)
 	config.ContainerAnalysisBasePath = transport_tpg.BaseUrl(registry.GetProduct("containeranalysis"), &config)
 	config.ContainerAttachedBasePath = transport_tpg.BaseUrl(registry.GetProduct("containerattached"), &config)
+	config.ContainerAwsBasePath = transport_tpg.BaseUrl(registry.GetProduct("containeraws"), &config)
+	config.ContainerAzureBasePath = transport_tpg.BaseUrl(registry.GetProduct("containerazure"), &config)
 	config.DatabaseMigrationServiceBasePath = transport_tpg.BaseUrl(registry.GetProduct("databasemigrationservice"), &config)
 	config.DataCatalogBasePath = transport_tpg.BaseUrl(registry.GetProduct("datacatalog"), &config)
 	config.DataflowBasePath = transport_tpg.BaseUrl(registry.GetProduct("dataflow"), &config)
@@ -483,6 +482,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.FirebaseAppHostingBasePath = transport_tpg.BaseUrl(registry.GetProduct("firebaseapphosting"), &config)
 	config.FirebaseDataConnectBasePath = transport_tpg.BaseUrl(registry.GetProduct("firebasedataconnect"), &config)
 	config.FirebaseRemoteConfigBasePath = transport_tpg.BaseUrl(registry.GetProduct("firebaseremoteconfig"), &config)
+	config.FirebaserulesBasePath = transport_tpg.BaseUrl(registry.GetProduct("firebaserules"), &config)
 	config.FirestoreBasePath = transport_tpg.BaseUrl(registry.GetProduct("firestore"), &config)
 	config.GeminiBasePath = transport_tpg.BaseUrl(registry.GetProduct("gemini"), &config)
 	config.GKEBackupBasePath = transport_tpg.BaseUrl(registry.GetProduct("gkebackup"), &config)
@@ -533,6 +533,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.PublicCABasePath = transport_tpg.BaseUrl(registry.GetProduct("publicca"), &config)
 	config.PubsubBasePath = transport_tpg.BaseUrl(registry.GetProduct("pubsub"), &config)
 	config.PubsubLiteBasePath = transport_tpg.BaseUrl(registry.GetProduct("pubsublite"), &config)
+	config.RecaptchaEnterpriseBasePath = transport_tpg.BaseUrl(registry.GetProduct("recaptchaenterprise"), &config)
 	config.RedisBasePath = transport_tpg.BaseUrl(registry.GetProduct("redis"), &config)
 	config.ResourceManagerBasePath = transport_tpg.BaseUrl(registry.GetProduct("resourcemanager"), &config)
 	config.ResourceManagerV3BasePath = transport_tpg.BaseUrl(registry.GetProduct("resourcemanagerv3"), &config)
@@ -567,37 +568,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.WorkflowsBasePath = transport_tpg.BaseUrl(registry.GetProduct("workflows"), &config)
 	config.WorkloadIdentityBasePath = transport_tpg.BaseUrl(registry.GetProduct("workloadidentity"), &config)
 	config.WorkstationsBasePath = transport_tpg.BaseUrl(registry.GetProduct("workstations"), &config)
-
-	// Legacy logic for non-registered products
-	// The mtls service client gives the type of endpoint (mtls/regular)
-	// at client creation. Since we use a shared client for requests we must
-	// rewrite the endpoints to be mtls endpoints for the scenario where
-	// mtls is enabled.
-	if config.IsMtls {
-		// if mtls is enabled switch all default endpoints to use the mtls endpoint
-		for key, bp := range transport_tpg.DefaultBasePaths {
-			transport_tpg.DefaultBasePaths[key] = transport_tpg.GetMtlsEndpoint(bp)
-		}
-	}
-	// Replace hostname by the universe_domain field.
-	if config.UniverseDomain != "" && config.UniverseDomain != "googleapis.com" {
-		for key, basePath := range transport_tpg.DefaultBasePaths {
-			transport_tpg.DefaultBasePaths[key] = strings.ReplaceAll(basePath, "googleapis.com", config.UniverseDomain)
-		}
-	}
-	err = transport_tpg.SetEndpointDefaults(d)
-	if err != nil {
-		return nil, diag.FromErr(err)
-	}
-
-	// dcl
-	config.ContainerAwsBasePath = d.Get(transport_tpg.ContainerAwsCustomEndpointEntryKey).(string)
-	config.ContainerAzureBasePath = d.Get(transport_tpg.ContainerAzureCustomEndpointEntryKey).(string)
-	config.ApikeysBasePath = d.Get(transport_tpg.ApikeysEndpointEntryKey).(string)
-	config.AssuredWorkloadsBasePath = d.Get(transport_tpg.AssuredWorkloadsEndpointEntryKey).(string)
-	config.CloudResourceManagerBasePath = d.Get(transport_tpg.CloudResourceManagerEndpointEntryKey).(string)
-	config.FirebaserulesBasePath = d.Get(transport_tpg.FirebaserulesEndpointEntryKey).(string)
-	config.RecaptchaEnterpriseBasePath = d.Get(transport_tpg.RecaptchaEnterpriseEndpointEntryKey).(string)
 
 	stopCtx, ok := schema.StopContext(ctx)
 	if !ok {
