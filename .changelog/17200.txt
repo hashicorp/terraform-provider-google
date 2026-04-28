@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fix inconsistent plan issue for `custome_attributes` field
+```

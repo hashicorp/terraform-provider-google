@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -324,9 +325,22 @@ func (r *storageNotificationResource) refresh(ctx context.Context, model *storag
 	model.EventTypes, eventTypesDiags = types.SetValueFrom(ctx, types.StringType, res.EventTypes)
 	diags.Append(eventTypesDiags...)
 
-	var customAttrsDiags diag.Diagnostics
-	model.CustomAttributes, customAttrsDiags = types.MapValueFrom(ctx, types.StringType, res.CustomAttributes)
-	diags.Append(customAttrsDiags...)
+	// Fix for "Inconsistent result after apply" regarding empty maps
+	if res.CustomAttributes == nil {
+		// If the API returns nil but the user has an empty map {} configured,
+		// we keep it as an empty map to avoid the provider inconsistency error.
+		if !model.CustomAttributes.IsNull() && !model.CustomAttributes.IsUnknown() {
+			emptyMap, _ := types.MapValue(types.StringType, map[string]attr.Value{})
+			model.CustomAttributes = emptyMap
+		} else {
+			model.CustomAttributes = types.MapNull(types.StringType)
+		}
+	} else {
+		// API returned actual values, so we map them normally
+		var customAttrsDiags diag.Diagnostics
+		model.CustomAttributes, customAttrsDiags = types.MapValueFrom(ctx, types.StringType, res.CustomAttributes)
+		diags.Append(customAttrsDiags...)
+	}
 
 	return !diags.HasError()
 }
