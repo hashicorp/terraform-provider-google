@@ -1804,7 +1804,7 @@ by Dataproc`,
 									"idle_delete_ttl": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: `The duration to keep the cluster alive while idling (no jobs running). After this TTL, the cluster will be deleted. Valid range: [10m, 14d].`,
+										Description: `The duration to keep the cluster alive while idling (no jobs running). After this TTL, the cluster will be deleted. Valid range: [300s, 1209600s].`,
 										AtLeastOneOf: []string{
 											"cluster_config.0.lifecycle_config.0.idle_delete_ttl",
 											"cluster_config.0.lifecycle_config.0.auto_delete_time",

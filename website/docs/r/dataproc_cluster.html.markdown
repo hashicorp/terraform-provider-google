@@ -1006,7 +1006,7 @@ auxiliary_node_groups{
 ```hcl
 cluster_config {
   lifecycle_config {
-    idle_delete_ttl = "10m"
+    idle_delete_ttl = "600s"
     auto_delete_time = "2120-01-01T12:00:00.01Z"
     idle_stop_ttl = "10m"
     auto_stop_time = "2120-01-01T12:00:00.01Z"
@@ -1015,7 +1015,7 @@ cluster_config {
 ```
 
 * `idle_delete_ttl` - (Optional) The duration to keep the cluster alive while idling
-  (no jobs running). After this TTL, the cluster will be deleted. Valid range: [10m, 14d].
+  (no jobs running). After this TTL, the cluster will be deleted. Valid range: [300s, 1209600s].
 
 * `auto_delete_time` - (Optional) The time when cluster will be auto-deleted.
   A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds.
