@@ -20,7 +20,9 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"reflect"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -78,10 +80,11 @@ func ResourceServiceNetworkingConnection() *schema.Resource {
 				Description: `Provider peering service that is managing peering connectivity for a service provider organization. For Google services that support this functionality it is 'servicenetworking.googleapis.com'.`,
 			},
 			"reserved_peering_ranges": {
-				Type:        schema.TypeList,
-				Required:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Named IP address range(s) of PEERING type reserved for this service provider. Note that invoking this method with a different range when connection is already established will not reallocate already provisioned service producer subnetworks.`,
+				Type:             schema.TypeList,
+				Required:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: stringListDiffSuppress,
+				Description:      `Named IP address range(s) of PEERING type reserved for this service provider. Note that invoking this method with a different range when connection is already established will not reallocate already provisioned service producer subnetworks.`,
 			},
 			"deletion_policy": {
 				Type:         schema.TypeString,
@@ -243,9 +246,14 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("peering", connection.Peering); err != nil {
 		return fmt.Errorf("Error setting peering: %s", err)
 	}
+
+	// removed the intermediate `ranges` variable — it was a
+	// leftover from when sort.Strings() lived here. The DiffSuppressFunc
+	// already handles ordering, so we write the API response directly to state.
 	if err := d.Set("reserved_peering_ranges", connection.ReservedPeeringRanges); err != nil {
 		return fmt.Errorf("Error setting reserved_peering_ranges: %s", err)
 	}
+
 	return nil
 }
 
@@ -449,7 +457,6 @@ func RetrieveServiceNetworkingNetworkName(d *schema.ResourceData, config *transp
 
 	// return the network name formatting unique to this API
 	return fmt.Sprintf("projects/%v/global/networks/%v", project.ProjectNumber, networkName), nil
-
 }
 
 const parentServicePattern = "^services/.+$"
@@ -472,4 +479,38 @@ func init() {
 		Type:        registry.SchemaTypeResource,
 		Schema:      ResourceServiceNetworkingConnection(),
 	}.Register()
+}
+
+// stringListDiffSuppress suppresses diffs for TypeList fields where the
+// order of elements does not matter. It derives the root key from k by
+// stripping the element index suffix.
+func stringListDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	root := k
+	if idx := strings.IndexByte(k, '.'); idx != -1 {
+		root = k[:idx]
+	}
+
+	o, n := d.GetChange(root)
+
+	oldList, ok1 := o.([]interface{})
+	newList, ok2 := n.([]interface{})
+
+	if !ok1 || !ok2 || len(oldList) != len(newList) {
+		return false
+	}
+
+	oldStrs := make([]string, len(oldList))
+	for i, v := range oldList {
+		oldStrs[i] = fmt.Sprintf("%v", v)
+	}
+
+	newStrs := make([]string, len(newList))
+	for i, v := range newList {
+		newStrs[i] = fmt.Sprintf("%v", v)
+	}
+
+	sort.Strings(oldStrs)
+	sort.Strings(newStrs)
+
+	return reflect.DeepEqual(oldStrs, newStrs)
 }

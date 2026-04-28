@@ -1,0 +1,3 @@
+```release-note:bug
+servicenetworking: fixed a permadiff issue of `reserved_peering_ranges` in `google_service_networking_connection`
+````
