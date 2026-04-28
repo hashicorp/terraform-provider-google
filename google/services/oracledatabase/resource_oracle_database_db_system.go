@@ -365,6 +365,20 @@ not permitted.`,
 													ForceNew:    true,
 													Description: `The national character set for the database. The default is AL16UTF16.`,
 												},
+												"pluggable_database_id": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Optional:    true,
+													ForceNew:    true,
+													Description: `The ID of the pluggable database associated with Database. The ID must be unique within the project and location.`,
+												},
+												"pluggable_database_name": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Optional:    true,
+													ForceNew:    true,
+													Description: `The pluggable dataabse associated with the Database. The name must begin with an alphabetic character and can contain a maximum of thirty alphanumeric characters.`,
+												},
 												"properties": {
 													Type:        schema.TypeList,
 													Optional:    true,
@@ -1296,6 +1310,10 @@ func flattenOracleDatabaseDbSystemPropertiesDbHomeDatabase(v interface{}, d *sch
 		flattenOracleDatabaseDbSystemPropertiesDbHomeDatabaseOciUrl(original["ociUrl"], d, config)
 	transformed["ops_insights_status"] =
 		flattenOracleDatabaseDbSystemPropertiesDbHomeDatabaseOpsInsightsStatus(original["opsInsightsStatus"], d, config)
+	transformed["pluggable_database_id"] =
+		flattenOracleDatabaseDbSystemPropertiesDbHomeDatabasePluggableDatabaseId(original["pluggableDatabaseId"], d, config)
+	transformed["pluggable_database_name"] =
+		flattenOracleDatabaseDbSystemPropertiesDbHomeDatabasePluggableDatabaseName(original["pluggableDatabaseName"], d, config)
 	transformed["properties"] =
 		flattenOracleDatabaseDbSystemPropertiesDbHomeDatabaseProperties(original["properties"], d, config)
 	transformed["tde_wallet_password"] =
@@ -1347,6 +1365,14 @@ func flattenOracleDatabaseDbSystemPropertiesDbHomeDatabaseOciUrl(v interface{}, 
 }
 
 func flattenOracleDatabaseDbSystemPropertiesDbHomeDatabaseOpsInsightsStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseDbSystemPropertiesDbHomeDatabasePluggableDatabaseId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseDbSystemPropertiesDbHomeDatabasePluggableDatabaseName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2014,6 +2040,20 @@ func expandOracleDatabaseDbSystemPropertiesDbHomeDatabase(v interface{}, d tpgre
 		transformed["opsInsightsStatus"] = transformedOpsInsightsStatus
 	}
 
+	transformedPluggableDatabaseId, err := expandOracleDatabaseDbSystemPropertiesDbHomeDatabasePluggableDatabaseId(original["pluggable_database_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPluggableDatabaseId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pluggableDatabaseId"] = transformedPluggableDatabaseId
+	}
+
+	transformedPluggableDatabaseName, err := expandOracleDatabaseDbSystemPropertiesDbHomeDatabasePluggableDatabaseName(original["pluggable_database_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPluggableDatabaseName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pluggableDatabaseName"] = transformedPluggableDatabaseName
+	}
+
 	transformedProperties, err := expandOracleDatabaseDbSystemPropertiesDbHomeDatabaseProperties(original["properties"], d, config)
 	if err != nil {
 		return nil, err
@@ -2076,6 +2116,14 @@ func expandOracleDatabaseDbSystemPropertiesDbHomeDatabaseOciUrl(v interface{}, d
 }
 
 func expandOracleDatabaseDbSystemPropertiesDbHomeDatabaseOpsInsightsStatus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseDbSystemPropertiesDbHomeDatabasePluggableDatabaseId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseDbSystemPropertiesDbHomeDatabasePluggableDatabaseName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

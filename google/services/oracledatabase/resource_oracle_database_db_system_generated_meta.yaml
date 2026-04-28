@@ -43,6 +43,8 @@ fields:
     - api_field: properties.dbHome.database.ncharacterSet
     - api_field: properties.dbHome.database.ociUrl
     - api_field: properties.dbHome.database.opsInsightsStatus
+    - api_field: properties.dbHome.database.pluggableDatabaseId
+    - api_field: properties.dbHome.database.pluggableDatabaseName
     - api_field: properties.dbHome.database.properties.databaseManagementConfig.managementState
     - api_field: properties.dbHome.database.properties.databaseManagementConfig.managementType
     - api_field: properties.dbHome.database.properties.dbBackupConfig.autoBackupEnabled

@@ -133,14 +133,15 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemFullExample(t *testing.
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"database_id":         fmt.Sprintf("ofake-tf-test-database-basic-%s", acctest.RandString(t, 10)),
-		"db_system_id":        fmt.Sprintf("ofake-tf-test-dbsystem-basic-%s", acctest.RandString(t, 10)),
-		"db_unique_name":      fmt.Sprintf("db%s", acctest.RandString(t, 10)),
-		"deletion_protection": false,
-		"odb_network":         "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
-		"odb_subnet":          "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
-		"project":             "oci-terraform-testing-prod",
-		"random_suffix":       randomSuffix,
+		"database_id":           fmt.Sprintf("ofake-tf-test-database-basic-%s", acctest.RandString(t, 10)),
+		"db_system_id":          fmt.Sprintf("ofake-tf-test-dbsystem-basic-%s", acctest.RandString(t, 10)),
+		"db_unique_name":        fmt.Sprintf("db%s", acctest.RandString(t, 10)),
+		"deletion_protection":   false,
+		"odb_network":           "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":            "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"pluggable_database_id": fmt.Sprintf("ofake-tf-test-mypdb-%s", acctest.RandString(t, 10)),
+		"project":               "oci-terraform-testing-prod",
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -179,7 +180,7 @@ resource "google_oracle_database_db_system" "my_db_system"{
     properties {
         ssh_public_keys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCz1X2744t+6vRLmE5u6nHi6/QWh8bQDgHmd+OIxRQIGA/IWUtCs2FnaCNZcqvZkaeyjk5v0lTA/n+9jvO42Ipib53athrfVG8gRt8fzPL66C6ZqHq+6zZophhrCdfJh/0G4x9xJh5gdMprlaCR1P8yAaVvhBQSKGc4SiIkyMNBcHJ5YTtMQMTfxaB4G1sHZ6SDAY9a6Cq/zNjDwfPapWLsiP4mRhE5SSjJX6l6EYbkm0JeLQg+AbJiNEPvrvDp1wtTxzlPJtIivthmLMThFxK7+DkrYFuLvN5AHUdo9KTDLvHtDCvV70r8v0gafsrKkM/OE9Jtzoo0e1N/5K/ZdyFRbAkFT4QSF3nwpbmBWLf2Evg//YyEuxnz4CwPqFST2mucnrCCGCVWp1vnHZ0y30nM35njLOmWdRDFy5l27pKUTwLp02y3UYiiZyP7d3/u5pKiN4vC27VuvzprSdJxWoAvluOiDeRh+/oeQDowxoT/Oop8DzB9uJmjktXw8jyMW2+Rpg+ENQqeNgF1OGlEzypaWiRskEFlkpLb4v/s3ZDYkL1oW0Nv/J8LTjTOTEaYt2Udjoe9x2xWiGnQixhdChWuG+MaoWffzUgx1tsVj/DBXijR5DjkPkrA1GA98zd3q8GKEaAdcDenJjHhNYSd4+rE9pIsnYn7fo5X/tFfcQH1XQ== nobody@google.com"]
         compute_count = "4"
-        hostname_prefix = "hostname3"
+        hostname_prefix = "hostname4"
         compute_model = "ECPU"
         data_storage_size_gb = "256"
         memory_size_gb = "8"
@@ -187,7 +188,6 @@ resource "google_oracle_database_db_system" "my_db_system"{
         initial_data_storage_size_gb = "256"
         database_edition = "STANDARD_EDITION"
         license_model = "LICENSE_INCLUDED"
-        private_ip = "10.1.2.127"
         db_home {
             db_version = "19.0.0.0"
             database {
@@ -196,6 +196,8 @@ resource "google_oracle_database_db_system" "my_db_system"{
                 admin_password = "ABcde_1#2345"
                 tde_wallet_password = "ABcde_1#2345"
                 database_id = "%{database_id}"
+                pluggable_database_id = "%{pluggable_database_id}"
+                pluggable_database_name = "mypdb"
             }
             is_unified_auditing_enabled = "true"
         }

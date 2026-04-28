@@ -1,0 +1,3 @@
+```release-note:enhancement
+oracle_database: added `pluggable_database_id`, `pluggable_database_name` fields to `google_oracle_database_db_system` resource
+```
