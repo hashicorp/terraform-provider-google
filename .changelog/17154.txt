@@ -1,0 +1,3 @@
+```release-note:note
+compute: migrated `google_compute_metadata` to remove a client library 
+```

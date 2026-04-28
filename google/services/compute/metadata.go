@@ -33,70 +33,26 @@ func MetadataRetryWrapper(update func() error) error {
 	return transport_tpg.MetadataRetryWrapper(update)
 }
 
-// Update the metadata (serverMD) according to the provided diff (oldMDMap v
-// newMDMap).
-func MetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]interface{}, serverMD *compute.Metadata) {
-	curMDMap := make(map[string]string)
-	// Load metadata on server into map
-	for _, kv := range serverMD.Items {
-		// If the server state has a key that we had in our old
-		// state, but not in our new state, we should delete it
-		_, okOld := oldMDMap[kv.Key]
-		_, okNew := newMDMap[kv.Key]
+// MetadataUpdate merges the diff between oldMDMap and newMDMap into serverMD.
+// Keys present in oldMDMap but absent from newMDMap are removed from serverMD.
+// Keys present in newMDMap are inserted or overwritten in serverMD.
+// serverMD is modified in place.
+func MetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]interface{}, serverMD map[string]interface{}) {
+	for key := range serverMD {
+		_, okOld := oldMDMap[key]
+		_, okNew := newMDMap[key]
 		if okOld && !okNew {
-			continue
-		} else {
-			curMDMap[kv.Key] = *kv.Value
+			delete(serverMD, key)
 		}
 	}
-
-	// Insert new metadata into existing metadata (overwriting when needed)
 	for key, val := range newMDMap {
-		curMDMap[key] = val.(string)
-	}
-
-	// Reformat old metadata into a list
-	serverMD.Items = nil
-	for key, val := range curMDMap {
-		v := val
-		serverMD.Items = append(serverMD.Items, &compute.MetadataItems{
-			Key:   key,
-			Value: &v,
-		})
+		serverMD[key] = val.(string)
 	}
 }
 
-// Update the beta metadata (serverMD) according to the provided diff (oldMDMap v
-// newMDMap).
-func BetaMetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]interface{}, serverMD *compute.Metadata) {
-	curMDMap := make(map[string]string)
-	// Load metadata on server into map
-	for _, kv := range serverMD.Items {
-		// If the server state has a key that we had in our old
-		// state, but not in our new state, we should delete it
-		_, okOld := oldMDMap[kv.Key]
-		_, okNew := newMDMap[kv.Key]
-		if okOld && !okNew {
-			continue
-		} else {
-			curMDMap[kv.Key] = *kv.Value
-		}
-	}
-
-	// Insert new metadata into existing metadata (overwriting when needed)
-	for key, val := range newMDMap {
-		curMDMap[key] = val.(string)
-	}
-
-	// Reformat old metadata into a list
-	serverMD.Items = nil
-	for key, val := range curMDMap {
-		v := val
-		serverMD.Items = append(serverMD.Items, &compute.MetadataItems{
-			Key:   key,
-			Value: &v,
-		})
-	}
+// BetaMetadataUpdate is equivalent to MetadataUpdate.
+func BetaMetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]interface{}, serverMD map[string]interface{}) {
+	MetadataUpdate(oldMDMap, newMDMap, serverMD)
 }
 
 func expandComputeMetadata(m map[string]interface{}) []*compute.MetadataItems {
