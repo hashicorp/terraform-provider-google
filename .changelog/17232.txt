@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataplex: added `attributes`, `template_reference`, `enable_catalog_basedRules`, and `filter` fields to `google_dataplex_datascan` resource
+```

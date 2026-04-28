@@ -31,12 +31,15 @@ fields:
     - api_field: dataProfileSpec.rowFilter
     - api_field: dataProfileSpec.samplingPercent
     - api_field: dataQualitySpec.catalogPublishingEnabled
+    - api_field: dataQualitySpec.enableCatalogBasedRules
+    - api_field: dataQualitySpec.filter
     - api_field: dataQualitySpec.postScanActions.bigqueryExport.resultsTable
     - api_field: dataQualitySpec.postScanActions.notificationReport.jobEndTrigger
     - api_field: dataQualitySpec.postScanActions.notificationReport.jobFailureTrigger
     - api_field: dataQualitySpec.postScanActions.notificationReport.recipients.emails
     - api_field: dataQualitySpec.postScanActions.notificationReport.scoreThresholdTrigger.scoreThreshold
     - api_field: dataQualitySpec.rowFilter
+    - api_field: dataQualitySpec.rules.attributes
     - api_field: dataQualitySpec.rules.column
     - api_field: dataQualitySpec.rules.description
     - api_field: dataQualitySpec.rules.dimension
@@ -58,6 +61,11 @@ fields:
     - api_field: dataQualitySpec.rules.statisticRangeExpectation.strictMinEnabled
     - api_field: dataQualitySpec.rules.suspended
     - api_field: dataQualitySpec.rules.tableConditionExpectation.sqlExpression
+    - api_field: dataQualitySpec.rules.templateReference.name
+    - api_field: dataQualitySpec.rules.templateReference.values.key
+      field: data_quality_spec.rules.template_reference.values.name
+    - api_field: dataQualitySpec.rules.templateReference.values.value.value
+      field: data_quality_spec.rules.template_reference.values.value
     - api_field: dataQualitySpec.rules.threshold
     - api_field: dataQualitySpec.rules.uniquenessExpectation
     - api_field: dataQualitySpec.samplingPercent
