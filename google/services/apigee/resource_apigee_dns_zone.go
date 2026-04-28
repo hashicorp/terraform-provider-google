@@ -282,17 +282,9 @@ func resourceApigeeDnsZoneRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished reading ApigeeDnsZone %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenApigeeDnsZoneName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsZone: %s", err)
-	}
-	if err := d.Set("domain", flattenApigeeDnsZoneDomain(res["domain"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsZone: %s", err)
-	}
-	if err := d.Set("description", flattenApigeeDnsZoneDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsZone: %s", err)
-	}
-	if err := d.Set("peering_config", flattenApigeeDnsZonePeeringConfig(res["peeringConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsZone: %s", err)
+	err = ResourceApigeeDnsZoneFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -461,4 +453,23 @@ func expandApigeeDnsZonePeeringConfigTargetProjectId(v interface{}, d tpgresourc
 
 func expandApigeeDnsZonePeeringConfigTargetNetworkId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeDnsZoneFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenApigeeDnsZoneName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsZone: %s", err)
+	}
+	if err = d.Set("domain", flattenApigeeDnsZoneDomain(res["domain"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsZone: %s", err)
+	}
+	if err = d.Set("description", flattenApigeeDnsZoneDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsZone: %s", err)
+	}
+	if err = d.Set("peering_config", flattenApigeeDnsZonePeeringConfig(res["peeringConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsZone: %s", err)
+	}
+
+	return nil
 }

@@ -338,29 +338,9 @@ func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta 
 
 	log.Printf("[DEBUG] Finished reading StorageDefaultObjectAccessControl %q: %#v", d.Id(), res)
 
-	if err := d.Set("domain", flattenStorageDefaultObjectAccessControlDomain(res["domain"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
-	}
-	if err := d.Set("email", flattenStorageDefaultObjectAccessControlEmail(res["email"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
-	}
-	if err := d.Set("entity", flattenStorageDefaultObjectAccessControlEntity(res["entity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
-	}
-	if err := d.Set("entity_id", flattenStorageDefaultObjectAccessControlEntityId(res["entityId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
-	}
-	if err := d.Set("generation", flattenStorageDefaultObjectAccessControlGeneration(res["generation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
-	}
-	if err := d.Set("object", flattenStorageDefaultObjectAccessControlObject(res["object"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
-	}
-	if err := d.Set("project_team", flattenStorageDefaultObjectAccessControlProjectTeam(res["projectTeam"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
-	}
-	if err := d.Set("role", flattenStorageDefaultObjectAccessControlRole(res["role"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+	err = ResourceStorageDefaultObjectAccessControlFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -619,4 +599,35 @@ func expandStorageDefaultObjectAccessControlObject(v interface{}, d tpgresource.
 
 func expandStorageDefaultObjectAccessControlRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceStorageDefaultObjectAccessControlFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("domain", flattenStorageDefaultObjectAccessControlDomain(res["domain"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+	}
+	if err = d.Set("email", flattenStorageDefaultObjectAccessControlEmail(res["email"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+	}
+	if err = d.Set("entity", flattenStorageDefaultObjectAccessControlEntity(res["entity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+	}
+	if err = d.Set("entity_id", flattenStorageDefaultObjectAccessControlEntityId(res["entityId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+	}
+	if err = d.Set("generation", flattenStorageDefaultObjectAccessControlGeneration(res["generation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+	}
+	if err = d.Set("object", flattenStorageDefaultObjectAccessControlObject(res["object"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+	}
+	if err = d.Set("project_team", flattenStorageDefaultObjectAccessControlProjectTeam(res["projectTeam"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+	}
+	if err = d.Set("role", flattenStorageDefaultObjectAccessControlRole(res["role"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
+	}
+
+	return nil
 }

@@ -393,29 +393,9 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading SslCertificate: %s", err)
 	}
 
-	if err := d.Set("certificate", flattenComputeSslCertificateCertificate(res["certificate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeSslCertificateCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("description", flattenComputeSslCertificateDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("expire_time", flattenComputeSslCertificateExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("certificate_id", flattenComputeSslCertificateCertificateId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("name", flattenComputeSslCertificateName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("private_key_wo_version", flattenComputeSslCertificatePrivateKeyWoVersion(res["privateKeyWoVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	err = ResourceComputeSslCertificateFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -593,4 +573,34 @@ func expandComputeSslCertificatePrivateKey(v interface{}, d tpgresource.Terrafor
 
 func expandComputeSslCertificatePrivateKeyWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeSslCertificateFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("certificate", flattenComputeSslCertificateCertificate(res["certificate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeSslCertificateCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err = d.Set("description", flattenComputeSslCertificateDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err = d.Set("expire_time", flattenComputeSslCertificateExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err = d.Set("certificate_id", flattenComputeSslCertificateCertificateId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err = d.Set("name", flattenComputeSslCertificateName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err = d.Set("private_key_wo_version", flattenComputeSslCertificatePrivateKeyWoVersion(res["privateKeyWoVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	return nil
 }

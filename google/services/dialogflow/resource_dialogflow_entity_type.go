@@ -340,20 +340,9 @@ func resourceDialogflowEntityTypeRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading EntityType: %s", err)
 	}
 
-	if err := d.Set("name", flattenDialogflowEntityTypeName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowEntityTypeDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
-	}
-	if err := d.Set("kind", flattenDialogflowEntityTypeKind(res["kind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
-	}
-	if err := d.Set("enable_fuzzy_extraction", flattenDialogflowEntityTypeEnableFuzzyExtraction(res["enableFuzzyExtraction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
-	}
-	if err := d.Set("entities", flattenDialogflowEntityTypeEntities(res["entities"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
+	err = ResourceDialogflowEntityTypeFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -626,5 +615,27 @@ func resourceDialogflowEntityTypePostCreateSetComputedFields(d *schema.ResourceD
 	if err := d.Set("name", flattenDialogflowEntityTypeName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowEntityTypeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowEntityTypeName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowEntityTypeDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+	if err = d.Set("kind", flattenDialogflowEntityTypeKind(res["kind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+	if err = d.Set("enable_fuzzy_extraction", flattenDialogflowEntityTypeEnableFuzzyExtraction(res["enableFuzzyExtraction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+	if err = d.Set("entities", flattenDialogflowEntityTypeEntities(res["entities"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+
 	return nil
 }

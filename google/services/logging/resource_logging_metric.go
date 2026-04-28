@@ -541,32 +541,9 @@ func resourceLoggingMetricRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Metric: %s", err)
 	}
 
-	if err := d.Set("name", flattenLoggingMetricName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Metric: %s", err)
-	}
-	if err := d.Set("description", flattenLoggingMetricDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Metric: %s", err)
-	}
-	if err := d.Set("bucket_name", flattenLoggingMetricBucketName(res["bucketName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Metric: %s", err)
-	}
-	if err := d.Set("disabled", flattenLoggingMetricDisabled(res["disabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Metric: %s", err)
-	}
-	if err := d.Set("filter", flattenLoggingMetricFilter(res["filter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Metric: %s", err)
-	}
-	if err := d.Set("metric_descriptor", flattenLoggingMetricMetricDescriptor(res["metricDescriptor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Metric: %s", err)
-	}
-	if err := d.Set("label_extractors", flattenLoggingMetricLabelExtractors(res["labelExtractors"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Metric: %s", err)
-	}
-	if err := d.Set("value_extractor", flattenLoggingMetricValueExtractor(res["valueExtractor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Metric: %s", err)
-	}
-	if err := d.Set("bucket_options", flattenLoggingMetricBucketOptions(res["bucketOptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Metric: %s", err)
+	err = ResourceLoggingMetricFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1311,4 +1288,38 @@ func expandLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d tpgresourc
 
 func expandLoggingMetricBucketOptionsExplicitBucketsBounds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceLoggingMetricFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenLoggingMetricName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Metric: %s", err)
+	}
+	if err = d.Set("description", flattenLoggingMetricDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Metric: %s", err)
+	}
+	if err = d.Set("bucket_name", flattenLoggingMetricBucketName(res["bucketName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Metric: %s", err)
+	}
+	if err = d.Set("disabled", flattenLoggingMetricDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Metric: %s", err)
+	}
+	if err = d.Set("filter", flattenLoggingMetricFilter(res["filter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Metric: %s", err)
+	}
+	if err = d.Set("metric_descriptor", flattenLoggingMetricMetricDescriptor(res["metricDescriptor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Metric: %s", err)
+	}
+	if err = d.Set("label_extractors", flattenLoggingMetricLabelExtractors(res["labelExtractors"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Metric: %s", err)
+	}
+	if err = d.Set("value_extractor", flattenLoggingMetricValueExtractor(res["valueExtractor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Metric: %s", err)
+	}
+	if err = d.Set("bucket_options", flattenLoggingMetricBucketOptions(res["bucketOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Metric: %s", err)
+	}
+
+	return nil
 }

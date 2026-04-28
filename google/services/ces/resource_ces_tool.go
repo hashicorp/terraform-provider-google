@@ -1451,44 +1451,9 @@ func resourceCESToolRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Tool: %s", err)
 	}
 
-	if err := d.Set("client_function", flattenCESToolClientFunction(res["clientFunction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("create_time", flattenCESToolCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("data_store_tool", flattenCESToolDataStoreTool(res["dataStoreTool"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("display_name", flattenCESToolDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("etag", flattenCESToolEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("execution_type", flattenCESToolExecutionType(res["executionType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("generated_summary", flattenCESToolGeneratedSummary(res["generatedSummary"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("google_search_tool", flattenCESToolGoogleSearchTool(res["googleSearchTool"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("name", flattenCESToolName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("open_api_tool", flattenCESToolOpenApiTool(res["openApiTool"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("python_function", flattenCESToolPythonFunction(res["pythonFunction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("update_time", flattenCESToolUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
-	}
-	if err := d.Set("system_tool", flattenCESToolSystemTool(res["systemTool"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tool: %s", err)
+	err = ResourceCESToolFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -4401,5 +4366,51 @@ func resourceCESToolPostCreateSetComputedFields(d *schema.ResourceData, meta int
 	if err := d.Set("name", flattenCESToolName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceCESToolFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("client_function", flattenCESToolClientFunction(res["clientFunction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("create_time", flattenCESToolCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("data_store_tool", flattenCESToolDataStoreTool(res["dataStoreTool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("display_name", flattenCESToolDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("etag", flattenCESToolEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("execution_type", flattenCESToolExecutionType(res["executionType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("generated_summary", flattenCESToolGeneratedSummary(res["generatedSummary"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("google_search_tool", flattenCESToolGoogleSearchTool(res["googleSearchTool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("name", flattenCESToolName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("open_api_tool", flattenCESToolOpenApiTool(res["openApiTool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("python_function", flattenCESToolPythonFunction(res["pythonFunction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("update_time", flattenCESToolUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("system_tool", flattenCESToolSystemTool(res["systemTool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+
 	return nil
 }

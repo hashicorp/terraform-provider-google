@@ -325,11 +325,9 @@ func resourceBiglakeIcebergIcebergNamespaceRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading IcebergNamespace: %s", err)
 	}
 
-	if err := d.Set("namespace_id", flattenBiglakeIcebergIcebergNamespaceNamespaceId(res["namespace"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergNamespace: %s", err)
-	}
-	if err := d.Set("properties", flattenBiglakeIcebergIcebergNamespaceProperties(res["properties"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergNamespace: %s", err)
+	err = ResourceBiglakeIcebergIcebergNamespaceFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -584,4 +582,17 @@ func resourceBiglakeIcebergIcebergNamespaceUpdateEncoder(d *schema.ResourceData,
 		}, nil
 	}
 	return nil, nil
+}
+
+func ResourceBiglakeIcebergIcebergNamespaceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("namespace_id", flattenBiglakeIcebergIcebergNamespaceNamespaceId(res["namespace"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergNamespace: %s", err)
+	}
+	if err = d.Set("properties", flattenBiglakeIcebergIcebergNamespaceProperties(res["properties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergNamespace: %s", err)
+	}
+
+	return nil
 }

@@ -476,44 +476,9 @@ func resourceIAM3ProjectsPolicyBindingRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
 	}
 
-	if err := d.Set("name", flattenIAM3ProjectsPolicyBindingName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("uid", flattenIAM3ProjectsPolicyBindingUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("etag", flattenIAM3ProjectsPolicyBindingEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("display_name", flattenIAM3ProjectsPolicyBindingDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("annotations", flattenIAM3ProjectsPolicyBindingAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("target", flattenIAM3ProjectsPolicyBindingTarget(res["target"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("policy_kind", flattenIAM3ProjectsPolicyBindingPolicyKind(res["policyKind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("policy", flattenIAM3ProjectsPolicyBindingPolicy(res["policy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("policy_uid", flattenIAM3ProjectsPolicyBindingPolicyUid(res["policyUid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("condition", flattenIAM3ProjectsPolicyBindingCondition(res["condition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("create_time", flattenIAM3ProjectsPolicyBindingCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("update_time", flattenIAM3ProjectsPolicyBindingUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenIAM3ProjectsPolicyBindingEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	err = ResourceIAM3ProjectsPolicyBindingFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -977,4 +942,50 @@ func expandIAM3ProjectsPolicyBindingEffectiveAnnotations(v interface{}, d tpgres
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceIAM3ProjectsPolicyBindingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIAM3ProjectsPolicyBindingName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("uid", flattenIAM3ProjectsPolicyBindingUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("etag", flattenIAM3ProjectsPolicyBindingEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("display_name", flattenIAM3ProjectsPolicyBindingDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("annotations", flattenIAM3ProjectsPolicyBindingAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("target", flattenIAM3ProjectsPolicyBindingTarget(res["target"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("policy_kind", flattenIAM3ProjectsPolicyBindingPolicyKind(res["policyKind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("policy", flattenIAM3ProjectsPolicyBindingPolicy(res["policy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("policy_uid", flattenIAM3ProjectsPolicyBindingPolicyUid(res["policyUid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("condition", flattenIAM3ProjectsPolicyBindingCondition(res["condition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("create_time", flattenIAM3ProjectsPolicyBindingCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("update_time", flattenIAM3ProjectsPolicyBindingUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenIAM3ProjectsPolicyBindingEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectsPolicyBinding: %s", err)
+	}
+
+	return nil
 }

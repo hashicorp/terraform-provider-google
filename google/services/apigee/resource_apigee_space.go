@@ -240,17 +240,9 @@ func resourceApigeeSpaceRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished reading ApigeeSpace %q: %#v", d.Id(), res)
 
-	if err := d.Set("display_name", flattenApigeeSpaceDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Space: %s", err)
-	}
-	if err := d.Set("name", flattenApigeeSpaceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Space: %s", err)
-	}
-	if err := d.Set("create_time", flattenApigeeSpaceCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Space: %s", err)
-	}
-	if err := d.Set("update_time", flattenApigeeSpaceUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Space: %s", err)
+	err = ResourceApigeeSpaceFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -422,4 +414,23 @@ func flattenApigeeSpaceUpdateTime(v interface{}, d *schema.ResourceData, config 
 
 func expandApigeeSpaceDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeSpaceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("display_name", flattenApigeeSpaceDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Space: %s", err)
+	}
+	if err = d.Set("name", flattenApigeeSpaceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Space: %s", err)
+	}
+	if err = d.Set("create_time", flattenApigeeSpaceCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Space: %s", err)
+	}
+	if err = d.Set("update_time", flattenApigeeSpaceUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Space: %s", err)
+	}
+
+	return nil
 }

@@ -320,17 +320,9 @@ func resourceDataformFolderRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Folder: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataformFolderName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Folder: %s", err)
-	}
-	if err := d.Set("folder_id", flattenDataformFolderFolderId(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Folder: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataformFolderDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Folder: %s", err)
-	}
-	if err := d.Set("containing_folder", flattenDataformFolderContainingFolder(res["containingFolder"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Folder: %s", err)
+	err = ResourceDataformFolderFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -565,5 +557,24 @@ func resourceDataformFolderPostCreateSetComputedFields(d *schema.ResourceData, m
 	if err := d.Set("folder_id", flattenDataformFolderFolderId(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "folder_id": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDataformFolderFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataformFolderName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Folder: %s", err)
+	}
+	if err = d.Set("folder_id", flattenDataformFolderFolderId(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Folder: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataformFolderDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Folder: %s", err)
+	}
+	if err = d.Set("containing_folder", flattenDataformFolderContainingFolder(res["containingFolder"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Folder: %s", err)
+	}
+
 	return nil
 }

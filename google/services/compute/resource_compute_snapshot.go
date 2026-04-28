@@ -603,56 +603,9 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
 
-	if err := d.Set("source_disk", flattenComputeSnapshotSourceDisk(res["sourceDisk"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeSnapshotCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("snapshot_id", flattenComputeSnapshotSnapshotId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("disk_size_gb", flattenComputeSnapshotDiskSizeGb(res["diskSizeGb"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("chain_name", flattenComputeSnapshotChainName(res["chainName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("name", flattenComputeSnapshotName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("description", flattenComputeSnapshotDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("storage_bytes", flattenComputeSnapshotStorageBytes(res["storageBytes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("storage_locations", flattenComputeSnapshotStorageLocations(res["storageLocations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("licenses", flattenComputeSnapshotLicenses(res["licenses"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeSnapshotLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeSnapshotLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("snapshot_type", flattenComputeSnapshotSnapshotType(res["snapshotType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenComputeSnapshotTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenComputeSnapshotEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("snapshot_encryption_key", flattenComputeSnapshotSnapshotEncryptionKey(res["snapshotEncryptionKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Snapshot: %s", err)
+	err = ResourceComputeSnapshotFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1239,4 +1192,61 @@ func resourceComputeSnapshotDecoder(d *schema.ResourceData, meta interface{}, re
 	}
 
 	return res, nil
+}
+
+func ResourceComputeSnapshotFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("source_disk", flattenComputeSnapshotSourceDisk(res["sourceDisk"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeSnapshotCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("snapshot_id", flattenComputeSnapshotSnapshotId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("disk_size_gb", flattenComputeSnapshotDiskSizeGb(res["diskSizeGb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("chain_name", flattenComputeSnapshotChainName(res["chainName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("name", flattenComputeSnapshotName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("description", flattenComputeSnapshotDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("storage_bytes", flattenComputeSnapshotStorageBytes(res["storageBytes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("storage_locations", flattenComputeSnapshotStorageLocations(res["storageLocations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("licenses", flattenComputeSnapshotLicenses(res["licenses"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("labels", flattenComputeSnapshotLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("label_fingerprint", flattenComputeSnapshotLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("snapshot_type", flattenComputeSnapshotSnapshotType(res["snapshotType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenComputeSnapshotTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenComputeSnapshotEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("snapshot_encryption_key", flattenComputeSnapshotSnapshotEncryptionKey(res["snapshotEncryptionKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	return nil
 }

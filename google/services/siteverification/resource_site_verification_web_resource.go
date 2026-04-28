@@ -295,14 +295,9 @@ func resourceSiteVerificationWebResourceRead(d *schema.ResourceData, meta interf
 
 	log.Printf("[DEBUG] Finished reading SiteVerificationWebResource %q: %#v", d.Id(), res)
 
-	if err := d.Set("web_resource_id", flattenSiteVerificationWebResourceWebResourceId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WebResource: %s", err)
-	}
-	if err := d.Set("site", flattenSiteVerificationWebResourceSite(res["site"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WebResource: %s", err)
-	}
-	if err := d.Set("owners", flattenSiteVerificationWebResourceOwners(res["owners"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WebResource: %s", err)
+	err = ResourceSiteVerificationWebResourceFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -458,5 +453,21 @@ func resourceSiteVerificationWebResourcePostCreateSetComputedFields(d *schema.Re
 	if err := d.Set("web_resource_id", flattenSiteVerificationWebResourceWebResourceId(res["id"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "web_resource_id": %s`, err)
 	}
+	return nil
+}
+
+func ResourceSiteVerificationWebResourceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("web_resource_id", flattenSiteVerificationWebResourceWebResourceId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WebResource: %s", err)
+	}
+	if err = d.Set("site", flattenSiteVerificationWebResourceSite(res["site"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WebResource: %s", err)
+	}
+	if err = d.Set("owners", flattenSiteVerificationWebResourceOwners(res["owners"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WebResource: %s", err)
+	}
+
 	return nil
 }

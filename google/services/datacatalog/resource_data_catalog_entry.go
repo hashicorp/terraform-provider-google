@@ -496,41 +496,9 @@ func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) erro
 
 	log.Printf("[DEBUG] Finished reading DataCatalogEntry %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenDataCatalogEntryName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
-	}
-	if err := d.Set("linked_resource", flattenDataCatalogEntryLinkedResource(res["linkedResource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataCatalogEntryDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
-	}
-	if err := d.Set("description", flattenDataCatalogEntryDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
-	}
-	if err := d.Set("schema", flattenDataCatalogEntrySchema(res["schema"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
-	}
-	if err := d.Set("type", flattenDataCatalogEntryType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
-	}
-	if err := d.Set("user_specified_type", flattenDataCatalogEntryUserSpecifiedType(res["userSpecifiedType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
-	}
-	if err := d.Set("integrated_system", flattenDataCatalogEntryIntegratedSystem(res["integratedSystem"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
-	}
-	if err := d.Set("user_specified_system", flattenDataCatalogEntryUserSpecifiedSystem(res["userSpecifiedSystem"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
-	}
-	if err := d.Set("gcs_fileset_spec", flattenDataCatalogEntryGcsFilesetSpec(res["gcsFilesetSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
-	}
-	if err := d.Set("bigquery_table_spec", flattenDataCatalogEntryBigqueryTableSpec(res["bigqueryTableSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
-	}
-	if err := d.Set("bigquery_date_sharded_spec", flattenDataCatalogEntryBigqueryDateShardedSpec(res["bigqueryDateShardedSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Entry: %s", err)
+	err = ResourceDataCatalogEntryFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1069,5 +1037,48 @@ func resourceDataCatalogEntryPostCreateSetComputedFields(d *schema.ResourceData,
 	if err := d.Set("name", flattenDataCatalogEntryName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDataCatalogEntryFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataCatalogEntryName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+	if err = d.Set("linked_resource", flattenDataCatalogEntryLinkedResource(res["linkedResource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataCatalogEntryDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+	if err = d.Set("description", flattenDataCatalogEntryDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+	if err = d.Set("schema", flattenDataCatalogEntrySchema(res["schema"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+	if err = d.Set("type", flattenDataCatalogEntryType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+	if err = d.Set("user_specified_type", flattenDataCatalogEntryUserSpecifiedType(res["userSpecifiedType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+	if err = d.Set("integrated_system", flattenDataCatalogEntryIntegratedSystem(res["integratedSystem"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+	if err = d.Set("user_specified_system", flattenDataCatalogEntryUserSpecifiedSystem(res["userSpecifiedSystem"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+	if err = d.Set("gcs_fileset_spec", flattenDataCatalogEntryGcsFilesetSpec(res["gcsFilesetSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+	if err = d.Set("bigquery_table_spec", flattenDataCatalogEntryBigqueryTableSpec(res["bigqueryTableSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+	if err = d.Set("bigquery_date_sharded_spec", flattenDataCatalogEntryBigqueryDateShardedSpec(res["bigqueryDateShardedSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Entry: %s", err)
+	}
+
 	return nil
 }

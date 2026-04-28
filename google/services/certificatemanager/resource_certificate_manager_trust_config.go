@@ -420,29 +420,9 @@ func resourceCertificateManagerTrustConfigRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading TrustConfig: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenCertificateManagerTrustConfigCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TrustConfig: %s", err)
-	}
-	if err := d.Set("update_time", flattenCertificateManagerTrustConfigUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TrustConfig: %s", err)
-	}
-	if err := d.Set("labels", flattenCertificateManagerTrustConfigLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TrustConfig: %s", err)
-	}
-	if err := d.Set("description", flattenCertificateManagerTrustConfigDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TrustConfig: %s", err)
-	}
-	if err := d.Set("trust_stores", flattenCertificateManagerTrustConfigTrustStores(res["trustStores"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TrustConfig: %s", err)
-	}
-	if err := d.Set("allowlisted_certificates", flattenCertificateManagerTrustConfigAllowlistedCertificates(res["allowlistedCertificates"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TrustConfig: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenCertificateManagerTrustConfigTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TrustConfig: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenCertificateManagerTrustConfigEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TrustConfig: %s", err)
+	err = ResourceCertificateManagerTrustConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -913,4 +893,35 @@ func expandCertificateManagerTrustConfigEffectiveLabels(v interface{}, d tpgreso
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceCertificateManagerTrustConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenCertificateManagerTrustConfigCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TrustConfig: %s", err)
+	}
+	if err = d.Set("update_time", flattenCertificateManagerTrustConfigUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TrustConfig: %s", err)
+	}
+	if err = d.Set("labels", flattenCertificateManagerTrustConfigLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TrustConfig: %s", err)
+	}
+	if err = d.Set("description", flattenCertificateManagerTrustConfigDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TrustConfig: %s", err)
+	}
+	if err = d.Set("trust_stores", flattenCertificateManagerTrustConfigTrustStores(res["trustStores"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TrustConfig: %s", err)
+	}
+	if err = d.Set("allowlisted_certificates", flattenCertificateManagerTrustConfigAllowlistedCertificates(res["allowlistedCertificates"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TrustConfig: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenCertificateManagerTrustConfigTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TrustConfig: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenCertificateManagerTrustConfigEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TrustConfig: %s", err)
+	}
+
+	return nil
 }

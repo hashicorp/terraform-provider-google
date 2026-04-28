@@ -369,29 +369,9 @@ func resourceVmwareengineNetworkRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenVmwareengineNetworkCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("update_time", flattenVmwareengineNetworkUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("description", flattenVmwareengineNetworkDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("vpc_networks", flattenVmwareengineNetworkVpcNetworks(res["vpcNetworks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("state", flattenVmwareengineNetworkState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("type", flattenVmwareengineNetworkType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("uid", flattenVmwareengineNetworkUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("etag", flattenVmwareengineNetworkEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
+	err = ResourceVmwareengineNetworkFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -656,4 +636,35 @@ func expandVmwareengineNetworkDescription(v interface{}, d tpgresource.Terraform
 
 func expandVmwareengineNetworkType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceVmwareengineNetworkFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenVmwareengineNetworkCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("update_time", flattenVmwareengineNetworkUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("description", flattenVmwareengineNetworkDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("vpc_networks", flattenVmwareengineNetworkVpcNetworks(res["vpcNetworks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("state", flattenVmwareengineNetworkState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("type", flattenVmwareengineNetworkType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("uid", flattenVmwareengineNetworkUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("etag", flattenVmwareengineNetworkEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+
+	return nil
 }

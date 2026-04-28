@@ -439,35 +439,9 @@ func resourceContainerAnalysisNoteRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading Note: %s", err)
 	}
 
-	if err := d.Set("name", flattenContainerAnalysisNoteName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Note: %s", err)
-	}
-	if err := d.Set("short_description", flattenContainerAnalysisNoteShortDescription(res["shortDescription"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Note: %s", err)
-	}
-	if err := d.Set("long_description", flattenContainerAnalysisNoteLongDescription(res["longDescription"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Note: %s", err)
-	}
-	if err := d.Set("kind", flattenContainerAnalysisNoteKind(res["kind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Note: %s", err)
-	}
-	if err := d.Set("related_url", flattenContainerAnalysisNoteRelatedUrl(res["relatedUrl"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Note: %s", err)
-	}
-	if err := d.Set("expiration_time", flattenContainerAnalysisNoteExpirationTime(res["expirationTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Note: %s", err)
-	}
-	if err := d.Set("create_time", flattenContainerAnalysisNoteCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Note: %s", err)
-	}
-	if err := d.Set("update_time", flattenContainerAnalysisNoteUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Note: %s", err)
-	}
-	if err := d.Set("related_note_names", flattenContainerAnalysisNoteRelatedNoteNames(res["relatedNoteNames"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Note: %s", err)
-	}
-	if err := d.Set("attestation_authority", flattenContainerAnalysisNoteAttestationAuthority(res["attestationAuthority"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Note: %s", err)
+	err = ResourceContainerAnalysisNoteFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -933,4 +907,41 @@ func resourceContainerAnalysisNoteDecoder(d *schema.ResourceData, meta interface
 	delete(res, "attestation")
 
 	return res, nil
+}
+
+func ResourceContainerAnalysisNoteFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenContainerAnalysisNoteName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Note: %s", err)
+	}
+	if err = d.Set("short_description", flattenContainerAnalysisNoteShortDescription(res["shortDescription"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Note: %s", err)
+	}
+	if err = d.Set("long_description", flattenContainerAnalysisNoteLongDescription(res["longDescription"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Note: %s", err)
+	}
+	if err = d.Set("kind", flattenContainerAnalysisNoteKind(res["kind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Note: %s", err)
+	}
+	if err = d.Set("related_url", flattenContainerAnalysisNoteRelatedUrl(res["relatedUrl"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Note: %s", err)
+	}
+	if err = d.Set("expiration_time", flattenContainerAnalysisNoteExpirationTime(res["expirationTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Note: %s", err)
+	}
+	if err = d.Set("create_time", flattenContainerAnalysisNoteCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Note: %s", err)
+	}
+	if err = d.Set("update_time", flattenContainerAnalysisNoteUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Note: %s", err)
+	}
+	if err = d.Set("related_note_names", flattenContainerAnalysisNoteRelatedNoteNames(res["relatedNoteNames"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Note: %s", err)
+	}
+	if err = d.Set("attestation_authority", flattenContainerAnalysisNoteAttestationAuthority(res["attestationAuthority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Note: %s", err)
+	}
+
+	return nil
 }

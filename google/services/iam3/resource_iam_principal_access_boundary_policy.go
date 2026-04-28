@@ -401,32 +401,9 @@ func resourceIAM3PrincipalAccessBoundaryPolicyRead(d *schema.ResourceData, meta 
 
 	log.Printf("[DEBUG] Finished reading IAM3PrincipalAccessBoundaryPolicy %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenIAM3PrincipalAccessBoundaryPolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
-	}
-	if err := d.Set("uid", flattenIAM3PrincipalAccessBoundaryPolicyUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
-	}
-	if err := d.Set("etag", flattenIAM3PrincipalAccessBoundaryPolicyEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
-	}
-	if err := d.Set("display_name", flattenIAM3PrincipalAccessBoundaryPolicyDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
-	}
-	if err := d.Set("annotations", flattenIAM3PrincipalAccessBoundaryPolicyAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
-	}
-	if err := d.Set("create_time", flattenIAM3PrincipalAccessBoundaryPolicyCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
-	}
-	if err := d.Set("update_time", flattenIAM3PrincipalAccessBoundaryPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
-	}
-	if err := d.Set("details", flattenIAM3PrincipalAccessBoundaryPolicyDetails(res["details"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenIAM3PrincipalAccessBoundaryPolicyEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
+	err = ResourceIAM3PrincipalAccessBoundaryPolicyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -830,4 +807,38 @@ func expandIAM3PrincipalAccessBoundaryPolicyEffectiveAnnotations(v interface{}, 
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceIAM3PrincipalAccessBoundaryPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIAM3PrincipalAccessBoundaryPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
+	}
+	if err = d.Set("uid", flattenIAM3PrincipalAccessBoundaryPolicyUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
+	}
+	if err = d.Set("etag", flattenIAM3PrincipalAccessBoundaryPolicyEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
+	}
+	if err = d.Set("display_name", flattenIAM3PrincipalAccessBoundaryPolicyDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
+	}
+	if err = d.Set("annotations", flattenIAM3PrincipalAccessBoundaryPolicyAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
+	}
+	if err = d.Set("create_time", flattenIAM3PrincipalAccessBoundaryPolicyCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
+	}
+	if err = d.Set("update_time", flattenIAM3PrincipalAccessBoundaryPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
+	}
+	if err = d.Set("details", flattenIAM3PrincipalAccessBoundaryPolicyDetails(res["details"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenIAM3PrincipalAccessBoundaryPolicyEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrincipalAccessBoundaryPolicy: %s", err)
+	}
+
+	return nil
 }

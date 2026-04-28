@@ -428,29 +428,9 @@ func resourceBeyondcorpAppConnectionRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading AppConnection: %s", err)
 	}
 
-	if err := d.Set("display_name", flattenBeyondcorpAppConnectionDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnection: %s", err)
-	}
-	if err := d.Set("labels", flattenBeyondcorpAppConnectionLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnection: %s", err)
-	}
-	if err := d.Set("type", flattenBeyondcorpAppConnectionType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnection: %s", err)
-	}
-	if err := d.Set("application_endpoint", flattenBeyondcorpAppConnectionApplicationEndpoint(res["applicationEndpoint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnection: %s", err)
-	}
-	if err := d.Set("connectors", flattenBeyondcorpAppConnectionConnectors(res["connectors"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnection: %s", err)
-	}
-	if err := d.Set("gateway", flattenBeyondcorpAppConnectionGateway(res["gateway"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnection: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenBeyondcorpAppConnectionTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnection: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenBeyondcorpAppConnectionEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnection: %s", err)
+	err = ResourceBeyondcorpAppConnectionFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -942,4 +922,35 @@ func expandBeyondcorpAppConnectionEffectiveLabels(v interface{}, d tpgresource.T
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceBeyondcorpAppConnectionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("display_name", flattenBeyondcorpAppConnectionDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnection: %s", err)
+	}
+	if err = d.Set("labels", flattenBeyondcorpAppConnectionLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnection: %s", err)
+	}
+	if err = d.Set("type", flattenBeyondcorpAppConnectionType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnection: %s", err)
+	}
+	if err = d.Set("application_endpoint", flattenBeyondcorpAppConnectionApplicationEndpoint(res["applicationEndpoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnection: %s", err)
+	}
+	if err = d.Set("connectors", flattenBeyondcorpAppConnectionConnectors(res["connectors"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnection: %s", err)
+	}
+	if err = d.Set("gateway", flattenBeyondcorpAppConnectionGateway(res["gateway"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnection: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenBeyondcorpAppConnectionTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnection: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenBeyondcorpAppConnectionEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnection: %s", err)
+	}
+
+	return nil
 }

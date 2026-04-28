@@ -416,26 +416,9 @@ func resourceVertexAIFeaturestoreRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Featurestore: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenVertexAIFeaturestoreCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Featurestore: %s", err)
-	}
-	if err := d.Set("update_time", flattenVertexAIFeaturestoreUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Featurestore: %s", err)
-	}
-	if err := d.Set("labels", flattenVertexAIFeaturestoreLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Featurestore: %s", err)
-	}
-	if err := d.Set("online_serving_config", flattenVertexAIFeaturestoreOnlineServingConfig(res["onlineServingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Featurestore: %s", err)
-	}
-	if err := d.Set("encryption_spec", flattenVertexAIFeaturestoreEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Featurestore: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenVertexAIFeaturestoreTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Featurestore: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenVertexAIFeaturestoreEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Featurestore: %s", err)
+	err = ResourceVertexAIFeaturestoreFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -917,4 +900,32 @@ func expandVertexAIFeaturestoreEffectiveLabels(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceVertexAIFeaturestoreFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenVertexAIFeaturestoreCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Featurestore: %s", err)
+	}
+	if err = d.Set("update_time", flattenVertexAIFeaturestoreUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Featurestore: %s", err)
+	}
+	if err = d.Set("labels", flattenVertexAIFeaturestoreLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Featurestore: %s", err)
+	}
+	if err = d.Set("online_serving_config", flattenVertexAIFeaturestoreOnlineServingConfig(res["onlineServingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Featurestore: %s", err)
+	}
+	if err = d.Set("encryption_spec", flattenVertexAIFeaturestoreEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Featurestore: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenVertexAIFeaturestoreTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Featurestore: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenVertexAIFeaturestoreEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Featurestore: %s", err)
+	}
+
+	return nil
 }

@@ -1195,62 +1195,9 @@ func resourceDataplexDatascanRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Datascan: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataplexDatascanName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("uid", flattenDataplexDatascanUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("description", flattenDataplexDatascanDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataplexDatascanDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("labels", flattenDataplexDatascanLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("state", flattenDataplexDatascanState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("create_time", flattenDataplexDatascanCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("update_time", flattenDataplexDatascanUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("data", flattenDataplexDatascanData(res["data"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("execution_spec", flattenDataplexDatascanExecutionSpec(res["executionSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("execution_status", flattenDataplexDatascanExecutionStatus(res["executionStatus"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("execution_identity", flattenDataplexDatascanExecutionIdentity(res["executionIdentity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("type", flattenDataplexDatascanType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("data_quality_spec", flattenDataplexDatascanDataQualitySpec(res["dataQualitySpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("data_profile_spec", flattenDataplexDatascanDataProfileSpec(res["dataProfileSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("data_discovery_spec", flattenDataplexDatascanDataDiscoverySpec(res["dataDiscoverySpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("data_documentation_spec", flattenDataplexDatascanDataDocumentationSpec(res["dataDocumentationSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDataplexDatascanTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDataplexDatascanEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datascan: %s", err)
+	err = ResourceDataplexDatascanFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3994,4 +3941,68 @@ func expandDataplexDatascanEffectiveLabels(v interface{}, d tpgresource.Terrafor
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceDataplexDatascanFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataplexDatascanName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("uid", flattenDataplexDatascanUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("description", flattenDataplexDatascanDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataplexDatascanDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("labels", flattenDataplexDatascanLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("state", flattenDataplexDatascanState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("create_time", flattenDataplexDatascanCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("update_time", flattenDataplexDatascanUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("data", flattenDataplexDatascanData(res["data"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("execution_spec", flattenDataplexDatascanExecutionSpec(res["executionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("execution_status", flattenDataplexDatascanExecutionStatus(res["executionStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("execution_identity", flattenDataplexDatascanExecutionIdentity(res["executionIdentity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("type", flattenDataplexDatascanType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("data_quality_spec", flattenDataplexDatascanDataQualitySpec(res["dataQualitySpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("data_profile_spec", flattenDataplexDatascanDataProfileSpec(res["dataProfileSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("data_discovery_spec", flattenDataplexDatascanDataDiscoverySpec(res["dataDiscoverySpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("data_documentation_spec", flattenDataplexDatascanDataDocumentationSpec(res["dataDocumentationSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDataplexDatascanTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDataplexDatascanEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+
+	return nil
 }

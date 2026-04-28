@@ -513,41 +513,9 @@ func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeNodeTemplateCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
-	}
-	if err := d.Set("description", flattenComputeNodeTemplateDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
-	}
-	if err := d.Set("name", flattenComputeNodeTemplateName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
-	}
-	if err := d.Set("node_affinity_labels", flattenComputeNodeTemplateNodeAffinityLabels(res["nodeAffinityLabels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
-	}
-	if err := d.Set("node_type", flattenComputeNodeTemplateNodeType(res["nodeType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
-	}
-	if err := d.Set("node_type_flexibility", flattenComputeNodeTemplateNodeTypeFlexibility(res["nodeTypeFlexibility"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
-	}
-	if err := d.Set("server_binding", flattenComputeNodeTemplateServerBinding(res["serverBinding"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
-	}
-	if err := d.Set("accelerators", flattenComputeNodeTemplateAccelerators(res["accelerators"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
-	}
-	if err := d.Set("cpu_overcommit_type", flattenComputeNodeTemplateCpuOvercommitType(res["cpuOvercommitType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
-	}
-	if err := d.Set("disks", flattenComputeNodeTemplateDisks(res["disks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
-	}
-	if err := d.Set("region", flattenComputeNodeTemplateRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	err = ResourceComputeNodeTemplateFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1027,4 +995,46 @@ func expandComputeNodeTemplateRegion(v interface{}, d tpgresource.TerraformResou
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeNodeTemplateFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeNodeTemplateCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err = d.Set("description", flattenComputeNodeTemplateDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err = d.Set("name", flattenComputeNodeTemplateName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err = d.Set("node_affinity_labels", flattenComputeNodeTemplateNodeAffinityLabels(res["nodeAffinityLabels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err = d.Set("node_type", flattenComputeNodeTemplateNodeType(res["nodeType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err = d.Set("node_type_flexibility", flattenComputeNodeTemplateNodeTypeFlexibility(res["nodeTypeFlexibility"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err = d.Set("server_binding", flattenComputeNodeTemplateServerBinding(res["serverBinding"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err = d.Set("accelerators", flattenComputeNodeTemplateAccelerators(res["accelerators"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err = d.Set("cpu_overcommit_type", flattenComputeNodeTemplateCpuOvercommitType(res["cpuOvercommitType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err = d.Set("disks", flattenComputeNodeTemplateDisks(res["disks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err = d.Set("region", flattenComputeNodeTemplateRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	return nil
 }

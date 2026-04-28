@@ -414,23 +414,9 @@ func resourceGKEHubMembershipRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Membership: %s", err)
 	}
 
-	if err := d.Set("name", flattenGKEHubMembershipName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Membership: %s", err)
-	}
-	if err := d.Set("labels", flattenGKEHubMembershipLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Membership: %s", err)
-	}
-	if err := d.Set("endpoint", flattenGKEHubMembershipEndpoint(res["endpoint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Membership: %s", err)
-	}
-	if err := d.Set("authority", flattenGKEHubMembershipAuthority(res["authority"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Membership: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenGKEHubMembershipTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Membership: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenGKEHubMembershipEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Membership: %s", err)
+	err = ResourceGKEHubMembershipFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -909,4 +895,29 @@ func ResourceGKEHubMembershipUpgradeV0(_ context.Context, rawState map[string]in
 
 	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
 	return rawState, nil
+}
+
+func ResourceGKEHubMembershipFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenGKEHubMembershipName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Membership: %s", err)
+	}
+	if err = d.Set("labels", flattenGKEHubMembershipLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Membership: %s", err)
+	}
+	if err = d.Set("endpoint", flattenGKEHubMembershipEndpoint(res["endpoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Membership: %s", err)
+	}
+	if err = d.Set("authority", flattenGKEHubMembershipAuthority(res["authority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Membership: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenGKEHubMembershipTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Membership: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenGKEHubMembershipEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Membership: %s", err)
+	}
+
+	return nil
 }

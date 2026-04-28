@@ -572,38 +572,9 @@ func resourceBeyondcorpSecurityGatewayRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading SecurityGateway: %s", err)
 	}
 
-	if err := d.Set("state", flattenBeyondcorpSecurityGatewayState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityGateway: %s", err)
-	}
-	if err := d.Set("update_time", flattenBeyondcorpSecurityGatewayUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityGateway: %s", err)
-	}
-	if err := d.Set("create_time", flattenBeyondcorpSecurityGatewayCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityGateway: %s", err)
-	}
-	if err := d.Set("hubs", flattenBeyondcorpSecurityGatewayHubs(res["hubs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityGateway: %s", err)
-	}
-	if err := d.Set("display_name", flattenBeyondcorpSecurityGatewayDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityGateway: %s", err)
-	}
-	if err := d.Set("external_ips", flattenBeyondcorpSecurityGatewayExternalIps(res["externalIps"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityGateway: %s", err)
-	}
-	if err := d.Set("name", flattenBeyondcorpSecurityGatewayName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityGateway: %s", err)
-	}
-	if err := d.Set("delegating_service_account", flattenBeyondcorpSecurityGatewayDelegatingServiceAccount(res["delegatingServiceAccount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityGateway: %s", err)
-	}
-	if err := d.Set("proxy_protocol_config", flattenBeyondcorpSecurityGatewayProxyProtocolConfig(res["proxyProtocolConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityGateway: %s", err)
-	}
-	if err := d.Set("service_discovery", flattenBeyondcorpSecurityGatewayServiceDiscovery(res["serviceDiscovery"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityGateway: %s", err)
-	}
-	if err := d.Set("logging", flattenBeyondcorpSecurityGatewayLogging(res["logging"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	err = ResourceBeyondcorpSecurityGatewayFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1410,4 +1381,44 @@ func expandBeyondcorpSecurityGatewayLogging(v interface{}, d tpgresource.Terrafo
 	transformed := make(map[string]interface{})
 
 	return transformed, nil
+}
+
+func ResourceBeyondcorpSecurityGatewayFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("state", flattenBeyondcorpSecurityGatewayState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+	if err = d.Set("update_time", flattenBeyondcorpSecurityGatewayUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+	if err = d.Set("create_time", flattenBeyondcorpSecurityGatewayCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+	if err = d.Set("hubs", flattenBeyondcorpSecurityGatewayHubs(res["hubs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+	if err = d.Set("display_name", flattenBeyondcorpSecurityGatewayDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+	if err = d.Set("external_ips", flattenBeyondcorpSecurityGatewayExternalIps(res["externalIps"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+	if err = d.Set("name", flattenBeyondcorpSecurityGatewayName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+	if err = d.Set("delegating_service_account", flattenBeyondcorpSecurityGatewayDelegatingServiceAccount(res["delegatingServiceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+	if err = d.Set("proxy_protocol_config", flattenBeyondcorpSecurityGatewayProxyProtocolConfig(res["proxyProtocolConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+	if err = d.Set("service_discovery", flattenBeyondcorpSecurityGatewayServiceDiscovery(res["serviceDiscovery"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+	if err = d.Set("logging", flattenBeyondcorpSecurityGatewayLogging(res["logging"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+
+	return nil
 }

@@ -314,11 +314,9 @@ func resourceAppEngineServiceNetworkSettingsRead(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
 	}
 
-	if err := d.Set("service", flattenAppEngineServiceNetworkSettingsService(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
-	}
-	if err := d.Set("network_settings", flattenAppEngineServiceNetworkSettingsNetworkSettings(res["networkSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
+	err = ResourceAppEngineServiceNetworkSettingsFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -530,4 +528,17 @@ func expandAppEngineServiceNetworkSettingsNetworkSettings(v interface{}, d tpgre
 
 func expandAppEngineServiceNetworkSettingsNetworkSettingsIngressTrafficAllowed(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceAppEngineServiceNetworkSettingsFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("service", flattenAppEngineServiceNetworkSettingsService(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
+	}
+	if err = d.Set("network_settings", flattenAppEngineServiceNetworkSettingsNetworkSettings(res["networkSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
+	}
+
+	return nil
 }

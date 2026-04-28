@@ -646,26 +646,9 @@ func resourceBillingBudgetsBudgetRead(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[DEBUG] Finished reading BillingBudgetsBudget %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenBillingBudgetsBudgetName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Budget: %s", err)
-	}
-	if err := d.Set("display_name", flattenBillingBudgetsBudgetDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Budget: %s", err)
-	}
-	if err := d.Set("budget_filter", flattenBillingBudgetsBudgetBudgetFilter(res["budgetFilter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Budget: %s", err)
-	}
-	if err := d.Set("amount", flattenBillingBudgetsBudgetAmount(res["amount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Budget: %s", err)
-	}
-	if err := d.Set("threshold_rules", flattenBillingBudgetsBudgetThresholdRules(res["thresholdRules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Budget: %s", err)
-	}
-	if err := d.Set("all_updates_rule", flattenBillingBudgetsBudgetAllUpdatesRule(res["notificationsRule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Budget: %s", err)
-	}
-	if err := d.Set("ownership_scope", flattenBillingBudgetsBudgetOwnershipScope(res["ownershipScope"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Budget: %s", err)
+	err = ResourceBillingBudgetsBudgetFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1985,5 +1968,33 @@ func resourceBillingBudgetsBudgetPostCreateSetComputedFields(d *schema.ResourceD
 	if err := d.Set("name", flattenBillingBudgetsBudgetName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceBillingBudgetsBudgetFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBillingBudgetsBudgetName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Budget: %s", err)
+	}
+	if err = d.Set("display_name", flattenBillingBudgetsBudgetDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Budget: %s", err)
+	}
+	if err = d.Set("budget_filter", flattenBillingBudgetsBudgetBudgetFilter(res["budgetFilter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Budget: %s", err)
+	}
+	if err = d.Set("amount", flattenBillingBudgetsBudgetAmount(res["amount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Budget: %s", err)
+	}
+	if err = d.Set("threshold_rules", flattenBillingBudgetsBudgetThresholdRules(res["thresholdRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Budget: %s", err)
+	}
+	if err = d.Set("all_updates_rule", flattenBillingBudgetsBudgetAllUpdatesRule(res["notificationsRule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Budget: %s", err)
+	}
+	if err = d.Set("ownership_scope", flattenBillingBudgetsBudgetOwnershipScope(res["ownershipScope"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Budget: %s", err)
+	}
+
 	return nil
 }

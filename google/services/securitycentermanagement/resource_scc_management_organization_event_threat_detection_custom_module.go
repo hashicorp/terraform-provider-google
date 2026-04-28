@@ -340,26 +340,9 @@ func resourceSecurityCenterManagementOrganizationEventThreatDetectionCustomModul
 
 	log.Printf("[DEBUG] Finished reading SecurityCenterManagementOrganizationEventThreatDetectionCustomModule %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("config", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleConfig(res["config"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("enablement_state", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleEnablementState(res["enablementState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("type", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("display_name", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("update_time", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("last_editor", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleLastEditor(res["lastEditor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
+	err = ResourceSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -637,5 +620,33 @@ func resourceSecurityCenterManagementOrganizationEventThreatDetectionCustomModul
 	if err := d.Set("name", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("config", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleConfig(res["config"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("enablement_state", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleEnablementState(res["enablementState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("type", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("display_name", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("update_time", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("last_editor", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleLastEditor(res["lastEditor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
+	}
+
 	return nil
 }

@@ -380,14 +380,9 @@ func resourceIAM2DenyPolicyRead(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] Finished reading IAM2DenyPolicy %q: %#v", d.Id(), res)
 
-	if err := d.Set("display_name", flattenIAM2DenyPolicyDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DenyPolicy: %s", err)
-	}
-	if err := d.Set("etag", flattenIAM2DenyPolicyEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DenyPolicy: %s", err)
-	}
-	if err := d.Set("rules", flattenIAM2DenyPolicyRules(res["rules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DenyPolicy: %s", err)
+	err = ResourceIAM2DenyPolicyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -834,4 +829,20 @@ func expandIAM2DenyPolicyRulesDenyRuleDenialConditionDescription(v interface{}, 
 
 func expandIAM2DenyPolicyRulesDenyRuleDenialConditionLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceIAM2DenyPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("display_name", flattenIAM2DenyPolicyDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DenyPolicy: %s", err)
+	}
+	if err = d.Set("etag", flattenIAM2DenyPolicyEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DenyPolicy: %s", err)
+	}
+	if err = d.Set("rules", flattenIAM2DenyPolicyRules(res["rules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DenyPolicy: %s", err)
+	}
+
+	return nil
 }

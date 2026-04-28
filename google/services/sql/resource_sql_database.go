@@ -398,20 +398,9 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
-	if err := d.Set("charset", flattenSQLDatabaseCharset(res["charset"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("collation", flattenSQLDatabaseCollation(res["collation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("name", flattenSQLDatabaseName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("instance", flattenSQLDatabaseInstance(res["instance"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
+	err = ResourceSQLDatabaseFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -674,4 +663,25 @@ func expandSQLDatabaseName(v interface{}, d tpgresource.TerraformResourceData, c
 
 func expandSQLDatabaseInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceSQLDatabaseFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("charset", flattenSQLDatabaseCharset(res["charset"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("collation", flattenSQLDatabaseCollation(res["collation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("name", flattenSQLDatabaseName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("instance", flattenSQLDatabaseInstance(res["instance"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	return nil
 }

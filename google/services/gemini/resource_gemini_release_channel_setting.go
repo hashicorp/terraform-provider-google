@@ -350,26 +350,9 @@ func resourceGeminiReleaseChannelSettingRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenGeminiReleaseChannelSettingCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
-	}
-	if err := d.Set("update_time", flattenGeminiReleaseChannelSettingUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
-	}
-	if err := d.Set("labels", flattenGeminiReleaseChannelSettingLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
-	}
-	if err := d.Set("release_channel", flattenGeminiReleaseChannelSettingReleaseChannel(res["releaseChannel"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
-	}
-	if err := d.Set("name", flattenGeminiReleaseChannelSettingName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenGeminiReleaseChannelSettingTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenGeminiReleaseChannelSettingEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
+	err = ResourceGeminiReleaseChannelSettingFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -645,4 +628,32 @@ func expandGeminiReleaseChannelSettingEffectiveLabels(v interface{}, d tpgresour
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceGeminiReleaseChannelSettingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenGeminiReleaseChannelSettingCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
+	}
+	if err = d.Set("update_time", flattenGeminiReleaseChannelSettingUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
+	}
+	if err = d.Set("labels", flattenGeminiReleaseChannelSettingLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
+	}
+	if err = d.Set("release_channel", flattenGeminiReleaseChannelSettingReleaseChannel(res["releaseChannel"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
+	}
+	if err = d.Set("name", flattenGeminiReleaseChannelSettingName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenGeminiReleaseChannelSettingTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenGeminiReleaseChannelSettingEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReleaseChannelSetting: %s", err)
+	}
+
+	return nil
 }

@@ -664,59 +664,9 @@ func resourceBigqueryAnalyticsHubListingRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Listing: %s", err)
 	}
 
-	if err := d.Set("name", flattenBigqueryAnalyticsHubListingName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("display_name", flattenBigqueryAnalyticsHubListingDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("description", flattenBigqueryAnalyticsHubListingDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("primary_contact", flattenBigqueryAnalyticsHubListingPrimaryContact(res["primaryContact"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("documentation", flattenBigqueryAnalyticsHubListingDocumentation(res["documentation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("icon", flattenBigqueryAnalyticsHubListingIcon(res["icon"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("request_access", flattenBigqueryAnalyticsHubListingRequestAccess(res["requestAccess"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("data_provider", flattenBigqueryAnalyticsHubListingDataProvider(res["dataProvider"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("publisher", flattenBigqueryAnalyticsHubListingPublisher(res["publisher"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("categories", flattenBigqueryAnalyticsHubListingCategories(res["categories"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("bigquery_dataset", flattenBigqueryAnalyticsHubListingBigqueryDataset(res["bigqueryDataset"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("pubsub_topic", flattenBigqueryAnalyticsHubListingPubsubTopic(res["pubsubTopic"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("restricted_export_config", flattenBigqueryAnalyticsHubListingRestrictedExportConfig(res["restrictedExportConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("log_linked_dataset_query_user_email", flattenBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(res["logLinkedDatasetQueryUserEmail"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("state", flattenBigqueryAnalyticsHubListingState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("discovery_type", flattenBigqueryAnalyticsHubListingDiscoveryType(res["discoveryType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("allow_only_metadata_sharing", flattenBigqueryAnalyticsHubListingAllowOnlyMetadataSharing(res["allowOnlyMetadataSharing"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
-	}
-	if err := d.Set("commercial_info", flattenBigqueryAnalyticsHubListingCommercialInfo(res["commercialInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Listing: %s", err)
+	err = ResourceBigqueryAnalyticsHubListingFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1706,4 +1656,65 @@ func expandBigqueryAnalyticsHubListingDiscoveryType(v interface{}, d tpgresource
 
 func expandBigqueryAnalyticsHubListingAllowOnlyMetadataSharing(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceBigqueryAnalyticsHubListingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBigqueryAnalyticsHubListingName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("display_name", flattenBigqueryAnalyticsHubListingDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("description", flattenBigqueryAnalyticsHubListingDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("primary_contact", flattenBigqueryAnalyticsHubListingPrimaryContact(res["primaryContact"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("documentation", flattenBigqueryAnalyticsHubListingDocumentation(res["documentation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("icon", flattenBigqueryAnalyticsHubListingIcon(res["icon"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("request_access", flattenBigqueryAnalyticsHubListingRequestAccess(res["requestAccess"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("data_provider", flattenBigqueryAnalyticsHubListingDataProvider(res["dataProvider"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("publisher", flattenBigqueryAnalyticsHubListingPublisher(res["publisher"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("categories", flattenBigqueryAnalyticsHubListingCategories(res["categories"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("bigquery_dataset", flattenBigqueryAnalyticsHubListingBigqueryDataset(res["bigqueryDataset"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("pubsub_topic", flattenBigqueryAnalyticsHubListingPubsubTopic(res["pubsubTopic"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("restricted_export_config", flattenBigqueryAnalyticsHubListingRestrictedExportConfig(res["restrictedExportConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("log_linked_dataset_query_user_email", flattenBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(res["logLinkedDatasetQueryUserEmail"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("state", flattenBigqueryAnalyticsHubListingState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("discovery_type", flattenBigqueryAnalyticsHubListingDiscoveryType(res["discoveryType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("allow_only_metadata_sharing", flattenBigqueryAnalyticsHubListingAllowOnlyMetadataSharing(res["allowOnlyMetadataSharing"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err = d.Set("commercial_info", flattenBigqueryAnalyticsHubListingCommercialInfo(res["commercialInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+
+	return nil
 }

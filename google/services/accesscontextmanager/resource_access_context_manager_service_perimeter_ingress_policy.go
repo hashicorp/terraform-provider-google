@@ -596,17 +596,9 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyRead(d *schema.Res
 		return nil
 	}
 
-	if err := d.Set("ingress_from", flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFrom(res["ingressFrom"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
-	}
-	if err := d.Set("ingress_to", flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressTo(res["ingressTo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
-	}
-	if err := d.Set("title", flattenNestedAccessContextManagerServicePerimeterIngressPolicyTitle(res["title"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
-	}
-	if err := d.Set("etag", flattenNestedAccessContextManagerServicePerimeterIngressPolicyEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
+	err = ResourceAccessContextManagerServicePerimeterIngressPolicyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1300,4 +1292,23 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyListForPatch(d *sc
 		return ls, nil
 	}
 	return nil, nil
+}
+
+func ResourceAccessContextManagerServicePerimeterIngressPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("ingress_from", flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFrom(res["ingressFrom"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
+	}
+	if err = d.Set("ingress_to", flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressTo(res["ingressTo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
+	}
+	if err = d.Set("title", flattenNestedAccessContextManagerServicePerimeterIngressPolicyTitle(res["title"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
+	}
+	if err = d.Set("etag", flattenNestedAccessContextManagerServicePerimeterIngressPolicyEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
+	}
+
+	return nil
 }

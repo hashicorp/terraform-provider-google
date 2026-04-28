@@ -424,41 +424,9 @@ func resourceNetworkServicesMulticastConsumerAssociationRead(d *schema.ResourceD
 		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkServicesMulticastConsumerAssociationCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkServicesMulticastConsumerAssociationDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkServicesMulticastConsumerAssociationLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
-	}
-	if err := d.Set("multicast_domain_activation", flattenNetworkServicesMulticastConsumerAssociationMulticastDomainActivation(res["multicastDomainActivation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
-	}
-	if err := d.Set("name", flattenNetworkServicesMulticastConsumerAssociationName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
-	}
-	if err := d.Set("network", flattenNetworkServicesMulticastConsumerAssociationNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
-	}
-	if err := d.Set("placement_policy", flattenNetworkServicesMulticastConsumerAssociationPlacementPolicy(res["placementPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
-	}
-	if err := d.Set("state", flattenNetworkServicesMulticastConsumerAssociationState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
-	}
-	if err := d.Set("unique_id", flattenNetworkServicesMulticastConsumerAssociationUniqueId(res["uniqueId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkServicesMulticastConsumerAssociationUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkServicesMulticastConsumerAssociationTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkServicesMulticastConsumerAssociationEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	err = ResourceNetworkServicesMulticastConsumerAssociationFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -776,4 +744,47 @@ func expandNetworkServicesMulticastConsumerAssociationEffectiveLabels(v interfac
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkServicesMulticastConsumerAssociationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkServicesMulticastConsumerAssociationCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkServicesMulticastConsumerAssociationDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkServicesMulticastConsumerAssociationLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+	if err = d.Set("multicast_domain_activation", flattenNetworkServicesMulticastConsumerAssociationMulticastDomainActivation(res["multicastDomainActivation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+	if err = d.Set("name", flattenNetworkServicesMulticastConsumerAssociationName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+	if err = d.Set("network", flattenNetworkServicesMulticastConsumerAssociationNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+	if err = d.Set("placement_policy", flattenNetworkServicesMulticastConsumerAssociationPlacementPolicy(res["placementPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+	if err = d.Set("state", flattenNetworkServicesMulticastConsumerAssociationState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+	if err = d.Set("unique_id", flattenNetworkServicesMulticastConsumerAssociationUniqueId(res["uniqueId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkServicesMulticastConsumerAssociationUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkServicesMulticastConsumerAssociationTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkServicesMulticastConsumerAssociationEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastConsumerAssociation: %s", err)
+	}
+
+	return nil
 }

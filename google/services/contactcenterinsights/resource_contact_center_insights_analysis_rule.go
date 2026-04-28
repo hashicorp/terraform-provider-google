@@ -492,29 +492,9 @@ func resourceContactCenterInsightsAnalysisRuleRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading AnalysisRule: %s", err)
 	}
 
-	if err := d.Set("name", flattenContactCenterInsightsAnalysisRuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnalysisRule: %s", err)
-	}
-	if err := d.Set("create_time", flattenContactCenterInsightsAnalysisRuleCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnalysisRule: %s", err)
-	}
-	if err := d.Set("update_time", flattenContactCenterInsightsAnalysisRuleUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnalysisRule: %s", err)
-	}
-	if err := d.Set("display_name", flattenContactCenterInsightsAnalysisRuleDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnalysisRule: %s", err)
-	}
-	if err := d.Set("conversation_filter", flattenContactCenterInsightsAnalysisRuleConversationFilter(res["conversationFilter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnalysisRule: %s", err)
-	}
-	if err := d.Set("annotator_selector", flattenContactCenterInsightsAnalysisRuleAnnotatorSelector(res["annotatorSelector"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnalysisRule: %s", err)
-	}
-	if err := d.Set("analysis_percentage", flattenContactCenterInsightsAnalysisRuleAnalysisPercentage(res["analysisPercentage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnalysisRule: %s", err)
-	}
-	if err := d.Set("active", flattenContactCenterInsightsAnalysisRuleActive(res["active"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnalysisRule: %s", err)
+	err = ResourceContactCenterInsightsAnalysisRuleFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1164,5 +1144,36 @@ func resourceContactCenterInsightsAnalysisRulePostCreateSetComputedFields(d *sch
 	if err := d.Set("name", flattenContactCenterInsightsAnalysisRuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceContactCenterInsightsAnalysisRuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenContactCenterInsightsAnalysisRuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnalysisRule: %s", err)
+	}
+	if err = d.Set("create_time", flattenContactCenterInsightsAnalysisRuleCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnalysisRule: %s", err)
+	}
+	if err = d.Set("update_time", flattenContactCenterInsightsAnalysisRuleUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnalysisRule: %s", err)
+	}
+	if err = d.Set("display_name", flattenContactCenterInsightsAnalysisRuleDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnalysisRule: %s", err)
+	}
+	if err = d.Set("conversation_filter", flattenContactCenterInsightsAnalysisRuleConversationFilter(res["conversationFilter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnalysisRule: %s", err)
+	}
+	if err = d.Set("annotator_selector", flattenContactCenterInsightsAnalysisRuleAnnotatorSelector(res["annotatorSelector"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnalysisRule: %s", err)
+	}
+	if err = d.Set("analysis_percentage", flattenContactCenterInsightsAnalysisRuleAnalysisPercentage(res["analysisPercentage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnalysisRule: %s", err)
+	}
+	if err = d.Set("active", flattenContactCenterInsightsAnalysisRuleActive(res["active"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnalysisRule: %s", err)
+	}
+
 	return nil
 }

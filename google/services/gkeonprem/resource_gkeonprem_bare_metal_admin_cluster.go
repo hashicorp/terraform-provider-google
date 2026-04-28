@@ -1221,83 +1221,9 @@ func resourceGkeonpremBareMetalAdminClusterRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
 	}
 
-	if err := d.Set("description", flattenGkeonpremBareMetalAdminClusterDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("bare_metal_version", flattenGkeonpremBareMetalAdminClusterBareMetalVersion(res["bareMetalVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("uid", flattenGkeonpremBareMetalAdminClusterUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("state", flattenGkeonpremBareMetalAdminClusterState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("endpoint", flattenGkeonpremBareMetalAdminClusterEndpoint(res["endpoint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("reconciling", flattenGkeonpremBareMetalAdminClusterReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("create_time", flattenGkeonpremBareMetalAdminClusterCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("update_time", flattenGkeonpremBareMetalAdminClusterUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("delete_time", flattenGkeonpremBareMetalAdminClusterDeleteTime(res["deleteTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("local_name", flattenGkeonpremBareMetalAdminClusterLocalName(res["localName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("etag", flattenGkeonpremBareMetalAdminClusterEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("annotations", flattenGkeonpremBareMetalAdminClusterAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("network_config", flattenGkeonpremBareMetalAdminClusterNetworkConfig(res["networkConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("control_plane", flattenGkeonpremBareMetalAdminClusterControlPlane(res["controlPlane"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("load_balancer", flattenGkeonpremBareMetalAdminClusterLoadBalancer(res["loadBalancer"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("storage", flattenGkeonpremBareMetalAdminClusterStorage(res["storage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("proxy", flattenGkeonpremBareMetalAdminClusterProxy(res["proxy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("cluster_operations", flattenGkeonpremBareMetalAdminClusterClusterOperations(res["clusterOperations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("maintenance_config", flattenGkeonpremBareMetalAdminClusterMaintenanceConfig(res["maintenanceConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("node_config", flattenGkeonpremBareMetalAdminClusterNodeConfig(res["nodeConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("fleet", flattenGkeonpremBareMetalAdminClusterFleet(res["fleet"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("status", flattenGkeonpremBareMetalAdminClusterStatus(res["status"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("validation_check", flattenGkeonpremBareMetalAdminClusterValidationCheck(res["validationCheck"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("node_access_config", flattenGkeonpremBareMetalAdminClusterNodeAccessConfig(res["nodeAccessConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("security_config", flattenGkeonpremBareMetalAdminClusterSecurityConfig(res["securityConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenGkeonpremBareMetalAdminClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	err = ResourceGkeonpremBareMetalAdminClusterFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3830,4 +3756,89 @@ func expandGkeonpremBareMetalAdminClusterEffectiveAnnotations(v interface{}, d t
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceGkeonpremBareMetalAdminClusterFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenGkeonpremBareMetalAdminClusterDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("bare_metal_version", flattenGkeonpremBareMetalAdminClusterBareMetalVersion(res["bareMetalVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("uid", flattenGkeonpremBareMetalAdminClusterUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("state", flattenGkeonpremBareMetalAdminClusterState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("endpoint", flattenGkeonpremBareMetalAdminClusterEndpoint(res["endpoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("reconciling", flattenGkeonpremBareMetalAdminClusterReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("create_time", flattenGkeonpremBareMetalAdminClusterCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("update_time", flattenGkeonpremBareMetalAdminClusterUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("delete_time", flattenGkeonpremBareMetalAdminClusterDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("local_name", flattenGkeonpremBareMetalAdminClusterLocalName(res["localName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("etag", flattenGkeonpremBareMetalAdminClusterEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("annotations", flattenGkeonpremBareMetalAdminClusterAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("network_config", flattenGkeonpremBareMetalAdminClusterNetworkConfig(res["networkConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("control_plane", flattenGkeonpremBareMetalAdminClusterControlPlane(res["controlPlane"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("load_balancer", flattenGkeonpremBareMetalAdminClusterLoadBalancer(res["loadBalancer"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("storage", flattenGkeonpremBareMetalAdminClusterStorage(res["storage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("proxy", flattenGkeonpremBareMetalAdminClusterProxy(res["proxy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("cluster_operations", flattenGkeonpremBareMetalAdminClusterClusterOperations(res["clusterOperations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("maintenance_config", flattenGkeonpremBareMetalAdminClusterMaintenanceConfig(res["maintenanceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("node_config", flattenGkeonpremBareMetalAdminClusterNodeConfig(res["nodeConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("fleet", flattenGkeonpremBareMetalAdminClusterFleet(res["fleet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("status", flattenGkeonpremBareMetalAdminClusterStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("validation_check", flattenGkeonpremBareMetalAdminClusterValidationCheck(res["validationCheck"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("node_access_config", flattenGkeonpremBareMetalAdminClusterNodeAccessConfig(res["nodeAccessConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("security_config", flattenGkeonpremBareMetalAdminClusterSecurityConfig(res["securityConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenGkeonpremBareMetalAdminClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
+	}
+
+	return nil
 }

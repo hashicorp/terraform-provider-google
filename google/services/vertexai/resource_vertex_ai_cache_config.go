@@ -280,11 +280,9 @@ func resourceVertexAICacheConfigRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading CacheConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenVertexAICacheConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CacheConfig: %s", err)
-	}
-	if err := d.Set("disable_cache", flattenVertexAICacheConfigDisableCache(res["disableCache"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CacheConfig: %s", err)
+	err = ResourceVertexAICacheConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -414,4 +412,17 @@ func flattenVertexAICacheConfigDisableCache(v interface{}, d *schema.ResourceDat
 
 func expandVertexAICacheConfigDisableCache(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceVertexAICacheConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenVertexAICacheConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CacheConfig: %s", err)
+	}
+	if err = d.Set("disable_cache", flattenVertexAICacheConfigDisableCache(res["disableCache"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CacheConfig: %s", err)
+	}
+
+	return nil
 }

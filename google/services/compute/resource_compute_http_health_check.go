@@ -404,38 +404,9 @@ func resourceComputeHttpHealthCheckRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
 	}
 
-	if err := d.Set("check_interval_sec", flattenComputeHttpHealthCheckCheckIntervalSec(res["checkIntervalSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeHttpHealthCheckCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
-	}
-	if err := d.Set("description", flattenComputeHttpHealthCheckDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
-	}
-	if err := d.Set("healthy_threshold", flattenComputeHttpHealthCheckHealthyThreshold(res["healthyThreshold"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
-	}
-	if err := d.Set("host", flattenComputeHttpHealthCheckHost(res["host"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
-	}
-	if err := d.Set("name", flattenComputeHttpHealthCheckName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
-	}
-	if err := d.Set("port", flattenComputeHttpHealthCheckPort(res["port"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
-	}
-	if err := d.Set("request_path", flattenComputeHttpHealthCheckRequestPath(res["requestPath"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
-	}
-	if err := d.Set("timeout_sec", flattenComputeHttpHealthCheckTimeoutSec(res["timeoutSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
-	}
-	if err := d.Set("unhealthy_threshold", flattenComputeHttpHealthCheckUnhealthyThreshold(res["unhealthyThreshold"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	err = ResourceComputeHttpHealthCheckFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -801,4 +772,43 @@ func expandComputeHttpHealthCheckTimeoutSec(v interface{}, d tpgresource.Terrafo
 
 func expandComputeHttpHealthCheckUnhealthyThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeHttpHealthCheckFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("check_interval_sec", flattenComputeHttpHealthCheckCheckIntervalSec(res["checkIntervalSec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeHttpHealthCheckCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	}
+	if err = d.Set("description", flattenComputeHttpHealthCheckDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	}
+	if err = d.Set("healthy_threshold", flattenComputeHttpHealthCheckHealthyThreshold(res["healthyThreshold"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	}
+	if err = d.Set("host", flattenComputeHttpHealthCheckHost(res["host"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	}
+	if err = d.Set("name", flattenComputeHttpHealthCheckName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	}
+	if err = d.Set("port", flattenComputeHttpHealthCheckPort(res["port"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	}
+	if err = d.Set("request_path", flattenComputeHttpHealthCheckRequestPath(res["requestPath"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	}
+	if err = d.Set("timeout_sec", flattenComputeHttpHealthCheckTimeoutSec(res["timeoutSec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	}
+	if err = d.Set("unhealthy_threshold", flattenComputeHttpHealthCheckUnhealthyThreshold(res["unhealthyThreshold"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	}
+	return nil
 }

@@ -450,50 +450,9 @@ func resourceNetappBackupVaultRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading BackupVault: %s", err)
 	}
 
-	if err := d.Set("state", flattenNetappBackupVaultState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetappBackupVaultCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("description", flattenNetappBackupVaultDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("labels", flattenNetappBackupVaultLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("backup_vault_type", flattenNetappBackupVaultBackupVaultType(res["backupVaultType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("backup_region", flattenNetappBackupVaultBackupRegion(res["backupRegion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("source_region", flattenNetappBackupVaultSourceRegion(res["sourceRegion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("source_backup_vault", flattenNetappBackupVaultSourceBackupVault(res["sourceBackupVault"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("destination_backup_vault", flattenNetappBackupVaultDestinationBackupVault(res["destinationBackupVault"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("backup_retention_policy", flattenNetappBackupVaultBackupRetentionPolicy(res["backupRetentionPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("kms_config", flattenNetappBackupVaultKmsConfig(res["kmsConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("encryption_state", flattenNetappBackupVaultEncryptionState(res["encryptionState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("backups_crypto_key_version", flattenNetappBackupVaultBackupsCryptoKeyVersion(res["backupsCryptoKeyVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetappBackupVaultTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetappBackupVaultEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
+	err = ResourceNetappBackupVaultFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -974,4 +933,56 @@ func expandNetappBackupVaultEffectiveLabels(v interface{}, d tpgresource.Terrafo
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetappBackupVaultFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("state", flattenNetappBackupVaultState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetappBackupVaultCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("description", flattenNetappBackupVaultDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("labels", flattenNetappBackupVaultLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("backup_vault_type", flattenNetappBackupVaultBackupVaultType(res["backupVaultType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("backup_region", flattenNetappBackupVaultBackupRegion(res["backupRegion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("source_region", flattenNetappBackupVaultSourceRegion(res["sourceRegion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("source_backup_vault", flattenNetappBackupVaultSourceBackupVault(res["sourceBackupVault"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("destination_backup_vault", flattenNetappBackupVaultDestinationBackupVault(res["destinationBackupVault"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("backup_retention_policy", flattenNetappBackupVaultBackupRetentionPolicy(res["backupRetentionPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("kms_config", flattenNetappBackupVaultKmsConfig(res["kmsConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("encryption_state", flattenNetappBackupVaultEncryptionState(res["encryptionState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("backups_crypto_key_version", flattenNetappBackupVaultBackupsCryptoKeyVersion(res["backupsCryptoKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetappBackupVaultTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetappBackupVaultEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+
+	return nil
 }

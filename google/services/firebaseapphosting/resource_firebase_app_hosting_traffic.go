@@ -436,32 +436,9 @@ func resourceFirebaseAppHostingTrafficRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading Traffic: %s", err)
 	}
 
-	if err := d.Set("etag", flattenFirebaseAppHostingTrafficEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Traffic: %s", err)
-	}
-	if err := d.Set("uid", flattenFirebaseAppHostingTrafficUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Traffic: %s", err)
-	}
-	if err := d.Set("create_time", flattenFirebaseAppHostingTrafficCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Traffic: %s", err)
-	}
-	if err := d.Set("update_time", flattenFirebaseAppHostingTrafficUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Traffic: %s", err)
-	}
-	if err := d.Set("delete_time", flattenFirebaseAppHostingTrafficDeleteTime(res["deleteTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Traffic: %s", err)
-	}
-	if err := d.Set("name", flattenFirebaseAppHostingTrafficName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Traffic: %s", err)
-	}
-	if err := d.Set("current", flattenFirebaseAppHostingTrafficCurrent(res["current"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Traffic: %s", err)
-	}
-	if err := d.Set("target", flattenFirebaseAppHostingTrafficTarget(res["target"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Traffic: %s", err)
-	}
-	if err := d.Set("rollout_policy", flattenFirebaseAppHostingTrafficRolloutPolicy(res["rolloutPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Traffic: %s", err)
+	err = ResourceFirebaseAppHostingTrafficFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -909,4 +886,38 @@ func expandFirebaseAppHostingTrafficRolloutPolicyDisabledTime(v interface{}, d t
 
 func expandFirebaseAppHostingTrafficRolloutPolicyCodebaseBranch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceFirebaseAppHostingTrafficFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("etag", flattenFirebaseAppHostingTrafficEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Traffic: %s", err)
+	}
+	if err = d.Set("uid", flattenFirebaseAppHostingTrafficUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Traffic: %s", err)
+	}
+	if err = d.Set("create_time", flattenFirebaseAppHostingTrafficCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Traffic: %s", err)
+	}
+	if err = d.Set("update_time", flattenFirebaseAppHostingTrafficUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Traffic: %s", err)
+	}
+	if err = d.Set("delete_time", flattenFirebaseAppHostingTrafficDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Traffic: %s", err)
+	}
+	if err = d.Set("name", flattenFirebaseAppHostingTrafficName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Traffic: %s", err)
+	}
+	if err = d.Set("current", flattenFirebaseAppHostingTrafficCurrent(res["current"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Traffic: %s", err)
+	}
+	if err = d.Set("target", flattenFirebaseAppHostingTrafficTarget(res["target"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Traffic: %s", err)
+	}
+	if err = d.Set("rollout_policy", flattenFirebaseAppHostingTrafficRolloutPolicy(res["rolloutPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Traffic: %s", err)
+	}
+
+	return nil
 }

@@ -363,17 +363,9 @@ func resourceIAMWorkforcePoolOauthClientCredentialRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading OauthClientCredential: %s", err)
 	}
 
-	if err := d.Set("disabled", flattenIAMWorkforcePoolOauthClientCredentialDisabled(res["disabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClientCredential: %s", err)
-	}
-	if err := d.Set("client_secret", flattenIAMWorkforcePoolOauthClientCredentialClientSecret(res["clientSecret"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClientCredential: %s", err)
-	}
-	if err := d.Set("display_name", flattenIAMWorkforcePoolOauthClientCredentialDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClientCredential: %s", err)
-	}
-	if err := d.Set("name", flattenIAMWorkforcePoolOauthClientCredentialName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClientCredential: %s", err)
+	err = ResourceIAMWorkforcePoolOauthClientCredentialFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -622,4 +614,23 @@ func resourceIAMWorkforcePoolOauthClientCredentialDecoder(d *schema.ResourceData
 	}
 
 	return res, nil
+}
+
+func ResourceIAMWorkforcePoolOauthClientCredentialFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("disabled", flattenIAMWorkforcePoolOauthClientCredentialDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClientCredential: %s", err)
+	}
+	if err = d.Set("client_secret", flattenIAMWorkforcePoolOauthClientCredentialClientSecret(res["clientSecret"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClientCredential: %s", err)
+	}
+	if err = d.Set("display_name", flattenIAMWorkforcePoolOauthClientCredentialDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClientCredential: %s", err)
+	}
+	if err = d.Set("name", flattenIAMWorkforcePoolOauthClientCredentialName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClientCredential: %s", err)
+	}
+
+	return nil
 }

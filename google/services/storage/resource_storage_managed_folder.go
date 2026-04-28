@@ -300,23 +300,9 @@ func resourceStorageManagedFolderRead(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
-	if err := d.Set("create_time", flattenStorageManagedFolderCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedFolder: %s", err)
-	}
-	if err := d.Set("update_time", flattenStorageManagedFolderUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedFolder: %s", err)
-	}
-	if err := d.Set("metageneration", flattenStorageManagedFolderMetageneration(res["metageneration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedFolder: %s", err)
-	}
-	if err := d.Set("bucket", flattenStorageManagedFolderBucket(res["bucket"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedFolder: %s", err)
-	}
-	if err := d.Set("name", flattenStorageManagedFolderName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedFolder: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading ManagedFolder: %s", err)
+	err = ResourceStorageManagedFolderFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -468,4 +454,28 @@ func expandStorageManagedFolderBucket(v interface{}, d tpgresource.TerraformReso
 
 func expandStorageManagedFolderName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceStorageManagedFolderFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenStorageManagedFolderCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedFolder: %s", err)
+	}
+	if err = d.Set("update_time", flattenStorageManagedFolderUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedFolder: %s", err)
+	}
+	if err = d.Set("metageneration", flattenStorageManagedFolderMetageneration(res["metageneration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedFolder: %s", err)
+	}
+	if err = d.Set("bucket", flattenStorageManagedFolderBucket(res["bucket"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedFolder: %s", err)
+	}
+	if err = d.Set("name", flattenStorageManagedFolderName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedFolder: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading ManagedFolder: %s", err)
+	}
+	return nil
 }

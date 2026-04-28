@@ -1254,80 +1254,9 @@ func resourceCloudRunV2JobRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 
-	if err := d.Set("uid", flattenCloudRunV2JobUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("generation", flattenCloudRunV2JobGeneration(res["generation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("labels", flattenCloudRunV2JobLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("annotations", flattenCloudRunV2JobAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("create_time", flattenCloudRunV2JobCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("update_time", flattenCloudRunV2JobUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("delete_time", flattenCloudRunV2JobDeleteTime(res["deleteTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("expire_time", flattenCloudRunV2JobExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("creator", flattenCloudRunV2JobCreator(res["creator"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("last_modifier", flattenCloudRunV2JobLastModifier(res["lastModifier"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("client", flattenCloudRunV2JobClient(res["client"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("client_version", flattenCloudRunV2JobClientVersion(res["clientVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("launch_stage", flattenCloudRunV2JobLaunchStage(res["launchStage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("binary_authorization", flattenCloudRunV2JobBinaryAuthorization(res["binaryAuthorization"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("template", flattenCloudRunV2JobTemplate(res["template"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("observed_generation", flattenCloudRunV2JobObservedGeneration(res["observedGeneration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("terminal_condition", flattenCloudRunV2JobTerminalCondition(res["terminalCondition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("conditions", flattenCloudRunV2JobConditions(res["conditions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("execution_count", flattenCloudRunV2JobExecutionCount(res["executionCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("latest_created_execution", flattenCloudRunV2JobLatestCreatedExecution(res["latestCreatedExecution"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("reconciling", flattenCloudRunV2JobReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("etag", flattenCloudRunV2JobEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenCloudRunV2JobTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenCloudRunV2JobEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenCloudRunV2JobEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
+	err = ResourceCloudRunV2JobFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3994,4 +3923,86 @@ func expandCloudRunV2JobEffectiveAnnotations(v interface{}, d tpgresource.Terraf
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceCloudRunV2JobFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("uid", flattenCloudRunV2JobUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("generation", flattenCloudRunV2JobGeneration(res["generation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("labels", flattenCloudRunV2JobLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("annotations", flattenCloudRunV2JobAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("create_time", flattenCloudRunV2JobCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("update_time", flattenCloudRunV2JobUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("delete_time", flattenCloudRunV2JobDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("expire_time", flattenCloudRunV2JobExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("creator", flattenCloudRunV2JobCreator(res["creator"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("last_modifier", flattenCloudRunV2JobLastModifier(res["lastModifier"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("client", flattenCloudRunV2JobClient(res["client"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("client_version", flattenCloudRunV2JobClientVersion(res["clientVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("launch_stage", flattenCloudRunV2JobLaunchStage(res["launchStage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("binary_authorization", flattenCloudRunV2JobBinaryAuthorization(res["binaryAuthorization"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("template", flattenCloudRunV2JobTemplate(res["template"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("observed_generation", flattenCloudRunV2JobObservedGeneration(res["observedGeneration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("terminal_condition", flattenCloudRunV2JobTerminalCondition(res["terminalCondition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("conditions", flattenCloudRunV2JobConditions(res["conditions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("execution_count", flattenCloudRunV2JobExecutionCount(res["executionCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("latest_created_execution", flattenCloudRunV2JobLatestCreatedExecution(res["latestCreatedExecution"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("reconciling", flattenCloudRunV2JobReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("etag", flattenCloudRunV2JobEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenCloudRunV2JobTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenCloudRunV2JobEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenCloudRunV2JobEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+
+	return nil
 }

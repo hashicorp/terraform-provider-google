@@ -462,41 +462,9 @@ func resourceComputeRegionTargetHttpsProxyRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeRegionTargetHttpsProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionTargetHttpsProxyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("proxy_id", flattenComputeRegionTargetHttpsProxyProxyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionTargetHttpsProxyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("certificate_manager_certificates", flattenComputeRegionTargetHttpsProxyCertificateManagerCertificates(res["certificateManagerCertificates"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("ssl_certificates", flattenComputeRegionTargetHttpsProxySslCertificates(res["sslCertificates"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("ssl_policy", flattenComputeRegionTargetHttpsProxySslPolicy(res["sslPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("url_map", flattenComputeRegionTargetHttpsProxyUrlMap(res["urlMap"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("http_keep_alive_timeout_sec", flattenComputeRegionTargetHttpsProxyHttpKeepAliveTimeoutSec(res["httpKeepAliveTimeoutSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("server_tls_policy", flattenComputeRegionTargetHttpsProxyServerTlsPolicy(res["serverTlsPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("region", flattenComputeRegionTargetHttpsProxyRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	err = ResourceComputeRegionTargetHttpsProxyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1122,4 +1090,46 @@ func resourceComputeRegionTargetHttpsProxyDecoder(d *schema.ResourceData, meta i
 		}
 	}
 	return res, nil
+}
+
+func ResourceComputeRegionTargetHttpsProxyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeRegionTargetHttpsProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err = d.Set("description", flattenComputeRegionTargetHttpsProxyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err = d.Set("proxy_id", flattenComputeRegionTargetHttpsProxyProxyId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionTargetHttpsProxyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err = d.Set("certificate_manager_certificates", flattenComputeRegionTargetHttpsProxyCertificateManagerCertificates(res["certificateManagerCertificates"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err = d.Set("ssl_certificates", flattenComputeRegionTargetHttpsProxySslCertificates(res["sslCertificates"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err = d.Set("ssl_policy", flattenComputeRegionTargetHttpsProxySslPolicy(res["sslPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err = d.Set("url_map", flattenComputeRegionTargetHttpsProxyUrlMap(res["urlMap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err = d.Set("http_keep_alive_timeout_sec", flattenComputeRegionTargetHttpsProxyHttpKeepAliveTimeoutSec(res["httpKeepAliveTimeoutSec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err = d.Set("server_tls_policy", flattenComputeRegionTargetHttpsProxyServerTlsPolicy(res["serverTlsPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err = d.Set("region", flattenComputeRegionTargetHttpsProxyRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	return nil
 }

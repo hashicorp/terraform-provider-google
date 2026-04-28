@@ -1233,89 +1233,9 @@ func resourceGkeonpremVmwareAdminClusterRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
 	}
 
-	if err := d.Set("description", flattenGkeonpremVmwareAdminClusterDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("on_prem_version", flattenGkeonpremVmwareAdminClusterOnPremVersion(res["onPremVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("image_type", flattenGkeonpremVmwareAdminClusterImageType(res["imageType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("bootstrap_cluster_membership", flattenGkeonpremVmwareAdminClusterBootstrapClusterMembership(res["bootstrapClusterMembership"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("annotations", flattenGkeonpremVmwareAdminClusterAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("network_config", flattenGkeonpremVmwareAdminClusterNetworkConfig(res["networkConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("control_plane_node", flattenGkeonpremVmwareAdminClusterControlPlaneNode(res["controlPlaneNode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("addon_node", flattenGkeonpremVmwareAdminClusterAddonNode(res["addonNode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("load_balancer", flattenGkeonpremVmwareAdminClusterLoadBalancer(res["loadBalancer"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("vcenter", flattenGkeonpremVmwareAdminClusterVcenter(res["vcenter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("anti_affinity_groups", flattenGkeonpremVmwareAdminClusterAntiAffinityGroups(res["antiAffinityGroups"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("auto_repair_config", flattenGkeonpremVmwareAdminClusterAutoRepairConfig(res["autoRepairConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("authorization", flattenGkeonpremVmwareAdminClusterAuthorization(res["authorization"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("platform_config", flattenGkeonpremVmwareAdminClusterPlatformConfig(res["platformConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("uid", flattenGkeonpremVmwareAdminClusterUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("state", flattenGkeonpremVmwareAdminClusterState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("endpoint", flattenGkeonpremVmwareAdminClusterEndpoint(res["endpoint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("reconciling", flattenGkeonpremVmwareAdminClusterReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("create_time", flattenGkeonpremVmwareAdminClusterCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("update_time", flattenGkeonpremVmwareAdminClusterUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("local_name", flattenGkeonpremVmwareAdminClusterLocalName(res["localName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("etag", flattenGkeonpremVmwareAdminClusterEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("fleet", flattenGkeonpremVmwareAdminClusterFleet(res["fleet"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("status", flattenGkeonpremVmwareAdminClusterStatus(res["status"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("enable_advanced_cluster", flattenGkeonpremVmwareAdminClusterEnableAdvancedCluster(res["enableAdvancedCluster"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("private_registry_config", flattenGkeonpremVmwareAdminClusterPrivateRegistryConfig(res["privateRegistryConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("proxy", flattenGkeonpremVmwareAdminClusterProxy(res["proxy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenGkeonpremVmwareAdminClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	err = ResourceGkeonpremVmwareAdminClusterFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3945,4 +3865,95 @@ func expandGkeonpremVmwareAdminClusterEffectiveAnnotations(v interface{}, d tpgr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceGkeonpremVmwareAdminClusterFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenGkeonpremVmwareAdminClusterDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("on_prem_version", flattenGkeonpremVmwareAdminClusterOnPremVersion(res["onPremVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("image_type", flattenGkeonpremVmwareAdminClusterImageType(res["imageType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("bootstrap_cluster_membership", flattenGkeonpremVmwareAdminClusterBootstrapClusterMembership(res["bootstrapClusterMembership"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("annotations", flattenGkeonpremVmwareAdminClusterAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("network_config", flattenGkeonpremVmwareAdminClusterNetworkConfig(res["networkConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("control_plane_node", flattenGkeonpremVmwareAdminClusterControlPlaneNode(res["controlPlaneNode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("addon_node", flattenGkeonpremVmwareAdminClusterAddonNode(res["addonNode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("load_balancer", flattenGkeonpremVmwareAdminClusterLoadBalancer(res["loadBalancer"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("vcenter", flattenGkeonpremVmwareAdminClusterVcenter(res["vcenter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("anti_affinity_groups", flattenGkeonpremVmwareAdminClusterAntiAffinityGroups(res["antiAffinityGroups"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("auto_repair_config", flattenGkeonpremVmwareAdminClusterAutoRepairConfig(res["autoRepairConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("authorization", flattenGkeonpremVmwareAdminClusterAuthorization(res["authorization"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("platform_config", flattenGkeonpremVmwareAdminClusterPlatformConfig(res["platformConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("uid", flattenGkeonpremVmwareAdminClusterUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("state", flattenGkeonpremVmwareAdminClusterState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("endpoint", flattenGkeonpremVmwareAdminClusterEndpoint(res["endpoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("reconciling", flattenGkeonpremVmwareAdminClusterReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("create_time", flattenGkeonpremVmwareAdminClusterCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("update_time", flattenGkeonpremVmwareAdminClusterUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("local_name", flattenGkeonpremVmwareAdminClusterLocalName(res["localName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("etag", flattenGkeonpremVmwareAdminClusterEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("fleet", flattenGkeonpremVmwareAdminClusterFleet(res["fleet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("status", flattenGkeonpremVmwareAdminClusterStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("enable_advanced_cluster", flattenGkeonpremVmwareAdminClusterEnableAdvancedCluster(res["enableAdvancedCluster"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("private_registry_config", flattenGkeonpremVmwareAdminClusterPrivateRegistryConfig(res["privateRegistryConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("proxy", flattenGkeonpremVmwareAdminClusterProxy(res["proxy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenGkeonpremVmwareAdminClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
+
+	return nil
 }

@@ -480,26 +480,9 @@ func resourceSpannerInstancePartitionRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading InstancePartition: %s", err)
 	}
 
-	if err := d.Set("name", flattenSpannerInstancePartitionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstancePartition: %s", err)
-	}
-	if err := d.Set("display_name", flattenSpannerInstancePartitionDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstancePartition: %s", err)
-	}
-	if err := d.Set("node_count", flattenSpannerInstancePartitionNodeCount(res["nodeCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstancePartition: %s", err)
-	}
-	if err := d.Set("processing_units", flattenSpannerInstancePartitionProcessingUnits(res["processingUnits"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstancePartition: %s", err)
-	}
-	if err := d.Set("autoscaling_config", flattenSpannerInstancePartitionAutoscalingConfig(res["autoscalingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstancePartition: %s", err)
-	}
-	if err := d.Set("config", flattenSpannerInstancePartitionConfig(res["config"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstancePartition: %s", err)
-	}
-	if err := d.Set("state", flattenSpannerInstancePartitionState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstancePartition: %s", err)
+	err = ResourceSpannerInstancePartitionFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1161,4 +1144,32 @@ func resourceSpannerInstancePartitionEncoder(d *schema.ResourceData, meta interf
 	wrapped["instancePartition"] = obj
 	delete(obj, "name")
 	return wrapped, nil
+}
+
+func ResourceSpannerInstancePartitionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSpannerInstancePartitionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstancePartition: %s", err)
+	}
+	if err = d.Set("display_name", flattenSpannerInstancePartitionDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstancePartition: %s", err)
+	}
+	if err = d.Set("node_count", flattenSpannerInstancePartitionNodeCount(res["nodeCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstancePartition: %s", err)
+	}
+	if err = d.Set("processing_units", flattenSpannerInstancePartitionProcessingUnits(res["processingUnits"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstancePartition: %s", err)
+	}
+	if err = d.Set("autoscaling_config", flattenSpannerInstancePartitionAutoscalingConfig(res["autoscalingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstancePartition: %s", err)
+	}
+	if err = d.Set("config", flattenSpannerInstancePartitionConfig(res["config"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstancePartition: %s", err)
+	}
+	if err = d.Set("state", flattenSpannerInstancePartitionState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstancePartition: %s", err)
+	}
+
+	return nil
 }

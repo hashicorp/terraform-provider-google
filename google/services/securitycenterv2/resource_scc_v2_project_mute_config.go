@@ -350,26 +350,9 @@ func resourceSecurityCenterV2ProjectMuteConfigRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenSecurityCenterV2ProjectMuteConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
-	}
-	if err := d.Set("description", flattenSecurityCenterV2ProjectMuteConfigDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
-	}
-	if err := d.Set("filter", flattenSecurityCenterV2ProjectMuteConfigFilter(res["filter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
-	}
-	if err := d.Set("create_time", flattenSecurityCenterV2ProjectMuteConfigCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
-	}
-	if err := d.Set("update_time", flattenSecurityCenterV2ProjectMuteConfigUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
-	}
-	if err := d.Set("most_recent_editor", flattenSecurityCenterV2ProjectMuteConfigMostRecentEditor(res["mostRecentEditor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
-	}
-	if err := d.Set("type", flattenSecurityCenterV2ProjectMuteConfigType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
+	err = ResourceSecurityCenterV2ProjectMuteConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -616,4 +599,32 @@ func expandSecurityCenterV2ProjectMuteConfigFilter(v interface{}, d tpgresource.
 
 func expandSecurityCenterV2ProjectMuteConfigType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceSecurityCenterV2ProjectMuteConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecurityCenterV2ProjectMuteConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
+	}
+	if err = d.Set("description", flattenSecurityCenterV2ProjectMuteConfigDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
+	}
+	if err = d.Set("filter", flattenSecurityCenterV2ProjectMuteConfigFilter(res["filter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
+	}
+	if err = d.Set("create_time", flattenSecurityCenterV2ProjectMuteConfigCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
+	}
+	if err = d.Set("update_time", flattenSecurityCenterV2ProjectMuteConfigUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
+	}
+	if err = d.Set("most_recent_editor", flattenSecurityCenterV2ProjectMuteConfigMostRecentEditor(res["mostRecentEditor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
+	}
+	if err = d.Set("type", flattenSecurityCenterV2ProjectMuteConfigType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
+	}
+
+	return nil
 }

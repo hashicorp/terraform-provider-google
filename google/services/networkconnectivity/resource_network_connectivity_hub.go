@@ -367,44 +367,9 @@ func resourceNetworkConnectivityHubRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Hub: %s", err)
 	}
 
-	if err := d.Set("name", flattenNetworkConnectivityHubName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkConnectivityHubCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkConnectivityHubUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkConnectivityHubLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkConnectivityHubDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("unique_id", flattenNetworkConnectivityHubUniqueId(res["uniqueId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("state", flattenNetworkConnectivityHubState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("routing_vpcs", flattenNetworkConnectivityHubRoutingVpcs(res["routingVpcs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("preset_topology", flattenNetworkConnectivityHubPresetTopology(res["presetTopology"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("policy_mode", flattenNetworkConnectivityHubPolicyMode(res["policyMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("export_psc", flattenNetworkConnectivityHubExportPsc(res["exportPsc"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkConnectivityHubTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkConnectivityHubEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hub: %s", err)
+	err = ResourceNetworkConnectivityHubFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -708,4 +673,50 @@ func expandNetworkConnectivityHubEffectiveLabels(v interface{}, d tpgresource.Te
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkConnectivityHubFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNetworkConnectivityHubName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkConnectivityHubCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkConnectivityHubUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkConnectivityHubLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkConnectivityHubDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("unique_id", flattenNetworkConnectivityHubUniqueId(res["uniqueId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("state", flattenNetworkConnectivityHubState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("routing_vpcs", flattenNetworkConnectivityHubRoutingVpcs(res["routingVpcs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("preset_topology", flattenNetworkConnectivityHubPresetTopology(res["presetTopology"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("policy_mode", flattenNetworkConnectivityHubPolicyMode(res["policyMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("export_psc", flattenNetworkConnectivityHubExportPsc(res["exportPsc"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkConnectivityHubTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkConnectivityHubEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+
+	return nil
 }

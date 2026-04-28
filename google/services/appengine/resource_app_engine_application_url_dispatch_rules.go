@@ -307,8 +307,9 @@ func resourceAppEngineApplicationUrlDispatchRulesRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading ApplicationUrlDispatchRules: %s", err)
 	}
 
-	if err := d.Set("dispatch_rules", flattenAppEngineApplicationUrlDispatchRulesDispatchRules(res["dispatchRules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationUrlDispatchRules: %s", err)
+	err = ResourceAppEngineApplicationUrlDispatchRulesFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -571,4 +572,14 @@ func expandAppEngineApplicationUrlDispatchRulesDispatchRulesPath(v interface{}, 
 
 func expandAppEngineApplicationUrlDispatchRulesDispatchRulesService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceAppEngineApplicationUrlDispatchRulesFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("dispatch_rules", flattenAppEngineApplicationUrlDispatchRulesDispatchRules(res["dispatchRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationUrlDispatchRules: %s", err)
+	}
+
+	return nil
 }

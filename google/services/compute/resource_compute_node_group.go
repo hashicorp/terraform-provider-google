@@ -484,38 +484,9 @@ func resourceComputeNodeGroupRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeNodeGroupCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeGroup: %s", err)
-	}
-	if err := d.Set("description", flattenComputeNodeGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeGroup: %s", err)
-	}
-	if err := d.Set("name", flattenComputeNodeGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeGroup: %s", err)
-	}
-	if err := d.Set("node_template", flattenComputeNodeGroupNodeTemplate(res["nodeTemplate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeGroup: %s", err)
-	}
-	if err := d.Set("size", flattenComputeNodeGroupSize(res["size"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeGroup: %s", err)
-	}
-	if err := d.Set("maintenance_policy", flattenComputeNodeGroupMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeGroup: %s", err)
-	}
-	if err := d.Set("maintenance_window", flattenComputeNodeGroupMaintenanceWindow(res["maintenanceWindow"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeGroup: %s", err)
-	}
-	if err := d.Set("autoscaling_policy", flattenComputeNodeGroupAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeGroup: %s", err)
-	}
-	if err := d.Set("share_settings", flattenComputeNodeGroupShareSettings(res["shareSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeGroup: %s", err)
-	}
-	if err := d.Set("zone", flattenComputeNodeGroupZone(res["zone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodeGroup: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	err = ResourceComputeNodeGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1148,4 +1119,43 @@ func expandComputeNodeGroupZone(v interface{}, d tpgresource.TerraformResourceDa
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeNodeGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeNodeGroupCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err = d.Set("description", flattenComputeNodeGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err = d.Set("name", flattenComputeNodeGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err = d.Set("node_template", flattenComputeNodeGroupNodeTemplate(res["nodeTemplate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err = d.Set("size", flattenComputeNodeGroupSize(res["size"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err = d.Set("maintenance_policy", flattenComputeNodeGroupMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err = d.Set("maintenance_window", flattenComputeNodeGroupMaintenanceWindow(res["maintenanceWindow"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err = d.Set("autoscaling_policy", flattenComputeNodeGroupAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err = d.Set("share_settings", flattenComputeNodeGroupShareSettings(res["shareSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err = d.Set("zone", flattenComputeNodeGroupZone(res["zone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	return nil
 }

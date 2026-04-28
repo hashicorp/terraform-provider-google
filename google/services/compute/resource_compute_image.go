@@ -917,62 +917,9 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 
-	if err := d.Set("archive_size_bytes", flattenComputeImageArchiveSizeBytes(res["archiveSizeBytes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeImageCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("description", flattenComputeImageDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("storage_locations", flattenComputeImageStorageLocations(res["storageLocations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("disk_size_gb", flattenComputeImageDiskSizeGb(res["diskSizeGb"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("family", flattenComputeImageFamily(res["family"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("guest_os_features", flattenComputeImageGuestOsFeatures(res["guestOsFeatures"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("image_encryption_key", flattenComputeImageImageEncryptionKey(res["imageEncryptionKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeImageLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeImageLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("licenses", flattenComputeImageLicenses(res["licenses"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("name", flattenComputeImageName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("source_disk", flattenComputeImageSourceDisk(res["sourceDisk"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("source_image", flattenComputeImageSourceImage(res["sourceImage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("source_snapshot", flattenComputeImageSourceSnapshot(res["sourceSnapshot"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("shielded_instance_initial_state", flattenComputeImageShieldedInstanceInitialState(res["shieldedInstanceInitialState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenComputeImageTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenComputeImageEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Image: %s", err)
+	err = ResourceComputeImageFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2085,4 +2032,67 @@ func expandComputeImageEffectiveLabels(v interface{}, d tpgresource.TerraformRes
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceComputeImageFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("archive_size_bytes", flattenComputeImageArchiveSizeBytes(res["archiveSizeBytes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeImageCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("description", flattenComputeImageDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("storage_locations", flattenComputeImageStorageLocations(res["storageLocations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("disk_size_gb", flattenComputeImageDiskSizeGb(res["diskSizeGb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("family", flattenComputeImageFamily(res["family"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("guest_os_features", flattenComputeImageGuestOsFeatures(res["guestOsFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("image_encryption_key", flattenComputeImageImageEncryptionKey(res["imageEncryptionKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("labels", flattenComputeImageLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("label_fingerprint", flattenComputeImageLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("licenses", flattenComputeImageLicenses(res["licenses"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("name", flattenComputeImageName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("source_disk", flattenComputeImageSourceDisk(res["sourceDisk"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("source_image", flattenComputeImageSourceImage(res["sourceImage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("source_snapshot", flattenComputeImageSourceSnapshot(res["sourceSnapshot"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("shielded_instance_initial_state", flattenComputeImageShieldedInstanceInitialState(res["shieldedInstanceInitialState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenComputeImageTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenComputeImageEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	return nil
 }

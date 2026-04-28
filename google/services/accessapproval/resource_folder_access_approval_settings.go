@@ -396,26 +396,9 @@ func resourceAccessApprovalFolderSettingsRead(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Finished reading AccessApprovalFolderSettings %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenAccessApprovalFolderSettingsName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSettings: %s", err)
-	}
-	if err := d.Set("notification_emails", flattenAccessApprovalFolderSettingsNotificationEmails(res["notificationEmails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSettings: %s", err)
-	}
-	if err := d.Set("enrolled_services", flattenAccessApprovalFolderSettingsEnrolledServices(res["enrolledServices"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSettings: %s", err)
-	}
-	if err := d.Set("enrolled_ancestor", flattenAccessApprovalFolderSettingsEnrolledAncestor(res["enrolledAncestor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSettings: %s", err)
-	}
-	if err := d.Set("active_key_version", flattenAccessApprovalFolderSettingsActiveKeyVersion(res["activeKeyVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSettings: %s", err)
-	}
-	if err := d.Set("ancestor_has_active_key_version", flattenAccessApprovalFolderSettingsAncestorHasActiveKeyVersion(res["ancestorHasActiveKeyVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSettings: %s", err)
-	}
-	if err := d.Set("invalid_key_version", flattenAccessApprovalFolderSettingsInvalidKeyVersion(res["invalidKeyVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSettings: %s", err)
+	err = ResourceAccessApprovalFolderSettingsFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -702,4 +685,32 @@ func expandAccessApprovalFolderSettingsEnrolledServicesEnrollmentLevel(v interfa
 
 func expandAccessApprovalFolderSettingsActiveKeyVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceAccessApprovalFolderSettingsFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenAccessApprovalFolderSettingsName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSettings: %s", err)
+	}
+	if err = d.Set("notification_emails", flattenAccessApprovalFolderSettingsNotificationEmails(res["notificationEmails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSettings: %s", err)
+	}
+	if err = d.Set("enrolled_services", flattenAccessApprovalFolderSettingsEnrolledServices(res["enrolledServices"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSettings: %s", err)
+	}
+	if err = d.Set("enrolled_ancestor", flattenAccessApprovalFolderSettingsEnrolledAncestor(res["enrolledAncestor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSettings: %s", err)
+	}
+	if err = d.Set("active_key_version", flattenAccessApprovalFolderSettingsActiveKeyVersion(res["activeKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSettings: %s", err)
+	}
+	if err = d.Set("ancestor_has_active_key_version", flattenAccessApprovalFolderSettingsAncestorHasActiveKeyVersion(res["ancestorHasActiveKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSettings: %s", err)
+	}
+	if err = d.Set("invalid_key_version", flattenAccessApprovalFolderSettingsInvalidKeyVersion(res["invalidKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSettings: %s", err)
+	}
+
+	return nil
 }

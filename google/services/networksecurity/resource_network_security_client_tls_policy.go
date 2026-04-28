@@ -451,32 +451,9 @@ func resourceNetworkSecurityClientTlsPolicyRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkSecurityClientTlsPolicyCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityClientTlsPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkSecurityClientTlsPolicyLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkSecurityClientTlsPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
-	}
-	if err := d.Set("sni", flattenNetworkSecurityClientTlsPolicySni(res["sni"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
-	}
-	if err := d.Set("client_certificate", flattenNetworkSecurityClientTlsPolicyClientCertificate(res["clientCertificate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
-	}
-	if err := d.Set("server_validation_ca", flattenNetworkSecurityClientTlsPolicyServerValidationCa(res["serverValidationCa"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkSecurityClientTlsPolicyTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkSecurityClientTlsPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
+	err = ResourceNetworkSecurityClientTlsPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1054,4 +1031,38 @@ func expandNetworkSecurityClientTlsPolicyEffectiveLabels(v interface{}, d tpgres
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkSecurityClientTlsPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkSecurityClientTlsPolicyCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityClientTlsPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkSecurityClientTlsPolicyLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkSecurityClientTlsPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
+	}
+	if err = d.Set("sni", flattenNetworkSecurityClientTlsPolicySni(res["sni"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
+	}
+	if err = d.Set("client_certificate", flattenNetworkSecurityClientTlsPolicyClientCertificate(res["clientCertificate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
+	}
+	if err = d.Set("server_validation_ca", flattenNetworkSecurityClientTlsPolicyServerValidationCa(res["serverValidationCa"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkSecurityClientTlsPolicyTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkSecurityClientTlsPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ClientTlsPolicy: %s", err)
+	}
+
+	return nil
 }

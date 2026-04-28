@@ -412,32 +412,9 @@ func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading Domain: %s", err)
 	}
 
-	if err := d.Set("name", flattenActiveDirectoryDomainName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("labels", flattenActiveDirectoryDomainLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("authorized_networks", flattenActiveDirectoryDomainAuthorizedNetworks(res["authorizedNetworks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("reserved_ip_range", flattenActiveDirectoryDomainReservedIpRange(res["reservedIpRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("locations", flattenActiveDirectoryDomainLocations(res["locations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("admin", flattenActiveDirectoryDomainAdmin(res["admin"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("fqdn", flattenActiveDirectoryDomainFqdn(res["fqdn"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenActiveDirectoryDomainTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenActiveDirectoryDomainEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
+	err = ResourceActiveDirectoryDomainFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -734,4 +711,38 @@ func expandActiveDirectoryDomainEffectiveLabels(v interface{}, d tpgresource.Ter
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceActiveDirectoryDomainFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenActiveDirectoryDomainName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("labels", flattenActiveDirectoryDomainLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("authorized_networks", flattenActiveDirectoryDomainAuthorizedNetworks(res["authorizedNetworks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("reserved_ip_range", flattenActiveDirectoryDomainReservedIpRange(res["reservedIpRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("locations", flattenActiveDirectoryDomainLocations(res["locations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("admin", flattenActiveDirectoryDomainAdmin(res["admin"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("fqdn", flattenActiveDirectoryDomainFqdn(res["fqdn"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenActiveDirectoryDomainTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenActiveDirectoryDomainEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+
+	return nil
 }

@@ -303,14 +303,9 @@ func resourceFirebaseAppCheckRecaptchaEnterpriseConfigRead(d *schema.ResourceDat
 		return fmt.Errorf("Error reading RecaptchaEnterpriseConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenFirebaseAppCheckRecaptchaEnterpriseConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecaptchaEnterpriseConfig: %s", err)
-	}
-	if err := d.Set("token_ttl", flattenFirebaseAppCheckRecaptchaEnterpriseConfigTokenTtl(res["tokenTtl"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecaptchaEnterpriseConfig: %s", err)
-	}
-	if err := d.Set("site_key", flattenFirebaseAppCheckRecaptchaEnterpriseConfigSiteKey(res["siteKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecaptchaEnterpriseConfig: %s", err)
+	err = ResourceFirebaseAppCheckRecaptchaEnterpriseConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -477,4 +472,20 @@ func expandFirebaseAppCheckRecaptchaEnterpriseConfigTokenTtl(v interface{}, d tp
 
 func expandFirebaseAppCheckRecaptchaEnterpriseConfigSiteKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceFirebaseAppCheckRecaptchaEnterpriseConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenFirebaseAppCheckRecaptchaEnterpriseConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecaptchaEnterpriseConfig: %s", err)
+	}
+	if err = d.Set("token_ttl", flattenFirebaseAppCheckRecaptchaEnterpriseConfigTokenTtl(res["tokenTtl"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecaptchaEnterpriseConfig: %s", err)
+	}
+	if err = d.Set("site_key", flattenFirebaseAppCheckRecaptchaEnterpriseConfigSiteKey(res["siteKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecaptchaEnterpriseConfig: %s", err)
+	}
+
+	return nil
 }

@@ -301,11 +301,9 @@ func resourceComputeCrossSiteNetworkRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading CrossSiteNetwork: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeCrossSiteNetworkName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CrossSiteNetwork: %s", err)
-	}
-	if err := d.Set("description", flattenComputeCrossSiteNetworkDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CrossSiteNetwork: %s", err)
+	err = ResourceComputeCrossSiteNetworkFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -498,4 +496,17 @@ func expandComputeCrossSiteNetworkName(v interface{}, d tpgresource.TerraformRes
 
 func expandComputeCrossSiteNetworkDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeCrossSiteNetworkFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenComputeCrossSiteNetworkName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CrossSiteNetwork: %s", err)
+	}
+	if err = d.Set("description", flattenComputeCrossSiteNetworkDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CrossSiteNetwork: %s", err)
+	}
+
+	return nil
 }

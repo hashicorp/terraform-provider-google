@@ -313,14 +313,9 @@ func resourceDataCatalogEntryGroupRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading EntryGroup: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataCatalogEntryGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataCatalogEntryGroupDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
-	}
-	if err := d.Set("description", flattenDataCatalogEntryGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	err = ResourceDataCatalogEntryGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -529,5 +524,21 @@ func resourceDataCatalogEntryGroupPostCreateSetComputedFields(d *schema.Resource
 	if err := d.Set("name", flattenDataCatalogEntryGroupName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDataCatalogEntryGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataCatalogEntryGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataCatalogEntryGroupDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+	if err = d.Set("description", flattenDataCatalogEntryGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+
 	return nil
 }

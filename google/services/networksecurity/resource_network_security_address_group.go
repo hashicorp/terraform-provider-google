@@ -371,32 +371,9 @@ func resourceNetworkSecurityAddressGroupRead(d *schema.ResourceData, meta interf
 
 	log.Printf("[DEBUG] Finished reading NetworkSecurityAddressGroup %q: %#v", d.Id(), res)
 
-	if err := d.Set("description", flattenNetworkSecurityAddressGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AddressGroup: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkSecurityAddressGroupCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AddressGroup: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityAddressGroupUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AddressGroup: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkSecurityAddressGroupLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AddressGroup: %s", err)
-	}
-	if err := d.Set("type", flattenNetworkSecurityAddressGroupType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AddressGroup: %s", err)
-	}
-	if err := d.Set("items", flattenNetworkSecurityAddressGroupItems(res["items"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AddressGroup: %s", err)
-	}
-	if err := d.Set("capacity", flattenNetworkSecurityAddressGroupCapacity(res["capacity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AddressGroup: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkSecurityAddressGroupTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AddressGroup: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkSecurityAddressGroupEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	err = ResourceNetworkSecurityAddressGroupFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -714,4 +691,38 @@ func expandNetworkSecurityAddressGroupEffectiveLabels(v interface{}, d tpgresour
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkSecurityAddressGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenNetworkSecurityAddressGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkSecurityAddressGroupCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityAddressGroupUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkSecurityAddressGroupLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	}
+	if err = d.Set("type", flattenNetworkSecurityAddressGroupType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	}
+	if err = d.Set("items", flattenNetworkSecurityAddressGroupItems(res["items"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	}
+	if err = d.Set("capacity", flattenNetworkSecurityAddressGroupCapacity(res["capacity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkSecurityAddressGroupTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkSecurityAddressGroupEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	}
+
+	return nil
 }

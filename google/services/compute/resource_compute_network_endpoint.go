@@ -410,15 +410,9 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("zone", zone); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
-
-	if err := d.Set("instance", flattenNestedComputeNetworkEndpointInstance(res["instance"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
-	}
-	if err := d.Set("port", flattenNestedComputeNetworkEndpointPort(res["port"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
-	}
-	if err := d.Set("ip_address", flattenNestedComputeNetworkEndpointIpAddress(res["ipAddress"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
+	err = ResourceComputeNetworkEndpointFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -706,4 +700,20 @@ func resourceComputeNetworkEndpointDecoder(d *schema.ResourceData, meta interfac
 	}
 
 	return v.(map[string]interface{}), nil
+}
+
+func ResourceComputeNetworkEndpointFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("instance", flattenNestedComputeNetworkEndpointInstance(res["instance"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
+	}
+	if err = d.Set("port", flattenNestedComputeNetworkEndpointPort(res["port"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
+	}
+	if err = d.Set("ip_address", flattenNestedComputeNetworkEndpointIpAddress(res["ipAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
+	}
+
+	return nil
 }

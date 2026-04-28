@@ -675,50 +675,9 @@ func resourceNetworkServicesEdgeCacheOriginRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
 	}
 
-	if err := d.Set("description", flattenNetworkServicesEdgeCacheOriginDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkServicesEdgeCacheOriginLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("origin_address", flattenNetworkServicesEdgeCacheOriginOriginAddress(res["originAddress"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("protocol", flattenNetworkServicesEdgeCacheOriginProtocol(res["protocol"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("port", flattenNetworkServicesEdgeCacheOriginPort(res["port"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("max_attempts", flattenNetworkServicesEdgeCacheOriginMaxAttempts(res["maxAttempts"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("failover_origin", flattenNetworkServicesEdgeCacheOriginFailoverOrigin(res["failoverOrigin"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("retry_conditions", flattenNetworkServicesEdgeCacheOriginRetryConditions(res["retryConditions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("timeout", flattenNetworkServicesEdgeCacheOriginTimeout(res["timeout"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("aws_v4_authentication", flattenNetworkServicesEdgeCacheOriginAwsV4Authentication(res["awsV4Authentication"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("origin_override_action", flattenNetworkServicesEdgeCacheOriginOriginOverrideAction(res["originOverrideAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("origin_redirect", flattenNetworkServicesEdgeCacheOriginOriginRedirect(res["originRedirect"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("flex_shielding", flattenNetworkServicesEdgeCacheOriginFlexShielding(res["flexShielding"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkServicesEdgeCacheOriginTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkServicesEdgeCacheOriginEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	err = ResourceNetworkServicesEdgeCacheOriginFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1607,4 +1566,56 @@ func expandNetworkServicesEdgeCacheOriginEffectiveLabels(v interface{}, d tpgres
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkServicesEdgeCacheOriginFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenNetworkServicesEdgeCacheOriginDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkServicesEdgeCacheOriginLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("origin_address", flattenNetworkServicesEdgeCacheOriginOriginAddress(res["originAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("protocol", flattenNetworkServicesEdgeCacheOriginProtocol(res["protocol"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("port", flattenNetworkServicesEdgeCacheOriginPort(res["port"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("max_attempts", flattenNetworkServicesEdgeCacheOriginMaxAttempts(res["maxAttempts"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("failover_origin", flattenNetworkServicesEdgeCacheOriginFailoverOrigin(res["failoverOrigin"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("retry_conditions", flattenNetworkServicesEdgeCacheOriginRetryConditions(res["retryConditions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("timeout", flattenNetworkServicesEdgeCacheOriginTimeout(res["timeout"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("aws_v4_authentication", flattenNetworkServicesEdgeCacheOriginAwsV4Authentication(res["awsV4Authentication"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("origin_override_action", flattenNetworkServicesEdgeCacheOriginOriginOverrideAction(res["originOverrideAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("origin_redirect", flattenNetworkServicesEdgeCacheOriginOriginRedirect(res["originRedirect"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("flex_shielding", flattenNetworkServicesEdgeCacheOriginFlexShielding(res["flexShielding"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkServicesEdgeCacheOriginTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkServicesEdgeCacheOriginEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+
+	return nil
 }

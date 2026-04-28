@@ -961,62 +961,9 @@ func resourceComputeRegionHealthCheckRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
 
-	if err := d.Set("check_interval_sec", flattenComputeRegionHealthCheckCheckIntervalSec(res["checkIntervalSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeRegionHealthCheckCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionHealthCheckDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("health_check_id", flattenComputeRegionHealthCheckHealthCheckId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("healthy_threshold", flattenComputeRegionHealthCheckHealthyThreshold(res["healthyThreshold"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionHealthCheckName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("unhealthy_threshold", flattenComputeRegionHealthCheckUnhealthyThreshold(res["unhealthyThreshold"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("timeout_sec", flattenComputeRegionHealthCheckTimeoutSec(res["timeoutSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("type", flattenComputeRegionHealthCheckType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("http_health_check", flattenComputeRegionHealthCheckHttpHealthCheck(res["httpHealthCheck"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("https_health_check", flattenComputeRegionHealthCheckHttpsHealthCheck(res["httpsHealthCheck"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("tcp_health_check", flattenComputeRegionHealthCheckTcpHealthCheck(res["tcpHealthCheck"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("ssl_health_check", flattenComputeRegionHealthCheckSslHealthCheck(res["sslHealthCheck"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("http2_health_check", flattenComputeRegionHealthCheckHttp2HealthCheck(res["http2HealthCheck"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("grpc_health_check", flattenComputeRegionHealthCheckGrpcHealthCheck(res["grpcHealthCheck"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("grpc_tls_health_check", flattenComputeRegionHealthCheckGrpcTlsHealthCheck(res["grpcTlsHealthCheck"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("log_config", flattenComputeRegionHealthCheckLogConfig(res["logConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("region", flattenComputeRegionHealthCheckRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	err = ResourceComputeRegionHealthCheckFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2530,4 +2477,67 @@ func resourceComputeRegionHealthCheckEncoder(d *schema.ResourceData, meta interf
 	}
 
 	return nil, fmt.Errorf("error in HealthCheck %s: No health check block specified.", d.Get("name").(string))
+}
+
+func ResourceComputeRegionHealthCheckFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("check_interval_sec", flattenComputeRegionHealthCheckCheckIntervalSec(res["checkIntervalSec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeRegionHealthCheckCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("description", flattenComputeRegionHealthCheckDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("health_check_id", flattenComputeRegionHealthCheckHealthCheckId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("healthy_threshold", flattenComputeRegionHealthCheckHealthyThreshold(res["healthyThreshold"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionHealthCheckName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("unhealthy_threshold", flattenComputeRegionHealthCheckUnhealthyThreshold(res["unhealthyThreshold"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("timeout_sec", flattenComputeRegionHealthCheckTimeoutSec(res["timeoutSec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("type", flattenComputeRegionHealthCheckType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("http_health_check", flattenComputeRegionHealthCheckHttpHealthCheck(res["httpHealthCheck"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("https_health_check", flattenComputeRegionHealthCheckHttpsHealthCheck(res["httpsHealthCheck"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("tcp_health_check", flattenComputeRegionHealthCheckTcpHealthCheck(res["tcpHealthCheck"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("ssl_health_check", flattenComputeRegionHealthCheckSslHealthCheck(res["sslHealthCheck"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("http2_health_check", flattenComputeRegionHealthCheckHttp2HealthCheck(res["http2HealthCheck"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("grpc_health_check", flattenComputeRegionHealthCheckGrpcHealthCheck(res["grpcHealthCheck"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("grpc_tls_health_check", flattenComputeRegionHealthCheckGrpcTlsHealthCheck(res["grpcTlsHealthCheck"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("log_config", flattenComputeRegionHealthCheckLogConfig(res["logConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("region", flattenComputeRegionHealthCheckRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	return nil
 }

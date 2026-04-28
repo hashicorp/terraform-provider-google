@@ -371,23 +371,9 @@ func resourceCloudbuildv2RepositoryRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
-	if err := d.Set("remote_uri", flattenCloudbuildv2RepositoryRemoteUri(res["remoteUri"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("create_time", flattenCloudbuildv2RepositoryCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("update_time", flattenCloudbuildv2RepositoryUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("annotations", flattenCloudbuildv2RepositoryAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("etag", flattenCloudbuildv2RepositoryEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenCloudbuildv2RepositoryEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
+	err = ResourceCloudbuildv2RepositoryFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -577,4 +563,29 @@ func resourceCloudbuildv2RepositoryEncoder(d *schema.ResourceData, meta interfac
 	d.Set("location", location)
 	d.Set("name", name)
 	return obj, nil
+}
+
+func ResourceCloudbuildv2RepositoryFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("remote_uri", flattenCloudbuildv2RepositoryRemoteUri(res["remoteUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("create_time", flattenCloudbuildv2RepositoryCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("update_time", flattenCloudbuildv2RepositoryUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("annotations", flattenCloudbuildv2RepositoryAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("etag", flattenCloudbuildv2RepositoryEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenCloudbuildv2RepositoryEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+
+	return nil
 }

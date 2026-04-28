@@ -590,26 +590,9 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 
-	if err := d.Set("name", flattenFirestoreIndexName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("query_scope", flattenFirestoreIndexQueryScope(res["queryScope"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("api_scope", flattenFirestoreIndexApiScope(res["apiScope"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("density", flattenFirestoreIndexDensity(res["density"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("multikey", flattenFirestoreIndexMultikey(res["multikey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("unique", flattenFirestoreIndexUnique(res["unique"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("fields", flattenFirestoreIndexFields(res["fields"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
+	err = ResourceFirestoreIndexFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1162,4 +1145,32 @@ func resourceFirestoreIndexEncoder(d *schema.ResourceData, meta interface{}, obj
 	delete(obj, "database")
 	delete(obj, "collection")
 	return obj, nil
+}
+
+func ResourceFirestoreIndexFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenFirestoreIndexName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("query_scope", flattenFirestoreIndexQueryScope(res["queryScope"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("api_scope", flattenFirestoreIndexApiScope(res["apiScope"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("density", flattenFirestoreIndexDensity(res["density"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("multikey", flattenFirestoreIndexMultikey(res["multikey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("unique", flattenFirestoreIndexUnique(res["unique"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("fields", flattenFirestoreIndexFields(res["fields"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+
+	return nil
 }

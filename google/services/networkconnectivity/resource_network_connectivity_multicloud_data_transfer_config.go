@@ -424,38 +424,9 @@ func resourceNetworkConnectivityMulticloudDataTransferConfigRead(d *schema.Resou
 		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkConnectivityMulticloudDataTransferConfigCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkConnectivityMulticloudDataTransferConfigUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkConnectivityMulticloudDataTransferConfigLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
-	}
-	if err := d.Set("etag", flattenNetworkConnectivityMulticloudDataTransferConfigEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkConnectivityMulticloudDataTransferConfigDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
-	}
-	if err := d.Set("destinations_count", flattenNetworkConnectivityMulticloudDataTransferConfigDestinationsCount(res["destinationsCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
-	}
-	if err := d.Set("destinations_active_count", flattenNetworkConnectivityMulticloudDataTransferConfigDestinationsActiveCount(res["destinationsActiveCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
-	}
-	if err := d.Set("services", flattenNetworkConnectivityMulticloudDataTransferConfigServices(res["services"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
-	}
-	if err := d.Set("uid", flattenNetworkConnectivityMulticloudDataTransferConfigUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkConnectivityMulticloudDataTransferConfigTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkConnectivityMulticloudDataTransferConfigEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	err = ResourceNetworkConnectivityMulticloudDataTransferConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -899,4 +870,44 @@ func expandNetworkConnectivityMulticloudDataTransferConfigEffectiveLabels(v inte
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkConnectivityMulticloudDataTransferConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkConnectivityMulticloudDataTransferConfigCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkConnectivityMulticloudDataTransferConfigUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkConnectivityMulticloudDataTransferConfigLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	}
+	if err = d.Set("etag", flattenNetworkConnectivityMulticloudDataTransferConfigEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkConnectivityMulticloudDataTransferConfigDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	}
+	if err = d.Set("destinations_count", flattenNetworkConnectivityMulticloudDataTransferConfigDestinationsCount(res["destinationsCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	}
+	if err = d.Set("destinations_active_count", flattenNetworkConnectivityMulticloudDataTransferConfigDestinationsActiveCount(res["destinationsActiveCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	}
+	if err = d.Set("services", flattenNetworkConnectivityMulticloudDataTransferConfigServices(res["services"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	}
+	if err = d.Set("uid", flattenNetworkConnectivityMulticloudDataTransferConfigUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkConnectivityMulticloudDataTransferConfigTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkConnectivityMulticloudDataTransferConfigEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticloudDataTransferConfig: %s", err)
+	}
+
+	return nil
 }

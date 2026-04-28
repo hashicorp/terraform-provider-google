@@ -356,23 +356,9 @@ func resourceIdentityPlatformTenantRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Tenant: %s", err)
 	}
 
-	if err := d.Set("name", flattenIdentityPlatformTenantName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tenant: %s", err)
-	}
-	if err := d.Set("display_name", flattenIdentityPlatformTenantDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tenant: %s", err)
-	}
-	if err := d.Set("allow_password_signup", flattenIdentityPlatformTenantAllowPasswordSignup(res["allowPasswordSignup"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tenant: %s", err)
-	}
-	if err := d.Set("enable_email_link_signin", flattenIdentityPlatformTenantEnableEmailLinkSignin(res["enableEmailLinkSignin"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tenant: %s", err)
-	}
-	if err := d.Set("disable_auth", flattenIdentityPlatformTenantDisableAuth(res["disableAuth"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tenant: %s", err)
-	}
-	if err := d.Set("client", flattenIdentityPlatformTenantClient(res["client"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tenant: %s", err)
+	err = ResourceIdentityPlatformTenantFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -729,5 +715,30 @@ func resourceIdentityPlatformTenantPostCreateSetComputedFields(d *schema.Resourc
 	if err := d.Set("name", flattenIdentityPlatformTenantName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceIdentityPlatformTenantFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIdentityPlatformTenantName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tenant: %s", err)
+	}
+	if err = d.Set("display_name", flattenIdentityPlatformTenantDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tenant: %s", err)
+	}
+	if err = d.Set("allow_password_signup", flattenIdentityPlatformTenantAllowPasswordSignup(res["allowPasswordSignup"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tenant: %s", err)
+	}
+	if err = d.Set("enable_email_link_signin", flattenIdentityPlatformTenantEnableEmailLinkSignin(res["enableEmailLinkSignin"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tenant: %s", err)
+	}
+	if err = d.Set("disable_auth", flattenIdentityPlatformTenantDisableAuth(res["disableAuth"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tenant: %s", err)
+	}
+	if err = d.Set("client", flattenIdentityPlatformTenantClient(res["client"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tenant: %s", err)
+	}
+
 	return nil
 }

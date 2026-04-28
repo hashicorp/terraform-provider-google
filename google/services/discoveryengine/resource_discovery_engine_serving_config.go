@@ -393,23 +393,9 @@ func resourceDiscoveryEngineServingConfigRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading ServingConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenDiscoveryEngineServingConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServingConfig: %s", err)
-	}
-	if err := d.Set("filter_control_ids", flattenDiscoveryEngineServingConfigFilterControlIds(res["filterControlIds"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServingConfig: %s", err)
-	}
-	if err := d.Set("boost_control_ids", flattenDiscoveryEngineServingConfigBoostControlIds(res["boostControlIds"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServingConfig: %s", err)
-	}
-	if err := d.Set("synonyms_control_ids", flattenDiscoveryEngineServingConfigSynonymsControlIds(res["synonymsControlIds"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServingConfig: %s", err)
-	}
-	if err := d.Set("redirect_control_ids", flattenDiscoveryEngineServingConfigRedirectControlIds(res["redirectControlIds"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServingConfig: %s", err)
-	}
-	if err := d.Set("promote_control_ids", flattenDiscoveryEngineServingConfigPromoteControlIds(res["promoteControlIds"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServingConfig: %s", err)
+	err = ResourceDiscoveryEngineServingConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -663,4 +649,29 @@ func expandDiscoveryEngineServingConfigRedirectControlIds(v interface{}, d tpgre
 
 func expandDiscoveryEngineServingConfigPromoteControlIds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceDiscoveryEngineServingConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDiscoveryEngineServingConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServingConfig: %s", err)
+	}
+	if err = d.Set("filter_control_ids", flattenDiscoveryEngineServingConfigFilterControlIds(res["filterControlIds"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServingConfig: %s", err)
+	}
+	if err = d.Set("boost_control_ids", flattenDiscoveryEngineServingConfigBoostControlIds(res["boostControlIds"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServingConfig: %s", err)
+	}
+	if err = d.Set("synonyms_control_ids", flattenDiscoveryEngineServingConfigSynonymsControlIds(res["synonymsControlIds"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServingConfig: %s", err)
+	}
+	if err = d.Set("redirect_control_ids", flattenDiscoveryEngineServingConfigRedirectControlIds(res["redirectControlIds"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServingConfig: %s", err)
+	}
+	if err = d.Set("promote_control_ids", flattenDiscoveryEngineServingConfigPromoteControlIds(res["promoteControlIds"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServingConfig: %s", err)
+	}
+
+	return nil
 }

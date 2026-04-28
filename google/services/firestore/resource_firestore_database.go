@@ -571,62 +571,9 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
-	if err := d.Set("name", flattenFirestoreDatabaseName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("location_id", flattenFirestoreDatabaseLocationId(res["locationId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("type", flattenFirestoreDatabaseType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("database_edition", flattenFirestoreDatabaseDatabaseEdition(res["databaseEdition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("firestore_data_access_mode", flattenFirestoreDatabaseFirestoreDataAccessMode(res["firestoreDataAccessMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("mongodb_compatible_data_access_mode", flattenFirestoreDatabaseMongodbCompatibleDataAccessMode(res["mongodbCompatibleDataAccessMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("realtime_updates_mode", flattenFirestoreDatabaseRealtimeUpdatesMode(res["realtimeUpdatesMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("concurrency_mode", flattenFirestoreDatabaseConcurrencyMode(res["concurrencyMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("app_engine_integration_mode", flattenFirestoreDatabaseAppEngineIntegrationMode(res["appEngineIntegrationMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("point_in_time_recovery_enablement", flattenFirestoreDatabasePointInTimeRecoveryEnablement(res["pointInTimeRecoveryEnablement"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("key_prefix", flattenFirestoreDatabaseKeyPrefix(res["keyPrefix"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("delete_protection_state", flattenFirestoreDatabaseDeleteProtectionState(res["deleteProtectionState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("etag", flattenFirestoreDatabaseEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("create_time", flattenFirestoreDatabaseCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("update_time", flattenFirestoreDatabaseUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("uid", flattenFirestoreDatabaseUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("version_retention_period", flattenFirestoreDatabaseVersionRetentionPeriod(res["versionRetentionPeriod"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("earliest_version_time", flattenFirestoreDatabaseEarliestVersionTime(res["earliestVersionTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("cmek_config", flattenFirestoreDatabaseCmekConfig(res["cmekConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
+	err = ResourceFirestoreDatabaseFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1065,4 +1012,68 @@ func expandFirestoreDatabaseTags(v interface{}, d tpgresource.TerraformResourceD
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceFirestoreDatabaseFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenFirestoreDatabaseName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("location_id", flattenFirestoreDatabaseLocationId(res["locationId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("type", flattenFirestoreDatabaseType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("database_edition", flattenFirestoreDatabaseDatabaseEdition(res["databaseEdition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("firestore_data_access_mode", flattenFirestoreDatabaseFirestoreDataAccessMode(res["firestoreDataAccessMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("mongodb_compatible_data_access_mode", flattenFirestoreDatabaseMongodbCompatibleDataAccessMode(res["mongodbCompatibleDataAccessMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("realtime_updates_mode", flattenFirestoreDatabaseRealtimeUpdatesMode(res["realtimeUpdatesMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("concurrency_mode", flattenFirestoreDatabaseConcurrencyMode(res["concurrencyMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("app_engine_integration_mode", flattenFirestoreDatabaseAppEngineIntegrationMode(res["appEngineIntegrationMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("point_in_time_recovery_enablement", flattenFirestoreDatabasePointInTimeRecoveryEnablement(res["pointInTimeRecoveryEnablement"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("key_prefix", flattenFirestoreDatabaseKeyPrefix(res["keyPrefix"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("delete_protection_state", flattenFirestoreDatabaseDeleteProtectionState(res["deleteProtectionState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("etag", flattenFirestoreDatabaseEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("create_time", flattenFirestoreDatabaseCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("update_time", flattenFirestoreDatabaseUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("uid", flattenFirestoreDatabaseUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("version_retention_period", flattenFirestoreDatabaseVersionRetentionPeriod(res["versionRetentionPeriod"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("earliest_version_time", flattenFirestoreDatabaseEarliestVersionTime(res["earliestVersionTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err = d.Set("cmek_config", flattenFirestoreDatabaseCmekConfig(res["cmekConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+
+	return nil
 }

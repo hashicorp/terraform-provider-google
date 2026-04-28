@@ -895,26 +895,9 @@ func resourcePrivatecaCaPoolRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading CaPool: %s", err)
 	}
 
-	if err := d.Set("tier", flattenPrivatecaCaPoolTier(res["tier"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CaPool: %s", err)
-	}
-	if err := d.Set("issuance_policy", flattenPrivatecaCaPoolIssuancePolicy(res["issuancePolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CaPool: %s", err)
-	}
-	if err := d.Set("publishing_options", flattenPrivatecaCaPoolPublishingOptions(res["publishingOptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CaPool: %s", err)
-	}
-	if err := d.Set("labels", flattenPrivatecaCaPoolLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CaPool: %s", err)
-	}
-	if err := d.Set("encryption_spec", flattenPrivatecaCaPoolEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CaPool: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenPrivatecaCaPoolTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CaPool: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenPrivatecaCaPoolEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CaPool: %s", err)
+	err = ResourcePrivatecaCaPoolFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1865,4 +1848,32 @@ func expandPrivatecaCaPoolEffectiveLabels(v interface{}, d tpgresource.Terraform
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourcePrivatecaCaPoolFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("tier", flattenPrivatecaCaPoolTier(res["tier"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CaPool: %s", err)
+	}
+	if err = d.Set("issuance_policy", flattenPrivatecaCaPoolIssuancePolicy(res["issuancePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CaPool: %s", err)
+	}
+	if err = d.Set("publishing_options", flattenPrivatecaCaPoolPublishingOptions(res["publishingOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CaPool: %s", err)
+	}
+	if err = d.Set("labels", flattenPrivatecaCaPoolLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CaPool: %s", err)
+	}
+	if err = d.Set("encryption_spec", flattenPrivatecaCaPoolEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CaPool: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenPrivatecaCaPoolTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CaPool: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenPrivatecaCaPoolEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CaPool: %s", err)
+	}
+
+	return nil
 }

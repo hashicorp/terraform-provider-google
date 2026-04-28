@@ -455,29 +455,9 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenVertexAIFeatureOnlineStoreFeatureviewCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
-	}
-	if err := d.Set("update_time", flattenVertexAIFeatureOnlineStoreFeatureviewUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
-	}
-	if err := d.Set("labels", flattenVertexAIFeatureOnlineStoreFeatureviewLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
-	}
-	if err := d.Set("sync_config", flattenVertexAIFeatureOnlineStoreFeatureviewSyncConfig(res["syncConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
-	}
-	if err := d.Set("big_query_source", flattenVertexAIFeatureOnlineStoreFeatureviewBigQuerySource(res["bigQuerySource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
-	}
-	if err := d.Set("feature_registry_source", flattenVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySource(res["featureRegistrySource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenVertexAIFeatureOnlineStoreFeatureviewTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenVertexAIFeatureOnlineStoreFeatureviewEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
+	err = ResourceVertexAIFeatureOnlineStoreFeatureviewFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1006,4 +986,35 @@ func expandVertexAIFeatureOnlineStoreFeatureviewEffectiveLabels(v interface{}, d
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceVertexAIFeatureOnlineStoreFeatureviewFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenVertexAIFeatureOnlineStoreFeatureviewCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
+	}
+	if err = d.Set("update_time", flattenVertexAIFeatureOnlineStoreFeatureviewUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
+	}
+	if err = d.Set("labels", flattenVertexAIFeatureOnlineStoreFeatureviewLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
+	}
+	if err = d.Set("sync_config", flattenVertexAIFeatureOnlineStoreFeatureviewSyncConfig(res["syncConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
+	}
+	if err = d.Set("big_query_source", flattenVertexAIFeatureOnlineStoreFeatureviewBigQuerySource(res["bigQuerySource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
+	}
+	if err = d.Set("feature_registry_source", flattenVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySource(res["featureRegistrySource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenVertexAIFeatureOnlineStoreFeatureviewTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenVertexAIFeatureOnlineStoreFeatureviewEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
+	}
+
+	return nil
 }

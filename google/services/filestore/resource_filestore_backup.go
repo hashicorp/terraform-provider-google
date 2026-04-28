@@ -425,44 +425,9 @@ func resourceFilestoreBackupRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
 
-	if err := d.Set("description", flattenFilestoreBackupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("state", flattenFilestoreBackupState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("create_time", flattenFilestoreBackupCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("labels", flattenFilestoreBackupLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("capacity_gb", flattenFilestoreBackupCapacityGb(res["capacityGb"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("storage_bytes", flattenFilestoreBackupStorageBytes(res["storageBytes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("source_instance", flattenFilestoreBackupSourceInstance(res["sourceInstance"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("source_file_share", flattenFilestoreBackupSourceFileShare(res["sourceFileShare"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("source_instance_tier", flattenFilestoreBackupSourceInstanceTier(res["sourceInstanceTier"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("download_bytes", flattenFilestoreBackupDownloadBytes(res["downloadBytes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("kms_key_name", flattenFilestoreBackupKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenFilestoreBackupTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenFilestoreBackupEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
+	err = ResourceFilestoreBackupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -808,4 +773,50 @@ func expandFilestoreBackupEffectiveLabels(v interface{}, d tpgresource.Terraform
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceFilestoreBackupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenFilestoreBackupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("state", flattenFilestoreBackupState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("create_time", flattenFilestoreBackupCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("labels", flattenFilestoreBackupLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("capacity_gb", flattenFilestoreBackupCapacityGb(res["capacityGb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("storage_bytes", flattenFilestoreBackupStorageBytes(res["storageBytes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("source_instance", flattenFilestoreBackupSourceInstance(res["sourceInstance"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("source_file_share", flattenFilestoreBackupSourceFileShare(res["sourceFileShare"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("source_instance_tier", flattenFilestoreBackupSourceInstanceTier(res["sourceInstanceTier"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("download_bytes", flattenFilestoreBackupDownloadBytes(res["downloadBytes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("kms_key_name", flattenFilestoreBackupKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenFilestoreBackupTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenFilestoreBackupEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+
+	return nil
 }

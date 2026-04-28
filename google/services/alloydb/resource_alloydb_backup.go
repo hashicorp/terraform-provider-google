@@ -525,74 +525,9 @@ func resourceAlloydbBackupRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
 
-	if err := d.Set("name", flattenAlloydbBackupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("display_name", flattenAlloydbBackupDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("uid", flattenAlloydbBackupUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("create_time", flattenAlloydbBackupCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("update_time", flattenAlloydbBackupUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("delete_time", flattenAlloydbBackupDeleteTime(res["deleteTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("labels", flattenAlloydbBackupLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("state", flattenAlloydbBackupState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("type", flattenAlloydbBackupType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("description", flattenAlloydbBackupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("cluster_uid", flattenAlloydbBackupClusterUid(res["clusterUid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("cluster_name", flattenAlloydbBackupClusterName(res["clusterName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("reconciling", flattenAlloydbBackupReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("encryption_config", flattenAlloydbBackupEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("encryption_info", flattenAlloydbBackupEncryptionInfo(res["encryptionInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("etag", flattenAlloydbBackupEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("annotations", flattenAlloydbBackupAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("size_bytes", flattenAlloydbBackupSizeBytes(res["sizeBytes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("expiry_time", flattenAlloydbBackupExpiryTime(res["expiryTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("expiry_quantity", flattenAlloydbBackupExpiryQuantity(res["expiryQuantity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenAlloydbBackupTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenAlloydbBackupEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenAlloydbBackupEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Backup: %s", err)
+	err = ResourceAlloydbBackupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1121,4 +1056,80 @@ func resourceAlloydbBackupEncoder(d *schema.ResourceData, meta interface{}, obj 
 	// The only other available type is AUTOMATED which cannot be set manually
 	obj["type"] = "ON_DEMAND"
 	return obj, nil
+}
+
+func ResourceAlloydbBackupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenAlloydbBackupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("display_name", flattenAlloydbBackupDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("uid", flattenAlloydbBackupUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("create_time", flattenAlloydbBackupCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("update_time", flattenAlloydbBackupUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("delete_time", flattenAlloydbBackupDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("labels", flattenAlloydbBackupLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("state", flattenAlloydbBackupState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("type", flattenAlloydbBackupType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("description", flattenAlloydbBackupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("cluster_uid", flattenAlloydbBackupClusterUid(res["clusterUid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("cluster_name", flattenAlloydbBackupClusterName(res["clusterName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("reconciling", flattenAlloydbBackupReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("encryption_config", flattenAlloydbBackupEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("encryption_info", flattenAlloydbBackupEncryptionInfo(res["encryptionInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("etag", flattenAlloydbBackupEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("annotations", flattenAlloydbBackupAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("size_bytes", flattenAlloydbBackupSizeBytes(res["sizeBytes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("expiry_time", flattenAlloydbBackupExpiryTime(res["expiryTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("expiry_quantity", flattenAlloydbBackupExpiryQuantity(res["expiryQuantity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenAlloydbBackupTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenAlloydbBackupEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenAlloydbBackupEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+
+	return nil
 }

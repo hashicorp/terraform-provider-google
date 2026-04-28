@@ -450,38 +450,9 @@ func resourceApigeeInstanceRead(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] Finished reading ApigeeInstance %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenApigeeInstanceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("location", flattenApigeeInstanceLocation(res["location"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("peering_cidr_range", flattenApigeeInstancePeeringCidrRange(res["peeringCidrRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("description", flattenApigeeInstanceDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("display_name", flattenApigeeInstanceDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("disk_encryption_key_name", flattenApigeeInstanceDiskEncryptionKeyName(res["diskEncryptionKeyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("host", flattenApigeeInstanceHost(res["host"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("port", flattenApigeeInstancePort(res["port"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("consumer_accept_list", flattenApigeeInstanceConsumerAcceptList(res["consumerAcceptList"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("service_attachment", flattenApigeeInstanceServiceAttachment(res["serviceAttachment"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("access_logging_config", flattenApigeeInstanceAccessLoggingConfig(res["accessLoggingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+	err = ResourceApigeeInstanceFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -833,4 +804,44 @@ func expandApigeeInstanceAccessLoggingConfigEnabled(v interface{}, d tpgresource
 
 func expandApigeeInstanceAccessLoggingConfigFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeInstanceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenApigeeInstanceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("location", flattenApigeeInstanceLocation(res["location"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("peering_cidr_range", flattenApigeeInstancePeeringCidrRange(res["peeringCidrRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("description", flattenApigeeInstanceDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("display_name", flattenApigeeInstanceDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("disk_encryption_key_name", flattenApigeeInstanceDiskEncryptionKeyName(res["diskEncryptionKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("host", flattenApigeeInstanceHost(res["host"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("port", flattenApigeeInstancePort(res["port"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("consumer_accept_list", flattenApigeeInstanceConsumerAcceptList(res["consumerAcceptList"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("service_attachment", flattenApigeeInstanceServiceAttachment(res["serviceAttachment"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("access_logging_config", flattenApigeeInstanceAccessLoggingConfig(res["accessLoggingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+
+	return nil
 }

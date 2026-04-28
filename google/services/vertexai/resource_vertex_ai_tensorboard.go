@@ -404,38 +404,9 @@ func resourceVertexAITensorboardRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Tensorboard: %s", err)
 	}
 
-	if err := d.Set("name", flattenVertexAITensorboardName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tensorboard: %s", err)
-	}
-	if err := d.Set("display_name", flattenVertexAITensorboardDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tensorboard: %s", err)
-	}
-	if err := d.Set("description", flattenVertexAITensorboardDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tensorboard: %s", err)
-	}
-	if err := d.Set("encryption_spec", flattenVertexAITensorboardEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tensorboard: %s", err)
-	}
-	if err := d.Set("blob_storage_path_prefix", flattenVertexAITensorboardBlobStoragePathPrefix(res["blobStoragePathPrefix"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tensorboard: %s", err)
-	}
-	if err := d.Set("run_count", flattenVertexAITensorboardRunCount(res["runCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tensorboard: %s", err)
-	}
-	if err := d.Set("create_time", flattenVertexAITensorboardCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tensorboard: %s", err)
-	}
-	if err := d.Set("update_time", flattenVertexAITensorboardUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tensorboard: %s", err)
-	}
-	if err := d.Set("labels", flattenVertexAITensorboardLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tensorboard: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenVertexAITensorboardTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tensorboard: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenVertexAITensorboardEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	err = ResourceVertexAITensorboardFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -786,4 +757,44 @@ func expandVertexAITensorboardEffectiveLabels(v interface{}, d tpgresource.Terra
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceVertexAITensorboardFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenVertexAITensorboardName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+	if err = d.Set("display_name", flattenVertexAITensorboardDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+	if err = d.Set("description", flattenVertexAITensorboardDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+	if err = d.Set("encryption_spec", flattenVertexAITensorboardEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+	if err = d.Set("blob_storage_path_prefix", flattenVertexAITensorboardBlobStoragePathPrefix(res["blobStoragePathPrefix"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+	if err = d.Set("run_count", flattenVertexAITensorboardRunCount(res["runCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+	if err = d.Set("create_time", flattenVertexAITensorboardCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+	if err = d.Set("update_time", flattenVertexAITensorboardUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+	if err = d.Set("labels", flattenVertexAITensorboardLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenVertexAITensorboardTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenVertexAITensorboardEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+
+	return nil
 }

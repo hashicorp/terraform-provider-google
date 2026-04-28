@@ -1005,41 +1005,9 @@ func resourceMonitoringSloRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Slo: %s", err)
 	}
 
-	if err := d.Set("name", flattenMonitoringSloName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Slo: %s", err)
-	}
-	if err := d.Set("display_name", flattenMonitoringSloDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Slo: %s", err)
-	}
-	if err := d.Set("goal", flattenMonitoringSloGoal(res["goal"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Slo: %s", err)
-	}
-	if err := d.Set("rolling_period_days", flattenMonitoringSloRollingPeriodDays(res["rollingPeriod"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Slo: %s", err)
-	}
-	if err := d.Set("calendar_period", flattenMonitoringSloCalendarPeriod(res["calendarPeriod"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Slo: %s", err)
-	}
-	if err := d.Set("user_labels", flattenMonitoringSloUserLabels(res["userLabels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Slo: %s", err)
-	}
-	// Terraform must set the top level schema field, but since this object contains collapsed properties
-	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenMonitoringSloServiceLevelIndicator(res["serviceLevelIndicator"], d, config); flattenedProp != nil {
-		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
-			return fmt.Errorf("Error reading Slo: %s", gerr)
-		}
-		casted := flattenedProp.([]interface{})[0]
-		if casted != nil {
-			for k, v := range casted.(map[string]interface{}) {
-				if err := d.Set(k, v); err != nil {
-					return fmt.Errorf("Error setting %s: %s", k, err)
-				}
-			}
-		}
-	}
-	if err := d.Set("slo_id", flattenMonitoringSloSloId(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Slo: %s", err)
+	err = ResourceMonitoringSloFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2671,5 +2639,48 @@ func resourceMonitoringSloPostCreateSetComputedFields(d *schema.ResourceData, me
 	if err := d.Set("name", flattenMonitoringSloName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceMonitoringSloFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenMonitoringSloName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Slo: %s", err)
+	}
+	if err = d.Set("display_name", flattenMonitoringSloDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Slo: %s", err)
+	}
+	if err = d.Set("goal", flattenMonitoringSloGoal(res["goal"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Slo: %s", err)
+	}
+	if err = d.Set("rolling_period_days", flattenMonitoringSloRollingPeriodDays(res["rollingPeriod"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Slo: %s", err)
+	}
+	if err = d.Set("calendar_period", flattenMonitoringSloCalendarPeriod(res["calendarPeriod"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Slo: %s", err)
+	}
+	if err = d.Set("user_labels", flattenMonitoringSloUserLabels(res["userLabels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Slo: %s", err)
+	}
+	// Terraform must set the top level schema field, but since this object contains collapsed properties
+	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
+	if flattenedProp := flattenMonitoringSloServiceLevelIndicator(res["serviceLevelIndicator"], d, config); flattenedProp != nil {
+		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
+			return fmt.Errorf("Error reading Slo: %s", gerr)
+		}
+		casted := flattenedProp.([]interface{})[0]
+		if casted != nil {
+			for k, v := range casted.(map[string]interface{}) {
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
+			}
+		}
+	}
+	if err = d.Set("slo_id", flattenMonitoringSloSloId(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Slo: %s", err)
+	}
+
 	return nil
 }

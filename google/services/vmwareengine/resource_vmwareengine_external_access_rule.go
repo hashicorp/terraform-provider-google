@@ -411,41 +411,9 @@ func resourceVmwareengineExternalAccessRuleRead(d *schema.ResourceData, meta int
 
 	log.Printf("[DEBUG] Finished reading VmwareengineExternalAccessRule %q: %#v", d.Id(), res)
 
-	if err := d.Set("create_time", flattenVmwareengineExternalAccessRuleCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
-	}
-	if err := d.Set("update_time", flattenVmwareengineExternalAccessRuleUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
-	}
-	if err := d.Set("description", flattenVmwareengineExternalAccessRuleDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
-	}
-	if err := d.Set("priority", flattenVmwareengineExternalAccessRulePriority(res["priority"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
-	}
-	if err := d.Set("action", flattenVmwareengineExternalAccessRuleAction(res["action"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
-	}
-	if err := d.Set("ip_protocol", flattenVmwareengineExternalAccessRuleIpProtocol(res["ipProtocol"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
-	}
-	if err := d.Set("source_ip_ranges", flattenVmwareengineExternalAccessRuleSourceIpRanges(res["sourceIpRanges"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
-	}
-	if err := d.Set("source_ports", flattenVmwareengineExternalAccessRuleSourcePorts(res["sourcePorts"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
-	}
-	if err := d.Set("destination_ip_ranges", flattenVmwareengineExternalAccessRuleDestinationIpRanges(res["destinationIpRanges"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
-	}
-	if err := d.Set("destination_ports", flattenVmwareengineExternalAccessRuleDestinationPorts(res["destinationPorts"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
-	}
-	if err := d.Set("state", flattenVmwareengineExternalAccessRuleState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
-	}
-	if err := d.Set("uid", flattenVmwareengineExternalAccessRuleUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	err = ResourceVmwareengineExternalAccessRuleFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -905,4 +873,47 @@ func expandVmwareengineExternalAccessRuleDestinationIpRangesExternalAddress(v in
 
 func expandVmwareengineExternalAccessRuleDestinationPorts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceVmwareengineExternalAccessRuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenVmwareengineExternalAccessRuleCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+	if err = d.Set("update_time", flattenVmwareengineExternalAccessRuleUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+	if err = d.Set("description", flattenVmwareengineExternalAccessRuleDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+	if err = d.Set("priority", flattenVmwareengineExternalAccessRulePriority(res["priority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+	if err = d.Set("action", flattenVmwareengineExternalAccessRuleAction(res["action"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+	if err = d.Set("ip_protocol", flattenVmwareengineExternalAccessRuleIpProtocol(res["ipProtocol"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+	if err = d.Set("source_ip_ranges", flattenVmwareengineExternalAccessRuleSourceIpRanges(res["sourceIpRanges"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+	if err = d.Set("source_ports", flattenVmwareengineExternalAccessRuleSourcePorts(res["sourcePorts"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+	if err = d.Set("destination_ip_ranges", flattenVmwareengineExternalAccessRuleDestinationIpRanges(res["destinationIpRanges"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+	if err = d.Set("destination_ports", flattenVmwareengineExternalAccessRuleDestinationPorts(res["destinationPorts"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+	if err = d.Set("state", flattenVmwareengineExternalAccessRuleState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+	if err = d.Set("uid", flattenVmwareengineExternalAccessRuleUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccessRule: %s", err)
+	}
+
+	return nil
 }

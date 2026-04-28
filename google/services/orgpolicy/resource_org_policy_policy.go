@@ -589,14 +589,9 @@ func resourceOrgPolicyPolicyRead(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[DEBUG] Finished reading OrgPolicyPolicy %q: %#v", d.Id(), res)
 
-	if err := d.Set("spec", flattenOrgPolicyPolicySpec(res["spec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("dry_run_spec", flattenOrgPolicyPolicyDryRunSpec(res["dryRunSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("etag", flattenOrgPolicyPolicyEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
+	err = ResourceOrgPolicyPolicyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1628,4 +1623,20 @@ func resourceOrgPolicyPolicyEncoder(d *schema.ResourceData, meta interface{}, ob
 	name := d.Get("name").(string)
 	d.Set("name", tpgresource.GetResourceNameFromSelfLink(name))
 	return obj, nil
+}
+
+func ResourceOrgPolicyPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("spec", flattenOrgPolicyPolicySpec(res["spec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("dry_run_spec", flattenOrgPolicyPolicyDryRunSpec(res["dryRunSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("etag", flattenOrgPolicyPolicyEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+
+	return nil
 }

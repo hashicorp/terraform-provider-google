@@ -268,20 +268,9 @@ func resourceDataCatalogPolicyTagRead(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[DEBUG] Finished reading DataCatalogPolicyTag %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenDataCatalogPolicyTagName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PolicyTag: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataCatalogPolicyTagDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PolicyTag: %s", err)
-	}
-	if err := d.Set("description", flattenDataCatalogPolicyTagDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PolicyTag: %s", err)
-	}
-	if err := d.Set("parent_policy_tag", flattenDataCatalogPolicyTagParentPolicyTag(res["parentPolicyTag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PolicyTag: %s", err)
-	}
-	if err := d.Set("child_policy_tags", flattenDataCatalogPolicyTagChildPolicyTags(res["childPolicyTags"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PolicyTag: %s", err)
+	err = ResourceDataCatalogPolicyTagFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -470,5 +459,27 @@ func resourceDataCatalogPolicyTagPostCreateSetComputedFields(d *schema.ResourceD
 	if err := d.Set("name", flattenDataCatalogPolicyTagName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDataCatalogPolicyTagFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataCatalogPolicyTagName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PolicyTag: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataCatalogPolicyTagDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PolicyTag: %s", err)
+	}
+	if err = d.Set("description", flattenDataCatalogPolicyTagDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PolicyTag: %s", err)
+	}
+	if err = d.Set("parent_policy_tag", flattenDataCatalogPolicyTagParentPolicyTag(res["parentPolicyTag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PolicyTag: %s", err)
+	}
+	if err = d.Set("child_policy_tags", flattenDataCatalogPolicyTagChildPolicyTags(res["childPolicyTags"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PolicyTag: %s", err)
+	}
+
 	return nil
 }

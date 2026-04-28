@@ -410,38 +410,9 @@ func resourceCertificateManagerCertificateMapEntryRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
 	}
 
-	if err := d.Set("description", flattenCertificateManagerCertificateMapEntryDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
-	}
-	if err := d.Set("create_time", flattenCertificateManagerCertificateMapEntryCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
-	}
-	if err := d.Set("update_time", flattenCertificateManagerCertificateMapEntryUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
-	}
-	if err := d.Set("labels", flattenCertificateManagerCertificateMapEntryLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
-	}
-	if err := d.Set("certificates", flattenCertificateManagerCertificateMapEntryCertificates(res["certificates"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
-	}
-	if err := d.Set("state", flattenCertificateManagerCertificateMapEntryState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
-	}
-	if err := d.Set("hostname", flattenCertificateManagerCertificateMapEntryHostname(res["hostname"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
-	}
-	if err := d.Set("matcher", flattenCertificateManagerCertificateMapEntryMatcher(res["matcher"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenCertificateManagerCertificateMapEntryTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenCertificateManagerCertificateMapEntryEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
-	}
-	if err := d.Set("name", flattenCertificateManagerCertificateMapEntryName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	err = ResourceCertificateManagerCertificateMapEntryFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -763,4 +734,44 @@ func expandCertificateManagerCertificateMapEntryEffectiveLabels(v interface{}, d
 
 func expandCertificateManagerCertificateMapEntryName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return tpgresource.GetResourceNameFromSelfLink(v.(string)), nil
+}
+
+func ResourceCertificateManagerCertificateMapEntryFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenCertificateManagerCertificateMapEntryDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+	if err = d.Set("create_time", flattenCertificateManagerCertificateMapEntryCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+	if err = d.Set("update_time", flattenCertificateManagerCertificateMapEntryUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+	if err = d.Set("labels", flattenCertificateManagerCertificateMapEntryLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+	if err = d.Set("certificates", flattenCertificateManagerCertificateMapEntryCertificates(res["certificates"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+	if err = d.Set("state", flattenCertificateManagerCertificateMapEntryState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+	if err = d.Set("hostname", flattenCertificateManagerCertificateMapEntryHostname(res["hostname"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+	if err = d.Set("matcher", flattenCertificateManagerCertificateMapEntryMatcher(res["matcher"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenCertificateManagerCertificateMapEntryTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenCertificateManagerCertificateMapEntryEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+	if err = d.Set("name", flattenCertificateManagerCertificateMapEntryName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+
+	return nil
 }

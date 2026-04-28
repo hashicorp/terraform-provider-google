@@ -602,17 +602,9 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyRead(d *schem
 		return nil
 	}
 
-	if err := d.Set("egress_from", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(res["egressFrom"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
-	}
-	if err := d.Set("egress_to", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(res["egressTo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
-	}
-	if err := d.Set("title", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyTitle(res["title"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
-	}
-	if err := d.Set("etag", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
+	err = ResourceAccessContextManagerServicePerimeterDryRunEgressPolicyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1342,4 +1334,23 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyListForPatch(
 		return ls, nil
 	}
 	return nil, nil
+}
+
+func ResourceAccessContextManagerServicePerimeterDryRunEgressPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("egress_from", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(res["egressFrom"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
+	}
+	if err = d.Set("egress_to", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(res["egressTo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
+	}
+	if err = d.Set("title", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyTitle(res["title"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
+	}
+	if err = d.Set("etag", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
+	}
+
+	return nil
 }

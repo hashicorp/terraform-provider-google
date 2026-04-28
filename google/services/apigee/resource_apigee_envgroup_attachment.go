@@ -283,11 +283,9 @@ func resourceApigeeEnvgroupAttachmentRead(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Finished reading ApigeeEnvgroupAttachment %q: %#v", d.Id(), res)
 
-	if err := d.Set("environment", flattenApigeeEnvgroupAttachmentEnvironment(res["environment"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvgroupAttachment: %s", err)
-	}
-	if err := d.Set("name", flattenApigeeEnvgroupAttachmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvgroupAttachment: %s", err)
+	err = ResourceApigeeEnvgroupAttachmentFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -392,4 +390,17 @@ func flattenApigeeEnvgroupAttachmentName(v interface{}, d *schema.ResourceData, 
 
 func expandApigeeEnvgroupAttachmentEnvironment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeEnvgroupAttachmentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("environment", flattenApigeeEnvgroupAttachmentEnvironment(res["environment"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvgroupAttachment: %s", err)
+	}
+	if err = d.Set("name", flattenApigeeEnvgroupAttachmentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvgroupAttachment: %s", err)
+	}
+
+	return nil
 }

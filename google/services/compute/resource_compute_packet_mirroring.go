@@ -505,32 +505,9 @@ func resourceComputePacketMirroringRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading PacketMirroring: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputePacketMirroringName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PacketMirroring: %s", err)
-	}
-	if err := d.Set("description", flattenComputePacketMirroringDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PacketMirroring: %s", err)
-	}
-	if err := d.Set("region", flattenComputePacketMirroringRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PacketMirroring: %s", err)
-	}
-	if err := d.Set("network", flattenComputePacketMirroringNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PacketMirroring: %s", err)
-	}
-	if err := d.Set("priority", flattenComputePacketMirroringPriority(res["priority"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PacketMirroring: %s", err)
-	}
-	if err := d.Set("collector_ilb", flattenComputePacketMirroringCollectorIlb(res["collectorIlb"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PacketMirroring: %s", err)
-	}
-	if err := d.Set("filter", flattenComputePacketMirroringFilter(res["filter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PacketMirroring: %s", err)
-	}
-	if err := d.Set("mirrored_resources", flattenComputePacketMirroringMirroredResources(res["mirroredResources"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PacketMirroring: %s", err)
-	}
-	if err := d.Set("enable", flattenComputePacketMirroringEnable(res["enable"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PacketMirroring: %s", err)
+	err = ResourceComputePacketMirroringFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1167,4 +1144,38 @@ func expandComputePacketMirroringMirroredResourcesTags(v interface{}, d tpgresou
 
 func expandComputePacketMirroringEnable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputePacketMirroringFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenComputePacketMirroringName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PacketMirroring: %s", err)
+	}
+	if err = d.Set("description", flattenComputePacketMirroringDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PacketMirroring: %s", err)
+	}
+	if err = d.Set("region", flattenComputePacketMirroringRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PacketMirroring: %s", err)
+	}
+	if err = d.Set("network", flattenComputePacketMirroringNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PacketMirroring: %s", err)
+	}
+	if err = d.Set("priority", flattenComputePacketMirroringPriority(res["priority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PacketMirroring: %s", err)
+	}
+	if err = d.Set("collector_ilb", flattenComputePacketMirroringCollectorIlb(res["collectorIlb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PacketMirroring: %s", err)
+	}
+	if err = d.Set("filter", flattenComputePacketMirroringFilter(res["filter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PacketMirroring: %s", err)
+	}
+	if err = d.Set("mirrored_resources", flattenComputePacketMirroringMirroredResources(res["mirroredResources"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PacketMirroring: %s", err)
+	}
+	if err = d.Set("enable", flattenComputePacketMirroringEnable(res["enable"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PacketMirroring: %s", err)
+	}
+
+	return nil
 }

@@ -393,32 +393,9 @@ func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
 
-	if err := d.Set("name", flattenMLEngineModelName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Model: %s", err)
-	}
-	if err := d.Set("description", flattenMLEngineModelDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Model: %s", err)
-	}
-	if err := d.Set("default_version", flattenMLEngineModelDefaultVersion(res["defaultVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Model: %s", err)
-	}
-	if err := d.Set("regions", flattenMLEngineModelRegions(res["regions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Model: %s", err)
-	}
-	if err := d.Set("online_prediction_logging", flattenMLEngineModelOnlinePredictionLogging(res["onlinePredictionLogging"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Model: %s", err)
-	}
-	if err := d.Set("online_prediction_console_logging", flattenMLEngineModelOnlinePredictionConsoleLogging(res["onlinePredictionConsoleLogging"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Model: %s", err)
-	}
-	if err := d.Set("labels", flattenMLEngineModelLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Model: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenMLEngineModelTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Model: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenMLEngineModelEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Model: %s", err)
+	err = ResourceMLEngineModelFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -748,4 +725,38 @@ Currently only one region per model is supported`,
 
 func ResourceMLEngineModelUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	return tpgresource.TerraformLabelsStateUpgrade(rawState)
+}
+
+func ResourceMLEngineModelFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenMLEngineModelName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Model: %s", err)
+	}
+	if err = d.Set("description", flattenMLEngineModelDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Model: %s", err)
+	}
+	if err = d.Set("default_version", flattenMLEngineModelDefaultVersion(res["defaultVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Model: %s", err)
+	}
+	if err = d.Set("regions", flattenMLEngineModelRegions(res["regions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Model: %s", err)
+	}
+	if err = d.Set("online_prediction_logging", flattenMLEngineModelOnlinePredictionLogging(res["onlinePredictionLogging"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Model: %s", err)
+	}
+	if err = d.Set("online_prediction_console_logging", flattenMLEngineModelOnlinePredictionConsoleLogging(res["onlinePredictionConsoleLogging"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Model: %s", err)
+	}
+	if err = d.Set("labels", flattenMLEngineModelLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Model: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenMLEngineModelTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Model: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenMLEngineModelEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Model: %s", err)
+	}
+
+	return nil
 }

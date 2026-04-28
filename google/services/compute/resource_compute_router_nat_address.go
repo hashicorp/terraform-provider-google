@@ -434,14 +434,9 @@ func resourceComputeRouterNatAddressRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading RouterNatAddress: %s", err)
 	}
 
-	if err := d.Set("nat_ips", flattenNestedComputeRouterNatAddressNatIps(res["natIps"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNatAddress: %s", err)
-	}
-	if err := d.Set("drain_nat_ips", flattenNestedComputeRouterNatAddressDrainNatIps(res["drainNatIps"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNatAddress: %s", err)
-	}
-	if err := d.Set("router_nat", flattenNestedComputeRouterNatAddressRouterNat(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNatAddress: %s", err)
+	err = ResourceComputeRouterNatAddressFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -969,4 +964,20 @@ func resourceComputeRouterNatAddressListForPatch(d *schema.ResourceData, meta in
 		return ls, nil
 	}
 	return nil, nil
+}
+
+func ResourceComputeRouterNatAddressFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("nat_ips", flattenNestedComputeRouterNatAddressNatIps(res["natIps"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNatAddress: %s", err)
+	}
+	if err = d.Set("drain_nat_ips", flattenNestedComputeRouterNatAddressDrainNatIps(res["drainNatIps"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNatAddress: %s", err)
+	}
+	if err = d.Set("router_nat", flattenNestedComputeRouterNatAddressRouterNat(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNatAddress: %s", err)
+	}
+
+	return nil
 }

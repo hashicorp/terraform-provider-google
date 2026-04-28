@@ -664,53 +664,9 @@ func resourceMemcacheInstanceRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
-	if err := d.Set("display_name", flattenMemcacheInstanceDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("memcache_nodes", flattenMemcacheInstanceMemcacheNodes(res["memcacheNodes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("create_time", flattenMemcacheInstanceCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("discovery_endpoint", flattenMemcacheInstanceDiscoveryEndpoint(res["discoveryEndpoint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("labels", flattenMemcacheInstanceLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("memcache_full_version", flattenMemcacheInstanceMemcacheFullVersion(res["memcacheFullVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("zones", flattenMemcacheInstanceZones(res["zones"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("authorized_network", flattenMemcacheInstanceAuthorizedNetwork(res["authorizedNetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("node_count", flattenMemcacheInstanceNodeCount(res["nodeCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("memcache_version", flattenMemcacheInstanceMemcacheVersion(res["memcacheVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("node_config", flattenMemcacheInstanceNodeConfig(res["nodeConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("memcache_parameters", flattenMemcacheInstanceMemcacheParameters(res["parameters"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("maintenance_policy", flattenMemcacheInstanceMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("maintenance_schedule", flattenMemcacheInstanceMaintenanceSchedule(res["maintenanceSchedule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenMemcacheInstanceTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenMemcacheInstanceEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
+	err = ResourceMemcacheInstanceFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1661,4 +1617,59 @@ func expandMemcacheInstanceEffectiveLabels(v interface{}, d tpgresource.Terrafor
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceMemcacheInstanceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("display_name", flattenMemcacheInstanceDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("memcache_nodes", flattenMemcacheInstanceMemcacheNodes(res["memcacheNodes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("create_time", flattenMemcacheInstanceCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("discovery_endpoint", flattenMemcacheInstanceDiscoveryEndpoint(res["discoveryEndpoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("labels", flattenMemcacheInstanceLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("memcache_full_version", flattenMemcacheInstanceMemcacheFullVersion(res["memcacheFullVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("zones", flattenMemcacheInstanceZones(res["zones"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("authorized_network", flattenMemcacheInstanceAuthorizedNetwork(res["authorizedNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("node_count", flattenMemcacheInstanceNodeCount(res["nodeCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("memcache_version", flattenMemcacheInstanceMemcacheVersion(res["memcacheVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("node_config", flattenMemcacheInstanceNodeConfig(res["nodeConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("memcache_parameters", flattenMemcacheInstanceMemcacheParameters(res["parameters"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("maintenance_policy", flattenMemcacheInstanceMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("maintenance_schedule", flattenMemcacheInstanceMaintenanceSchedule(res["maintenanceSchedule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenMemcacheInstanceTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenMemcacheInstanceEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+
+	return nil
 }

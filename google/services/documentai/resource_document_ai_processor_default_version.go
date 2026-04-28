@@ -262,8 +262,9 @@ func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta 
 
 	log.Printf("[DEBUG] Finished reading DocumentAIProcessorDefaultVersion %q: %#v", d.Id(), res)
 
-	if err := d.Set("version", flattenDocumentAIProcessorDefaultVersionVersion(res["defaultProcessorVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProcessorDefaultVersion: %s", err)
+	err = ResourceDocumentAIProcessorDefaultVersionFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -318,4 +319,14 @@ func expandDocumentAIProcessorDefaultVersionVersion(v interface{}, d tpgresource
 
 func expandDocumentAIProcessorDefaultVersionProcessor(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceDocumentAIProcessorDefaultVersionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("version", flattenDocumentAIProcessorDefaultVersionVersion(res["defaultProcessorVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProcessorDefaultVersion: %s", err)
+	}
+
+	return nil
 }

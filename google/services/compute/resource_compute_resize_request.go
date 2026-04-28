@@ -711,29 +711,9 @@ func resourceComputeResizeRequestRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading ResizeRequest: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeResizeRequestCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResizeRequest: %s", err)
-	}
-	if err := d.Set("state", flattenComputeResizeRequestState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResizeRequest: %s", err)
-	}
-	if err := d.Set("name", flattenComputeResizeRequestName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResizeRequest: %s", err)
-	}
-	if err := d.Set("description", flattenComputeResizeRequestDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResizeRequest: %s", err)
-	}
-	if err := d.Set("resize_by", flattenComputeResizeRequestResizeBy(res["resizeBy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResizeRequest: %s", err)
-	}
-	if err := d.Set("requested_run_duration", flattenComputeResizeRequestRequestedRunDuration(res["requestedRunDuration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResizeRequest: %s", err)
-	}
-	if err := d.Set("status", flattenComputeResizeRequestStatus(res["status"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResizeRequest: %s", err)
-	}
-	if err := d.Set("zone", flattenComputeResizeRequestZone(res["zone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResizeRequest: %s", err)
+	err = ResourceComputeResizeRequestFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1480,4 +1460,35 @@ func expandComputeResizeRequestZone(v interface{}, d tpgresource.TerraformResour
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeResizeRequestFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeResizeRequestCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResizeRequest: %s", err)
+	}
+	if err = d.Set("state", flattenComputeResizeRequestState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResizeRequest: %s", err)
+	}
+	if err = d.Set("name", flattenComputeResizeRequestName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResizeRequest: %s", err)
+	}
+	if err = d.Set("description", flattenComputeResizeRequestDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResizeRequest: %s", err)
+	}
+	if err = d.Set("resize_by", flattenComputeResizeRequestResizeBy(res["resizeBy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResizeRequest: %s", err)
+	}
+	if err = d.Set("requested_run_duration", flattenComputeResizeRequestRequestedRunDuration(res["requestedRunDuration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResizeRequest: %s", err)
+	}
+	if err = d.Set("status", flattenComputeResizeRequestStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResizeRequest: %s", err)
+	}
+	if err = d.Set("zone", flattenComputeResizeRequestZone(res["zone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResizeRequest: %s", err)
+	}
+
+	return nil
 }

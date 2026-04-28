@@ -377,32 +377,9 @@ func resourceParameterManagerParameterRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading Parameter: %s", err)
 	}
 
-	if err := d.Set("name", flattenParameterManagerParameterName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Parameter: %s", err)
-	}
-	if err := d.Set("create_time", flattenParameterManagerParameterCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Parameter: %s", err)
-	}
-	if err := d.Set("update_time", flattenParameterManagerParameterUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Parameter: %s", err)
-	}
-	if err := d.Set("policy_member", flattenParameterManagerParameterPolicyMember(res["policyMember"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Parameter: %s", err)
-	}
-	if err := d.Set("labels", flattenParameterManagerParameterLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Parameter: %s", err)
-	}
-	if err := d.Set("format", flattenParameterManagerParameterFormat(res["format"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Parameter: %s", err)
-	}
-	if err := d.Set("kms_key", flattenParameterManagerParameterKmsKey(res["kmsKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Parameter: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenParameterManagerParameterTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Parameter: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenParameterManagerParameterEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Parameter: %s", err)
+	err = ResourceParameterManagerParameterFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -684,4 +661,38 @@ func expandParameterManagerParameterEffectiveLabels(v interface{}, d tpgresource
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceParameterManagerParameterFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenParameterManagerParameterName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Parameter: %s", err)
+	}
+	if err = d.Set("create_time", flattenParameterManagerParameterCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Parameter: %s", err)
+	}
+	if err = d.Set("update_time", flattenParameterManagerParameterUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Parameter: %s", err)
+	}
+	if err = d.Set("policy_member", flattenParameterManagerParameterPolicyMember(res["policyMember"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Parameter: %s", err)
+	}
+	if err = d.Set("labels", flattenParameterManagerParameterLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Parameter: %s", err)
+	}
+	if err = d.Set("format", flattenParameterManagerParameterFormat(res["format"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Parameter: %s", err)
+	}
+	if err = d.Set("kms_key", flattenParameterManagerParameterKmsKey(res["kmsKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Parameter: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenParameterManagerParameterTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Parameter: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenParameterManagerParameterEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Parameter: %s", err)
+	}
+
+	return nil
 }

@@ -358,26 +358,9 @@ func resourceIdentityPlatformOauthIdpConfigRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenIdentityPlatformOauthIdpConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
-	}
-	if err := d.Set("display_name", flattenIdentityPlatformOauthIdpConfigDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
-	}
-	if err := d.Set("enabled", flattenIdentityPlatformOauthIdpConfigEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
-	}
-	if err := d.Set("issuer", flattenIdentityPlatformOauthIdpConfigIssuer(res["issuer"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
-	}
-	if err := d.Set("client_id", flattenIdentityPlatformOauthIdpConfigClientId(res["clientId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
-	}
-	if err := d.Set("client_secret", flattenIdentityPlatformOauthIdpConfigClientSecret(res["clientSecret"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
-	}
-	if err := d.Set("response_type", flattenIdentityPlatformOauthIdpConfigResponseType(res["responseType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
+	err = ResourceIdentityPlatformOauthIdpConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -714,4 +697,32 @@ func expandIdentityPlatformOauthIdpConfigResponseTypeIdToken(v interface{}, d tp
 
 func expandIdentityPlatformOauthIdpConfigResponseTypeCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceIdentityPlatformOauthIdpConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIdentityPlatformOauthIdpConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
+	}
+	if err = d.Set("display_name", flattenIdentityPlatformOauthIdpConfigDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
+	}
+	if err = d.Set("enabled", flattenIdentityPlatformOauthIdpConfigEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
+	}
+	if err = d.Set("issuer", flattenIdentityPlatformOauthIdpConfigIssuer(res["issuer"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
+	}
+	if err = d.Set("client_id", flattenIdentityPlatformOauthIdpConfigClientId(res["clientId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
+	}
+	if err = d.Set("client_secret", flattenIdentityPlatformOauthIdpConfigClientSecret(res["clientSecret"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
+	}
+	if err = d.Set("response_type", flattenIdentityPlatformOauthIdpConfigResponseType(res["responseType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
+	}
+
+	return nil
 }

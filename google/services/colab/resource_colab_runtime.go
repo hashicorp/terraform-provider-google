@@ -441,29 +441,9 @@ func resourceColabRuntimeRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Runtime: %s", err)
 	}
 
-	if err := d.Set("notebook_runtime_template_ref", flattenColabRuntimeNotebookRuntimeTemplateRef(res["notebookRuntimeTemplateRef"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Runtime: %s", err)
-	}
-	if err := d.Set("runtime_user", flattenColabRuntimeRuntimeUser(res["runtimeUser"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Runtime: %s", err)
-	}
-	if err := d.Set("display_name", flattenColabRuntimeDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Runtime: %s", err)
-	}
-	if err := d.Set("description", flattenColabRuntimeDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Runtime: %s", err)
-	}
-	if err := d.Set("state", flattenColabRuntimeState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Runtime: %s", err)
-	}
-	if err := d.Set("is_upgradable", flattenColabRuntimeIsUpgradable(res["isUpgradable"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Runtime: %s", err)
-	}
-	if err := d.Set("expiration_time", flattenColabRuntimeExpirationTime(res["expirationTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Runtime: %s", err)
-	}
-	if err := d.Set("notebook_runtime_type", flattenColabRuntimeNotebookRuntimeType(res["notebookRuntimeType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Runtime: %s", err)
+	err = ResourceColabRuntimeFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -754,4 +734,35 @@ func resourceColabRuntimeEncoder(d *schema.ResourceData, meta interface{}, obj m
 
 	newObj["notebookRuntime"] = obj
 	return newObj, nil
+}
+
+func ResourceColabRuntimeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("notebook_runtime_template_ref", flattenColabRuntimeNotebookRuntimeTemplateRef(res["notebookRuntimeTemplateRef"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
+	if err = d.Set("runtime_user", flattenColabRuntimeRuntimeUser(res["runtimeUser"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
+	if err = d.Set("display_name", flattenColabRuntimeDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
+	if err = d.Set("description", flattenColabRuntimeDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
+	if err = d.Set("state", flattenColabRuntimeState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
+	if err = d.Set("is_upgradable", flattenColabRuntimeIsUpgradable(res["isUpgradable"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
+	if err = d.Set("expiration_time", flattenColabRuntimeExpirationTime(res["expirationTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
+	if err = d.Set("notebook_runtime_type", flattenColabRuntimeNotebookRuntimeType(res["notebookRuntimeType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
+
+	return nil
 }

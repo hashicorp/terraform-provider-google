@@ -267,20 +267,9 @@ func resourceApigeeSecurityProfileV2Read(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Finished reading ApigeeSecurityProfileV2 %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenApigeeSecurityProfileV2Name(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityProfileV2: %s", err)
-	}
-	if err := d.Set("description", flattenApigeeSecurityProfileV2Description(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityProfileV2: %s", err)
-	}
-	if err := d.Set("profile_assessment_configs", flattenApigeeSecurityProfileV2ProfileAssessmentConfigs(res["profileAssessmentConfigs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityProfileV2: %s", err)
-	}
-	if err := d.Set("create_time", flattenApigeeSecurityProfileV2CreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityProfileV2: %s", err)
-	}
-	if err := d.Set("update_time", flattenApigeeSecurityProfileV2UpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityProfileV2: %s", err)
+	err = ResourceApigeeSecurityProfileV2Flatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -504,4 +493,26 @@ func expandApigeeSecurityProfileV2ProfileAssessmentConfigs(v interface{}, d tpgr
 
 func expandApigeeSecurityProfileV2ProfileAssessmentConfigsWeight(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeSecurityProfileV2Flatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenApigeeSecurityProfileV2Name(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfileV2: %s", err)
+	}
+	if err = d.Set("description", flattenApigeeSecurityProfileV2Description(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfileV2: %s", err)
+	}
+	if err = d.Set("profile_assessment_configs", flattenApigeeSecurityProfileV2ProfileAssessmentConfigs(res["profileAssessmentConfigs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfileV2: %s", err)
+	}
+	if err = d.Set("create_time", flattenApigeeSecurityProfileV2CreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfileV2: %s", err)
+	}
+	if err = d.Set("update_time", flattenApigeeSecurityProfileV2UpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfileV2: %s", err)
+	}
+
+	return nil
 }

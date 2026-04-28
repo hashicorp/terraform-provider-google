@@ -736,35 +736,9 @@ func resourceDialogflowCXWebhookRead(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Finished reading DialogflowCXWebhook %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenDialogflowCXWebhookName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Webhook: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowCXWebhookDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Webhook: %s", err)
-	}
-	if err := d.Set("timeout", flattenDialogflowCXWebhookTimeout(res["timeout"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Webhook: %s", err)
-	}
-	if err := d.Set("disabled", flattenDialogflowCXWebhookDisabled(res["disabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Webhook: %s", err)
-	}
-	if err := d.Set("generic_web_service", flattenDialogflowCXWebhookGenericWebService(res["genericWebService"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Webhook: %s", err)
-	}
-	if err := d.Set("service_directory", flattenDialogflowCXWebhookServiceDirectory(res["serviceDirectory"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Webhook: %s", err)
-	}
-	if err := d.Set("start_flow", flattenDialogflowCXWebhookStartFlow(res["startFlow"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Webhook: %s", err)
-	}
-	if err := d.Set("security_settings", flattenDialogflowCXWebhookSecuritySettings(res["securitySettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Webhook: %s", err)
-	}
-	if err := d.Set("enable_stackdriver_logging", flattenDialogflowCXWebhookEnableStackdriverLogging(res["enableStackdriverLogging"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Webhook: %s", err)
-	}
-	if err := d.Set("enable_spell_correction", flattenDialogflowCXWebhookEnableSpellCorrection(res["enableSpellCorrection"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Webhook: %s", err)
+	err = ResourceDialogflowCXWebhookFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2001,5 +1975,42 @@ func resourceDialogflowCXWebhookPostCreateSetComputedFields(d *schema.ResourceDa
 	if err := d.Set("name", flattenDialogflowCXWebhookName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowCXWebhookFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowCXWebhookName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Webhook: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowCXWebhookDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Webhook: %s", err)
+	}
+	if err = d.Set("timeout", flattenDialogflowCXWebhookTimeout(res["timeout"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Webhook: %s", err)
+	}
+	if err = d.Set("disabled", flattenDialogflowCXWebhookDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Webhook: %s", err)
+	}
+	if err = d.Set("generic_web_service", flattenDialogflowCXWebhookGenericWebService(res["genericWebService"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Webhook: %s", err)
+	}
+	if err = d.Set("service_directory", flattenDialogflowCXWebhookServiceDirectory(res["serviceDirectory"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Webhook: %s", err)
+	}
+	if err = d.Set("start_flow", flattenDialogflowCXWebhookStartFlow(res["startFlow"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Webhook: %s", err)
+	}
+	if err = d.Set("security_settings", flattenDialogflowCXWebhookSecuritySettings(res["securitySettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Webhook: %s", err)
+	}
+	if err = d.Set("enable_stackdriver_logging", flattenDialogflowCXWebhookEnableStackdriverLogging(res["enableStackdriverLogging"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Webhook: %s", err)
+	}
+	if err = d.Set("enable_spell_correction", flattenDialogflowCXWebhookEnableSpellCorrection(res["enableSpellCorrection"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Webhook: %s", err)
+	}
+
 	return nil
 }

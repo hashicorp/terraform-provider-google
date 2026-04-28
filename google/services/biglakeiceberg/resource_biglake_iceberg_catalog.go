@@ -361,29 +361,9 @@ func resourceBiglakeIcebergIcebergCatalogRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
 	}
 
-	if err := d.Set("credential_mode", flattenBiglakeIcebergIcebergCatalogCredentialMode(res["credential-mode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
-	}
-	if err := d.Set("biglake_service_account", flattenBiglakeIcebergIcebergCatalogBiglakeServiceAccount(res["biglake-service-account"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
-	}
-	if err := d.Set("catalog_type", flattenBiglakeIcebergIcebergCatalogCatalogType(res["catalog-type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
-	}
-	if err := d.Set("default_location", flattenBiglakeIcebergIcebergCatalogDefaultLocation(res["default-location"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
-	}
-	if err := d.Set("storage_regions", flattenBiglakeIcebergIcebergCatalogStorageRegions(res["storage-regions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
-	}
-	if err := d.Set("create_time", flattenBiglakeIcebergIcebergCatalogCreateTime(res["create-time"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
-	}
-	if err := d.Set("update_time", flattenBiglakeIcebergIcebergCatalogUpdateTime(res["update-time"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
-	}
-	if err := d.Set("replicas", flattenBiglakeIcebergIcebergCatalogReplicas(res["replicas"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	err = ResourceBiglakeIcebergIcebergCatalogFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -613,4 +593,35 @@ func expandBiglakeIcebergIcebergCatalogCredentialMode(v interface{}, d tpgresour
 
 func expandBiglakeIcebergIcebergCatalogCatalogType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceBiglakeIcebergIcebergCatalogFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("credential_mode", flattenBiglakeIcebergIcebergCatalogCredentialMode(res["credential-mode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
+	if err = d.Set("biglake_service_account", flattenBiglakeIcebergIcebergCatalogBiglakeServiceAccount(res["biglake-service-account"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
+	if err = d.Set("catalog_type", flattenBiglakeIcebergIcebergCatalogCatalogType(res["catalog-type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
+	if err = d.Set("default_location", flattenBiglakeIcebergIcebergCatalogDefaultLocation(res["default-location"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
+	if err = d.Set("storage_regions", flattenBiglakeIcebergIcebergCatalogStorageRegions(res["storage-regions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
+	if err = d.Set("create_time", flattenBiglakeIcebergIcebergCatalogCreateTime(res["create-time"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
+	if err = d.Set("update_time", flattenBiglakeIcebergIcebergCatalogUpdateTime(res["update-time"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
+	if err = d.Set("replicas", flattenBiglakeIcebergIcebergCatalogReplicas(res["replicas"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
+
+	return nil
 }

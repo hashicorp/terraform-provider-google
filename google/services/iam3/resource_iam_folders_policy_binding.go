@@ -451,44 +451,9 @@ func resourceIAM3FoldersPolicyBindingRead(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Finished reading IAM3FoldersPolicyBinding %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenIAM3FoldersPolicyBindingName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("uid", flattenIAM3FoldersPolicyBindingUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("etag", flattenIAM3FoldersPolicyBindingEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("display_name", flattenIAM3FoldersPolicyBindingDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("annotations", flattenIAM3FoldersPolicyBindingAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("target", flattenIAM3FoldersPolicyBindingTarget(res["target"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("policy_kind", flattenIAM3FoldersPolicyBindingPolicyKind(res["policyKind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("policy", flattenIAM3FoldersPolicyBindingPolicy(res["policy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("policy_uid", flattenIAM3FoldersPolicyBindingPolicyUid(res["policyUid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("condition", flattenIAM3FoldersPolicyBindingCondition(res["condition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("create_time", flattenIAM3FoldersPolicyBindingCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("update_time", flattenIAM3FoldersPolicyBindingUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenIAM3FoldersPolicyBindingEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	err = ResourceIAM3FoldersPolicyBindingFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -927,4 +892,50 @@ func expandIAM3FoldersPolicyBindingEffectiveAnnotations(v interface{}, d tpgreso
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceIAM3FoldersPolicyBindingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIAM3FoldersPolicyBindingName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("uid", flattenIAM3FoldersPolicyBindingUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("etag", flattenIAM3FoldersPolicyBindingEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("display_name", flattenIAM3FoldersPolicyBindingDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("annotations", flattenIAM3FoldersPolicyBindingAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("target", flattenIAM3FoldersPolicyBindingTarget(res["target"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("policy_kind", flattenIAM3FoldersPolicyBindingPolicyKind(res["policyKind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("policy", flattenIAM3FoldersPolicyBindingPolicy(res["policy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("policy_uid", flattenIAM3FoldersPolicyBindingPolicyUid(res["policyUid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("condition", flattenIAM3FoldersPolicyBindingCondition(res["condition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("create_time", flattenIAM3FoldersPolicyBindingCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("update_time", flattenIAM3FoldersPolicyBindingUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenIAM3FoldersPolicyBindingEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FoldersPolicyBinding: %s", err)
+	}
+
+	return nil
 }

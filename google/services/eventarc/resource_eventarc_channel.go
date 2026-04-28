@@ -386,41 +386,9 @@ func resourceEventarcChannelRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Channel: %s", err)
 	}
 
-	if err := d.Set("name", flattenEventarcChannelName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
-	}
-	if err := d.Set("labels", flattenEventarcChannelLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
-	}
-	if err := d.Set("uid", flattenEventarcChannelUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
-	}
-	if err := d.Set("create_time", flattenEventarcChannelCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
-	}
-	if err := d.Set("update_time", flattenEventarcChannelUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
-	}
-	if err := d.Set("third_party_provider", flattenEventarcChannelThirdPartyProvider(res["provider"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
-	}
-	if err := d.Set("pubsub_topic", flattenEventarcChannelPubsubTopic(res["pubsubTopic"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
-	}
-	if err := d.Set("state", flattenEventarcChannelState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
-	}
-	if err := d.Set("activation_token", flattenEventarcChannelActivationToken(res["activationToken"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
-	}
-	if err := d.Set("crypto_key_name", flattenEventarcChannelCryptoKeyName(res["cryptoKeyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenEventarcChannelTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenEventarcChannelEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Channel: %s", err)
+	err = ResourceEventarcChannelFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -727,4 +695,47 @@ func expandEventarcChannelEffectiveLabels(v interface{}, d tpgresource.Terraform
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceEventarcChannelFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenEventarcChannelName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+	if err = d.Set("labels", flattenEventarcChannelLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+	if err = d.Set("uid", flattenEventarcChannelUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+	if err = d.Set("create_time", flattenEventarcChannelCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+	if err = d.Set("update_time", flattenEventarcChannelUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+	if err = d.Set("third_party_provider", flattenEventarcChannelThirdPartyProvider(res["provider"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+	if err = d.Set("pubsub_topic", flattenEventarcChannelPubsubTopic(res["pubsubTopic"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+	if err = d.Set("state", flattenEventarcChannelState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+	if err = d.Set("activation_token", flattenEventarcChannelActivationToken(res["activationToken"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+	if err = d.Set("crypto_key_name", flattenEventarcChannelCryptoKeyName(res["cryptoKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenEventarcChannelTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenEventarcChannelEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Channel: %s", err)
+	}
+
+	return nil
 }

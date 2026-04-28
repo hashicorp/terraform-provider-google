@@ -545,12 +545,9 @@ func resourceComputePerInstanceConfigRead(d *schema.ResourceData, meta interface
 	if err := d.Set("zone", zone); err != nil {
 		return fmt.Errorf("Error reading PerInstanceConfig: %s", err)
 	}
-
-	if err := d.Set("name", flattenNestedComputePerInstanceConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PerInstanceConfig: %s", err)
-	}
-	if err := d.Set("preserved_state", flattenNestedComputePerInstanceConfigPreservedState(res["preservedState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PerInstanceConfig: %s", err)
+	err = ResourceComputePerInstanceConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1314,4 +1311,17 @@ func resourceComputePerInstanceConfigFindNestedObjectInList(d *schema.ResourceDa
 		return idx, item, nil
 	}
 	return -1, nil, nil
+}
+
+func ResourceComputePerInstanceConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNestedComputePerInstanceConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PerInstanceConfig: %s", err)
+	}
+	if err = d.Set("preserved_state", flattenNestedComputePerInstanceConfigPreservedState(res["preservedState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PerInstanceConfig: %s", err)
+	}
+
+	return nil
 }

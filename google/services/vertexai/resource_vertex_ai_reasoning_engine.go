@@ -820,35 +820,9 @@ func resourceVertexAIReasoningEngineRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
 	}
 
-	if err := d.Set("name", flattenVertexAIReasoningEngineName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
-	}
-	if err := d.Set("display_name", flattenVertexAIReasoningEngineDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
-	}
-	if err := d.Set("description", flattenVertexAIReasoningEngineDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
-	}
-	if err := d.Set("labels", flattenVertexAIReasoningEngineLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
-	}
-	if err := d.Set("create_time", flattenVertexAIReasoningEngineCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
-	}
-	if err := d.Set("update_time", flattenVertexAIReasoningEngineUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
-	}
-	if err := d.Set("encryption_spec", flattenVertexAIReasoningEngineEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
-	}
-	if err := d.Set("spec", flattenVertexAIReasoningEngineSpec(res["spec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenVertexAIReasoningEngineTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenVertexAIReasoningEngineEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	err = ResourceVertexAIReasoningEngineFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2355,4 +2329,41 @@ func expandVertexAIReasoningEngineEffectiveLabels(v interface{}, d tpgresource.T
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceVertexAIReasoningEngineFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenVertexAIReasoningEngineName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	}
+	if err = d.Set("display_name", flattenVertexAIReasoningEngineDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	}
+	if err = d.Set("description", flattenVertexAIReasoningEngineDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	}
+	if err = d.Set("labels", flattenVertexAIReasoningEngineLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	}
+	if err = d.Set("create_time", flattenVertexAIReasoningEngineCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	}
+	if err = d.Set("update_time", flattenVertexAIReasoningEngineUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	}
+	if err = d.Set("encryption_spec", flattenVertexAIReasoningEngineEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	}
+	if err = d.Set("spec", flattenVertexAIReasoningEngineSpec(res["spec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenVertexAIReasoningEngineTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenVertexAIReasoningEngineEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	}
+
+	return nil
 }

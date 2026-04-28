@@ -949,41 +949,9 @@ func resourceComputeRegionSecurityPolicyRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
 	}
 
-	if err := d.Set("policy_id", flattenComputeRegionSecurityPolicyPolicyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionSecurityPolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionSecurityPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeRegionSecurityPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
-	}
-	if err := d.Set("type", flattenComputeRegionSecurityPolicyType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
-	}
-	if err := d.Set("ddos_protection_config", flattenComputeRegionSecurityPolicyDdosProtectionConfig(res["ddosProtectionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
-	}
-	if err := d.Set("advanced_options_config", flattenComputeRegionSecurityPolicyAdvancedOptionsConfig(res["advancedOptionsConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
-	}
-	if err := d.Set("self_link", flattenComputeRegionSecurityPolicySelfLink(res["selfLink"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
-	}
-	if err := d.Set("self_link_with_policy_id", flattenComputeRegionSecurityPolicySelfLinkWithPolicyId(res["selfLinkWithId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
-	}
-	if err := d.Set("user_defined_fields", flattenComputeRegionSecurityPolicyUserDefinedFields(res["userDefinedFields"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
-	}
-	if err := d.Set("rules", flattenComputeRegionSecurityPolicyRules(res["rules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
-	}
-	if err := d.Set("region", flattenComputeRegionSecurityPolicyRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	err = ResourceComputeRegionSecurityPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -2876,4 +2844,47 @@ func expandComputeRegionSecurityPolicyRegion(v interface{}, d tpgresource.Terraf
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeRegionSecurityPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("policy_id", flattenComputeRegionSecurityPolicyPolicyId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionSecurityPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+	if err = d.Set("description", flattenComputeRegionSecurityPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeRegionSecurityPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+	if err = d.Set("type", flattenComputeRegionSecurityPolicyType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+	if err = d.Set("ddos_protection_config", flattenComputeRegionSecurityPolicyDdosProtectionConfig(res["ddosProtectionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+	if err = d.Set("advanced_options_config", flattenComputeRegionSecurityPolicyAdvancedOptionsConfig(res["advancedOptionsConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+	if err = d.Set("self_link", flattenComputeRegionSecurityPolicySelfLink(res["selfLink"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+	if err = d.Set("self_link_with_policy_id", flattenComputeRegionSecurityPolicySelfLinkWithPolicyId(res["selfLinkWithId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+	if err = d.Set("user_defined_fields", flattenComputeRegionSecurityPolicyUserDefinedFields(res["userDefinedFields"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+	if err = d.Set("rules", flattenComputeRegionSecurityPolicyRules(res["rules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+	if err = d.Set("region", flattenComputeRegionSecurityPolicyRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
+
+	return nil
 }

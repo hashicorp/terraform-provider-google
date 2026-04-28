@@ -366,26 +366,9 @@ func resourceAccessContextManagerAuthorizedOrgsDescRead(d *schema.ResourceData, 
 
 	log.Printf("[DEBUG] Finished reading AccessContextManagerAuthorizedOrgsDesc %q: %#v", d.Id(), res)
 
-	if err := d.Set("create_time", flattenAccessContextManagerAuthorizedOrgsDescCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
-	}
-	if err := d.Set("update_time", flattenAccessContextManagerAuthorizedOrgsDescUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
-	}
-	if err := d.Set("name", flattenAccessContextManagerAuthorizedOrgsDescName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
-	}
-	if err := d.Set("orgs", flattenAccessContextManagerAuthorizedOrgsDescOrgs(res["orgs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
-	}
-	if err := d.Set("asset_type", flattenAccessContextManagerAuthorizedOrgsDescAssetType(res["assetType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
-	}
-	if err := d.Set("authorization_direction", flattenAccessContextManagerAuthorizedOrgsDescAuthorizationDirection(res["authorizationDirection"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
-	}
-	if err := d.Set("authorization_type", flattenAccessContextManagerAuthorizedOrgsDescAuthorizationType(res["authorizationType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
+	err = ResourceAccessContextManagerAuthorizedOrgsDescFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -623,4 +606,32 @@ func expandAccessContextManagerAuthorizedOrgsDescAuthorizationType(v interface{}
 func resourceAccessContextManagerAuthorizedOrgsDescEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	delete(obj, "parent")
 	return obj, nil
+}
+
+func ResourceAccessContextManagerAuthorizedOrgsDescFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenAccessContextManagerAuthorizedOrgsDescCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
+	}
+	if err = d.Set("update_time", flattenAccessContextManagerAuthorizedOrgsDescUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
+	}
+	if err = d.Set("name", flattenAccessContextManagerAuthorizedOrgsDescName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
+	}
+	if err = d.Set("orgs", flattenAccessContextManagerAuthorizedOrgsDescOrgs(res["orgs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
+	}
+	if err = d.Set("asset_type", flattenAccessContextManagerAuthorizedOrgsDescAssetType(res["assetType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
+	}
+	if err = d.Set("authorization_direction", flattenAccessContextManagerAuthorizedOrgsDescAuthorizationDirection(res["authorizationDirection"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
+	}
+	if err = d.Set("authorization_type", flattenAccessContextManagerAuthorizedOrgsDescAuthorizationType(res["authorizationType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
+	}
+
+	return nil
 }

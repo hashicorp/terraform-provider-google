@@ -403,32 +403,9 @@ func resourceBeyondcorpAppGatewayRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading AppGateway: %s", err)
 	}
 
-	if err := d.Set("type", flattenBeyondcorpAppGatewayType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGateway: %s", err)
-	}
-	if err := d.Set("host_type", flattenBeyondcorpAppGatewayHostType(res["hostType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGateway: %s", err)
-	}
-	if err := d.Set("display_name", flattenBeyondcorpAppGatewayDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGateway: %s", err)
-	}
-	if err := d.Set("labels", flattenBeyondcorpAppGatewayLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGateway: %s", err)
-	}
-	if err := d.Set("state", flattenBeyondcorpAppGatewayState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGateway: %s", err)
-	}
-	if err := d.Set("uri", flattenBeyondcorpAppGatewayUri(res["uri"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGateway: %s", err)
-	}
-	if err := d.Set("allocated_connections", flattenBeyondcorpAppGatewayAllocatedConnections(res["allocatedConnections"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGateway: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenBeyondcorpAppGatewayTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGateway: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenBeyondcorpAppGatewayEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGateway: %s", err)
+	err = ResourceBeyondcorpAppGatewayFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -758,4 +735,38 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 
 func ResourceBeyondcorpAppGatewayUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	return tpgresource.TerraformLabelsStateUpgrade(rawState)
+}
+
+func ResourceBeyondcorpAppGatewayFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("type", flattenBeyondcorpAppGatewayType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGateway: %s", err)
+	}
+	if err = d.Set("host_type", flattenBeyondcorpAppGatewayHostType(res["hostType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGateway: %s", err)
+	}
+	if err = d.Set("display_name", flattenBeyondcorpAppGatewayDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGateway: %s", err)
+	}
+	if err = d.Set("labels", flattenBeyondcorpAppGatewayLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGateway: %s", err)
+	}
+	if err = d.Set("state", flattenBeyondcorpAppGatewayState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGateway: %s", err)
+	}
+	if err = d.Set("uri", flattenBeyondcorpAppGatewayUri(res["uri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGateway: %s", err)
+	}
+	if err = d.Set("allocated_connections", flattenBeyondcorpAppGatewayAllocatedConnections(res["allocatedConnections"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGateway: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenBeyondcorpAppGatewayTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGateway: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenBeyondcorpAppGatewayEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGateway: %s", err)
+	}
+
+	return nil
 }

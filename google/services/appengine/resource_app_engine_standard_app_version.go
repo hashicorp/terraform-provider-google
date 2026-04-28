@@ -819,47 +819,9 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
 
-	if err := d.Set("name", flattenAppEngineStandardAppVersionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("version_id", flattenAppEngineStandardAppVersionVersionId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("runtime", flattenAppEngineStandardAppVersionRuntime(res["runtime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("service_account", flattenAppEngineStandardAppVersionServiceAccount(res["serviceAccount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("app_engine_apis", flattenAppEngineStandardAppVersionAppEngineApis(res["appEngineApis"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("runtime_api_version", flattenAppEngineStandardAppVersionRuntimeApiVersion(res["runtimeApiVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("handlers", flattenAppEngineStandardAppVersionHandlers(res["handlers"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("libraries", flattenAppEngineStandardAppVersionLibraries(res["libraries"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("vpc_access_connector", flattenAppEngineStandardAppVersionVpcAccessConnector(res["vpcAccessConnector"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("inbound_services", flattenAppEngineStandardAppVersionInboundServices(res["inboundServices"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("instance_class", flattenAppEngineStandardAppVersionInstanceClass(res["instanceClass"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("automatic_scaling", flattenAppEngineStandardAppVersionAutomaticScaling(res["automaticScaling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("basic_scaling", flattenAppEngineStandardAppVersionBasicScaling(res["basicScaling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
-	}
-	if err := d.Set("manual_scaling", flattenAppEngineStandardAppVersionManualScaling(res["manualScaling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	err = ResourceAppEngineStandardAppVersionFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2290,4 +2252,53 @@ func expandAppEngineStandardAppVersionManualScaling(v interface{}, d tpgresource
 
 func expandAppEngineStandardAppVersionManualScalingInstances(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceAppEngineStandardAppVersionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenAppEngineStandardAppVersionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("version_id", flattenAppEngineStandardAppVersionVersionId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("runtime", flattenAppEngineStandardAppVersionRuntime(res["runtime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("service_account", flattenAppEngineStandardAppVersionServiceAccount(res["serviceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("app_engine_apis", flattenAppEngineStandardAppVersionAppEngineApis(res["appEngineApis"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("runtime_api_version", flattenAppEngineStandardAppVersionRuntimeApiVersion(res["runtimeApiVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("handlers", flattenAppEngineStandardAppVersionHandlers(res["handlers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("libraries", flattenAppEngineStandardAppVersionLibraries(res["libraries"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("vpc_access_connector", flattenAppEngineStandardAppVersionVpcAccessConnector(res["vpcAccessConnector"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("inbound_services", flattenAppEngineStandardAppVersionInboundServices(res["inboundServices"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("instance_class", flattenAppEngineStandardAppVersionInstanceClass(res["instanceClass"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("automatic_scaling", flattenAppEngineStandardAppVersionAutomaticScaling(res["automaticScaling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("basic_scaling", flattenAppEngineStandardAppVersionBasicScaling(res["basicScaling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err = d.Set("manual_scaling", flattenAppEngineStandardAppVersionManualScaling(res["manualScaling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+
+	return nil
 }

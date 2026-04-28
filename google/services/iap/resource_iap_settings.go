@@ -586,11 +586,9 @@ func resourceIapSettingsRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished reading IapSettings %q: %#v", d.Id(), res)
 
-	if err := d.Set("access_settings", flattenIapSettingsAccessSettings(res["accessSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Settings: %s", err)
-	}
-	if err := d.Set("application_settings", flattenIapSettingsApplicationSettings(res["applicationSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Settings: %s", err)
+	err = ResourceIapSettingsFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1584,4 +1582,17 @@ func expandIapSettingsApplicationSettingsAttributePropagationSettingsExpression(
 
 func expandIapSettingsApplicationSettingsAttributePropagationSettingsEnable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceIapSettingsFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("access_settings", flattenIapSettingsAccessSettings(res["accessSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Settings: %s", err)
+	}
+	if err = d.Set("application_settings", flattenIapSettingsApplicationSettings(res["applicationSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Settings: %s", err)
+	}
+
+	return nil
 }

@@ -400,20 +400,9 @@ func resourceIdentityPlatformTenantInboundSamlConfigRead(d *schema.ResourceData,
 		return fmt.Errorf("Error reading TenantInboundSamlConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenIdentityPlatformTenantInboundSamlConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TenantInboundSamlConfig: %s", err)
-	}
-	if err := d.Set("display_name", flattenIdentityPlatformTenantInboundSamlConfigDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TenantInboundSamlConfig: %s", err)
-	}
-	if err := d.Set("enabled", flattenIdentityPlatformTenantInboundSamlConfigEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TenantInboundSamlConfig: %s", err)
-	}
-	if err := d.Set("idp_config", flattenIdentityPlatformTenantInboundSamlConfigIdpConfig(res["idpConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TenantInboundSamlConfig: %s", err)
-	}
-	if err := d.Set("sp_config", flattenIdentityPlatformTenantInboundSamlConfigSpConfig(res["spConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TenantInboundSamlConfig: %s", err)
+	err = ResourceIdentityPlatformTenantInboundSamlConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -914,4 +903,26 @@ func expandIdentityPlatformTenantInboundSamlConfigSpConfigSpCertificates(v inter
 
 func expandIdentityPlatformTenantInboundSamlConfigSpConfigSpCertificatesX509Certificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceIdentityPlatformTenantInboundSamlConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIdentityPlatformTenantInboundSamlConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TenantInboundSamlConfig: %s", err)
+	}
+	if err = d.Set("display_name", flattenIdentityPlatformTenantInboundSamlConfigDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TenantInboundSamlConfig: %s", err)
+	}
+	if err = d.Set("enabled", flattenIdentityPlatformTenantInboundSamlConfigEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TenantInboundSamlConfig: %s", err)
+	}
+	if err = d.Set("idp_config", flattenIdentityPlatformTenantInboundSamlConfigIdpConfig(res["idpConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TenantInboundSamlConfig: %s", err)
+	}
+	if err = d.Set("sp_config", flattenIdentityPlatformTenantInboundSamlConfigSpConfig(res["spConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TenantInboundSamlConfig: %s", err)
+	}
+
+	return nil
 }

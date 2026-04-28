@@ -559,29 +559,9 @@ func resourceComputeInterconnectAttachmentGroupRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeInterconnectAttachmentGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeInterconnectAttachmentGroupCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
-	}
-	if err := d.Set("name", flattenComputeInterconnectAttachmentGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
-	}
-	if err := d.Set("attachments", flattenComputeInterconnectAttachmentGroupAttachments(res["attachments"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
-	}
-	if err := d.Set("interconnect_group", flattenComputeInterconnectAttachmentGroupInterconnectGroup(res["interconnectGroup"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
-	}
-	if err := d.Set("intent", flattenComputeInterconnectAttachmentGroupIntent(res["intent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
-	}
-	if err := d.Set("logical_structure", flattenComputeInterconnectAttachmentGroupLogicalStructure(res["logicalStructure"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
-	}
-	if err := d.Set("configured", flattenComputeInterconnectAttachmentGroupConfigured(res["configured"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
+	err = ResourceComputeInterconnectAttachmentGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1093,4 +1073,35 @@ func expandComputeInterconnectAttachmentGroupIntent(v interface{}, d tpgresource
 
 func expandComputeInterconnectAttachmentGroupIntentAvailabilitySla(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeInterconnectAttachmentGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputeInterconnectAttachmentGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeInterconnectAttachmentGroupCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
+	}
+	if err = d.Set("name", flattenComputeInterconnectAttachmentGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
+	}
+	if err = d.Set("attachments", flattenComputeInterconnectAttachmentGroupAttachments(res["attachments"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
+	}
+	if err = d.Set("interconnect_group", flattenComputeInterconnectAttachmentGroupInterconnectGroup(res["interconnectGroup"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
+	}
+	if err = d.Set("intent", flattenComputeInterconnectAttachmentGroupIntent(res["intent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
+	}
+	if err = d.Set("logical_structure", flattenComputeInterconnectAttachmentGroupLogicalStructure(res["logicalStructure"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
+	}
+	if err = d.Set("configured", flattenComputeInterconnectAttachmentGroupConfigured(res["configured"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
+	}
+
+	return nil
 }

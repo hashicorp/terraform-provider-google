@@ -650,24 +650,9 @@ func resourceComputeAutoscalerRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("zone", zone); err != nil {
 		return fmt.Errorf("Error reading Autoscaler: %s", err)
 	}
-
-	if err := d.Set("creation_timestamp", flattenComputeAutoscalerCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
-	if err := d.Set("name", flattenComputeAutoscalerName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
-	if err := d.Set("description", flattenComputeAutoscalerDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
-	if err := d.Set("autoscaling_policy", flattenComputeAutoscalerAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
-	if err := d.Set("target", flattenComputeAutoscalerTarget(res["target"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
+	err = ResourceComputeAutoscalerFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1637,4 +1622,28 @@ func expandComputeAutoscalerZone(v interface{}, d tpgresource.TerraformResourceD
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeAutoscalerFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeAutoscalerCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Autoscaler: %s", err)
+	}
+	if err = d.Set("name", flattenComputeAutoscalerName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Autoscaler: %s", err)
+	}
+	if err = d.Set("description", flattenComputeAutoscalerDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Autoscaler: %s", err)
+	}
+	if err = d.Set("autoscaling_policy", flattenComputeAutoscalerAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Autoscaler: %s", err)
+	}
+	if err = d.Set("target", flattenComputeAutoscalerTarget(res["target"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Autoscaler: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading Autoscaler: %s", err)
+	}
+	return nil
 }

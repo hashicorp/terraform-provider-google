@@ -343,29 +343,9 @@ func resourceStorageAnywhereCacheRead(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[DEBUG] Finished reading StorageAnywhereCache %q: %#v", d.Id(), res)
 
-	if err := d.Set("zone", flattenStorageAnywhereCacheZone(res["zone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnywhereCache: %s", err)
-	}
-	if err := d.Set("admission_policy", flattenStorageAnywhereCacheAdmissionPolicy(res["admissionPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnywhereCache: %s", err)
-	}
-	if err := d.Set("ttl", flattenStorageAnywhereCacheTtl(res["ttl"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnywhereCache: %s", err)
-	}
-	if err := d.Set("anywhere_cache_id", flattenStorageAnywhereCacheAnywhereCacheId(res["anywhereCacheId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnywhereCache: %s", err)
-	}
-	if err := d.Set("create_time", flattenStorageAnywhereCacheCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnywhereCache: %s", err)
-	}
-	if err := d.Set("update_time", flattenStorageAnywhereCacheUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnywhereCache: %s", err)
-	}
-	if err := d.Set("pending_update", flattenStorageAnywhereCachePendingUpdate(res["pendingUpdate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnywhereCache: %s", err)
-	}
-	if err := d.Set("state", flattenStorageAnywhereCacheState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AnywhereCache: %s", err)
+	err = ResourceStorageAnywhereCacheFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -572,4 +552,35 @@ func expandStorageAnywhereCacheAdmissionPolicy(v interface{}, d tpgresource.Terr
 
 func expandStorageAnywhereCacheTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceStorageAnywhereCacheFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("zone", flattenStorageAnywhereCacheZone(res["zone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnywhereCache: %s", err)
+	}
+	if err = d.Set("admission_policy", flattenStorageAnywhereCacheAdmissionPolicy(res["admissionPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnywhereCache: %s", err)
+	}
+	if err = d.Set("ttl", flattenStorageAnywhereCacheTtl(res["ttl"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnywhereCache: %s", err)
+	}
+	if err = d.Set("anywhere_cache_id", flattenStorageAnywhereCacheAnywhereCacheId(res["anywhereCacheId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnywhereCache: %s", err)
+	}
+	if err = d.Set("create_time", flattenStorageAnywhereCacheCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnywhereCache: %s", err)
+	}
+	if err = d.Set("update_time", flattenStorageAnywhereCacheUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnywhereCache: %s", err)
+	}
+	if err = d.Set("pending_update", flattenStorageAnywhereCachePendingUpdate(res["pendingUpdate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnywhereCache: %s", err)
+	}
+	if err = d.Set("state", flattenStorageAnywhereCacheState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnywhereCache: %s", err)
+	}
+
+	return nil
 }

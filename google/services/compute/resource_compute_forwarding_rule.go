@@ -1072,104 +1072,9 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeForwardingRuleCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("is_mirroring_collector", flattenComputeForwardingRuleIsMirroringCollector(res["isMirroringCollector"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("forwarding_rule_id", flattenComputeForwardingRuleForwardingRuleId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("psc_connection_id", flattenComputeForwardingRulePscConnectionId(res["pscConnectionId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("psc_connection_status", flattenComputeForwardingRulePscConnectionStatus(res["pscConnectionStatus"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("description", flattenComputeForwardingRuleDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("ip_address", flattenComputeForwardingRuleIPAddress(res["IPAddress"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("ip_protocol", flattenComputeForwardingRuleIPProtocol(res["IPProtocol"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("backend_service", flattenComputeForwardingRuleBackendService(res["backendService"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("load_balancing_scheme", flattenComputeForwardingRuleLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("name", flattenComputeForwardingRuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("network", flattenComputeForwardingRuleNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("port_range", flattenComputeForwardingRulePortRange(res["portRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("ports", flattenComputeForwardingRulePorts(res["ports"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("subnetwork", flattenComputeForwardingRuleSubnetwork(res["subnetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("target", flattenComputeForwardingRuleTarget(res["target"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeForwardingRuleLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("allow_global_access", flattenComputeForwardingRuleAllowGlobalAccess(res["allowGlobalAccess"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeForwardingRuleLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("all_ports", flattenComputeForwardingRuleAllPorts(res["allPorts"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("network_tier", flattenComputeForwardingRuleNetworkTier(res["networkTier"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("service_directory_registrations", flattenComputeForwardingRuleServiceDirectoryRegistrations(res["serviceDirectoryRegistrations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("service_label", flattenComputeForwardingRuleServiceLabel(res["serviceLabel"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("service_name", flattenComputeForwardingRuleServiceName(res["serviceName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("source_ip_ranges", flattenComputeForwardingRuleSourceIpRanges(res["sourceIpRanges"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("base_forwarding_rule", flattenComputeForwardingRuleBaseForwardingRule(res["baseForwardingRule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("allow_psc_global_access", flattenComputeForwardingRuleAllowPscGlobalAccess(res["allowPscGlobalAccess"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("ip_version", flattenComputeForwardingRuleIpVersion(res["ipVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("ip_collection", flattenComputeForwardingRuleIpCollection(res["ipCollection"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenComputeForwardingRuleTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenComputeForwardingRuleEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("region", flattenComputeForwardingRuleRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	err = ResourceComputeForwardingRuleFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1945,4 +1850,109 @@ func expandComputeForwardingRuleRegion(v interface{}, d tpgresource.TerraformRes
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeForwardingRuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeForwardingRuleCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("is_mirroring_collector", flattenComputeForwardingRuleIsMirroringCollector(res["isMirroringCollector"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("forwarding_rule_id", flattenComputeForwardingRuleForwardingRuleId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("psc_connection_id", flattenComputeForwardingRulePscConnectionId(res["pscConnectionId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("psc_connection_status", flattenComputeForwardingRulePscConnectionStatus(res["pscConnectionStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("description", flattenComputeForwardingRuleDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("ip_address", flattenComputeForwardingRuleIPAddress(res["IPAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("ip_protocol", flattenComputeForwardingRuleIPProtocol(res["IPProtocol"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("backend_service", flattenComputeForwardingRuleBackendService(res["backendService"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("load_balancing_scheme", flattenComputeForwardingRuleLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("name", flattenComputeForwardingRuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("network", flattenComputeForwardingRuleNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("port_range", flattenComputeForwardingRulePortRange(res["portRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("ports", flattenComputeForwardingRulePorts(res["ports"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("subnetwork", flattenComputeForwardingRuleSubnetwork(res["subnetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("target", flattenComputeForwardingRuleTarget(res["target"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("label_fingerprint", flattenComputeForwardingRuleLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("allow_global_access", flattenComputeForwardingRuleAllowGlobalAccess(res["allowGlobalAccess"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("labels", flattenComputeForwardingRuleLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("all_ports", flattenComputeForwardingRuleAllPorts(res["allPorts"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("network_tier", flattenComputeForwardingRuleNetworkTier(res["networkTier"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("service_directory_registrations", flattenComputeForwardingRuleServiceDirectoryRegistrations(res["serviceDirectoryRegistrations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("service_label", flattenComputeForwardingRuleServiceLabel(res["serviceLabel"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("service_name", flattenComputeForwardingRuleServiceName(res["serviceName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("source_ip_ranges", flattenComputeForwardingRuleSourceIpRanges(res["sourceIpRanges"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("base_forwarding_rule", flattenComputeForwardingRuleBaseForwardingRule(res["baseForwardingRule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("allow_psc_global_access", flattenComputeForwardingRuleAllowPscGlobalAccess(res["allowPscGlobalAccess"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("ip_version", flattenComputeForwardingRuleIpVersion(res["ipVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("ip_collection", flattenComputeForwardingRuleIpCollection(res["ipCollection"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenComputeForwardingRuleTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenComputeForwardingRuleEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("region", flattenComputeForwardingRuleRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	return nil
 }

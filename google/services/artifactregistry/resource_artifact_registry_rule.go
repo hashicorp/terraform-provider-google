@@ -411,20 +411,9 @@ func resourceArtifactRegistryRuleRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Rule: %s", err)
 	}
 
-	if err := d.Set("name", flattenArtifactRegistryRuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("action", flattenArtifactRegistryRuleAction(res["action"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("operation", flattenArtifactRegistryRuleOperation(res["operation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("condition", flattenArtifactRegistryRuleCondition(res["condition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("package_id", flattenArtifactRegistryRulePackageId(res["packageId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
+	err = ResourceArtifactRegistryRuleFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -789,4 +778,26 @@ func expandArtifactRegistryRuleConditionLocation(v interface{}, d tpgresource.Te
 
 func expandArtifactRegistryRulePackageId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceArtifactRegistryRuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenArtifactRegistryRuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("action", flattenArtifactRegistryRuleAction(res["action"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("operation", flattenArtifactRegistryRuleOperation(res["operation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("condition", flattenArtifactRegistryRuleCondition(res["condition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("package_id", flattenArtifactRegistryRulePackageId(res["packageId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+
+	return nil
 }

@@ -649,32 +649,9 @@ func resourceIAMBetaWorkloadIdentityPoolRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
 	}
 
-	if err := d.Set("state", flattenIAMBetaWorkloadIdentityPoolState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
-	}
-	if err := d.Set("display_name", flattenIAMBetaWorkloadIdentityPoolDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
-	}
-	if err := d.Set("description", flattenIAMBetaWorkloadIdentityPoolDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
-	}
-	if err := d.Set("name", flattenIAMBetaWorkloadIdentityPoolName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
-	}
-	if err := d.Set("disabled", flattenIAMBetaWorkloadIdentityPoolDisabled(res["disabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
-	}
-	if err := d.Set("mode", flattenIAMBetaWorkloadIdentityPoolMode(res["mode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
-	}
-	if err := d.Set("inline_certificate_issuance_config", flattenIAMBetaWorkloadIdentityPoolInlineCertificateIssuanceConfig(res["inlineCertificateIssuanceConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
-	}
-	if err := d.Set("inline_trust_config", flattenIAMBetaWorkloadIdentityPoolInlineTrustConfig(res["inlineTrustConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
-	}
-	if err := d.Set("attestation_rules", flattenIAMBetaWorkloadIdentityPoolAttestationRules(res["attestationRules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
+	err = ResourceIAMBetaWorkloadIdentityPoolFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1337,4 +1314,38 @@ func resourceIAMBetaWorkloadIdentityPoolDecoder(d *schema.ResourceData, meta int
 	}
 
 	return res, nil
+}
+
+func ResourceIAMBetaWorkloadIdentityPoolFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("state", flattenIAMBetaWorkloadIdentityPoolState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
+	}
+	if err = d.Set("display_name", flattenIAMBetaWorkloadIdentityPoolDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
+	}
+	if err = d.Set("description", flattenIAMBetaWorkloadIdentityPoolDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
+	}
+	if err = d.Set("name", flattenIAMBetaWorkloadIdentityPoolName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
+	}
+	if err = d.Set("disabled", flattenIAMBetaWorkloadIdentityPoolDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
+	}
+	if err = d.Set("mode", flattenIAMBetaWorkloadIdentityPoolMode(res["mode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
+	}
+	if err = d.Set("inline_certificate_issuance_config", flattenIAMBetaWorkloadIdentityPoolInlineCertificateIssuanceConfig(res["inlineCertificateIssuanceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
+	}
+	if err = d.Set("inline_trust_config", flattenIAMBetaWorkloadIdentityPoolInlineTrustConfig(res["inlineTrustConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
+	}
+	if err = d.Set("attestation_rules", flattenIAMBetaWorkloadIdentityPoolAttestationRules(res["attestationRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
+	}
+
+	return nil
 }

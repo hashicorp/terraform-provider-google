@@ -891,44 +891,9 @@ func resourceCloudfunctions2functionRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading function: %s", err)
 	}
 
-	if err := d.Set("name", flattenCloudfunctions2functionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("description", flattenCloudfunctions2functionDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("environment", flattenCloudfunctions2functionEnvironment(res["environment"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("url", flattenCloudfunctions2functionUrl(res["url"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("state", flattenCloudfunctions2functionState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("build_config", flattenCloudfunctions2functionBuildConfig(res["buildConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("service_config", flattenCloudfunctions2functionServiceConfig(res["serviceConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("event_trigger", flattenCloudfunctions2functionEventTrigger(res["eventTrigger"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("update_time", flattenCloudfunctions2functionUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("labels", flattenCloudfunctions2functionLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("kms_key_name", flattenCloudfunctions2functionKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenCloudfunctions2functionTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenCloudfunctions2functionEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading function: %s", err)
+	err = ResourceCloudfunctions2functionFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2819,4 +2784,50 @@ func resourceCloudfunctions2functionEncoder(d *schema.ResourceData, meta interfa
 	obj["buildConfig"] = build_config
 
 	return obj, nil
+}
+
+func ResourceCloudfunctions2functionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenCloudfunctions2functionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("description", flattenCloudfunctions2functionDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("environment", flattenCloudfunctions2functionEnvironment(res["environment"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("url", flattenCloudfunctions2functionUrl(res["url"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("state", flattenCloudfunctions2functionState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("build_config", flattenCloudfunctions2functionBuildConfig(res["buildConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("service_config", flattenCloudfunctions2functionServiceConfig(res["serviceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("event_trigger", flattenCloudfunctions2functionEventTrigger(res["eventTrigger"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("update_time", flattenCloudfunctions2functionUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("labels", flattenCloudfunctions2functionLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("kms_key_name", flattenCloudfunctions2functionKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenCloudfunctions2functionTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenCloudfunctions2functionEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+
+	return nil
 }

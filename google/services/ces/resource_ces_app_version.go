@@ -3435,26 +3435,9 @@ func resourceCESAppVersionRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading AppVersion: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenCESAppVersionCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppVersion: %s", err)
-	}
-	if err := d.Set("creator", flattenCESAppVersionCreator(res["creator"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppVersion: %s", err)
-	}
-	if err := d.Set("description", flattenCESAppVersionDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppVersion: %s", err)
-	}
-	if err := d.Set("display_name", flattenCESAppVersionDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppVersion: %s", err)
-	}
-	if err := d.Set("etag", flattenCESAppVersionEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppVersion: %s", err)
-	}
-	if err := d.Set("name", flattenCESAppVersionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppVersion: %s", err)
-	}
-	if err := d.Set("snapshot", flattenCESAppVersionSnapshot(res["snapshot"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppVersion: %s", err)
+	err = ResourceCESAppVersionFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -7063,5 +7046,33 @@ func resourceCESAppVersionPostCreateSetComputedFields(d *schema.ResourceData, me
 	if err := d.Set("name", flattenCESAppVersionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceCESAppVersionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenCESAppVersionCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppVersion: %s", err)
+	}
+	if err = d.Set("creator", flattenCESAppVersionCreator(res["creator"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppVersion: %s", err)
+	}
+	if err = d.Set("description", flattenCESAppVersionDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppVersion: %s", err)
+	}
+	if err = d.Set("display_name", flattenCESAppVersionDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppVersion: %s", err)
+	}
+	if err = d.Set("etag", flattenCESAppVersionEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppVersion: %s", err)
+	}
+	if err = d.Set("name", flattenCESAppVersionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppVersion: %s", err)
+	}
+	if err = d.Set("snapshot", flattenCESAppVersionSnapshot(res["snapshot"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppVersion: %s", err)
+	}
+
 	return nil
 }

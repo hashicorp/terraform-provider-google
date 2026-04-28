@@ -450,53 +450,9 @@ func resourceDataprocGdcServiceInstanceRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading ServiceInstance: %s", err)
 	}
 
-	if err := d.Set("gdce_cluster", flattenDataprocGdcServiceInstanceGdceCluster(res["gdceCluster"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("name", flattenDataprocGdcServiceInstanceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("uid", flattenDataprocGdcServiceInstanceUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataprocGdcServiceInstanceDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("create_time", flattenDataprocGdcServiceInstanceCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("update_time", flattenDataprocGdcServiceInstanceUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("requested_state", flattenDataprocGdcServiceInstanceRequestedState(res["requestedState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("state", flattenDataprocGdcServiceInstanceState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("reconciling", flattenDataprocGdcServiceInstanceReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("labels", flattenDataprocGdcServiceInstanceLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("spark_service_instance_config", flattenDataprocGdcServiceInstanceSparkServiceInstanceConfig(res["sparkServiceInstanceConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("state_message", flattenDataprocGdcServiceInstanceStateMessage(res["stateMessage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("service_account", flattenDataprocGdcServiceInstanceServiceAccount(res["serviceAccount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("effective_service_account", flattenDataprocGdcServiceInstanceEffectiveServiceAccount(res["effectiveServiceAccount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDataprocGdcServiceInstanceTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDataprocGdcServiceInstanceEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	err = ResourceDataprocGdcServiceInstanceFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -761,4 +717,59 @@ func expandDataprocGdcServiceInstanceEffectiveLabels(v interface{}, d tpgresourc
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceDataprocGdcServiceInstanceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("gdce_cluster", flattenDataprocGdcServiceInstanceGdceCluster(res["gdceCluster"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("name", flattenDataprocGdcServiceInstanceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("uid", flattenDataprocGdcServiceInstanceUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataprocGdcServiceInstanceDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("create_time", flattenDataprocGdcServiceInstanceCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("update_time", flattenDataprocGdcServiceInstanceUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("requested_state", flattenDataprocGdcServiceInstanceRequestedState(res["requestedState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("state", flattenDataprocGdcServiceInstanceState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("reconciling", flattenDataprocGdcServiceInstanceReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("labels", flattenDataprocGdcServiceInstanceLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("spark_service_instance_config", flattenDataprocGdcServiceInstanceSparkServiceInstanceConfig(res["sparkServiceInstanceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("state_message", flattenDataprocGdcServiceInstanceStateMessage(res["stateMessage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("service_account", flattenDataprocGdcServiceInstanceServiceAccount(res["serviceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("effective_service_account", flattenDataprocGdcServiceInstanceEffectiveServiceAccount(res["effectiveServiceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDataprocGdcServiceInstanceTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDataprocGdcServiceInstanceEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceInstance: %s", err)
+	}
+
+	return nil
 }

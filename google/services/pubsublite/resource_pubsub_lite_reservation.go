@@ -299,8 +299,9 @@ func resourcePubsubLiteReservationRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 
-	if err := d.Set("throughput_capacity", flattenPubsubLiteReservationThroughputCapacity(res["throughputCapacity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Reservation: %s", err)
+	err = ResourcePubsubLiteReservationFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -509,4 +510,14 @@ func flattenPubsubLiteReservationThroughputCapacity(v interface{}, d *schema.Res
 
 func expandPubsubLiteReservationThroughputCapacity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourcePubsubLiteReservationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("throughput_capacity", flattenPubsubLiteReservationThroughputCapacity(res["throughputCapacity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
+
+	return nil
 }

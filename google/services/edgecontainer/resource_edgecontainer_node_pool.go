@@ -448,38 +448,9 @@ func resourceEdgecontainerNodePoolRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading NodePool: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenEdgecontainerNodePoolCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
-	}
-	if err := d.Set("update_time", flattenEdgecontainerNodePoolUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
-	}
-	if err := d.Set("labels", flattenEdgecontainerNodePoolLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
-	}
-	if err := d.Set("node_location", flattenEdgecontainerNodePoolNodeLocation(res["nodeLocation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
-	}
-	if err := d.Set("node_count", flattenEdgecontainerNodePoolNodeCount(res["nodeCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
-	}
-	if err := d.Set("machine_filter", flattenEdgecontainerNodePoolMachineFilter(res["machineFilter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
-	}
-	if err := d.Set("local_disk_encryption", flattenEdgecontainerNodePoolLocalDiskEncryption(res["localDiskEncryption"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
-	}
-	if err := d.Set("node_version", flattenEdgecontainerNodePoolNodeVersion(res["nodeVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
-	}
-	if err := d.Set("node_config", flattenEdgecontainerNodePoolNodeConfig(res["nodeConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenEdgecontainerNodePoolTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenEdgecontainerNodePoolEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NodePool: %s", err)
+	err = ResourceEdgecontainerNodePoolFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -953,4 +924,44 @@ func expandEdgecontainerNodePoolEffectiveLabels(v interface{}, d tpgresource.Ter
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceEdgecontainerNodePoolFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenEdgecontainerNodePoolCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+	if err = d.Set("update_time", flattenEdgecontainerNodePoolUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+	if err = d.Set("labels", flattenEdgecontainerNodePoolLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+	if err = d.Set("node_location", flattenEdgecontainerNodePoolNodeLocation(res["nodeLocation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+	if err = d.Set("node_count", flattenEdgecontainerNodePoolNodeCount(res["nodeCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+	if err = d.Set("machine_filter", flattenEdgecontainerNodePoolMachineFilter(res["machineFilter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+	if err = d.Set("local_disk_encryption", flattenEdgecontainerNodePoolLocalDiskEncryption(res["localDiskEncryption"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+	if err = d.Set("node_version", flattenEdgecontainerNodePoolNodeVersion(res["nodeVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+	if err = d.Set("node_config", flattenEdgecontainerNodePoolNodeConfig(res["nodeConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenEdgecontainerNodePoolTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenEdgecontainerNodePoolEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+
+	return nil
 }

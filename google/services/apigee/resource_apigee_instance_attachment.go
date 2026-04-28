@@ -290,11 +290,9 @@ func resourceApigeeInstanceAttachmentRead(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Finished reading ApigeeInstanceAttachment %q: %#v", d.Id(), res)
 
-	if err := d.Set("environment", flattenApigeeInstanceAttachmentEnvironment(res["environment"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstanceAttachment: %s", err)
-	}
-	if err := d.Set("name", flattenApigeeInstanceAttachmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstanceAttachment: %s", err)
+	err = ResourceApigeeInstanceAttachmentFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -406,4 +404,17 @@ func flattenApigeeInstanceAttachmentName(v interface{}, d *schema.ResourceData, 
 
 func expandApigeeInstanceAttachmentEnvironment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeInstanceAttachmentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("environment", flattenApigeeInstanceAttachmentEnvironment(res["environment"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstanceAttachment: %s", err)
+	}
+	if err = d.Set("name", flattenApigeeInstanceAttachmentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstanceAttachment: %s", err)
+	}
+
+	return nil
 }

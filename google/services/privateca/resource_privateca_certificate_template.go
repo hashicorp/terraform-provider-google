@@ -807,35 +807,9 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
 	}
 
-	if err := d.Set("predefined_values", flattenPrivatecaCertificateTemplatePredefinedValues(res["predefinedValues"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
-	}
-	if err := d.Set("identity_constraints", flattenPrivatecaCertificateTemplateIdentityConstraints(res["identityConstraints"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
-	}
-	if err := d.Set("passthrough_extensions", flattenPrivatecaCertificateTemplatePassthroughExtensions(res["passthroughExtensions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
-	}
-	if err := d.Set("maximum_lifetime", flattenPrivatecaCertificateTemplateMaximumLifetime(res["maximumLifetime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
-	}
-	if err := d.Set("description", flattenPrivatecaCertificateTemplateDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
-	}
-	if err := d.Set("create_time", flattenPrivatecaCertificateTemplateCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
-	}
-	if err := d.Set("update_time", flattenPrivatecaCertificateTemplateUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
-	}
-	if err := d.Set("labels", flattenPrivatecaCertificateTemplateLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenPrivatecaCertificateTemplateTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenPrivatecaCertificateTemplateEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
+	err = ResourcePrivatecaCertificateTemplateFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1495,4 +1469,41 @@ func expandPrivatecaCertificateTemplateEffectiveLabels(v interface{}, d tpgresou
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourcePrivatecaCertificateTemplateFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("predefined_values", flattenPrivatecaCertificateTemplatePredefinedValues(res["predefinedValues"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
+	}
+	if err = d.Set("identity_constraints", flattenPrivatecaCertificateTemplateIdentityConstraints(res["identityConstraints"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
+	}
+	if err = d.Set("passthrough_extensions", flattenPrivatecaCertificateTemplatePassthroughExtensions(res["passthroughExtensions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
+	}
+	if err = d.Set("maximum_lifetime", flattenPrivatecaCertificateTemplateMaximumLifetime(res["maximumLifetime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
+	}
+	if err = d.Set("description", flattenPrivatecaCertificateTemplateDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
+	}
+	if err = d.Set("create_time", flattenPrivatecaCertificateTemplateCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
+	}
+	if err = d.Set("update_time", flattenPrivatecaCertificateTemplateUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
+	}
+	if err = d.Set("labels", flattenPrivatecaCertificateTemplateLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenPrivatecaCertificateTemplateTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenPrivatecaCertificateTemplateEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateTemplate: %s", err)
+	}
+
+	return nil
 }

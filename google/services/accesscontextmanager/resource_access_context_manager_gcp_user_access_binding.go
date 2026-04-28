@@ -462,20 +462,9 @@ func resourceAccessContextManagerGcpUserAccessBindingRead(d *schema.ResourceData
 
 	log.Printf("[DEBUG] Finished reading AccessContextManagerGcpUserAccessBinding %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenAccessContextManagerGcpUserAccessBindingName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
-	}
-	if err := d.Set("group_key", flattenAccessContextManagerGcpUserAccessBindingGroupKey(res["groupKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
-	}
-	if err := d.Set("access_levels", flattenAccessContextManagerGcpUserAccessBindingAccessLevels(res["accessLevels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
-	}
-	if err := d.Set("session_settings", flattenAccessContextManagerGcpUserAccessBindingSessionSettings(res["sessionSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
-	}
-	if err := d.Set("scoped_access_settings", flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettings(res["scopedAccessSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
+	err = ResourceAccessContextManagerGcpUserAccessBindingFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1186,4 +1175,26 @@ func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSet
 
 func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSettingsAccessLevels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceAccessContextManagerGcpUserAccessBindingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenAccessContextManagerGcpUserAccessBindingName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
+	}
+	if err = d.Set("group_key", flattenAccessContextManagerGcpUserAccessBindingGroupKey(res["groupKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
+	}
+	if err = d.Set("access_levels", flattenAccessContextManagerGcpUserAccessBindingAccessLevels(res["accessLevels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
+	}
+	if err = d.Set("session_settings", flattenAccessContextManagerGcpUserAccessBindingSessionSettings(res["sessionSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
+	}
+	if err = d.Set("scoped_access_settings", flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettings(res["scopedAccessSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
+	}
+
+	return nil
 }

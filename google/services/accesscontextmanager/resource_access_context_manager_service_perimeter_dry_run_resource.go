@@ -329,11 +329,9 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceRead(d *schema.Re
 		return nil
 	}
 
-	if err := d.Set("resource", flattenNestedAccessContextManagerServicePerimeterDryRunResourceResource(res["resource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterDryRunResource: %s", err)
-	}
-	if err := d.Set("etag", flattenNestedAccessContextManagerServicePerimeterDryRunResourceEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterDryRunResource: %s", err)
+	err = ResourceAccessContextManagerServicePerimeterDryRunResourceFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -648,4 +646,17 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceListForPatch(d *s
 		return ls, nil
 	}
 	return nil, nil
+}
+
+func ResourceAccessContextManagerServicePerimeterDryRunResourceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("resource", flattenNestedAccessContextManagerServicePerimeterDryRunResourceResource(res["resource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterDryRunResource: %s", err)
+	}
+	if err = d.Set("etag", flattenNestedAccessContextManagerServicePerimeterDryRunResourceEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterDryRunResource: %s", err)
+	}
+
+	return nil
 }

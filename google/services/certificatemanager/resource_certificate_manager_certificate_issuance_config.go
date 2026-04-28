@@ -441,35 +441,9 @@ func resourceCertificateManagerCertificateIssuanceConfigRead(d *schema.ResourceD
 		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
 	}
 
-	if err := d.Set("description", flattenCertificateManagerCertificateIssuanceConfigDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
-	}
-	if err := d.Set("rotation_window_percentage", flattenCertificateManagerCertificateIssuanceConfigRotationWindowPercentage(res["rotationWindowPercentage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
-	}
-	if err := d.Set("key_algorithm", flattenCertificateManagerCertificateIssuanceConfigKeyAlgorithm(res["keyAlgorithm"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
-	}
-	if err := d.Set("lifetime", flattenCertificateManagerCertificateIssuanceConfigLifetime(res["lifetime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
-	}
-	if err := d.Set("create_time", flattenCertificateManagerCertificateIssuanceConfigCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
-	}
-	if err := d.Set("update_time", flattenCertificateManagerCertificateIssuanceConfigUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
-	}
-	if err := d.Set("labels", flattenCertificateManagerCertificateIssuanceConfigLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
-	}
-	if err := d.Set("certificate_authority_config", flattenCertificateManagerCertificateIssuanceConfigCertificateAuthorityConfig(res["certificateAuthorityConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenCertificateManagerCertificateIssuanceConfigTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenCertificateManagerCertificateIssuanceConfigEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	err = ResourceCertificateManagerCertificateIssuanceConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -887,4 +861,41 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 
 func ResourceCertificateManagerCertificateIssuanceConfigUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	return tpgresource.TerraformLabelsStateUpgrade(rawState)
+}
+
+func ResourceCertificateManagerCertificateIssuanceConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenCertificateManagerCertificateIssuanceConfigDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
+	if err = d.Set("rotation_window_percentage", flattenCertificateManagerCertificateIssuanceConfigRotationWindowPercentage(res["rotationWindowPercentage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
+	if err = d.Set("key_algorithm", flattenCertificateManagerCertificateIssuanceConfigKeyAlgorithm(res["keyAlgorithm"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
+	if err = d.Set("lifetime", flattenCertificateManagerCertificateIssuanceConfigLifetime(res["lifetime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
+	if err = d.Set("create_time", flattenCertificateManagerCertificateIssuanceConfigCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
+	if err = d.Set("update_time", flattenCertificateManagerCertificateIssuanceConfigUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
+	if err = d.Set("labels", flattenCertificateManagerCertificateIssuanceConfigLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
+	if err = d.Set("certificate_authority_config", flattenCertificateManagerCertificateIssuanceConfigCertificateAuthorityConfig(res["certificateAuthorityConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenCertificateManagerCertificateIssuanceConfigTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenCertificateManagerCertificateIssuanceConfigEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
+
+	return nil
 }

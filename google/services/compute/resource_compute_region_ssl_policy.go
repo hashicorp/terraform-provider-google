@@ -433,35 +433,9 @@ func resourceComputeRegionSslPolicyRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeRegionSslPolicyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionSslPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionSslPolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
-	}
-	if err := d.Set("profile", flattenComputeRegionSslPolicyProfile(res["profile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
-	}
-	if err := d.Set("min_tls_version", flattenComputeRegionSslPolicyMinTlsVersion(res["minTlsVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
-	}
-	if err := d.Set("enabled_features", flattenComputeRegionSslPolicyEnabledFeatures(res["enabledFeatures"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
-	}
-	if err := d.Set("custom_features", flattenComputeRegionSslPolicyCustomFeatures(res["customFeatures"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeRegionSslPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
-	}
-	if err := d.Set("region", flattenComputeRegionSslPolicyRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
+	err = ResourceComputeRegionSslPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -746,4 +720,40 @@ func expandComputeRegionSslPolicyRegion(v interface{}, d tpgresource.TerraformRe
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeRegionSslPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeRegionSslPolicyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
+	}
+	if err = d.Set("description", flattenComputeRegionSslPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionSslPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
+	}
+	if err = d.Set("profile", flattenComputeRegionSslPolicyProfile(res["profile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
+	}
+	if err = d.Set("min_tls_version", flattenComputeRegionSslPolicyMinTlsVersion(res["minTlsVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
+	}
+	if err = d.Set("enabled_features", flattenComputeRegionSslPolicyEnabledFeatures(res["enabledFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
+	}
+	if err = d.Set("custom_features", flattenComputeRegionSslPolicyCustomFeatures(res["customFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeRegionSslPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
+	}
+	if err = d.Set("region", flattenComputeRegionSslPolicyRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
+	}
+	return nil
 }

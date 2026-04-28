@@ -426,23 +426,9 @@ func resourceKMSEkmConnectionRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading EkmConnection: %s", err)
 	}
 
-	if err := d.Set("name", flattenKMSEkmConnectionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EkmConnection: %s", err)
-	}
-	if err := d.Set("service_resolvers", flattenKMSEkmConnectionServiceResolvers(res["serviceResolvers"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EkmConnection: %s", err)
-	}
-	if err := d.Set("key_management_mode", flattenKMSEkmConnectionKeyManagementMode(res["keyManagementMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EkmConnection: %s", err)
-	}
-	if err := d.Set("etag", flattenKMSEkmConnectionEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EkmConnection: %s", err)
-	}
-	if err := d.Set("crypto_space_path", flattenKMSEkmConnectionCryptoSpacePath(res["cryptoSpacePath"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EkmConnection: %s", err)
-	}
-	if err := d.Set("create_time", flattenKMSEkmConnectionCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EkmConnection: %s", err)
+	err = ResourceKMSEkmConnectionFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -929,4 +915,29 @@ func expandKMSEkmConnectionEtag(v interface{}, d tpgresource.TerraformResourceDa
 
 func expandKMSEkmConnectionCryptoSpacePath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceKMSEkmConnectionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenKMSEkmConnectionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EkmConnection: %s", err)
+	}
+	if err = d.Set("service_resolvers", flattenKMSEkmConnectionServiceResolvers(res["serviceResolvers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EkmConnection: %s", err)
+	}
+	if err = d.Set("key_management_mode", flattenKMSEkmConnectionKeyManagementMode(res["keyManagementMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EkmConnection: %s", err)
+	}
+	if err = d.Set("etag", flattenKMSEkmConnectionEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EkmConnection: %s", err)
+	}
+	if err = d.Set("crypto_space_path", flattenKMSEkmConnectionCryptoSpacePath(res["cryptoSpacePath"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EkmConnection: %s", err)
+	}
+	if err = d.Set("create_time", flattenKMSEkmConnectionCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EkmConnection: %s", err)
+	}
+
+	return nil
 }

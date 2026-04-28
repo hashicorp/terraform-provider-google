@@ -447,23 +447,9 @@ func resourceCESDeploymentRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
 
-	if err := d.Set("channel_profile", flattenCESDeploymentChannelProfile(res["channelProfile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
-	}
-	if err := d.Set("create_time", flattenCESDeploymentCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
-	}
-	if err := d.Set("display_name", flattenCESDeploymentDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
-	}
-	if err := d.Set("etag", flattenCESDeploymentEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
-	}
-	if err := d.Set("name", flattenCESDeploymentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
-	}
-	if err := d.Set("update_time", flattenCESDeploymentUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
+	err = ResourceCESDeploymentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -951,5 +937,30 @@ func resourceCESDeploymentPostCreateSetComputedFields(d *schema.ResourceData, me
 	if err := d.Set("name", flattenCESDeploymentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceCESDeploymentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("channel_profile", flattenCESDeploymentChannelProfile(res["channelProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+	if err = d.Set("create_time", flattenCESDeploymentCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+	if err = d.Set("display_name", flattenCESDeploymentDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+	if err = d.Set("etag", flattenCESDeploymentEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+	if err = d.Set("name", flattenCESDeploymentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+	if err = d.Set("update_time", flattenCESDeploymentUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+
 	return nil
 }

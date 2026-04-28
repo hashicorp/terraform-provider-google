@@ -370,29 +370,9 @@ func resourceComputeRegionTargetHttpProxyRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeRegionTargetHttpProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionTargetHttpProxyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
-	}
-	if err := d.Set("proxy_id", flattenComputeRegionTargetHttpProxyProxyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionTargetHttpProxyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
-	}
-	if err := d.Set("url_map", flattenComputeRegionTargetHttpProxyUrlMap(res["urlMap"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
-	}
-	if err := d.Set("http_keep_alive_timeout_sec", flattenComputeRegionTargetHttpProxyHttpKeepAliveTimeoutSec(res["httpKeepAliveTimeoutSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
-	}
-	if err := d.Set("region", flattenComputeRegionTargetHttpProxyRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
+	err = ResourceComputeRegionTargetHttpProxyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -673,4 +653,34 @@ func expandComputeRegionTargetHttpProxyRegion(v interface{}, d tpgresource.Terra
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeRegionTargetHttpProxyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeRegionTargetHttpProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
+	}
+	if err = d.Set("description", flattenComputeRegionTargetHttpProxyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
+	}
+	if err = d.Set("proxy_id", flattenComputeRegionTargetHttpProxyProxyId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionTargetHttpProxyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
+	}
+	if err = d.Set("url_map", flattenComputeRegionTargetHttpProxyUrlMap(res["urlMap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
+	}
+	if err = d.Set("http_keep_alive_timeout_sec", flattenComputeRegionTargetHttpProxyHttpKeepAliveTimeoutSec(res["httpKeepAliveTimeoutSec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
+	}
+	if err = d.Set("region", flattenComputeRegionTargetHttpProxyRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpProxy: %s", err)
+	}
+	return nil
 }

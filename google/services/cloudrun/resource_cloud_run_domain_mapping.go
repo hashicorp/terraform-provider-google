@@ -606,14 +606,9 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading DomainMapping: %s", err)
 	}
 
-	if err := d.Set("status", flattenCloudRunDomainMappingStatus(res["status"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DomainMapping: %s", err)
-	}
-	if err := d.Set("spec", flattenCloudRunDomainMappingSpec(res["spec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DomainMapping: %s", err)
-	}
-	if err := d.Set("metadata", flattenCloudRunDomainMappingMetadata(res["metadata"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DomainMapping: %s", err)
+	err = ResourceCloudRunDomainMappingFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1425,4 +1420,20 @@ func ResourceCloudRunDomainMappingUpgradeV0(_ context.Context, rawState map[stri
 
 	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
 	return rawState, nil
+}
+
+func ResourceCloudRunDomainMappingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("status", flattenCloudRunDomainMappingStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DomainMapping: %s", err)
+	}
+	if err = d.Set("spec", flattenCloudRunDomainMappingSpec(res["spec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DomainMapping: %s", err)
+	}
+	if err = d.Set("metadata", flattenCloudRunDomainMappingMetadata(res["metadata"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DomainMapping: %s", err)
+	}
+
+	return nil
 }

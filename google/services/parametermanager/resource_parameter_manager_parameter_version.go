@@ -262,35 +262,9 @@ func resourceParameterManagerParameterVersionRead(d *schema.ResourceData, meta i
 
 	log.Printf("[DEBUG] Finished reading ParameterManagerParameterVersion %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenParameterManagerParameterVersionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ParameterVersion: %s", err)
-	}
-	if err := d.Set("create_time", flattenParameterManagerParameterVersionCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ParameterVersion: %s", err)
-	}
-	if err := d.Set("update_time", flattenParameterManagerParameterVersionUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ParameterVersion: %s", err)
-	}
-	if err := d.Set("disabled", flattenParameterManagerParameterVersionDisabled(res["disabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ParameterVersion: %s", err)
-	}
-	// Terraform must set the top level schema field, but since this object contains collapsed properties
-	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenParameterManagerParameterVersionPayload(res["payload"], d, config); flattenedProp != nil {
-		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
-			return fmt.Errorf("Error reading ParameterVersion: %s", gerr)
-		}
-		casted := flattenedProp.([]interface{})[0]
-		if casted != nil {
-			for k, v := range casted.(map[string]interface{}) {
-				if err := d.Set(k, v); err != nil {
-					return fmt.Errorf("Error setting %s: %s", k, err)
-				}
-			}
-		}
-	}
-	if err := d.Set("kms_key_version", flattenParameterManagerParameterVersionKmsKeyVersion(res["kmsKeyVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ParameterVersion: %s", err)
+	err = ResourceParameterManagerParameterVersionFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -491,4 +465,41 @@ func expandParameterManagerParameterVersionPayloadParameterData(v interface{}, d
 	}
 
 	return base64.StdEncoding.EncodeToString([]byte(v.(string))), nil
+}
+
+func ResourceParameterManagerParameterVersionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenParameterManagerParameterVersionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ParameterVersion: %s", err)
+	}
+	if err = d.Set("create_time", flattenParameterManagerParameterVersionCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ParameterVersion: %s", err)
+	}
+	if err = d.Set("update_time", flattenParameterManagerParameterVersionUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ParameterVersion: %s", err)
+	}
+	if err = d.Set("disabled", flattenParameterManagerParameterVersionDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ParameterVersion: %s", err)
+	}
+	// Terraform must set the top level schema field, but since this object contains collapsed properties
+	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
+	if flattenedProp := flattenParameterManagerParameterVersionPayload(res["payload"], d, config); flattenedProp != nil {
+		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
+			return fmt.Errorf("Error reading ParameterVersion: %s", gerr)
+		}
+		casted := flattenedProp.([]interface{})[0]
+		if casted != nil {
+			for k, v := range casted.(map[string]interface{}) {
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
+			}
+		}
+	}
+	if err = d.Set("kms_key_version", flattenParameterManagerParameterVersionKmsKeyVersion(res["kmsKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ParameterVersion: %s", err)
+	}
+
+	return nil
 }

@@ -402,26 +402,9 @@ func resourceApigeeTargetServerRead(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Finished reading ApigeeTargetServer %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenApigeeTargetServerName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetServer: %s", err)
-	}
-	if err := d.Set("description", flattenApigeeTargetServerDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetServer: %s", err)
-	}
-	if err := d.Set("host", flattenApigeeTargetServerHost(res["host"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetServer: %s", err)
-	}
-	if err := d.Set("port", flattenApigeeTargetServerPort(res["port"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetServer: %s", err)
-	}
-	if err := d.Set("is_enabled", flattenApigeeTargetServerIsEnabled(res["isEnabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetServer: %s", err)
-	}
-	if err := d.Set("s_sl_info", flattenApigeeTargetServerSSLInfo(res["sSLInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetServer: %s", err)
-	}
-	if err := d.Set("protocol", flattenApigeeTargetServerProtocol(res["protocol"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetServer: %s", err)
+	err = ResourceApigeeTargetServerFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -916,4 +899,32 @@ func expandApigeeTargetServerSSLInfoEnforce(v interface{}, d tpgresource.Terrafo
 
 func expandApigeeTargetServerProtocol(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeTargetServerFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenApigeeTargetServerName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetServer: %s", err)
+	}
+	if err = d.Set("description", flattenApigeeTargetServerDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetServer: %s", err)
+	}
+	if err = d.Set("host", flattenApigeeTargetServerHost(res["host"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetServer: %s", err)
+	}
+	if err = d.Set("port", flattenApigeeTargetServerPort(res["port"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetServer: %s", err)
+	}
+	if err = d.Set("is_enabled", flattenApigeeTargetServerIsEnabled(res["isEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetServer: %s", err)
+	}
+	if err = d.Set("s_sl_info", flattenApigeeTargetServerSSLInfo(res["sSLInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetServer: %s", err)
+	}
+	if err = d.Set("protocol", flattenApigeeTargetServerProtocol(res["protocol"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetServer: %s", err)
+	}
+
+	return nil
 }

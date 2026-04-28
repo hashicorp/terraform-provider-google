@@ -499,20 +499,9 @@ func resourceStorageControlProjectIntelligenceConfigRead(d *schema.ResourceData,
 
 	log.Printf("[DEBUG] Finished reading StorageControlProjectIntelligenceConfig %q: %#v", d.Id(), res)
 
-	if err := d.Set("edition_config", flattenStorageControlProjectIntelligenceConfigEditionConfig(res["editionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectIntelligenceConfig: %s", err)
-	}
-	if err := d.Set("update_time", flattenStorageControlProjectIntelligenceConfigUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectIntelligenceConfig: %s", err)
-	}
-	if err := d.Set("filter", flattenStorageControlProjectIntelligenceConfigFilter(res["filter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectIntelligenceConfig: %s", err)
-	}
-	if err := d.Set("effective_intelligence_config", flattenStorageControlProjectIntelligenceConfigEffectiveIntelligenceConfig(res["effectiveIntelligenceConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectIntelligenceConfig: %s", err)
-	}
-	if err := d.Set("trial_config", flattenStorageControlProjectIntelligenceConfigTrialConfig(res["trialConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectIntelligenceConfig: %s", err)
+	err = ResourceStorageControlProjectIntelligenceConfigFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -931,4 +920,26 @@ func expandStorageControlProjectIntelligenceConfigFilterIncludedCloudStorageLoca
 
 func expandStorageControlProjectIntelligenceConfigFilterIncludedCloudStorageLocationsLocations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceStorageControlProjectIntelligenceConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("edition_config", flattenStorageControlProjectIntelligenceConfigEditionConfig(res["editionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectIntelligenceConfig: %s", err)
+	}
+	if err = d.Set("update_time", flattenStorageControlProjectIntelligenceConfigUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectIntelligenceConfig: %s", err)
+	}
+	if err = d.Set("filter", flattenStorageControlProjectIntelligenceConfigFilter(res["filter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectIntelligenceConfig: %s", err)
+	}
+	if err = d.Set("effective_intelligence_config", flattenStorageControlProjectIntelligenceConfigEffectiveIntelligenceConfig(res["effectiveIntelligenceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectIntelligenceConfig: %s", err)
+	}
+	if err = d.Set("trial_config", flattenStorageControlProjectIntelligenceConfigTrialConfig(res["trialConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectIntelligenceConfig: %s", err)
+	}
+
+	return nil
 }

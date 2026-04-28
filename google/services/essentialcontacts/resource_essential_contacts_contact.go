@@ -282,17 +282,9 @@ func resourceEssentialContactsContactRead(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Finished reading EssentialContactsContact %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenEssentialContactsContactName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Contact: %s", err)
-	}
-	if err := d.Set("email", flattenEssentialContactsContactEmail(res["email"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Contact: %s", err)
-	}
-	if err := d.Set("notification_category_subscriptions", flattenEssentialContactsContactNotificationCategorySubscriptions(res["notificationCategorySubscriptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Contact: %s", err)
-	}
-	if err := d.Set("language_tag", flattenEssentialContactsContactLanguageTag(res["languageTag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Contact: %s", err)
+	err = ResourceEssentialContactsContactFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -495,5 +487,24 @@ func resourceEssentialContactsContactPostCreateSetComputedFields(d *schema.Resou
 	if err := d.Set("name", flattenEssentialContactsContactName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceEssentialContactsContactFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenEssentialContactsContactName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Contact: %s", err)
+	}
+	if err = d.Set("email", flattenEssentialContactsContactEmail(res["email"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Contact: %s", err)
+	}
+	if err = d.Set("notification_category_subscriptions", flattenEssentialContactsContactNotificationCategorySubscriptions(res["notificationCategorySubscriptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Contact: %s", err)
+	}
+	if err = d.Set("language_tag", flattenEssentialContactsContactLanguageTag(res["languageTag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Contact: %s", err)
+	}
+
 	return nil
 }

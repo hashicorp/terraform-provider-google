@@ -365,32 +365,9 @@ func resourceTagsTagKeyRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished reading TagsTagKey %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenTagsTagKeyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagKey: %s", err)
-	}
-	if err := d.Set("parent", flattenTagsTagKeyParent(res["parent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagKey: %s", err)
-	}
-	if err := d.Set("short_name", flattenTagsTagKeyShortName(res["shortName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagKey: %s", err)
-	}
-	if err := d.Set("namespaced_name", flattenTagsTagKeyNamespacedName(res["namespacedName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagKey: %s", err)
-	}
-	if err := d.Set("description", flattenTagsTagKeyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagKey: %s", err)
-	}
-	if err := d.Set("create_time", flattenTagsTagKeyCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagKey: %s", err)
-	}
-	if err := d.Set("update_time", flattenTagsTagKeyUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagKey: %s", err)
-	}
-	if err := d.Set("purpose", flattenTagsTagKeyPurpose(res["purpose"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagKey: %s", err)
-	}
-	if err := d.Set("allowed_values_regex", flattenTagsTagKeyAllowedValuesRegex(res["allowedValuesRegex"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagKey: %s", err)
+	err = ResourceTagsTagKeyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -651,4 +628,38 @@ func expandTagsTagKeyPurposeData(v interface{}, d tpgresource.TerraformResourceD
 
 func expandTagsTagKeyAllowedValuesRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceTagsTagKeyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenTagsTagKeyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagKey: %s", err)
+	}
+	if err = d.Set("parent", flattenTagsTagKeyParent(res["parent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagKey: %s", err)
+	}
+	if err = d.Set("short_name", flattenTagsTagKeyShortName(res["shortName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagKey: %s", err)
+	}
+	if err = d.Set("namespaced_name", flattenTagsTagKeyNamespacedName(res["namespacedName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagKey: %s", err)
+	}
+	if err = d.Set("description", flattenTagsTagKeyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagKey: %s", err)
+	}
+	if err = d.Set("create_time", flattenTagsTagKeyCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagKey: %s", err)
+	}
+	if err = d.Set("update_time", flattenTagsTagKeyUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagKey: %s", err)
+	}
+	if err = d.Set("purpose", flattenTagsTagKeyPurpose(res["purpose"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagKey: %s", err)
+	}
+	if err = d.Set("allowed_values_regex", flattenTagsTagKeyAllowedValuesRegex(res["allowedValuesRegex"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagKey: %s", err)
+	}
+
+	return nil
 }

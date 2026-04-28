@@ -850,32 +850,9 @@ func resourceCESToolsetRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Toolset: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenCESToolsetCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Toolset: %s", err)
-	}
-	if err := d.Set("description", flattenCESToolsetDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Toolset: %s", err)
-	}
-	if err := d.Set("display_name", flattenCESToolsetDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Toolset: %s", err)
-	}
-	if err := d.Set("etag", flattenCESToolsetEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Toolset: %s", err)
-	}
-	if err := d.Set("execution_type", flattenCESToolsetExecutionType(res["executionType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Toolset: %s", err)
-	}
-	if err := d.Set("name", flattenCESToolsetName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Toolset: %s", err)
-	}
-	if err := d.Set("open_api_toolset", flattenCESToolsetOpenApiToolset(res["openApiToolset"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Toolset: %s", err)
-	}
-	if err := d.Set("mcp_toolset", flattenCESToolsetMcpToolset(res["mcpToolset"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Toolset: %s", err)
-	}
-	if err := d.Set("update_time", flattenCESToolsetUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Toolset: %s", err)
+	err = ResourceCESToolsetFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2417,4 +2394,38 @@ func expandCESToolsetMcpToolsetCustomHeaders(v interface{}, d tpgresource.Terraf
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceCESToolsetFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenCESToolsetCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Toolset: %s", err)
+	}
+	if err = d.Set("description", flattenCESToolsetDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Toolset: %s", err)
+	}
+	if err = d.Set("display_name", flattenCESToolsetDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Toolset: %s", err)
+	}
+	if err = d.Set("etag", flattenCESToolsetEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Toolset: %s", err)
+	}
+	if err = d.Set("execution_type", flattenCESToolsetExecutionType(res["executionType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Toolset: %s", err)
+	}
+	if err = d.Set("name", flattenCESToolsetName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Toolset: %s", err)
+	}
+	if err = d.Set("open_api_toolset", flattenCESToolsetOpenApiToolset(res["openApiToolset"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Toolset: %s", err)
+	}
+	if err = d.Set("mcp_toolset", flattenCESToolsetMcpToolset(res["mcpToolset"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Toolset: %s", err)
+	}
+	if err = d.Set("update_time", flattenCESToolsetUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Toolset: %s", err)
+	}
+
+	return nil
 }

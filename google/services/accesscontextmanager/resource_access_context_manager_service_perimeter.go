@@ -1302,32 +1302,9 @@ func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, me
 
 	log.Printf("[DEBUG] Finished reading AccessContextManagerServicePerimeter %q: %#v", d.Id(), res)
 
-	if err := d.Set("title", flattenAccessContextManagerServicePerimeterTitle(res["title"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
-	}
-	if err := d.Set("description", flattenAccessContextManagerServicePerimeterDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
-	}
-	if err := d.Set("create_time", flattenAccessContextManagerServicePerimeterCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
-	}
-	if err := d.Set("update_time", flattenAccessContextManagerServicePerimeterUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
-	}
-	if err := d.Set("perimeter_type", flattenAccessContextManagerServicePerimeterPerimeterType(res["perimeterType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
-	}
-	if err := d.Set("status", flattenAccessContextManagerServicePerimeterStatus(res["status"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
-	}
-	if err := d.Set("spec", flattenAccessContextManagerServicePerimeterSpec(res["spec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
-	}
-	if err := d.Set("use_explicit_dry_run_spec", flattenAccessContextManagerServicePerimeterUseExplicitDryRunSpec(res["useExplicitDryRunSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
-	}
-	if err := d.Set("name", flattenAccessContextManagerServicePerimeterName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	err = ResourceAccessContextManagerServicePerimeterFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3672,4 +3649,38 @@ func expandAccessContextManagerServicePerimeterName(v interface{}, d tpgresource
 func resourceAccessContextManagerServicePerimeterEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	delete(obj, "parent")
 	return obj, nil
+}
+
+func ResourceAccessContextManagerServicePerimeterFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("title", flattenAccessContextManagerServicePerimeterTitle(res["title"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
+	if err = d.Set("description", flattenAccessContextManagerServicePerimeterDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
+	if err = d.Set("create_time", flattenAccessContextManagerServicePerimeterCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
+	if err = d.Set("update_time", flattenAccessContextManagerServicePerimeterUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
+	if err = d.Set("perimeter_type", flattenAccessContextManagerServicePerimeterPerimeterType(res["perimeterType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
+	if err = d.Set("status", flattenAccessContextManagerServicePerimeterStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
+	if err = d.Set("spec", flattenAccessContextManagerServicePerimeterSpec(res["spec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
+	if err = d.Set("use_explicit_dry_run_spec", flattenAccessContextManagerServicePerimeterUseExplicitDryRunSpec(res["useExplicitDryRunSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
+	if err = d.Set("name", flattenAccessContextManagerServicePerimeterName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
+
+	return nil
 }

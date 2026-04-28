@@ -516,47 +516,9 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
 
-	if err := d.Set("address", flattenComputeGlobalAddressAddress(res["address"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeGlobalAddressCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("description", flattenComputeGlobalAddressDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("name", flattenComputeGlobalAddressName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeGlobalAddressLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeGlobalAddressLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("ip_version", flattenComputeGlobalAddressIpVersion(res["ipVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("prefix_length", flattenComputeGlobalAddressPrefixLength(res["prefixLength"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("address_type", flattenComputeGlobalAddressAddressType(res["addressType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("purpose", flattenComputeGlobalAddressPurpose(res["purpose"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("network", flattenComputeGlobalAddressNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenComputeGlobalAddressTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenComputeGlobalAddressEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	err = ResourceComputeGlobalAddressFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -884,4 +846,52 @@ func expandComputeGlobalAddressEffectiveLabels(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceComputeGlobalAddressFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("address", flattenComputeGlobalAddressAddress(res["address"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeGlobalAddressCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("description", flattenComputeGlobalAddressDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("name", flattenComputeGlobalAddressName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("labels", flattenComputeGlobalAddressLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("label_fingerprint", flattenComputeGlobalAddressLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("ip_version", flattenComputeGlobalAddressIpVersion(res["ipVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("prefix_length", flattenComputeGlobalAddressPrefixLength(res["prefixLength"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("address_type", flattenComputeGlobalAddressAddressType(res["addressType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("purpose", flattenComputeGlobalAddressPurpose(res["purpose"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("network", flattenComputeGlobalAddressNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenComputeGlobalAddressTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenComputeGlobalAddressEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	return nil
 }

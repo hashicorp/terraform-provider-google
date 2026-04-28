@@ -351,20 +351,9 @@ func resourceHealthcareDicomStoreRead(d *schema.ResourceData, meta interface{}) 
 		return nil
 	}
 
-	if err := d.Set("name", flattenHealthcareDicomStoreName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DicomStore: %s", err)
-	}
-	if err := d.Set("labels", flattenHealthcareDicomStoreLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DicomStore: %s", err)
-	}
-	if err := d.Set("notification_config", flattenHealthcareDicomStoreNotificationConfig(res["notificationConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DicomStore: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenHealthcareDicomStoreTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DicomStore: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenHealthcareDicomStoreEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DicomStore: %s", err)
+	err = ResourceHealthcareDicomStoreFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -663,4 +652,26 @@ func resourceHealthcareDicomStoreDecoder(d *schema.ResourceData, meta interface{
 	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
+}
+
+func ResourceHealthcareDicomStoreFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenHealthcareDicomStoreName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DicomStore: %s", err)
+	}
+	if err = d.Set("labels", flattenHealthcareDicomStoreLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DicomStore: %s", err)
+	}
+	if err = d.Set("notification_config", flattenHealthcareDicomStoreNotificationConfig(res["notificationConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DicomStore: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenHealthcareDicomStoreTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DicomStore: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenHealthcareDicomStoreEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DicomStore: %s", err)
+	}
+
+	return nil
 }

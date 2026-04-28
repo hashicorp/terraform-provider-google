@@ -409,23 +409,9 @@ func resourceCloudAssetOrganizationFeedRead(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Finished reading CloudAssetOrganizationFeed %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenCloudAssetOrganizationFeedName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
-	}
-	if err := d.Set("asset_names", flattenCloudAssetOrganizationFeedAssetNames(res["assetNames"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
-	}
-	if err := d.Set("asset_types", flattenCloudAssetOrganizationFeedAssetTypes(res["assetTypes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
-	}
-	if err := d.Set("content_type", flattenCloudAssetOrganizationFeedContentType(res["contentType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
-	}
-	if err := d.Set("feed_output_config", flattenCloudAssetOrganizationFeedFeedOutputConfig(res["feedOutputConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
-	}
-	if err := d.Set("condition", flattenCloudAssetOrganizationFeedCondition(res["condition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
+	err = ResourceCloudAssetOrganizationFeedFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -847,5 +833,30 @@ func resourceCloudAssetOrganizationFeedPostCreateSetComputedFields(d *schema.Res
 	if err := d.Set("name", flattenCloudAssetOrganizationFeedName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceCloudAssetOrganizationFeedFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenCloudAssetOrganizationFeedName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
+	}
+	if err = d.Set("asset_names", flattenCloudAssetOrganizationFeedAssetNames(res["assetNames"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
+	}
+	if err = d.Set("asset_types", flattenCloudAssetOrganizationFeedAssetTypes(res["assetTypes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
+	}
+	if err = d.Set("content_type", flattenCloudAssetOrganizationFeedContentType(res["contentType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
+	}
+	if err = d.Set("feed_output_config", flattenCloudAssetOrganizationFeedFeedOutputConfig(res["feedOutputConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
+	}
+	if err = d.Set("condition", flattenCloudAssetOrganizationFeedCondition(res["condition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationFeed: %s", err)
+	}
+
 	return nil
 }

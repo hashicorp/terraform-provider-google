@@ -421,29 +421,9 @@ func resourceDialogflowCXEntityTypeRead(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Finished reading DialogflowCXEntityType %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenDialogflowCXEntityTypeName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowCXEntityTypeDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
-	}
-	if err := d.Set("kind", flattenDialogflowCXEntityTypeKind(res["kind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
-	}
-	if err := d.Set("auto_expansion_mode", flattenDialogflowCXEntityTypeAutoExpansionMode(res["autoExpansionMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
-	}
-	if err := d.Set("entities", flattenDialogflowCXEntityTypeEntities(res["entities"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
-	}
-	if err := d.Set("excluded_phrases", flattenDialogflowCXEntityTypeExcludedPhrases(res["excludedPhrases"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
-	}
-	if err := d.Set("enable_fuzzy_extraction", flattenDialogflowCXEntityTypeEnableFuzzyExtraction(res["enableFuzzyExtraction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
-	}
-	if err := d.Set("redact", flattenDialogflowCXEntityTypeRedact(res["redact"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntityType: %s", err)
+	err = ResourceDialogflowCXEntityTypeFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -880,5 +860,36 @@ func resourceDialogflowCXEntityTypePostCreateSetComputedFields(d *schema.Resourc
 	if err := d.Set("name", flattenDialogflowCXEntityTypeName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowCXEntityTypeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowCXEntityTypeName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowCXEntityTypeDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+	if err = d.Set("kind", flattenDialogflowCXEntityTypeKind(res["kind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+	if err = d.Set("auto_expansion_mode", flattenDialogflowCXEntityTypeAutoExpansionMode(res["autoExpansionMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+	if err = d.Set("entities", flattenDialogflowCXEntityTypeEntities(res["entities"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+	if err = d.Set("excluded_phrases", flattenDialogflowCXEntityTypeExcludedPhrases(res["excludedPhrases"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+	if err = d.Set("enable_fuzzy_extraction", flattenDialogflowCXEntityTypeEnableFuzzyExtraction(res["enableFuzzyExtraction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+	if err = d.Set("redact", flattenDialogflowCXEntityTypeRedact(res["redact"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntityType: %s", err)
+	}
+
 	return nil
 }

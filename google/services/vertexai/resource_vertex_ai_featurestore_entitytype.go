@@ -441,26 +441,9 @@ func resourceVertexAIFeaturestoreEntitytypeRead(d *schema.ResourceData, meta int
 
 	log.Printf("[DEBUG] Finished reading VertexAIFeaturestoreEntitytype %q: %#v", d.Id(), res)
 
-	if err := d.Set("description", flattenVertexAIFeaturestoreEntitytypeDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
-	}
-	if err := d.Set("create_time", flattenVertexAIFeaturestoreEntitytypeCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
-	}
-	if err := d.Set("update_time", flattenVertexAIFeaturestoreEntitytypeUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
-	}
-	if err := d.Set("labels", flattenVertexAIFeaturestoreEntitytypeLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
-	}
-	if err := d.Set("monitoring_config", flattenVertexAIFeaturestoreEntitytypeMonitoringConfig(res["monitoringConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenVertexAIFeaturestoreEntitytypeTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenVertexAIFeaturestoreEntitytypeEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
+	err = ResourceVertexAIFeaturestoreEntitytypeFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1055,4 +1038,32 @@ func resourceVertexAIFeaturestoreEntitytypeEncoder(d *schema.ResourceData, meta 
 	}
 
 	return obj, nil
+}
+
+func ResourceVertexAIFeaturestoreEntitytypeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenVertexAIFeaturestoreEntitytypeDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
+	}
+	if err = d.Set("create_time", flattenVertexAIFeaturestoreEntitytypeCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
+	}
+	if err = d.Set("update_time", flattenVertexAIFeaturestoreEntitytypeUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
+	}
+	if err = d.Set("labels", flattenVertexAIFeaturestoreEntitytypeLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
+	}
+	if err = d.Set("monitoring_config", flattenVertexAIFeaturestoreEntitytypeMonitoringConfig(res["monitoringConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenVertexAIFeaturestoreEntitytypeTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenVertexAIFeaturestoreEntitytypeEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
+	}
+
+	return nil
 }

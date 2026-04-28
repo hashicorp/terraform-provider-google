@@ -495,41 +495,9 @@ func resourceComputeHaVpnGatewayRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeHaVpnGatewayDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
-	}
-	if err := d.Set("name", flattenComputeHaVpnGatewayName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
-	}
-	if err := d.Set("network", flattenComputeHaVpnGatewayNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
-	}
-	if err := d.Set("stack_type", flattenComputeHaVpnGatewayStackType(res["stackType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
-	}
-	if err := d.Set("gateway_ip_version", flattenComputeHaVpnGatewayGatewayIpVersion(res["gatewayIpVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
-	}
-	if err := d.Set("vpn_interfaces", flattenComputeHaVpnGatewayVpnInterfaces(res["vpnInterfaces"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeHaVpnGatewayLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeHaVpnGatewayLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenComputeHaVpnGatewayTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenComputeHaVpnGatewayEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
-	}
-	if err := d.Set("region", flattenComputeHaVpnGatewayRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	err = ResourceComputeHaVpnGatewayFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1106,4 +1074,46 @@ func ResourceComputeHaVpnGatewayUpgradeV0(_ context.Context, rawState map[string
 
 	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
 	return rawState, nil
+}
+
+func ResourceComputeHaVpnGatewayFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputeHaVpnGatewayDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	if err = d.Set("name", flattenComputeHaVpnGatewayName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	if err = d.Set("network", flattenComputeHaVpnGatewayNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	if err = d.Set("stack_type", flattenComputeHaVpnGatewayStackType(res["stackType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	if err = d.Set("gateway_ip_version", flattenComputeHaVpnGatewayGatewayIpVersion(res["gatewayIpVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	if err = d.Set("vpn_interfaces", flattenComputeHaVpnGatewayVpnInterfaces(res["vpnInterfaces"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	if err = d.Set("labels", flattenComputeHaVpnGatewayLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	if err = d.Set("label_fingerprint", flattenComputeHaVpnGatewayLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenComputeHaVpnGatewayTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenComputeHaVpnGatewayEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	if err = d.Set("region", flattenComputeHaVpnGatewayRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
+	return nil
 }

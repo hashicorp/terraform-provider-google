@@ -478,38 +478,9 @@ func resourceComputePublicDelegatedPrefixRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputePublicDelegatedPrefixDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
-	}
-	if err := d.Set("is_live_migration", flattenComputePublicDelegatedPrefixIsLiveMigration(res["isLiveMigration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
-	}
-	if err := d.Set("name", flattenComputePublicDelegatedPrefixName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
-	}
-	if err := d.Set("parent_prefix", flattenComputePublicDelegatedPrefixParentPrefix(res["parentPrefix"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
-	}
-	if err := d.Set("mode", flattenComputePublicDelegatedPrefixMode(res["mode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
-	}
-	if err := d.Set("allocatable_prefix_length", flattenComputePublicDelegatedPrefixAllocatablePrefixLength(res["allocatablePrefixLength"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
-	}
-	if err := d.Set("ip_cidr_range", flattenComputePublicDelegatedPrefixIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
-	}
-	if err := d.Set("ipv6_access_type", flattenComputePublicDelegatedPrefixIpv6AccessType(res["ipv6AccessType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
-	}
-	if err := d.Set("enable_enhanced_ipv4_allocation", flattenComputePublicDelegatedPrefixEnableEnhancedIpv4Allocation(res["enableEnhancedIpv4Allocation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
-	}
-	if err := d.Set("public_delegated_sub_prefixs", flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixs(res["publicDelegatedSubPrefixs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	err = ResourceComputePublicDelegatedPrefixFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -776,4 +747,43 @@ func expandComputePublicDelegatedPrefixAllocatablePrefixLength(v interface{}, d 
 
 func expandComputePublicDelegatedPrefixIpCidrRange(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputePublicDelegatedPrefixFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputePublicDelegatedPrefixDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	if err = d.Set("is_live_migration", flattenComputePublicDelegatedPrefixIsLiveMigration(res["isLiveMigration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	if err = d.Set("name", flattenComputePublicDelegatedPrefixName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	if err = d.Set("parent_prefix", flattenComputePublicDelegatedPrefixParentPrefix(res["parentPrefix"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	if err = d.Set("mode", flattenComputePublicDelegatedPrefixMode(res["mode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	if err = d.Set("allocatable_prefix_length", flattenComputePublicDelegatedPrefixAllocatablePrefixLength(res["allocatablePrefixLength"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	if err = d.Set("ip_cidr_range", flattenComputePublicDelegatedPrefixIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	if err = d.Set("ipv6_access_type", flattenComputePublicDelegatedPrefixIpv6AccessType(res["ipv6AccessType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	if err = d.Set("enable_enhanced_ipv4_allocation", flattenComputePublicDelegatedPrefixEnableEnhancedIpv4Allocation(res["enableEnhancedIpv4Allocation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	if err = d.Set("public_delegated_sub_prefixs", flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixs(res["publicDelegatedSubPrefixs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	return nil
 }

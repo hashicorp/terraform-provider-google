@@ -446,29 +446,9 @@ func resourceNetworkServicesTlsRouteRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading TlsRoute: %s", err)
 	}
 
-	if err := d.Set("self_link", flattenNetworkServicesTlsRouteSelfLink(res["selfLink"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsRoute: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkServicesTlsRouteCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsRoute: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkServicesTlsRouteUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsRoute: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkServicesTlsRouteDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsRoute: %s", err)
-	}
-	if err := d.Set("meshes", flattenNetworkServicesTlsRouteMeshes(res["meshes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsRoute: %s", err)
-	}
-	if err := d.Set("gateways", flattenNetworkServicesTlsRouteGateways(res["gateways"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsRoute: %s", err)
-	}
-	if err := d.Set("target_proxies", flattenNetworkServicesTlsRouteTargetProxies(res["targetProxies"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsRoute: %s", err)
-	}
-	if err := d.Set("rules", flattenNetworkServicesTlsRouteRules(res["rules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsRoute: %s", err)
+	err = ResourceNetworkServicesTlsRouteFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1138,4 +1118,35 @@ func ResourceNetworkServicesTlsRouteUpgradeV0(_ context.Context, rawState map[st
 	}
 	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
 	return rawState, nil
+}
+
+func ResourceNetworkServicesTlsRouteFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("self_link", flattenNetworkServicesTlsRouteSelfLink(res["selfLink"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsRoute: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkServicesTlsRouteCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsRoute: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkServicesTlsRouteUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsRoute: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkServicesTlsRouteDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsRoute: %s", err)
+	}
+	if err = d.Set("meshes", flattenNetworkServicesTlsRouteMeshes(res["meshes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsRoute: %s", err)
+	}
+	if err = d.Set("gateways", flattenNetworkServicesTlsRouteGateways(res["gateways"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsRoute: %s", err)
+	}
+	if err = d.Set("target_proxies", flattenNetworkServicesTlsRouteTargetProxies(res["targetProxies"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsRoute: %s", err)
+	}
+	if err = d.Set("rules", flattenNetworkServicesTlsRouteRules(res["rules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsRoute: %s", err)
+	}
+
+	return nil
 }

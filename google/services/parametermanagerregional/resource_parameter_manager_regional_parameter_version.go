@@ -284,35 +284,9 @@ func resourceParameterManagerRegionalRegionalParameterVersionRead(d *schema.Reso
 
 	log.Printf("[DEBUG] Finished reading ParameterManagerRegionalRegionalParameterVersion %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenParameterManagerRegionalRegionalParameterVersionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionalParameterVersion: %s", err)
-	}
-	if err := d.Set("create_time", flattenParameterManagerRegionalRegionalParameterVersionCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionalParameterVersion: %s", err)
-	}
-	if err := d.Set("update_time", flattenParameterManagerRegionalRegionalParameterVersionUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionalParameterVersion: %s", err)
-	}
-	if err := d.Set("disabled", flattenParameterManagerRegionalRegionalParameterVersionDisabled(res["disabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionalParameterVersion: %s", err)
-	}
-	// Terraform must set the top level schema field, but since this object contains collapsed properties
-	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenParameterManagerRegionalRegionalParameterVersionPayload(res["payload"], d, config); flattenedProp != nil {
-		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
-			return fmt.Errorf("Error reading RegionalParameterVersion: %s", gerr)
-		}
-		casted := flattenedProp.([]interface{})[0]
-		if casted != nil {
-			for k, v := range casted.(map[string]interface{}) {
-				if err := d.Set(k, v); err != nil {
-					return fmt.Errorf("Error setting %s: %s", k, err)
-				}
-			}
-		}
-	}
-	if err := d.Set("kms_key_version", flattenParameterManagerRegionalRegionalParameterVersionKmsKeyVersion(res["kmsKeyVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionalParameterVersion: %s", err)
+	err = ResourceParameterManagerRegionalRegionalParameterVersionFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -517,4 +491,41 @@ func expandParameterManagerRegionalRegionalParameterVersionPayloadParameterData(
 	}
 
 	return base64.StdEncoding.EncodeToString([]byte(v.(string))), nil
+}
+
+func ResourceParameterManagerRegionalRegionalParameterVersionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenParameterManagerRegionalRegionalParameterVersionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionalParameterVersion: %s", err)
+	}
+	if err = d.Set("create_time", flattenParameterManagerRegionalRegionalParameterVersionCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionalParameterVersion: %s", err)
+	}
+	if err = d.Set("update_time", flattenParameterManagerRegionalRegionalParameterVersionUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionalParameterVersion: %s", err)
+	}
+	if err = d.Set("disabled", flattenParameterManagerRegionalRegionalParameterVersionDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionalParameterVersion: %s", err)
+	}
+	// Terraform must set the top level schema field, but since this object contains collapsed properties
+	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
+	if flattenedProp := flattenParameterManagerRegionalRegionalParameterVersionPayload(res["payload"], d, config); flattenedProp != nil {
+		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
+			return fmt.Errorf("Error reading RegionalParameterVersion: %s", gerr)
+		}
+		casted := flattenedProp.([]interface{})[0]
+		if casted != nil {
+			for k, v := range casted.(map[string]interface{}) {
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
+			}
+		}
+	}
+	if err = d.Set("kms_key_version", flattenParameterManagerRegionalRegionalParameterVersionKmsKeyVersion(res["kmsKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionalParameterVersion: %s", err)
+	}
+
+	return nil
 }

@@ -305,14 +305,9 @@ func resourceComputeInstanceSettingsRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading InstanceSettings: %s", err)
 	}
 
-	if err := d.Set("fingerprint", flattenComputeInstanceSettingsFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstanceSettings: %s", err)
-	}
-	if err := d.Set("metadata", flattenComputeInstanceSettingsMetadata(res["metadata"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstanceSettings: %s", err)
-	}
-	if err := d.Set("zone", flattenComputeInstanceSettingsZone(res["zone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstanceSettings: %s", err)
+	err = ResourceComputeInstanceSettingsFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -564,4 +559,20 @@ func expandComputeInstanceSettingsZone(v interface{}, d tpgresource.TerraformRes
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeInstanceSettingsFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("fingerprint", flattenComputeInstanceSettingsFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstanceSettings: %s", err)
+	}
+	if err = d.Set("metadata", flattenComputeInstanceSettingsMetadata(res["metadata"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstanceSettings: %s", err)
+	}
+	if err = d.Set("zone", flattenComputeInstanceSettingsZone(res["zone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstanceSettings: %s", err)
+	}
+
+	return nil
 }

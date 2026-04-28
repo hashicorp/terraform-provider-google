@@ -765,38 +765,9 @@ func resourceDataPipelinePipelineRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Pipeline: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataPipelinePipelineName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataPipelinePipelineDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("type", flattenDataPipelinePipelineType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("state", flattenDataPipelinePipelineState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("create_time", flattenDataPipelinePipelineCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("last_update_time", flattenDataPipelinePipelineLastUpdateTime(res["lastUpdateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("workload", flattenDataPipelinePipelineWorkload(res["workload"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("schedule_info", flattenDataPipelinePipelineScheduleInfo(res["scheduleInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("job_count", flattenDataPipelinePipelineJobCount(res["jobCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("scheduler_service_account_email", flattenDataPipelinePipelineSchedulerServiceAccountEmail(res["schedulerServiceAccountEmail"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("pipeline_sources", flattenDataPipelinePipelinePipelineSources(res["pipelineSources"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
+	err = ResourceDataPipelinePipelineFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2344,4 +2315,44 @@ func expandDataPipelinePipelinePipelineSources(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceDataPipelinePipelineFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataPipelinePipelineName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataPipelinePipelineDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("type", flattenDataPipelinePipelineType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("state", flattenDataPipelinePipelineState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("create_time", flattenDataPipelinePipelineCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("last_update_time", flattenDataPipelinePipelineLastUpdateTime(res["lastUpdateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("workload", flattenDataPipelinePipelineWorkload(res["workload"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("schedule_info", flattenDataPipelinePipelineScheduleInfo(res["scheduleInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("job_count", flattenDataPipelinePipelineJobCount(res["jobCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("scheduler_service_account_email", flattenDataPipelinePipelineSchedulerServiceAccountEmail(res["schedulerServiceAccountEmail"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("pipeline_sources", flattenDataPipelinePipelinePipelineSources(res["pipelineSources"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+
+	return nil
 }

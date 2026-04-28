@@ -588,47 +588,9 @@ func resourceVertexAIIndexRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 
-	if err := d.Set("name", flattenVertexAIIndexName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("display_name", flattenVertexAIIndexDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("description", flattenVertexAIIndexDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("metadata", flattenVertexAIIndexMetadata(res["metadata"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("metadata_schema_uri", flattenVertexAIIndexMetadataSchemaUri(res["metadataSchemaUri"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("deployed_indexes", flattenVertexAIIndexDeployedIndexes(res["deployedIndexes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("labels", flattenVertexAIIndexLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("create_time", flattenVertexAIIndexCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("update_time", flattenVertexAIIndexUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("index_stats", flattenVertexAIIndexIndexStats(res["indexStats"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("index_update_method", flattenVertexAIIndexIndexUpdateMethod(res["indexUpdateMethod"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("encryption_spec", flattenVertexAIIndexEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenVertexAIIndexTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenVertexAIIndexEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Index: %s", err)
+	err = ResourceVertexAIIndexFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1447,4 +1409,53 @@ func expandVertexAIIndexEffectiveLabels(v interface{}, d tpgresource.TerraformRe
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceVertexAIIndexFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenVertexAIIndexName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("display_name", flattenVertexAIIndexDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("description", flattenVertexAIIndexDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("metadata", flattenVertexAIIndexMetadata(res["metadata"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("metadata_schema_uri", flattenVertexAIIndexMetadataSchemaUri(res["metadataSchemaUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("deployed_indexes", flattenVertexAIIndexDeployedIndexes(res["deployedIndexes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("labels", flattenVertexAIIndexLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("create_time", flattenVertexAIIndexCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("update_time", flattenVertexAIIndexUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("index_stats", flattenVertexAIIndexIndexStats(res["indexStats"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("index_update_method", flattenVertexAIIndexIndexUpdateMethod(res["indexUpdateMethod"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("encryption_spec", flattenVertexAIIndexEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenVertexAIIndexTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenVertexAIIndexEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+
+	return nil
 }

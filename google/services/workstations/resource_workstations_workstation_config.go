@@ -991,77 +991,9 @@ func resourceWorkstationsWorkstationConfigRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenWorkstationsWorkstationConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("uid", flattenWorkstationsWorkstationConfigUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("display_name", flattenWorkstationsWorkstationConfigDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("labels", flattenWorkstationsWorkstationConfigLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("annotations", flattenWorkstationsWorkstationConfigAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("etag", flattenWorkstationsWorkstationConfigEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("create_time", flattenWorkstationsWorkstationConfigCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("idle_timeout", flattenWorkstationsWorkstationConfigIdleTimeout(res["idleTimeout"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("running_timeout", flattenWorkstationsWorkstationConfigRunningTimeout(res["runningTimeout"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("replica_zones", flattenWorkstationsWorkstationConfigReplicaZones(res["replicaZones"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("host", flattenWorkstationsWorkstationConfigHost(res["host"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("persistent_directories", flattenWorkstationsWorkstationConfigPersistentDirectories(res["persistentDirectories"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("ephemeral_directories", flattenWorkstationsWorkstationConfigEphemeralDirectories(res["ephemeralDirectories"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("container", flattenWorkstationsWorkstationConfigContainer(res["container"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("encryption_key", flattenWorkstationsWorkstationConfigEncryptionKey(res["encryptionKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("readiness_checks", flattenWorkstationsWorkstationConfigReadinessChecks(res["readinessChecks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("degraded", flattenWorkstationsWorkstationConfigDegraded(res["degraded"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("disable_tcp_connections", flattenWorkstationsWorkstationConfigDisableTcpConnections(res["disableTcpConnections"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("max_usable_workstations", flattenWorkstationsWorkstationConfigMaxUsableWorkstations(res["maxUsableWorkstations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("allowed_ports", flattenWorkstationsWorkstationConfigAllowedPorts(res["allowedPorts"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("conditions", flattenWorkstationsWorkstationConfigConditions(res["conditions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenWorkstationsWorkstationConfigTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenWorkstationsWorkstationConfigEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenWorkstationsWorkstationConfigEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	err = ResourceWorkstationsWorkstationConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3085,4 +3017,83 @@ func expandWorkstationsWorkstationConfigEffectiveAnnotations(v interface{}, d tp
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceWorkstationsWorkstationConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenWorkstationsWorkstationConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("uid", flattenWorkstationsWorkstationConfigUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("display_name", flattenWorkstationsWorkstationConfigDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("labels", flattenWorkstationsWorkstationConfigLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("annotations", flattenWorkstationsWorkstationConfigAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("etag", flattenWorkstationsWorkstationConfigEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("create_time", flattenWorkstationsWorkstationConfigCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("idle_timeout", flattenWorkstationsWorkstationConfigIdleTimeout(res["idleTimeout"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("running_timeout", flattenWorkstationsWorkstationConfigRunningTimeout(res["runningTimeout"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("replica_zones", flattenWorkstationsWorkstationConfigReplicaZones(res["replicaZones"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("host", flattenWorkstationsWorkstationConfigHost(res["host"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("persistent_directories", flattenWorkstationsWorkstationConfigPersistentDirectories(res["persistentDirectories"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("ephemeral_directories", flattenWorkstationsWorkstationConfigEphemeralDirectories(res["ephemeralDirectories"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("container", flattenWorkstationsWorkstationConfigContainer(res["container"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("encryption_key", flattenWorkstationsWorkstationConfigEncryptionKey(res["encryptionKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("readiness_checks", flattenWorkstationsWorkstationConfigReadinessChecks(res["readinessChecks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("degraded", flattenWorkstationsWorkstationConfigDegraded(res["degraded"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("disable_tcp_connections", flattenWorkstationsWorkstationConfigDisableTcpConnections(res["disableTcpConnections"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("max_usable_workstations", flattenWorkstationsWorkstationConfigMaxUsableWorkstations(res["maxUsableWorkstations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("allowed_ports", flattenWorkstationsWorkstationConfigAllowedPorts(res["allowedPorts"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("conditions", flattenWorkstationsWorkstationConfigConditions(res["conditions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenWorkstationsWorkstationConfigTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenWorkstationsWorkstationConfigEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenWorkstationsWorkstationConfigEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationConfig: %s", err)
+	}
+
+	return nil
 }

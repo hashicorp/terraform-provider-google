@@ -838,98 +838,9 @@ func resourceComputeInterconnectRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeInterconnectDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeInterconnectCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("name", flattenComputeInterconnectName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("location", flattenComputeInterconnectLocation(res["location"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("link_type", flattenComputeInterconnectLinkType(res["linkType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("requested_link_count", flattenComputeInterconnectRequestedLinkCount(res["requestedLinkCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("interconnect_type", flattenComputeInterconnectInterconnectType(res["interconnectType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("admin_enabled", flattenComputeInterconnectAdminEnabled(res["adminEnabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("noc_contact_email", flattenComputeInterconnectNocContactEmail(res["nocContactEmail"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("customer_name", flattenComputeInterconnectCustomerName(res["customerName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("operational_status", flattenComputeInterconnectOperationalStatus(res["operationalStatus"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("provisioned_link_count", flattenComputeInterconnectProvisionedLinkCount(res["provisionedLinkCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("interconnect_attachments", flattenComputeInterconnectInterconnectAttachments(res["interconnectAttachments"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("peer_ip_address", flattenComputeInterconnectPeerIpAddress(res["peerIpAddress"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("google_ip_address", flattenComputeInterconnectGoogleIpAddress(res["googleIpAddress"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("google_reference_id", flattenComputeInterconnectGoogleReferenceId(res["googleReferenceId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("expected_outages", flattenComputeInterconnectExpectedOutages(res["expectedOutages"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("circuit_infos", flattenComputeInterconnectCircuitInfos(res["circuitInfos"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeInterconnectLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeInterconnectLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("state", flattenComputeInterconnectState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("satisfies_pzs", flattenComputeInterconnectSatisfiesPzs(res["satisfiesPzs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("macsec", flattenComputeInterconnectMacsec(res["macsec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("macsec_enabled", flattenComputeInterconnectMacsecEnabled(res["macsecEnabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("remote_location", flattenComputeInterconnectRemoteLocation(res["remoteLocation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("requested_features", flattenComputeInterconnectRequestedFeatures(res["requestedFeatures"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("available_features", flattenComputeInterconnectAvailableFeatures(res["availableFeatures"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("wire_groups", flattenComputeInterconnectWireGroups(res["wireGroups"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("interconnect_groups", flattenComputeInterconnectInterconnectGroups(res["interconnectGroups"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenComputeInterconnectTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenComputeInterconnectEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Interconnect: %s", err)
+	err = ResourceComputeInterconnectFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1677,4 +1588,104 @@ func expandComputeInterconnectEffectiveLabels(v interface{}, d tpgresource.Terra
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceComputeInterconnectFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputeInterconnectDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeInterconnectCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("name", flattenComputeInterconnectName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("location", flattenComputeInterconnectLocation(res["location"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("link_type", flattenComputeInterconnectLinkType(res["linkType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("requested_link_count", flattenComputeInterconnectRequestedLinkCount(res["requestedLinkCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("interconnect_type", flattenComputeInterconnectInterconnectType(res["interconnectType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("admin_enabled", flattenComputeInterconnectAdminEnabled(res["adminEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("noc_contact_email", flattenComputeInterconnectNocContactEmail(res["nocContactEmail"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("customer_name", flattenComputeInterconnectCustomerName(res["customerName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("operational_status", flattenComputeInterconnectOperationalStatus(res["operationalStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("provisioned_link_count", flattenComputeInterconnectProvisionedLinkCount(res["provisionedLinkCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("interconnect_attachments", flattenComputeInterconnectInterconnectAttachments(res["interconnectAttachments"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("peer_ip_address", flattenComputeInterconnectPeerIpAddress(res["peerIpAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("google_ip_address", flattenComputeInterconnectGoogleIpAddress(res["googleIpAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("google_reference_id", flattenComputeInterconnectGoogleReferenceId(res["googleReferenceId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("expected_outages", flattenComputeInterconnectExpectedOutages(res["expectedOutages"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("circuit_infos", flattenComputeInterconnectCircuitInfos(res["circuitInfos"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("labels", flattenComputeInterconnectLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("label_fingerprint", flattenComputeInterconnectLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("state", flattenComputeInterconnectState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("satisfies_pzs", flattenComputeInterconnectSatisfiesPzs(res["satisfiesPzs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("macsec", flattenComputeInterconnectMacsec(res["macsec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("macsec_enabled", flattenComputeInterconnectMacsecEnabled(res["macsecEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("remote_location", flattenComputeInterconnectRemoteLocation(res["remoteLocation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("requested_features", flattenComputeInterconnectRequestedFeatures(res["requestedFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("available_features", flattenComputeInterconnectAvailableFeatures(res["availableFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("wire_groups", flattenComputeInterconnectWireGroups(res["wireGroups"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("interconnect_groups", flattenComputeInterconnectInterconnectGroups(res["interconnectGroups"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenComputeInterconnectTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenComputeInterconnectEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+
+	return nil
 }

@@ -382,35 +382,9 @@ func resourceDataplexGlossaryTermRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataplexGlossaryTermName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataplexGlossaryTermDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
-	}
-	if err := d.Set("description", flattenDataplexGlossaryTermDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
-	}
-	if err := d.Set("labels", flattenDataplexGlossaryTermLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
-	}
-	if err := d.Set("uid", flattenDataplexGlossaryTermUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
-	}
-	if err := d.Set("create_time", flattenDataplexGlossaryTermCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
-	}
-	if err := d.Set("update_time", flattenDataplexGlossaryTermUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
-	}
-	if err := d.Set("parent", flattenDataplexGlossaryTermParent(res["parent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDataplexGlossaryTermTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDataplexGlossaryTermEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
+	err = ResourceDataplexGlossaryTermFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -723,4 +697,41 @@ func expandDataplexGlossaryTermEffectiveLabels(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceDataplexGlossaryTermFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataplexGlossaryTermName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataplexGlossaryTermDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
+	}
+	if err = d.Set("description", flattenDataplexGlossaryTermDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
+	}
+	if err = d.Set("labels", flattenDataplexGlossaryTermLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
+	}
+	if err = d.Set("uid", flattenDataplexGlossaryTermUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
+	}
+	if err = d.Set("create_time", flattenDataplexGlossaryTermCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
+	}
+	if err = d.Set("update_time", flattenDataplexGlossaryTermUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
+	}
+	if err = d.Set("parent", flattenDataplexGlossaryTermParent(res["parent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDataplexGlossaryTermTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDataplexGlossaryTermEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryTerm: %s", err)
+	}
+
+	return nil
 }

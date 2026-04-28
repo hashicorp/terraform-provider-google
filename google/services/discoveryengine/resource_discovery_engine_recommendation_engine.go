@@ -501,23 +501,9 @@ func resourceDiscoveryEngineRecommendationEngineRead(d *schema.ResourceData, met
 		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
 	}
 
-	if err := d.Set("name", flattenDiscoveryEngineRecommendationEngineName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
-	}
-	if err := d.Set("display_name", flattenDiscoveryEngineRecommendationEngineDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
-	}
-	if err := d.Set("create_time", flattenDiscoveryEngineRecommendationEngineCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
-	}
-	if err := d.Set("update_time", flattenDiscoveryEngineRecommendationEngineUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
-	}
-	if err := d.Set("data_store_ids", flattenDiscoveryEngineRecommendationEngineDataStoreIds(res["dataStoreIds"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
-	}
-	if err := d.Set("media_recommendation_engine_config", flattenDiscoveryEngineRecommendationEngineMediaRecommendationEngineConfig(res["mediaRecommendationEngineConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
+	err = ResourceDiscoveryEngineRecommendationEngineFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1099,4 +1085,29 @@ func resourceDiscoveryEngineRecommendationEngineEncoder(d *schema.ResourceData, 
 	// hard code solutionType to "SOLUTION_TYPE_RECOMMENDATION" for recommendation engine resource
 	obj["solutionType"] = "SOLUTION_TYPE_RECOMMENDATION"
 	return obj, nil
+}
+
+func ResourceDiscoveryEngineRecommendationEngineFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDiscoveryEngineRecommendationEngineName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
+	}
+	if err = d.Set("display_name", flattenDiscoveryEngineRecommendationEngineDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
+	}
+	if err = d.Set("create_time", flattenDiscoveryEngineRecommendationEngineCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
+	}
+	if err = d.Set("update_time", flattenDiscoveryEngineRecommendationEngineUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
+	}
+	if err = d.Set("data_store_ids", flattenDiscoveryEngineRecommendationEngineDataStoreIds(res["dataStoreIds"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
+	}
+	if err = d.Set("media_recommendation_engine_config", flattenDiscoveryEngineRecommendationEngineMediaRecommendationEngineConfig(res["mediaRecommendationEngineConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecommendationEngine: %s", err)
+	}
+
+	return nil
 }

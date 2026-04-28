@@ -333,20 +333,9 @@ func resourceComputeGlobalNetworkEndpointGroupRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeGlobalNetworkEndpointGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("description", flattenComputeGlobalNetworkEndpointGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("network_endpoint_type", flattenComputeGlobalNetworkEndpointGroupNetworkEndpointType(res["networkEndpointType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("default_port", flattenComputeGlobalNetworkEndpointGroupDefaultPort(res["defaultPort"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
+	err = ResourceComputeGlobalNetworkEndpointGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -489,4 +478,25 @@ func expandComputeGlobalNetworkEndpointGroupNetworkEndpointType(v interface{}, d
 
 func expandComputeGlobalNetworkEndpointGroupDefaultPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeGlobalNetworkEndpointGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenComputeGlobalNetworkEndpointGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("description", flattenComputeGlobalNetworkEndpointGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("network_endpoint_type", flattenComputeGlobalNetworkEndpointGroupNetworkEndpointType(res["networkEndpointType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("default_port", flattenComputeGlobalNetworkEndpointGroupDefaultPort(res["defaultPort"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
+	}
+	return nil
 }

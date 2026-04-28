@@ -379,8 +379,9 @@ func resourceMemorystoreInstanceDesiredUserCreatedEndpointsRead(d *schema.Resour
 		return fmt.Errorf("Error reading InstanceDesiredUserCreatedEndpoints: %s", err)
 	}
 
-	if err := d.Set("desired_user_created_endpoints", flattenMemorystoreInstanceDesiredUserCreatedEndpointsDesiredUserCreatedEndpoints(res["endpoints"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstanceDesiredUserCreatedEndpoints: %s", err)
+	err = ResourceMemorystoreInstanceDesiredUserCreatedEndpointsFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -857,4 +858,14 @@ func expandMemorystoreInstanceDesiredUserCreatedEndpointsDesiredUserCreatedEndpo
 
 func expandMemorystoreInstanceDesiredUserCreatedEndpointsDesiredUserCreatedEndpointsConnectionsPscConnectionConnectionType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceMemorystoreInstanceDesiredUserCreatedEndpointsFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("desired_user_created_endpoints", flattenMemorystoreInstanceDesiredUserCreatedEndpointsDesiredUserCreatedEndpoints(res["endpoints"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstanceDesiredUserCreatedEndpoints: %s", err)
+	}
+
+	return nil
 }

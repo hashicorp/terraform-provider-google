@@ -502,32 +502,9 @@ func resourceMonitoringMetricDescriptorRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
 	}
 
-	if err := d.Set("name", flattenMonitoringMetricDescriptorName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
-	}
-	if err := d.Set("type", flattenMonitoringMetricDescriptorType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
-	}
-	if err := d.Set("labels", flattenMonitoringMetricDescriptorLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
-	}
-	if err := d.Set("metric_kind", flattenMonitoringMetricDescriptorMetricKind(res["metricKind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
-	}
-	if err := d.Set("value_type", flattenMonitoringMetricDescriptorValueType(res["valueType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
-	}
-	if err := d.Set("unit", flattenMonitoringMetricDescriptorUnit(res["unit"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
-	}
-	if err := d.Set("description", flattenMonitoringMetricDescriptorDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
-	}
-	if err := d.Set("display_name", flattenMonitoringMetricDescriptorDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
-	}
-	if err := d.Set("monitored_resource_types", flattenMonitoringMetricDescriptorMonitoredResourceTypes(res["monitoredResourceTypes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
+	err = ResourceMonitoringMetricDescriptorFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -935,5 +912,39 @@ func resourceMonitoringMetricDescriptorPostCreateSetComputedFields(d *schema.Res
 	if err := d.Set("name", flattenMonitoringMetricDescriptorName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceMonitoringMetricDescriptorFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenMonitoringMetricDescriptorName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
+	}
+	if err = d.Set("type", flattenMonitoringMetricDescriptorType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
+	}
+	if err = d.Set("labels", flattenMonitoringMetricDescriptorLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
+	}
+	if err = d.Set("metric_kind", flattenMonitoringMetricDescriptorMetricKind(res["metricKind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
+	}
+	if err = d.Set("value_type", flattenMonitoringMetricDescriptorValueType(res["valueType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
+	}
+	if err = d.Set("unit", flattenMonitoringMetricDescriptorUnit(res["unit"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
+	}
+	if err = d.Set("description", flattenMonitoringMetricDescriptorDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
+	}
+	if err = d.Set("display_name", flattenMonitoringMetricDescriptorDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
+	}
+	if err = d.Set("monitored_resource_types", flattenMonitoringMetricDescriptorMonitoredResourceTypes(res["monitoredResourceTypes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MetricDescriptor: %s", err)
+	}
+
 	return nil
 }

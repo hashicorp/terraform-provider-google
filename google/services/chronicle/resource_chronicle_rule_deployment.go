@@ -486,35 +486,9 @@ func resourceChronicleRuleDeploymentRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading RuleDeployment: %s", err)
 	}
 
-	if err := d.Set("name", flattenChronicleRuleDeploymentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RuleDeployment: %s", err)
-	}
-	if err := d.Set("enabled", flattenChronicleRuleDeploymentEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RuleDeployment: %s", err)
-	}
-	if err := d.Set("alerting", flattenChronicleRuleDeploymentAlerting(res["alerting"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RuleDeployment: %s", err)
-	}
-	if err := d.Set("archived", flattenChronicleRuleDeploymentArchived(res["archived"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RuleDeployment: %s", err)
-	}
-	if err := d.Set("archive_time", flattenChronicleRuleDeploymentArchiveTime(res["archiveTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RuleDeployment: %s", err)
-	}
-	if err := d.Set("run_frequency", flattenChronicleRuleDeploymentRunFrequency(res["runFrequency"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RuleDeployment: %s", err)
-	}
-	if err := d.Set("execution_state", flattenChronicleRuleDeploymentExecutionState(res["executionState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RuleDeployment: %s", err)
-	}
-	if err := d.Set("producer_rules", flattenChronicleRuleDeploymentProducerRules(res["producerRules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RuleDeployment: %s", err)
-	}
-	if err := d.Set("consumer_rules", flattenChronicleRuleDeploymentConsumerRules(res["consumerRules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RuleDeployment: %s", err)
-	}
-	if err := d.Set("last_alert_status_change_time", flattenChronicleRuleDeploymentLastAlertStatusChangeTime(res["lastAlertStatusChangeTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	err = ResourceChronicleRuleDeploymentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -779,4 +753,41 @@ func expandChronicleRuleDeploymentArchived(v interface{}, d tpgresource.Terrafor
 
 func expandChronicleRuleDeploymentRunFrequency(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceChronicleRuleDeploymentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenChronicleRuleDeploymentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	}
+	if err = d.Set("enabled", flattenChronicleRuleDeploymentEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	}
+	if err = d.Set("alerting", flattenChronicleRuleDeploymentAlerting(res["alerting"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	}
+	if err = d.Set("archived", flattenChronicleRuleDeploymentArchived(res["archived"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	}
+	if err = d.Set("archive_time", flattenChronicleRuleDeploymentArchiveTime(res["archiveTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	}
+	if err = d.Set("run_frequency", flattenChronicleRuleDeploymentRunFrequency(res["runFrequency"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	}
+	if err = d.Set("execution_state", flattenChronicleRuleDeploymentExecutionState(res["executionState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	}
+	if err = d.Set("producer_rules", flattenChronicleRuleDeploymentProducerRules(res["producerRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	}
+	if err = d.Set("consumer_rules", flattenChronicleRuleDeploymentConsumerRules(res["consumerRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	}
+	if err = d.Set("last_alert_status_change_time", flattenChronicleRuleDeploymentLastAlertStatusChangeTime(res["lastAlertStatusChangeTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	}
+
+	return nil
 }

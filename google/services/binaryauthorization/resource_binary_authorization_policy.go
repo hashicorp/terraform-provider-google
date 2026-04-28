@@ -448,20 +448,9 @@ func resourceBinaryAuthorizationPolicyRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading Policy: %s", err)
 	}
 
-	if err := d.Set("description", flattenBinaryAuthorizationPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("global_policy_evaluation_mode", flattenBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(res["globalPolicyEvaluationMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("admission_whitelist_patterns", flattenBinaryAuthorizationPolicyAdmissionWhitelistPatterns(res["admissionWhitelistPatterns"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("cluster_admission_rules", flattenBinaryAuthorizationPolicyClusterAdmissionRules(res["clusterAdmissionRules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("default_admission_rule", flattenBinaryAuthorizationPolicyDefaultAdmissionRule(res["defaultAdmissionRule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
+	err = ResourceBinaryAuthorizationPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -911,4 +900,26 @@ func expandBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v 
 
 func expandBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceBinaryAuthorizationPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenBinaryAuthorizationPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("global_policy_evaluation_mode", flattenBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(res["globalPolicyEvaluationMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("admission_whitelist_patterns", flattenBinaryAuthorizationPolicyAdmissionWhitelistPatterns(res["admissionWhitelistPatterns"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("cluster_admission_rules", flattenBinaryAuthorizationPolicyClusterAdmissionRules(res["clusterAdmissionRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("default_admission_rule", flattenBinaryAuthorizationPolicyDefaultAdmissionRule(res["defaultAdmissionRule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+
+	return nil
 }

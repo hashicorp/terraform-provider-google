@@ -442,38 +442,9 @@ func resourceIAMWorkforcePoolOauthClientRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading OauthClient: %s", err)
 	}
 
-	if err := d.Set("allowed_scopes", flattenIAMWorkforcePoolOauthClientAllowedScopes(res["allowedScopes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClient: %s", err)
-	}
-	if err := d.Set("name", flattenIAMWorkforcePoolOauthClientName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClient: %s", err)
-	}
-	if err := d.Set("state", flattenIAMWorkforcePoolOauthClientState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClient: %s", err)
-	}
-	if err := d.Set("disabled", flattenIAMWorkforcePoolOauthClientDisabled(res["disabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClient: %s", err)
-	}
-	if err := d.Set("client_id", flattenIAMWorkforcePoolOauthClientClientId(res["clientId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClient: %s", err)
-	}
-	if err := d.Set("display_name", flattenIAMWorkforcePoolOauthClientDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClient: %s", err)
-	}
-	if err := d.Set("description", flattenIAMWorkforcePoolOauthClientDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClient: %s", err)
-	}
-	if err := d.Set("allowed_grant_types", flattenIAMWorkforcePoolOauthClientAllowedGrantTypes(res["allowedGrantTypes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClient: %s", err)
-	}
-	if err := d.Set("expire_time", flattenIAMWorkforcePoolOauthClientExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClient: %s", err)
-	}
-	if err := d.Set("client_type", flattenIAMWorkforcePoolOauthClientClientType(res["clientType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClient: %s", err)
-	}
-	if err := d.Set("allowed_redirect_uris", flattenIAMWorkforcePoolOauthClientAllowedRedirectUris(res["allowedRedirectUris"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OauthClient: %s", err)
+	err = ResourceIAMWorkforcePoolOauthClientFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -799,4 +770,44 @@ func resourceIAMWorkforcePoolOauthClientDecoder(d *schema.ResourceData, meta int
 	}
 
 	return res, nil
+}
+
+func ResourceIAMWorkforcePoolOauthClientFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("allowed_scopes", flattenIAMWorkforcePoolOauthClientAllowedScopes(res["allowedScopes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClient: %s", err)
+	}
+	if err = d.Set("name", flattenIAMWorkforcePoolOauthClientName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClient: %s", err)
+	}
+	if err = d.Set("state", flattenIAMWorkforcePoolOauthClientState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClient: %s", err)
+	}
+	if err = d.Set("disabled", flattenIAMWorkforcePoolOauthClientDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClient: %s", err)
+	}
+	if err = d.Set("client_id", flattenIAMWorkforcePoolOauthClientClientId(res["clientId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClient: %s", err)
+	}
+	if err = d.Set("display_name", flattenIAMWorkforcePoolOauthClientDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClient: %s", err)
+	}
+	if err = d.Set("description", flattenIAMWorkforcePoolOauthClientDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClient: %s", err)
+	}
+	if err = d.Set("allowed_grant_types", flattenIAMWorkforcePoolOauthClientAllowedGrantTypes(res["allowedGrantTypes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClient: %s", err)
+	}
+	if err = d.Set("expire_time", flattenIAMWorkforcePoolOauthClientExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClient: %s", err)
+	}
+	if err = d.Set("client_type", flattenIAMWorkforcePoolOauthClientClientType(res["clientType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClient: %s", err)
+	}
+	if err = d.Set("allowed_redirect_uris", flattenIAMWorkforcePoolOauthClientAllowedRedirectUris(res["allowedRedirectUris"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthClient: %s", err)
+	}
+
+	return nil
 }

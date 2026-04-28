@@ -4791,47 +4791,9 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeUrlMapCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("default_service", flattenComputeUrlMapDefaultService(res["defaultService"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("description", flattenComputeUrlMapDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("map_id", flattenComputeUrlMapMapId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeUrlMapFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("header_action", flattenComputeUrlMapHeaderAction(res["headerAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("host_rule", flattenComputeUrlMapHostRule(res["hostRules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("name", flattenComputeUrlMapName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("path_matcher", flattenComputeUrlMapPathMatcher(res["pathMatchers"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("default_custom_error_response_policy", flattenComputeUrlMapDefaultCustomErrorResponsePolicy(res["defaultCustomErrorResponsePolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("test", flattenComputeUrlMapTest(res["tests"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("default_url_redirect", flattenComputeUrlMapDefaultUrlRedirect(res["defaultUrlRedirect"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("default_route_action", flattenComputeUrlMapDefaultRouteAction(res["defaultRouteAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+	err = ResourceComputeUrlMapFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -16347,4 +16309,52 @@ func expandComputeUrlMapDefaultRouteActionCachePolicyCacheKeyPolicyIncludedHeade
 
 func expandComputeUrlMapDefaultRouteActionCachePolicyCacheKeyPolicyIncludedCookieNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeUrlMapFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeUrlMapCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("default_service", flattenComputeUrlMapDefaultService(res["defaultService"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("description", flattenComputeUrlMapDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("map_id", flattenComputeUrlMapMapId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeUrlMapFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("header_action", flattenComputeUrlMapHeaderAction(res["headerAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("host_rule", flattenComputeUrlMapHostRule(res["hostRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("name", flattenComputeUrlMapName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("path_matcher", flattenComputeUrlMapPathMatcher(res["pathMatchers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("default_custom_error_response_policy", flattenComputeUrlMapDefaultCustomErrorResponsePolicy(res["defaultCustomErrorResponsePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("test", flattenComputeUrlMapTest(res["tests"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("default_url_redirect", flattenComputeUrlMapDefaultUrlRedirect(res["defaultUrlRedirect"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("default_route_action", flattenComputeUrlMapDefaultRouteAction(res["defaultRouteAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading UrlMap: %s", err)
+	}
+	return nil
 }

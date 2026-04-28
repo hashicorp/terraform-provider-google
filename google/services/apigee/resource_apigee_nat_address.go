@@ -337,17 +337,9 @@ func resourceApigeeNatAddressRead(d *schema.ResourceData, meta interface{}) erro
 		return nil
 	}
 
-	if err := d.Set("name", flattenApigeeNatAddressName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NatAddress: %s", err)
-	}
-	if err := d.Set("activate", flattenApigeeNatAddressActivate(res["activate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NatAddress: %s", err)
-	}
-	if err := d.Set("ip_address", flattenApigeeNatAddressIpAddress(res["ipAddress"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NatAddress: %s", err)
-	}
-	if err := d.Set("state", flattenApigeeNatAddressState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NatAddress: %s", err)
+	err = ResourceApigeeNatAddressFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -513,4 +505,23 @@ func resourceApigeeNatAddressEncoder(d *schema.ResourceData, meta interface{}, o
 func resourceApigeeNatAddressDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	res["activate"] = res["state"].(string) == "ACTIVE"
 	return res, nil
+}
+
+func ResourceApigeeNatAddressFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenApigeeNatAddressName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NatAddress: %s", err)
+	}
+	if err = d.Set("activate", flattenApigeeNatAddressActivate(res["activate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NatAddress: %s", err)
+	}
+	if err = d.Set("ip_address", flattenApigeeNatAddressIpAddress(res["ipAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NatAddress: %s", err)
+	}
+	if err = d.Set("state", flattenApigeeNatAddressState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NatAddress: %s", err)
+	}
+
+	return nil
 }

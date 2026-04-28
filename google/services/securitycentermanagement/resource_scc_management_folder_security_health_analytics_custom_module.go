@@ -474,26 +474,9 @@ func resourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleRe
 
 	log.Printf("[DEBUG] Finished reading SecurityCenterManagementFolderSecurityHealthAnalyticsCustomModule %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
-	}
-	if err := d.Set("display_name", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
-	}
-	if err := d.Set("enablement_state", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleEnablementState(res["enablementState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
-	}
-	if err := d.Set("update_time", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
-	}
-	if err := d.Set("last_editor", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleLastEditor(res["lastEditor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
-	}
-	if err := d.Set("ancestor_module", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleAncestorModule(res["ancestorModule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
-	}
-	if err := d.Set("custom_config", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleCustomConfig(res["customConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
+	err = ResourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1162,5 +1145,33 @@ func resourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModulePo
 	if err := d.Set("name", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
+	}
+	if err = d.Set("display_name", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
+	}
+	if err = d.Set("enablement_state", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleEnablementState(res["enablementState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
+	}
+	if err = d.Set("update_time", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
+	}
+	if err = d.Set("last_editor", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleLastEditor(res["lastEditor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
+	}
+	if err = d.Set("ancestor_module", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleAncestorModule(res["ancestorModule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
+	}
+	if err = d.Set("custom_config", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleCustomConfig(res["customConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSecurityHealthAnalyticsCustomModule: %s", err)
+	}
+
 	return nil
 }

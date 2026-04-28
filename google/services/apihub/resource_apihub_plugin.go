@@ -633,41 +633,9 @@ func resourceApihubPluginRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Plugin: %s", err)
 	}
 
-	if err := d.Set("description", flattenApihubPluginDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
-	}
-	if err := d.Set("state", flattenApihubPluginState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
-	}
-	if err := d.Set("ownership_type", flattenApihubPluginOwnershipType(res["ownershipType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
-	}
-	if err := d.Set("actions_config", flattenApihubPluginActionsConfig(res["actionsConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
-	}
-	if err := d.Set("documentation", flattenApihubPluginDocumentation(res["documentation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
-	}
-	if err := d.Set("plugin_category", flattenApihubPluginPluginCategory(res["pluginCategory"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
-	}
-	if err := d.Set("config_template", flattenApihubPluginConfigTemplate(res["configTemplate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
-	}
-	if err := d.Set("name", flattenApihubPluginName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
-	}
-	if err := d.Set("display_name", flattenApihubPluginDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
-	}
-	if err := d.Set("hosting_service", flattenApihubPluginHostingService(res["hostingService"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
-	}
-	if err := d.Set("create_time", flattenApihubPluginCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
-	}
-	if err := d.Set("update_time", flattenApihubPluginUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Plugin: %s", err)
+	err = ResourceApihubPluginFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1428,4 +1396,47 @@ func expandApihubPluginHostingService(v interface{}, d tpgresource.TerraformReso
 
 func expandApihubPluginHostingServiceServiceUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApihubPluginFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenApihubPluginDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+	if err = d.Set("state", flattenApihubPluginState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+	if err = d.Set("ownership_type", flattenApihubPluginOwnershipType(res["ownershipType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+	if err = d.Set("actions_config", flattenApihubPluginActionsConfig(res["actionsConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+	if err = d.Set("documentation", flattenApihubPluginDocumentation(res["documentation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+	if err = d.Set("plugin_category", flattenApihubPluginPluginCategory(res["pluginCategory"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+	if err = d.Set("config_template", flattenApihubPluginConfigTemplate(res["configTemplate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+	if err = d.Set("name", flattenApihubPluginName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+	if err = d.Set("display_name", flattenApihubPluginDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+	if err = d.Set("hosting_service", flattenApihubPluginHostingService(res["hostingService"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+	if err = d.Set("create_time", flattenApihubPluginCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+	if err = d.Set("update_time", flattenApihubPluginUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Plugin: %s", err)
+	}
+
+	return nil
 }

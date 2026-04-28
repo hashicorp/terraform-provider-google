@@ -376,29 +376,9 @@ func resourceBigqueryReservationCapacityCommitmentRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
 	}
 
-	if err := d.Set("name", flattenBigqueryReservationCapacityCommitmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
-	}
-	if err := d.Set("slot_count", flattenBigqueryReservationCapacityCommitmentSlotCount(res["slotCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
-	}
-	if err := d.Set("plan", flattenBigqueryReservationCapacityCommitmentPlan(res["plan"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
-	}
-	if err := d.Set("state", flattenBigqueryReservationCapacityCommitmentState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
-	}
-	if err := d.Set("commitment_start_time", flattenBigqueryReservationCapacityCommitmentCommitmentStartTime(res["commitmentStartTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
-	}
-	if err := d.Set("commitment_end_time", flattenBigqueryReservationCapacityCommitmentCommitmentEndTime(res["commitmentEndTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
-	}
-	if err := d.Set("renewal_plan", flattenBigqueryReservationCapacityCommitmentRenewalPlan(res["renewalPlan"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
-	}
-	if err := d.Set("edition", flattenBigqueryReservationCapacityCommitmentEdition(res["edition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
+	err = ResourceBigqueryReservationCapacityCommitmentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -668,5 +648,36 @@ func resourceBigqueryReservationCapacityCommitmentPostCreateSetComputedFields(d 
 	if err := d.Set("name", flattenBigqueryReservationCapacityCommitmentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceBigqueryReservationCapacityCommitmentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBigqueryReservationCapacityCommitmentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
+	}
+	if err = d.Set("slot_count", flattenBigqueryReservationCapacityCommitmentSlotCount(res["slotCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
+	}
+	if err = d.Set("plan", flattenBigqueryReservationCapacityCommitmentPlan(res["plan"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
+	}
+	if err = d.Set("state", flattenBigqueryReservationCapacityCommitmentState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
+	}
+	if err = d.Set("commitment_start_time", flattenBigqueryReservationCapacityCommitmentCommitmentStartTime(res["commitmentStartTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
+	}
+	if err = d.Set("commitment_end_time", flattenBigqueryReservationCapacityCommitmentCommitmentEndTime(res["commitmentEndTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
+	}
+	if err = d.Set("renewal_plan", flattenBigqueryReservationCapacityCommitmentRenewalPlan(res["renewalPlan"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
+	}
+	if err = d.Set("edition", flattenBigqueryReservationCapacityCommitmentEdition(res["edition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
+	}
+
 	return nil
 }

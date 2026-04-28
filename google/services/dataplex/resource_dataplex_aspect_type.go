@@ -402,41 +402,9 @@ func resourceDataplexAspectTypeRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading AspectType: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataplexAspectTypeName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
-	}
-	if err := d.Set("uid", flattenDataplexAspectTypeUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
-	}
-	if err := d.Set("create_time", flattenDataplexAspectTypeCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
-	}
-	if err := d.Set("update_time", flattenDataplexAspectTypeUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
-	}
-	if err := d.Set("description", flattenDataplexAspectTypeDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataplexAspectTypeDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
-	}
-	if err := d.Set("labels", flattenDataplexAspectTypeLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
-	}
-	if err := d.Set("metadata_template", flattenDataplexAspectTypeMetadataTemplate(res["metadataTemplate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
-	}
-	if err := d.Set("transfer_status", flattenDataplexAspectTypeTransferStatus(res["transferStatus"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
-	}
-	if err := d.Set("data_classification", flattenDataplexAspectTypeDataClassification(res["dataClassification"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDataplexAspectTypeTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDataplexAspectTypeEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AspectType: %s", err)
+	err = ResourceDataplexAspectTypeFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -781,4 +749,47 @@ func expandDataplexAspectTypeEffectiveLabels(v interface{}, d tpgresource.Terraf
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceDataplexAspectTypeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataplexAspectTypeName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err = d.Set("uid", flattenDataplexAspectTypeUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err = d.Set("create_time", flattenDataplexAspectTypeCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err = d.Set("update_time", flattenDataplexAspectTypeUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err = d.Set("description", flattenDataplexAspectTypeDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataplexAspectTypeDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err = d.Set("labels", flattenDataplexAspectTypeLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err = d.Set("metadata_template", flattenDataplexAspectTypeMetadataTemplate(res["metadataTemplate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err = d.Set("transfer_status", flattenDataplexAspectTypeTransferStatus(res["transferStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err = d.Set("data_classification", flattenDataplexAspectTypeDataClassification(res["dataClassification"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDataplexAspectTypeTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDataplexAspectTypeEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+
+	return nil
 }

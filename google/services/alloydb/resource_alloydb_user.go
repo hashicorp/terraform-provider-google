@@ -281,17 +281,9 @@ func resourceAlloydbUserRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished reading AlloydbUser %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenAlloydbUserName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading User: %s", err)
-	}
-	if err := d.Set("database_roles", flattenAlloydbUserDatabaseRoles(res["databaseRoles"], d, config)); err != nil {
-		return fmt.Errorf("Error reading User: %s", err)
-	}
-	if err := d.Set("password_wo_version", flattenAlloydbUserPasswordWoVersion(res["passwordWoVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading User: %s", err)
-	}
-	if err := d.Set("user_type", flattenAlloydbUserUserType(res["userType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading User: %s", err)
+	err = ResourceAlloydbUserFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -491,4 +483,23 @@ func expandAlloydbUserPasswordWo(v interface{}, d tpgresource.TerraformResourceD
 
 func expandAlloydbUserUserType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceAlloydbUserFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenAlloydbUserName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading User: %s", err)
+	}
+	if err = d.Set("database_roles", flattenAlloydbUserDatabaseRoles(res["databaseRoles"], d, config)); err != nil {
+		return fmt.Errorf("Error reading User: %s", err)
+	}
+	if err = d.Set("password_wo_version", flattenAlloydbUserPasswordWoVersion(res["passwordWoVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading User: %s", err)
+	}
+	if err = d.Set("user_type", flattenAlloydbUserUserType(res["userType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading User: %s", err)
+	}
+
+	return nil
 }

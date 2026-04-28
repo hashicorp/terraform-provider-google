@@ -593,26 +593,9 @@ func resourceDialogflowGeneratorRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Generator: %s", err)
 	}
 
-	if err := d.Set("name", flattenDialogflowGeneratorName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Generator: %s", err)
-	}
-	if err := d.Set("description", flattenDialogflowGeneratorDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Generator: %s", err)
-	}
-	if err := d.Set("summarization_context", flattenDialogflowGeneratorSummarizationContext(res["summarizationContext"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Generator: %s", err)
-	}
-	if err := d.Set("inference_parameter", flattenDialogflowGeneratorInferenceParameter(res["inferenceParameter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Generator: %s", err)
-	}
-	if err := d.Set("trigger_event", flattenDialogflowGeneratorTriggerEvent(res["triggerEvent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Generator: %s", err)
-	}
-	if err := d.Set("published_model", flattenDialogflowGeneratorPublishedModel(res["publishedModel"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Generator: %s", err)
-	}
-	if err := d.Set("generator_id", flattenDialogflowGeneratorGeneratorId(res["generatorId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Generator: %s", err)
+	err = ResourceDialogflowGeneratorFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1687,5 +1670,33 @@ func resourceDialogflowGeneratorPostCreateSetComputedFields(d *schema.ResourceDa
 	if err := d.Set("name", flattenDialogflowGeneratorName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowGeneratorFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowGeneratorName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Generator: %s", err)
+	}
+	if err = d.Set("description", flattenDialogflowGeneratorDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Generator: %s", err)
+	}
+	if err = d.Set("summarization_context", flattenDialogflowGeneratorSummarizationContext(res["summarizationContext"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Generator: %s", err)
+	}
+	if err = d.Set("inference_parameter", flattenDialogflowGeneratorInferenceParameter(res["inferenceParameter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Generator: %s", err)
+	}
+	if err = d.Set("trigger_event", flattenDialogflowGeneratorTriggerEvent(res["triggerEvent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Generator: %s", err)
+	}
+	if err = d.Set("published_model", flattenDialogflowGeneratorPublishedModel(res["publishedModel"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Generator: %s", err)
+	}
+	if err = d.Set("generator_id", flattenDialogflowGeneratorGeneratorId(res["generatorId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Generator: %s", err)
+	}
+
 	return nil
 }

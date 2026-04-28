@@ -1017,56 +1017,9 @@ func resourceEventarcPipelineRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Pipeline: %s", err)
 	}
 
-	if err := d.Set("annotations", flattenEventarcPipelineAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("display_name", flattenEventarcPipelineDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("crypto_key_name", flattenEventarcPipelineCryptoKeyName(res["cryptoKeyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("input_payload_format", flattenEventarcPipelineInputPayloadFormat(res["inputPayloadFormat"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("retry_policy", flattenEventarcPipelineRetryPolicy(res["retryPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("etag", flattenEventarcPipelineEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("update_time", flattenEventarcPipelineUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("labels", flattenEventarcPipelineLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("uid", flattenEventarcPipelineUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("destinations", flattenEventarcPipelineDestinations(res["destinations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("mediations", flattenEventarcPipelineMediations(res["mediations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("logging_config", flattenEventarcPipelineLoggingConfig(res["loggingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("name", flattenEventarcPipelineName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("create_time", flattenEventarcPipelineCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenEventarcPipelineEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenEventarcPipelineTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenEventarcPipelineEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Pipeline: %s", err)
+	err = ResourceEventarcPipelineFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2390,4 +2343,62 @@ func expandEventarcPipelineEffectiveLabels(v interface{}, d tpgresource.Terrafor
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceEventarcPipelineFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("annotations", flattenEventarcPipelineAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("display_name", flattenEventarcPipelineDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("crypto_key_name", flattenEventarcPipelineCryptoKeyName(res["cryptoKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("input_payload_format", flattenEventarcPipelineInputPayloadFormat(res["inputPayloadFormat"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("retry_policy", flattenEventarcPipelineRetryPolicy(res["retryPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("etag", flattenEventarcPipelineEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("update_time", flattenEventarcPipelineUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("labels", flattenEventarcPipelineLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("uid", flattenEventarcPipelineUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("destinations", flattenEventarcPipelineDestinations(res["destinations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("mediations", flattenEventarcPipelineMediations(res["mediations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("logging_config", flattenEventarcPipelineLoggingConfig(res["loggingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("name", flattenEventarcPipelineName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("create_time", flattenEventarcPipelineCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenEventarcPipelineEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenEventarcPipelineTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenEventarcPipelineEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Pipeline: %s", err)
+	}
+
+	return nil
 }

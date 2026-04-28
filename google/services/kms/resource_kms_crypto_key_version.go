@@ -376,26 +376,9 @@ func resourceKMSCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Finished reading KMSCryptoKeyVersion %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenKMSCryptoKeyVersionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
-	}
-	if err := d.Set("state", flattenKMSCryptoKeyVersionState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
-	}
-	if err := d.Set("protection_level", flattenKMSCryptoKeyVersionProtectionLevel(res["protectionLevel"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
-	}
-	if err := d.Set("generate_time", flattenKMSCryptoKeyVersionGenerateTime(res["generateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
-	}
-	if err := d.Set("algorithm", flattenKMSCryptoKeyVersionAlgorithm(res["algorithm"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
-	}
-	if err := d.Set("attestation", flattenKMSCryptoKeyVersionAttestation(res["attestation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
-	}
-	if err := d.Set("external_protection_level_options", flattenKMSCryptoKeyVersionExternalProtectionLevelOptions(res["externalProtectionLevelOptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+	err = ResourceKMSCryptoKeyVersionFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -730,5 +713,33 @@ func resourceKMSCryptoKeyVersionPostCreateSetComputedFields(d *schema.ResourceDa
 	if err := d.Set("name", flattenKMSCryptoKeyVersionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceKMSCryptoKeyVersionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenKMSCryptoKeyVersionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+	}
+	if err = d.Set("state", flattenKMSCryptoKeyVersionState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+	}
+	if err = d.Set("protection_level", flattenKMSCryptoKeyVersionProtectionLevel(res["protectionLevel"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+	}
+	if err = d.Set("generate_time", flattenKMSCryptoKeyVersionGenerateTime(res["generateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+	}
+	if err = d.Set("algorithm", flattenKMSCryptoKeyVersionAlgorithm(res["algorithm"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+	}
+	if err = d.Set("attestation", flattenKMSCryptoKeyVersionAttestation(res["attestation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+	}
+	if err = d.Set("external_protection_level_options", flattenKMSCryptoKeyVersionExternalProtectionLevelOptions(res["externalProtectionLevelOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+	}
+
 	return nil
 }

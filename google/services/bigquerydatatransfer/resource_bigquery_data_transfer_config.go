@@ -623,41 +623,9 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
 
-	if err := d.Set("display_name", flattenBigqueryDataTransferConfigDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("name", flattenBigqueryDataTransferConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("destination_dataset_id", flattenBigqueryDataTransferConfigDestinationDatasetId(res["destinationDatasetId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("data_source_id", flattenBigqueryDataTransferConfigDataSourceId(res["dataSourceId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("schedule", flattenBigqueryDataTransferConfigSchedule(res["schedule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("schedule_options", flattenBigqueryDataTransferConfigScheduleOptions(res["scheduleOptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("email_preferences", flattenBigqueryDataTransferConfigEmailPreferences(res["emailPreferences"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("notification_pubsub_topic", flattenBigqueryDataTransferConfigNotificationPubsubTopic(res["notificationPubsubTopic"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("data_refresh_window_days", flattenBigqueryDataTransferConfigDataRefreshWindowDays(res["dataRefreshWindowDays"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("encryption_configuration", flattenBigqueryDataTransferConfigEncryptionConfiguration(res["encryptionConfiguration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("disabled", flattenBigqueryDataTransferConfigDisabled(res["disabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("params", flattenBigqueryDataTransferConfigParams(res["params"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
+	err = ResourceBigqueryDataTransferConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1279,5 +1247,48 @@ func resourceBigqueryDataTransferConfigPostCreateSetComputedFields(d *schema.Res
 	if err := d.Set("name", flattenBigqueryDataTransferConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceBigqueryDataTransferConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("display_name", flattenBigqueryDataTransferConfigDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("name", flattenBigqueryDataTransferConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("destination_dataset_id", flattenBigqueryDataTransferConfigDestinationDatasetId(res["destinationDatasetId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("data_source_id", flattenBigqueryDataTransferConfigDataSourceId(res["dataSourceId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("schedule", flattenBigqueryDataTransferConfigSchedule(res["schedule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("schedule_options", flattenBigqueryDataTransferConfigScheduleOptions(res["scheduleOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("email_preferences", flattenBigqueryDataTransferConfigEmailPreferences(res["emailPreferences"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("notification_pubsub_topic", flattenBigqueryDataTransferConfigNotificationPubsubTopic(res["notificationPubsubTopic"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("data_refresh_window_days", flattenBigqueryDataTransferConfigDataRefreshWindowDays(res["dataRefreshWindowDays"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("encryption_configuration", flattenBigqueryDataTransferConfigEncryptionConfiguration(res["encryptionConfiguration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("disabled", flattenBigqueryDataTransferConfigDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("params", flattenBigqueryDataTransferConfigParams(res["params"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+
 	return nil
 }

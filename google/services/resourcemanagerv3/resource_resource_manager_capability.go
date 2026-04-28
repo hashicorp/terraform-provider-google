@@ -268,8 +268,9 @@ func resourceResourceManagerV3CapabilityRead(d *schema.ResourceData, meta interf
 
 	log.Printf("[DEBUG] Finished reading ResourceManagerV3Capability %q: %#v", d.Id(), res)
 
-	if err := d.Set("value", flattenResourceManagerV3CapabilityValue(res["value"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Capability: %s", err)
+	err = ResourceResourceManagerV3CapabilityFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -414,4 +415,14 @@ func flattenResourceManagerV3CapabilityValue(v interface{}, d *schema.ResourceDa
 
 func expandResourceManagerV3CapabilityValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceResourceManagerV3CapabilityFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("value", flattenResourceManagerV3CapabilityValue(res["value"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Capability: %s", err)
+	}
+
+	return nil
 }

@@ -613,29 +613,9 @@ func resourceComputeOrganizationSecurityPolicyRuleRead(d *schema.ResourceData, m
 		return nil
 	}
 
-	if err := d.Set("description", flattenComputeOrganizationSecurityPolicyRuleDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("priority", flattenComputeOrganizationSecurityPolicyRulePriority(res["priority"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("match", flattenComputeOrganizationSecurityPolicyRuleMatch(res["match"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("action", flattenComputeOrganizationSecurityPolicyRuleAction(res["action"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("preconfigured_waf_config", flattenComputeOrganizationSecurityPolicyRulePreconfiguredWafConfig(res["preconfiguredWafConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("preview", flattenComputeOrganizationSecurityPolicyRulePreview(res["preview"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("redirect_options", flattenComputeOrganizationSecurityPolicyRuleRedirectOptions(res["redirectOptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("header_action", flattenComputeOrganizationSecurityPolicyRuleHeaderAction(res["headerAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
+	err = ResourceComputeOrganizationSecurityPolicyRuleFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1686,4 +1666,35 @@ func resourceComputeOrganizationSecurityPolicyRuleDecoder(d *schema.ResourceData
 		}
 	}
 	return res, nil
+}
+
+func ResourceComputeOrganizationSecurityPolicyRuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputeOrganizationSecurityPolicyRuleDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("priority", flattenComputeOrganizationSecurityPolicyRulePriority(res["priority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("match", flattenComputeOrganizationSecurityPolicyRuleMatch(res["match"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("action", flattenComputeOrganizationSecurityPolicyRuleAction(res["action"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("preconfigured_waf_config", flattenComputeOrganizationSecurityPolicyRulePreconfiguredWafConfig(res["preconfiguredWafConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("preview", flattenComputeOrganizationSecurityPolicyRulePreview(res["preview"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("redirect_options", flattenComputeOrganizationSecurityPolicyRuleRedirectOptions(res["redirectOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("header_action", flattenComputeOrganizationSecurityPolicyRuleHeaderAction(res["headerAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
+	}
+
+	return nil
 }

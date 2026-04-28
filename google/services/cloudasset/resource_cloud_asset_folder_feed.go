@@ -415,23 +415,9 @@ func resourceCloudAssetFolderFeedRead(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[DEBUG] Finished reading CloudAssetFolderFeed %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenCloudAssetFolderFeedName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderFeed: %s", err)
-	}
-	if err := d.Set("asset_names", flattenCloudAssetFolderFeedAssetNames(res["assetNames"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderFeed: %s", err)
-	}
-	if err := d.Set("asset_types", flattenCloudAssetFolderFeedAssetTypes(res["assetTypes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderFeed: %s", err)
-	}
-	if err := d.Set("content_type", flattenCloudAssetFolderFeedContentType(res["contentType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderFeed: %s", err)
-	}
-	if err := d.Set("feed_output_config", flattenCloudAssetFolderFeedFeedOutputConfig(res["feedOutputConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderFeed: %s", err)
-	}
-	if err := d.Set("condition", flattenCloudAssetFolderFeedCondition(res["condition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderFeed: %s", err)
+	err = ResourceCloudAssetFolderFeedFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -853,5 +839,30 @@ func resourceCloudAssetFolderFeedPostCreateSetComputedFields(d *schema.ResourceD
 	if err := d.Set("name", flattenCloudAssetFolderFeedName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceCloudAssetFolderFeedFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenCloudAssetFolderFeedName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderFeed: %s", err)
+	}
+	if err = d.Set("asset_names", flattenCloudAssetFolderFeedAssetNames(res["assetNames"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderFeed: %s", err)
+	}
+	if err = d.Set("asset_types", flattenCloudAssetFolderFeedAssetTypes(res["assetTypes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderFeed: %s", err)
+	}
+	if err = d.Set("content_type", flattenCloudAssetFolderFeedContentType(res["contentType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderFeed: %s", err)
+	}
+	if err = d.Set("feed_output_config", flattenCloudAssetFolderFeedFeedOutputConfig(res["feedOutputConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderFeed: %s", err)
+	}
+	if err = d.Set("condition", flattenCloudAssetFolderFeedCondition(res["condition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderFeed: %s", err)
+	}
+
 	return nil
 }

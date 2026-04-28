@@ -391,32 +391,9 @@ func resourceVertexAIDatasetRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
 
-	if err := d.Set("name", flattenVertexAIDatasetName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Dataset: %s", err)
-	}
-	if err := d.Set("display_name", flattenVertexAIDatasetDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Dataset: %s", err)
-	}
-	if err := d.Set("create_time", flattenVertexAIDatasetCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Dataset: %s", err)
-	}
-	if err := d.Set("update_time", flattenVertexAIDatasetUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Dataset: %s", err)
-	}
-	if err := d.Set("labels", flattenVertexAIDatasetLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Dataset: %s", err)
-	}
-	if err := d.Set("encryption_spec", flattenVertexAIDatasetEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Dataset: %s", err)
-	}
-	if err := d.Set("metadata_schema_uri", flattenVertexAIDatasetMetadataSchemaUri(res["metadataSchemaUri"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Dataset: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenVertexAIDatasetTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Dataset: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenVertexAIDatasetEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Dataset: %s", err)
+	err = ResourceVertexAIDatasetFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -717,4 +694,38 @@ func expandVertexAIDatasetEffectiveLabels(v interface{}, d tpgresource.Terraform
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceVertexAIDatasetFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenVertexAIDatasetName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err = d.Set("display_name", flattenVertexAIDatasetDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err = d.Set("create_time", flattenVertexAIDatasetCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err = d.Set("update_time", flattenVertexAIDatasetUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err = d.Set("labels", flattenVertexAIDatasetLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err = d.Set("encryption_spec", flattenVertexAIDatasetEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err = d.Set("metadata_schema_uri", flattenVertexAIDatasetMetadataSchemaUri(res["metadataSchemaUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenVertexAIDatasetTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenVertexAIDatasetEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+
+	return nil
 }

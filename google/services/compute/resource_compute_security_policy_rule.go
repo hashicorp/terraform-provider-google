@@ -816,32 +816,9 @@ func resourceComputeSecurityPolicyRuleRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeSecurityPolicyRuleDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("priority", flattenComputeSecurityPolicyRulePriority(res["priority"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("match", flattenComputeSecurityPolicyRuleMatch(res["match"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("preconfigured_waf_config", flattenComputeSecurityPolicyRulePreconfiguredWafConfig(res["preconfiguredWafConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("action", flattenComputeSecurityPolicyRuleAction(res["action"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("rate_limit_options", flattenComputeSecurityPolicyRuleRateLimitOptions(res["rateLimitOptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("redirect_options", flattenComputeSecurityPolicyRuleRedirectOptions(res["redirectOptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("header_action", flattenComputeSecurityPolicyRuleHeaderAction(res["headerAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("preview", flattenComputeSecurityPolicyRulePreview(res["preview"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	err = ResourceComputeSecurityPolicyRuleFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2459,4 +2436,38 @@ func expandComputeSecurityPolicyRuleHeaderActionRequestHeadersToAddsHeaderValue(
 
 func expandComputeSecurityPolicyRulePreview(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeSecurityPolicyRuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputeSecurityPolicyRuleDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("priority", flattenComputeSecurityPolicyRulePriority(res["priority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("match", flattenComputeSecurityPolicyRuleMatch(res["match"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("preconfigured_waf_config", flattenComputeSecurityPolicyRulePreconfiguredWafConfig(res["preconfiguredWafConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("action", flattenComputeSecurityPolicyRuleAction(res["action"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("rate_limit_options", flattenComputeSecurityPolicyRuleRateLimitOptions(res["rateLimitOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("redirect_options", flattenComputeSecurityPolicyRuleRedirectOptions(res["redirectOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("header_action", flattenComputeSecurityPolicyRuleHeaderAction(res["headerAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("preview", flattenComputeSecurityPolicyRulePreview(res["preview"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
+
+	return nil
 }

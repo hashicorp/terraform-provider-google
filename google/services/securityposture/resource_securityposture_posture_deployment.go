@@ -376,44 +376,9 @@ func resourceSecurityposturePostureDeploymentRead(d *schema.ResourceData, meta i
 
 	log.Printf("[DEBUG] Finished reading SecurityposturePostureDeployment %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenSecurityposturePostureDeploymentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("target_resource", flattenSecurityposturePostureDeploymentTargetResource(res["targetResource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("state", flattenSecurityposturePostureDeploymentState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("posture_id", flattenSecurityposturePostureDeploymentPostureId(res["postureId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("posture_revision_id", flattenSecurityposturePostureDeploymentPostureRevisionId(res["postureRevisionId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("create_time", flattenSecurityposturePostureDeploymentCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("update_time", flattenSecurityposturePostureDeploymentUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("description", flattenSecurityposturePostureDeploymentDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("etag", flattenSecurityposturePostureDeploymentEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("reconciling", flattenSecurityposturePostureDeploymentReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("desired_posture_id", flattenSecurityposturePostureDeploymentDesiredPostureId(res["desiredPostureId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("desired_posture_revision_id", flattenSecurityposturePostureDeploymentDesiredPostureRevisionId(res["desiredPostureRevisionId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
-	}
-	if err := d.Set("failure_message", flattenSecurityposturePostureDeploymentFailureMessage(res["failureMessage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	err = ResourceSecurityposturePostureDeploymentFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -689,4 +654,50 @@ func expandSecurityposturePostureDeploymentPostureRevisionId(v interface{}, d tp
 
 func expandSecurityposturePostureDeploymentDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceSecurityposturePostureDeploymentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecurityposturePostureDeploymentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("target_resource", flattenSecurityposturePostureDeploymentTargetResource(res["targetResource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("state", flattenSecurityposturePostureDeploymentState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("posture_id", flattenSecurityposturePostureDeploymentPostureId(res["postureId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("posture_revision_id", flattenSecurityposturePostureDeploymentPostureRevisionId(res["postureRevisionId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("create_time", flattenSecurityposturePostureDeploymentCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("update_time", flattenSecurityposturePostureDeploymentUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("description", flattenSecurityposturePostureDeploymentDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("etag", flattenSecurityposturePostureDeploymentEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("reconciling", flattenSecurityposturePostureDeploymentReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("desired_posture_id", flattenSecurityposturePostureDeploymentDesiredPostureId(res["desiredPostureId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("desired_posture_revision_id", flattenSecurityposturePostureDeploymentDesiredPostureRevisionId(res["desiredPostureRevisionId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+	if err = d.Set("failure_message", flattenSecurityposturePostureDeploymentFailureMessage(res["failureMessage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PostureDeployment: %s", err)
+	}
+
+	return nil
 }

@@ -345,14 +345,9 @@ func resourceBigtableSchemaBundleRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading SchemaBundle: %s", err)
 	}
 
-	if err := d.Set("name", flattenBigtableSchemaBundleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SchemaBundle: %s", err)
-	}
-	if err := d.Set("etag", flattenBigtableSchemaBundleEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SchemaBundle: %s", err)
-	}
-	if err := d.Set("proto_schema", flattenBigtableSchemaBundleProtoSchema(res["protoSchema"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SchemaBundle: %s", err)
+	err = ResourceBigtableSchemaBundleFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -601,4 +596,20 @@ func expandBigtableSchemaBundleProtoSchema(v interface{}, d tpgresource.Terrafor
 
 func expandBigtableSchemaBundleProtoSchemaProtoDescriptors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceBigtableSchemaBundleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBigtableSchemaBundleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SchemaBundle: %s", err)
+	}
+	if err = d.Set("etag", flattenBigtableSchemaBundleEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SchemaBundle: %s", err)
+	}
+	if err = d.Set("proto_schema", flattenBigtableSchemaBundleProtoSchema(res["protoSchema"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SchemaBundle: %s", err)
+	}
+
+	return nil
 }

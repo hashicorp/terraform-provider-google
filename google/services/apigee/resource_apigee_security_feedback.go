@@ -306,29 +306,9 @@ func resourceApigeeSecurityFeedbackRead(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Finished reading ApigeeSecurityFeedback %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenApigeeSecurityFeedbackName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
-	}
-	if err := d.Set("display_name", flattenApigeeSecurityFeedbackDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
-	}
-	if err := d.Set("feedback_contexts", flattenApigeeSecurityFeedbackFeedbackContexts(res["feedbackContexts"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
-	}
-	if err := d.Set("feedback_type", flattenApigeeSecurityFeedbackFeedbackType(res["feedbackType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
-	}
-	if err := d.Set("create_time", flattenApigeeSecurityFeedbackCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
-	}
-	if err := d.Set("update_time", flattenApigeeSecurityFeedbackUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
-	}
-	if err := d.Set("reason", flattenApigeeSecurityFeedbackReason(res["reason"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
-	}
-	if err := d.Set("comment", flattenApigeeSecurityFeedbackComment(res["comment"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
+	err = ResourceApigeeSecurityFeedbackFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -594,4 +574,35 @@ func expandApigeeSecurityFeedbackReason(v interface{}, d tpgresource.TerraformRe
 
 func expandApigeeSecurityFeedbackComment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeSecurityFeedbackFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenApigeeSecurityFeedbackName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
+	}
+	if err = d.Set("display_name", flattenApigeeSecurityFeedbackDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
+	}
+	if err = d.Set("feedback_contexts", flattenApigeeSecurityFeedbackFeedbackContexts(res["feedbackContexts"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
+	}
+	if err = d.Set("feedback_type", flattenApigeeSecurityFeedbackFeedbackType(res["feedbackType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
+	}
+	if err = d.Set("create_time", flattenApigeeSecurityFeedbackCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
+	}
+	if err = d.Set("update_time", flattenApigeeSecurityFeedbackUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
+	}
+	if err = d.Set("reason", flattenApigeeSecurityFeedbackReason(res["reason"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
+	}
+	if err = d.Set("comment", flattenApigeeSecurityFeedbackComment(res["comment"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityFeedback: %s", err)
+	}
+
+	return nil
 }

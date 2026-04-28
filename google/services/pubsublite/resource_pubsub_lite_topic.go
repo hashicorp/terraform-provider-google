@@ -390,14 +390,9 @@ func resourcePubsubLiteTopicRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
 
-	if err := d.Set("partition_config", flattenPubsubLiteTopicPartitionConfig(res["partitionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Topic: %s", err)
-	}
-	if err := d.Set("retention_config", flattenPubsubLiteTopicRetentionConfig(res["retentionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Topic: %s", err)
-	}
-	if err := d.Set("reservation_config", flattenPubsubLiteTopicReservationConfig(res["reservationConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Topic: %s", err)
+	err = ResourcePubsubLiteTopicFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -895,4 +890,20 @@ func resourcePubsubLiteTopicEncoder(d *schema.ResourceData, meta interface{}, ob
 	}
 
 	return obj, nil
+}
+
+func ResourcePubsubLiteTopicFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("partition_config", flattenPubsubLiteTopicPartitionConfig(res["partitionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Topic: %s", err)
+	}
+	if err = d.Set("retention_config", flattenPubsubLiteTopicRetentionConfig(res["retentionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Topic: %s", err)
+	}
+	if err = d.Set("reservation_config", flattenPubsubLiteTopicReservationConfig(res["reservationConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Topic: %s", err)
+	}
+
+	return nil
 }

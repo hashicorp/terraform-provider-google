@@ -589,38 +589,9 @@ func resourceNetworkManagementConnectivityTestRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
 	}
 
-	if err := d.Set("name", flattenNetworkManagementConnectivityTestName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkManagementConnectivityTestDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
-	}
-	if err := d.Set("source", flattenNetworkManagementConnectivityTestSource(res["source"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
-	}
-	if err := d.Set("destination", flattenNetworkManagementConnectivityTestDestination(res["destination"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
-	}
-	if err := d.Set("protocol", flattenNetworkManagementConnectivityTestProtocol(res["protocol"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
-	}
-	if err := d.Set("related_projects", flattenNetworkManagementConnectivityTestRelatedProjects(res["relatedProjects"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkManagementConnectivityTestLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
-	}
-	if err := d.Set("round_trip", flattenNetworkManagementConnectivityTestRoundTrip(res["roundTrip"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
-	}
-	if err := d.Set("bypass_firewall_checks", flattenNetworkManagementConnectivityTestBypassFirewallChecks(res["bypassFirewallChecks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkManagementConnectivityTestTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkManagementConnectivityTestEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	err = ResourceNetworkManagementConnectivityTestFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1559,4 +1530,44 @@ func expandNetworkManagementConnectivityTestEffectiveLabels(v interface{}, d tpg
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkManagementConnectivityTestFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNetworkManagementConnectivityTestName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkManagementConnectivityTestDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+	if err = d.Set("source", flattenNetworkManagementConnectivityTestSource(res["source"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+	if err = d.Set("destination", flattenNetworkManagementConnectivityTestDestination(res["destination"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+	if err = d.Set("protocol", flattenNetworkManagementConnectivityTestProtocol(res["protocol"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+	if err = d.Set("related_projects", flattenNetworkManagementConnectivityTestRelatedProjects(res["relatedProjects"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkManagementConnectivityTestLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+	if err = d.Set("round_trip", flattenNetworkManagementConnectivityTestRoundTrip(res["roundTrip"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+	if err = d.Set("bypass_firewall_checks", flattenNetworkManagementConnectivityTestBypassFirewallChecks(res["bypassFirewallChecks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkManagementConnectivityTestTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkManagementConnectivityTestEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+
+	return nil
 }

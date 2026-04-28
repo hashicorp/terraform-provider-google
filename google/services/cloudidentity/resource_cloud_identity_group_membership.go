@@ -455,23 +455,9 @@ func resourceCloudIdentityGroupMembershipRead(d *schema.ResourceData, meta inter
 		}
 	}
 
-	if err := d.Set("name", flattenCloudIdentityGroupMembershipName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
-	}
-	if err := d.Set("preferred_member_key", flattenCloudIdentityGroupMembershipPreferredMemberKey(res["preferredMemberKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
-	}
-	if err := d.Set("create_time", flattenCloudIdentityGroupMembershipCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
-	}
-	if err := d.Set("update_time", flattenCloudIdentityGroupMembershipUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
-	}
-	if err := d.Set("roles", flattenCloudIdentityGroupMembershipRoles(res["roles"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
-	}
-	if err := d.Set("type", flattenCloudIdentityGroupMembershipType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
+	err = ResourceCloudIdentityGroupMembershipFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -872,5 +858,30 @@ func resourceCloudIdentityGroupMembershipPostCreateSetComputedFields(d *schema.R
 	if err := d.Set("name", flattenCloudIdentityGroupMembershipName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceCloudIdentityGroupMembershipFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenCloudIdentityGroupMembershipName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GroupMembership: %s", err)
+	}
+	if err = d.Set("preferred_member_key", flattenCloudIdentityGroupMembershipPreferredMemberKey(res["preferredMemberKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GroupMembership: %s", err)
+	}
+	if err = d.Set("create_time", flattenCloudIdentityGroupMembershipCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GroupMembership: %s", err)
+	}
+	if err = d.Set("update_time", flattenCloudIdentityGroupMembershipUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GroupMembership: %s", err)
+	}
+	if err = d.Set("roles", flattenCloudIdentityGroupMembershipRoles(res["roles"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GroupMembership: %s", err)
+	}
+	if err = d.Set("type", flattenCloudIdentityGroupMembershipType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GroupMembership: %s", err)
+	}
+
 	return nil
 }

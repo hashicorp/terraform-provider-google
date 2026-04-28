@@ -617,44 +617,9 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Secret: %s", err)
 	}
 
-	if err := d.Set("name", flattenSecretManagerSecretName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("create_time", flattenSecretManagerSecretCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("labels", flattenSecretManagerSecretLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("annotations", flattenSecretManagerSecretAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("version_aliases", flattenSecretManagerSecretVersionAliases(res["versionAliases"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("version_destroy_ttl", flattenSecretManagerSecretVersionDestroyTtl(res["versionDestroyTtl"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("replication", flattenSecretManagerSecretReplication(res["replication"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("topics", flattenSecretManagerSecretTopics(res["topics"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("expire_time", flattenSecretManagerSecretExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("rotation", flattenSecretManagerSecretRotation(res["rotation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenSecretManagerSecretTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenSecretManagerSecretEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenSecretManagerSecretEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Secret: %s", err)
+	err = ResourceSecretManagerSecretFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1432,4 +1397,50 @@ func expandSecretManagerSecretEffectiveAnnotations(v interface{}, d tpgresource.
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceSecretManagerSecretFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecretManagerSecretName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("create_time", flattenSecretManagerSecretCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("labels", flattenSecretManagerSecretLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("annotations", flattenSecretManagerSecretAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("version_aliases", flattenSecretManagerSecretVersionAliases(res["versionAliases"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("version_destroy_ttl", flattenSecretManagerSecretVersionDestroyTtl(res["versionDestroyTtl"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("replication", flattenSecretManagerSecretReplication(res["replication"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("topics", flattenSecretManagerSecretTopics(res["topics"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("expire_time", flattenSecretManagerSecretExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("rotation", flattenSecretManagerSecretRotation(res["rotation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenSecretManagerSecretTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenSecretManagerSecretEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenSecretManagerSecretEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+
+	return nil
 }

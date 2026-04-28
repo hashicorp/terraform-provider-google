@@ -340,26 +340,9 @@ func resourceDocumentAISchemaRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Schema: %s", err)
 	}
 
-	if err := d.Set("name", flattenDocumentAISchemaName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Schema: %s", err)
-	}
-	if err := d.Set("display_name", flattenDocumentAISchemaDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Schema: %s", err)
-	}
-	if err := d.Set("labels", flattenDocumentAISchemaLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Schema: %s", err)
-	}
-	if err := d.Set("create_time", flattenDocumentAISchemaCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Schema: %s", err)
-	}
-	if err := d.Set("update_time", flattenDocumentAISchemaUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Schema: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDocumentAISchemaTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Schema: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDocumentAISchemaEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Schema: %s", err)
+	err = ResourceDocumentAISchemaFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -631,5 +614,33 @@ func resourceDocumentAISchemaPostCreateSetComputedFields(d *schema.ResourceData,
 	if err := d.Set("name", flattenDocumentAISchemaName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDocumentAISchemaFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDocumentAISchemaName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
+	if err = d.Set("display_name", flattenDocumentAISchemaDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
+	if err = d.Set("labels", flattenDocumentAISchemaLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
+	if err = d.Set("create_time", flattenDocumentAISchemaCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
+	if err = d.Set("update_time", flattenDocumentAISchemaUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDocumentAISchemaTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDocumentAISchemaEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
+
 	return nil
 }

@@ -314,20 +314,9 @@ func resourceHealthcareWorkspaceRead(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Finished reading HealthcareWorkspace %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenHealthcareWorkspaceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workspace: %s", err)
-	}
-	if err := d.Set("settings", flattenHealthcareWorkspaceSettings(res["settings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workspace: %s", err)
-	}
-	if err := d.Set("labels", flattenHealthcareWorkspaceLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workspace: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenHealthcareWorkspaceTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workspace: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenHealthcareWorkspaceEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workspace: %s", err)
+	err = ResourceHealthcareWorkspaceFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -598,4 +587,26 @@ func expandHealthcareWorkspaceEffectiveLabels(v interface{}, d tpgresource.Terra
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceHealthcareWorkspaceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenHealthcareWorkspaceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workspace: %s", err)
+	}
+	if err = d.Set("settings", flattenHealthcareWorkspaceSettings(res["settings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workspace: %s", err)
+	}
+	if err = d.Set("labels", flattenHealthcareWorkspaceLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workspace: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenHealthcareWorkspaceTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workspace: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenHealthcareWorkspaceEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workspace: %s", err)
+	}
+
+	return nil
 }

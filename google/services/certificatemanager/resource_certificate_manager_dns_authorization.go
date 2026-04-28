@@ -408,26 +408,9 @@ func resourceCertificateManagerDnsAuthorizationRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
 	}
 
-	if err := d.Set("description", flattenCertificateManagerDnsAuthorizationDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
-	}
-	if err := d.Set("labels", flattenCertificateManagerDnsAuthorizationLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
-	}
-	if err := d.Set("domain", flattenCertificateManagerDnsAuthorizationDomain(res["domain"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
-	}
-	if err := d.Set("type", flattenCertificateManagerDnsAuthorizationType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
-	}
-	if err := d.Set("dns_resource_record", flattenCertificateManagerDnsAuthorizationDnsResourceRecord(res["dnsResourceRecord"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenCertificateManagerDnsAuthorizationTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenCertificateManagerDnsAuthorizationEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
+	err = ResourceCertificateManagerDnsAuthorizationFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -829,4 +812,32 @@ E.g. '_acme-challenge.example.com'.`,
 		},
 	}
 
+}
+
+func ResourceCertificateManagerDnsAuthorizationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenCertificateManagerDnsAuthorizationDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
+	}
+	if err = d.Set("labels", flattenCertificateManagerDnsAuthorizationLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
+	}
+	if err = d.Set("domain", flattenCertificateManagerDnsAuthorizationDomain(res["domain"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
+	}
+	if err = d.Set("type", flattenCertificateManagerDnsAuthorizationType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
+	}
+	if err = d.Set("dns_resource_record", flattenCertificateManagerDnsAuthorizationDnsResourceRecord(res["dnsResourceRecord"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenCertificateManagerDnsAuthorizationTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenCertificateManagerDnsAuthorizationEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
+	}
+
+	return nil
 }

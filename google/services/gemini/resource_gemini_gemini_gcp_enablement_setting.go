@@ -373,32 +373,9 @@ func resourceGeminiGeminiGcpEnablementSettingRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
 	}
 
-	if err := d.Set("name", flattenGeminiGeminiGcpEnablementSettingName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
-	}
-	if err := d.Set("create_time", flattenGeminiGeminiGcpEnablementSettingCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
-	}
-	if err := d.Set("update_time", flattenGeminiGeminiGcpEnablementSettingUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
-	}
-	if err := d.Set("labels", flattenGeminiGeminiGcpEnablementSettingLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
-	}
-	if err := d.Set("enable_customer_data_sharing", flattenGeminiGeminiGcpEnablementSettingEnableCustomerDataSharing(res["enableCustomerDataSharing"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
-	}
-	if err := d.Set("disable_web_grounding", flattenGeminiGeminiGcpEnablementSettingDisableWebGrounding(res["disableWebGrounding"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
-	}
-	if err := d.Set("web_grounding_type", flattenGeminiGeminiGcpEnablementSettingWebGroundingType(res["webGroundingType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenGeminiGeminiGcpEnablementSettingTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenGeminiGeminiGcpEnablementSettingEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	err = ResourceGeminiGeminiGcpEnablementSettingFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -710,4 +687,38 @@ func expandGeminiGeminiGcpEnablementSettingEffectiveLabels(v interface{}, d tpgr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceGeminiGeminiGcpEnablementSettingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenGeminiGeminiGcpEnablementSettingName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
+	if err = d.Set("create_time", flattenGeminiGeminiGcpEnablementSettingCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
+	if err = d.Set("update_time", flattenGeminiGeminiGcpEnablementSettingUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
+	if err = d.Set("labels", flattenGeminiGeminiGcpEnablementSettingLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
+	if err = d.Set("enable_customer_data_sharing", flattenGeminiGeminiGcpEnablementSettingEnableCustomerDataSharing(res["enableCustomerDataSharing"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
+	if err = d.Set("disable_web_grounding", flattenGeminiGeminiGcpEnablementSettingDisableWebGrounding(res["disableWebGrounding"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
+	if err = d.Set("web_grounding_type", flattenGeminiGeminiGcpEnablementSettingWebGroundingType(res["webGroundingType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenGeminiGeminiGcpEnablementSettingTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenGeminiGeminiGcpEnablementSettingEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
+
+	return nil
 }

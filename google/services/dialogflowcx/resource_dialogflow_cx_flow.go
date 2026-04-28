@@ -1536,35 +1536,9 @@ func resourceDialogflowCXFlowRead(d *schema.ResourceData, meta interface{}) erro
 
 	// Explicitly set virtual fields to default values if unset
 
-	if err := d.Set("name", flattenDialogflowCXFlowName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Flow: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowCXFlowDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Flow: %s", err)
-	}
-	if err := d.Set("description", flattenDialogflowCXFlowDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Flow: %s", err)
-	}
-	if err := d.Set("transition_routes", flattenDialogflowCXFlowTransitionRoutes(res["transitionRoutes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Flow: %s", err)
-	}
-	if err := d.Set("event_handlers", flattenDialogflowCXFlowEventHandlers(res["eventHandlers"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Flow: %s", err)
-	}
-	if err := d.Set("transition_route_groups", flattenDialogflowCXFlowTransitionRouteGroups(res["transitionRouteGroups"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Flow: %s", err)
-	}
-	if err := d.Set("nlu_settings", flattenDialogflowCXFlowNluSettings(res["nluSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Flow: %s", err)
-	}
-	if err := d.Set("advanced_settings", flattenDialogflowCXFlowAdvancedSettings(res["advancedSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Flow: %s", err)
-	}
-	if err := d.Set("knowledge_connector_settings", flattenDialogflowCXFlowKnowledgeConnectorSettings(res["knowledgeConnectorSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Flow: %s", err)
-	}
-	if err := d.Set("language_code", flattenDialogflowCXFlowLanguageCode(res["languageCode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Flow: %s", err)
+	err = ResourceDialogflowCXFlowFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -5572,5 +5546,42 @@ func resourceDialogflowCXFlowPostCreateSetComputedFields(d *schema.ResourceData,
 	if err := d.Set("name", flattenDialogflowCXFlowName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowCXFlowFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowCXFlowName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Flow: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowCXFlowDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Flow: %s", err)
+	}
+	if err = d.Set("description", flattenDialogflowCXFlowDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Flow: %s", err)
+	}
+	if err = d.Set("transition_routes", flattenDialogflowCXFlowTransitionRoutes(res["transitionRoutes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Flow: %s", err)
+	}
+	if err = d.Set("event_handlers", flattenDialogflowCXFlowEventHandlers(res["eventHandlers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Flow: %s", err)
+	}
+	if err = d.Set("transition_route_groups", flattenDialogflowCXFlowTransitionRouteGroups(res["transitionRouteGroups"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Flow: %s", err)
+	}
+	if err = d.Set("nlu_settings", flattenDialogflowCXFlowNluSettings(res["nluSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Flow: %s", err)
+	}
+	if err = d.Set("advanced_settings", flattenDialogflowCXFlowAdvancedSettings(res["advancedSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Flow: %s", err)
+	}
+	if err = d.Set("knowledge_connector_settings", flattenDialogflowCXFlowKnowledgeConnectorSettings(res["knowledgeConnectorSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Flow: %s", err)
+	}
+	if err = d.Set("language_code", flattenDialogflowCXFlowLanguageCode(res["languageCode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Flow: %s", err)
+	}
+
 	return nil
 }

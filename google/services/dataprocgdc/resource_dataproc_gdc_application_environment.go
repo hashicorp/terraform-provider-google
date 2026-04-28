@@ -419,41 +419,9 @@ func resourceDataprocGdcApplicationEnvironmentRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataprocGdcApplicationEnvironmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
-	}
-	if err := d.Set("uid", flattenDataprocGdcApplicationEnvironmentUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataprocGdcApplicationEnvironmentDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
-	}
-	if err := d.Set("create_time", flattenDataprocGdcApplicationEnvironmentCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
-	}
-	if err := d.Set("update_time", flattenDataprocGdcApplicationEnvironmentUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
-	}
-	if err := d.Set("labels", flattenDataprocGdcApplicationEnvironmentLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
-	}
-	if err := d.Set("annotations", flattenDataprocGdcApplicationEnvironmentAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
-	}
-	if err := d.Set("spark_application_environment_config", flattenDataprocGdcApplicationEnvironmentSparkApplicationEnvironmentConfig(res["sparkApplicationEnvironmentConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
-	}
-	if err := d.Set("namespace", flattenDataprocGdcApplicationEnvironmentNamespace(res["namespace"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDataprocGdcApplicationEnvironmentTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDataprocGdcApplicationEnvironmentEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenDataprocGdcApplicationEnvironmentEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	err = ResourceDataprocGdcApplicationEnvironmentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -865,4 +833,47 @@ func expandDataprocGdcApplicationEnvironmentEffectiveAnnotations(v interface{}, 
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceDataprocGdcApplicationEnvironmentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataprocGdcApplicationEnvironmentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+	if err = d.Set("uid", flattenDataprocGdcApplicationEnvironmentUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataprocGdcApplicationEnvironmentDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+	if err = d.Set("create_time", flattenDataprocGdcApplicationEnvironmentCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+	if err = d.Set("update_time", flattenDataprocGdcApplicationEnvironmentUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+	if err = d.Set("labels", flattenDataprocGdcApplicationEnvironmentLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+	if err = d.Set("annotations", flattenDataprocGdcApplicationEnvironmentAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+	if err = d.Set("spark_application_environment_config", flattenDataprocGdcApplicationEnvironmentSparkApplicationEnvironmentConfig(res["sparkApplicationEnvironmentConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+	if err = d.Set("namespace", flattenDataprocGdcApplicationEnvironmentNamespace(res["namespace"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDataprocGdcApplicationEnvironmentTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDataprocGdcApplicationEnvironmentEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenDataprocGdcApplicationEnvironmentEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ApplicationEnvironment: %s", err)
+	}
+
+	return nil
 }

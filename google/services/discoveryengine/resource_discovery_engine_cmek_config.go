@@ -372,29 +372,9 @@ func resourceDiscoveryEngineCmekConfigRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading CmekConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenDiscoveryEngineCmekConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CmekConfig: %s", err)
-	}
-	if err := d.Set("kms_key", flattenDiscoveryEngineCmekConfigKmsKey(res["kmsKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CmekConfig: %s", err)
-	}
-	if err := d.Set("kms_key_version", flattenDiscoveryEngineCmekConfigKmsKeyVersion(res["kmsKeyVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CmekConfig: %s", err)
-	}
-	if err := d.Set("state", flattenDiscoveryEngineCmekConfigState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CmekConfig: %s", err)
-	}
-	if err := d.Set("is_default", flattenDiscoveryEngineCmekConfigIsDefault(res["isDefault"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CmekConfig: %s", err)
-	}
-	if err := d.Set("last_rotation_timestamp_micros", flattenDiscoveryEngineCmekConfigLastRotationTimestampMicros(res["lastRotationTimestampMicros"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CmekConfig: %s", err)
-	}
-	if err := d.Set("single_region_keys", flattenDiscoveryEngineCmekConfigSingleRegionKeys(res["singleRegionKeys"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CmekConfig: %s", err)
-	}
-	if err := d.Set("notebooklm_state", flattenDiscoveryEngineCmekConfigNotebooklmState(res["notebooklmState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CmekConfig: %s", err)
+	err = ResourceDiscoveryEngineCmekConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -690,4 +670,35 @@ func resourceDiscoveryEngineCmekConfigUpdateEncoder(d *schema.ResourceData, meta
 	// In update operation, the immutable value of this field is ignored and not found, generating generating error: "Field \"kms_key_name\" is a required field, but no value is found."
 	obj["kmsKey"] = d.Get("kms_key")
 	return obj, nil
+}
+
+func ResourceDiscoveryEngineCmekConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDiscoveryEngineCmekConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CmekConfig: %s", err)
+	}
+	if err = d.Set("kms_key", flattenDiscoveryEngineCmekConfigKmsKey(res["kmsKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CmekConfig: %s", err)
+	}
+	if err = d.Set("kms_key_version", flattenDiscoveryEngineCmekConfigKmsKeyVersion(res["kmsKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CmekConfig: %s", err)
+	}
+	if err = d.Set("state", flattenDiscoveryEngineCmekConfigState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CmekConfig: %s", err)
+	}
+	if err = d.Set("is_default", flattenDiscoveryEngineCmekConfigIsDefault(res["isDefault"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CmekConfig: %s", err)
+	}
+	if err = d.Set("last_rotation_timestamp_micros", flattenDiscoveryEngineCmekConfigLastRotationTimestampMicros(res["lastRotationTimestampMicros"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CmekConfig: %s", err)
+	}
+	if err = d.Set("single_region_keys", flattenDiscoveryEngineCmekConfigSingleRegionKeys(res["singleRegionKeys"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CmekConfig: %s", err)
+	}
+	if err = d.Set("notebooklm_state", flattenDiscoveryEngineCmekConfigNotebooklmState(res["notebooklmState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CmekConfig: %s", err)
+	}
+
+	return nil
 }

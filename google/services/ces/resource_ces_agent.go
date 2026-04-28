@@ -758,68 +758,9 @@ func resourceCESAgentRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
 
-	if err := d.Set("after_agent_callbacks", flattenCESAgentAfterAgentCallbacks(res["afterAgentCallbacks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("after_model_callbacks", flattenCESAgentAfterModelCallbacks(res["afterModelCallbacks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("after_tool_callbacks", flattenCESAgentAfterToolCallbacks(res["afterToolCallbacks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("before_agent_callbacks", flattenCESAgentBeforeAgentCallbacks(res["beforeAgentCallbacks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("before_model_callbacks", flattenCESAgentBeforeModelCallbacks(res["beforeModelCallbacks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("before_tool_callbacks", flattenCESAgentBeforeToolCallbacks(res["beforeToolCallbacks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("child_agents", flattenCESAgentChildAgents(res["childAgents"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("create_time", flattenCESAgentCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("description", flattenCESAgentDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("display_name", flattenCESAgentDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("etag", flattenCESAgentEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("generated_summary", flattenCESAgentGeneratedSummary(res["generatedSummary"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("guardrails", flattenCESAgentGuardrails(res["guardrails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("instruction", flattenCESAgentInstruction(res["instruction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("model_settings", flattenCESAgentModelSettings(res["modelSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("name", flattenCESAgentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("llm_agent", flattenCESAgentLlmAgent(res["llmAgent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("remote_dialogflow_agent", flattenCESAgentRemoteDialogflowAgent(res["remoteDialogflowAgent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("tools", flattenCESAgentTools(res["tools"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("toolsets", flattenCESAgentToolsets(res["toolsets"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("update_time", flattenCESAgentUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
+	err = ResourceCESAgentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2038,5 +1979,75 @@ func resourceCESAgentPostCreateSetComputedFields(d *schema.ResourceData, meta in
 	if err := d.Set("name", flattenCESAgentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceCESAgentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("after_agent_callbacks", flattenCESAgentAfterAgentCallbacks(res["afterAgentCallbacks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("after_model_callbacks", flattenCESAgentAfterModelCallbacks(res["afterModelCallbacks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("after_tool_callbacks", flattenCESAgentAfterToolCallbacks(res["afterToolCallbacks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("before_agent_callbacks", flattenCESAgentBeforeAgentCallbacks(res["beforeAgentCallbacks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("before_model_callbacks", flattenCESAgentBeforeModelCallbacks(res["beforeModelCallbacks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("before_tool_callbacks", flattenCESAgentBeforeToolCallbacks(res["beforeToolCallbacks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("child_agents", flattenCESAgentChildAgents(res["childAgents"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("create_time", flattenCESAgentCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("description", flattenCESAgentDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("display_name", flattenCESAgentDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("etag", flattenCESAgentEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("generated_summary", flattenCESAgentGeneratedSummary(res["generatedSummary"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("guardrails", flattenCESAgentGuardrails(res["guardrails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("instruction", flattenCESAgentInstruction(res["instruction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("model_settings", flattenCESAgentModelSettings(res["modelSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("name", flattenCESAgentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("llm_agent", flattenCESAgentLlmAgent(res["llmAgent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("remote_dialogflow_agent", flattenCESAgentRemoteDialogflowAgent(res["remoteDialogflowAgent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("tools", flattenCESAgentTools(res["tools"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("toolsets", flattenCESAgentToolsets(res["toolsets"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("update_time", flattenCESAgentUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+
 	return nil
 }

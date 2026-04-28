@@ -422,26 +422,9 @@ func resourceVmwareengineDatastoreRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading Datastore: %s", err)
 	}
 
-	if err := d.Set("clusters", flattenVmwareengineDatastoreClusters(res["clusters"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datastore: %s", err)
-	}
-	if err := d.Set("create_time", flattenVmwareengineDatastoreCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datastore: %s", err)
-	}
-	if err := d.Set("description", flattenVmwareengineDatastoreDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datastore: %s", err)
-	}
-	if err := d.Set("nfs_datastore", flattenVmwareengineDatastoreNfsDatastore(res["nfsDatastore"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datastore: %s", err)
-	}
-	if err := d.Set("state", flattenVmwareengineDatastoreState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datastore: %s", err)
-	}
-	if err := d.Set("uid", flattenVmwareengineDatastoreUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datastore: %s", err)
-	}
-	if err := d.Set("update_time", flattenVmwareengineDatastoreUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Datastore: %s", err)
+	err = ResourceVmwareengineDatastoreFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -862,4 +845,32 @@ func expandVmwareengineDatastoreNfsDatastoreThirdPartyFileServiceNetwork(v inter
 
 func expandVmwareengineDatastoreNfsDatastoreThirdPartyFileServiceServers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceVmwareengineDatastoreFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("clusters", flattenVmwareengineDatastoreClusters(res["clusters"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datastore: %s", err)
+	}
+	if err = d.Set("create_time", flattenVmwareengineDatastoreCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datastore: %s", err)
+	}
+	if err = d.Set("description", flattenVmwareengineDatastoreDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datastore: %s", err)
+	}
+	if err = d.Set("nfs_datastore", flattenVmwareengineDatastoreNfsDatastore(res["nfsDatastore"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datastore: %s", err)
+	}
+	if err = d.Set("state", flattenVmwareengineDatastoreState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datastore: %s", err)
+	}
+	if err = d.Set("uid", flattenVmwareengineDatastoreUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datastore: %s", err)
+	}
+	if err = d.Set("update_time", flattenVmwareengineDatastoreUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datastore: %s", err)
+	}
+
+	return nil
 }

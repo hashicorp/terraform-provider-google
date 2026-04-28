@@ -728,74 +728,9 @@ func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 
-	if err := d.Set("name", flattenContainerAttachedClusterName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("description", flattenContainerAttachedClusterDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("oidc_config", flattenContainerAttachedClusterOidcConfig(res["oidcConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("platform_version", flattenContainerAttachedClusterPlatformVersion(res["platformVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("distribution", flattenContainerAttachedClusterDistribution(res["distribution"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("cluster_region", flattenContainerAttachedClusterClusterRegion(res["clusterRegion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("fleet", flattenContainerAttachedClusterFleet(res["fleet"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("state", flattenContainerAttachedClusterState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("uid", flattenContainerAttachedClusterUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("reconciling", flattenContainerAttachedClusterReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("create_time", flattenContainerAttachedClusterCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("update_time", flattenContainerAttachedClusterUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("kubernetes_version", flattenContainerAttachedClusterKubernetesVersion(res["kubernetesVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("annotations", flattenContainerAttachedClusterAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("workload_identity_config", flattenContainerAttachedClusterWorkloadIdentityConfig(res["workloadIdentityConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("logging_config", flattenContainerAttachedClusterLoggingConfig(res["loggingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("errors", flattenContainerAttachedClusterErrors(res["errors"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("authorization", flattenContainerAttachedClusterAuthorization(res["authorization"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("monitoring_config", flattenContainerAttachedClusterMonitoringConfig(res["monitoringConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("binary_authorization", flattenContainerAttachedClusterBinaryAuthorization(res["binaryAuthorization"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("proxy_config", flattenContainerAttachedClusterProxyConfig(res["proxyConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("security_posture_config", flattenContainerAttachedClusterSecurityPostureConfig(res["securityPostureConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenContainerAttachedClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
+	err = ResourceContainerAttachedClusterFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1857,4 +1792,80 @@ func expandContainerAttachedClusterEffectiveAnnotations(v interface{}, d tpgreso
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceContainerAttachedClusterFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenContainerAttachedClusterName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("description", flattenContainerAttachedClusterDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("oidc_config", flattenContainerAttachedClusterOidcConfig(res["oidcConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("platform_version", flattenContainerAttachedClusterPlatformVersion(res["platformVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("distribution", flattenContainerAttachedClusterDistribution(res["distribution"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("cluster_region", flattenContainerAttachedClusterClusterRegion(res["clusterRegion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("fleet", flattenContainerAttachedClusterFleet(res["fleet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("state", flattenContainerAttachedClusterState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("uid", flattenContainerAttachedClusterUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("reconciling", flattenContainerAttachedClusterReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("create_time", flattenContainerAttachedClusterCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("update_time", flattenContainerAttachedClusterUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("kubernetes_version", flattenContainerAttachedClusterKubernetesVersion(res["kubernetesVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("annotations", flattenContainerAttachedClusterAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("workload_identity_config", flattenContainerAttachedClusterWorkloadIdentityConfig(res["workloadIdentityConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("logging_config", flattenContainerAttachedClusterLoggingConfig(res["loggingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("errors", flattenContainerAttachedClusterErrors(res["errors"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("authorization", flattenContainerAttachedClusterAuthorization(res["authorization"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("monitoring_config", flattenContainerAttachedClusterMonitoringConfig(res["monitoringConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("binary_authorization", flattenContainerAttachedClusterBinaryAuthorization(res["binaryAuthorization"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("proxy_config", flattenContainerAttachedClusterProxyConfig(res["proxyConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("security_posture_config", flattenContainerAttachedClusterSecurityPostureConfig(res["securityPostureConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenContainerAttachedClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+
+	return nil
 }

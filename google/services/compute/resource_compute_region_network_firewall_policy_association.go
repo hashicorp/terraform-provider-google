@@ -333,14 +333,9 @@ func resourceComputeRegionNetworkFirewallPolicyAssociationRead(d *schema.Resourc
 		return fmt.Errorf("Error reading RegionNetworkFirewallPolicyAssociation: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeRegionNetworkFirewallPolicyAssociationName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicyAssociation: %s", err)
-	}
-	if err := d.Set("attachment_target", flattenComputeRegionNetworkFirewallPolicyAssociationAttachmentTarget(res["attachmentTarget"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicyAssociation: %s", err)
-	}
-	if err := d.Set("short_name", flattenComputeRegionNetworkFirewallPolicyAssociationShortName(res["shortName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicyAssociation: %s", err)
+	err = ResourceComputeRegionNetworkFirewallPolicyAssociationFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -472,4 +467,20 @@ func expandComputeRegionNetworkFirewallPolicyAssociationName(v interface{}, d tp
 
 func expandComputeRegionNetworkFirewallPolicyAssociationAttachmentTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeRegionNetworkFirewallPolicyAssociationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenComputeRegionNetworkFirewallPolicyAssociationName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicyAssociation: %s", err)
+	}
+	if err = d.Set("attachment_target", flattenComputeRegionNetworkFirewallPolicyAssociationAttachmentTarget(res["attachmentTarget"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicyAssociation: %s", err)
+	}
+	if err = d.Set("short_name", flattenComputeRegionNetworkFirewallPolicyAssociationShortName(res["shortName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicyAssociation: %s", err)
+	}
+
+	return nil
 }

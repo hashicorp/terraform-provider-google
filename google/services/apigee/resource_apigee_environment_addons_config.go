@@ -268,8 +268,9 @@ func resourceApigeeEnvironmentAddonsConfigRead(d *schema.ResourceData, meta inte
 		return nil
 	}
 
-	if err := d.Set("analytics_enabled", flattenApigeeEnvironmentAddonsConfigAnalyticsEnabled(res["analyticsEnabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvironmentAddonsConfig: %s", err)
+	err = ResourceApigeeEnvironmentAddonsConfigFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -396,4 +397,14 @@ func resourceApigeeEnvironmentAddonsConfigDecoder(d *schema.ResourceData, meta i
 		res["analyticsEnabled"] = false
 	}
 	return res, nil
+}
+
+func ResourceApigeeEnvironmentAddonsConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("analytics_enabled", flattenApigeeEnvironmentAddonsConfigAnalyticsEnabled(res["analyticsEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvironmentAddonsConfig: %s", err)
+	}
+
+	return nil
 }

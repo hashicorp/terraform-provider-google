@@ -371,23 +371,9 @@ func resourceBeyondcorpAppConnectorRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading AppConnector: %s", err)
 	}
 
-	if err := d.Set("display_name", flattenBeyondcorpAppConnectorDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnector: %s", err)
-	}
-	if err := d.Set("labels", flattenBeyondcorpAppConnectorLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnector: %s", err)
-	}
-	if err := d.Set("principal_info", flattenBeyondcorpAppConnectorPrincipalInfo(res["principalInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnector: %s", err)
-	}
-	if err := d.Set("state", flattenBeyondcorpAppConnectorState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnector: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenBeyondcorpAppConnectorTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnector: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenBeyondcorpAppConnectorEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppConnector: %s", err)
+	err = ResourceBeyondcorpAppConnectorFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -745,4 +731,29 @@ func expandBeyondcorpAppConnectorEffectiveLabels(v interface{}, d tpgresource.Te
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceBeyondcorpAppConnectorFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("display_name", flattenBeyondcorpAppConnectorDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnector: %s", err)
+	}
+	if err = d.Set("labels", flattenBeyondcorpAppConnectorLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnector: %s", err)
+	}
+	if err = d.Set("principal_info", flattenBeyondcorpAppConnectorPrincipalInfo(res["principalInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnector: %s", err)
+	}
+	if err = d.Set("state", flattenBeyondcorpAppConnectorState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnector: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenBeyondcorpAppConnectorTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnector: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenBeyondcorpAppConnectorEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppConnector: %s", err)
+	}
+
+	return nil
 }

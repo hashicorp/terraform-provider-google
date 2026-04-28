@@ -1552,47 +1552,9 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 
-	if err := d.Set("issuer_certificate_authority", flattenPrivatecaCertificateIssuerCertificateAuthority(res["issuerCertificateAuthority"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("lifetime", flattenPrivatecaCertificateLifetime(res["lifetime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("revocation_details", flattenPrivatecaCertificateRevocationDetails(res["revocationDetails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("pem_certificate", flattenPrivatecaCertificatePemCertificate(res["pemCertificate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("certificate_description", flattenPrivatecaCertificateCertificateDescription(res["certificateDescription"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("pem_certificate_chain", flattenPrivatecaCertificatePemCertificateChain(res["pemCertificateChain"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("create_time", flattenPrivatecaCertificateCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("update_time", flattenPrivatecaCertificateUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("certificate_template", flattenPrivatecaCertificateCertificateTemplate(res["certificateTemplate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("labels", flattenPrivatecaCertificateLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("pem_csr", flattenPrivatecaCertificatePemCsr(res["pemCsr"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("config", flattenPrivatecaCertificateConfig(res["config"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenPrivatecaCertificateTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenPrivatecaCertificateEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
+	err = ResourcePrivatecaCertificateFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3076,4 +3038,53 @@ func expandPrivatecaCertificateEffectiveLabels(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourcePrivatecaCertificateFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("issuer_certificate_authority", flattenPrivatecaCertificateIssuerCertificateAuthority(res["issuerCertificateAuthority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("lifetime", flattenPrivatecaCertificateLifetime(res["lifetime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("revocation_details", flattenPrivatecaCertificateRevocationDetails(res["revocationDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("pem_certificate", flattenPrivatecaCertificatePemCertificate(res["pemCertificate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("certificate_description", flattenPrivatecaCertificateCertificateDescription(res["certificateDescription"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("pem_certificate_chain", flattenPrivatecaCertificatePemCertificateChain(res["pemCertificateChain"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("create_time", flattenPrivatecaCertificateCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("update_time", flattenPrivatecaCertificateUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("certificate_template", flattenPrivatecaCertificateCertificateTemplate(res["certificateTemplate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("labels", flattenPrivatecaCertificateLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("pem_csr", flattenPrivatecaCertificatePemCsr(res["pemCsr"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("config", flattenPrivatecaCertificateConfig(res["config"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenPrivatecaCertificateTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenPrivatecaCertificateEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+
+	return nil
 }

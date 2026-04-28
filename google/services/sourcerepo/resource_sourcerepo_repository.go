@@ -411,17 +411,9 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
-	if err := d.Set("name", flattenSourceRepoRepositoryName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("url", flattenSourceRepoRepositoryUrl(res["url"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("size", flattenSourceRepoRepositorySize(res["size"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("pubsub_configs", flattenSourceRepoRepositoryPubsubConfigs(res["pubsubConfigs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
+	err = ResourceSourceRepoRepositoryFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -717,4 +709,23 @@ func resourceSourceRepoRepositoryUpdateEncoder(d *schema.ResourceData, meta inte
 	newObj := make(map[string]interface{})
 	newObj["repo"] = obj
 	return newObj, nil
+}
+
+func ResourceSourceRepoRepositoryFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSourceRepoRepositoryName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("url", flattenSourceRepoRepositoryUrl(res["url"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("size", flattenSourceRepoRepositorySize(res["size"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("pubsub_configs", flattenSourceRepoRepositoryPubsubConfigs(res["pubsubConfigs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+
+	return nil
 }

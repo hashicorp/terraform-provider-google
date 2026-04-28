@@ -301,11 +301,9 @@ func resourceMonitoringMonitoredProjectRead(d *schema.ResourceData, meta interfa
 		return nil
 	}
 
-	if err := d.Set("name", flattenMonitoringMonitoredProjectName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MonitoredProject: %s", err)
-	}
-	if err := d.Set("create_time", flattenMonitoringMonitoredProjectCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MonitoredProject: %s", err)
+	err = ResourceMonitoringMonitoredProjectFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -488,4 +486,17 @@ func ResourceMonitoringMonitoredProjectUpgradeV0(_ context.Context, rawState map
 
 	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
 	return rawState, nil
+}
+
+func ResourceMonitoringMonitoredProjectFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenMonitoringMonitoredProjectName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MonitoredProject: %s", err)
+	}
+	if err = d.Set("create_time", flattenMonitoringMonitoredProjectCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MonitoredProject: %s", err)
+	}
+
+	return nil
 }

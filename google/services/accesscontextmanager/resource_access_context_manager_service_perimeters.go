@@ -1152,8 +1152,9 @@ func resourceAccessContextManagerServicePerimetersRead(d *schema.ResourceData, m
 
 	log.Printf("[DEBUG] Finished reading AccessContextManagerServicePerimeters %q: %#v", d.Id(), res)
 
-	if err := d.Set("service_perimeters", flattenAccessContextManagerServicePerimetersServicePerimeters(res["servicePerimeters"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeters: %s", err)
+	err = ResourceAccessContextManagerServicePerimetersFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3546,4 +3547,14 @@ func expandAccessContextManagerServicePerimetersServicePerimetersUseExplicitDryR
 
 func expandAccessContextManagerServicePerimetersParent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceAccessContextManagerServicePerimetersFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("service_perimeters", flattenAccessContextManagerServicePerimetersServicePerimeters(res["servicePerimeters"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeters: %s", err)
+	}
+
+	return nil
 }

@@ -317,14 +317,9 @@ func resourceOSLoginSSHPublicKeyRead(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Finished reading OSLoginSSHPublicKey %q: %#v", d.Id(), res)
 
-	if err := d.Set("key", flattenOSLoginSSHPublicKeyKey(res["key"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SSHPublicKey: %s", err)
-	}
-	if err := d.Set("expiration_time_usec", flattenOSLoginSSHPublicKeyExpirationTimeUsec(res["expirationTimeUsec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SSHPublicKey: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenOSLoginSSHPublicKeyFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SSHPublicKey: %s", err)
+	err = ResourceOSLoginSSHPublicKeyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -514,5 +509,21 @@ func resourceOSLoginSSHPublicKeyPostCreateSetComputedFields(d *schema.ResourceDa
 	if err := d.Set("fingerprint", flattenOSLoginSSHPublicKeyFingerprint(res["fingerprint"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "fingerprint": %s`, err)
 	}
+	return nil
+}
+
+func ResourceOSLoginSSHPublicKeyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("key", flattenOSLoginSSHPublicKeyKey(res["key"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SSHPublicKey: %s", err)
+	}
+	if err = d.Set("expiration_time_usec", flattenOSLoginSSHPublicKeyExpirationTimeUsec(res["expirationTimeUsec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SSHPublicKey: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenOSLoginSSHPublicKeyFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SSHPublicKey: %s", err)
+	}
+
 	return nil
 }

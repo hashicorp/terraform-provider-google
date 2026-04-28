@@ -469,14 +469,9 @@ func resourceDataCatalogTagTemplateRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading TagTemplate: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataCatalogTagTemplateName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagTemplate: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataCatalogTagTemplateDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagTemplate: %s", err)
-	}
-	if err := d.Set("fields", flattenDataCatalogTagTemplateFields(res["fields"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagTemplate: %s", err)
+	err = ResourceDataCatalogTagTemplateFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1076,5 +1071,21 @@ func resourceDataCatalogTagTemplatePostCreateSetComputedFields(d *schema.Resourc
 	if err := d.Set("name", flattenDataCatalogTagTemplateName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDataCatalogTagTemplateFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataCatalogTagTemplateName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagTemplate: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataCatalogTagTemplateDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagTemplate: %s", err)
+	}
+	if err = d.Set("fields", flattenDataCatalogTagTemplateFields(res["fields"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagTemplate: %s", err)
+	}
+
 	return nil
 }

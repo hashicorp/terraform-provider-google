@@ -396,38 +396,9 @@ func resourceNetappBackupPolicyRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetappBackupPolicyCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPolicy: %s", err)
-	}
-	if err := d.Set("labels", flattenNetappBackupPolicyLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPolicy: %s", err)
-	}
-	if err := d.Set("state", flattenNetappBackupPolicyState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPolicy: %s", err)
-	}
-	if err := d.Set("daily_backup_limit", flattenNetappBackupPolicyDailyBackupLimit(res["dailyBackupLimit"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPolicy: %s", err)
-	}
-	if err := d.Set("weekly_backup_limit", flattenNetappBackupPolicyWeeklyBackupLimit(res["weeklyBackupLimit"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPolicy: %s", err)
-	}
-	if err := d.Set("monthly_backup_limit", flattenNetappBackupPolicyMonthlyBackupLimit(res["monthlyBackupLimit"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPolicy: %s", err)
-	}
-	if err := d.Set("description", flattenNetappBackupPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPolicy: %s", err)
-	}
-	if err := d.Set("enabled", flattenNetappBackupPolicyEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPolicy: %s", err)
-	}
-	if err := d.Set("assigned_volume_count", flattenNetappBackupPolicyAssignedVolumeCount(res["assignedVolumeCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPolicy: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetappBackupPolicyTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPolicy: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetappBackupPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	err = ResourceNetappBackupPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -828,4 +799,44 @@ func expandNetappBackupPolicyEffectiveLabels(v interface{}, d tpgresource.Terraf
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetappBackupPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetappBackupPolicyCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	}
+	if err = d.Set("labels", flattenNetappBackupPolicyLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	}
+	if err = d.Set("state", flattenNetappBackupPolicyState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	}
+	if err = d.Set("daily_backup_limit", flattenNetappBackupPolicyDailyBackupLimit(res["dailyBackupLimit"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	}
+	if err = d.Set("weekly_backup_limit", flattenNetappBackupPolicyWeeklyBackupLimit(res["weeklyBackupLimit"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	}
+	if err = d.Set("monthly_backup_limit", flattenNetappBackupPolicyMonthlyBackupLimit(res["monthlyBackupLimit"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	}
+	if err = d.Set("description", flattenNetappBackupPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	}
+	if err = d.Set("enabled", flattenNetappBackupPolicyEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	}
+	if err = d.Set("assigned_volume_count", flattenNetappBackupPolicyAssignedVolumeCount(res["assignedVolumeCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetappBackupPolicyTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetappBackupPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
+	}
+
+	return nil
 }

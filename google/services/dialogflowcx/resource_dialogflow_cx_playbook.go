@@ -449,38 +449,9 @@ func resourceDialogflowCXPlaybookRead(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[DEBUG] Finished reading DialogflowCXPlaybook %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenDialogflowCXPlaybookName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Playbook: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowCXPlaybookDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Playbook: %s", err)
-	}
-	if err := d.Set("goal", flattenDialogflowCXPlaybookGoal(res["goal"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Playbook: %s", err)
-	}
-	if err := d.Set("instruction", flattenDialogflowCXPlaybookInstruction(res["instruction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Playbook: %s", err)
-	}
-	if err := d.Set("token_count", flattenDialogflowCXPlaybookTokenCount(res["tokenCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Playbook: %s", err)
-	}
-	if err := d.Set("create_time", flattenDialogflowCXPlaybookCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Playbook: %s", err)
-	}
-	if err := d.Set("update_time", flattenDialogflowCXPlaybookUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Playbook: %s", err)
-	}
-	if err := d.Set("referenced_playbooks", flattenDialogflowCXPlaybookReferencedPlaybooks(res["referencedPlaybooks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Playbook: %s", err)
-	}
-	if err := d.Set("referenced_flows", flattenDialogflowCXPlaybookReferencedFlows(res["referencedFlows"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Playbook: %s", err)
-	}
-	if err := d.Set("referenced_tools", flattenDialogflowCXPlaybookReferencedTools(res["referencedTools"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Playbook: %s", err)
-	}
-	if err := d.Set("llm_model_settings", flattenDialogflowCXPlaybookLlmModelSettings(res["llmModelSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Playbook: %s", err)
+	err = ResourceDialogflowCXPlaybookFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1013,5 +984,45 @@ func resourceDialogflowCXPlaybookPostCreateSetComputedFields(d *schema.ResourceD
 	if err := d.Set("name", flattenDialogflowCXPlaybookName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowCXPlaybookFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowCXPlaybookName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Playbook: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowCXPlaybookDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Playbook: %s", err)
+	}
+	if err = d.Set("goal", flattenDialogflowCXPlaybookGoal(res["goal"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Playbook: %s", err)
+	}
+	if err = d.Set("instruction", flattenDialogflowCXPlaybookInstruction(res["instruction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Playbook: %s", err)
+	}
+	if err = d.Set("token_count", flattenDialogflowCXPlaybookTokenCount(res["tokenCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Playbook: %s", err)
+	}
+	if err = d.Set("create_time", flattenDialogflowCXPlaybookCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Playbook: %s", err)
+	}
+	if err = d.Set("update_time", flattenDialogflowCXPlaybookUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Playbook: %s", err)
+	}
+	if err = d.Set("referenced_playbooks", flattenDialogflowCXPlaybookReferencedPlaybooks(res["referencedPlaybooks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Playbook: %s", err)
+	}
+	if err = d.Set("referenced_flows", flattenDialogflowCXPlaybookReferencedFlows(res["referencedFlows"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Playbook: %s", err)
+	}
+	if err = d.Set("referenced_tools", flattenDialogflowCXPlaybookReferencedTools(res["referencedTools"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Playbook: %s", err)
+	}
+	if err = d.Set("llm_model_settings", flattenDialogflowCXPlaybookLlmModelSettings(res["llmModelSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Playbook: %s", err)
+	}
+
 	return nil
 }

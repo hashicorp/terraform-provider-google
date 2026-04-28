@@ -539,44 +539,9 @@ func resourceDeveloperConnectAccountConnectorRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading AccountConnector: %s", err)
 	}
 
-	if err := d.Set("annotations", flattenDeveloperConnectAccountConnectorAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("create_time", flattenDeveloperConnectAccountConnectorCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("custom_oauth_config", flattenDeveloperConnectAccountConnectorCustomOauthConfig(res["customOauthConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("etag", flattenDeveloperConnectAccountConnectorEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("labels", flattenDeveloperConnectAccountConnectorLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("name", flattenDeveloperConnectAccountConnectorName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("oauth_start_uri", flattenDeveloperConnectAccountConnectorOauthStartUri(res["oauthStartUri"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("provider_oauth_config", flattenDeveloperConnectAccountConnectorProviderOauthConfig(res["providerOauthConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("proxy_config", flattenDeveloperConnectAccountConnectorProxyConfig(res["proxyConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("update_time", flattenDeveloperConnectAccountConnectorUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenDeveloperConnectAccountConnectorEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDeveloperConnectAccountConnectorTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDeveloperConnectAccountConnectorEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	err = ResourceDeveloperConnectAccountConnectorFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1278,4 +1243,50 @@ func expandDeveloperConnectAccountConnectorEffectiveLabels(v interface{}, d tpgr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceDeveloperConnectAccountConnectorFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("annotations", flattenDeveloperConnectAccountConnectorAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("create_time", flattenDeveloperConnectAccountConnectorCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("custom_oauth_config", flattenDeveloperConnectAccountConnectorCustomOauthConfig(res["customOauthConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("etag", flattenDeveloperConnectAccountConnectorEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("labels", flattenDeveloperConnectAccountConnectorLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("name", flattenDeveloperConnectAccountConnectorName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("oauth_start_uri", flattenDeveloperConnectAccountConnectorOauthStartUri(res["oauthStartUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("provider_oauth_config", flattenDeveloperConnectAccountConnectorProviderOauthConfig(res["providerOauthConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("proxy_config", flattenDeveloperConnectAccountConnectorProxyConfig(res["proxyConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("update_time", flattenDeveloperConnectAccountConnectorUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenDeveloperConnectAccountConnectorEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDeveloperConnectAccountConnectorTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDeveloperConnectAccountConnectorEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccountConnector: %s", err)
+	}
+
+	return nil
 }

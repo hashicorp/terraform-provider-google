@@ -306,14 +306,9 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 
 	log.Printf("[DEBUG] Finished reading ComputeFirewallPolicyAssociation %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenComputeFirewallPolicyAssociationName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FirewallPolicyAssociation: %s", err)
-	}
-	if err := d.Set("attachment_target", flattenComputeFirewallPolicyAssociationAttachmentTarget(res["attachmentTarget"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FirewallPolicyAssociation: %s", err)
-	}
-	if err := d.Set("short_name", flattenComputeFirewallPolicyAssociationShortName(res["shortName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FirewallPolicyAssociation: %s", err)
+	err = ResourceComputeFirewallPolicyAssociationFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -514,4 +509,20 @@ func expandComputeFirewallPolicyAssociationFirewallPolicy(v interface{}, d tpgre
 		return nil, fmt.Errorf("Error setting firewall_policy: %s", err)
 	}
 	return firewallPolicyId, nil
+}
+
+func ResourceComputeFirewallPolicyAssociationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenComputeFirewallPolicyAssociationName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FirewallPolicyAssociation: %s", err)
+	}
+	if err = d.Set("attachment_target", flattenComputeFirewallPolicyAssociationAttachmentTarget(res["attachmentTarget"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FirewallPolicyAssociation: %s", err)
+	}
+	if err = d.Set("short_name", flattenComputeFirewallPolicyAssociationShortName(res["shortName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FirewallPolicyAssociation: %s", err)
+	}
+
+	return nil
 }

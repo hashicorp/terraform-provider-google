@@ -349,20 +349,9 @@ func resourceBigqueryDatapolicyDataPolicyRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading DataPolicy: %s", err)
 	}
 
-	if err := d.Set("name", flattenBigqueryDatapolicyDataPolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
-	}
-	if err := d.Set("data_policy_id", flattenBigqueryDatapolicyDataPolicyDataPolicyId(res["dataPolicyId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
-	}
-	if err := d.Set("policy_tag", flattenBigqueryDatapolicyDataPolicyPolicyTag(res["policyTag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
-	}
-	if err := d.Set("data_policy_type", flattenBigqueryDatapolicyDataPolicyDataPolicyType(res["dataPolicyType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
-	}
-	if err := d.Set("data_masking_policy", flattenBigqueryDatapolicyDataPolicyDataMaskingPolicy(res["dataMaskingPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	err = ResourceBigqueryDatapolicyDataPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -671,4 +660,26 @@ func expandBigqueryDatapolicyDataPolicyDataMaskingPolicyPredefinedExpression(v i
 
 func expandBigqueryDatapolicyDataPolicyDataMaskingPolicyRoutine(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceBigqueryDatapolicyDataPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBigqueryDatapolicyDataPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("data_policy_id", flattenBigqueryDatapolicyDataPolicyDataPolicyId(res["dataPolicyId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("policy_tag", flattenBigqueryDatapolicyDataPolicyPolicyTag(res["policyTag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("data_policy_type", flattenBigqueryDatapolicyDataPolicyDataPolicyType(res["dataPolicyType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("data_masking_policy", flattenBigqueryDatapolicyDataPolicyDataMaskingPolicy(res["dataMaskingPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+
+	return nil
 }

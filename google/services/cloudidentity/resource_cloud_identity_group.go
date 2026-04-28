@@ -458,32 +458,9 @@ func resourceCloudIdentityGroupRead(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Finished reading CloudIdentityGroup %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenCloudIdentityGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("group_key", flattenCloudIdentityGroupGroupKey(res["groupKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("parent", flattenCloudIdentityGroupParent(res["parent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("display_name", flattenCloudIdentityGroupDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("description", flattenCloudIdentityGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("additional_group_keys", flattenCloudIdentityGroupAdditionalGroupKeys(res["additionalGroupKeys"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("create_time", flattenCloudIdentityGroupCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("update_time", flattenCloudIdentityGroupUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("labels", flattenCloudIdentityGroupLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
+	err = ResourceCloudIdentityGroupFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -811,5 +788,39 @@ func resourceCloudIdentityGroupPostCreateSetComputedFields(d *schema.ResourceDat
 	if err := d.Set("name", flattenCloudIdentityGroupName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceCloudIdentityGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenCloudIdentityGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("group_key", flattenCloudIdentityGroupGroupKey(res["groupKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("parent", flattenCloudIdentityGroupParent(res["parent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("display_name", flattenCloudIdentityGroupDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("description", flattenCloudIdentityGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("additional_group_keys", flattenCloudIdentityGroupAdditionalGroupKeys(res["additionalGroupKeys"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("create_time", flattenCloudIdentityGroupCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("update_time", flattenCloudIdentityGroupUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("labels", flattenCloudIdentityGroupLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+
 	return nil
 }

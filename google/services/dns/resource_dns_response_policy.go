@@ -332,17 +332,9 @@ func resourceDNSResponsePolicyRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading ResponsePolicy: %s", err)
 	}
 
-	if err := d.Set("response_policy_name", flattenDNSResponsePolicyResponsePolicyName(res["responsePolicyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResponsePolicy: %s", err)
-	}
-	if err := d.Set("description", flattenDNSResponsePolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResponsePolicy: %s", err)
-	}
-	if err := d.Set("networks", flattenDNSResponsePolicyNetworks(res["networks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResponsePolicy: %s", err)
-	}
-	if err := d.Set("gke_clusters", flattenDNSResponsePolicyGkeClusters(res["gkeClusters"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResponsePolicy: %s", err)
+	err = ResourceDNSResponsePolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -689,4 +681,23 @@ func expandDNSResponsePolicyGkeClusters(v interface{}, d tpgresource.TerraformRe
 
 func expandDNSResponsePolicyGkeClustersGkeClusterName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceDNSResponsePolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("response_policy_name", flattenDNSResponsePolicyResponsePolicyName(res["responsePolicyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResponsePolicy: %s", err)
+	}
+	if err = d.Set("description", flattenDNSResponsePolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResponsePolicy: %s", err)
+	}
+	if err = d.Set("networks", flattenDNSResponsePolicyNetworks(res["networks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResponsePolicy: %s", err)
+	}
+	if err = d.Set("gke_clusters", flattenDNSResponsePolicyGkeClusters(res["gkeClusters"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResponsePolicy: %s", err)
+	}
+
+	return nil
 }

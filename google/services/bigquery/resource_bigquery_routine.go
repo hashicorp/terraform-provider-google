@@ -579,65 +579,9 @@ func resourceBigQueryRoutineRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Routine: %s", err)
 	}
 
-	// Terraform must set the top level schema field, but since this object contains collapsed properties
-	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenBigQueryRoutineRoutineReference(res["routineReference"], d, config); flattenedProp != nil {
-		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
-			return fmt.Errorf("Error reading Routine: %s", gerr)
-		}
-		casted := flattenedProp.([]interface{})[0]
-		if casted != nil {
-			for k, v := range casted.(map[string]interface{}) {
-				if err := d.Set(k, v); err != nil {
-					return fmt.Errorf("Error setting %s: %s", k, err)
-				}
-			}
-		}
-	}
-	if err := d.Set("routine_type", flattenBigQueryRoutineRoutineType(res["routineType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("creation_time", flattenBigQueryRoutineCreationTime(res["creationTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("last_modified_time", flattenBigQueryRoutineLastModifiedTime(res["lastModifiedTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("language", flattenBigQueryRoutineLanguage(res["language"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("arguments", flattenBigQueryRoutineArguments(res["arguments"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("return_type", flattenBigQueryRoutineReturnType(res["returnType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("return_table_type", flattenBigQueryRoutineReturnTableType(res["returnTableType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("imported_libraries", flattenBigQueryRoutineImportedLibraries(res["importedLibraries"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("definition_body", flattenBigQueryRoutineDefinitionBody(res["definitionBody"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("description", flattenBigQueryRoutineDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("determinism_level", flattenBigQueryRoutineDeterminismLevel(res["determinismLevel"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("data_governance_type", flattenBigQueryRoutineDataGovernanceType(res["dataGovernanceType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("security_mode", flattenBigQueryRoutineSecurityMode(res["securityMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("spark_options", flattenBigQueryRoutineSparkOptions(res["sparkOptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
-	if err := d.Set("remote_function_options", flattenBigQueryRoutineRemoteFunctionOptions(res["remoteFunctionOptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
+	err = ResourceBigQueryRoutineFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -1442,4 +1386,71 @@ func expandBigQueryRoutineRemoteFunctionOptionsUserDefinedContext(v interface{},
 
 func expandBigQueryRoutineRemoteFunctionOptionsMaxBatchingRows(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceBigQueryRoutineFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	// Terraform must set the top level schema field, but since this object contains collapsed properties
+	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
+	if flattenedProp := flattenBigQueryRoutineRoutineReference(res["routineReference"], d, config); flattenedProp != nil {
+		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
+			return fmt.Errorf("Error reading Routine: %s", gerr)
+		}
+		casted := flattenedProp.([]interface{})[0]
+		if casted != nil {
+			for k, v := range casted.(map[string]interface{}) {
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
+			}
+		}
+	}
+	if err = d.Set("routine_type", flattenBigQueryRoutineRoutineType(res["routineType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("creation_time", flattenBigQueryRoutineCreationTime(res["creationTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("last_modified_time", flattenBigQueryRoutineLastModifiedTime(res["lastModifiedTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("language", flattenBigQueryRoutineLanguage(res["language"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("arguments", flattenBigQueryRoutineArguments(res["arguments"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("return_type", flattenBigQueryRoutineReturnType(res["returnType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("return_table_type", flattenBigQueryRoutineReturnTableType(res["returnTableType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("imported_libraries", flattenBigQueryRoutineImportedLibraries(res["importedLibraries"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("definition_body", flattenBigQueryRoutineDefinitionBody(res["definitionBody"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("description", flattenBigQueryRoutineDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("determinism_level", flattenBigQueryRoutineDeterminismLevel(res["determinismLevel"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("data_governance_type", flattenBigQueryRoutineDataGovernanceType(res["dataGovernanceType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("security_mode", flattenBigQueryRoutineSecurityMode(res["securityMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("spark_options", flattenBigQueryRoutineSparkOptions(res["sparkOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+	if err = d.Set("remote_function_options", flattenBigQueryRoutineRemoteFunctionOptions(res["remoteFunctionOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
+
+	return nil
 }

@@ -486,38 +486,9 @@ func resourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Connector: %s", err)
 	}
 
-	if err := d.Set("name", flattenVPCAccessConnectorName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("network", flattenVPCAccessConnectorNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("ip_cidr_range", flattenVPCAccessConnectorIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("state", flattenVPCAccessConnectorState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("machine_type", flattenVPCAccessConnectorMachineType(res["machineType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("min_throughput", flattenVPCAccessConnectorMinThroughput(res["minThroughput"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("min_instances", flattenVPCAccessConnectorMinInstances(res["minInstances"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("max_instances", flattenVPCAccessConnectorMaxInstances(res["maxInstances"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("max_throughput", flattenVPCAccessConnectorMaxThroughput(res["maxThroughput"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("connected_projects", flattenVPCAccessConnectorConnectedProjects(res["connectedProjects"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("subnet", flattenVPCAccessConnectorSubnet(res["subnet"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
+	err = ResourceVPCAccessConnectorFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -968,4 +939,44 @@ func resourceVPCAccessConnectorDecoder(d *schema.ResourceData, meta interface{},
 	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
+}
+
+func ResourceVPCAccessConnectorFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenVPCAccessConnectorName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("network", flattenVPCAccessConnectorNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("ip_cidr_range", flattenVPCAccessConnectorIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("state", flattenVPCAccessConnectorState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("machine_type", flattenVPCAccessConnectorMachineType(res["machineType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("min_throughput", flattenVPCAccessConnectorMinThroughput(res["minThroughput"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("min_instances", flattenVPCAccessConnectorMinInstances(res["minInstances"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("max_instances", flattenVPCAccessConnectorMaxInstances(res["maxInstances"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("max_throughput", flattenVPCAccessConnectorMaxThroughput(res["maxThroughput"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("connected_projects", flattenVPCAccessConnectorConnectedProjects(res["connectedProjects"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("subnet", flattenVPCAccessConnectorSubnet(res["subnet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+
+	return nil
 }

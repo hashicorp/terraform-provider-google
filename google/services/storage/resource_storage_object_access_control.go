@@ -347,32 +347,9 @@ func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Finished reading StorageObjectAccessControl %q: %#v", d.Id(), res)
 
-	if err := d.Set("bucket", flattenStorageObjectAccessControlBucket(res["bucket"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
-	}
-	if err := d.Set("domain", flattenStorageObjectAccessControlDomain(res["domain"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
-	}
-	if err := d.Set("email", flattenStorageObjectAccessControlEmail(res["email"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
-	}
-	if err := d.Set("entity", flattenStorageObjectAccessControlEntity(res["entity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
-	}
-	if err := d.Set("entity_id", flattenStorageObjectAccessControlEntityId(res["entityId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
-	}
-	if err := d.Set("generation", flattenStorageObjectAccessControlGeneration(res["generation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
-	}
-	if err := d.Set("object", flattenStorageObjectAccessControlObject(res["object"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
-	}
-	if err := d.Set("project_team", flattenStorageObjectAccessControlProjectTeam(res["projectTeam"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
-	}
-	if err := d.Set("role", flattenStorageObjectAccessControlRole(res["role"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
+	err = ResourceStorageObjectAccessControlFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -649,4 +626,38 @@ func expandStorageObjectAccessControlObject(v interface{}, d tpgresource.Terrafo
 
 func expandStorageObjectAccessControlRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceStorageObjectAccessControlFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("bucket", flattenStorageObjectAccessControlBucket(res["bucket"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
+	}
+	if err = d.Set("domain", flattenStorageObjectAccessControlDomain(res["domain"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
+	}
+	if err = d.Set("email", flattenStorageObjectAccessControlEmail(res["email"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
+	}
+	if err = d.Set("entity", flattenStorageObjectAccessControlEntity(res["entity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
+	}
+	if err = d.Set("entity_id", flattenStorageObjectAccessControlEntityId(res["entityId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
+	}
+	if err = d.Set("generation", flattenStorageObjectAccessControlGeneration(res["generation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
+	}
+	if err = d.Set("object", flattenStorageObjectAccessControlObject(res["object"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
+	}
+	if err = d.Set("project_team", flattenStorageObjectAccessControlProjectTeam(res["projectTeam"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
+	}
+	if err = d.Set("role", flattenStorageObjectAccessControlRole(res["role"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
+	}
+
+	return nil
 }

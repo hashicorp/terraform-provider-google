@@ -315,26 +315,9 @@ func resourceVmwareengineExternalAddressRead(d *schema.ResourceData, meta interf
 
 	log.Printf("[DEBUG] Finished reading VmwareengineExternalAddress %q: %#v", d.Id(), res)
 
-	if err := d.Set("create_time", flattenVmwareengineExternalAddressCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAddress: %s", err)
-	}
-	if err := d.Set("update_time", flattenVmwareengineExternalAddressUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAddress: %s", err)
-	}
-	if err := d.Set("internal_ip", flattenVmwareengineExternalAddressInternalIp(res["internalIp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAddress: %s", err)
-	}
-	if err := d.Set("external_ip", flattenVmwareengineExternalAddressExternalIp(res["externalIp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAddress: %s", err)
-	}
-	if err := d.Set("state", flattenVmwareengineExternalAddressState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAddress: %s", err)
-	}
-	if err := d.Set("uid", flattenVmwareengineExternalAddressUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAddress: %s", err)
-	}
-	if err := d.Set("description", flattenVmwareengineExternalAddressDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalAddress: %s", err)
+	err = ResourceVmwareengineExternalAddressFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -561,4 +544,32 @@ func expandVmwareengineExternalAddressInternalIp(v interface{}, d tpgresource.Te
 
 func expandVmwareengineExternalAddressDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceVmwareengineExternalAddressFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenVmwareengineExternalAddressCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAddress: %s", err)
+	}
+	if err = d.Set("update_time", flattenVmwareengineExternalAddressUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAddress: %s", err)
+	}
+	if err = d.Set("internal_ip", flattenVmwareengineExternalAddressInternalIp(res["internalIp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAddress: %s", err)
+	}
+	if err = d.Set("external_ip", flattenVmwareengineExternalAddressExternalIp(res["externalIp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAddress: %s", err)
+	}
+	if err = d.Set("state", flattenVmwareengineExternalAddressState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAddress: %s", err)
+	}
+	if err = d.Set("uid", flattenVmwareengineExternalAddressUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAddress: %s", err)
+	}
+	if err = d.Set("description", flattenVmwareengineExternalAddressDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAddress: %s", err)
+	}
+
+	return nil
 }

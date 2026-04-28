@@ -448,41 +448,9 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationRead(d *schema.Reso
 		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
 	}
 
-	if err := d.Set("name", flattenNetworkSecurityMirroringEndpointGroupAssociationName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkSecurityMirroringEndpointGroupAssociationCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityMirroringEndpointGroupAssociationUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkSecurityMirroringEndpointGroupAssociationLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("mirroring_endpoint_group", flattenNetworkSecurityMirroringEndpointGroupAssociationMirroringEndpointGroup(res["mirroringEndpointGroup"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("network", flattenNetworkSecurityMirroringEndpointGroupAssociationNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("locations_details", flattenNetworkSecurityMirroringEndpointGroupAssociationLocationsDetails(res["locationsDetails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("state", flattenNetworkSecurityMirroringEndpointGroupAssociationState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("reconciling", flattenNetworkSecurityMirroringEndpointGroupAssociationReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("locations", flattenNetworkSecurityMirroringEndpointGroupAssociationLocations(res["locations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkSecurityMirroringEndpointGroupAssociationTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkSecurityMirroringEndpointGroupAssociationEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	err = ResourceNetworkSecurityMirroringEndpointGroupAssociationFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -819,4 +787,47 @@ func expandNetworkSecurityMirroringEndpointGroupAssociationEffectiveLabels(v int
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkSecurityMirroringEndpointGroupAssociationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNetworkSecurityMirroringEndpointGroupAssociationName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkSecurityMirroringEndpointGroupAssociationCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityMirroringEndpointGroupAssociationUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkSecurityMirroringEndpointGroupAssociationLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("mirroring_endpoint_group", flattenNetworkSecurityMirroringEndpointGroupAssociationMirroringEndpointGroup(res["mirroringEndpointGroup"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("network", flattenNetworkSecurityMirroringEndpointGroupAssociationNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("locations_details", flattenNetworkSecurityMirroringEndpointGroupAssociationLocationsDetails(res["locationsDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("state", flattenNetworkSecurityMirroringEndpointGroupAssociationState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("reconciling", flattenNetworkSecurityMirroringEndpointGroupAssociationReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("locations", flattenNetworkSecurityMirroringEndpointGroupAssociationLocations(res["locations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkSecurityMirroringEndpointGroupAssociationTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkSecurityMirroringEndpointGroupAssociationEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+
+	return nil
 }

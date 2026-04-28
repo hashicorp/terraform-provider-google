@@ -767,44 +767,9 @@ func resourceBigqueryConnectionConnectionRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading Connection: %s", err)
 	}
 
-	if err := d.Set("name", flattenBigqueryConnectionConnectionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("connection_id", flattenBigqueryConnectionConnectionConnectionId(res["connectionId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("friendly_name", flattenBigqueryConnectionConnectionFriendlyName(res["friendlyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("description", flattenBigqueryConnectionConnectionDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("has_credential", flattenBigqueryConnectionConnectionHasCredential(res["hasCredential"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("kms_key_name", flattenBigqueryConnectionConnectionKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("cloud_sql", flattenBigqueryConnectionConnectionCloudSql(res["cloudSql"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("aws", flattenBigqueryConnectionConnectionAws(res["aws"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("azure", flattenBigqueryConnectionConnectionAzure(res["azure"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("cloud_spanner", flattenBigqueryConnectionConnectionCloudSpanner(res["cloudSpanner"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("cloud_resource", flattenBigqueryConnectionConnectionCloudResource(res["cloudResource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("spark", flattenBigqueryConnectionConnectionSpark(res["spark"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
-	}
-	if err := d.Set("configuration", flattenBigqueryConnectionConnectionConfiguration(res["configuration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connection: %s", err)
+	err = ResourceBigqueryConnectionConnectionFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2263,5 +2228,51 @@ func resourceBigqueryConnectionConnectionPostCreateSetComputedFields(d *schema.R
 			return fmt.Errorf(`Error setting computed identity field "connection_id": %s`, err)
 		}
 	}
+	return nil
+}
+
+func ResourceBigqueryConnectionConnectionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBigqueryConnectionConnectionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("connection_id", flattenBigqueryConnectionConnectionConnectionId(res["connectionId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("friendly_name", flattenBigqueryConnectionConnectionFriendlyName(res["friendlyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("description", flattenBigqueryConnectionConnectionDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("has_credential", flattenBigqueryConnectionConnectionHasCredential(res["hasCredential"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("kms_key_name", flattenBigqueryConnectionConnectionKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("cloud_sql", flattenBigqueryConnectionConnectionCloudSql(res["cloudSql"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("aws", flattenBigqueryConnectionConnectionAws(res["aws"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("azure", flattenBigqueryConnectionConnectionAzure(res["azure"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("cloud_spanner", flattenBigqueryConnectionConnectionCloudSpanner(res["cloudSpanner"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("cloud_resource", flattenBigqueryConnectionConnectionCloudResource(res["cloudResource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("spark", flattenBigqueryConnectionConnectionSpark(res["spark"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("configuration", flattenBigqueryConnectionConnectionConfiguration(res["configuration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+
 	return nil
 }

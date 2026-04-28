@@ -285,23 +285,9 @@ func resourceLoggingOrganizationSettingsRead(d *schema.ResourceData, meta interf
 
 	log.Printf("[DEBUG] Finished reading LoggingOrganizationSettings %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenLoggingOrganizationSettingsName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
-	}
-	if err := d.Set("kms_key_name", flattenLoggingOrganizationSettingsKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
-	}
-	if err := d.Set("kms_service_account_id", flattenLoggingOrganizationSettingsKmsServiceAccountId(res["kmsServiceAccountId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
-	}
-	if err := d.Set("storage_location", flattenLoggingOrganizationSettingsStorageLocation(res["storageLocation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
-	}
-	if err := d.Set("disable_default_sink", flattenLoggingOrganizationSettingsDisableDefaultSink(res["disableDefaultSink"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
-	}
-	if err := d.Set("logging_service_account_id", flattenLoggingOrganizationSettingsLoggingServiceAccountId(res["loggingServiceAccountId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
+	err = ResourceLoggingOrganizationSettingsFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -453,4 +439,29 @@ func expandLoggingOrganizationSettingsStorageLocation(v interface{}, d tpgresour
 
 func expandLoggingOrganizationSettingsDisableDefaultSink(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceLoggingOrganizationSettingsFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenLoggingOrganizationSettingsName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
+	}
+	if err = d.Set("kms_key_name", flattenLoggingOrganizationSettingsKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
+	}
+	if err = d.Set("kms_service_account_id", flattenLoggingOrganizationSettingsKmsServiceAccountId(res["kmsServiceAccountId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
+	}
+	if err = d.Set("storage_location", flattenLoggingOrganizationSettingsStorageLocation(res["storageLocation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
+	}
+	if err = d.Set("disable_default_sink", flattenLoggingOrganizationSettingsDisableDefaultSink(res["disableDefaultSink"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
+	}
+	if err = d.Set("logging_service_account_id", flattenLoggingOrganizationSettingsLoggingServiceAccountId(res["loggingServiceAccountId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
+	}
+
+	return nil
 }

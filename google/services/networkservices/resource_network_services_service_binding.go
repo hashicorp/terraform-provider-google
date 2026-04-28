@@ -355,26 +355,9 @@ func resourceNetworkServicesServiceBindingRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading ServiceBinding: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkServicesServiceBindingCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceBinding: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkServicesServiceBindingUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceBinding: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkServicesServiceBindingLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceBinding: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkServicesServiceBindingDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceBinding: %s", err)
-	}
-	if err := d.Set("service", flattenNetworkServicesServiceBindingService(res["service"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceBinding: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkServicesServiceBindingTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceBinding: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkServicesServiceBindingEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceBinding: %s", err)
+	err = ResourceNetworkServicesServiceBindingFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -618,4 +601,32 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 
 func ResourceNetworkServicesServiceBindingUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	return tpgresource.TerraformLabelsStateUpgrade(rawState)
+}
+
+func ResourceNetworkServicesServiceBindingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkServicesServiceBindingCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceBinding: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkServicesServiceBindingUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceBinding: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkServicesServiceBindingLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceBinding: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkServicesServiceBindingDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceBinding: %s", err)
+	}
+	if err = d.Set("service", flattenNetworkServicesServiceBindingService(res["service"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceBinding: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkServicesServiceBindingTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceBinding: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkServicesServiceBindingEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceBinding: %s", err)
+	}
+
+	return nil
 }

@@ -420,41 +420,9 @@ func resourceFirebaseDataConnectServiceRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
 
-	if err := d.Set("display_name", flattenFirebaseDataConnectServiceDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("annotations", flattenFirebaseDataConnectServiceAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("reconciling", flattenFirebaseDataConnectServiceReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("etag", flattenFirebaseDataConnectServiceEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("name", flattenFirebaseDataConnectServiceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("create_time", flattenFirebaseDataConnectServiceCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("update_time", flattenFirebaseDataConnectServiceUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("labels", flattenFirebaseDataConnectServiceLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("uid", flattenFirebaseDataConnectServiceUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenFirebaseDataConnectServiceEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenFirebaseDataConnectServiceTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenFirebaseDataConnectServiceEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
+	err = ResourceFirebaseDataConnectServiceFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -806,4 +774,47 @@ func expandFirebaseDataConnectServiceEffectiveLabels(v interface{}, d tpgresourc
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceFirebaseDataConnectServiceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("display_name", flattenFirebaseDataConnectServiceDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("annotations", flattenFirebaseDataConnectServiceAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("reconciling", flattenFirebaseDataConnectServiceReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("etag", flattenFirebaseDataConnectServiceEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("name", flattenFirebaseDataConnectServiceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("create_time", flattenFirebaseDataConnectServiceCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("update_time", flattenFirebaseDataConnectServiceUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("labels", flattenFirebaseDataConnectServiceLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("uid", flattenFirebaseDataConnectServiceUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenFirebaseDataConnectServiceEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenFirebaseDataConnectServiceTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenFirebaseDataConnectServiceEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+
+	return nil
 }

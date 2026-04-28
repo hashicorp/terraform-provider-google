@@ -917,74 +917,9 @@ func resourceEdgecontainerClusterRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenEdgecontainerClusterCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("update_time", flattenEdgecontainerClusterUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("labels", flattenEdgecontainerClusterLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("fleet", flattenEdgecontainerClusterFleet(res["fleet"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("networking", flattenEdgecontainerClusterNetworking(res["networking"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("authorization", flattenEdgecontainerClusterAuthorization(res["authorization"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("default_max_pods_per_node", flattenEdgecontainerClusterDefaultMaxPodsPerNode(res["defaultMaxPodsPerNode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("endpoint", flattenEdgecontainerClusterEndpoint(res["endpoint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("port", flattenEdgecontainerClusterPort(res["port"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("cluster_ca_certificate", flattenEdgecontainerClusterClusterCaCertificate(res["clusterCaCertificate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("maintenance_policy", flattenEdgecontainerClusterMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("control_plane_version", flattenEdgecontainerClusterControlPlaneVersion(res["controlPlaneVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("node_version", flattenEdgecontainerClusterNodeVersion(res["nodeVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("control_plane", flattenEdgecontainerClusterControlPlane(res["controlPlane"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("system_addons_config", flattenEdgecontainerClusterSystemAddonsConfig(res["systemAddonsConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("external_load_balancer_ipv4_address_pools", flattenEdgecontainerClusterExternalLoadBalancerIpv4AddressPools(res["externalLoadBalancerIpv4AddressPools"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("control_plane_encryption", flattenEdgecontainerClusterControlPlaneEncryption(res["controlPlaneEncryption"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("status", flattenEdgecontainerClusterStatus(res["status"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("maintenance_events", flattenEdgecontainerClusterMaintenanceEvents(res["maintenanceEvents"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("target_version", flattenEdgecontainerClusterTargetVersion(res["targetVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("release_channel", flattenEdgecontainerClusterReleaseChannel(res["releaseChannel"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenEdgecontainerClusterTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenEdgecontainerClusterEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
+	err = ResourceEdgecontainerClusterFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2524,4 +2459,80 @@ func expandEdgecontainerClusterEffectiveLabels(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceEdgecontainerClusterFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenEdgecontainerClusterCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("update_time", flattenEdgecontainerClusterUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("labels", flattenEdgecontainerClusterLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("fleet", flattenEdgecontainerClusterFleet(res["fleet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("networking", flattenEdgecontainerClusterNetworking(res["networking"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("authorization", flattenEdgecontainerClusterAuthorization(res["authorization"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("default_max_pods_per_node", flattenEdgecontainerClusterDefaultMaxPodsPerNode(res["defaultMaxPodsPerNode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("endpoint", flattenEdgecontainerClusterEndpoint(res["endpoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("port", flattenEdgecontainerClusterPort(res["port"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("cluster_ca_certificate", flattenEdgecontainerClusterClusterCaCertificate(res["clusterCaCertificate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("maintenance_policy", flattenEdgecontainerClusterMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("control_plane_version", flattenEdgecontainerClusterControlPlaneVersion(res["controlPlaneVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("node_version", flattenEdgecontainerClusterNodeVersion(res["nodeVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("control_plane", flattenEdgecontainerClusterControlPlane(res["controlPlane"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("system_addons_config", flattenEdgecontainerClusterSystemAddonsConfig(res["systemAddonsConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("external_load_balancer_ipv4_address_pools", flattenEdgecontainerClusterExternalLoadBalancerIpv4AddressPools(res["externalLoadBalancerIpv4AddressPools"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("control_plane_encryption", flattenEdgecontainerClusterControlPlaneEncryption(res["controlPlaneEncryption"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("status", flattenEdgecontainerClusterStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("maintenance_events", flattenEdgecontainerClusterMaintenanceEvents(res["maintenanceEvents"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("target_version", flattenEdgecontainerClusterTargetVersion(res["targetVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("release_channel", flattenEdgecontainerClusterReleaseChannel(res["releaseChannel"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenEdgecontainerClusterTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenEdgecontainerClusterEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+
+	return nil
 }

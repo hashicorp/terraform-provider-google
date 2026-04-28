@@ -642,17 +642,9 @@ func resourceDocumentAIWarehouseDocumentSchemaRead(d *schema.ResourceData, meta 
 
 	log.Printf("[DEBUG] Finished reading DocumentAIWarehouseDocumentSchema %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenDocumentAIWarehouseDocumentSchemaName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DocumentSchema: %s", err)
-	}
-	if err := d.Set("display_name", flattenDocumentAIWarehouseDocumentSchemaDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DocumentSchema: %s", err)
-	}
-	if err := d.Set("document_is_folder", flattenDocumentAIWarehouseDocumentSchemaDocumentIsFolder(res["documentIsFolder"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DocumentSchema: %s", err)
-	}
-	if err := d.Set("property_definitions", flattenDocumentAIWarehouseDocumentSchemaPropertyDefinitions(res["propertyDefinitions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DocumentSchema: %s", err)
+	err = ResourceDocumentAIWarehouseDocumentSchemaFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1832,5 +1824,24 @@ func resourceDocumentAIWarehouseDocumentSchemaPostCreateSetComputedFields(d *sch
 	if err := d.Set("name", flattenDocumentAIWarehouseDocumentSchemaName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDocumentAIWarehouseDocumentSchemaFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDocumentAIWarehouseDocumentSchemaName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DocumentSchema: %s", err)
+	}
+	if err = d.Set("display_name", flattenDocumentAIWarehouseDocumentSchemaDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DocumentSchema: %s", err)
+	}
+	if err = d.Set("document_is_folder", flattenDocumentAIWarehouseDocumentSchemaDocumentIsFolder(res["documentIsFolder"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DocumentSchema: %s", err)
+	}
+	if err = d.Set("property_definitions", flattenDocumentAIWarehouseDocumentSchemaPropertyDefinitions(res["propertyDefinitions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DocumentSchema: %s", err)
+	}
+
 	return nil
 }

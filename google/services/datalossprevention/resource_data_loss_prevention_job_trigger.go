@@ -1680,32 +1680,9 @@ func resourceDataLossPreventionJobTriggerRead(d *schema.ResourceData, meta inter
 		return nil
 	}
 
-	if err := d.Set("name", flattenDataLossPreventionJobTriggerName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading JobTrigger: %s", err)
-	}
-	if err := d.Set("create_time", flattenDataLossPreventionJobTriggerCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading JobTrigger: %s", err)
-	}
-	if err := d.Set("update_time", flattenDataLossPreventionJobTriggerUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading JobTrigger: %s", err)
-	}
-	if err := d.Set("description", flattenDataLossPreventionJobTriggerDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading JobTrigger: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataLossPreventionJobTriggerDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading JobTrigger: %s", err)
-	}
-	if err := d.Set("last_run_time", flattenDataLossPreventionJobTriggerLastRunTime(res["lastRunTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading JobTrigger: %s", err)
-	}
-	if err := d.Set("status", flattenDataLossPreventionJobTriggerStatus(res["status"], d, config)); err != nil {
-		return fmt.Errorf("Error reading JobTrigger: %s", err)
-	}
-	if err := d.Set("triggers", flattenDataLossPreventionJobTriggerTriggers(res["triggers"], d, config)); err != nil {
-		return fmt.Errorf("Error reading JobTrigger: %s", err)
-	}
-	if err := d.Set("inspect_job", flattenDataLossPreventionJobTriggerInspectJob(res["inspectJob"], d, config)); err != nil {
-		return fmt.Errorf("Error reading JobTrigger: %s", err)
+	err = ResourceDataLossPreventionJobTriggerFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -6299,5 +6276,39 @@ func resourceDataLossPreventionJobTriggerPostCreateSetComputedFields(d *schema.R
 	if err := d.Set("name", flattenDataLossPreventionJobTriggerName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDataLossPreventionJobTriggerFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataLossPreventionJobTriggerName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading JobTrigger: %s", err)
+	}
+	if err = d.Set("create_time", flattenDataLossPreventionJobTriggerCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading JobTrigger: %s", err)
+	}
+	if err = d.Set("update_time", flattenDataLossPreventionJobTriggerUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading JobTrigger: %s", err)
+	}
+	if err = d.Set("description", flattenDataLossPreventionJobTriggerDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading JobTrigger: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataLossPreventionJobTriggerDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading JobTrigger: %s", err)
+	}
+	if err = d.Set("last_run_time", flattenDataLossPreventionJobTriggerLastRunTime(res["lastRunTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading JobTrigger: %s", err)
+	}
+	if err = d.Set("status", flattenDataLossPreventionJobTriggerStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading JobTrigger: %s", err)
+	}
+	if err = d.Set("triggers", flattenDataLossPreventionJobTriggerTriggers(res["triggers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading JobTrigger: %s", err)
+	}
+	if err = d.Set("inspect_job", flattenDataLossPreventionJobTriggerInspectJob(res["inspectJob"], d, config)); err != nil {
+		return fmt.Errorf("Error reading JobTrigger: %s", err)
+	}
+
 	return nil
 }

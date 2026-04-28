@@ -324,26 +324,9 @@ func resourceSecurityCenterEventThreatDetectionCustomModuleRead(d *schema.Resour
 
 	log.Printf("[DEBUG] Finished reading SecurityCenterEventThreatDetectionCustomModule %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenSecurityCenterEventThreatDetectionCustomModuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("config", flattenSecurityCenterEventThreatDetectionCustomModuleConfig(res["config"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("enablement_state", flattenSecurityCenterEventThreatDetectionCustomModuleEnablementState(res["enablementState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("type", flattenSecurityCenterEventThreatDetectionCustomModuleType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("display_name", flattenSecurityCenterEventThreatDetectionCustomModuleDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("update_time", flattenSecurityCenterEventThreatDetectionCustomModuleUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
-	}
-	if err := d.Set("last_editor", flattenSecurityCenterEventThreatDetectionCustomModuleLastEditor(res["lastEditor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
+	err = ResourceSecurityCenterEventThreatDetectionCustomModuleFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -610,5 +593,33 @@ func resourceSecurityCenterEventThreatDetectionCustomModulePostCreateSetComputed
 	if err := d.Set("name", flattenSecurityCenterEventThreatDetectionCustomModuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceSecurityCenterEventThreatDetectionCustomModuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecurityCenterEventThreatDetectionCustomModuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("config", flattenSecurityCenterEventThreatDetectionCustomModuleConfig(res["config"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("enablement_state", flattenSecurityCenterEventThreatDetectionCustomModuleEnablementState(res["enablementState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("type", flattenSecurityCenterEventThreatDetectionCustomModuleType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("display_name", flattenSecurityCenterEventThreatDetectionCustomModuleDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("update_time", flattenSecurityCenterEventThreatDetectionCustomModuleUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
+	}
+	if err = d.Set("last_editor", flattenSecurityCenterEventThreatDetectionCustomModuleLastEditor(res["lastEditor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
+	}
+
 	return nil
 }

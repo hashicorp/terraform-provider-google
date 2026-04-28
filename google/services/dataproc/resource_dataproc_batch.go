@@ -965,62 +965,9 @@ func resourceDataprocBatchRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Batch: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataprocBatchName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("uuid", flattenDataprocBatchUuid(res["uuid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("create_time", flattenDataprocBatchCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("runtime_info", flattenDataprocBatchRuntimeInfo(res["runtimeInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("state", flattenDataprocBatchState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("state_message", flattenDataprocBatchStateMessage(res["stateMessage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("state_time", flattenDataprocBatchStateTime(res["stateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("creator", flattenDataprocBatchCreator(res["creator"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("labels", flattenDataprocBatchLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("runtime_config", flattenDataprocBatchRuntimeConfig(res["runtimeConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("environment_config", flattenDataprocBatchEnvironmentConfig(res["environmentConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("operation", flattenDataprocBatchOperation(res["operation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("state_history", flattenDataprocBatchStateHistory(res["stateHistory"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("pyspark_batch", flattenDataprocBatchPysparkBatch(res["pysparkBatch"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("spark_batch", flattenDataprocBatchSparkBatch(res["sparkBatch"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("spark_r_batch", flattenDataprocBatchSparkRBatch(res["sparkRBatch"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("spark_sql_batch", flattenDataprocBatchSparkSqlBatch(res["sparkSqlBatch"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDataprocBatchTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDataprocBatchEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Batch: %s", err)
+	err = ResourceDataprocBatchFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2339,4 +2286,68 @@ func resourceDataprocBatchDecoder(d *schema.ResourceData, meta interface{}, res 
 	}
 
 	return res, nil
+}
+
+func ResourceDataprocBatchFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataprocBatchName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("uuid", flattenDataprocBatchUuid(res["uuid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("create_time", flattenDataprocBatchCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("runtime_info", flattenDataprocBatchRuntimeInfo(res["runtimeInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("state", flattenDataprocBatchState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("state_message", flattenDataprocBatchStateMessage(res["stateMessage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("state_time", flattenDataprocBatchStateTime(res["stateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("creator", flattenDataprocBatchCreator(res["creator"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("labels", flattenDataprocBatchLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("runtime_config", flattenDataprocBatchRuntimeConfig(res["runtimeConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("environment_config", flattenDataprocBatchEnvironmentConfig(res["environmentConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("operation", flattenDataprocBatchOperation(res["operation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("state_history", flattenDataprocBatchStateHistory(res["stateHistory"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("pyspark_batch", flattenDataprocBatchPysparkBatch(res["pysparkBatch"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("spark_batch", flattenDataprocBatchSparkBatch(res["sparkBatch"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("spark_r_batch", flattenDataprocBatchSparkRBatch(res["sparkRBatch"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("spark_sql_batch", flattenDataprocBatchSparkSqlBatch(res["sparkSqlBatch"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDataprocBatchTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDataprocBatchEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Batch: %s", err)
+	}
+
+	return nil
 }

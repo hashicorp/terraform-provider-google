@@ -378,32 +378,9 @@ func resourceGKEBackupRestoreChannelRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading RestoreChannel: %s", err)
 	}
 
-	if err := d.Set("name", flattenGKEBackupRestoreChannelName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestoreChannel: %s", err)
-	}
-	if err := d.Set("uid", flattenGKEBackupRestoreChannelUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestoreChannel: %s", err)
-	}
-	if err := d.Set("destination_project", flattenGKEBackupRestoreChannelDestinationProject(res["destinationProject"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestoreChannel: %s", err)
-	}
-	if err := d.Set("description", flattenGKEBackupRestoreChannelDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestoreChannel: %s", err)
-	}
-	if err := d.Set("labels", flattenGKEBackupRestoreChannelLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestoreChannel: %s", err)
-	}
-	if err := d.Set("etag", flattenGKEBackupRestoreChannelEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestoreChannel: %s", err)
-	}
-	if err := d.Set("destination_project_id", flattenGKEBackupRestoreChannelDestinationProjectId(res["destinationProjectId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestoreChannel: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenGKEBackupRestoreChannelTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestoreChannel: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenGKEBackupRestoreChannelEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestoreChannel: %s", err)
+	err = ResourceGKEBackupRestoreChannelFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -699,4 +676,38 @@ func expandGKEBackupRestoreChannelEffectiveLabels(v interface{}, d tpgresource.T
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceGKEBackupRestoreChannelFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenGKEBackupRestoreChannelName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestoreChannel: %s", err)
+	}
+	if err = d.Set("uid", flattenGKEBackupRestoreChannelUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestoreChannel: %s", err)
+	}
+	if err = d.Set("destination_project", flattenGKEBackupRestoreChannelDestinationProject(res["destinationProject"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestoreChannel: %s", err)
+	}
+	if err = d.Set("description", flattenGKEBackupRestoreChannelDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestoreChannel: %s", err)
+	}
+	if err = d.Set("labels", flattenGKEBackupRestoreChannelLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestoreChannel: %s", err)
+	}
+	if err = d.Set("etag", flattenGKEBackupRestoreChannelEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestoreChannel: %s", err)
+	}
+	if err = d.Set("destination_project_id", flattenGKEBackupRestoreChannelDestinationProjectId(res["destinationProjectId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestoreChannel: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenGKEBackupRestoreChannelTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestoreChannel: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenGKEBackupRestoreChannelEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestoreChannel: %s", err)
+	}
+
+	return nil
 }

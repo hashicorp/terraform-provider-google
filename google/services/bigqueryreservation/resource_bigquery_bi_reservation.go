@@ -337,17 +337,9 @@ func resourceBigqueryReservationBiReservationRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading BiReservation: %s", err)
 	}
 
-	if err := d.Set("name", flattenBigqueryReservationBiReservationName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BiReservation: %s", err)
-	}
-	if err := d.Set("update_time", flattenBigqueryReservationBiReservationUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BiReservation: %s", err)
-	}
-	if err := d.Set("size", flattenBigqueryReservationBiReservationSize(res["size"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BiReservation: %s", err)
-	}
-	if err := d.Set("preferred_tables", flattenBigqueryReservationBiReservationPreferredTables(res["preferredTables"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BiReservation: %s", err)
+	err = ResourceBigqueryReservationBiReservationFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -644,4 +636,23 @@ func expandBigqueryReservationBiReservationPreferredTablesDatasetId(v interface{
 
 func expandBigqueryReservationBiReservationPreferredTablesTableId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceBigqueryReservationBiReservationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBigqueryReservationBiReservationName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BiReservation: %s", err)
+	}
+	if err = d.Set("update_time", flattenBigqueryReservationBiReservationUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BiReservation: %s", err)
+	}
+	if err = d.Set("size", flattenBigqueryReservationBiReservationSize(res["size"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BiReservation: %s", err)
+	}
+	if err = d.Set("preferred_tables", flattenBigqueryReservationBiReservationPreferredTables(res["preferredTables"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BiReservation: %s", err)
+	}
+
+	return nil
 }

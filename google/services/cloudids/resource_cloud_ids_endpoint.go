@@ -371,32 +371,9 @@ func resourceCloudIdsEndpointRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Endpoint: %s", err)
 	}
 
-	if err := d.Set("name", flattenCloudIdsEndpointName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("create_time", flattenCloudIdsEndpointCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("update_time", flattenCloudIdsEndpointUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("network", flattenCloudIdsEndpointNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("description", flattenCloudIdsEndpointDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("endpoint_forwarding_rule", flattenCloudIdsEndpointEndpointForwardingRule(res["endpointForwardingRule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("endpoint_ip", flattenCloudIdsEndpointEndpointIp(res["endpointIp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("severity", flattenCloudIdsEndpointSeverity(res["severity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("threat_exceptions", flattenCloudIdsEndpointThreatExceptions(res["threatExceptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
+	err = ResourceCloudIdsEndpointFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -655,4 +632,38 @@ func expandCloudIdsEndpointSeverity(v interface{}, d tpgresource.TerraformResour
 
 func expandCloudIdsEndpointThreatExceptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceCloudIdsEndpointFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenCloudIdsEndpointName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("create_time", flattenCloudIdsEndpointCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("update_time", flattenCloudIdsEndpointUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("network", flattenCloudIdsEndpointNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("description", flattenCloudIdsEndpointDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("endpoint_forwarding_rule", flattenCloudIdsEndpointEndpointForwardingRule(res["endpointForwardingRule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("endpoint_ip", flattenCloudIdsEndpointEndpointIp(res["endpointIp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("severity", flattenCloudIdsEndpointSeverity(res["severity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("threat_exceptions", flattenCloudIdsEndpointThreatExceptions(res["threatExceptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+
+	return nil
 }

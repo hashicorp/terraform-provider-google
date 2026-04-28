@@ -276,14 +276,9 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished reading IapClient %q: %#v", d.Id(), res)
 
-	if err := d.Set("secret", flattenIapClientSecret(res["secret"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Client: %s", err)
-	}
-	if err := d.Set("display_name", flattenIapClientDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Client: %s", err)
-	}
-	if err := d.Set("client_id", flattenIapClientClientId(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Client: %s", err)
+	err = ResourceIapClientFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -400,5 +395,21 @@ func resourceIapClientPostCreateSetComputedFields(d *schema.ResourceData, meta i
 	if err := d.Set("client_id", flattenIapClientClientId(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "client_id": %s`, err)
 	}
+	return nil
+}
+
+func ResourceIapClientFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("secret", flattenIapClientSecret(res["secret"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Client: %s", err)
+	}
+	if err = d.Set("display_name", flattenIapClientDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Client: %s", err)
+	}
+	if err = d.Set("client_id", flattenIapClientClientId(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Client: %s", err)
+	}
+
 	return nil
 }

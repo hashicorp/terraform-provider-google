@@ -1161,59 +1161,9 @@ func resourceArtifactRegistryRepositoryRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
-	if err := d.Set("name", flattenArtifactRegistryRepositoryName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("format", flattenArtifactRegistryRepositoryFormat(res["format"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("description", flattenArtifactRegistryRepositoryDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("labels", flattenArtifactRegistryRepositoryLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("registry_uri", flattenArtifactRegistryRepositoryRegistryUri(res["registryUri"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("kms_key_name", flattenArtifactRegistryRepositoryKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("create_time", flattenArtifactRegistryRepositoryCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("update_time", flattenArtifactRegistryRepositoryUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("docker_config", flattenArtifactRegistryRepositoryDockerConfig(res["dockerConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("maven_config", flattenArtifactRegistryRepositoryMavenConfig(res["mavenConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("mode", flattenArtifactRegistryRepositoryMode(res["mode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("virtual_repository_config", flattenArtifactRegistryRepositoryVirtualRepositoryConfig(res["virtualRepositoryConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("cleanup_policies", flattenArtifactRegistryRepositoryCleanupPolicies(res["cleanupPolicies"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("remote_repository_config", flattenArtifactRegistryRepositoryRemoteRepositoryConfig(res["remoteRepositoryConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("cleanup_policy_dry_run", flattenArtifactRegistryRepositoryCleanupPolicyDryRun(res["cleanupPolicyDryRun"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("vulnerability_scanning_config", flattenArtifactRegistryRepositoryVulnerabilityScanningConfig(res["vulnerabilityScanningConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenArtifactRegistryRepositoryTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenArtifactRegistryRepositoryEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
+	err = ResourceArtifactRegistryRepositoryFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3098,4 +3048,65 @@ func resourceArtifactRegistryRepositoryEncoder(d *schema.ResourceData, meta inte
 		}
 	}
 	return obj, nil
+}
+
+func ResourceArtifactRegistryRepositoryFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenArtifactRegistryRepositoryName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("format", flattenArtifactRegistryRepositoryFormat(res["format"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("description", flattenArtifactRegistryRepositoryDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("labels", flattenArtifactRegistryRepositoryLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("registry_uri", flattenArtifactRegistryRepositoryRegistryUri(res["registryUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("kms_key_name", flattenArtifactRegistryRepositoryKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("create_time", flattenArtifactRegistryRepositoryCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("update_time", flattenArtifactRegistryRepositoryUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("docker_config", flattenArtifactRegistryRepositoryDockerConfig(res["dockerConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("maven_config", flattenArtifactRegistryRepositoryMavenConfig(res["mavenConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("mode", flattenArtifactRegistryRepositoryMode(res["mode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("virtual_repository_config", flattenArtifactRegistryRepositoryVirtualRepositoryConfig(res["virtualRepositoryConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("cleanup_policies", flattenArtifactRegistryRepositoryCleanupPolicies(res["cleanupPolicies"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("remote_repository_config", flattenArtifactRegistryRepositoryRemoteRepositoryConfig(res["remoteRepositoryConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("cleanup_policy_dry_run", flattenArtifactRegistryRepositoryCleanupPolicyDryRun(res["cleanupPolicyDryRun"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("vulnerability_scanning_config", flattenArtifactRegistryRepositoryVulnerabilityScanningConfig(res["vulnerabilityScanningConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenArtifactRegistryRepositoryTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenArtifactRegistryRepositoryEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+
+	return nil
 }

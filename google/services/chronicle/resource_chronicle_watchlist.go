@@ -441,35 +441,9 @@ func resourceChronicleWatchlistRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Watchlist: %s", err)
 	}
 
-	if err := d.Set("name", flattenChronicleWatchlistName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Watchlist: %s", err)
-	}
-	if err := d.Set("multiplying_factor", flattenChronicleWatchlistMultiplyingFactor(res["multiplyingFactor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Watchlist: %s", err)
-	}
-	if err := d.Set("create_time", flattenChronicleWatchlistCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Watchlist: %s", err)
-	}
-	if err := d.Set("update_time", flattenChronicleWatchlistUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Watchlist: %s", err)
-	}
-	if err := d.Set("display_name", flattenChronicleWatchlistDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Watchlist: %s", err)
-	}
-	if err := d.Set("description", flattenChronicleWatchlistDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Watchlist: %s", err)
-	}
-	if err := d.Set("entity_population_mechanism", flattenChronicleWatchlistEntityPopulationMechanism(res["entityPopulationMechanism"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Watchlist: %s", err)
-	}
-	if err := d.Set("entity_count", flattenChronicleWatchlistEntityCount(res["entityCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Watchlist: %s", err)
-	}
-	if err := d.Set("watchlist_user_preferences", flattenChronicleWatchlistWatchlistUserPreferences(res["watchlistUserPreferences"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Watchlist: %s", err)
-	}
-	if err := d.Set("watchlist_id", flattenChronicleWatchlistWatchlistId(res["watchlistId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Watchlist: %s", err)
+	err = ResourceChronicleWatchlistFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -930,5 +904,42 @@ func resourceChronicleWatchlistPostCreateSetComputedFields(d *schema.ResourceDat
 			return fmt.Errorf(`Error setting computed identity field "watchlist_id": %s`, err)
 		}
 	}
+	return nil
+}
+
+func ResourceChronicleWatchlistFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenChronicleWatchlistName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Watchlist: %s", err)
+	}
+	if err = d.Set("multiplying_factor", flattenChronicleWatchlistMultiplyingFactor(res["multiplyingFactor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Watchlist: %s", err)
+	}
+	if err = d.Set("create_time", flattenChronicleWatchlistCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Watchlist: %s", err)
+	}
+	if err = d.Set("update_time", flattenChronicleWatchlistUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Watchlist: %s", err)
+	}
+	if err = d.Set("display_name", flattenChronicleWatchlistDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Watchlist: %s", err)
+	}
+	if err = d.Set("description", flattenChronicleWatchlistDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Watchlist: %s", err)
+	}
+	if err = d.Set("entity_population_mechanism", flattenChronicleWatchlistEntityPopulationMechanism(res["entityPopulationMechanism"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Watchlist: %s", err)
+	}
+	if err = d.Set("entity_count", flattenChronicleWatchlistEntityCount(res["entityCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Watchlist: %s", err)
+	}
+	if err = d.Set("watchlist_user_preferences", flattenChronicleWatchlistWatchlistUserPreferences(res["watchlistUserPreferences"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Watchlist: %s", err)
+	}
+	if err = d.Set("watchlist_id", flattenChronicleWatchlistWatchlistId(res["watchlistId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Watchlist: %s", err)
+	}
+
 	return nil
 }

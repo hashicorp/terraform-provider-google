@@ -336,17 +336,9 @@ func resourceNetworkSecurityGatewaySecurityPolicyRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading GatewaySecurityPolicy: %s", err)
 	}
 
-	if err := d.Set("self_link", flattenNetworkSecurityGatewaySecurityPolicySelfLink(res["selfLink"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicy: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkSecurityGatewaySecurityPolicyCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicy: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityGatewaySecurityPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicy: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkSecurityGatewaySecurityPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicy: %s", err)
+	err = ResourceNetworkSecurityGatewaySecurityPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -582,4 +574,23 @@ func expandNetworkSecurityGatewaySecurityPolicyDescription(v interface{}, d tpgr
 
 func expandNetworkSecurityGatewaySecurityPolicyTlsInspectionPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceNetworkSecurityGatewaySecurityPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("self_link", flattenNetworkSecurityGatewaySecurityPolicySelfLink(res["selfLink"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicy: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkSecurityGatewaySecurityPolicyCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicy: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityGatewaySecurityPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicy: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkSecurityGatewaySecurityPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicy: %s", err)
+	}
+
+	return nil
 }

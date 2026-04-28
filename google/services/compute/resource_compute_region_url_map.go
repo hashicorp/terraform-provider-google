@@ -3134,47 +3134,9 @@ func resourceComputeRegionUrlMapRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeRegionUrlMapCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("default_service", flattenComputeRegionUrlMapDefaultService(res["defaultService"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionUrlMapDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("host_rule", flattenComputeRegionUrlMapHostRule(res["hostRules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("map_id", flattenComputeRegionUrlMapMapId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeRegionUrlMapFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionUrlMapName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("path_matcher", flattenComputeRegionUrlMapPathMatcher(res["pathMatchers"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("test", flattenComputeRegionUrlMapTest(res["tests"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("default_url_redirect", flattenComputeRegionUrlMapDefaultUrlRedirect(res["defaultUrlRedirect"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("default_route_action", flattenComputeRegionUrlMapDefaultRouteAction(res["defaultRouteAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("header_action", flattenComputeRegionUrlMapHeaderAction(res["headerAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("region", flattenComputeRegionUrlMapRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	err = ResourceComputeRegionUrlMapFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -10780,4 +10742,52 @@ func expandComputeRegionUrlMapRegion(v interface{}, d tpgresource.TerraformResou
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeRegionUrlMapFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeRegionUrlMapCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("default_service", flattenComputeRegionUrlMapDefaultService(res["defaultService"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("description", flattenComputeRegionUrlMapDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("host_rule", flattenComputeRegionUrlMapHostRule(res["hostRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("map_id", flattenComputeRegionUrlMapMapId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeRegionUrlMapFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionUrlMapName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("path_matcher", flattenComputeRegionUrlMapPathMatcher(res["pathMatchers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("test", flattenComputeRegionUrlMapTest(res["tests"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("default_url_redirect", flattenComputeRegionUrlMapDefaultUrlRedirect(res["defaultUrlRedirect"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("default_route_action", flattenComputeRegionUrlMapDefaultRouteAction(res["defaultRouteAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("header_action", flattenComputeRegionUrlMapHeaderAction(res["headerAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("region", flattenComputeRegionUrlMapRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	}
+	return nil
 }

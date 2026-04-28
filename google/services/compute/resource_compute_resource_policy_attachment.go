@@ -354,9 +354,9 @@ func resourceComputeResourcePolicyAttachmentRead(d *schema.ResourceData, meta in
 	if err := d.Set("zone", zone); err != nil {
 		return fmt.Errorf("Error reading ResourcePolicyAttachment: %s", err)
 	}
-
-	if err := d.Set("name", flattenNestedComputeResourcePolicyAttachmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResourcePolicyAttachment: %s", err)
+	err = ResourceComputeResourcePolicyAttachmentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -594,4 +594,14 @@ func resourceComputeResourcePolicyAttachmentFindNestedObjectInList(d *schema.Res
 func resourceComputeResourcePolicyAttachmentDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	res["name"] = tpgresource.GetResourceNameFromSelfLink(res["name"].(string))
 	return res, nil
+}
+
+func ResourceComputeResourcePolicyAttachmentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNestedComputeResourcePolicyAttachmentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicyAttachment: %s", err)
+	}
+
+	return nil
 }

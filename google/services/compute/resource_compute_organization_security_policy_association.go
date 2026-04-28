@@ -330,20 +330,9 @@ func resourceComputeOrganizationSecurityPolicyAssociationRead(d *schema.Resource
 
 	log.Printf("[DEBUG] Finished reading ComputeOrganizationSecurityPolicyAssociation %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenComputeOrganizationSecurityPolicyAssociationName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
-	}
-	if err := d.Set("attachment_id", flattenComputeOrganizationSecurityPolicyAssociationAttachmentId(res["attachmentId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
-	}
-	if err := d.Set("display_name", flattenComputeOrganizationSecurityPolicyAssociationDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
-	}
-	if err := d.Set("excluded_projects", flattenComputeOrganizationSecurityPolicyAssociationExcludedProjects(res["excludedProjects"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
-	}
-	if err := d.Set("excluded_folders", flattenComputeOrganizationSecurityPolicyAssociationExcludedFolders(res["excludedFolders"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
+	err = ResourceComputeOrganizationSecurityPolicyAssociationFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -491,4 +480,26 @@ func expandComputeOrganizationSecurityPolicyAssociationExcludedProjects(v interf
 
 func expandComputeOrganizationSecurityPolicyAssociationExcludedFolders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeOrganizationSecurityPolicyAssociationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenComputeOrganizationSecurityPolicyAssociationName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
+	}
+	if err = d.Set("attachment_id", flattenComputeOrganizationSecurityPolicyAssociationAttachmentId(res["attachmentId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
+	}
+	if err = d.Set("display_name", flattenComputeOrganizationSecurityPolicyAssociationDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
+	}
+	if err = d.Set("excluded_projects", flattenComputeOrganizationSecurityPolicyAssociationExcludedProjects(res["excludedProjects"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
+	}
+	if err = d.Set("excluded_folders", flattenComputeOrganizationSecurityPolicyAssociationExcludedFolders(res["excludedFolders"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
+	}
+
+	return nil
 }

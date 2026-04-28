@@ -368,17 +368,9 @@ func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
 
-	if err := d.Set("description", flattenAppEngineFirewallRuleDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FirewallRule: %s", err)
-	}
-	if err := d.Set("source_range", flattenAppEngineFirewallRuleSourceRange(res["sourceRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FirewallRule: %s", err)
-	}
-	if err := d.Set("action", flattenAppEngineFirewallRuleAction(res["action"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FirewallRule: %s", err)
-	}
-	if err := d.Set("priority", flattenAppEngineFirewallRulePriority(res["priority"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FirewallRule: %s", err)
+	err = ResourceAppEngineFirewallRuleFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -644,4 +636,23 @@ func expandAppEngineFirewallRuleAction(v interface{}, d tpgresource.TerraformRes
 
 func expandAppEngineFirewallRulePriority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceAppEngineFirewallRuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenAppEngineFirewallRuleDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FirewallRule: %s", err)
+	}
+	if err = d.Set("source_range", flattenAppEngineFirewallRuleSourceRange(res["sourceRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FirewallRule: %s", err)
+	}
+	if err = d.Set("action", flattenAppEngineFirewallRuleAction(res["action"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FirewallRule: %s", err)
+	}
+	if err = d.Set("priority", flattenAppEngineFirewallRulePriority(res["priority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FirewallRule: %s", err)
+	}
+
+	return nil
 }

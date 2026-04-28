@@ -489,35 +489,9 @@ func resourceCloudSecurityComplianceFrameworkRead(d *schema.ResourceData, meta i
 
 	log.Printf("[DEBUG] Finished reading CloudSecurityComplianceFramework %q: %#v", d.Id(), res)
 
-	if err := d.Set("category", flattenCloudSecurityComplianceFrameworkCategory(res["category"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Framework: %s", err)
-	}
-	if err := d.Set("cloud_control_details", flattenCloudSecurityComplianceFrameworkCloudControlDetails(res["cloudControlDetails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Framework: %s", err)
-	}
-	if err := d.Set("description", flattenCloudSecurityComplianceFrameworkDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Framework: %s", err)
-	}
-	if err := d.Set("display_name", flattenCloudSecurityComplianceFrameworkDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Framework: %s", err)
-	}
-	if err := d.Set("major_revision_id", flattenCloudSecurityComplianceFrameworkMajorRevisionId(res["majorRevisionId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Framework: %s", err)
-	}
-	if err := d.Set("name", flattenCloudSecurityComplianceFrameworkName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Framework: %s", err)
-	}
-	if err := d.Set("supported_cloud_providers", flattenCloudSecurityComplianceFrameworkSupportedCloudProviders(res["supportedCloudProviders"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Framework: %s", err)
-	}
-	if err := d.Set("supported_enforcement_modes", flattenCloudSecurityComplianceFrameworkSupportedEnforcementModes(res["supportedEnforcementModes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Framework: %s", err)
-	}
-	if err := d.Set("supported_target_resource_types", flattenCloudSecurityComplianceFrameworkSupportedTargetResourceTypes(res["supportedTargetResourceTypes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Framework: %s", err)
-	}
-	if err := d.Set("type", flattenCloudSecurityComplianceFrameworkType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Framework: %s", err)
+	err = ResourceCloudSecurityComplianceFrameworkFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1235,4 +1209,41 @@ func resourceCloudSecurityComplianceFrameworkEncoder(d *schema.ResourceData, met
 	name := fmt.Sprintf("organizations/%s/locations/%s/frameworks/%s", org, loc, fw)
 	obj["name"] = name
 	return obj, nil
+}
+
+func ResourceCloudSecurityComplianceFrameworkFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("category", flattenCloudSecurityComplianceFrameworkCategory(res["category"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Framework: %s", err)
+	}
+	if err = d.Set("cloud_control_details", flattenCloudSecurityComplianceFrameworkCloudControlDetails(res["cloudControlDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Framework: %s", err)
+	}
+	if err = d.Set("description", flattenCloudSecurityComplianceFrameworkDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Framework: %s", err)
+	}
+	if err = d.Set("display_name", flattenCloudSecurityComplianceFrameworkDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Framework: %s", err)
+	}
+	if err = d.Set("major_revision_id", flattenCloudSecurityComplianceFrameworkMajorRevisionId(res["majorRevisionId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Framework: %s", err)
+	}
+	if err = d.Set("name", flattenCloudSecurityComplianceFrameworkName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Framework: %s", err)
+	}
+	if err = d.Set("supported_cloud_providers", flattenCloudSecurityComplianceFrameworkSupportedCloudProviders(res["supportedCloudProviders"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Framework: %s", err)
+	}
+	if err = d.Set("supported_enforcement_modes", flattenCloudSecurityComplianceFrameworkSupportedEnforcementModes(res["supportedEnforcementModes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Framework: %s", err)
+	}
+	if err = d.Set("supported_target_resource_types", flattenCloudSecurityComplianceFrameworkSupportedTargetResourceTypes(res["supportedTargetResourceTypes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Framework: %s", err)
+	}
+	if err = d.Set("type", flattenCloudSecurityComplianceFrameworkType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Framework: %s", err)
+	}
+
+	return nil
 }

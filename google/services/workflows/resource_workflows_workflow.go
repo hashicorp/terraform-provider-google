@@ -512,50 +512,9 @@ func resourceWorkflowsWorkflowRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Workflow: %s", err)
 	}
 
-	if err := d.Set("name", flattenWorkflowsWorkflowName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("description", flattenWorkflowsWorkflowDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("create_time", flattenWorkflowsWorkflowCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("update_time", flattenWorkflowsWorkflowUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("state", flattenWorkflowsWorkflowState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("labels", flattenWorkflowsWorkflowLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("service_account", flattenWorkflowsWorkflowServiceAccount(res["serviceAccount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("source_contents", flattenWorkflowsWorkflowSourceContents(res["sourceContents"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("revision_id", flattenWorkflowsWorkflowRevisionId(res["revisionId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("crypto_key_name", flattenWorkflowsWorkflowCryptoKeyName(res["cryptoKeyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("call_log_level", flattenWorkflowsWorkflowCallLogLevel(res["callLogLevel"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("execution_history_level", flattenWorkflowsWorkflowExecutionHistoryLevel(res["executionHistoryLevel"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("user_env_vars", flattenWorkflowsWorkflowUserEnvVars(res["userEnvVars"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenWorkflowsWorkflowTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenWorkflowsWorkflowEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Workflow: %s", err)
+	err = ResourceWorkflowsWorkflowFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1074,4 +1033,56 @@ func ResourceWorkflowsWorkflowUpgradeV0(_ context.Context, rawState map[string]i
 
 	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
 	return rawState, nil
+}
+
+func ResourceWorkflowsWorkflowFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenWorkflowsWorkflowName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("description", flattenWorkflowsWorkflowDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("create_time", flattenWorkflowsWorkflowCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("update_time", flattenWorkflowsWorkflowUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("state", flattenWorkflowsWorkflowState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("labels", flattenWorkflowsWorkflowLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("service_account", flattenWorkflowsWorkflowServiceAccount(res["serviceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("source_contents", flattenWorkflowsWorkflowSourceContents(res["sourceContents"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("revision_id", flattenWorkflowsWorkflowRevisionId(res["revisionId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("crypto_key_name", flattenWorkflowsWorkflowCryptoKeyName(res["cryptoKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("call_log_level", flattenWorkflowsWorkflowCallLogLevel(res["callLogLevel"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("execution_history_level", flattenWorkflowsWorkflowExecutionHistoryLevel(res["executionHistoryLevel"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("user_env_vars", flattenWorkflowsWorkflowUserEnvVars(res["userEnvVars"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenWorkflowsWorkflowTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenWorkflowsWorkflowEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+
+	return nil
 }

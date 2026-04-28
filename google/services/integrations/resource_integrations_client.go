@@ -373,6 +373,11 @@ func resourceIntegrationsClientRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Client: %s", err)
 	}
 
+	err = ResourceIntegrationsClientFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
+	}
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if v, ok := identity.GetOk("location"); !ok && v == "" {
@@ -552,4 +557,9 @@ func resourceIntegrationsClientDecoder(d *schema.ResourceData, meta interface{},
 	// Adding this decoder as placeholder else the linter will
 	// complain that the returned `res` is never used afterwards.
 	return res, nil
+}
+
+func ResourceIntegrationsClientFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+
+	return nil
 }

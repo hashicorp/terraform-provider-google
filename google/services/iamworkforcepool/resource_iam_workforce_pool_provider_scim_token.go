@@ -340,17 +340,9 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenRead(d *schema.Resour
 		return nil
 	}
 
-	if err := d.Set("name", flattenIAMWorkforcePoolWorkforcePoolProviderScimTokenName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkforcePoolProviderScimToken: %s", err)
-	}
-	if err := d.Set("display_name", flattenIAMWorkforcePoolWorkforcePoolProviderScimTokenDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkforcePoolProviderScimToken: %s", err)
-	}
-	if err := d.Set("security_token", flattenIAMWorkforcePoolWorkforcePoolProviderScimTokenSecurityToken(res["securityToken"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkforcePoolProviderScimToken: %s", err)
-	}
-	if err := d.Set("state", flattenIAMWorkforcePoolWorkforcePoolProviderScimTokenState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkforcePoolProviderScimToken: %s", err)
+	err = ResourceIAMWorkforcePoolWorkforcePoolProviderScimTokenFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -578,4 +570,23 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenDecoder(d *schema.Res
 	}
 
 	return res, nil
+}
+
+func ResourceIAMWorkforcePoolWorkforcePoolProviderScimTokenFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIAMWorkforcePoolWorkforcePoolProviderScimTokenName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderScimToken: %s", err)
+	}
+	if err = d.Set("display_name", flattenIAMWorkforcePoolWorkforcePoolProviderScimTokenDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderScimToken: %s", err)
+	}
+	if err = d.Set("security_token", flattenIAMWorkforcePoolWorkforcePoolProviderScimTokenSecurityToken(res["securityToken"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderScimToken: %s", err)
+	}
+	if err = d.Set("state", flattenIAMWorkforcePoolWorkforcePoolProviderScimTokenState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderScimToken: %s", err)
+	}
+
+	return nil
 }

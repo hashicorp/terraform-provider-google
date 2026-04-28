@@ -556,20 +556,9 @@ func resourceAccessContextManagerAccessLevelRead(d *schema.ResourceData, meta in
 
 	log.Printf("[DEBUG] Finished reading AccessContextManagerAccessLevel %q: %#v", d.Id(), res)
 
-	if err := d.Set("title", flattenAccessContextManagerAccessLevelTitle(res["title"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessLevel: %s", err)
-	}
-	if err := d.Set("description", flattenAccessContextManagerAccessLevelDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessLevel: %s", err)
-	}
-	if err := d.Set("basic", flattenAccessContextManagerAccessLevelBasic(res["basic"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessLevel: %s", err)
-	}
-	if err := d.Set("custom", flattenAccessContextManagerAccessLevelCustom(res["custom"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessLevel: %s", err)
-	}
-	if err := d.Set("name", flattenAccessContextManagerAccessLevelName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessLevel: %s", err)
+	err = ResourceAccessContextManagerAccessLevelFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1438,4 +1427,26 @@ func expandAccessContextManagerAccessLevelName(v interface{}, d tpgresource.Terr
 func resourceAccessContextManagerAccessLevelEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	delete(obj, "parent")
 	return obj, nil
+}
+
+func ResourceAccessContextManagerAccessLevelFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("title", flattenAccessContextManagerAccessLevelTitle(res["title"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessLevel: %s", err)
+	}
+	if err = d.Set("description", flattenAccessContextManagerAccessLevelDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessLevel: %s", err)
+	}
+	if err = d.Set("basic", flattenAccessContextManagerAccessLevelBasic(res["basic"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessLevel: %s", err)
+	}
+	if err = d.Set("custom", flattenAccessContextManagerAccessLevelCustom(res["custom"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessLevel: %s", err)
+	}
+	if err = d.Set("name", flattenAccessContextManagerAccessLevelName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessLevel: %s", err)
+	}
+
+	return nil
 }

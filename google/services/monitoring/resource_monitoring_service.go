@@ -355,20 +355,9 @@ func resourceMonitoringGenericServiceRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading GenericService: %s", err)
 	}
 
-	if err := d.Set("name", flattenMonitoringGenericServiceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GenericService: %s", err)
-	}
-	if err := d.Set("display_name", flattenMonitoringGenericServiceDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GenericService: %s", err)
-	}
-	if err := d.Set("user_labels", flattenMonitoringGenericServiceUserLabels(res["userLabels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GenericService: %s", err)
-	}
-	if err := d.Set("telemetry", flattenMonitoringGenericServiceTelemetry(res["telemetry"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GenericService: %s", err)
-	}
-	if err := d.Set("basic_service", flattenMonitoringGenericServiceBasicService(res["basicService"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GenericService: %s", err)
+	err = ResourceMonitoringGenericServiceFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -667,4 +656,26 @@ func expandMonitoringGenericServiceBasicServiceServiceLabels(v interface{}, d tp
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceMonitoringGenericServiceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenMonitoringGenericServiceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GenericService: %s", err)
+	}
+	if err = d.Set("display_name", flattenMonitoringGenericServiceDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GenericService: %s", err)
+	}
+	if err = d.Set("user_labels", flattenMonitoringGenericServiceUserLabels(res["userLabels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GenericService: %s", err)
+	}
+	if err = d.Set("telemetry", flattenMonitoringGenericServiceTelemetry(res["telemetry"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GenericService: %s", err)
+	}
+	if err = d.Set("basic_service", flattenMonitoringGenericServiceBasicService(res["basicService"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GenericService: %s", err)
+	}
+
+	return nil
 }

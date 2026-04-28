@@ -635,59 +635,9 @@ func resourceComputeStoragePoolRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
 
-	if err := d.Set("kind", flattenComputeStoragePoolKind(res["kind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("id", flattenComputeStoragePoolId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeStoragePoolCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("name", flattenComputeStoragePoolName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("description", flattenComputeStoragePoolDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("pool_provisioned_capacity_gb", flattenComputeStoragePoolPoolProvisionedCapacityGb(res["poolProvisionedCapacityGb"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("pool_provisioned_iops", flattenComputeStoragePoolPoolProvisionedIops(res["poolProvisionedIops"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("pool_provisioned_throughput", flattenComputeStoragePoolPoolProvisionedThroughput(res["poolProvisionedThroughput"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeStoragePoolLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("resource_status", flattenComputeStoragePoolResourceStatus(res["resourceStatus"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("storage_pool_type", flattenComputeStoragePoolStoragePoolType(res["storagePoolType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("status", flattenComputeStoragePoolStatus(res["status"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("capacity_provisioning_type", flattenComputeStoragePoolCapacityProvisioningType(res["capacityProvisioningType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("performance_provisioning_type", flattenComputeStoragePoolPerformanceProvisioningType(res["performanceProvisioningType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeStoragePoolLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenComputeStoragePoolTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenComputeStoragePoolEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
-	}
-	if err := d.Set("zone", flattenComputeStoragePoolZone(res["zone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoragePool: %s", err)
+	err = ResourceComputeStoragePoolFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1240,4 +1190,65 @@ func expandComputeStoragePoolZone(v interface{}, d tpgresource.TerraformResource
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeStoragePoolFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("kind", flattenComputeStoragePoolKind(res["kind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("id", flattenComputeStoragePoolId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeStoragePoolCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("name", flattenComputeStoragePoolName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("description", flattenComputeStoragePoolDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("pool_provisioned_capacity_gb", flattenComputeStoragePoolPoolProvisionedCapacityGb(res["poolProvisionedCapacityGb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("pool_provisioned_iops", flattenComputeStoragePoolPoolProvisionedIops(res["poolProvisionedIops"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("pool_provisioned_throughput", flattenComputeStoragePoolPoolProvisionedThroughput(res["poolProvisionedThroughput"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("label_fingerprint", flattenComputeStoragePoolLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("resource_status", flattenComputeStoragePoolResourceStatus(res["resourceStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("storage_pool_type", flattenComputeStoragePoolStoragePoolType(res["storagePoolType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("status", flattenComputeStoragePoolStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("capacity_provisioning_type", flattenComputeStoragePoolCapacityProvisioningType(res["capacityProvisioningType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("performance_provisioning_type", flattenComputeStoragePoolPerformanceProvisioningType(res["performanceProvisioningType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("labels", flattenComputeStoragePoolLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenComputeStoragePoolTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenComputeStoragePoolEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err = d.Set("zone", flattenComputeStoragePoolZone(res["zone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+
+	return nil
 }

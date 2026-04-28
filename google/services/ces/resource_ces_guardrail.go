@@ -858,44 +858,9 @@ func resourceCESGuardrailRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Guardrail: %s", err)
 	}
 
-	if err := d.Set("action", flattenCESGuardrailAction(res["action"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("code_callback", flattenCESGuardrailCodeCallback(res["codeCallback"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("content_filter", flattenCESGuardrailContentFilter(res["contentFilter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("create_time", flattenCESGuardrailCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("description", flattenCESGuardrailDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("display_name", flattenCESGuardrailDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("enabled", flattenCESGuardrailEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("etag", flattenCESGuardrailEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("llm_policy", flattenCESGuardrailLlmPolicy(res["llmPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("llm_prompt_security", flattenCESGuardrailLlmPromptSecurity(res["llmPromptSecurity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("model_safety", flattenCESGuardrailModelSafety(res["modelSafety"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("name", flattenCESGuardrailName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
-	}
-	if err := d.Set("update_time", flattenCESGuardrailUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Guardrail: %s", err)
+	err = ResourceCESGuardrailFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2520,5 +2485,51 @@ func resourceCESGuardrailPostCreateSetComputedFields(d *schema.ResourceData, met
 	if err := d.Set("name", flattenCESGuardrailName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceCESGuardrailFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("action", flattenCESGuardrailAction(res["action"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("code_callback", flattenCESGuardrailCodeCallback(res["codeCallback"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("content_filter", flattenCESGuardrailContentFilter(res["contentFilter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("create_time", flattenCESGuardrailCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("description", flattenCESGuardrailDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("display_name", flattenCESGuardrailDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("enabled", flattenCESGuardrailEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("etag", flattenCESGuardrailEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("llm_policy", flattenCESGuardrailLlmPolicy(res["llmPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("llm_prompt_security", flattenCESGuardrailLlmPromptSecurity(res["llmPromptSecurity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("model_safety", flattenCESGuardrailModelSafety(res["modelSafety"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("name", flattenCESGuardrailName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+	if err = d.Set("update_time", flattenCESGuardrailUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Guardrail: %s", err)
+	}
+
 	return nil
 }

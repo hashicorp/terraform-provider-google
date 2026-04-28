@@ -428,44 +428,9 @@ func resourceEventarcMessageBusRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading MessageBus: %s", err)
 	}
 
-	if err := d.Set("name", flattenEventarcMessageBusName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("logging_config", flattenEventarcMessageBusLoggingConfig(res["loggingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("update_time", flattenEventarcMessageBusUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("labels", flattenEventarcMessageBusLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("annotations", flattenEventarcMessageBusAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("uid", flattenEventarcMessageBusUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("etag", flattenEventarcMessageBusEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("create_time", flattenEventarcMessageBusCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("display_name", flattenEventarcMessageBusDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("crypto_key_name", flattenEventarcMessageBusCryptoKeyName(res["cryptoKeyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenEventarcMessageBusTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenEventarcMessageBusEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenEventarcMessageBusEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MessageBus: %s", err)
+	err = ResourceEventarcMessageBusFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -861,4 +826,50 @@ func expandEventarcMessageBusEffectiveAnnotations(v interface{}, d tpgresource.T
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceEventarcMessageBusFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenEventarcMessageBusName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("logging_config", flattenEventarcMessageBusLoggingConfig(res["loggingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("update_time", flattenEventarcMessageBusUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("labels", flattenEventarcMessageBusLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("annotations", flattenEventarcMessageBusAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("uid", flattenEventarcMessageBusUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("etag", flattenEventarcMessageBusEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("create_time", flattenEventarcMessageBusCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("display_name", flattenEventarcMessageBusDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("crypto_key_name", flattenEventarcMessageBusCryptoKeyName(res["cryptoKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenEventarcMessageBusTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenEventarcMessageBusEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenEventarcMessageBusEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MessageBus: %s", err)
+	}
+
+	return nil
 }

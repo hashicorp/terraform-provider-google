@@ -516,32 +516,9 @@ func resourceOracleDatabaseExascaleDbStorageVaultRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenOracleDatabaseExascaleDbStorageVaultCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
-	}
-	if err := d.Set("display_name", flattenOracleDatabaseExascaleDbStorageVaultDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
-	}
-	if err := d.Set("entitlement_id", flattenOracleDatabaseExascaleDbStorageVaultEntitlementId(res["entitlementId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
-	}
-	if err := d.Set("gcp_oracle_zone", flattenOracleDatabaseExascaleDbStorageVaultGcpOracleZone(res["gcpOracleZone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
-	}
-	if err := d.Set("labels", flattenOracleDatabaseExascaleDbStorageVaultLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
-	}
-	if err := d.Set("name", flattenOracleDatabaseExascaleDbStorageVaultName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
-	}
-	if err := d.Set("properties", flattenOracleDatabaseExascaleDbStorageVaultProperties(res["properties"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenOracleDatabaseExascaleDbStorageVaultTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenOracleDatabaseExascaleDbStorageVaultEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
+	err = ResourceOracleDatabaseExascaleDbStorageVaultFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1083,4 +1060,38 @@ func expandOracleDatabaseExascaleDbStorageVaultEffectiveLabels(v interface{}, d 
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceOracleDatabaseExascaleDbStorageVaultFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenOracleDatabaseExascaleDbStorageVaultCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
+	}
+	if err = d.Set("display_name", flattenOracleDatabaseExascaleDbStorageVaultDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
+	}
+	if err = d.Set("entitlement_id", flattenOracleDatabaseExascaleDbStorageVaultEntitlementId(res["entitlementId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
+	}
+	if err = d.Set("gcp_oracle_zone", flattenOracleDatabaseExascaleDbStorageVaultGcpOracleZone(res["gcpOracleZone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
+	}
+	if err = d.Set("labels", flattenOracleDatabaseExascaleDbStorageVaultLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
+	}
+	if err = d.Set("name", flattenOracleDatabaseExascaleDbStorageVaultName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
+	}
+	if err = d.Set("properties", flattenOracleDatabaseExascaleDbStorageVaultProperties(res["properties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenOracleDatabaseExascaleDbStorageVaultTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenOracleDatabaseExascaleDbStorageVaultEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
+	}
+
+	return nil
 }

@@ -359,11 +359,9 @@ func resourceTagsTagBindingRead(d *schema.ResourceData, meta interface{}) error 
 		log.Printf("[DEBUG] Read: Existing tag_value in state: %s.", d.Get("tag_value").(string))
 	}
 
-	if err := d.Set("name", flattenTagsTagBindingName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagBinding: %s", err)
-	}
-	if err := d.Set("parent", flattenTagsTagBindingParent(res["parent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagBinding: %s", err)
+	err = ResourceTagsTagBindingFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -496,4 +494,17 @@ func expandTagsTagBindingParent(v interface{}, d tpgresource.TerraformResourceDa
 
 func expandTagsTagBindingTagValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceTagsTagBindingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenTagsTagBindingName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagBinding: %s", err)
+	}
+	if err = d.Set("parent", flattenTagsTagBindingParent(res["parent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagBinding: %s", err)
+	}
+
+	return nil
 }

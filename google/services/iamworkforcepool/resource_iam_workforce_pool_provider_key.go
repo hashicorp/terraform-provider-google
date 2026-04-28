@@ -391,20 +391,9 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderKeyRead(d *schema.ResourceData
 
 	log.Printf("[DEBUG] Finished reading IAMWorkforcePoolWorkforcePoolProviderKey %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenIAMWorkforcePoolWorkforcePoolProviderKeyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkforcePoolProviderKey: %s", err)
-	}
-	if err := d.Set("key_data", flattenIAMWorkforcePoolWorkforcePoolProviderKeyKeyData(res["keyData"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkforcePoolProviderKey: %s", err)
-	}
-	if err := d.Set("state", flattenIAMWorkforcePoolWorkforcePoolProviderKeyState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkforcePoolProviderKey: %s", err)
-	}
-	if err := d.Set("use", flattenIAMWorkforcePoolWorkforcePoolProviderKeyUse(res["use"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkforcePoolProviderKey: %s", err)
-	}
-	if err := d.Set("expire_time", flattenIAMWorkforcePoolWorkforcePoolProviderKeyExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkforcePoolProviderKey: %s", err)
+	err = ResourceIAMWorkforcePoolWorkforcePoolProviderKeyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -638,4 +627,26 @@ func expandIAMWorkforcePoolWorkforcePoolProviderKeyKeyDataKeySpec(v interface{},
 
 func expandIAMWorkforcePoolWorkforcePoolProviderKeyUse(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceIAMWorkforcePoolWorkforcePoolProviderKeyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIAMWorkforcePoolWorkforcePoolProviderKeyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderKey: %s", err)
+	}
+	if err = d.Set("key_data", flattenIAMWorkforcePoolWorkforcePoolProviderKeyKeyData(res["keyData"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderKey: %s", err)
+	}
+	if err = d.Set("state", flattenIAMWorkforcePoolWorkforcePoolProviderKeyState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderKey: %s", err)
+	}
+	if err = d.Set("use", flattenIAMWorkforcePoolWorkforcePoolProviderKeyUse(res["use"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderKey: %s", err)
+	}
+	if err = d.Set("expire_time", flattenIAMWorkforcePoolWorkforcePoolProviderKeyExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderKey: %s", err)
+	}
+
+	return nil
 }

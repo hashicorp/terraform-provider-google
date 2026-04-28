@@ -437,23 +437,9 @@ func resourceChronicleRetrohuntRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Retrohunt: %s", err)
 	}
 
-	if err := d.Set("progress_percentage", flattenChronicleRetrohuntProgressPercentage(res["progressPercentage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Retrohunt: %s", err)
-	}
-	if err := d.Set("name", flattenChronicleRetrohuntName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Retrohunt: %s", err)
-	}
-	if err := d.Set("process_interval", flattenChronicleRetrohuntProcessInterval(res["processInterval"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Retrohunt: %s", err)
-	}
-	if err := d.Set("execution_interval", flattenChronicleRetrohuntExecutionInterval(res["executionInterval"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Retrohunt: %s", err)
-	}
-	if err := d.Set("state", flattenChronicleRetrohuntState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Retrohunt: %s", err)
-	}
-	if err := d.Set("retrohunt", flattenChronicleRetrohuntRetrohunt(res["retrohunt"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Retrohunt: %s", err)
+	err = ResourceChronicleRetrohuntFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -626,4 +612,29 @@ func expandChronicleRetrohuntProcessIntervalEndTime(v interface{}, d tpgresource
 
 func expandChronicleRetrohuntRetrohunt(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceChronicleRetrohuntFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("progress_percentage", flattenChronicleRetrohuntProgressPercentage(res["progressPercentage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Retrohunt: %s", err)
+	}
+	if err = d.Set("name", flattenChronicleRetrohuntName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Retrohunt: %s", err)
+	}
+	if err = d.Set("process_interval", flattenChronicleRetrohuntProcessInterval(res["processInterval"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Retrohunt: %s", err)
+	}
+	if err = d.Set("execution_interval", flattenChronicleRetrohuntExecutionInterval(res["executionInterval"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Retrohunt: %s", err)
+	}
+	if err = d.Set("state", flattenChronicleRetrohuntState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Retrohunt: %s", err)
+	}
+	if err = d.Set("retrohunt", flattenChronicleRetrohuntRetrohunt(res["retrohunt"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Retrohunt: %s", err)
+	}
+
+	return nil
 }

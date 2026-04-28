@@ -315,23 +315,9 @@ func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta i
 
 	log.Printf("[DEBUG] Finished reading AccessContextManagerAccessPolicy %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenAccessContextManagerAccessPolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessPolicy: %s", err)
-	}
-	if err := d.Set("create_time", flattenAccessContextManagerAccessPolicyCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessPolicy: %s", err)
-	}
-	if err := d.Set("update_time", flattenAccessContextManagerAccessPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessPolicy: %s", err)
-	}
-	if err := d.Set("parent", flattenAccessContextManagerAccessPolicyParent(res["parent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessPolicy: %s", err)
-	}
-	if err := d.Set("title", flattenAccessContextManagerAccessPolicyTitle(res["title"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessPolicy: %s", err)
-	}
-	if err := d.Set("scopes", flattenAccessContextManagerAccessPolicyScopes(res["scopes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessPolicy: %s", err)
+	err = ResourceAccessContextManagerAccessPolicyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -550,4 +536,29 @@ func expandAccessContextManagerAccessPolicyTitle(v interface{}, d tpgresource.Te
 
 func expandAccessContextManagerAccessPolicyScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceAccessContextManagerAccessPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenAccessContextManagerAccessPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessPolicy: %s", err)
+	}
+	if err = d.Set("create_time", flattenAccessContextManagerAccessPolicyCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessPolicy: %s", err)
+	}
+	if err = d.Set("update_time", flattenAccessContextManagerAccessPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessPolicy: %s", err)
+	}
+	if err = d.Set("parent", flattenAccessContextManagerAccessPolicyParent(res["parent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessPolicy: %s", err)
+	}
+	if err = d.Set("title", flattenAccessContextManagerAccessPolicyTitle(res["title"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessPolicy: %s", err)
+	}
+	if err = d.Set("scopes", flattenAccessContextManagerAccessPolicyScopes(res["scopes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessPolicy: %s", err)
+	}
+
+	return nil
 }

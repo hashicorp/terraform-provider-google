@@ -1230,41 +1230,9 @@ func resourceHypercomputeclusterClusterRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 
-	if err := d.Set("compute_resources", flattenHypercomputeclusterClusterComputeResources(res["computeResources"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("create_time", flattenHypercomputeclusterClusterCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("description", flattenHypercomputeclusterClusterDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("labels", flattenHypercomputeclusterClusterLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("name", flattenHypercomputeclusterClusterName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("network_resources", flattenHypercomputeclusterClusterNetworkResources(res["networkResources"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("orchestrator", flattenHypercomputeclusterClusterOrchestrator(res["orchestrator"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("reconciling", flattenHypercomputeclusterClusterReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("storage_resources", flattenHypercomputeclusterClusterStorageResources(res["storageResources"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("update_time", flattenHypercomputeclusterClusterUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenHypercomputeclusterClusterTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenHypercomputeclusterClusterEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
+	err = ResourceHypercomputeclusterClusterFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3927,4 +3895,47 @@ func expandHypercomputeclusterClusterEffectiveLabels(v interface{}, d tpgresourc
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceHypercomputeclusterClusterFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("compute_resources", flattenHypercomputeclusterClusterComputeResources(res["computeResources"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("create_time", flattenHypercomputeclusterClusterCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("description", flattenHypercomputeclusterClusterDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("labels", flattenHypercomputeclusterClusterLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("name", flattenHypercomputeclusterClusterName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("network_resources", flattenHypercomputeclusterClusterNetworkResources(res["networkResources"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("orchestrator", flattenHypercomputeclusterClusterOrchestrator(res["orchestrator"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("reconciling", flattenHypercomputeclusterClusterReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("storage_resources", flattenHypercomputeclusterClusterStorageResources(res["storageResources"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("update_time", flattenHypercomputeclusterClusterUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenHypercomputeclusterClusterTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenHypercomputeclusterClusterEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+
+	return nil
 }

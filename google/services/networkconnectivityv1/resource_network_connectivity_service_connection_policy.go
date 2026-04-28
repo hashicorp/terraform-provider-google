@@ -542,41 +542,9 @@ func resourceNetworkConnectivityv1ServiceConnectionPolicyRead(d *schema.Resource
 		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkConnectivityv1ServiceConnectionPolicyCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkConnectivityv1ServiceConnectionPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
-	}
-	if err := d.Set("service_class", flattenNetworkConnectivityv1ServiceConnectionPolicyServiceClass(res["serviceClass"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkConnectivityv1ServiceConnectionPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
-	}
-	if err := d.Set("network", flattenNetworkConnectivityv1ServiceConnectionPolicyNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
-	}
-	if err := d.Set("psc_config", flattenNetworkConnectivityv1ServiceConnectionPolicyPscConfig(res["pscConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
-	}
-	if err := d.Set("etag", flattenNetworkConnectivityv1ServiceConnectionPolicyEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
-	}
-	if err := d.Set("psc_connections", flattenNetworkConnectivityv1ServiceConnectionPolicyPscConnections(res["pscConnections"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
-	}
-	if err := d.Set("infrastructure", flattenNetworkConnectivityv1ServiceConnectionPolicyInfrastructure(res["infrastructure"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkConnectivityv1ServiceConnectionPolicyLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkConnectivityv1ServiceConnectionPolicyTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkConnectivityv1ServiceConnectionPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	err = ResourceNetworkConnectivityv1ServiceConnectionPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1126,4 +1094,47 @@ func expandNetworkConnectivityv1ServiceConnectionPolicyEffectiveLabels(v interfa
 func resourceNetworkConnectivityv1ServiceConnectionPolicyUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	obj["network"] = d.Get("network").(string)
 	return obj, nil
+}
+
+func ResourceNetworkConnectivityv1ServiceConnectionPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkConnectivityv1ServiceConnectionPolicyCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkConnectivityv1ServiceConnectionPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err = d.Set("service_class", flattenNetworkConnectivityv1ServiceConnectionPolicyServiceClass(res["serviceClass"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkConnectivityv1ServiceConnectionPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err = d.Set("network", flattenNetworkConnectivityv1ServiceConnectionPolicyNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err = d.Set("psc_config", flattenNetworkConnectivityv1ServiceConnectionPolicyPscConfig(res["pscConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err = d.Set("etag", flattenNetworkConnectivityv1ServiceConnectionPolicyEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err = d.Set("psc_connections", flattenNetworkConnectivityv1ServiceConnectionPolicyPscConnections(res["pscConnections"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err = d.Set("infrastructure", flattenNetworkConnectivityv1ServiceConnectionPolicyInfrastructure(res["infrastructure"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkConnectivityv1ServiceConnectionPolicyLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkConnectivityv1ServiceConnectionPolicyTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkConnectivityv1ServiceConnectionPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+
+	return nil
 }

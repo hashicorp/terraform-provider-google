@@ -266,11 +266,9 @@ func resourceApigeeSyncAuthorizationRead(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Finished reading ApigeeSyncAuthorization %q: %#v", d.Id(), res)
 
-	if err := d.Set("identities", flattenApigeeSyncAuthorizationIdentities(res["identities"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SyncAuthorization: %s", err)
-	}
-	if err := d.Set("etag", flattenApigeeSyncAuthorizationEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SyncAuthorization: %s", err)
+	err = ResourceApigeeSyncAuthorizationFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -396,4 +394,17 @@ func expandApigeeSyncAuthorizationIdentities(v interface{}, d tpgresource.Terraf
 
 func expandApigeeSyncAuthorizationEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeSyncAuthorizationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("identities", flattenApigeeSyncAuthorizationIdentities(res["identities"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SyncAuthorization: %s", err)
+	}
+	if err = d.Set("etag", flattenApigeeSyncAuthorizationEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SyncAuthorization: %s", err)
+	}
+
+	return nil
 }

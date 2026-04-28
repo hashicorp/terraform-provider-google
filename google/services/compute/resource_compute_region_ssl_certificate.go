@@ -428,32 +428,9 @@ func resourceComputeRegionSslCertificateRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
 	}
 
-	if err := d.Set("certificate", flattenComputeRegionSslCertificateCertificate(res["certificate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeRegionSslCertificateCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionSslCertificateDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
-	}
-	if err := d.Set("expire_time", flattenComputeRegionSslCertificateExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
-	}
-	if err := d.Set("certificate_id", flattenComputeRegionSslCertificateCertificateId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionSslCertificateName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
-	}
-	if err := d.Set("private_key_wo_version", flattenComputeRegionSslCertificatePrivateKeyWoVersion(res["privateKeyWoVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
-	}
-	if err := d.Set("region", flattenComputeRegionSslCertificateRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
+	err = ResourceComputeRegionSslCertificateFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -653,4 +630,37 @@ func expandComputeRegionSslCertificateRegion(v interface{}, d tpgresource.Terraf
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeRegionSslCertificateFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("certificate", flattenComputeRegionSslCertificateCertificate(res["certificate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeRegionSslCertificateCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
+	}
+	if err = d.Set("description", flattenComputeRegionSslCertificateDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
+	}
+	if err = d.Set("expire_time", flattenComputeRegionSslCertificateExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
+	}
+	if err = d.Set("certificate_id", flattenComputeRegionSslCertificateCertificateId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionSslCertificateName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
+	}
+	if err = d.Set("private_key_wo_version", flattenComputeRegionSslCertificatePrivateKeyWoVersion(res["privateKeyWoVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
+	}
+	if err = d.Set("region", flattenComputeRegionSslCertificateRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
+	}
+	return nil
 }

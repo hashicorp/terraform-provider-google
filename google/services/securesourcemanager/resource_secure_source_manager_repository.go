@@ -428,26 +428,9 @@ func resourceSecureSourceManagerRepositoryRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
-	if err := d.Set("name", flattenSecureSourceManagerRepositoryName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("description", flattenSecureSourceManagerRepositoryDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("instance", flattenSecureSourceManagerRepositoryInstance(res["instance"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("uid", flattenSecureSourceManagerRepositoryUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("create_time", flattenSecureSourceManagerRepositoryCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("update_time", flattenSecureSourceManagerRepositoryUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
-	}
-	if err := d.Set("uris", flattenSecureSourceManagerRepositoryUris(res["uris"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Repository: %s", err)
+	err = ResourceSecureSourceManagerRepositoryFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -782,4 +765,32 @@ func expandSecureSourceManagerRepositoryInitialConfigLicense(v interface{}, d tp
 
 func expandSecureSourceManagerRepositoryInitialConfigReadme(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceSecureSourceManagerRepositoryFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecureSourceManagerRepositoryName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("description", flattenSecureSourceManagerRepositoryDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("instance", flattenSecureSourceManagerRepositoryInstance(res["instance"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("uid", flattenSecureSourceManagerRepositoryUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("create_time", flattenSecureSourceManagerRepositoryCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("update_time", flattenSecureSourceManagerRepositoryUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("uris", flattenSecureSourceManagerRepositoryUris(res["uris"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+
+	return nil
 }

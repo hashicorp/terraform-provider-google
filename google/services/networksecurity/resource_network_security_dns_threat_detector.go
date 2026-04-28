@@ -362,29 +362,9 @@ func resourceNetworkSecurityDnsThreatDetectorRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
 	}
 
-	if err := d.Set("threat_detector_provider", flattenNetworkSecurityDnsThreatDetectorThreatDetectorProvider(res["provider"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
-	}
-	if err := d.Set("excluded_networks", flattenNetworkSecurityDnsThreatDetectorExcludedNetworks(res["excludedNetworks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkSecurityDnsThreatDetectorCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityDnsThreatDetectorUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkSecurityDnsThreatDetectorLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkSecurityDnsThreatDetectorTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkSecurityDnsThreatDetectorEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
-	}
-	if err := d.Set("name", flattenNetworkSecurityDnsThreatDetectorName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
+	err = ResourceNetworkSecurityDnsThreatDetectorFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -662,4 +642,35 @@ func expandNetworkSecurityDnsThreatDetectorEffectiveLabels(v interface{}, d tpgr
 
 func expandNetworkSecurityDnsThreatDetectorName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceNetworkSecurityDnsThreatDetectorFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("threat_detector_provider", flattenNetworkSecurityDnsThreatDetectorThreatDetectorProvider(res["provider"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
+	}
+	if err = d.Set("excluded_networks", flattenNetworkSecurityDnsThreatDetectorExcludedNetworks(res["excludedNetworks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkSecurityDnsThreatDetectorCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityDnsThreatDetectorUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkSecurityDnsThreatDetectorLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkSecurityDnsThreatDetectorTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkSecurityDnsThreatDetectorEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
+	}
+	if err = d.Set("name", flattenNetworkSecurityDnsThreatDetectorName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsThreatDetector: %s", err)
+	}
+
+	return nil
 }

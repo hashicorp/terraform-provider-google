@@ -410,32 +410,9 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeSslPolicyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeSslPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeSslPolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
-	}
-	if err := d.Set("profile", flattenComputeSslPolicyProfile(res["profile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
-	}
-	if err := d.Set("min_tls_version", flattenComputeSslPolicyMinTlsVersion(res["minTlsVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
-	}
-	if err := d.Set("enabled_features", flattenComputeSslPolicyEnabledFeatures(res["enabledFeatures"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
-	}
-	if err := d.Set("custom_features", flattenComputeSslPolicyCustomFeatures(res["customFeatures"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeSslPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+	err = ResourceComputeSslPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -701,4 +678,37 @@ func resourceComputeSslPolicyUpdateEncoder(d *schema.ResourceData, meta interfac
 	}
 
 	return obj, nil
+}
+
+func ResourceComputeSslPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeSslPolicyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslPolicy: %s", err)
+	}
+	if err = d.Set("description", flattenComputeSslPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslPolicy: %s", err)
+	}
+	if err = d.Set("name", flattenComputeSslPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslPolicy: %s", err)
+	}
+	if err = d.Set("profile", flattenComputeSslPolicyProfile(res["profile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslPolicy: %s", err)
+	}
+	if err = d.Set("min_tls_version", flattenComputeSslPolicyMinTlsVersion(res["minTlsVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslPolicy: %s", err)
+	}
+	if err = d.Set("enabled_features", flattenComputeSslPolicyEnabledFeatures(res["enabledFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslPolicy: %s", err)
+	}
+	if err = d.Set("custom_features", flattenComputeSslPolicyCustomFeatures(res["customFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslPolicy: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeSslPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslPolicy: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading SslPolicy: %s", err)
+	}
+	return nil
 }

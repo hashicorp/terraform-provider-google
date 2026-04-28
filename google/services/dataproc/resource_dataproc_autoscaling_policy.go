@@ -484,20 +484,9 @@ func resourceDataprocAutoscalingPolicyRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
 	}
 
-	if err := d.Set("policy_id", flattenDataprocAutoscalingPolicyPolicyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
-	}
-	if err := d.Set("name", flattenDataprocAutoscalingPolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
-	}
-	if err := d.Set("worker_config", flattenDataprocAutoscalingPolicyWorkerConfig(res["workerConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
-	}
-	if err := d.Set("secondary_worker_config", flattenDataprocAutoscalingPolicySecondaryWorkerConfig(res["secondaryWorkerConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
-	}
-	if err := d.Set("basic_algorithm", flattenDataprocAutoscalingPolicyBasicAlgorithm(res["basicAlgorithm"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
+	err = ResourceDataprocAutoscalingPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1094,4 +1083,26 @@ func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpMinWorkerFrac
 
 func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownMinWorkerFraction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceDataprocAutoscalingPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("policy_id", flattenDataprocAutoscalingPolicyPolicyId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
+	}
+	if err = d.Set("name", flattenDataprocAutoscalingPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
+	}
+	if err = d.Set("worker_config", flattenDataprocAutoscalingPolicyWorkerConfig(res["workerConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
+	}
+	if err = d.Set("secondary_worker_config", flattenDataprocAutoscalingPolicySecondaryWorkerConfig(res["secondaryWorkerConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
+	}
+	if err = d.Set("basic_algorithm", flattenDataprocAutoscalingPolicyBasicAlgorithm(res["basicAlgorithm"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
+	}
+
+	return nil
 }

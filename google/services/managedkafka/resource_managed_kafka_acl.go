@@ -390,23 +390,9 @@ func resourceManagedKafkaAclRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Acl: %s", err)
 	}
 
-	if err := d.Set("name", flattenManagedKafkaAclName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Acl: %s", err)
-	}
-	if err := d.Set("acl_entries", flattenManagedKafkaAclAclEntries(res["aclEntries"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Acl: %s", err)
-	}
-	if err := d.Set("etag", flattenManagedKafkaAclEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Acl: %s", err)
-	}
-	if err := d.Set("resource_type", flattenManagedKafkaAclResourceType(res["resourceType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Acl: %s", err)
-	}
-	if err := d.Set("resource_name", flattenManagedKafkaAclResourceName(res["resourceName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Acl: %s", err)
-	}
-	if err := d.Set("pattern_type", flattenManagedKafkaAclPatternType(res["patternType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Acl: %s", err)
+	err = ResourceManagedKafkaAclFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -740,4 +726,29 @@ func expandManagedKafkaAclAclEntriesHost(v interface{}, d tpgresource.TerraformR
 
 func expandManagedKafkaAclEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceManagedKafkaAclFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenManagedKafkaAclName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Acl: %s", err)
+	}
+	if err = d.Set("acl_entries", flattenManagedKafkaAclAclEntries(res["aclEntries"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Acl: %s", err)
+	}
+	if err = d.Set("etag", flattenManagedKafkaAclEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Acl: %s", err)
+	}
+	if err = d.Set("resource_type", flattenManagedKafkaAclResourceType(res["resourceType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Acl: %s", err)
+	}
+	if err = d.Set("resource_name", flattenManagedKafkaAclResourceName(res["resourceName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Acl: %s", err)
+	}
+	if err = d.Set("pattern_type", flattenManagedKafkaAclPatternType(res["patternType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Acl: %s", err)
+	}
+
+	return nil
 }

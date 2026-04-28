@@ -286,17 +286,9 @@ func resourceServiceDirectoryNamespaceRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading Namespace: %s", err)
 	}
 
-	if err := d.Set("name", flattenServiceDirectoryNamespaceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("labels", flattenServiceDirectoryNamespaceLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenServiceDirectoryNamespaceTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenServiceDirectoryNamespaceEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
+	err = ResourceServiceDirectoryNamespaceFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -542,5 +534,24 @@ func resourceServiceDirectoryNamespacePostCreateSetComputedFields(d *schema.Reso
 	if err := d.Set("name", flattenServiceDirectoryNamespaceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceServiceDirectoryNamespaceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenServiceDirectoryNamespaceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("labels", flattenServiceDirectoryNamespaceLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenServiceDirectoryNamespaceTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenServiceDirectoryNamespaceEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+
 	return nil
 }

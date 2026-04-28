@@ -403,29 +403,9 @@ func resourceSecureSourceManagerHookRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading Hook: %s", err)
 	}
 
-	if err := d.Set("name", flattenSecureSourceManagerHookName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hook: %s", err)
-	}
-	if err := d.Set("target_uri", flattenSecureSourceManagerHookTargetUri(res["targetUri"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hook: %s", err)
-	}
-	if err := d.Set("disabled", flattenSecureSourceManagerHookDisabled(res["disabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hook: %s", err)
-	}
-	if err := d.Set("events", flattenSecureSourceManagerHookEvents(res["events"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hook: %s", err)
-	}
-	if err := d.Set("create_time", flattenSecureSourceManagerHookCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hook: %s", err)
-	}
-	if err := d.Set("update_time", flattenSecureSourceManagerHookUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hook: %s", err)
-	}
-	if err := d.Set("uid", flattenSecureSourceManagerHookUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hook: %s", err)
-	}
-	if err := d.Set("push_option", flattenSecureSourceManagerHookPushOption(res["pushOption"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hook: %s", err)
+	err = ResourceSecureSourceManagerHookFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -761,4 +741,35 @@ func expandSecureSourceManagerHookPushOption(v interface{}, d tpgresource.Terraf
 
 func expandSecureSourceManagerHookPushOptionBranchFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceSecureSourceManagerHookFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecureSourceManagerHookName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hook: %s", err)
+	}
+	if err = d.Set("target_uri", flattenSecureSourceManagerHookTargetUri(res["targetUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hook: %s", err)
+	}
+	if err = d.Set("disabled", flattenSecureSourceManagerHookDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hook: %s", err)
+	}
+	if err = d.Set("events", flattenSecureSourceManagerHookEvents(res["events"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hook: %s", err)
+	}
+	if err = d.Set("create_time", flattenSecureSourceManagerHookCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hook: %s", err)
+	}
+	if err = d.Set("update_time", flattenSecureSourceManagerHookUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hook: %s", err)
+	}
+	if err = d.Set("uid", flattenSecureSourceManagerHookUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hook: %s", err)
+	}
+	if err = d.Set("push_option", flattenSecureSourceManagerHookPushOption(res["pushOption"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hook: %s", err)
+	}
+
+	return nil
 }

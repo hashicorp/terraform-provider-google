@@ -853,29 +853,9 @@ func resourceDialogflowCXTestCaseRead(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[DEBUG] Finished reading DialogflowCXTestCase %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenDialogflowCXTestCaseName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TestCase: %s", err)
-	}
-	if err := d.Set("tags", flattenDialogflowCXTestCaseTags(res["tags"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TestCase: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowCXTestCaseDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TestCase: %s", err)
-	}
-	if err := d.Set("notes", flattenDialogflowCXTestCaseNotes(res["notes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TestCase: %s", err)
-	}
-	if err := d.Set("test_config", flattenDialogflowCXTestCaseTestConfig(res["testConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TestCase: %s", err)
-	}
-	if err := d.Set("test_case_conversation_turns", flattenDialogflowCXTestCaseTestCaseConversationTurns(res["testCaseConversationTurns"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TestCase: %s", err)
-	}
-	if err := d.Set("creation_time", flattenDialogflowCXTestCaseCreationTime(res["creationTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TestCase: %s", err)
-	}
-	if err := d.Set("last_test_result", flattenDialogflowCXTestCaseLastTestResult(res["lastTestResult"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TestCase: %s", err)
+	err = ResourceDialogflowCXTestCaseFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2217,5 +2197,36 @@ func resourceDialogflowCXTestCasePostCreateSetComputedFields(d *schema.ResourceD
 	if err := d.Set("name", flattenDialogflowCXTestCaseName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowCXTestCaseFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowCXTestCaseName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TestCase: %s", err)
+	}
+	if err = d.Set("tags", flattenDialogflowCXTestCaseTags(res["tags"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TestCase: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowCXTestCaseDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TestCase: %s", err)
+	}
+	if err = d.Set("notes", flattenDialogflowCXTestCaseNotes(res["notes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TestCase: %s", err)
+	}
+	if err = d.Set("test_config", flattenDialogflowCXTestCaseTestConfig(res["testConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TestCase: %s", err)
+	}
+	if err = d.Set("test_case_conversation_turns", flattenDialogflowCXTestCaseTestCaseConversationTurns(res["testCaseConversationTurns"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TestCase: %s", err)
+	}
+	if err = d.Set("creation_time", flattenDialogflowCXTestCaseCreationTime(res["creationTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TestCase: %s", err)
+	}
+	if err = d.Set("last_test_result", flattenDialogflowCXTestCaseLastTestResult(res["lastTestResult"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TestCase: %s", err)
+	}
+
 	return nil
 }

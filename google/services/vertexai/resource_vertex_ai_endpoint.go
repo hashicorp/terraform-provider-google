@@ -719,53 +719,9 @@ func resourceVertexAIEndpointRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Endpoint: %s", err)
 	}
 
-	if err := d.Set("display_name", flattenVertexAIEndpointDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("description", flattenVertexAIEndpointDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("deployed_models", flattenVertexAIEndpointDeployedModels(res["deployedModels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("traffic_split", flattenVertexAIEndpointTrafficSplit(res["trafficSplit"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("labels", flattenVertexAIEndpointLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("create_time", flattenVertexAIEndpointCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("update_time", flattenVertexAIEndpointUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("encryption_spec", flattenVertexAIEndpointEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("network", flattenVertexAIEndpointNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("private_service_connect_config", flattenVertexAIEndpointPrivateServiceConnectConfig(res["privateServiceConnectConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("model_deployment_monitoring_job", flattenVertexAIEndpointModelDeploymentMonitoringJob(res["modelDeploymentMonitoringJob"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("predict_request_response_logging_config", flattenVertexAIEndpointPredictRequestResponseLoggingConfig(res["predictRequestResponseLoggingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("dedicated_endpoint_enabled", flattenVertexAIEndpointDedicatedEndpointEnabled(res["dedicatedEndpointEnabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("dedicated_endpoint_dns", flattenVertexAIEndpointDedicatedEndpointDns(res["dedicatedEndpointDns"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenVertexAIEndpointTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenVertexAIEndpointEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
+	err = ResourceVertexAIEndpointFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1776,4 +1732,59 @@ func expandVertexAIEndpointEffectiveLabels(v interface{}, d tpgresource.Terrafor
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceVertexAIEndpointFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("display_name", flattenVertexAIEndpointDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("description", flattenVertexAIEndpointDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("deployed_models", flattenVertexAIEndpointDeployedModels(res["deployedModels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("traffic_split", flattenVertexAIEndpointTrafficSplit(res["trafficSplit"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("labels", flattenVertexAIEndpointLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("create_time", flattenVertexAIEndpointCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("update_time", flattenVertexAIEndpointUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("encryption_spec", flattenVertexAIEndpointEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("network", flattenVertexAIEndpointNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("private_service_connect_config", flattenVertexAIEndpointPrivateServiceConnectConfig(res["privateServiceConnectConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("model_deployment_monitoring_job", flattenVertexAIEndpointModelDeploymentMonitoringJob(res["modelDeploymentMonitoringJob"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("predict_request_response_logging_config", flattenVertexAIEndpointPredictRequestResponseLoggingConfig(res["predictRequestResponseLoggingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("dedicated_endpoint_enabled", flattenVertexAIEndpointDedicatedEndpointEnabled(res["dedicatedEndpointEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("dedicated_endpoint_dns", flattenVertexAIEndpointDedicatedEndpointDns(res["dedicatedEndpointDns"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenVertexAIEndpointTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenVertexAIEndpointEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+
+	return nil
 }

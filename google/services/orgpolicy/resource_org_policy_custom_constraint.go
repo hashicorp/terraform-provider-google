@@ -336,29 +336,9 @@ func resourceOrgPolicyCustomConstraintRead(d *schema.ResourceData, meta interfac
 
 	log.Printf("[DEBUG] Finished reading OrgPolicyCustomConstraint %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenOrgPolicyCustomConstraintName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CustomConstraint: %s", err)
-	}
-	if err := d.Set("display_name", flattenOrgPolicyCustomConstraintDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CustomConstraint: %s", err)
-	}
-	if err := d.Set("description", flattenOrgPolicyCustomConstraintDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CustomConstraint: %s", err)
-	}
-	if err := d.Set("condition", flattenOrgPolicyCustomConstraintCondition(res["condition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CustomConstraint: %s", err)
-	}
-	if err := d.Set("action_type", flattenOrgPolicyCustomConstraintActionType(res["actionType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CustomConstraint: %s", err)
-	}
-	if err := d.Set("method_types", flattenOrgPolicyCustomConstraintMethodTypes(res["methodTypes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CustomConstraint: %s", err)
-	}
-	if err := d.Set("resource_types", flattenOrgPolicyCustomConstraintResourceTypes(res["resourceTypes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CustomConstraint: %s", err)
-	}
-	if err := d.Set("update_time", flattenOrgPolicyCustomConstraintUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CustomConstraint: %s", err)
+	err = ResourceOrgPolicyCustomConstraintFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -607,4 +587,35 @@ func resourceOrgPolicyCustomConstraintUpdateEncoder(d *schema.ResourceData, meta
 	}
 
 	return obj, nil
+}
+
+func ResourceOrgPolicyCustomConstraintFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenOrgPolicyCustomConstraintName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CustomConstraint: %s", err)
+	}
+	if err = d.Set("display_name", flattenOrgPolicyCustomConstraintDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CustomConstraint: %s", err)
+	}
+	if err = d.Set("description", flattenOrgPolicyCustomConstraintDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CustomConstraint: %s", err)
+	}
+	if err = d.Set("condition", flattenOrgPolicyCustomConstraintCondition(res["condition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CustomConstraint: %s", err)
+	}
+	if err = d.Set("action_type", flattenOrgPolicyCustomConstraintActionType(res["actionType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CustomConstraint: %s", err)
+	}
+	if err = d.Set("method_types", flattenOrgPolicyCustomConstraintMethodTypes(res["methodTypes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CustomConstraint: %s", err)
+	}
+	if err = d.Set("resource_types", flattenOrgPolicyCustomConstraintResourceTypes(res["resourceTypes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CustomConstraint: %s", err)
+	}
+	if err = d.Set("update_time", flattenOrgPolicyCustomConstraintUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CustomConstraint: %s", err)
+	}
+
+	return nil
 }

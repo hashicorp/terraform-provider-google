@@ -331,26 +331,9 @@ func resourceSecurityCenterV2FolderMuteConfigRead(d *schema.ResourceData, meta i
 
 	log.Printf("[DEBUG] Finished reading SecurityCenterV2FolderMuteConfig %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenSecurityCenterV2FolderMuteConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
-	}
-	if err := d.Set("description", flattenSecurityCenterV2FolderMuteConfigDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
-	}
-	if err := d.Set("filter", flattenSecurityCenterV2FolderMuteConfigFilter(res["filter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
-	}
-	if err := d.Set("create_time", flattenSecurityCenterV2FolderMuteConfigCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
-	}
-	if err := d.Set("update_time", flattenSecurityCenterV2FolderMuteConfigUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
-	}
-	if err := d.Set("most_recent_editor", flattenSecurityCenterV2FolderMuteConfigMostRecentEditor(res["mostRecentEditor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
-	}
-	if err := d.Set("type", flattenSecurityCenterV2FolderMuteConfigType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
+	err = ResourceSecurityCenterV2FolderMuteConfigFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -584,4 +567,32 @@ func expandSecurityCenterV2FolderMuteConfigFilter(v interface{}, d tpgresource.T
 
 func expandSecurityCenterV2FolderMuteConfigType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceSecurityCenterV2FolderMuteConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecurityCenterV2FolderMuteConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
+	}
+	if err = d.Set("description", flattenSecurityCenterV2FolderMuteConfigDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
+	}
+	if err = d.Set("filter", flattenSecurityCenterV2FolderMuteConfigFilter(res["filter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
+	}
+	if err = d.Set("create_time", flattenSecurityCenterV2FolderMuteConfigCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
+	}
+	if err = d.Set("update_time", flattenSecurityCenterV2FolderMuteConfigUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
+	}
+	if err = d.Set("most_recent_editor", flattenSecurityCenterV2FolderMuteConfigMostRecentEditor(res["mostRecentEditor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
+	}
+	if err = d.Set("type", flattenSecurityCenterV2FolderMuteConfigType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
+	}
+
+	return nil
 }

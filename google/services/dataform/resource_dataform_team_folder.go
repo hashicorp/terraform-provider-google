@@ -308,14 +308,9 @@ func resourceDataformTeamFolderRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading TeamFolder: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataformTeamFolderName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TeamFolder: %s", err)
-	}
-	if err := d.Set("teamfolder_id", flattenDataformTeamFolderTeamfolderId(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TeamFolder: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataformTeamFolderDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TeamFolder: %s", err)
+	err = ResourceDataformTeamFolderFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -532,5 +527,21 @@ func resourceDataformTeamFolderPostCreateSetComputedFields(d *schema.ResourceDat
 	if err := d.Set("teamfolder_id", flattenDataformTeamFolderTeamfolderId(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "teamfolder_id": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDataformTeamFolderFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataformTeamFolderName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TeamFolder: %s", err)
+	}
+	if err = d.Set("teamfolder_id", flattenDataformTeamFolderTeamfolderId(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TeamFolder: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataformTeamFolderDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TeamFolder: %s", err)
+	}
+
 	return nil
 }

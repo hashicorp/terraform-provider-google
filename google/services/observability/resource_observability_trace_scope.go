@@ -334,20 +334,9 @@ func resourceObservabilityTraceScopeRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading TraceScope: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenObservabilityTraceScopeCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TraceScope: %s", err)
-	}
-	if err := d.Set("description", flattenObservabilityTraceScopeDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TraceScope: %s", err)
-	}
-	if err := d.Set("name", flattenObservabilityTraceScopeName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TraceScope: %s", err)
-	}
-	if err := d.Set("resource_names", flattenObservabilityTraceScopeResourceNames(res["resourceNames"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TraceScope: %s", err)
-	}
-	if err := d.Set("update_time", flattenObservabilityTraceScopeUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TraceScope: %s", err)
+	err = ResourceObservabilityTraceScopeFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -572,4 +561,26 @@ func expandObservabilityTraceScopeDescription(v interface{}, d tpgresource.Terra
 
 func expandObservabilityTraceScopeResourceNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceObservabilityTraceScopeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenObservabilityTraceScopeCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TraceScope: %s", err)
+	}
+	if err = d.Set("description", flattenObservabilityTraceScopeDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TraceScope: %s", err)
+	}
+	if err = d.Set("name", flattenObservabilityTraceScopeName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TraceScope: %s", err)
+	}
+	if err = d.Set("resource_names", flattenObservabilityTraceScopeResourceNames(res["resourceNames"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TraceScope: %s", err)
+	}
+	if err = d.Set("update_time", flattenObservabilityTraceScopeUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TraceScope: %s", err)
+	}
+
+	return nil
 }

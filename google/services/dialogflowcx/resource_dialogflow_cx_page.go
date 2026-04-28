@@ -2150,35 +2150,9 @@ func resourceDialogflowCXPageRead(d *schema.ResourceData, meta interface{}) erro
 
 	log.Printf("[DEBUG] Finished reading DialogflowCXPage %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenDialogflowCXPageName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Page: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowCXPageDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Page: %s", err)
-	}
-	if err := d.Set("entry_fulfillment", flattenDialogflowCXPageEntryFulfillment(res["entryFulfillment"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Page: %s", err)
-	}
-	if err := d.Set("form", flattenDialogflowCXPageForm(res["form"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Page: %s", err)
-	}
-	if err := d.Set("transition_route_groups", flattenDialogflowCXPageTransitionRouteGroups(res["transitionRouteGroups"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Page: %s", err)
-	}
-	if err := d.Set("transition_routes", flattenDialogflowCXPageTransitionRoutes(res["transitionRoutes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Page: %s", err)
-	}
-	if err := d.Set("event_handlers", flattenDialogflowCXPageEventHandlers(res["eventHandlers"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Page: %s", err)
-	}
-	if err := d.Set("advanced_settings", flattenDialogflowCXPageAdvancedSettings(res["advancedSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Page: %s", err)
-	}
-	if err := d.Set("knowledge_connector_settings", flattenDialogflowCXPageKnowledgeConnectorSettings(res["knowledgeConnectorSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Page: %s", err)
-	}
-	if err := d.Set("language_code", flattenDialogflowCXPageLanguageCode(res["languageCode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Page: %s", err)
+	err = ResourceDialogflowCXPageFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -8530,5 +8504,42 @@ func resourceDialogflowCXPagePostCreateSetComputedFields(d *schema.ResourceData,
 	if err := d.Set("name", flattenDialogflowCXPageName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowCXPageFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowCXPageName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Page: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowCXPageDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Page: %s", err)
+	}
+	if err = d.Set("entry_fulfillment", flattenDialogflowCXPageEntryFulfillment(res["entryFulfillment"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Page: %s", err)
+	}
+	if err = d.Set("form", flattenDialogflowCXPageForm(res["form"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Page: %s", err)
+	}
+	if err = d.Set("transition_route_groups", flattenDialogflowCXPageTransitionRouteGroups(res["transitionRouteGroups"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Page: %s", err)
+	}
+	if err = d.Set("transition_routes", flattenDialogflowCXPageTransitionRoutes(res["transitionRoutes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Page: %s", err)
+	}
+	if err = d.Set("event_handlers", flattenDialogflowCXPageEventHandlers(res["eventHandlers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Page: %s", err)
+	}
+	if err = d.Set("advanced_settings", flattenDialogflowCXPageAdvancedSettings(res["advancedSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Page: %s", err)
+	}
+	if err = d.Set("knowledge_connector_settings", flattenDialogflowCXPageKnowledgeConnectorSettings(res["knowledgeConnectorSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Page: %s", err)
+	}
+	if err = d.Set("language_code", flattenDialogflowCXPageLanguageCode(res["languageCode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Page: %s", err)
+	}
+
 	return nil
 }

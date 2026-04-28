@@ -499,29 +499,9 @@ func resourceComputeWireGroupRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading WireGroup: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeWireGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WireGroup: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeWireGroupCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WireGroup: %s", err)
-	}
-	if err := d.Set("name", flattenComputeWireGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WireGroup: %s", err)
-	}
-	if err := d.Set("endpoints", flattenComputeWireGroupEndpoints(res["endpoints"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WireGroup: %s", err)
-	}
-	if err := d.Set("admin_enabled", flattenComputeWireGroupAdminEnabled(res["adminEnabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WireGroup: %s", err)
-	}
-	if err := d.Set("wire_properties", flattenComputeWireGroupWireProperties(res["wireProperties"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WireGroup: %s", err)
-	}
-	if err := d.Set("wires", flattenComputeWireGroupWires(res["wires"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WireGroup: %s", err)
-	}
-	if err := d.Set("topology", flattenComputeWireGroupTopology(res["topology"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WireGroup: %s", err)
+	err = ResourceComputeWireGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1130,4 +1110,35 @@ func expandComputeWireGroupWirePropertiesFaultResponse(v interface{}, d tpgresou
 
 func expandComputeWireGroupWirePropertiesBandwidthAllocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeWireGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputeWireGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WireGroup: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeWireGroupCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WireGroup: %s", err)
+	}
+	if err = d.Set("name", flattenComputeWireGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WireGroup: %s", err)
+	}
+	if err = d.Set("endpoints", flattenComputeWireGroupEndpoints(res["endpoints"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WireGroup: %s", err)
+	}
+	if err = d.Set("admin_enabled", flattenComputeWireGroupAdminEnabled(res["adminEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WireGroup: %s", err)
+	}
+	if err = d.Set("wire_properties", flattenComputeWireGroupWireProperties(res["wireProperties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WireGroup: %s", err)
+	}
+	if err = d.Set("wires", flattenComputeWireGroupWires(res["wires"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WireGroup: %s", err)
+	}
+	if err = d.Set("topology", flattenComputeWireGroupTopology(res["topology"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WireGroup: %s", err)
+	}
+
+	return nil
 }

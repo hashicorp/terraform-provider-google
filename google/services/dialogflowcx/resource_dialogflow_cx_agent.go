@@ -807,68 +807,9 @@ func resourceDialogflowCXAgentRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
 
-	if err := d.Set("name", flattenDialogflowCXAgentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowCXAgentDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("default_language_code", flattenDialogflowCXAgentDefaultLanguageCode(res["defaultLanguageCode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("supported_language_codes", flattenDialogflowCXAgentSupportedLanguageCodes(res["supportedLanguageCodes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("time_zone", flattenDialogflowCXAgentTimeZone(res["timeZone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("description", flattenDialogflowCXAgentDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("avatar_uri", flattenDialogflowCXAgentAvatarUri(res["avatarUri"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("speech_to_text_settings", flattenDialogflowCXAgentSpeechToTextSettings(res["speechToTextSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("start_flow", flattenDialogflowCXAgentStartFlow(res["startFlow"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("security_settings", flattenDialogflowCXAgentSecuritySettings(res["securitySettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("enable_spell_correction", flattenDialogflowCXAgentEnableSpellCorrection(res["enableSpellCorrection"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("advanced_settings", flattenDialogflowCXAgentAdvancedSettings(res["advancedSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("git_integration_settings", flattenDialogflowCXAgentGitIntegrationSettings(res["gitIntegrationSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("text_to_speech_settings", flattenDialogflowCXAgentTextToSpeechSettings(res["textToSpeechSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("gen_app_builder_settings", flattenDialogflowCXAgentGenAppBuilderSettings(res["genAppBuilderSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("enable_multi_language_training", flattenDialogflowCXAgentEnableMultiLanguageTraining(res["enableMultiLanguageTraining"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("locked", flattenDialogflowCXAgentLocked(res["locked"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("satisfies_pzs", flattenDialogflowCXAgentSatisfiesPzs(res["satisfiesPzs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("satisfies_pzi", flattenDialogflowCXAgentSatisfiesPzi(res["satisfiesPzi"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("personalization_settings", flattenDialogflowCXAgentPersonalizationSettings(res["personalizationSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("client_certificate_settings", flattenDialogflowCXAgentClientCertificateSettings(res["clientCertificateSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
+	err = ResourceDialogflowCXAgentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2216,5 +2157,75 @@ func resourceDialogflowCXAgentPostCreateSetComputedFields(d *schema.ResourceData
 	if err := d.Set("name", flattenDialogflowCXAgentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowCXAgentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowCXAgentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowCXAgentDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("default_language_code", flattenDialogflowCXAgentDefaultLanguageCode(res["defaultLanguageCode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("supported_language_codes", flattenDialogflowCXAgentSupportedLanguageCodes(res["supportedLanguageCodes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("time_zone", flattenDialogflowCXAgentTimeZone(res["timeZone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("description", flattenDialogflowCXAgentDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("avatar_uri", flattenDialogflowCXAgentAvatarUri(res["avatarUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("speech_to_text_settings", flattenDialogflowCXAgentSpeechToTextSettings(res["speechToTextSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("start_flow", flattenDialogflowCXAgentStartFlow(res["startFlow"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("security_settings", flattenDialogflowCXAgentSecuritySettings(res["securitySettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("enable_spell_correction", flattenDialogflowCXAgentEnableSpellCorrection(res["enableSpellCorrection"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("advanced_settings", flattenDialogflowCXAgentAdvancedSettings(res["advancedSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("git_integration_settings", flattenDialogflowCXAgentGitIntegrationSettings(res["gitIntegrationSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("text_to_speech_settings", flattenDialogflowCXAgentTextToSpeechSettings(res["textToSpeechSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("gen_app_builder_settings", flattenDialogflowCXAgentGenAppBuilderSettings(res["genAppBuilderSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("enable_multi_language_training", flattenDialogflowCXAgentEnableMultiLanguageTraining(res["enableMultiLanguageTraining"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("locked", flattenDialogflowCXAgentLocked(res["locked"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("satisfies_pzs", flattenDialogflowCXAgentSatisfiesPzs(res["satisfiesPzs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("satisfies_pzi", flattenDialogflowCXAgentSatisfiesPzi(res["satisfiesPzi"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("personalization_settings", flattenDialogflowCXAgentPersonalizationSettings(res["personalizationSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err = d.Set("client_certificate_settings", flattenDialogflowCXAgentClientCertificateSettings(res["clientCertificateSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+
 	return nil
 }

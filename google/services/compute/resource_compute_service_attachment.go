@@ -642,50 +642,9 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeServiceAttachmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("description", flattenComputeServiceAttachmentDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeServiceAttachmentFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("psc_service_attachment_id", flattenComputeServiceAttachmentPscServiceAttachmentId(res["pscServiceAttachmentId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("connection_preference", flattenComputeServiceAttachmentConnectionPreference(res["connectionPreference"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("connected_endpoints", flattenComputeServiceAttachmentConnectedEndpoints(res["connectedEndpoints"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("target_service", flattenComputeServiceAttachmentTargetService(res["targetService"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("nat_subnets", flattenComputeServiceAttachmentNatSubnets(res["natSubnets"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("enable_proxy_protocol", flattenComputeServiceAttachmentEnableProxyProtocol(res["enableProxyProtocol"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("domain_names", flattenComputeServiceAttachmentDomainNames(res["domainNames"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("consumer_reject_lists", flattenComputeServiceAttachmentConsumerRejectLists(res["consumerRejectLists"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("consumer_accept_lists", flattenComputeServiceAttachmentConsumerAcceptLists(res["consumerAcceptLists"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("reconcile_connections", flattenComputeServiceAttachmentReconcileConnections(res["reconcileConnections"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("propagated_connection_limit", flattenComputeServiceAttachmentPropagatedConnectionLimit(res["propagatedConnectionLimit"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	err = ResourceComputeServiceAttachmentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1297,4 +1256,55 @@ func resourceComputeServiceAttachmentUpdateEncoder(d *schema.ResourceData, meta 
 	}
 
 	return obj, nil
+}
+
+func ResourceComputeServiceAttachmentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenComputeServiceAttachmentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("description", flattenComputeServiceAttachmentDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeServiceAttachmentFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("psc_service_attachment_id", flattenComputeServiceAttachmentPscServiceAttachmentId(res["pscServiceAttachmentId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("connection_preference", flattenComputeServiceAttachmentConnectionPreference(res["connectionPreference"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("connected_endpoints", flattenComputeServiceAttachmentConnectedEndpoints(res["connectedEndpoints"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("target_service", flattenComputeServiceAttachmentTargetService(res["targetService"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("nat_subnets", flattenComputeServiceAttachmentNatSubnets(res["natSubnets"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("enable_proxy_protocol", flattenComputeServiceAttachmentEnableProxyProtocol(res["enableProxyProtocol"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("domain_names", flattenComputeServiceAttachmentDomainNames(res["domainNames"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("consumer_reject_lists", flattenComputeServiceAttachmentConsumerRejectLists(res["consumerRejectLists"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("consumer_accept_lists", flattenComputeServiceAttachmentConsumerAcceptLists(res["consumerAcceptLists"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("reconcile_connections", flattenComputeServiceAttachmentReconcileConnections(res["reconcileConnections"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("propagated_connection_limit", flattenComputeServiceAttachmentPropagatedConnectionLimit(res["propagatedConnectionLimit"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	return nil
 }

@@ -696,20 +696,9 @@ func resourceDiscoveryEngineWidgetConfigRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading WidgetConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenDiscoveryEngineWidgetConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WidgetConfig: %s", err)
-	}
-	if err := d.Set("access_settings", flattenDiscoveryEngineWidgetConfigAccessSettings(res["accessSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WidgetConfig: %s", err)
-	}
-	if err := d.Set("ui_settings", flattenDiscoveryEngineWidgetConfigUiSettings(res["uiSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WidgetConfig: %s", err)
-	}
-	if err := d.Set("ui_branding", flattenDiscoveryEngineWidgetConfigUiBranding(res["uiBranding"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WidgetConfig: %s", err)
-	}
-	if err := d.Set("homepage_setting", flattenDiscoveryEngineWidgetConfigHomepageSetting(res["homepageSetting"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WidgetConfig: %s", err)
+	err = ResourceDiscoveryEngineWidgetConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1922,4 +1911,26 @@ func expandDiscoveryEngineWidgetConfigHomepageSettingShortcutsIconUrl(v interfac
 
 func expandDiscoveryEngineWidgetConfigHomepageSettingShortcutsDestinationUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceDiscoveryEngineWidgetConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDiscoveryEngineWidgetConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WidgetConfig: %s", err)
+	}
+	if err = d.Set("access_settings", flattenDiscoveryEngineWidgetConfigAccessSettings(res["accessSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WidgetConfig: %s", err)
+	}
+	if err = d.Set("ui_settings", flattenDiscoveryEngineWidgetConfigUiSettings(res["uiSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WidgetConfig: %s", err)
+	}
+	if err = d.Set("ui_branding", flattenDiscoveryEngineWidgetConfigUiBranding(res["uiBranding"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WidgetConfig: %s", err)
+	}
+	if err = d.Set("homepage_setting", flattenDiscoveryEngineWidgetConfigHomepageSetting(res["homepageSetting"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WidgetConfig: %s", err)
+	}
+
+	return nil
 }

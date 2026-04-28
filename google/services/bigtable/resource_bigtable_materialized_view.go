@@ -313,14 +313,9 @@ func resourceBigtableMaterializedViewRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading MaterializedView: %s", err)
 	}
 
-	if err := d.Set("name", flattenBigtableMaterializedViewName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MaterializedView: %s", err)
-	}
-	if err := d.Set("query", flattenBigtableMaterializedViewQuery(res["query"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MaterializedView: %s", err)
-	}
-	if err := d.Set("deletion_protection", flattenBigtableMaterializedViewDeletionProtection(res["deletionProtection"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MaterializedView: %s", err)
+	err = ResourceBigtableMaterializedViewFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -527,4 +522,20 @@ func expandBigtableMaterializedViewQuery(v interface{}, d tpgresource.TerraformR
 
 func expandBigtableMaterializedViewDeletionProtection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceBigtableMaterializedViewFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBigtableMaterializedViewName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MaterializedView: %s", err)
+	}
+	if err = d.Set("query", flattenBigtableMaterializedViewQuery(res["query"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MaterializedView: %s", err)
+	}
+	if err = d.Set("deletion_protection", flattenBigtableMaterializedViewDeletionProtection(res["deletionProtection"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MaterializedView: %s", err)
+	}
+
+	return nil
 }

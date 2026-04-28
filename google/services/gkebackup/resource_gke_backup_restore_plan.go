@@ -804,38 +804,9 @@ func resourceGKEBackupRestorePlanRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading RestorePlan: %s", err)
 	}
 
-	if err := d.Set("name", flattenGKEBackupRestorePlanName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestorePlan: %s", err)
-	}
-	if err := d.Set("uid", flattenGKEBackupRestorePlanUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestorePlan: %s", err)
-	}
-	if err := d.Set("description", flattenGKEBackupRestorePlanDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestorePlan: %s", err)
-	}
-	if err := d.Set("labels", flattenGKEBackupRestorePlanLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestorePlan: %s", err)
-	}
-	if err := d.Set("backup_plan", flattenGKEBackupRestorePlanBackupPlan(res["backupPlan"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestorePlan: %s", err)
-	}
-	if err := d.Set("cluster", flattenGKEBackupRestorePlanCluster(res["cluster"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestorePlan: %s", err)
-	}
-	if err := d.Set("restore_config", flattenGKEBackupRestorePlanRestoreConfig(res["restoreConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestorePlan: %s", err)
-	}
-	if err := d.Set("state", flattenGKEBackupRestorePlanState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestorePlan: %s", err)
-	}
-	if err := d.Set("state_reason", flattenGKEBackupRestorePlanStateReason(res["stateReason"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestorePlan: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenGKEBackupRestorePlanTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestorePlan: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenGKEBackupRestorePlanEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	err = ResourceGKEBackupRestorePlanFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2298,4 +2269,44 @@ func expandGKEBackupRestorePlanEffectiveLabels(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceGKEBackupRestorePlanFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenGKEBackupRestorePlanName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	}
+	if err = d.Set("uid", flattenGKEBackupRestorePlanUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	}
+	if err = d.Set("description", flattenGKEBackupRestorePlanDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	}
+	if err = d.Set("labels", flattenGKEBackupRestorePlanLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	}
+	if err = d.Set("backup_plan", flattenGKEBackupRestorePlanBackupPlan(res["backupPlan"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	}
+	if err = d.Set("cluster", flattenGKEBackupRestorePlanCluster(res["cluster"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	}
+	if err = d.Set("restore_config", flattenGKEBackupRestorePlanRestoreConfig(res["restoreConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	}
+	if err = d.Set("state", flattenGKEBackupRestorePlanState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	}
+	if err = d.Set("state_reason", flattenGKEBackupRestorePlanStateReason(res["stateReason"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenGKEBackupRestorePlanTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenGKEBackupRestorePlanEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RestorePlan: %s", err)
+	}
+
+	return nil
 }

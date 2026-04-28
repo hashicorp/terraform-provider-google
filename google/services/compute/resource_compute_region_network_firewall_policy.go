@@ -364,32 +364,9 @@ func resourceComputeRegionNetworkFirewallPolicyRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeRegionNetworkFirewallPolicyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionNetworkFirewallPolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
-	}
-	if err := d.Set("region_network_firewall_policy_id", flattenComputeRegionNetworkFirewallPolicyRegionNetworkFirewallPolicyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionNetworkFirewallPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
-	}
-	if err := d.Set("policy_type", flattenComputeRegionNetworkFirewallPolicyPolicyType(res["policyType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeRegionNetworkFirewallPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
-	}
-	if err := d.Set("self_link", flattenComputeRegionNetworkFirewallPolicySelfLink(res["selfLink"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
-	}
-	if err := d.Set("self_link_with_id", flattenComputeRegionNetworkFirewallPolicySelfLinkWithId(res["selfLinkWithId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
-	}
-	if err := d.Set("rule_tuple_count", flattenComputeRegionNetworkFirewallPolicyRuleTupleCount(res["ruleTupleCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
+	err = ResourceComputeRegionNetworkFirewallPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -649,4 +626,38 @@ func expandComputeRegionNetworkFirewallPolicyPolicyType(v interface{}, d tpgreso
 
 func expandComputeRegionNetworkFirewallPolicyFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeRegionNetworkFirewallPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeRegionNetworkFirewallPolicyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionNetworkFirewallPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
+	}
+	if err = d.Set("region_network_firewall_policy_id", flattenComputeRegionNetworkFirewallPolicyRegionNetworkFirewallPolicyId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
+	}
+	if err = d.Set("description", flattenComputeRegionNetworkFirewallPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
+	}
+	if err = d.Set("policy_type", flattenComputeRegionNetworkFirewallPolicyPolicyType(res["policyType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeRegionNetworkFirewallPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
+	}
+	if err = d.Set("self_link", flattenComputeRegionNetworkFirewallPolicySelfLink(res["selfLink"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
+	}
+	if err = d.Set("self_link_with_id", flattenComputeRegionNetworkFirewallPolicySelfLinkWithId(res["selfLinkWithId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
+	}
+	if err = d.Set("rule_tuple_count", flattenComputeRegionNetworkFirewallPolicyRuleTupleCount(res["ruleTupleCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
+	}
+
+	return nil
 }

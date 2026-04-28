@@ -381,14 +381,9 @@ func resourceComputeGlobalNetworkEndpointRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading GlobalNetworkEndpoint: %s", err)
 	}
 
-	if err := d.Set("port", flattenNestedComputeGlobalNetworkEndpointPort(res["port"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalNetworkEndpoint: %s", err)
-	}
-	if err := d.Set("ip_address", flattenNestedComputeGlobalNetworkEndpointIpAddress(res["ipAddress"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalNetworkEndpoint: %s", err)
-	}
-	if err := d.Set("fqdn", flattenNestedComputeGlobalNetworkEndpointFqdn(res["fqdn"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlobalNetworkEndpoint: %s", err)
+	err = ResourceComputeGlobalNetworkEndpointFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -668,4 +663,20 @@ func resourceComputeGlobalNetworkEndpointDecoder(d *schema.ResourceData, meta in
 	}
 
 	return v.(map[string]interface{}), nil
+}
+
+func ResourceComputeGlobalNetworkEndpointFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("port", flattenNestedComputeGlobalNetworkEndpointPort(res["port"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalNetworkEndpoint: %s", err)
+	}
+	if err = d.Set("ip_address", flattenNestedComputeGlobalNetworkEndpointIpAddress(res["ipAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalNetworkEndpoint: %s", err)
+	}
+	if err = d.Set("fqdn", flattenNestedComputeGlobalNetworkEndpointFqdn(res["fqdn"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalNetworkEndpoint: %s", err)
+	}
+
+	return nil
 }

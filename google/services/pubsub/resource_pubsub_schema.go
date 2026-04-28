@@ -348,14 +348,9 @@ func resourcePubsubSchemaRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Schema: %s", err)
 	}
 
-	if err := d.Set("type", flattenPubsubSchemaType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Schema: %s", err)
-	}
-	if err := d.Set("definition", flattenPubsubSchemaDefinition(res["definition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Schema: %s", err)
-	}
-	if err := d.Set("name", flattenPubsubSchemaName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Schema: %s", err)
+	err = ResourcePubsubSchemaFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -573,4 +568,20 @@ func resourcePubsubSchemaUpdateEncoder(d *schema.ResourceData, meta interface{},
 	obj["name"] = d.Id()
 	newObj["schema"] = obj
 	return newObj, nil
+}
+
+func ResourcePubsubSchemaFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("type", flattenPubsubSchemaType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
+	if err = d.Set("definition", flattenPubsubSchemaDefinition(res["definition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
+	if err = d.Set("name", flattenPubsubSchemaName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
+
+	return nil
 }

@@ -345,23 +345,9 @@ func resourceIdentityPlatformTenantOauthIdpConfigRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenIdentityPlatformTenantOauthIdpConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
-	}
-	if err := d.Set("display_name", flattenIdentityPlatformTenantOauthIdpConfigDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
-	}
-	if err := d.Set("enabled", flattenIdentityPlatformTenantOauthIdpConfigEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
-	}
-	if err := d.Set("issuer", flattenIdentityPlatformTenantOauthIdpConfigIssuer(res["issuer"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
-	}
-	if err := d.Set("client_id", flattenIdentityPlatformTenantOauthIdpConfigClientId(res["clientId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
-	}
-	if err := d.Set("client_secret", flattenIdentityPlatformTenantOauthIdpConfigClientSecret(res["clientSecret"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
+	err = ResourceIdentityPlatformTenantOauthIdpConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -639,4 +625,29 @@ func expandIdentityPlatformTenantOauthIdpConfigClientId(v interface{}, d tpgreso
 
 func expandIdentityPlatformTenantOauthIdpConfigClientSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceIdentityPlatformTenantOauthIdpConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIdentityPlatformTenantOauthIdpConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
+	}
+	if err = d.Set("display_name", flattenIdentityPlatformTenantOauthIdpConfigDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
+	}
+	if err = d.Set("enabled", flattenIdentityPlatformTenantOauthIdpConfigEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
+	}
+	if err = d.Set("issuer", flattenIdentityPlatformTenantOauthIdpConfigIssuer(res["issuer"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
+	}
+	if err = d.Set("client_id", flattenIdentityPlatformTenantOauthIdpConfigClientId(res["clientId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
+	}
+	if err = d.Set("client_secret", flattenIdentityPlatformTenantOauthIdpConfigClientSecret(res["clientSecret"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
+	}
+
+	return nil
 }

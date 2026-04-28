@@ -379,32 +379,9 @@ func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeTargetHttpProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeTargetHttpProxyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("proxy_id", flattenComputeTargetHttpProxyProxyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeTargetHttpProxyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("url_map", flattenComputeTargetHttpProxyUrlMap(res["urlMap"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("proxy_bind", flattenComputeTargetHttpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("http_keep_alive_timeout_sec", flattenComputeTargetHttpProxyHttpKeepAliveTimeoutSec(res["httpKeepAliveTimeoutSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeTargetHttpProxyFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	err = ResourceComputeTargetHttpProxyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -674,4 +651,37 @@ func expandComputeTargetHttpProxyHttpKeepAliveTimeoutSec(v interface{}, d tpgres
 
 func expandComputeTargetHttpProxyFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeTargetHttpProxyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeTargetHttpProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err = d.Set("description", flattenComputeTargetHttpProxyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err = d.Set("proxy_id", flattenComputeTargetHttpProxyProxyId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err = d.Set("name", flattenComputeTargetHttpProxyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err = d.Set("url_map", flattenComputeTargetHttpProxyUrlMap(res["urlMap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err = d.Set("proxy_bind", flattenComputeTargetHttpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err = d.Set("http_keep_alive_timeout_sec", flattenComputeTargetHttpProxyHttpKeepAliveTimeoutSec(res["httpKeepAliveTimeoutSec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeTargetHttpProxyFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	return nil
 }

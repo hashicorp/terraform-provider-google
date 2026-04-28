@@ -347,20 +347,9 @@ func resourceDialogflowFulfillmentRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading Fulfillment: %s", err)
 	}
 
-	if err := d.Set("name", flattenDialogflowFulfillmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Fulfillment: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowFulfillmentDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Fulfillment: %s", err)
-	}
-	if err := d.Set("enabled", flattenDialogflowFulfillmentEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Fulfillment: %s", err)
-	}
-	if err := d.Set("features", flattenDialogflowFulfillmentFeatures(res["features"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Fulfillment: %s", err)
-	}
-	if err := d.Set("generic_web_service", flattenDialogflowFulfillmentGenericWebService(res["genericWebService"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Fulfillment: %s", err)
+	err = ResourceDialogflowFulfillmentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -737,5 +726,27 @@ func resourceDialogflowFulfillmentPostCreateSetComputedFields(d *schema.Resource
 	if err := d.Set("name", flattenDialogflowFulfillmentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowFulfillmentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowFulfillmentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Fulfillment: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowFulfillmentDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Fulfillment: %s", err)
+	}
+	if err = d.Set("enabled", flattenDialogflowFulfillmentEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Fulfillment: %s", err)
+	}
+	if err = d.Set("features", flattenDialogflowFulfillmentFeatures(res["features"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Fulfillment: %s", err)
+	}
+	if err = d.Set("generic_web_service", flattenDialogflowFulfillmentGenericWebService(res["genericWebService"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Fulfillment: %s", err)
+	}
+
 	return nil
 }

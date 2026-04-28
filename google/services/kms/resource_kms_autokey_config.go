@@ -278,14 +278,9 @@ func resourceKMSAutokeyConfigRead(d *schema.ResourceData, meta interface{}) erro
 
 	log.Printf("[DEBUG] Finished reading KMSAutokeyConfig %q: %#v", d.Id(), res)
 
-	if err := d.Set("key_project", flattenKMSAutokeyConfigKeyProject(res["keyProject"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AutokeyConfig: %s", err)
-	}
-	if err := d.Set("etag", flattenKMSAutokeyConfigEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AutokeyConfig: %s", err)
-	}
-	if err := d.Set("key_project_resolution_mode", flattenKMSAutokeyConfigKeyProjectResolutionMode(res["keyProjectResolutionMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AutokeyConfig: %s", err)
+	err = ResourceKMSAutokeyConfigFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -452,4 +447,20 @@ func expandKMSAutokeyConfigKeyProject(v interface{}, d tpgresource.TerraformReso
 
 func expandKMSAutokeyConfigKeyProjectResolutionMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceKMSAutokeyConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("key_project", flattenKMSAutokeyConfigKeyProject(res["keyProject"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutokeyConfig: %s", err)
+	}
+	if err = d.Set("etag", flattenKMSAutokeyConfigEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutokeyConfig: %s", err)
+	}
+	if err = d.Set("key_project_resolution_mode", flattenKMSAutokeyConfigKeyProjectResolutionMode(res["keyProjectResolutionMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutokeyConfig: %s", err)
+	}
+
+	return nil
 }

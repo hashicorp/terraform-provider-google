@@ -397,23 +397,9 @@ func resourceNotebooksEnvironmentRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
 
-	if err := d.Set("display_name", flattenNotebooksEnvironmentDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
-	}
-	if err := d.Set("description", flattenNotebooksEnvironmentDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
-	}
-	if err := d.Set("post_startup_script", flattenNotebooksEnvironmentPostStartupScript(res["postStartupScript"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
-	}
-	if err := d.Set("create_time", flattenNotebooksEnvironmentCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
-	}
-	if err := d.Set("vm_image", flattenNotebooksEnvironmentVmImage(res["vmImage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
-	}
-	if err := d.Set("container_image", flattenNotebooksEnvironmentContainerImage(res["containerImage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+	err = ResourceNotebooksEnvironmentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -790,4 +776,29 @@ func expandNotebooksEnvironmentContainerImageRepository(v interface{}, d tpgreso
 
 func expandNotebooksEnvironmentContainerImageTag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceNotebooksEnvironmentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("display_name", flattenNotebooksEnvironmentDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err = d.Set("description", flattenNotebooksEnvironmentDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err = d.Set("post_startup_script", flattenNotebooksEnvironmentPostStartupScript(res["postStartupScript"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err = d.Set("create_time", flattenNotebooksEnvironmentCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err = d.Set("vm_image", flattenNotebooksEnvironmentVmImage(res["vmImage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err = d.Set("container_image", flattenNotebooksEnvironmentContainerImage(res["containerImage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+
+	return nil
 }

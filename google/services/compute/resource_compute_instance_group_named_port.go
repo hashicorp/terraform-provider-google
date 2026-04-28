@@ -376,12 +376,9 @@ func resourceComputeInstanceGroupNamedPortRead(d *schema.ResourceData, meta inte
 	if err := d.Set("zone", zone); err != nil {
 		return fmt.Errorf("Error reading InstanceGroupNamedPort: %s", err)
 	}
-
-	if err := d.Set("name", flattenNestedComputeInstanceGroupNamedPortName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstanceGroupNamedPort: %s", err)
-	}
-	if err := d.Set("port", flattenNestedComputeInstanceGroupNamedPortPort(res["port"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstanceGroupNamedPort: %s", err)
+	err = ResourceComputeInstanceGroupNamedPortFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -715,4 +712,17 @@ func resourceComputeInstanceGroupNamedPortListForPatch(d *schema.ResourceData, m
 		return ls, nil
 	}
 	return nil, nil
+}
+
+func ResourceComputeInstanceGroupNamedPortFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNestedComputeInstanceGroupNamedPortName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstanceGroupNamedPort: %s", err)
+	}
+	if err = d.Set("port", flattenNestedComputeInstanceGroupNamedPortPort(res["port"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstanceGroupNamedPort: %s", err)
+	}
+
+	return nil
 }

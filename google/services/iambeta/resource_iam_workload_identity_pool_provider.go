@@ -687,38 +687,9 @@ func resourceIAMBetaWorkloadIdentityPoolProviderRead(d *schema.ResourceData, met
 		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
 	}
 
-	if err := d.Set("state", flattenIAMBetaWorkloadIdentityPoolProviderState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
-	}
-	if err := d.Set("display_name", flattenIAMBetaWorkloadIdentityPoolProviderDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
-	}
-	if err := d.Set("description", flattenIAMBetaWorkloadIdentityPoolProviderDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
-	}
-	if err := d.Set("name", flattenIAMBetaWorkloadIdentityPoolProviderName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
-	}
-	if err := d.Set("disabled", flattenIAMBetaWorkloadIdentityPoolProviderDisabled(res["disabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
-	}
-	if err := d.Set("attribute_mapping", flattenIAMBetaWorkloadIdentityPoolProviderAttributeMapping(res["attributeMapping"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
-	}
-	if err := d.Set("attribute_condition", flattenIAMBetaWorkloadIdentityPoolProviderAttributeCondition(res["attributeCondition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
-	}
-	if err := d.Set("aws", flattenIAMBetaWorkloadIdentityPoolProviderAws(res["aws"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
-	}
-	if err := d.Set("oidc", flattenIAMBetaWorkloadIdentityPoolProviderOidc(res["oidc"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
-	}
-	if err := d.Set("saml", flattenIAMBetaWorkloadIdentityPoolProviderSaml(res["saml"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
-	}
-	if err := d.Set("x509", flattenIAMBetaWorkloadIdentityPoolProviderX509(res["x509"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	err = ResourceIAMBetaWorkloadIdentityPoolProviderFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1409,4 +1380,44 @@ func resourceIAMBetaWorkloadIdentityPoolProviderDecoder(d *schema.ResourceData, 
 	}
 
 	return res, nil
+}
+
+func ResourceIAMBetaWorkloadIdentityPoolProviderFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("state", flattenIAMBetaWorkloadIdentityPoolProviderState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
+	if err = d.Set("display_name", flattenIAMBetaWorkloadIdentityPoolProviderDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
+	if err = d.Set("description", flattenIAMBetaWorkloadIdentityPoolProviderDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
+	if err = d.Set("name", flattenIAMBetaWorkloadIdentityPoolProviderName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
+	if err = d.Set("disabled", flattenIAMBetaWorkloadIdentityPoolProviderDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
+	if err = d.Set("attribute_mapping", flattenIAMBetaWorkloadIdentityPoolProviderAttributeMapping(res["attributeMapping"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
+	if err = d.Set("attribute_condition", flattenIAMBetaWorkloadIdentityPoolProviderAttributeCondition(res["attributeCondition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
+	if err = d.Set("aws", flattenIAMBetaWorkloadIdentityPoolProviderAws(res["aws"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
+	if err = d.Set("oidc", flattenIAMBetaWorkloadIdentityPoolProviderOidc(res["oidc"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
+	if err = d.Set("saml", flattenIAMBetaWorkloadIdentityPoolProviderSaml(res["saml"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
+	if err = d.Set("x509", flattenIAMBetaWorkloadIdentityPoolProviderX509(res["x509"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
+
+	return nil
 }

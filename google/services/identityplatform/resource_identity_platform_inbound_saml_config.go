@@ -385,20 +385,9 @@ func resourceIdentityPlatformInboundSamlConfigRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenIdentityPlatformInboundSamlConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
-	}
-	if err := d.Set("display_name", flattenIdentityPlatformInboundSamlConfigDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
-	}
-	if err := d.Set("enabled", flattenIdentityPlatformInboundSamlConfigEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
-	}
-	if err := d.Set("idp_config", flattenIdentityPlatformInboundSamlConfigIdpConfig(res["idpConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
-	}
-	if err := d.Set("sp_config", flattenIdentityPlatformInboundSamlConfigSpConfig(res["spConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
+	err = ResourceIdentityPlatformInboundSamlConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -888,4 +877,26 @@ func expandIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{}
 
 func expandIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceIdentityPlatformInboundSamlConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIdentityPlatformInboundSamlConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
+	}
+	if err = d.Set("display_name", flattenIdentityPlatformInboundSamlConfigDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
+	}
+	if err = d.Set("enabled", flattenIdentityPlatformInboundSamlConfigEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
+	}
+	if err = d.Set("idp_config", flattenIdentityPlatformInboundSamlConfigIdpConfig(res["idpConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
+	}
+	if err = d.Set("sp_config", flattenIdentityPlatformInboundSamlConfigSpConfig(res["spConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
+	}
+
+	return nil
 }

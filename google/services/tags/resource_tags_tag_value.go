@@ -321,26 +321,9 @@ func resourceTagsTagValueRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished reading TagsTagValue %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenTagsTagValueName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagValue: %s", err)
-	}
-	if err := d.Set("parent", flattenTagsTagValueParent(res["parent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagValue: %s", err)
-	}
-	if err := d.Set("short_name", flattenTagsTagValueShortName(res["shortName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagValue: %s", err)
-	}
-	if err := d.Set("namespaced_name", flattenTagsTagValueNamespacedName(res["namespacedName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagValue: %s", err)
-	}
-	if err := d.Set("description", flattenTagsTagValueDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagValue: %s", err)
-	}
-	if err := d.Set("create_time", flattenTagsTagValueCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagValue: %s", err)
-	}
-	if err := d.Set("update_time", flattenTagsTagValueUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagValue: %s", err)
+	err = ResourceTagsTagValueFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -564,4 +547,32 @@ func expandTagsTagValueShortName(v interface{}, d tpgresource.TerraformResourceD
 
 func expandTagsTagValueDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceTagsTagValueFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenTagsTagValueName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagValue: %s", err)
+	}
+	if err = d.Set("parent", flattenTagsTagValueParent(res["parent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagValue: %s", err)
+	}
+	if err = d.Set("short_name", flattenTagsTagValueShortName(res["shortName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagValue: %s", err)
+	}
+	if err = d.Set("namespaced_name", flattenTagsTagValueNamespacedName(res["namespacedName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagValue: %s", err)
+	}
+	if err = d.Set("description", flattenTagsTagValueDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagValue: %s", err)
+	}
+	if err = d.Set("create_time", flattenTagsTagValueCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagValue: %s", err)
+	}
+	if err = d.Set("update_time", flattenTagsTagValueUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagValue: %s", err)
+	}
+
+	return nil
 }

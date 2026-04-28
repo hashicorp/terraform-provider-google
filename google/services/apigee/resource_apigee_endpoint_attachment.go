@@ -298,20 +298,9 @@ func resourceApigeeEndpointAttachmentRead(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Finished reading ApigeeEndpointAttachment %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenApigeeEndpointAttachmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("location", flattenApigeeEndpointAttachmentLocation(res["location"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("host", flattenApigeeEndpointAttachmentHost(res["host"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("service_attachment", flattenApigeeEndpointAttachmentServiceAttachment(res["serviceAttachment"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("connection_state", flattenApigeeEndpointAttachmentConnectionState(res["connectionState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	err = ResourceApigeeEndpointAttachmentFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -446,4 +435,26 @@ func expandApigeeEndpointAttachmentLocation(v interface{}, d tpgresource.Terrafo
 
 func expandApigeeEndpointAttachmentServiceAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeEndpointAttachmentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenApigeeEndpointAttachmentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("location", flattenApigeeEndpointAttachmentLocation(res["location"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("host", flattenApigeeEndpointAttachmentHost(res["host"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("service_attachment", flattenApigeeEndpointAttachmentServiceAttachment(res["serviceAttachment"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("connection_state", flattenApigeeEndpointAttachmentConnectionState(res["connectionState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+
+	return nil
 }

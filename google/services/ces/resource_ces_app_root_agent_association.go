@@ -314,6 +314,11 @@ func resourceCESAppRootAgentAssociationRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading AppRootAgentAssociation: %s", err)
 	}
 
+	err = ResourceCESAppRootAgentAssociationFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
+	}
+
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
 		if v, ok := identity.GetOk("agent_id"); !ok && v == "" {
@@ -499,4 +504,9 @@ func resourceCESAppRootAgentAssociationImport(d *schema.ResourceData, meta inter
 
 func expandCESAppRootAgentAssociationAgentId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceCESAppRootAgentAssociationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+
+	return nil
 }

@@ -358,29 +358,9 @@ func resourceGeminiDataSharingWithGoogleSettingRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
 	}
 
-	if err := d.Set("name", flattenGeminiDataSharingWithGoogleSettingName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
-	}
-	if err := d.Set("create_time", flattenGeminiDataSharingWithGoogleSettingCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
-	}
-	if err := d.Set("update_time", flattenGeminiDataSharingWithGoogleSettingUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
-	}
-	if err := d.Set("labels", flattenGeminiDataSharingWithGoogleSettingLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
-	}
-	if err := d.Set("enable_preview_data_sharing", flattenGeminiDataSharingWithGoogleSettingEnablePreviewDataSharing(res["enablePreviewDataSharing"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
-	}
-	if err := d.Set("enable_data_sharing", flattenGeminiDataSharingWithGoogleSettingEnableDataSharing(res["enableDataSharing"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenGeminiDataSharingWithGoogleSettingTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenGeminiDataSharingWithGoogleSettingEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
+	err = ResourceGeminiDataSharingWithGoogleSettingFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -674,4 +654,35 @@ func expandGeminiDataSharingWithGoogleSettingEffectiveLabels(v interface{}, d tp
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceGeminiDataSharingWithGoogleSettingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenGeminiDataSharingWithGoogleSettingName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
+	}
+	if err = d.Set("create_time", flattenGeminiDataSharingWithGoogleSettingCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
+	}
+	if err = d.Set("update_time", flattenGeminiDataSharingWithGoogleSettingUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
+	}
+	if err = d.Set("labels", flattenGeminiDataSharingWithGoogleSettingLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
+	}
+	if err = d.Set("enable_preview_data_sharing", flattenGeminiDataSharingWithGoogleSettingEnablePreviewDataSharing(res["enablePreviewDataSharing"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
+	}
+	if err = d.Set("enable_data_sharing", flattenGeminiDataSharingWithGoogleSettingEnableDataSharing(res["enableDataSharing"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenGeminiDataSharingWithGoogleSettingTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenGeminiDataSharingWithGoogleSettingEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
+	}
+
+	return nil
 }

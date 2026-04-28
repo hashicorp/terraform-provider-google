@@ -528,41 +528,9 @@ func resourceBackupDRBackupPlanRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
 
-	if err := d.Set("name", flattenBackupDRBackupPlanName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
-	}
-	if err := d.Set("description", flattenBackupDRBackupPlanDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
-	}
-	if err := d.Set("backup_vault", flattenBackupDRBackupPlanBackupVault(res["backupVault"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
-	}
-	if err := d.Set("backup_vault_service_account", flattenBackupDRBackupPlanBackupVaultServiceAccount(res["backupVaultServiceAccount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
-	}
-	if err := d.Set("supported_resource_types", flattenBackupDRBackupPlanSupportedResourceTypes(res["supportedResourceTypes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
-	}
-	if err := d.Set("resource_type", flattenBackupDRBackupPlanResourceType(res["resourceType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
-	}
-	if err := d.Set("create_time", flattenBackupDRBackupPlanCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
-	}
-	if err := d.Set("update_time", flattenBackupDRBackupPlanUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
-	}
-	if err := d.Set("max_custom_on_demand_retention_days", flattenBackupDRBackupPlanMaxCustomOnDemandRetentionDays(res["maxCustomOnDemandRetentionDays"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
-	}
-	if err := d.Set("backup_rules", flattenBackupDRBackupPlanBackupRules(res["backupRules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
-	}
-	if err := d.Set("log_retention_days", flattenBackupDRBackupPlanLogRetentionDays(res["logRetentionDays"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
-	}
-	if err := d.Set("disk_backup_plan_properties", flattenBackupDRBackupPlanDiskBackupPlanProperties(res["diskBackupPlanProperties"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	err = ResourceBackupDRBackupPlanFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1326,4 +1294,47 @@ func expandBackupDRBackupPlanDiskBackupPlanProperties(v interface{}, d tpgresour
 
 func expandBackupDRBackupPlanDiskBackupPlanPropertiesGuestFlush(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceBackupDRBackupPlanFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBackupDRBackupPlanName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("description", flattenBackupDRBackupPlanDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("backup_vault", flattenBackupDRBackupPlanBackupVault(res["backupVault"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("backup_vault_service_account", flattenBackupDRBackupPlanBackupVaultServiceAccount(res["backupVaultServiceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("supported_resource_types", flattenBackupDRBackupPlanSupportedResourceTypes(res["supportedResourceTypes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("resource_type", flattenBackupDRBackupPlanResourceType(res["resourceType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("create_time", flattenBackupDRBackupPlanCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("update_time", flattenBackupDRBackupPlanUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("max_custom_on_demand_retention_days", flattenBackupDRBackupPlanMaxCustomOnDemandRetentionDays(res["maxCustomOnDemandRetentionDays"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("backup_rules", flattenBackupDRBackupPlanBackupRules(res["backupRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("log_retention_days", flattenBackupDRBackupPlanLogRetentionDays(res["logRetentionDays"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("disk_backup_plan_properties", flattenBackupDRBackupPlanDiskBackupPlanProperties(res["diskBackupPlanProperties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+
+	return nil
 }

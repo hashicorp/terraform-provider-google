@@ -318,14 +318,9 @@ func resourceIapTunnelDestGroupRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading TunnelDestGroup: %s", err)
 	}
 
-	if err := d.Set("name", flattenIapTunnelDestGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TunnelDestGroup: %s", err)
-	}
-	if err := d.Set("cidrs", flattenIapTunnelDestGroupCidrs(res["cidrs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TunnelDestGroup: %s", err)
-	}
-	if err := d.Set("fqdns", flattenIapTunnelDestGroupFqdns(res["fqdns"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TunnelDestGroup: %s", err)
+	err = ResourceIapTunnelDestGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -526,4 +521,20 @@ func expandIapTunnelDestGroupCidrs(v interface{}, d tpgresource.TerraformResourc
 
 func expandIapTunnelDestGroupFqdns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceIapTunnelDestGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIapTunnelDestGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TunnelDestGroup: %s", err)
+	}
+	if err = d.Set("cidrs", flattenIapTunnelDestGroupCidrs(res["cidrs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TunnelDestGroup: %s", err)
+	}
+	if err = d.Set("fqdns", flattenIapTunnelDestGroupFqdns(res["fqdns"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TunnelDestGroup: %s", err)
+	}
+
+	return nil
 }

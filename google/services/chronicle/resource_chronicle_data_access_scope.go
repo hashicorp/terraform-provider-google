@@ -496,35 +496,9 @@ func resourceChronicleDataAccessScopeRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading DataAccessScope: %s", err)
 	}
 
-	if err := d.Set("name", flattenChronicleDataAccessScopeName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataAccessScope: %s", err)
-	}
-	if err := d.Set("allowed_data_access_labels", flattenChronicleDataAccessScopeAllowedDataAccessLabels(res["allowedDataAccessLabels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataAccessScope: %s", err)
-	}
-	if err := d.Set("allow_all", flattenChronicleDataAccessScopeAllowAll(res["allowAll"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataAccessScope: %s", err)
-	}
-	if err := d.Set("denied_data_access_labels", flattenChronicleDataAccessScopeDeniedDataAccessLabels(res["deniedDataAccessLabels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataAccessScope: %s", err)
-	}
-	if err := d.Set("display_name", flattenChronicleDataAccessScopeDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataAccessScope: %s", err)
-	}
-	if err := d.Set("create_time", flattenChronicleDataAccessScopeCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataAccessScope: %s", err)
-	}
-	if err := d.Set("author", flattenChronicleDataAccessScopeAuthor(res["author"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataAccessScope: %s", err)
-	}
-	if err := d.Set("last_editor", flattenChronicleDataAccessScopeLastEditor(res["lastEditor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataAccessScope: %s", err)
-	}
-	if err := d.Set("description", flattenChronicleDataAccessScopeDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataAccessScope: %s", err)
-	}
-	if err := d.Set("update_time", flattenChronicleDataAccessScopeUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataAccessScope: %s", err)
+	err = ResourceChronicleDataAccessScopeFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1126,4 +1100,41 @@ func expandChronicleDataAccessScopeDeniedDataAccessLabelsIngestionLabelIngestion
 
 func expandChronicleDataAccessScopeDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceChronicleDataAccessScopeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenChronicleDataAccessScopeName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataAccessScope: %s", err)
+	}
+	if err = d.Set("allowed_data_access_labels", flattenChronicleDataAccessScopeAllowedDataAccessLabels(res["allowedDataAccessLabels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataAccessScope: %s", err)
+	}
+	if err = d.Set("allow_all", flattenChronicleDataAccessScopeAllowAll(res["allowAll"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataAccessScope: %s", err)
+	}
+	if err = d.Set("denied_data_access_labels", flattenChronicleDataAccessScopeDeniedDataAccessLabels(res["deniedDataAccessLabels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataAccessScope: %s", err)
+	}
+	if err = d.Set("display_name", flattenChronicleDataAccessScopeDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataAccessScope: %s", err)
+	}
+	if err = d.Set("create_time", flattenChronicleDataAccessScopeCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataAccessScope: %s", err)
+	}
+	if err = d.Set("author", flattenChronicleDataAccessScopeAuthor(res["author"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataAccessScope: %s", err)
+	}
+	if err = d.Set("last_editor", flattenChronicleDataAccessScopeLastEditor(res["lastEditor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataAccessScope: %s", err)
+	}
+	if err = d.Set("description", flattenChronicleDataAccessScopeDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataAccessScope: %s", err)
+	}
+	if err = d.Set("update_time", flattenChronicleDataAccessScopeUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataAccessScope: %s", err)
+	}
+
+	return nil
 }

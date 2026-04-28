@@ -410,29 +410,9 @@ func resourceDiscoveryEngineLicenseConfigRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading LicenseConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenDiscoveryEngineLicenseConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LicenseConfig: %s", err)
-	}
-	if err := d.Set("license_count", flattenDiscoveryEngineLicenseConfigLicenseCount(res["licenseCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LicenseConfig: %s", err)
-	}
-	if err := d.Set("subscription_tier", flattenDiscoveryEngineLicenseConfigSubscriptionTier(res["subscriptionTier"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LicenseConfig: %s", err)
-	}
-	if err := d.Set("auto_renew", flattenDiscoveryEngineLicenseConfigAutoRenew(res["autoRenew"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LicenseConfig: %s", err)
-	}
-	if err := d.Set("start_date", flattenDiscoveryEngineLicenseConfigStartDate(res["startDate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LicenseConfig: %s", err)
-	}
-	if err := d.Set("end_date", flattenDiscoveryEngineLicenseConfigEndDate(res["endDate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LicenseConfig: %s", err)
-	}
-	if err := d.Set("subscription_term", flattenDiscoveryEngineLicenseConfigSubscriptionTerm(res["subscriptionTerm"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LicenseConfig: %s", err)
-	}
-	if err := d.Set("free_trial", flattenDiscoveryEngineLicenseConfigFreeTrial(res["freeTrial"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LicenseConfig: %s", err)
+	err = ResourceDiscoveryEngineLicenseConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -929,4 +909,35 @@ func expandDiscoveryEngineLicenseConfigSubscriptionTerm(v interface{}, d tpgreso
 
 func expandDiscoveryEngineLicenseConfigFreeTrial(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceDiscoveryEngineLicenseConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDiscoveryEngineLicenseConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LicenseConfig: %s", err)
+	}
+	if err = d.Set("license_count", flattenDiscoveryEngineLicenseConfigLicenseCount(res["licenseCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LicenseConfig: %s", err)
+	}
+	if err = d.Set("subscription_tier", flattenDiscoveryEngineLicenseConfigSubscriptionTier(res["subscriptionTier"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LicenseConfig: %s", err)
+	}
+	if err = d.Set("auto_renew", flattenDiscoveryEngineLicenseConfigAutoRenew(res["autoRenew"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LicenseConfig: %s", err)
+	}
+	if err = d.Set("start_date", flattenDiscoveryEngineLicenseConfigStartDate(res["startDate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LicenseConfig: %s", err)
+	}
+	if err = d.Set("end_date", flattenDiscoveryEngineLicenseConfigEndDate(res["endDate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LicenseConfig: %s", err)
+	}
+	if err = d.Set("subscription_term", flattenDiscoveryEngineLicenseConfigSubscriptionTerm(res["subscriptionTerm"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LicenseConfig: %s", err)
+	}
+	if err = d.Set("free_trial", flattenDiscoveryEngineLicenseConfigFreeTrial(res["freeTrial"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LicenseConfig: %s", err)
+	}
+
+	return nil
 }

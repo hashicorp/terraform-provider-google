@@ -371,26 +371,9 @@ func resourceVertexAIFeatureGroupFeatureRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenVertexAIFeatureGroupFeatureCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
-	}
-	if err := d.Set("update_time", flattenVertexAIFeatureGroupFeatureUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
-	}
-	if err := d.Set("labels", flattenVertexAIFeatureGroupFeatureLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
-	}
-	if err := d.Set("description", flattenVertexAIFeatureGroupFeatureDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
-	}
-	if err := d.Set("version_column_name", flattenVertexAIFeatureGroupFeatureVersionColumnName(res["versionColumnName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenVertexAIFeatureGroupFeatureTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenVertexAIFeatureGroupFeatureEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
+	err = ResourceVertexAIFeatureGroupFeatureFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -693,4 +676,32 @@ func expandVertexAIFeatureGroupFeatureEffectiveLabels(v interface{}, d tpgresour
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceVertexAIFeatureGroupFeatureFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenVertexAIFeatureGroupFeatureCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
+	}
+	if err = d.Set("update_time", flattenVertexAIFeatureGroupFeatureUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
+	}
+	if err = d.Set("labels", flattenVertexAIFeatureGroupFeatureLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
+	}
+	if err = d.Set("description", flattenVertexAIFeatureGroupFeatureDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
+	}
+	if err = d.Set("version_column_name", flattenVertexAIFeatureGroupFeatureVersionColumnName(res["versionColumnName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenVertexAIFeatureGroupFeatureTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenVertexAIFeatureGroupFeatureEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureGroupFeature: %s", err)
+	}
+
+	return nil
 }

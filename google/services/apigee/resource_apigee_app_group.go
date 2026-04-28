@@ -346,35 +346,9 @@ func resourceApigeeAppGroupRead(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] Finished reading ApigeeAppGroup %q: %#v", d.Id(), res)
 
-	if err := d.Set("app_group_id", flattenApigeeAppGroupAppGroupId(res["appGroupId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGroup: %s", err)
-	}
-	if err := d.Set("name", flattenApigeeAppGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGroup: %s", err)
-	}
-	if err := d.Set("channel_uri", flattenApigeeAppGroupChannelUri(res["channelUri"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGroup: %s", err)
-	}
-	if err := d.Set("channel_id", flattenApigeeAppGroupChannelId(res["channelId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGroup: %s", err)
-	}
-	if err := d.Set("display_name", flattenApigeeAppGroupDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGroup: %s", err)
-	}
-	if err := d.Set("organization", flattenApigeeAppGroupOrganization(res["organization"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGroup: %s", err)
-	}
-	if err := d.Set("status", flattenApigeeAppGroupStatus(res["status"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGroup: %s", err)
-	}
-	if err := d.Set("attributes", flattenApigeeAppGroupAttributes(res["attributes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGroup: %s", err)
-	}
-	if err := d.Set("created_at", flattenApigeeAppGroupCreatedAt(res["createdAt"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGroup: %s", err)
-	}
-	if err := d.Set("last_modified_at", flattenApigeeAppGroupLastModifiedAt(res["lastModifiedAt"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppGroup: %s", err)
+	err = ResourceApigeeAppGroupFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -701,4 +675,41 @@ func expandApigeeAppGroupAttributesName(v interface{}, d tpgresource.TerraformRe
 
 func expandApigeeAppGroupAttributesValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeAppGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("app_group_id", flattenApigeeAppGroupAppGroupId(res["appGroupId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGroup: %s", err)
+	}
+	if err = d.Set("name", flattenApigeeAppGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGroup: %s", err)
+	}
+	if err = d.Set("channel_uri", flattenApigeeAppGroupChannelUri(res["channelUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGroup: %s", err)
+	}
+	if err = d.Set("channel_id", flattenApigeeAppGroupChannelId(res["channelId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGroup: %s", err)
+	}
+	if err = d.Set("display_name", flattenApigeeAppGroupDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGroup: %s", err)
+	}
+	if err = d.Set("organization", flattenApigeeAppGroupOrganization(res["organization"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGroup: %s", err)
+	}
+	if err = d.Set("status", flattenApigeeAppGroupStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGroup: %s", err)
+	}
+	if err = d.Set("attributes", flattenApigeeAppGroupAttributes(res["attributes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGroup: %s", err)
+	}
+	if err = d.Set("created_at", flattenApigeeAppGroupCreatedAt(res["createdAt"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGroup: %s", err)
+	}
+	if err = d.Set("last_modified_at", flattenApigeeAppGroupLastModifiedAt(res["lastModifiedAt"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppGroup: %s", err)
+	}
+
+	return nil
 }

@@ -357,14 +357,9 @@ func resourceIAM2AccessBoundaryPolicyRead(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Finished reading IAM2AccessBoundaryPolicy %q: %#v", d.Id(), res)
 
-	if err := d.Set("display_name", flattenIAM2AccessBoundaryPolicyDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessBoundaryPolicy: %s", err)
-	}
-	if err := d.Set("etag", flattenIAM2AccessBoundaryPolicyEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessBoundaryPolicy: %s", err)
-	}
-	if err := d.Set("rules", flattenIAM2AccessBoundaryPolicyRules(res["rules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AccessBoundaryPolicy: %s", err)
+	err = ResourceIAM2AccessBoundaryPolicyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -777,4 +772,20 @@ func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionD
 
 func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceIAM2AccessBoundaryPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("display_name", flattenIAM2AccessBoundaryPolicyDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessBoundaryPolicy: %s", err)
+	}
+	if err = d.Set("etag", flattenIAM2AccessBoundaryPolicyEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessBoundaryPolicy: %s", err)
+	}
+	if err = d.Set("rules", flattenIAM2AccessBoundaryPolicyRules(res["rules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessBoundaryPolicy: %s", err)
+	}
+
+	return nil
 }

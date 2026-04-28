@@ -382,35 +382,9 @@ func resourceDataplexGlossaryCategoryRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataplexGlossaryCategoryName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataplexGlossaryCategoryDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
-	}
-	if err := d.Set("description", flattenDataplexGlossaryCategoryDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
-	}
-	if err := d.Set("labels", flattenDataplexGlossaryCategoryLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
-	}
-	if err := d.Set("uid", flattenDataplexGlossaryCategoryUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
-	}
-	if err := d.Set("create_time", flattenDataplexGlossaryCategoryCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
-	}
-	if err := d.Set("update_time", flattenDataplexGlossaryCategoryUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
-	}
-	if err := d.Set("parent", flattenDataplexGlossaryCategoryParent(res["parent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDataplexGlossaryCategoryTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDataplexGlossaryCategoryEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
+	err = ResourceDataplexGlossaryCategoryFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -723,4 +697,41 @@ func expandDataplexGlossaryCategoryEffectiveLabels(v interface{}, d tpgresource.
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceDataplexGlossaryCategoryFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataplexGlossaryCategoryName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataplexGlossaryCategoryDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
+	}
+	if err = d.Set("description", flattenDataplexGlossaryCategoryDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
+	}
+	if err = d.Set("labels", flattenDataplexGlossaryCategoryLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
+	}
+	if err = d.Set("uid", flattenDataplexGlossaryCategoryUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
+	}
+	if err = d.Set("create_time", flattenDataplexGlossaryCategoryCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
+	}
+	if err = d.Set("update_time", flattenDataplexGlossaryCategoryUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
+	}
+	if err = d.Set("parent", flattenDataplexGlossaryCategoryParent(res["parent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDataplexGlossaryCategoryTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDataplexGlossaryCategoryEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlossaryCategory: %s", err)
+	}
+
+	return nil
 }

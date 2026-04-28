@@ -384,29 +384,9 @@ func resourceGeminiGeminiGcpEnablementSettingBindingRead(d *schema.ResourceData,
 		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
 	}
 
-	if err := d.Set("labels", flattenGeminiGeminiGcpEnablementSettingBindingLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
-	}
-	if err := d.Set("target", flattenGeminiGeminiGcpEnablementSettingBindingTarget(res["target"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
-	}
-	if err := d.Set("product", flattenGeminiGeminiGcpEnablementSettingBindingProduct(res["product"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
-	}
-	if err := d.Set("name", flattenGeminiGeminiGcpEnablementSettingBindingName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
-	}
-	if err := d.Set("create_time", flattenGeminiGeminiGcpEnablementSettingBindingCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
-	}
-	if err := d.Set("update_time", flattenGeminiGeminiGcpEnablementSettingBindingUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenGeminiGeminiGcpEnablementSettingBindingTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenGeminiGeminiGcpEnablementSettingBindingEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
+	err = ResourceGeminiGeminiGcpEnablementSettingBindingFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -726,4 +706,35 @@ func expandGeminiGeminiGcpEnablementSettingBindingEffectiveLabels(v interface{},
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceGeminiGeminiGcpEnablementSettingBindingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("labels", flattenGeminiGeminiGcpEnablementSettingBindingLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
+	}
+	if err = d.Set("target", flattenGeminiGeminiGcpEnablementSettingBindingTarget(res["target"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
+	}
+	if err = d.Set("product", flattenGeminiGeminiGcpEnablementSettingBindingProduct(res["product"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
+	}
+	if err = d.Set("name", flattenGeminiGeminiGcpEnablementSettingBindingName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
+	}
+	if err = d.Set("create_time", flattenGeminiGeminiGcpEnablementSettingBindingCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
+	}
+	if err = d.Set("update_time", flattenGeminiGeminiGcpEnablementSettingBindingUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenGeminiGeminiGcpEnablementSettingBindingTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenGeminiGeminiGcpEnablementSettingBindingEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSettingBinding: %s", err)
+	}
+
+	return nil
 }

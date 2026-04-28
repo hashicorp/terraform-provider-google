@@ -580,20 +580,9 @@ func resourceFirebaseRemoteConfigRemoteConfigRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading RemoteConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenFirebaseRemoteConfigRemoteConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RemoteConfig: %s", err)
-	}
-	if err := d.Set("conditions", flattenFirebaseRemoteConfigRemoteConfigConditions(res["conditions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RemoteConfig: %s", err)
-	}
-	if err := d.Set("parameter_groups", flattenFirebaseRemoteConfigRemoteConfigParameterGroups(res["parameterGroups"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RemoteConfig: %s", err)
-	}
-	if err := d.Set("parameters", flattenFirebaseRemoteConfigRemoteConfigParameters(res["parameters"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RemoteConfig: %s", err)
-	}
-	if err := d.Set("version", flattenFirebaseRemoteConfigRemoteConfigVersion(res["version"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RemoteConfig: %s", err)
+	err = ResourceFirebaseRemoteConfigRemoteConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1345,4 +1334,26 @@ func expandFirebaseRemoteConfigRemoteConfigParametersDescription(v interface{}, 
 
 func expandFirebaseRemoteConfigRemoteConfigParametersValueType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceFirebaseRemoteConfigRemoteConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenFirebaseRemoteConfigRemoteConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RemoteConfig: %s", err)
+	}
+	if err = d.Set("conditions", flattenFirebaseRemoteConfigRemoteConfigConditions(res["conditions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RemoteConfig: %s", err)
+	}
+	if err = d.Set("parameter_groups", flattenFirebaseRemoteConfigRemoteConfigParameterGroups(res["parameterGroups"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RemoteConfig: %s", err)
+	}
+	if err = d.Set("parameters", flattenFirebaseRemoteConfigRemoteConfigParameters(res["parameters"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RemoteConfig: %s", err)
+	}
+	if err = d.Set("version", flattenFirebaseRemoteConfigRemoteConfigVersion(res["version"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RemoteConfig: %s", err)
+	}
+
+	return nil
 }

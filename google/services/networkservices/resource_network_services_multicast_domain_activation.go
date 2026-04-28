@@ -472,44 +472,9 @@ func resourceNetworkServicesMulticastDomainActivationRead(d *schema.ResourceData
 		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
 	}
 
-	if err := d.Set("admin_network", flattenNetworkServicesMulticastDomainActivationAdminNetwork(res["adminNetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkServicesMulticastDomainActivationCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkServicesMulticastDomainActivationDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("disable_placement_policy", flattenNetworkServicesMulticastDomainActivationDisablePlacementPolicy(res["disablePlacementPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkServicesMulticastDomainActivationLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("multicast_domain", flattenNetworkServicesMulticastDomainActivationMulticastDomain(res["multicastDomain"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("name", flattenNetworkServicesMulticastDomainActivationName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("state", flattenNetworkServicesMulticastDomainActivationState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("traffic_spec", flattenNetworkServicesMulticastDomainActivationTrafficSpec(res["trafficSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("unique_id", flattenNetworkServicesMulticastDomainActivationUniqueId(res["uniqueId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkServicesMulticastDomainActivationUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkServicesMulticastDomainActivationTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkServicesMulticastDomainActivationEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	err = ResourceNetworkServicesMulticastDomainActivationFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -961,4 +926,50 @@ func expandNetworkServicesMulticastDomainActivationEffectiveLabels(v interface{}
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkServicesMulticastDomainActivationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("admin_network", flattenNetworkServicesMulticastDomainActivationAdminNetwork(res["adminNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkServicesMulticastDomainActivationCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkServicesMulticastDomainActivationDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("disable_placement_policy", flattenNetworkServicesMulticastDomainActivationDisablePlacementPolicy(res["disablePlacementPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkServicesMulticastDomainActivationLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("multicast_domain", flattenNetworkServicesMulticastDomainActivationMulticastDomain(res["multicastDomain"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("name", flattenNetworkServicesMulticastDomainActivationName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("state", flattenNetworkServicesMulticastDomainActivationState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("traffic_spec", flattenNetworkServicesMulticastDomainActivationTrafficSpec(res["trafficSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("unique_id", flattenNetworkServicesMulticastDomainActivationUniqueId(res["uniqueId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkServicesMulticastDomainActivationUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkServicesMulticastDomainActivationTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkServicesMulticastDomainActivationEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomainActivation: %s", err)
+	}
+
+	return nil
 }

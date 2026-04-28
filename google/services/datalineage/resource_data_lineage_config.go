@@ -327,14 +327,9 @@ func resourceDataLineageConfigRead(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[DEBUG] Finished reading DataLineageConfig %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenDataLineageConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("etag", flattenDataLineageConfigEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
-	}
-	if err := d.Set("ingestion", flattenDataLineageConfigIngestion(res["ingestion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Config: %s", err)
+	err = ResourceDataLineageConfigFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -671,4 +666,20 @@ func expandDataLineageConfigIngestionRuleLineageEnablement(v interface{}, d tpgr
 
 func expandDataLineageConfigIngestionRuleLineageEnablementEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceDataLineageConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataLineageConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("etag", flattenDataLineageConfigEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("ingestion", flattenDataLineageConfigIngestion(res["ingestion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+
+	return nil
 }

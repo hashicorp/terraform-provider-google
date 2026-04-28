@@ -672,32 +672,9 @@ func resourceDiscoveryEngineDataStoreRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading DataStore: %s", err)
 	}
 
-	if err := d.Set("name", flattenDiscoveryEngineDataStoreName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataStore: %s", err)
-	}
-	if err := d.Set("display_name", flattenDiscoveryEngineDataStoreDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataStore: %s", err)
-	}
-	if err := d.Set("industry_vertical", flattenDiscoveryEngineDataStoreIndustryVertical(res["industryVertical"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataStore: %s", err)
-	}
-	if err := d.Set("solution_types", flattenDiscoveryEngineDataStoreSolutionTypes(res["solutionTypes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataStore: %s", err)
-	}
-	if err := d.Set("default_schema_id", flattenDiscoveryEngineDataStoreDefaultSchemaId(res["defaultSchemaId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataStore: %s", err)
-	}
-	if err := d.Set("content_config", flattenDiscoveryEngineDataStoreContentConfig(res["contentConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataStore: %s", err)
-	}
-	if err := d.Set("advanced_site_search_config", flattenDiscoveryEngineDataStoreAdvancedSiteSearchConfig(res["advancedSiteSearchConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataStore: %s", err)
-	}
-	if err := d.Set("document_processing_config", flattenDiscoveryEngineDataStoreDocumentProcessingConfig(res["documentProcessingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataStore: %s", err)
-	}
-	if err := d.Set("create_time", flattenDiscoveryEngineDataStoreCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataStore: %s", err)
+	err = ResourceDiscoveryEngineDataStoreFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1697,4 +1674,38 @@ func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverride
 
 func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlIds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceDiscoveryEngineDataStoreFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDiscoveryEngineDataStoreName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+	if err = d.Set("display_name", flattenDiscoveryEngineDataStoreDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+	if err = d.Set("industry_vertical", flattenDiscoveryEngineDataStoreIndustryVertical(res["industryVertical"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+	if err = d.Set("solution_types", flattenDiscoveryEngineDataStoreSolutionTypes(res["solutionTypes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+	if err = d.Set("default_schema_id", flattenDiscoveryEngineDataStoreDefaultSchemaId(res["defaultSchemaId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+	if err = d.Set("content_config", flattenDiscoveryEngineDataStoreContentConfig(res["contentConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+	if err = d.Set("advanced_site_search_config", flattenDiscoveryEngineDataStoreAdvancedSiteSearchConfig(res["advancedSiteSearchConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+	if err = d.Set("document_processing_config", flattenDiscoveryEngineDataStoreDocumentProcessingConfig(res["documentProcessingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+	if err = d.Set("create_time", flattenDiscoveryEngineDataStoreCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+
+	return nil
 }

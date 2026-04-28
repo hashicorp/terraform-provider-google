@@ -327,11 +327,9 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 		return nil
 	}
 
-	if err := d.Set("resource", flattenNestedAccessContextManagerServicePerimeterResourceResource(res["resource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterResource: %s", err)
-	}
-	if err := d.Set("etag", flattenNestedAccessContextManagerServicePerimeterResourceEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterResource: %s", err)
+	err = ResourceAccessContextManagerServicePerimeterResourceFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -644,4 +642,17 @@ func resourceAccessContextManagerServicePerimeterResourceListForPatch(d *schema.
 		return ls, nil
 	}
 	return nil, nil
+}
+
+func ResourceAccessContextManagerServicePerimeterResourceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("resource", flattenNestedAccessContextManagerServicePerimeterResourceResource(res["resource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterResource: %s", err)
+	}
+	if err = d.Set("etag", flattenNestedAccessContextManagerServicePerimeterResourceEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterResource: %s", err)
+	}
+
+	return nil
 }

@@ -458,26 +458,9 @@ func resourceSecurityCenterOrganizationCustomModuleRead(d *schema.ResourceData, 
 
 	log.Printf("[DEBUG] Finished reading SecurityCenterOrganizationCustomModule %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenSecurityCenterOrganizationCustomModuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
-	}
-	if err := d.Set("display_name", flattenSecurityCenterOrganizationCustomModuleDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
-	}
-	if err := d.Set("enablement_state", flattenSecurityCenterOrganizationCustomModuleEnablementState(res["enablementState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
-	}
-	if err := d.Set("update_time", flattenSecurityCenterOrganizationCustomModuleUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
-	}
-	if err := d.Set("last_editor", flattenSecurityCenterOrganizationCustomModuleLastEditor(res["lastEditor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
-	}
-	if err := d.Set("ancestor_module", flattenSecurityCenterOrganizationCustomModuleAncestorModule(res["ancestorModule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
-	}
-	if err := d.Set("custom_config", flattenSecurityCenterOrganizationCustomModuleCustomConfig(res["customConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
+	err = ResourceSecurityCenterOrganizationCustomModuleFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1135,5 +1118,33 @@ func resourceSecurityCenterOrganizationCustomModulePostCreateSetComputedFields(d
 	if err := d.Set("name", flattenSecurityCenterOrganizationCustomModuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceSecurityCenterOrganizationCustomModuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecurityCenterOrganizationCustomModuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
+	}
+	if err = d.Set("display_name", flattenSecurityCenterOrganizationCustomModuleDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
+	}
+	if err = d.Set("enablement_state", flattenSecurityCenterOrganizationCustomModuleEnablementState(res["enablementState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
+	}
+	if err = d.Set("update_time", flattenSecurityCenterOrganizationCustomModuleUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
+	}
+	if err = d.Set("last_editor", flattenSecurityCenterOrganizationCustomModuleLastEditor(res["lastEditor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
+	}
+	if err = d.Set("ancestor_module", flattenSecurityCenterOrganizationCustomModuleAncestorModule(res["ancestorModule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
+	}
+	if err = d.Set("custom_config", flattenSecurityCenterOrganizationCustomModuleCustomConfig(res["customConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
+	}
+
 	return nil
 }

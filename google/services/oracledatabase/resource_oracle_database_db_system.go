@@ -956,41 +956,9 @@ func resourceOracleDatabaseDbSystemRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading DbSystem: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenOracleDatabaseDbSystemCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
-	}
-	if err := d.Set("display_name", flattenOracleDatabaseDbSystemDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
-	}
-	if err := d.Set("entitlement_id", flattenOracleDatabaseDbSystemEntitlementId(res["entitlementId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
-	}
-	if err := d.Set("gcp_oracle_zone", flattenOracleDatabaseDbSystemGcpOracleZone(res["gcpOracleZone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
-	}
-	if err := d.Set("labels", flattenOracleDatabaseDbSystemLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
-	}
-	if err := d.Set("name", flattenOracleDatabaseDbSystemName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
-	}
-	if err := d.Set("oci_url", flattenOracleDatabaseDbSystemOciUrl(res["ociUrl"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
-	}
-	if err := d.Set("odb_network", flattenOracleDatabaseDbSystemOdbNetwork(res["odbNetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
-	}
-	if err := d.Set("odb_subnet", flattenOracleDatabaseDbSystemOdbSubnet(res["odbSubnet"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
-	}
-	if err := d.Set("properties", flattenOracleDatabaseDbSystemProperties(res["properties"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenOracleDatabaseDbSystemTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenOracleDatabaseDbSystemEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DbSystem: %s", err)
+	err = ResourceOracleDatabaseDbSystemFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2461,4 +2429,47 @@ func expandOracleDatabaseDbSystemEffectiveLabels(v interface{}, d tpgresource.Te
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceOracleDatabaseDbSystemFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenOracleDatabaseDbSystemCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+	if err = d.Set("display_name", flattenOracleDatabaseDbSystemDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+	if err = d.Set("entitlement_id", flattenOracleDatabaseDbSystemEntitlementId(res["entitlementId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+	if err = d.Set("gcp_oracle_zone", flattenOracleDatabaseDbSystemGcpOracleZone(res["gcpOracleZone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+	if err = d.Set("labels", flattenOracleDatabaseDbSystemLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+	if err = d.Set("name", flattenOracleDatabaseDbSystemName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+	if err = d.Set("oci_url", flattenOracleDatabaseDbSystemOciUrl(res["ociUrl"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+	if err = d.Set("odb_network", flattenOracleDatabaseDbSystemOdbNetwork(res["odbNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+	if err = d.Set("odb_subnet", flattenOracleDatabaseDbSystemOdbSubnet(res["odbSubnet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+	if err = d.Set("properties", flattenOracleDatabaseDbSystemProperties(res["properties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenOracleDatabaseDbSystemTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenOracleDatabaseDbSystemEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DbSystem: %s", err)
+	}
+
+	return nil
 }

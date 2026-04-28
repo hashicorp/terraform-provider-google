@@ -266,11 +266,9 @@ func resourceApigeeEnvironmentKeyvaluemapsEntriesRead(d *schema.ResourceData, me
 
 	log.Printf("[DEBUG] Finished reading ApigeeEnvironmentKeyvaluemapsEntries %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenApigeeEnvironmentKeyvaluemapsEntriesName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvironmentKeyvaluemapsEntries: %s", err)
-	}
-	if err := d.Set("value", flattenApigeeEnvironmentKeyvaluemapsEntriesValue(res["value"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvironmentKeyvaluemapsEntries: %s", err)
+	err = ResourceApigeeEnvironmentKeyvaluemapsEntriesFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -371,4 +369,17 @@ func expandApigeeEnvironmentKeyvaluemapsEntriesName(v interface{}, d tpgresource
 
 func expandApigeeEnvironmentKeyvaluemapsEntriesValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeEnvironmentKeyvaluemapsEntriesFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenApigeeEnvironmentKeyvaluemapsEntriesName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvironmentKeyvaluemapsEntries: %s", err)
+	}
+	if err = d.Set("value", flattenApigeeEnvironmentKeyvaluemapsEntriesValue(res["value"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvironmentKeyvaluemapsEntries: %s", err)
+	}
+
+	return nil
 }

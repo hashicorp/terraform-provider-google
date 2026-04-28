@@ -467,38 +467,9 @@ func resourceNetworkConnectivityDestinationRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading Destination: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkConnectivityDestinationCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Destination: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkConnectivityDestinationUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Destination: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkConnectivityDestinationLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Destination: %s", err)
-	}
-	if err := d.Set("etag", flattenNetworkConnectivityDestinationEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Destination: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkConnectivityDestinationDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Destination: %s", err)
-	}
-	if err := d.Set("ip_prefix", flattenNetworkConnectivityDestinationIpPrefix(res["ipPrefix"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Destination: %s", err)
-	}
-	if err := d.Set("endpoints", flattenNetworkConnectivityDestinationEndpoints(res["endpoints"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Destination: %s", err)
-	}
-	if err := d.Set("state_timeline", flattenNetworkConnectivityDestinationStateTimeline(res["stateTimeline"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Destination: %s", err)
-	}
-	if err := d.Set("uid", flattenNetworkConnectivityDestinationUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Destination: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkConnectivityDestinationTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Destination: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkConnectivityDestinationEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Destination: %s", err)
+	err = ResourceNetworkConnectivityDestinationFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -962,4 +933,44 @@ func expandNetworkConnectivityDestinationEffectiveLabels(v interface{}, d tpgres
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkConnectivityDestinationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkConnectivityDestinationCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Destination: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkConnectivityDestinationUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Destination: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkConnectivityDestinationLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Destination: %s", err)
+	}
+	if err = d.Set("etag", flattenNetworkConnectivityDestinationEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Destination: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkConnectivityDestinationDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Destination: %s", err)
+	}
+	if err = d.Set("ip_prefix", flattenNetworkConnectivityDestinationIpPrefix(res["ipPrefix"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Destination: %s", err)
+	}
+	if err = d.Set("endpoints", flattenNetworkConnectivityDestinationEndpoints(res["endpoints"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Destination: %s", err)
+	}
+	if err = d.Set("state_timeline", flattenNetworkConnectivityDestinationStateTimeline(res["stateTimeline"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Destination: %s", err)
+	}
+	if err = d.Set("uid", flattenNetworkConnectivityDestinationUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Destination: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkConnectivityDestinationTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Destination: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkConnectivityDestinationEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Destination: %s", err)
+	}
+
+	return nil
 }

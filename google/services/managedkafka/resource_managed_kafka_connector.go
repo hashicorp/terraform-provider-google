@@ -349,17 +349,9 @@ func resourceManagedKafkaConnectorRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading Connector: %s", err)
 	}
 
-	if err := d.Set("name", flattenManagedKafkaConnectorName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("configs", flattenManagedKafkaConnectorConfigs(res["configs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("state", flattenManagedKafkaConnectorState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
-	}
-	if err := d.Set("task_restart_policy", flattenManagedKafkaConnectorTaskRestartPolicy(res["taskRestartPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Connector: %s", err)
+	err = ResourceManagedKafkaConnectorFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -650,4 +642,23 @@ func expandManagedKafkaConnectorTaskRestartPolicyMinimumBackoff(v interface{}, d
 
 func expandManagedKafkaConnectorTaskRestartPolicyMaximumBackoff(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceManagedKafkaConnectorFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenManagedKafkaConnectorName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("configs", flattenManagedKafkaConnectorConfigs(res["configs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("state", flattenManagedKafkaConnectorState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err = d.Set("task_restart_policy", flattenManagedKafkaConnectorTaskRestartPolicy(res["taskRestartPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+
+	return nil
 }

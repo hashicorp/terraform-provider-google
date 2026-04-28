@@ -477,23 +477,9 @@ func resourceDiscoveryEngineAssistantRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading Assistant: %s", err)
 	}
 
-	if err := d.Set("name", flattenDiscoveryEngineAssistantName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Assistant: %s", err)
-	}
-	if err := d.Set("display_name", flattenDiscoveryEngineAssistantDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Assistant: %s", err)
-	}
-	if err := d.Set("description", flattenDiscoveryEngineAssistantDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Assistant: %s", err)
-	}
-	if err := d.Set("generation_config", flattenDiscoveryEngineAssistantGenerationConfig(res["generationConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Assistant: %s", err)
-	}
-	if err := d.Set("customer_policy", flattenDiscoveryEngineAssistantCustomerPolicy(res["customerPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Assistant: %s", err)
-	}
-	if err := d.Set("web_grounding_type", flattenDiscoveryEngineAssistantWebGroundingType(res["webGroundingType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Assistant: %s", err)
+	err = ResourceDiscoveryEngineAssistantFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1069,4 +1055,29 @@ func expandDiscoveryEngineAssistantCustomerPolicyModelArmorConfigFailureMode(v i
 
 func expandDiscoveryEngineAssistantWebGroundingType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceDiscoveryEngineAssistantFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDiscoveryEngineAssistantName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Assistant: %s", err)
+	}
+	if err = d.Set("display_name", flattenDiscoveryEngineAssistantDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Assistant: %s", err)
+	}
+	if err = d.Set("description", flattenDiscoveryEngineAssistantDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Assistant: %s", err)
+	}
+	if err = d.Set("generation_config", flattenDiscoveryEngineAssistantGenerationConfig(res["generationConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Assistant: %s", err)
+	}
+	if err = d.Set("customer_policy", flattenDiscoveryEngineAssistantCustomerPolicy(res["customerPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Assistant: %s", err)
+	}
+	if err = d.Set("web_grounding_type", flattenDiscoveryEngineAssistantWebGroundingType(res["webGroundingType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Assistant: %s", err)
+	}
+
+	return nil
 }

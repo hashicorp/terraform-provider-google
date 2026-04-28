@@ -335,20 +335,9 @@ func resourceSecurityCenterV2OrganizationNotificationConfigRead(d *schema.Resour
 
 	log.Printf("[DEBUG] Finished reading SecurityCenterV2OrganizationNotificationConfig %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenSecurityCenterV2OrganizationNotificationConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
-	}
-	if err := d.Set("description", flattenSecurityCenterV2OrganizationNotificationConfigDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
-	}
-	if err := d.Set("pubsub_topic", flattenSecurityCenterV2OrganizationNotificationConfigPubsubTopic(res["pubsubTopic"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
-	}
-	if err := d.Set("service_account", flattenSecurityCenterV2OrganizationNotificationConfigServiceAccount(res["serviceAccount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
-	}
-	if err := d.Set("streaming_config", flattenSecurityCenterV2OrganizationNotificationConfigStreamingConfig(res["streamingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
+	err = ResourceSecurityCenterV2OrganizationNotificationConfigFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -606,5 +595,27 @@ func resourceSecurityCenterV2OrganizationNotificationConfigPostCreateSetComputed
 	if err := d.Set("name", flattenSecurityCenterV2OrganizationNotificationConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceSecurityCenterV2OrganizationNotificationConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecurityCenterV2OrganizationNotificationConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
+	}
+	if err = d.Set("description", flattenSecurityCenterV2OrganizationNotificationConfigDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
+	}
+	if err = d.Set("pubsub_topic", flattenSecurityCenterV2OrganizationNotificationConfigPubsubTopic(res["pubsubTopic"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
+	}
+	if err = d.Set("service_account", flattenSecurityCenterV2OrganizationNotificationConfigServiceAccount(res["serviceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
+	}
+	if err = d.Set("streaming_config", flattenSecurityCenterV2OrganizationNotificationConfigStreamingConfig(res["streamingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
+	}
+
 	return nil
 }

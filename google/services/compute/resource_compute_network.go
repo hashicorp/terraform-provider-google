@@ -553,56 +553,9 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeNetworkDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("gateway_ipv4", flattenComputeNetworkGatewayIpv4(res["gatewayIPv4"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("name", flattenComputeNetworkName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("network_id", flattenComputeNetworkNetworkId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("numeric_id", flattenComputeNetworkNumericId(res["numericId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("auto_create_subnetworks", flattenComputeNetworkAutoCreateSubnetworks(res["autoCreateSubnetworks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	// Terraform must set the top level schema field, but since this object contains collapsed properties
-	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenComputeNetworkRoutingConfig(res["routingConfig"], d, config); flattenedProp != nil {
-		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
-			return fmt.Errorf("Error reading Network: %s", gerr)
-		}
-		casted := flattenedProp.([]interface{})[0]
-		if casted != nil {
-			for k, v := range casted.(map[string]interface{}) {
-				if err := d.Set(k, v); err != nil {
-					return fmt.Errorf("Error setting %s: %s", k, err)
-				}
-			}
-		}
-	}
-	if err := d.Set("mtu", flattenComputeNetworkMtu(res["mtu"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("enable_ula_internal_ipv6", flattenComputeNetworkEnableUlaInternalIpv6(res["enableUlaInternalIpv6"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("internal_ipv6_range", flattenComputeNetworkInternalIpv6Range(res["internalIpv6Range"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("network_firewall_policy_enforcement_order", flattenComputeNetworkNetworkFirewallPolicyEnforcementOrder(res["networkFirewallPolicyEnforcementOrder"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("network_profile", flattenComputeNetworkNetworkProfile(res["networkProfile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
+	err = ResourceComputeNetworkFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1185,4 +1138,61 @@ func resourceComputeNetworkUpdateEncoder(d *schema.ResourceData, meta interface{
 func resourceComputeNetworkDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	res["numericId"] = res["id"] // stores unique id into numericId attribute before it's changed to path format
 	return res, nil
+}
+
+func ResourceComputeNetworkFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputeNetworkDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("gateway_ipv4", flattenComputeNetworkGatewayIpv4(res["gatewayIPv4"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("name", flattenComputeNetworkName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("network_id", flattenComputeNetworkNetworkId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("numeric_id", flattenComputeNetworkNumericId(res["numericId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("auto_create_subnetworks", flattenComputeNetworkAutoCreateSubnetworks(res["autoCreateSubnetworks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	// Terraform must set the top level schema field, but since this object contains collapsed properties
+	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
+	if flattenedProp := flattenComputeNetworkRoutingConfig(res["routingConfig"], d, config); flattenedProp != nil {
+		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
+			return fmt.Errorf("Error reading Network: %s", gerr)
+		}
+		casted := flattenedProp.([]interface{})[0]
+		if casted != nil {
+			for k, v := range casted.(map[string]interface{}) {
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
+			}
+		}
+	}
+	if err = d.Set("mtu", flattenComputeNetworkMtu(res["mtu"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("enable_ula_internal_ipv6", flattenComputeNetworkEnableUlaInternalIpv6(res["enableUlaInternalIpv6"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("internal_ipv6_range", flattenComputeNetworkInternalIpv6Range(res["internalIpv6Range"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("network_firewall_policy_enforcement_order", flattenComputeNetworkNetworkFirewallPolicyEnforcementOrder(res["networkFirewallPolicyEnforcementOrder"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("network_profile", flattenComputeNetworkNetworkProfile(res["networkProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	return nil
 }

@@ -346,20 +346,9 @@ func resourceLoggingLinkedDatasetRead(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[DEBUG] Finished reading LoggingLinkedDataset %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenLoggingLinkedDatasetName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LinkedDataset: %s", err)
-	}
-	if err := d.Set("description", flattenLoggingLinkedDatasetDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LinkedDataset: %s", err)
-	}
-	if err := d.Set("create_time", flattenLoggingLinkedDatasetCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LinkedDataset: %s", err)
-	}
-	if err := d.Set("lifecycle_state", flattenLoggingLinkedDatasetLifecycleState(res["lifecycleState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LinkedDataset: %s", err)
-	}
-	if err := d.Set("bigquery_dataset", flattenLoggingLinkedDatasetBigqueryDataset(res["bigqueryDataset"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LinkedDataset: %s", err)
+	err = ResourceLoggingLinkedDatasetFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -523,4 +512,26 @@ func resourceLoggingLinkedDatasetEncoder(d *schema.ResourceData, meta interface{
 	d.Set("bucket", bucket)
 	d.Set("name", name)
 	return obj, nil
+}
+
+func ResourceLoggingLinkedDatasetFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenLoggingLinkedDatasetName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LinkedDataset: %s", err)
+	}
+	if err = d.Set("description", flattenLoggingLinkedDatasetDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LinkedDataset: %s", err)
+	}
+	if err = d.Set("create_time", flattenLoggingLinkedDatasetCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LinkedDataset: %s", err)
+	}
+	if err = d.Set("lifecycle_state", flattenLoggingLinkedDatasetLifecycleState(res["lifecycleState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LinkedDataset: %s", err)
+	}
+	if err = d.Set("bigquery_dataset", flattenLoggingLinkedDatasetBigqueryDataset(res["bigqueryDataset"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LinkedDataset: %s", err)
+	}
+
+	return nil
 }

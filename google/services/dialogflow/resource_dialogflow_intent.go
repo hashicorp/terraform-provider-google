@@ -449,47 +449,9 @@ func resourceDialogflowIntentRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Intent: %s", err)
 	}
 
-	if err := d.Set("name", flattenDialogflowIntentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowIntentDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("webhook_state", flattenDialogflowIntentWebhookState(res["webhookState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("priority", flattenDialogflowIntentPriority(res["priority"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("is_fallback", flattenDialogflowIntentIsFallback(res["isFallback"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("ml_disabled", flattenDialogflowIntentMlDisabled(res["mlDisabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("input_context_names", flattenDialogflowIntentInputContextNames(res["inputContextNames"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("events", flattenDialogflowIntentEvents(res["events"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("action", flattenDialogflowIntentAction(res["action"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("reset_contexts", flattenDialogflowIntentResetContexts(res["resetContexts"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("default_response_platforms", flattenDialogflowIntentDefaultResponsePlatforms(res["defaultResponsePlatforms"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("root_followup_intent_name", flattenDialogflowIntentRootFollowupIntentName(res["rootFollowupIntentName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("parent_followup_intent_name", flattenDialogflowIntentParentFollowupIntentName(res["parentFollowupIntentName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
-	}
-	if err := d.Set("followup_intent_info", flattenDialogflowIntentFollowupIntentInfo(res["followupIntentInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Intent: %s", err)
+	err = ResourceDialogflowIntentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -839,5 +801,54 @@ func resourceDialogflowIntentPostCreateSetComputedFields(d *schema.ResourceData,
 	if err := d.Set("name", flattenDialogflowIntentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowIntentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowIntentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowIntentDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("webhook_state", flattenDialogflowIntentWebhookState(res["webhookState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("priority", flattenDialogflowIntentPriority(res["priority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("is_fallback", flattenDialogflowIntentIsFallback(res["isFallback"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("ml_disabled", flattenDialogflowIntentMlDisabled(res["mlDisabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("input_context_names", flattenDialogflowIntentInputContextNames(res["inputContextNames"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("events", flattenDialogflowIntentEvents(res["events"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("action", flattenDialogflowIntentAction(res["action"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("reset_contexts", flattenDialogflowIntentResetContexts(res["resetContexts"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("default_response_platforms", flattenDialogflowIntentDefaultResponsePlatforms(res["defaultResponsePlatforms"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("root_followup_intent_name", flattenDialogflowIntentRootFollowupIntentName(res["rootFollowupIntentName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("parent_followup_intent_name", flattenDialogflowIntentParentFollowupIntentName(res["parentFollowupIntentName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+	if err = d.Set("followup_intent_info", flattenDialogflowIntentFollowupIntentInfo(res["followupIntentInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Intent: %s", err)
+	}
+
 	return nil
 }

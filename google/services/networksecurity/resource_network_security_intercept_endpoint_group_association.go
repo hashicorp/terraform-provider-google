@@ -448,41 +448,9 @@ func resourceNetworkSecurityInterceptEndpointGroupAssociationRead(d *schema.Reso
 		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
 	}
 
-	if err := d.Set("name", flattenNetworkSecurityInterceptEndpointGroupAssociationName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkSecurityInterceptEndpointGroupAssociationCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityInterceptEndpointGroupAssociationUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkSecurityInterceptEndpointGroupAssociationLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("intercept_endpoint_group", flattenNetworkSecurityInterceptEndpointGroupAssociationInterceptEndpointGroup(res["interceptEndpointGroup"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("network", flattenNetworkSecurityInterceptEndpointGroupAssociationNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("locations_details", flattenNetworkSecurityInterceptEndpointGroupAssociationLocationsDetails(res["locationsDetails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("state", flattenNetworkSecurityInterceptEndpointGroupAssociationState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("reconciling", flattenNetworkSecurityInterceptEndpointGroupAssociationReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("locations", flattenNetworkSecurityInterceptEndpointGroupAssociationLocations(res["locations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkSecurityInterceptEndpointGroupAssociationTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkSecurityInterceptEndpointGroupAssociationEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	err = ResourceNetworkSecurityInterceptEndpointGroupAssociationFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -819,4 +787,47 @@ func expandNetworkSecurityInterceptEndpointGroupAssociationEffectiveLabels(v int
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkSecurityInterceptEndpointGroupAssociationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNetworkSecurityInterceptEndpointGroupAssociationName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkSecurityInterceptEndpointGroupAssociationCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityInterceptEndpointGroupAssociationUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkSecurityInterceptEndpointGroupAssociationLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("intercept_endpoint_group", flattenNetworkSecurityInterceptEndpointGroupAssociationInterceptEndpointGroup(res["interceptEndpointGroup"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("network", flattenNetworkSecurityInterceptEndpointGroupAssociationNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("locations_details", flattenNetworkSecurityInterceptEndpointGroupAssociationLocationsDetails(res["locationsDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("state", flattenNetworkSecurityInterceptEndpointGroupAssociationState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("reconciling", flattenNetworkSecurityInterceptEndpointGroupAssociationReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("locations", flattenNetworkSecurityInterceptEndpointGroupAssociationLocations(res["locations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkSecurityInterceptEndpointGroupAssociationTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkSecurityInterceptEndpointGroupAssociationEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptEndpointGroupAssociation: %s", err)
+	}
+
+	return nil
 }

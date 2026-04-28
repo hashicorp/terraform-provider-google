@@ -375,29 +375,9 @@ func resourceAccessApprovalProjectSettingsRead(d *schema.ResourceData, meta inte
 
 	log.Printf("[DEBUG] Finished reading AccessApprovalProjectSettings %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenAccessApprovalProjectSettingsName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSettings: %s", err)
-	}
-	if err := d.Set("notification_emails", flattenAccessApprovalProjectSettingsNotificationEmails(res["notificationEmails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSettings: %s", err)
-	}
-	if err := d.Set("enrolled_services", flattenAccessApprovalProjectSettingsEnrolledServices(res["enrolledServices"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSettings: %s", err)
-	}
-	if err := d.Set("enrolled_ancestor", flattenAccessApprovalProjectSettingsEnrolledAncestor(res["enrolledAncestor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSettings: %s", err)
-	}
-	if err := d.Set("active_key_version", flattenAccessApprovalProjectSettingsActiveKeyVersion(res["activeKeyVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSettings: %s", err)
-	}
-	if err := d.Set("ancestor_has_active_key_version", flattenAccessApprovalProjectSettingsAncestorHasActiveKeyVersion(res["ancestorHasActiveKeyVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSettings: %s", err)
-	}
-	if err := d.Set("invalid_key_version", flattenAccessApprovalProjectSettingsInvalidKeyVersion(res["invalidKeyVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSettings: %s", err)
-	}
-	if err := d.Set("project", flattenAccessApprovalProjectSettingsProject(res["project"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	err = ResourceAccessApprovalProjectSettingsFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -702,4 +682,35 @@ func expandAccessApprovalProjectSettingsActiveKeyVersion(v interface{}, d tpgres
 
 func expandAccessApprovalProjectSettingsProject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceAccessApprovalProjectSettingsFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenAccessApprovalProjectSettingsName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
+	if err = d.Set("notification_emails", flattenAccessApprovalProjectSettingsNotificationEmails(res["notificationEmails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
+	if err = d.Set("enrolled_services", flattenAccessApprovalProjectSettingsEnrolledServices(res["enrolledServices"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
+	if err = d.Set("enrolled_ancestor", flattenAccessApprovalProjectSettingsEnrolledAncestor(res["enrolledAncestor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
+	if err = d.Set("active_key_version", flattenAccessApprovalProjectSettingsActiveKeyVersion(res["activeKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
+	if err = d.Set("ancestor_has_active_key_version", flattenAccessApprovalProjectSettingsAncestorHasActiveKeyVersion(res["ancestorHasActiveKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
+	if err = d.Set("invalid_key_version", flattenAccessApprovalProjectSettingsInvalidKeyVersion(res["invalidKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
+	if err = d.Set("project", flattenAccessApprovalProjectSettingsProject(res["project"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
+
+	return nil
 }

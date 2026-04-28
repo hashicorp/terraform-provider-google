@@ -323,8 +323,9 @@ func resourceComputePreviewFeatureRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading PreviewFeature: %s", err)
 	}
 
-	if err := d.Set("activation_status", flattenComputePreviewFeatureActivationStatus(res["activationStatus"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PreviewFeature: %s", err)
+	err = ResourceComputePreviewFeatureFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -534,4 +535,14 @@ func expandComputePreviewFeatureRolloutOperationRolloutInput(v interface{}, d tp
 
 func expandComputePreviewFeatureRolloutOperationRolloutInputPredefinedRolloutPlan(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputePreviewFeatureFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("activation_status", flattenComputePreviewFeatureActivationStatus(res["activationStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PreviewFeature: %s", err)
+	}
+
+	return nil
 }

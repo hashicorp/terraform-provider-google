@@ -662,50 +662,9 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 
-	if err := d.Set("description", flattenDNSManagedZoneDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("dns_name", flattenDNSManagedZoneDnsName(res["dnsName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("dnssec_config", flattenDNSManagedZoneDnssecConfig(res["dnssecConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("managed_zone_id", flattenDNSManagedZoneManagedZoneID(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("name", flattenDNSManagedZoneName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("name_servers", flattenDNSManagedZoneNameServers(res["nameServers"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("creation_time", flattenDNSManagedZoneCreationTime(res["creationTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("labels", flattenDNSManagedZoneLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("visibility", flattenDNSManagedZoneVisibility(res["visibility"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("private_visibility_config", flattenDNSManagedZonePrivateVisibilityConfig(res["privateVisibilityConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("forwarding_config", flattenDNSManagedZoneForwardingConfig(res["forwardingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("peering_config", flattenDNSManagedZonePeeringConfig(res["peeringConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("cloud_logging_config", flattenDNSManagedZoneCloudLoggingConfig(res["cloudLoggingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDNSManagedZoneTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDNSManagedZoneEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	err = ResourceDNSManagedZoneFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1753,4 +1712,56 @@ func resourceDNSManagedZoneUpdateEncoder(d *schema.ResourceData, meta interface{
 	obj["id"] = d.Get("managed_zone_id")
 	obj["creationTime"] = d.Get("creation_time")
 	return obj, nil
+}
+
+func ResourceDNSManagedZoneFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenDNSManagedZoneDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("dns_name", flattenDNSManagedZoneDnsName(res["dnsName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("dnssec_config", flattenDNSManagedZoneDnssecConfig(res["dnssecConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("managed_zone_id", flattenDNSManagedZoneManagedZoneID(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("name", flattenDNSManagedZoneName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("name_servers", flattenDNSManagedZoneNameServers(res["nameServers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("creation_time", flattenDNSManagedZoneCreationTime(res["creationTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("labels", flattenDNSManagedZoneLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("visibility", flattenDNSManagedZoneVisibility(res["visibility"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("private_visibility_config", flattenDNSManagedZonePrivateVisibilityConfig(res["privateVisibilityConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("forwarding_config", flattenDNSManagedZoneForwardingConfig(res["forwardingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("peering_config", flattenDNSManagedZonePeeringConfig(res["peeringConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("cloud_logging_config", flattenDNSManagedZoneCloudLoggingConfig(res["cloudLoggingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDNSManagedZoneTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDNSManagedZoneEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+
+	return nil
 }

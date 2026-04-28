@@ -1393,95 +1393,9 @@ func resourceCloudRunV2WorkerPoolRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading WorkerPool: %s", err)
 	}
 
-	if err := d.Set("description", flattenCloudRunV2WorkerPoolDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("uid", flattenCloudRunV2WorkerPoolUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("generation", flattenCloudRunV2WorkerPoolGeneration(res["generation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("labels", flattenCloudRunV2WorkerPoolLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("annotations", flattenCloudRunV2WorkerPoolAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("create_time", flattenCloudRunV2WorkerPoolCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("update_time", flattenCloudRunV2WorkerPoolUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("delete_time", flattenCloudRunV2WorkerPoolDeleteTime(res["deleteTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("expire_time", flattenCloudRunV2WorkerPoolExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("creator", flattenCloudRunV2WorkerPoolCreator(res["creator"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("last_modifier", flattenCloudRunV2WorkerPoolLastModifier(res["lastModifier"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("client", flattenCloudRunV2WorkerPoolClient(res["client"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("client_version", flattenCloudRunV2WorkerPoolClientVersion(res["clientVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("launch_stage", flattenCloudRunV2WorkerPoolLaunchStage(res["launchStage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("binary_authorization", flattenCloudRunV2WorkerPoolBinaryAuthorization(res["binaryAuthorization"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("custom_audiences", flattenCloudRunV2WorkerPoolCustomAudiences(res["customAudiences"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("scaling", flattenCloudRunV2WorkerPoolScaling(res["scaling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("template", flattenCloudRunV2WorkerPoolTemplate(res["template"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("instance_splits", flattenCloudRunV2WorkerPoolInstanceSplits(res["instanceSplits"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("observed_generation", flattenCloudRunV2WorkerPoolObservedGeneration(res["observedGeneration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("terminal_condition", flattenCloudRunV2WorkerPoolTerminalCondition(res["terminalCondition"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("conditions", flattenCloudRunV2WorkerPoolConditions(res["conditions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("latest_ready_revision", flattenCloudRunV2WorkerPoolLatestReadyRevision(res["latestReadyRevision"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("latest_created_revision", flattenCloudRunV2WorkerPoolLatestCreatedRevision(res["latestCreatedRevision"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("instance_split_statuses", flattenCloudRunV2WorkerPoolInstanceSplitStatuses(res["instanceSplitStatuses"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("reconciling", flattenCloudRunV2WorkerPoolReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("etag", flattenCloudRunV2WorkerPoolEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenCloudRunV2WorkerPoolTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenCloudRunV2WorkerPoolEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenCloudRunV2WorkerPoolEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	err = ResourceCloudRunV2WorkerPoolFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -4697,4 +4611,101 @@ func expandCloudRunV2WorkerPoolEffectiveAnnotations(v interface{}, d tpgresource
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceCloudRunV2WorkerPoolFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenCloudRunV2WorkerPoolDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("uid", flattenCloudRunV2WorkerPoolUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("generation", flattenCloudRunV2WorkerPoolGeneration(res["generation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("labels", flattenCloudRunV2WorkerPoolLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("annotations", flattenCloudRunV2WorkerPoolAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("create_time", flattenCloudRunV2WorkerPoolCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("update_time", flattenCloudRunV2WorkerPoolUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("delete_time", flattenCloudRunV2WorkerPoolDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("expire_time", flattenCloudRunV2WorkerPoolExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("creator", flattenCloudRunV2WorkerPoolCreator(res["creator"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("last_modifier", flattenCloudRunV2WorkerPoolLastModifier(res["lastModifier"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("client", flattenCloudRunV2WorkerPoolClient(res["client"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("client_version", flattenCloudRunV2WorkerPoolClientVersion(res["clientVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("launch_stage", flattenCloudRunV2WorkerPoolLaunchStage(res["launchStage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("binary_authorization", flattenCloudRunV2WorkerPoolBinaryAuthorization(res["binaryAuthorization"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("custom_audiences", flattenCloudRunV2WorkerPoolCustomAudiences(res["customAudiences"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("scaling", flattenCloudRunV2WorkerPoolScaling(res["scaling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("template", flattenCloudRunV2WorkerPoolTemplate(res["template"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("instance_splits", flattenCloudRunV2WorkerPoolInstanceSplits(res["instanceSplits"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("observed_generation", flattenCloudRunV2WorkerPoolObservedGeneration(res["observedGeneration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("terminal_condition", flattenCloudRunV2WorkerPoolTerminalCondition(res["terminalCondition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("conditions", flattenCloudRunV2WorkerPoolConditions(res["conditions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("latest_ready_revision", flattenCloudRunV2WorkerPoolLatestReadyRevision(res["latestReadyRevision"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("latest_created_revision", flattenCloudRunV2WorkerPoolLatestCreatedRevision(res["latestCreatedRevision"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("instance_split_statuses", flattenCloudRunV2WorkerPoolInstanceSplitStatuses(res["instanceSplitStatuses"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("reconciling", flattenCloudRunV2WorkerPoolReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("etag", flattenCloudRunV2WorkerPoolEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenCloudRunV2WorkerPoolTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenCloudRunV2WorkerPoolEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenCloudRunV2WorkerPoolEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkerPool: %s", err)
+	}
+
+	return nil
 }

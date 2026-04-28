@@ -348,20 +348,9 @@ func resourceMonitoringServiceRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
 
-	if err := d.Set("name", flattenMonitoringServiceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("display_name", flattenMonitoringServiceDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("user_labels", flattenMonitoringServiceUserLabels(res["userLabels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("telemetry", flattenMonitoringServiceTelemetry(res["telemetry"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("service_id", flattenMonitoringServiceServiceId(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
+	err = ResourceMonitoringServiceFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -657,5 +646,27 @@ func resourceMonitoringServicePostCreateSetComputedFields(d *schema.ResourceData
 	if err := d.Set("name", flattenMonitoringServiceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceMonitoringServiceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenMonitoringServiceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("display_name", flattenMonitoringServiceDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("user_labels", flattenMonitoringServiceUserLabels(res["userLabels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("telemetry", flattenMonitoringServiceTelemetry(res["telemetry"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("service_id", flattenMonitoringServiceServiceId(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+
 	return nil
 }

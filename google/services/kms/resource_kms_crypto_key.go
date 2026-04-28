@@ -448,35 +448,9 @@ func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	if err := d.Set("labels", flattenKMSCryptoKeyLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("primary", flattenKMSCryptoKeyPrimary(res["primary"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("purpose", flattenKMSCryptoKeyPurpose(res["purpose"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("rotation_period", flattenKMSCryptoKeyRotationPeriod(res["rotationPeriod"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("version_template", flattenKMSCryptoKeyVersionTemplate(res["versionTemplate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("destroy_scheduled_duration", flattenKMSCryptoKeyDestroyScheduledDuration(res["destroyScheduledDuration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("import_only", flattenKMSCryptoKeyImportOnly(res["importOnly"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("crypto_key_backend", flattenKMSCryptoKeyCryptoKeyBackend(res["cryptoKeyBackend"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenKMSCryptoKeyTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenKMSCryptoKeyEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	err = ResourceKMSCryptoKeyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -926,4 +900,41 @@ func ResourceKMSCryptoKeyUpgradeV0(_ context.Context, rawState map[string]interf
 
 	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
 	return rawState, nil
+}
+
+func ResourceKMSCryptoKeyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("labels", flattenKMSCryptoKeyLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err = d.Set("primary", flattenKMSCryptoKeyPrimary(res["primary"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err = d.Set("purpose", flattenKMSCryptoKeyPurpose(res["purpose"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err = d.Set("rotation_period", flattenKMSCryptoKeyRotationPeriod(res["rotationPeriod"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err = d.Set("version_template", flattenKMSCryptoKeyVersionTemplate(res["versionTemplate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err = d.Set("destroy_scheduled_duration", flattenKMSCryptoKeyDestroyScheduledDuration(res["destroyScheduledDuration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err = d.Set("import_only", flattenKMSCryptoKeyImportOnly(res["importOnly"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err = d.Set("crypto_key_backend", flattenKMSCryptoKeyCryptoKeyBackend(res["cryptoKeyBackend"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenKMSCryptoKeyTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenKMSCryptoKeyEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+
+	return nil
 }

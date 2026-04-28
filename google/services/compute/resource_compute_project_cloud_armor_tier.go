@@ -276,8 +276,9 @@ func resourceComputeProjectCloudArmorTierRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading ProjectCloudArmorTier: %s", err)
 	}
 
-	if err := d.Set("cloud_armor_tier", flattenComputeProjectCloudArmorTierCloudArmorTier(res["cloudArmorTier"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectCloudArmorTier: %s", err)
+	err = ResourceComputeProjectCloudArmorTierFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -406,4 +407,14 @@ func flattenComputeProjectCloudArmorTierCloudArmorTier(v interface{}, d *schema.
 
 func expandComputeProjectCloudArmorTierCloudArmorTier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeProjectCloudArmorTierFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("cloud_armor_tier", flattenComputeProjectCloudArmorTierCloudArmorTier(res["cloudArmorTier"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectCloudArmorTier: %s", err)
+	}
+
+	return nil
 }

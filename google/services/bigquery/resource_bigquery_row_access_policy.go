@@ -322,29 +322,9 @@ func resourceBigQueryRowAccessPolicyRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading RowAccessPolicy: %s", err)
 	}
 
-	// Terraform must set the top level schema field, but since this object contains collapsed properties
-	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenBigQueryRowAccessPolicyRowAccessPolicyReference(res["rowAccessPolicyReference"], d, config); flattenedProp != nil {
-		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
-			return fmt.Errorf("Error reading RowAccessPolicy: %s", gerr)
-		}
-		casted := flattenedProp.([]interface{})[0]
-		if casted != nil {
-			for k, v := range casted.(map[string]interface{}) {
-				if err := d.Set(k, v); err != nil {
-					return fmt.Errorf("Error setting %s: %s", k, err)
-				}
-			}
-		}
-	}
-	if err := d.Set("filter_predicate", flattenBigQueryRowAccessPolicyFilterPredicate(res["filterPredicate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RowAccessPolicy: %s", err)
-	}
-	if err := d.Set("creation_time", flattenBigQueryRowAccessPolicyCreationTime(res["creationTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RowAccessPolicy: %s", err)
-	}
-	if err := d.Set("last_modified_time", flattenBigQueryRowAccessPolicyLastModifiedTime(res["lastModifiedTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RowAccessPolicy: %s", err)
+	err = ResourceBigQueryRowAccessPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -548,4 +528,35 @@ func expandBigQueryRowAccessPolicyFilterPredicate(v interface{}, d tpgresource.T
 
 func expandBigQueryRowAccessPolicyGrantees(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceBigQueryRowAccessPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	// Terraform must set the top level schema field, but since this object contains collapsed properties
+	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
+	if flattenedProp := flattenBigQueryRowAccessPolicyRowAccessPolicyReference(res["rowAccessPolicyReference"], d, config); flattenedProp != nil {
+		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
+			return fmt.Errorf("Error reading RowAccessPolicy: %s", gerr)
+		}
+		casted := flattenedProp.([]interface{})[0]
+		if casted != nil {
+			for k, v := range casted.(map[string]interface{}) {
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
+			}
+		}
+	}
+	if err = d.Set("filter_predicate", flattenBigQueryRowAccessPolicyFilterPredicate(res["filterPredicate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RowAccessPolicy: %s", err)
+	}
+	if err = d.Set("creation_time", flattenBigQueryRowAccessPolicyCreationTime(res["creationTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RowAccessPolicy: %s", err)
+	}
+	if err = d.Set("last_modified_time", flattenBigQueryRowAccessPolicyLastModifiedTime(res["lastModifiedTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RowAccessPolicy: %s", err)
+	}
+
+	return nil
 }

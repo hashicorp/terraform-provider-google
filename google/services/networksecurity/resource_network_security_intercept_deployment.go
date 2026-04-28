@@ -404,38 +404,9 @@ func resourceNetworkSecurityInterceptDeploymentRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
 	}
 
-	if err := d.Set("name", flattenNetworkSecurityInterceptDeploymentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkSecurityInterceptDeploymentCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityInterceptDeploymentUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkSecurityInterceptDeploymentLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
-	}
-	if err := d.Set("forwarding_rule", flattenNetworkSecurityInterceptDeploymentForwardingRule(res["forwardingRule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
-	}
-	if err := d.Set("intercept_deployment_group", flattenNetworkSecurityInterceptDeploymentInterceptDeploymentGroup(res["interceptDeploymentGroup"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
-	}
-	if err := d.Set("state", flattenNetworkSecurityInterceptDeploymentState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
-	}
-	if err := d.Set("reconciling", flattenNetworkSecurityInterceptDeploymentReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkSecurityInterceptDeploymentDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkSecurityInterceptDeploymentTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkSecurityInterceptDeploymentEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	err = ResourceNetworkSecurityInterceptDeploymentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -736,4 +707,44 @@ func expandNetworkSecurityInterceptDeploymentEffectiveLabels(v interface{}, d tp
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkSecurityInterceptDeploymentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNetworkSecurityInterceptDeploymentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkSecurityInterceptDeploymentCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityInterceptDeploymentUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkSecurityInterceptDeploymentLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	}
+	if err = d.Set("forwarding_rule", flattenNetworkSecurityInterceptDeploymentForwardingRule(res["forwardingRule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	}
+	if err = d.Set("intercept_deployment_group", flattenNetworkSecurityInterceptDeploymentInterceptDeploymentGroup(res["interceptDeploymentGroup"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	}
+	if err = d.Set("state", flattenNetworkSecurityInterceptDeploymentState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	}
+	if err = d.Set("reconciling", flattenNetworkSecurityInterceptDeploymentReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkSecurityInterceptDeploymentDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkSecurityInterceptDeploymentTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkSecurityInterceptDeploymentEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
+	}
+
+	return nil
 }

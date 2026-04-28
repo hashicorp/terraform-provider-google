@@ -389,26 +389,9 @@ func resourceGeminiRepositoryGroupRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
 	}
 
-	if err := d.Set("repositories", flattenGeminiRepositoryGroupRepositories(res["repositories"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
-	}
-	if err := d.Set("name", flattenGeminiRepositoryGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
-	}
-	if err := d.Set("create_time", flattenGeminiRepositoryGroupCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
-	}
-	if err := d.Set("update_time", flattenGeminiRepositoryGroupUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
-	}
-	if err := d.Set("labels", flattenGeminiRepositoryGroupLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenGeminiRepositoryGroupTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenGeminiRepositoryGroupEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
+	err = ResourceGeminiRepositoryGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -771,4 +754,32 @@ func expandGeminiRepositoryGroupEffectiveLabels(v interface{}, d tpgresource.Ter
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceGeminiRepositoryGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("repositories", flattenGeminiRepositoryGroupRepositories(res["repositories"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
+	}
+	if err = d.Set("name", flattenGeminiRepositoryGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
+	}
+	if err = d.Set("create_time", flattenGeminiRepositoryGroupCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
+	}
+	if err = d.Set("update_time", flattenGeminiRepositoryGroupUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
+	}
+	if err = d.Set("labels", flattenGeminiRepositoryGroupLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenGeminiRepositoryGroupTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenGeminiRepositoryGroupEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
+	}
+
+	return nil
 }

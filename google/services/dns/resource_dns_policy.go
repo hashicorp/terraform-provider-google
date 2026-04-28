@@ -439,26 +439,9 @@ func resourceDNSPolicyRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Policy: %s", err)
 	}
 
-	if err := d.Set("alternative_name_server_config", flattenDNSPolicyAlternativeNameServerConfig(res["alternativeNameServerConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("description", flattenDNSPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("dns64_config", flattenDNSPolicyDns64Config(res["dns64Config"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("enable_inbound_forwarding", flattenDNSPolicyEnableInboundForwarding(res["enableInboundForwarding"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("enable_logging", flattenDNSPolicyEnableLogging(res["enableLogging"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("name", flattenDNSPolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
-	}
-	if err := d.Set("networks", flattenDNSPolicyNetworks(res["networks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Policy: %s", err)
+	err = ResourceDNSPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -962,4 +945,32 @@ func expandDNSPolicyNetworksNetworkUrl(v interface{}, d tpgresource.TerraformRes
 		return "", err
 	}
 	return tpgresource.ConvertSelfLinkToV1(url), nil
+}
+
+func ResourceDNSPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("alternative_name_server_config", flattenDNSPolicyAlternativeNameServerConfig(res["alternativeNameServerConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("description", flattenDNSPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("dns64_config", flattenDNSPolicyDns64Config(res["dns64Config"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("enable_inbound_forwarding", flattenDNSPolicyEnableInboundForwarding(res["enableInboundForwarding"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("enable_logging", flattenDNSPolicyEnableLogging(res["enableLogging"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("name", flattenDNSPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+	if err = d.Set("networks", flattenDNSPolicyNetworks(res["networks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
+
+	return nil
 }

@@ -332,17 +332,9 @@ func resourceNetworkSecurityUrlListsRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading UrlLists: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkSecurityUrlListsCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlLists: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityUrlListsUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlLists: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkSecurityUrlListsDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlLists: %s", err)
-	}
-	if err := d.Set("values", flattenNetworkSecurityUrlListsValues(res["values"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UrlLists: %s", err)
+	err = ResourceNetworkSecurityUrlListsFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -578,4 +570,23 @@ func expandNetworkSecurityUrlListsDescription(v interface{}, d tpgresource.Terra
 
 func expandNetworkSecurityUrlListsValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceNetworkSecurityUrlListsFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkSecurityUrlListsCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlLists: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityUrlListsUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlLists: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkSecurityUrlListsDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlLists: %s", err)
+	}
+	if err = d.Set("values", flattenNetworkSecurityUrlListsValues(res["values"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UrlLists: %s", err)
+	}
+
+	return nil
 }

@@ -480,29 +480,9 @@ func resourceDiscoveryEngineChatEngineRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading ChatEngine: %s", err)
 	}
 
-	if err := d.Set("name", flattenDiscoveryEngineChatEngineName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ChatEngine: %s", err)
-	}
-	if err := d.Set("industry_vertical", flattenDiscoveryEngineChatEngineIndustryVertical(res["industryVertical"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ChatEngine: %s", err)
-	}
-	if err := d.Set("display_name", flattenDiscoveryEngineChatEngineDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ChatEngine: %s", err)
-	}
-	if err := d.Set("data_store_ids", flattenDiscoveryEngineChatEngineDataStoreIds(res["dataStoreIds"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ChatEngine: %s", err)
-	}
-	if err := d.Set("create_time", flattenDiscoveryEngineChatEngineCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ChatEngine: %s", err)
-	}
-	if err := d.Set("update_time", flattenDiscoveryEngineChatEngineUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ChatEngine: %s", err)
-	}
-	if err := d.Set("common_config", flattenDiscoveryEngineChatEngineCommonConfig(res["commonConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ChatEngine: %s", err)
-	}
-	if err := d.Set("chat_engine_metadata", flattenDiscoveryEngineChatEngineChatEngineMetadata(res["chatEngineMetadata"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ChatEngine: %s", err)
+	err = ResourceDiscoveryEngineChatEngineFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -928,4 +908,35 @@ func resourceDiscoveryEngineChatEngineEncoder(d *schema.ResourceData, meta inter
 	// hard code solutionType to "SOLUTION_TYPE_CHAT" for chat engine resource
 	obj["solutionType"] = "SOLUTION_TYPE_CHAT"
 	return obj, nil
+}
+
+func ResourceDiscoveryEngineChatEngineFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDiscoveryEngineChatEngineName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ChatEngine: %s", err)
+	}
+	if err = d.Set("industry_vertical", flattenDiscoveryEngineChatEngineIndustryVertical(res["industryVertical"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ChatEngine: %s", err)
+	}
+	if err = d.Set("display_name", flattenDiscoveryEngineChatEngineDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ChatEngine: %s", err)
+	}
+	if err = d.Set("data_store_ids", flattenDiscoveryEngineChatEngineDataStoreIds(res["dataStoreIds"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ChatEngine: %s", err)
+	}
+	if err = d.Set("create_time", flattenDiscoveryEngineChatEngineCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ChatEngine: %s", err)
+	}
+	if err = d.Set("update_time", flattenDiscoveryEngineChatEngineUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ChatEngine: %s", err)
+	}
+	if err = d.Set("common_config", flattenDiscoveryEngineChatEngineCommonConfig(res["commonConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ChatEngine: %s", err)
+	}
+	if err = d.Set("chat_engine_metadata", flattenDiscoveryEngineChatEngineChatEngineMetadata(res["chatEngineMetadata"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ChatEngine: %s", err)
+	}
+
+	return nil
 }

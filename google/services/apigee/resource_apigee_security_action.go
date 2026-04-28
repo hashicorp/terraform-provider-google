@@ -554,38 +554,9 @@ func resourceApigeeSecurityActionRead(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[DEBUG] Finished reading ApigeeSecurityAction %q: %#v", d.Id(), res)
 
-	if err := d.Set("description", flattenApigeeSecurityActionDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityAction: %s", err)
-	}
-	if err := d.Set("state", flattenApigeeSecurityActionState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityAction: %s", err)
-	}
-	if err := d.Set("create_time", flattenApigeeSecurityActionCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityAction: %s", err)
-	}
-	if err := d.Set("update_time", flattenApigeeSecurityActionUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityAction: %s", err)
-	}
-	if err := d.Set("api_proxies", flattenApigeeSecurityActionApiProxies(res["apiProxies"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityAction: %s", err)
-	}
-	if err := d.Set("condition_config", flattenApigeeSecurityActionConditionConfig(res["conditionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityAction: %s", err)
-	}
-	if err := d.Set("allow", flattenApigeeSecurityActionAllow(res["allow"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityAction: %s", err)
-	}
-	if err := d.Set("deny", flattenApigeeSecurityActionDeny(res["deny"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityAction: %s", err)
-	}
-	if err := d.Set("flag", flattenApigeeSecurityActionFlag(res["flag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityAction: %s", err)
-	}
-	if err := d.Set("expire_time", flattenApigeeSecurityActionExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityAction: %s", err)
-	}
-	if err := d.Set("ttl", flattenApigeeSecurityActionTtl(res["ttl"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	err = ResourceApigeeSecurityActionFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1119,4 +1090,44 @@ func expandApigeeSecurityActionExpireTime(v interface{}, d tpgresource.Terraform
 
 func expandApigeeSecurityActionTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeSecurityActionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenApigeeSecurityActionDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+	if err = d.Set("state", flattenApigeeSecurityActionState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+	if err = d.Set("create_time", flattenApigeeSecurityActionCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+	if err = d.Set("update_time", flattenApigeeSecurityActionUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+	if err = d.Set("api_proxies", flattenApigeeSecurityActionApiProxies(res["apiProxies"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+	if err = d.Set("condition_config", flattenApigeeSecurityActionConditionConfig(res["conditionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+	if err = d.Set("allow", flattenApigeeSecurityActionAllow(res["allow"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+	if err = d.Set("deny", flattenApigeeSecurityActionDeny(res["deny"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+	if err = d.Set("flag", flattenApigeeSecurityActionFlag(res["flag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+	if err = d.Set("expire_time", flattenApigeeSecurityActionExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+	if err = d.Set("ttl", flattenApigeeSecurityActionTtl(res["ttl"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityAction: %s", err)
+	}
+
+	return nil
 }

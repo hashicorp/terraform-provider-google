@@ -377,26 +377,9 @@ func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeVpnGatewayCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VpnGateway: %s", err)
-	}
-	if err := d.Set("description", flattenComputeVpnGatewayDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VpnGateway: %s", err)
-	}
-	if err := d.Set("name", flattenComputeVpnGatewayName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VpnGateway: %s", err)
-	}
-	if err := d.Set("gateway_id", flattenComputeVpnGatewayGatewayId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VpnGateway: %s", err)
-	}
-	if err := d.Set("network", flattenComputeVpnGatewayNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VpnGateway: %s", err)
-	}
-	if err := d.Set("region", flattenComputeVpnGatewayRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VpnGateway: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading VpnGateway: %s", err)
+	err = ResourceComputeVpnGatewayFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -601,4 +584,31 @@ func expandComputeVpnGatewayRegion(v interface{}, d tpgresource.TerraformResourc
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeVpnGatewayFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeVpnGatewayCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnGateway: %s", err)
+	}
+	if err = d.Set("description", flattenComputeVpnGatewayDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnGateway: %s", err)
+	}
+	if err = d.Set("name", flattenComputeVpnGatewayName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnGateway: %s", err)
+	}
+	if err = d.Set("gateway_id", flattenComputeVpnGatewayGatewayId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnGateway: %s", err)
+	}
+	if err = d.Set("network", flattenComputeVpnGatewayNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnGateway: %s", err)
+	}
+	if err = d.Set("region", flattenComputeVpnGatewayRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnGateway: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading VpnGateway: %s", err)
+	}
+	return nil
 }

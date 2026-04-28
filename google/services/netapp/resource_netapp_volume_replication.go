@@ -711,56 +711,9 @@ func resourceNetappVolumeReplicationRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading VolumeReplication: %s", err)
 	}
 
-	if err := d.Set("state", flattenNetappVolumeReplicationState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("state_details", flattenNetappVolumeReplicationStateDetails(res["stateDetails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("role", flattenNetappVolumeReplicationRole(res["role"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("replication_schedule", flattenNetappVolumeReplicationReplicationSchedule(res["replicationSchedule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("mirror_state", flattenNetappVolumeReplicationMirrorState(res["mirrorState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetappVolumeReplicationCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("destination_volume", flattenNetappVolumeReplicationDestinationVolume(res["destinationVolume"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("transfer_stats", flattenNetappVolumeReplicationTransferStats(res["transferStats"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("labels", flattenNetappVolumeReplicationLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("source_volume", flattenNetappVolumeReplicationSourceVolume(res["sourceVolume"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("healthy", flattenNetappVolumeReplicationHealthy(res["healthy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("description", flattenNetappVolumeReplicationDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("hybrid_replication_type", flattenNetappVolumeReplicationHybridReplicationType(res["hybridReplicationType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("hybrid_peering_details", flattenNetappVolumeReplicationHybridPeeringDetails(res["hybridPeeringDetails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("hybrid_replication_user_commands", flattenNetappVolumeReplicationHybridReplicationUserCommands(res["hybridReplicationUserCommands"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetappVolumeReplicationTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetappVolumeReplicationEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	err = ResourceNetappVolumeReplicationFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1519,4 +1472,62 @@ func expandNetappVolumeReplicationEffectiveLabels(v interface{}, d tpgresource.T
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetappVolumeReplicationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("state", flattenNetappVolumeReplicationState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("state_details", flattenNetappVolumeReplicationStateDetails(res["stateDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("role", flattenNetappVolumeReplicationRole(res["role"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("replication_schedule", flattenNetappVolumeReplicationReplicationSchedule(res["replicationSchedule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("mirror_state", flattenNetappVolumeReplicationMirrorState(res["mirrorState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetappVolumeReplicationCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("destination_volume", flattenNetappVolumeReplicationDestinationVolume(res["destinationVolume"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("transfer_stats", flattenNetappVolumeReplicationTransferStats(res["transferStats"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("labels", flattenNetappVolumeReplicationLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("source_volume", flattenNetappVolumeReplicationSourceVolume(res["sourceVolume"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("healthy", flattenNetappVolumeReplicationHealthy(res["healthy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("description", flattenNetappVolumeReplicationDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("hybrid_replication_type", flattenNetappVolumeReplicationHybridReplicationType(res["hybridReplicationType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("hybrid_peering_details", flattenNetappVolumeReplicationHybridPeeringDetails(res["hybridPeeringDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("hybrid_replication_user_commands", flattenNetappVolumeReplicationHybridReplicationUserCommands(res["hybridReplicationUserCommands"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetappVolumeReplicationTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetappVolumeReplicationEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+
+	return nil
 }

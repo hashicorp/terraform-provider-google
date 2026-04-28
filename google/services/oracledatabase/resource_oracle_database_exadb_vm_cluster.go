@@ -628,41 +628,9 @@ func resourceOracleDatabaseExadbVmClusterRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
 	}
 
-	if err := d.Set("backup_odb_subnet", flattenOracleDatabaseExadbVmClusterBackupOdbSubnet(res["backupOdbSubnet"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
-	}
-	if err := d.Set("create_time", flattenOracleDatabaseExadbVmClusterCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
-	}
-	if err := d.Set("display_name", flattenOracleDatabaseExadbVmClusterDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
-	}
-	if err := d.Set("entitlement_id", flattenOracleDatabaseExadbVmClusterEntitlementId(res["entitlementId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
-	}
-	if err := d.Set("gcp_oracle_zone", flattenOracleDatabaseExadbVmClusterGcpOracleZone(res["gcpOracleZone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
-	}
-	if err := d.Set("labels", flattenOracleDatabaseExadbVmClusterLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
-	}
-	if err := d.Set("name", flattenOracleDatabaseExadbVmClusterName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
-	}
-	if err := d.Set("odb_network", flattenOracleDatabaseExadbVmClusterOdbNetwork(res["odbNetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
-	}
-	if err := d.Set("odb_subnet", flattenOracleDatabaseExadbVmClusterOdbSubnet(res["odbSubnet"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
-	}
-	if err := d.Set("properties", flattenOracleDatabaseExadbVmClusterProperties(res["properties"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenOracleDatabaseExadbVmClusterTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenOracleDatabaseExadbVmClusterEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	err = ResourceOracleDatabaseExadbVmClusterFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1558,4 +1526,47 @@ func expandOracleDatabaseExadbVmClusterEffectiveLabels(v interface{}, d tpgresou
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceOracleDatabaseExadbVmClusterFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("backup_odb_subnet", flattenOracleDatabaseExadbVmClusterBackupOdbSubnet(res["backupOdbSubnet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("create_time", flattenOracleDatabaseExadbVmClusterCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("display_name", flattenOracleDatabaseExadbVmClusterDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("entitlement_id", flattenOracleDatabaseExadbVmClusterEntitlementId(res["entitlementId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("gcp_oracle_zone", flattenOracleDatabaseExadbVmClusterGcpOracleZone(res["gcpOracleZone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("labels", flattenOracleDatabaseExadbVmClusterLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("name", flattenOracleDatabaseExadbVmClusterName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("odb_network", flattenOracleDatabaseExadbVmClusterOdbNetwork(res["odbNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("odb_subnet", flattenOracleDatabaseExadbVmClusterOdbSubnet(res["odbSubnet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("properties", flattenOracleDatabaseExadbVmClusterProperties(res["properties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenOracleDatabaseExadbVmClusterTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenOracleDatabaseExadbVmClusterEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+
+	return nil
 }

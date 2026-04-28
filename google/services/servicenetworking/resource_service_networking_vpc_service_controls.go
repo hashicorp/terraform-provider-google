@@ -300,8 +300,9 @@ func resourceServiceNetworkingVPCServiceControlsRead(d *schema.ResourceData, met
 
 	log.Printf("[DEBUG] Finished reading ServiceNetworkingVPCServiceControls %q: %#v", d.Id(), res)
 
-	if err := d.Set("enabled", flattenServiceNetworkingVPCServiceControlsEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VPCServiceControls: %s", err)
+	err = ResourceServiceNetworkingVPCServiceControlsFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -375,4 +376,14 @@ func expandServiceNetworkingVPCServiceControlsEnabled(v interface{}, d tpgresour
 
 func expandServiceNetworkingVPCServiceControlsProject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceServiceNetworkingVPCServiceControlsFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("enabled", flattenServiceNetworkingVPCServiceControlsEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VPCServiceControls: %s", err)
+	}
+
+	return nil
 }

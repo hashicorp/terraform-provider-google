@@ -345,8 +345,9 @@ func resourceApigeeAddonsConfigRead(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Finished reading ApigeeAddonsConfig %q: %#v", d.Id(), res)
 
-	if err := d.Set("addons_config", flattenApigeeAddonsConfigAddonsConfig(res["addonsConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AddonsConfig: %s", err)
+	err = ResourceApigeeAddonsConfigFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -839,4 +840,14 @@ func expandApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigEnabled(v inter
 
 func expandApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigExpiresAt(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeAddonsConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("addons_config", flattenApigeeAddonsConfigAddonsConfig(res["addonsConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddonsConfig: %s", err)
+	}
+
+	return nil
 }

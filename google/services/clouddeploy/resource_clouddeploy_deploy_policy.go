@@ -708,44 +708,9 @@ func resourceClouddeployDeployPolicyRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading DeployPolicy: %s", err)
 	}
 
-	if err := d.Set("uid", flattenClouddeployDeployPolicyUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("description", flattenClouddeployDeployPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("create_time", flattenClouddeployDeployPolicyCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("update_time", flattenClouddeployDeployPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("annotations", flattenClouddeployDeployPolicyAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("labels", flattenClouddeployDeployPolicyLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("etag", flattenClouddeployDeployPolicyEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("suspended", flattenClouddeployDeployPolicySuspended(res["suspended"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("selectors", flattenClouddeployDeployPolicySelectors(res["selectors"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("rules", flattenClouddeployDeployPolicyRules(res["rules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenClouddeployDeployPolicyEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenClouddeployDeployPolicyTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenClouddeployDeployPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	err = ResourceClouddeployDeployPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2433,4 +2398,50 @@ func expandClouddeployDeployPolicyEffectiveLabels(v interface{}, d tpgresource.T
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceClouddeployDeployPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("uid", flattenClouddeployDeployPolicyUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("description", flattenClouddeployDeployPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("create_time", flattenClouddeployDeployPolicyCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("update_time", flattenClouddeployDeployPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("annotations", flattenClouddeployDeployPolicyAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("labels", flattenClouddeployDeployPolicyLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("etag", flattenClouddeployDeployPolicyEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("suspended", flattenClouddeployDeployPolicySuspended(res["suspended"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("selectors", flattenClouddeployDeployPolicySelectors(res["selectors"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("rules", flattenClouddeployDeployPolicyRules(res["rules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenClouddeployDeployPolicyEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenClouddeployDeployPolicyTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenClouddeployDeployPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeployPolicy: %s", err)
+	}
+
+	return nil
 }

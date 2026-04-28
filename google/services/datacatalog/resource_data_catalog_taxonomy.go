@@ -317,17 +317,9 @@ func resourceDataCatalogTaxonomyRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Taxonomy: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataCatalogTaxonomyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Taxonomy: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataCatalogTaxonomyDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Taxonomy: %s", err)
-	}
-	if err := d.Set("description", flattenDataCatalogTaxonomyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Taxonomy: %s", err)
-	}
-	if err := d.Set("activated_policy_types", flattenDataCatalogTaxonomyActivatedPolicyTypes(res["activatedPolicyTypes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Taxonomy: %s", err)
+	err = ResourceDataCatalogTaxonomyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -547,5 +539,24 @@ func resourceDataCatalogTaxonomyPostCreateSetComputedFields(d *schema.ResourceDa
 	if err := d.Set("name", flattenDataCatalogTaxonomyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDataCatalogTaxonomyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataCatalogTaxonomyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Taxonomy: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataCatalogTaxonomyDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Taxonomy: %s", err)
+	}
+	if err = d.Set("description", flattenDataCatalogTaxonomyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Taxonomy: %s", err)
+	}
+	if err = d.Set("activated_policy_types", flattenDataCatalogTaxonomyActivatedPolicyTypes(res["activatedPolicyTypes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Taxonomy: %s", err)
+	}
+
 	return nil
 }

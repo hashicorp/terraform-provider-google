@@ -297,20 +297,9 @@ func resourceServiceDirectoryEndpointRead(d *schema.ResourceData, meta interface
 		return nil
 	}
 
-	if err := d.Set("name", flattenServiceDirectoryEndpointName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("address", flattenServiceDirectoryEndpointAddress(res["address"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("port", flattenServiceDirectoryEndpointPort(res["port"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("metadata", flattenServiceDirectoryEndpointMetadata(res["metadata"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
-	}
-	if err := d.Set("network", flattenServiceDirectoryEndpointNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Endpoint: %s", err)
+	err = ResourceServiceDirectoryEndpointFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -590,5 +579,27 @@ func resourceServiceDirectoryEndpointPostCreateSetComputedFields(d *schema.Resou
 	if err := d.Set("name", flattenServiceDirectoryEndpointName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceServiceDirectoryEndpointFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenServiceDirectoryEndpointName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("address", flattenServiceDirectoryEndpointAddress(res["address"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("port", flattenServiceDirectoryEndpointPort(res["port"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("metadata", flattenServiceDirectoryEndpointMetadata(res["metadata"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err = d.Set("network", flattenServiceDirectoryEndpointNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+
 	return nil
 }

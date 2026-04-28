@@ -485,17 +485,9 @@ func resourceApigeeKeystoresAliasesSelfSignedCertRead(d *schema.ResourceData, me
 
 	log.Printf("[DEBUG] Finished reading ApigeeKeystoresAliasesSelfSignedCert %q: %#v", d.Id(), res)
 
-	if err := d.Set("certs_info", flattenApigeeKeystoresAliasesSelfSignedCertCertsInfo(res["certsInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
-	}
-	if err := d.Set("type", flattenApigeeKeystoresAliasesSelfSignedCertType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
-	}
-	if err := d.Set("alias", flattenApigeeKeystoresAliasesSelfSignedCertAlias(res["alias"], d, config)); err != nil {
-		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
-	}
-	if err := d.Set("subject_alternative_dns_names", flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(res["subjectAlternativeDnsNames"], d, config)); err != nil {
-		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
+	err = ResourceApigeeKeystoresAliasesSelfSignedCertFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -849,4 +841,23 @@ func expandApigeeKeystoresAliasesSelfSignedCertSubjectEmail(v interface{}, d tpg
 
 func expandApigeeKeystoresAliasesSelfSignedCertCertValidityInDays(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeKeystoresAliasesSelfSignedCertFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("certs_info", flattenApigeeKeystoresAliasesSelfSignedCertCertsInfo(res["certsInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
+	}
+	if err = d.Set("type", flattenApigeeKeystoresAliasesSelfSignedCertType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
+	}
+	if err = d.Set("alias", flattenApigeeKeystoresAliasesSelfSignedCertAlias(res["alias"], d, config)); err != nil {
+		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
+	}
+	if err = d.Set("subject_alternative_dns_names", flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(res["subjectAlternativeDnsNames"], d, config)); err != nil {
+		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
+	}
+
+	return nil
 }

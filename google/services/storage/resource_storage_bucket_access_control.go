@@ -305,20 +305,9 @@ func resourceStorageBucketAccessControlRead(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Finished reading StorageBucketAccessControl %q: %#v", d.Id(), res)
 
-	if err := d.Set("bucket", flattenStorageBucketAccessControlBucket(res["bucket"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
-	}
-	if err := d.Set("domain", flattenStorageBucketAccessControlDomain(res["domain"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
-	}
-	if err := d.Set("email", flattenStorageBucketAccessControlEmail(res["email"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
-	}
-	if err := d.Set("entity", flattenStorageBucketAccessControlEntity(res["entity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
-	}
-	if err := d.Set("role", flattenStorageBucketAccessControlRole(res["role"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
+	err = ResourceStorageBucketAccessControlFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -526,4 +515,26 @@ func expandStorageBucketAccessControlEntity(v interface{}, d tpgresource.Terrafo
 
 func expandStorageBucketAccessControlRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceStorageBucketAccessControlFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("bucket", flattenStorageBucketAccessControlBucket(res["bucket"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
+	}
+	if err = d.Set("domain", flattenStorageBucketAccessControlDomain(res["domain"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
+	}
+	if err = d.Set("email", flattenStorageBucketAccessControlEmail(res["email"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
+	}
+	if err = d.Set("entity", flattenStorageBucketAccessControlEntity(res["entity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
+	}
+	if err = d.Set("role", flattenStorageBucketAccessControlRole(res["role"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
+	}
+
+	return nil
 }

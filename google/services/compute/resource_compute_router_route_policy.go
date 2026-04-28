@@ -436,17 +436,9 @@ func resourceComputeRouterRoutePolicyRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading RouterRoutePolicy: %s", err)
 	}
 
-	if err := d.Set("type", flattenComputeRouterRoutePolicyType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterRoutePolicy: %s", err)
-	}
-	if err := d.Set("terms", flattenComputeRouterRoutePolicyTerms(res["terms"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterRoutePolicy: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeRouterRoutePolicyFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterRoutePolicy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRouterRoutePolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterRoutePolicy: %s", err)
+	err = ResourceComputeRouterRoutePolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -987,4 +979,23 @@ func resourceComputeRouterRoutePolicyDecoder(d *schema.ResourceData, meta interf
 	}
 
 	return v.(map[string]interface{}), nil
+}
+
+func ResourceComputeRouterRoutePolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("type", flattenComputeRouterRoutePolicyType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterRoutePolicy: %s", err)
+	}
+	if err = d.Set("terms", flattenComputeRouterRoutePolicyTerms(res["terms"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterRoutePolicy: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeRouterRoutePolicyFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterRoutePolicy: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRouterRoutePolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterRoutePolicy: %s", err)
+	}
+
+	return nil
 }

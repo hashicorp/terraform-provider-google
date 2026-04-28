@@ -363,23 +363,9 @@ func resourceChronicleDataTableRowRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading DataTableRow: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenChronicleDataTableRowCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTableRow: %s", err)
-	}
-	if err := d.Set("name", flattenChronicleDataTableRowName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTableRow: %s", err)
-	}
-	if err := d.Set("row_time_to_live", flattenChronicleDataTableRowRowTimeToLive(res["rowTimeToLive"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTableRow: %s", err)
-	}
-	if err := d.Set("update_time", flattenChronicleDataTableRowUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTableRow: %s", err)
-	}
-	if err := d.Set("values", flattenChronicleDataTableRowValues(res["values"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTableRow: %s", err)
-	}
-	if err := d.Set("data_table_row", flattenChronicleDataTableRowDataTableRow(res["dataTableRow"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTableRow: %s", err)
+	err = ResourceChronicleDataTableRowFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -632,5 +618,30 @@ func resourceChronicleDataTableRowPostCreateSetComputedFields(d *schema.Resource
 	if err := d.Set("data_table_row", flattenChronicleDataTableRowDataTableRow(res["dataTableRow"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "data_table_row": %s`, err)
 	}
+	return nil
+}
+
+func ResourceChronicleDataTableRowFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenChronicleDataTableRowCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTableRow: %s", err)
+	}
+	if err = d.Set("name", flattenChronicleDataTableRowName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTableRow: %s", err)
+	}
+	if err = d.Set("row_time_to_live", flattenChronicleDataTableRowRowTimeToLive(res["rowTimeToLive"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTableRow: %s", err)
+	}
+	if err = d.Set("update_time", flattenChronicleDataTableRowUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTableRow: %s", err)
+	}
+	if err = d.Set("values", flattenChronicleDataTableRowValues(res["values"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTableRow: %s", err)
+	}
+	if err = d.Set("data_table_row", flattenChronicleDataTableRowDataTableRow(res["dataTableRow"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTableRow: %s", err)
+	}
+
 	return nil
 }

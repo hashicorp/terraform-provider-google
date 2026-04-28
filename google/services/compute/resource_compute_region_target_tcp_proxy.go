@@ -383,32 +383,9 @@ func resourceComputeRegionTargetTcpProxyRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeRegionTargetTcpProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionTargetTcpProxyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
-	}
-	if err := d.Set("proxy_id", flattenComputeRegionTargetTcpProxyProxyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionTargetTcpProxyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
-	}
-	if err := d.Set("proxy_header", flattenComputeRegionTargetTcpProxyProxyHeader(res["proxyHeader"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
-	}
-	if err := d.Set("backend_service", flattenComputeRegionTargetTcpProxyBackendService(res["service"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
-	}
-	if err := d.Set("proxy_bind", flattenComputeRegionTargetTcpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
-	}
-	if err := d.Set("region", flattenComputeRegionTargetTcpProxyRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
+	err = ResourceComputeRegionTargetTcpProxyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -596,4 +573,37 @@ func expandComputeRegionTargetTcpProxyRegion(v interface{}, d tpgresource.Terraf
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeRegionTargetTcpProxyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeRegionTargetTcpProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
+	}
+	if err = d.Set("description", flattenComputeRegionTargetTcpProxyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
+	}
+	if err = d.Set("proxy_id", flattenComputeRegionTargetTcpProxyProxyId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionTargetTcpProxyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
+	}
+	if err = d.Set("proxy_header", flattenComputeRegionTargetTcpProxyProxyHeader(res["proxyHeader"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
+	}
+	if err = d.Set("backend_service", flattenComputeRegionTargetTcpProxyBackendService(res["service"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
+	}
+	if err = d.Set("proxy_bind", flattenComputeRegionTargetTcpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
+	}
+	if err = d.Set("region", flattenComputeRegionTargetTcpProxyRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
+	}
+	return nil
 }

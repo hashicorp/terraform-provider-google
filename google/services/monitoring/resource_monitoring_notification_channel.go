@@ -491,29 +491,9 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
 
-	if err := d.Set("labels", flattenMonitoringNotificationChannelLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationChannel: %s", err)
-	}
-	if err := d.Set("name", flattenMonitoringNotificationChannelName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationChannel: %s", err)
-	}
-	if err := d.Set("verification_status", flattenMonitoringNotificationChannelVerificationStatus(res["verificationStatus"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationChannel: %s", err)
-	}
-	if err := d.Set("type", flattenMonitoringNotificationChannelType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationChannel: %s", err)
-	}
-	if err := d.Set("user_labels", flattenMonitoringNotificationChannelUserLabels(res["userLabels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationChannel: %s", err)
-	}
-	if err := d.Set("description", flattenMonitoringNotificationChannelDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationChannel: %s", err)
-	}
-	if err := d.Set("display_name", flattenMonitoringNotificationChannelDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationChannel: %s", err)
-	}
-	if err := d.Set("enabled", flattenMonitoringNotificationChannelEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationChannel: %s", err)
+	err = ResourceMonitoringNotificationChannelFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -966,5 +946,36 @@ func resourceMonitoringNotificationChannelPostCreateSetComputedFields(d *schema.
 	if err := d.Set("name", flattenMonitoringNotificationChannelName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceMonitoringNotificationChannelFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("labels", flattenMonitoringNotificationChannelLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationChannel: %s", err)
+	}
+	if err = d.Set("name", flattenMonitoringNotificationChannelName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationChannel: %s", err)
+	}
+	if err = d.Set("verification_status", flattenMonitoringNotificationChannelVerificationStatus(res["verificationStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationChannel: %s", err)
+	}
+	if err = d.Set("type", flattenMonitoringNotificationChannelType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationChannel: %s", err)
+	}
+	if err = d.Set("user_labels", flattenMonitoringNotificationChannelUserLabels(res["userLabels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationChannel: %s", err)
+	}
+	if err = d.Set("description", flattenMonitoringNotificationChannelDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationChannel: %s", err)
+	}
+	if err = d.Set("display_name", flattenMonitoringNotificationChannelDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationChannel: %s", err)
+	}
+	if err = d.Set("enabled", flattenMonitoringNotificationChannelEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationChannel: %s", err)
+	}
+
 	return nil
 }

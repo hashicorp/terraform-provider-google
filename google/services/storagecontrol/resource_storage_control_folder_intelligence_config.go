@@ -402,20 +402,9 @@ func resourceStorageControlFolderIntelligenceConfigRead(d *schema.ResourceData, 
 
 	log.Printf("[DEBUG] Finished reading StorageControlFolderIntelligenceConfig %q: %#v", d.Id(), res)
 
-	if err := d.Set("edition_config", flattenStorageControlFolderIntelligenceConfigEditionConfig(res["editionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderIntelligenceConfig: %s", err)
-	}
-	if err := d.Set("update_time", flattenStorageControlFolderIntelligenceConfigUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderIntelligenceConfig: %s", err)
-	}
-	if err := d.Set("filter", flattenStorageControlFolderIntelligenceConfigFilter(res["filter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderIntelligenceConfig: %s", err)
-	}
-	if err := d.Set("effective_intelligence_config", flattenStorageControlFolderIntelligenceConfigEffectiveIntelligenceConfig(res["effectiveIntelligenceConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderIntelligenceConfig: %s", err)
-	}
-	if err := d.Set("trial_config", flattenStorageControlFolderIntelligenceConfigTrialConfig(res["trialConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderIntelligenceConfig: %s", err)
+	err = ResourceStorageControlFolderIntelligenceConfigFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -834,4 +823,26 @@ func expandStorageControlFolderIntelligenceConfigFilterIncludedCloudStorageLocat
 
 func expandStorageControlFolderIntelligenceConfigFilterIncludedCloudStorageLocationsLocations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceStorageControlFolderIntelligenceConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("edition_config", flattenStorageControlFolderIntelligenceConfigEditionConfig(res["editionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderIntelligenceConfig: %s", err)
+	}
+	if err = d.Set("update_time", flattenStorageControlFolderIntelligenceConfigUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderIntelligenceConfig: %s", err)
+	}
+	if err = d.Set("filter", flattenStorageControlFolderIntelligenceConfigFilter(res["filter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderIntelligenceConfig: %s", err)
+	}
+	if err = d.Set("effective_intelligence_config", flattenStorageControlFolderIntelligenceConfigEffectiveIntelligenceConfig(res["effectiveIntelligenceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderIntelligenceConfig: %s", err)
+	}
+	if err = d.Set("trial_config", flattenStorageControlFolderIntelligenceConfigTrialConfig(res["trialConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderIntelligenceConfig: %s", err)
+	}
+
+	return nil
 }

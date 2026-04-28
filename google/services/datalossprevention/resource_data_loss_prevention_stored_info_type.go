@@ -570,23 +570,9 @@ func resourceDataLossPreventionStoredInfoTypeRead(d *schema.ResourceData, meta i
 		return nil
 	}
 
-	if err := d.Set("name", flattenDataLossPreventionStoredInfoTypeName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoredInfoType: %s", err)
-	}
-	if err := d.Set("description", flattenDataLossPreventionStoredInfoTypeDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoredInfoType: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataLossPreventionStoredInfoTypeDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoredInfoType: %s", err)
-	}
-	if err := d.Set("regex", flattenDataLossPreventionStoredInfoTypeRegex(res["regex"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoredInfoType: %s", err)
-	}
-	if err := d.Set("dictionary", flattenDataLossPreventionStoredInfoTypeDictionary(res["dictionary"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoredInfoType: %s", err)
-	}
-	if err := d.Set("large_custom_dictionary", flattenDataLossPreventionStoredInfoTypeLargeCustomDictionary(res["largeCustomDictionary"], d, config)); err != nil {
-		return fmt.Errorf("Error reading StoredInfoType: %s", err)
+	err = ResourceDataLossPreventionStoredInfoTypeFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1375,5 +1361,30 @@ func resourceDataLossPreventionStoredInfoTypePostCreateSetComputedFields(d *sche
 	if err := d.Set("name", flattenDataLossPreventionStoredInfoTypeName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDataLossPreventionStoredInfoTypeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataLossPreventionStoredInfoTypeName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoredInfoType: %s", err)
+	}
+	if err = d.Set("description", flattenDataLossPreventionStoredInfoTypeDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoredInfoType: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataLossPreventionStoredInfoTypeDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoredInfoType: %s", err)
+	}
+	if err = d.Set("regex", flattenDataLossPreventionStoredInfoTypeRegex(res["regex"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoredInfoType: %s", err)
+	}
+	if err = d.Set("dictionary", flattenDataLossPreventionStoredInfoTypeDictionary(res["dictionary"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoredInfoType: %s", err)
+	}
+	if err = d.Set("large_custom_dictionary", flattenDataLossPreventionStoredInfoTypeLargeCustomDictionary(res["largeCustomDictionary"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoredInfoType: %s", err)
+	}
+
 	return nil
 }

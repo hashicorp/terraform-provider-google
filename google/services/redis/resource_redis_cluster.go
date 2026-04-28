@@ -1179,104 +1179,9 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 
-	if err := d.Set("labels", flattenRedisClusterLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("create_time", flattenRedisClusterCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("state", flattenRedisClusterState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("uid", flattenRedisClusterUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("backup_collection", flattenRedisClusterBackupCollection(res["backupCollection"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("automated_backup_config", flattenRedisClusterAutomatedBackupConfig(res["automatedBackupConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("authorization_mode", flattenRedisClusterAuthorizationMode(res["authorizationMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("transit_encryption_mode", flattenRedisClusterTransitEncryptionMode(res["transitEncryptionMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("node_type", flattenRedisClusterNodeType(res["nodeType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("zone_distribution_config", flattenRedisClusterZoneDistributionConfig(res["zoneDistributionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("discovery_endpoints", flattenRedisClusterDiscoveryEndpoints(res["discoveryEndpoints"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("psc_connections", flattenRedisClusterPscConnections(res["pscConnections"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("state_info", flattenRedisClusterStateInfo(res["stateInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("replica_count", flattenRedisClusterReplicaCount(res["replicaCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("size_gb", flattenRedisClusterSizeGb(res["sizeGb"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("precise_size_gb", flattenRedisClusterPreciseSizeGb(res["preciseSizeGb"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("shard_count", flattenRedisClusterShardCount(res["shardCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("deletion_protection_enabled", flattenRedisClusterDeletionProtectionEnabled(res["deletionProtectionEnabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("redis_configs", flattenRedisClusterRedisConfigs(res["redisConfigs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("persistence_config", flattenRedisClusterPersistenceConfig(res["persistenceConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("maintenance_policy", flattenRedisClusterMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("maintenance_schedule", flattenRedisClusterMaintenanceSchedule(res["maintenanceSchedule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("maintenance_version", flattenRedisClusterMaintenanceVersion(res["maintenanceVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("effective_maintenance_version", flattenRedisClusterEffectiveMaintenanceVersion(res["effectiveMaintenanceVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("available_maintenance_versions", flattenRedisClusterAvailableMaintenanceVersions(res["availableMaintenanceVersions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("cross_cluster_replication_config", flattenRedisClusterCrossClusterReplicationConfig(res["crossClusterReplicationConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("psc_service_attachments", flattenRedisClusterPscServiceAttachments(res["pscServiceAttachments"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("kms_key", flattenRedisClusterKmsKey(res["kmsKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("managed_server_ca", flattenRedisClusterManagedServerCa(res["managedServerCa"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("server_ca_mode", flattenRedisClusterServerCaMode(res["serverCaMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("server_ca_pool", flattenRedisClusterServerCaPool(res["serverCaPool"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenRedisClusterTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenRedisClusterEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
+	err = ResourceRedisClusterFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3285,4 +3190,110 @@ func resourceRedisClusterDecoder(d *schema.ResourceData, meta interface{}, res m
 
 	res["managedServerCa"] = certificateAuthority["managedServerCa"]
 	return res, nil
+}
+
+func ResourceRedisClusterFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("labels", flattenRedisClusterLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("create_time", flattenRedisClusterCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("state", flattenRedisClusterState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("uid", flattenRedisClusterUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("backup_collection", flattenRedisClusterBackupCollection(res["backupCollection"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("automated_backup_config", flattenRedisClusterAutomatedBackupConfig(res["automatedBackupConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("authorization_mode", flattenRedisClusterAuthorizationMode(res["authorizationMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("transit_encryption_mode", flattenRedisClusterTransitEncryptionMode(res["transitEncryptionMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("node_type", flattenRedisClusterNodeType(res["nodeType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("zone_distribution_config", flattenRedisClusterZoneDistributionConfig(res["zoneDistributionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("discovery_endpoints", flattenRedisClusterDiscoveryEndpoints(res["discoveryEndpoints"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("psc_connections", flattenRedisClusterPscConnections(res["pscConnections"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("state_info", flattenRedisClusterStateInfo(res["stateInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("replica_count", flattenRedisClusterReplicaCount(res["replicaCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("size_gb", flattenRedisClusterSizeGb(res["sizeGb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("precise_size_gb", flattenRedisClusterPreciseSizeGb(res["preciseSizeGb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("shard_count", flattenRedisClusterShardCount(res["shardCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("deletion_protection_enabled", flattenRedisClusterDeletionProtectionEnabled(res["deletionProtectionEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("redis_configs", flattenRedisClusterRedisConfigs(res["redisConfigs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("persistence_config", flattenRedisClusterPersistenceConfig(res["persistenceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("maintenance_policy", flattenRedisClusterMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("maintenance_schedule", flattenRedisClusterMaintenanceSchedule(res["maintenanceSchedule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("maintenance_version", flattenRedisClusterMaintenanceVersion(res["maintenanceVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("effective_maintenance_version", flattenRedisClusterEffectiveMaintenanceVersion(res["effectiveMaintenanceVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("available_maintenance_versions", flattenRedisClusterAvailableMaintenanceVersions(res["availableMaintenanceVersions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("cross_cluster_replication_config", flattenRedisClusterCrossClusterReplicationConfig(res["crossClusterReplicationConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("psc_service_attachments", flattenRedisClusterPscServiceAttachments(res["pscServiceAttachments"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("kms_key", flattenRedisClusterKmsKey(res["kmsKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("managed_server_ca", flattenRedisClusterManagedServerCa(res["managedServerCa"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("server_ca_mode", flattenRedisClusterServerCaMode(res["serverCaMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("server_ca_pool", flattenRedisClusterServerCaPool(res["serverCaPool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenRedisClusterTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenRedisClusterEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+
+	return nil
 }

@@ -818,77 +818,9 @@ func resourceDiscoveryEngineDataConnectorRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading DataConnector: %s", err)
 	}
 
-	if err := d.Set("name", flattenDiscoveryEngineDataConnectorName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("state", flattenDiscoveryEngineDataConnectorState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("data_source", flattenDiscoveryEngineDataConnectorDataSource(res["dataSource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("data_source_version", flattenDiscoveryEngineDataConnectorDataSourceVersion(res["dataSourceVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("refresh_interval", flattenDiscoveryEngineDataConnectorRefreshInterval(res["refreshInterval"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("entities", flattenDiscoveryEngineDataConnectorEntities(res["entities"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("create_time", flattenDiscoveryEngineDataConnectorCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("latest_pause_time", flattenDiscoveryEngineDataConnectorLatestPauseTime(res["latestPauseTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("last_sync_time", flattenDiscoveryEngineDataConnectorLastSyncTime(res["lastSyncTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("update_time", flattenDiscoveryEngineDataConnectorUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("errors", flattenDiscoveryEngineDataConnectorErrors(res["errors"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("kms_key_name", flattenDiscoveryEngineDataConnectorKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("action_config", flattenDiscoveryEngineDataConnectorActionConfig(res["actionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("bap_config", flattenDiscoveryEngineDataConnectorBapConfig(res["bapConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("action_state", flattenDiscoveryEngineDataConnectorActionState(res["actionState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("static_ip_enabled", flattenDiscoveryEngineDataConnectorStaticIpEnabled(res["staticIpEnabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("destination_configs", flattenDiscoveryEngineDataConnectorDestinationConfigs(res["destinationConfigs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("static_ip_addresses", flattenDiscoveryEngineDataConnectorStaticIpAddresses(res["staticIpAddresses"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("blocking_reasons", flattenDiscoveryEngineDataConnectorBlockingReasons(res["blockingReasons"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("private_connectivity_project_id", flattenDiscoveryEngineDataConnectorPrivateConnectivityProjectId(res["privateConnectivityProjectId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("connector_type", flattenDiscoveryEngineDataConnectorConnectorType(res["connectorType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("realtime_state", flattenDiscoveryEngineDataConnectorRealtimeState(res["realtimeState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("connector_modes", flattenDiscoveryEngineDataConnectorConnectorModes(res["connectorModes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
-	}
-	if err := d.Set("incremental_refresh_interval", flattenDiscoveryEngineDataConnectorIncrementalRefreshInterval(res["incrementalRefreshInterval"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataConnector: %s", err)
+	err = ResourceDiscoveryEngineDataConnectorFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2194,4 +2126,83 @@ This project must be allowlisted by in order for the connector to function.`,
 		},
 		UseJSONNumber: true,
 	}
+}
+
+func ResourceDiscoveryEngineDataConnectorFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDiscoveryEngineDataConnectorName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("state", flattenDiscoveryEngineDataConnectorState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("data_source", flattenDiscoveryEngineDataConnectorDataSource(res["dataSource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("data_source_version", flattenDiscoveryEngineDataConnectorDataSourceVersion(res["dataSourceVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("refresh_interval", flattenDiscoveryEngineDataConnectorRefreshInterval(res["refreshInterval"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("entities", flattenDiscoveryEngineDataConnectorEntities(res["entities"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("create_time", flattenDiscoveryEngineDataConnectorCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("latest_pause_time", flattenDiscoveryEngineDataConnectorLatestPauseTime(res["latestPauseTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("last_sync_time", flattenDiscoveryEngineDataConnectorLastSyncTime(res["lastSyncTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("update_time", flattenDiscoveryEngineDataConnectorUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("errors", flattenDiscoveryEngineDataConnectorErrors(res["errors"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("kms_key_name", flattenDiscoveryEngineDataConnectorKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("action_config", flattenDiscoveryEngineDataConnectorActionConfig(res["actionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("bap_config", flattenDiscoveryEngineDataConnectorBapConfig(res["bapConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("action_state", flattenDiscoveryEngineDataConnectorActionState(res["actionState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("static_ip_enabled", flattenDiscoveryEngineDataConnectorStaticIpEnabled(res["staticIpEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("destination_configs", flattenDiscoveryEngineDataConnectorDestinationConfigs(res["destinationConfigs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("static_ip_addresses", flattenDiscoveryEngineDataConnectorStaticIpAddresses(res["staticIpAddresses"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("blocking_reasons", flattenDiscoveryEngineDataConnectorBlockingReasons(res["blockingReasons"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("private_connectivity_project_id", flattenDiscoveryEngineDataConnectorPrivateConnectivityProjectId(res["privateConnectivityProjectId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("connector_type", flattenDiscoveryEngineDataConnectorConnectorType(res["connectorType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("realtime_state", flattenDiscoveryEngineDataConnectorRealtimeState(res["realtimeState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("connector_modes", flattenDiscoveryEngineDataConnectorConnectorModes(res["connectorModes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("incremental_refresh_interval", flattenDiscoveryEngineDataConnectorIncrementalRefreshInterval(res["incrementalRefreshInterval"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+
+	return nil
 }

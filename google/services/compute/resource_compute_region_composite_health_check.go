@@ -388,29 +388,9 @@ func resourceComputeRegionCompositeHealthCheckRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeRegionCompositeHealthCheckDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
-	}
-	if err := d.Set("health_sources", flattenComputeRegionCompositeHealthCheckHealthSources(res["healthSources"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
-	}
-	if err := d.Set("health_destination", flattenComputeRegionCompositeHealthCheckHealthDestination(res["healthDestination"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
-	}
-	if err := d.Set("id", flattenComputeRegionCompositeHealthCheckId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeRegionCompositeHealthCheckCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
-	}
-	if err := d.Set("self_link_with_id", flattenComputeRegionCompositeHealthCheckSelfLinkWithId(res["selfLinkWithId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeRegionCompositeHealthCheckFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionCompositeHealthCheckName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
+	err = ResourceComputeRegionCompositeHealthCheckFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -709,4 +689,35 @@ func expandComputeRegionCompositeHealthCheckFingerprint(v interface{}, d tpgreso
 
 func expandComputeRegionCompositeHealthCheckName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeRegionCompositeHealthCheckFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputeRegionCompositeHealthCheckDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
+	}
+	if err = d.Set("health_sources", flattenComputeRegionCompositeHealthCheckHealthSources(res["healthSources"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
+	}
+	if err = d.Set("health_destination", flattenComputeRegionCompositeHealthCheckHealthDestination(res["healthDestination"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
+	}
+	if err = d.Set("id", flattenComputeRegionCompositeHealthCheckId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeRegionCompositeHealthCheckCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
+	}
+	if err = d.Set("self_link_with_id", flattenComputeRegionCompositeHealthCheckSelfLinkWithId(res["selfLinkWithId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeRegionCompositeHealthCheckFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionCompositeHealthCheckName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionCompositeHealthCheck: %s", err)
+	}
+
+	return nil
 }

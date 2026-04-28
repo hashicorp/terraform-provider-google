@@ -461,23 +461,9 @@ func resourceDeploymentManagerDeploymentRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
 
-	if err := d.Set("name", flattenDeploymentManagerDeploymentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
-	}
-	if err := d.Set("description", flattenDeploymentManagerDeploymentDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
-	}
-	if err := d.Set("labels", flattenDeploymentManagerDeploymentLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
-	}
-	if err := d.Set("deployment_id", flattenDeploymentManagerDeploymentDeploymentId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
-	}
-	if err := d.Set("manifest", flattenDeploymentManagerDeploymentManifest(res["manifest"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
-	}
-	if err := d.Set("self_link", flattenDeploymentManagerDeploymentSelfLink(res["selfLink"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Deployment: %s", err)
+	err = ResourceDeploymentManagerDeploymentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -962,4 +948,29 @@ func resourceDeploymentManagerDeploymentPostCreateFailure(d *schema.ResourceData
 	if cleanErr != nil {
 		log.Printf("[WARN] Could not confirm cleanup of Deployment if created in error state: %v", cleanErr)
 	}
+}
+
+func ResourceDeploymentManagerDeploymentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDeploymentManagerDeploymentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+	if err = d.Set("description", flattenDeploymentManagerDeploymentDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+	if err = d.Set("labels", flattenDeploymentManagerDeploymentLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+	if err = d.Set("deployment_id", flattenDeploymentManagerDeploymentDeploymentId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+	if err = d.Set("manifest", flattenDeploymentManagerDeploymentManifest(res["manifest"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+	if err = d.Set("self_link", flattenDeploymentManagerDeploymentSelfLink(res["selfLink"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+
+	return nil
 }

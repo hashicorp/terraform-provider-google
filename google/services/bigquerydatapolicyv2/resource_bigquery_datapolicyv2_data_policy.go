@@ -408,29 +408,9 @@ func resourceBigqueryDatapolicyv2DataPolicyRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading DataPolicy: %s", err)
 	}
 
-	if err := d.Set("data_masking_policy", flattenBigqueryDatapolicyv2DataPolicyDataMaskingPolicy(res["dataMaskingPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
-	}
-	if err := d.Set("data_policy_type", flattenBigqueryDatapolicyv2DataPolicyDataPolicyType(res["dataPolicyType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
-	}
-	if err := d.Set("etag", flattenBigqueryDatapolicyv2DataPolicyEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
-	}
-	if err := d.Set("grantees", flattenBigqueryDatapolicyv2DataPolicyGrantees(res["grantees"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
-	}
-	if err := d.Set("name", flattenBigqueryDatapolicyv2DataPolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
-	}
-	if err := d.Set("policy_tag", flattenBigqueryDatapolicyv2DataPolicyPolicyTag(res["policyTag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
-	}
-	if err := d.Set("version", flattenBigqueryDatapolicyv2DataPolicyVersion(res["version"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
-	}
-	if err := d.Set("data_policy_id", flattenBigqueryDatapolicyv2DataPolicyDataPolicyId(res["dataPolicyId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	err = ResourceBigqueryDatapolicyv2DataPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -779,4 +759,35 @@ func resourceBigqueryDatapolicyv2DataPolicyEncoder(d *schema.ResourceData, meta 
 
 func resourceBigqueryDatapolicyv2DataPolicyUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	return obj, nil
+}
+
+func ResourceBigqueryDatapolicyv2DataPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("data_masking_policy", flattenBigqueryDatapolicyv2DataPolicyDataMaskingPolicy(res["dataMaskingPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("data_policy_type", flattenBigqueryDatapolicyv2DataPolicyDataPolicyType(res["dataPolicyType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("etag", flattenBigqueryDatapolicyv2DataPolicyEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("grantees", flattenBigqueryDatapolicyv2DataPolicyGrantees(res["grantees"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("name", flattenBigqueryDatapolicyv2DataPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("policy_tag", flattenBigqueryDatapolicyv2DataPolicyPolicyTag(res["policyTag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("version", flattenBigqueryDatapolicyv2DataPolicyVersion(res["version"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("data_policy_id", flattenBigqueryDatapolicyv2DataPolicyDataPolicyId(res["dataPolicyId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+
+	return nil
 }

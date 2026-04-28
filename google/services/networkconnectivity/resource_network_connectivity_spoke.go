@@ -711,56 +711,9 @@ func resourceNetworkConnectivitySpokeRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading Spoke: %s", err)
 	}
 
-	if err := d.Set("name", flattenNetworkConnectivitySpokeName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkConnectivitySpokeCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkConnectivitySpokeUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkConnectivitySpokeLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkConnectivitySpokeDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("hub", flattenNetworkConnectivitySpokeHub(res["hub"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("group", flattenNetworkConnectivitySpokeGroup(res["group"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("linked_vpn_tunnels", flattenNetworkConnectivitySpokeLinkedVpnTunnels(res["linkedVpnTunnels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("linked_interconnect_attachments", flattenNetworkConnectivitySpokeLinkedInterconnectAttachments(res["linkedInterconnectAttachments"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("linked_router_appliance_instances", flattenNetworkConnectivitySpokeLinkedRouterApplianceInstances(res["linkedRouterApplianceInstances"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("linked_vpc_network", flattenNetworkConnectivitySpokeLinkedVpcNetwork(res["linkedVpcNetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("linked_producer_vpc_network", flattenNetworkConnectivitySpokeLinkedProducerVpcNetwork(res["linkedProducerVpcNetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("unique_id", flattenNetworkConnectivitySpokeUniqueId(res["uniqueId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("state", flattenNetworkConnectivitySpokeState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("reasons", flattenNetworkConnectivitySpokeReasons(res["reasons"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkConnectivitySpokeTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkConnectivitySpokeEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Spoke: %s", err)
+	err = ResourceNetworkConnectivitySpokeFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1783,4 +1736,62 @@ func expandNetworkConnectivitySpokeEffectiveLabels(v interface{}, d tpgresource.
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkConnectivitySpokeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNetworkConnectivitySpokeName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkConnectivitySpokeCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkConnectivitySpokeUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkConnectivitySpokeLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkConnectivitySpokeDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("hub", flattenNetworkConnectivitySpokeHub(res["hub"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("group", flattenNetworkConnectivitySpokeGroup(res["group"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("linked_vpn_tunnels", flattenNetworkConnectivitySpokeLinkedVpnTunnels(res["linkedVpnTunnels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("linked_interconnect_attachments", flattenNetworkConnectivitySpokeLinkedInterconnectAttachments(res["linkedInterconnectAttachments"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("linked_router_appliance_instances", flattenNetworkConnectivitySpokeLinkedRouterApplianceInstances(res["linkedRouterApplianceInstances"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("linked_vpc_network", flattenNetworkConnectivitySpokeLinkedVpcNetwork(res["linkedVpcNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("linked_producer_vpc_network", flattenNetworkConnectivitySpokeLinkedProducerVpcNetwork(res["linkedProducerVpcNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("unique_id", flattenNetworkConnectivitySpokeUniqueId(res["uniqueId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("state", flattenNetworkConnectivitySpokeState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("reasons", flattenNetworkConnectivitySpokeReasons(res["reasons"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkConnectivitySpokeTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkConnectivitySpokeEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+
+	return nil
 }

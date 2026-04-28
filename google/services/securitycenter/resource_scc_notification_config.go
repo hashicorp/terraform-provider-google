@@ -302,20 +302,9 @@ func resourceSecurityCenterNotificationConfigRead(d *schema.ResourceData, meta i
 
 	log.Printf("[DEBUG] Finished reading SecurityCenterNotificationConfig %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenSecurityCenterNotificationConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationConfig: %s", err)
-	}
-	if err := d.Set("description", flattenSecurityCenterNotificationConfigDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationConfig: %s", err)
-	}
-	if err := d.Set("pubsub_topic", flattenSecurityCenterNotificationConfigPubsubTopic(res["pubsubTopic"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationConfig: %s", err)
-	}
-	if err := d.Set("service_account", flattenSecurityCenterNotificationConfigServiceAccount(res["serviceAccount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationConfig: %s", err)
-	}
-	if err := d.Set("streaming_config", flattenSecurityCenterNotificationConfigStreamingConfig(res["streamingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NotificationConfig: %s", err)
+	err = ResourceSecurityCenterNotificationConfigFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -545,5 +534,27 @@ func resourceSecurityCenterNotificationConfigPostCreateSetComputedFields(d *sche
 	if err := d.Set("name", flattenSecurityCenterNotificationConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceSecurityCenterNotificationConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecurityCenterNotificationConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationConfig: %s", err)
+	}
+	if err = d.Set("description", flattenSecurityCenterNotificationConfigDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationConfig: %s", err)
+	}
+	if err = d.Set("pubsub_topic", flattenSecurityCenterNotificationConfigPubsubTopic(res["pubsubTopic"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationConfig: %s", err)
+	}
+	if err = d.Set("service_account", flattenSecurityCenterNotificationConfigServiceAccount(res["serviceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationConfig: %s", err)
+	}
+	if err = d.Set("streaming_config", flattenSecurityCenterNotificationConfigStreamingConfig(res["streamingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationConfig: %s", err)
+	}
+
 	return nil
 }

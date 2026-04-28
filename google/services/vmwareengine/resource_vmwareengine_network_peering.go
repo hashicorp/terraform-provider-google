@@ -420,47 +420,9 @@ func resourceVmwareengineNetworkPeeringRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading NetworkPeering: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenVmwareengineNetworkPeeringCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("update_time", flattenVmwareengineNetworkPeeringUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("peer_network", flattenVmwareengineNetworkPeeringPeerNetwork(res["peerNetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("export_custom_routes", flattenVmwareengineNetworkPeeringExportCustomRoutes(res["exportCustomRoutes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("import_custom_routes", flattenVmwareengineNetworkPeeringImportCustomRoutes(res["importCustomRoutes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("export_custom_routes_with_public_ip", flattenVmwareengineNetworkPeeringExportCustomRoutesWithPublicIp(res["exportCustomRoutesWithPublicIp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("import_custom_routes_with_public_ip", flattenVmwareengineNetworkPeeringImportCustomRoutesWithPublicIp(res["importCustomRoutesWithPublicIp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("state", flattenVmwareengineNetworkPeeringState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("state_details", flattenVmwareengineNetworkPeeringStateDetails(res["stateDetails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("peer_network_type", flattenVmwareengineNetworkPeeringPeerNetworkType(res["peerNetworkType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("uid", flattenVmwareengineNetworkPeeringUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("vmware_engine_network", flattenVmwareengineNetworkPeeringVmwareEngineNetwork(res["vmwareEngineNetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("description", flattenVmwareengineNetworkPeeringDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
-	}
-	if err := d.Set("vmware_engine_network_canonical", flattenVmwareengineNetworkPeeringVmwareEngineNetworkCanonical(res["vmwareEngineNetworkCanonical"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	err = ResourceVmwareengineNetworkPeeringFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -767,4 +729,53 @@ func expandVmwareengineNetworkPeeringVmwareEngineNetwork(v interface{}, d tpgres
 
 func expandVmwareengineNetworkPeeringDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceVmwareengineNetworkPeeringFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenVmwareengineNetworkPeeringCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("update_time", flattenVmwareengineNetworkPeeringUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("peer_network", flattenVmwareengineNetworkPeeringPeerNetwork(res["peerNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("export_custom_routes", flattenVmwareengineNetworkPeeringExportCustomRoutes(res["exportCustomRoutes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("import_custom_routes", flattenVmwareengineNetworkPeeringImportCustomRoutes(res["importCustomRoutes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("export_custom_routes_with_public_ip", flattenVmwareengineNetworkPeeringExportCustomRoutesWithPublicIp(res["exportCustomRoutesWithPublicIp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("import_custom_routes_with_public_ip", flattenVmwareengineNetworkPeeringImportCustomRoutesWithPublicIp(res["importCustomRoutesWithPublicIp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("state", flattenVmwareengineNetworkPeeringState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("state_details", flattenVmwareengineNetworkPeeringStateDetails(res["stateDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("peer_network_type", flattenVmwareengineNetworkPeeringPeerNetworkType(res["peerNetworkType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("uid", flattenVmwareengineNetworkPeeringUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("vmware_engine_network", flattenVmwareengineNetworkPeeringVmwareEngineNetwork(res["vmwareEngineNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("description", flattenVmwareengineNetworkPeeringDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+	if err = d.Set("vmware_engine_network_canonical", flattenVmwareengineNetworkPeeringVmwareEngineNetworkCanonical(res["vmwareEngineNetworkCanonical"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeering: %s", err)
+	}
+
+	return nil
 }

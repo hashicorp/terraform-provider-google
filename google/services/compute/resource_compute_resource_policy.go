@@ -698,29 +698,9 @@ func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeResourcePolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeResourcePolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
-	}
-	if err := d.Set("snapshot_schedule_policy", flattenComputeResourcePolicySnapshotSchedulePolicy(res["snapshotSchedulePolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
-	}
-	if err := d.Set("group_placement_policy", flattenComputeResourcePolicyGroupPlacementPolicy(res["groupPlacementPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
-	}
-	if err := d.Set("instance_schedule_policy", flattenComputeResourcePolicyInstanceSchedulePolicy(res["instanceSchedulePolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
-	}
-	if err := d.Set("disk_consistency_group_policy", flattenComputeResourcePolicyDiskConsistencyGroupPolicy(res["diskConsistencyGroupPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
-	}
-	if err := d.Set("workload_policy", flattenComputeResourcePolicyWorkloadPolicy(res["workloadPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	err = ResourceComputeResourcePolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1906,4 +1886,34 @@ func expandComputeResourcePolicyRegion(v interface{}, d tpgresource.TerraformRes
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeResourcePolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenComputeResourcePolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
+	if err = d.Set("description", flattenComputeResourcePolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
+	if err = d.Set("snapshot_schedule_policy", flattenComputeResourcePolicySnapshotSchedulePolicy(res["snapshotSchedulePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
+	if err = d.Set("group_placement_policy", flattenComputeResourcePolicyGroupPlacementPolicy(res["groupPlacementPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
+	if err = d.Set("instance_schedule_policy", flattenComputeResourcePolicyInstanceSchedulePolicy(res["instanceSchedulePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
+	if err = d.Set("disk_consistency_group_policy", flattenComputeResourcePolicyDiskConsistencyGroupPolicy(res["diskConsistencyGroupPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
+	if err = d.Set("workload_policy", flattenComputeResourcePolicyWorkloadPolicy(res["workloadPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
+	return nil
 }

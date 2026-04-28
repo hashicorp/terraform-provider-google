@@ -430,26 +430,9 @@ func resourceContactCenterInsightsAssessmentRuleRead(d *schema.ResourceData, met
 		return fmt.Errorf("Error reading AssessmentRule: %s", err)
 	}
 
-	if err := d.Set("active", flattenContactCenterInsightsAssessmentRuleActive(res["active"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AssessmentRule: %s", err)
-	}
-	if err := d.Set("create_time", flattenContactCenterInsightsAssessmentRuleCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AssessmentRule: %s", err)
-	}
-	if err := d.Set("display_name", flattenContactCenterInsightsAssessmentRuleDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AssessmentRule: %s", err)
-	}
-	if err := d.Set("name", flattenContactCenterInsightsAssessmentRuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AssessmentRule: %s", err)
-	}
-	if err := d.Set("sample_rule", flattenContactCenterInsightsAssessmentRuleSampleRule(res["sampleRule"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AssessmentRule: %s", err)
-	}
-	if err := d.Set("schedule_info", flattenContactCenterInsightsAssessmentRuleScheduleInfo(res["scheduleInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AssessmentRule: %s", err)
-	}
-	if err := d.Set("update_time", flattenContactCenterInsightsAssessmentRuleUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AssessmentRule: %s", err)
+	err = ResourceContactCenterInsightsAssessmentRuleFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -905,5 +888,33 @@ func resourceContactCenterInsightsAssessmentRulePostCreateSetComputedFields(d *s
 	if err := d.Set("name", flattenContactCenterInsightsAssessmentRuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceContactCenterInsightsAssessmentRuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("active", flattenContactCenterInsightsAssessmentRuleActive(res["active"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AssessmentRule: %s", err)
+	}
+	if err = d.Set("create_time", flattenContactCenterInsightsAssessmentRuleCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AssessmentRule: %s", err)
+	}
+	if err = d.Set("display_name", flattenContactCenterInsightsAssessmentRuleDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AssessmentRule: %s", err)
+	}
+	if err = d.Set("name", flattenContactCenterInsightsAssessmentRuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AssessmentRule: %s", err)
+	}
+	if err = d.Set("sample_rule", flattenContactCenterInsightsAssessmentRuleSampleRule(res["sampleRule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AssessmentRule: %s", err)
+	}
+	if err = d.Set("schedule_info", flattenContactCenterInsightsAssessmentRuleScheduleInfo(res["scheduleInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AssessmentRule: %s", err)
+	}
+	if err = d.Set("update_time", flattenContactCenterInsightsAssessmentRuleUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AssessmentRule: %s", err)
+	}
+
 	return nil
 }

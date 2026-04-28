@@ -874,44 +874,9 @@ func resourceVmwareenginePrivateCloudRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading PrivateCloud: %s", err)
 	}
 
-	if err := d.Set("description", flattenVmwareenginePrivateCloudDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("create_time", flattenVmwareenginePrivateCloudCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("update_time", flattenVmwareenginePrivateCloudUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("delete_time", flattenVmwareenginePrivateCloudDeleteTime(res["deleteTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("expire_time", flattenVmwareenginePrivateCloudExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("uid", flattenVmwareenginePrivateCloudUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("state", flattenVmwareenginePrivateCloudState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("network_config", flattenVmwareenginePrivateCloudNetworkConfig(res["networkConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("management_cluster", flattenVmwareenginePrivateCloudManagementCluster(res["managementCluster"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("hcx", flattenVmwareenginePrivateCloudHcx(res["hcx"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("nsx", flattenVmwareenginePrivateCloudNsx(res["nsx"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("vcenter", flattenVmwareenginePrivateCloudVcenter(res["vcenter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("type", flattenVmwareenginePrivateCloudType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	err = ResourceVmwareenginePrivateCloudFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2239,4 +2204,50 @@ func resourceVmwareenginePrivateCloudDecoder(d *schema.ResourceData, meta interf
 	res["managementCluster"] = mgmtClusterObj
 
 	return res, nil
+}
+
+func ResourceVmwareenginePrivateCloudFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenVmwareenginePrivateCloudDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("create_time", flattenVmwareenginePrivateCloudCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("update_time", flattenVmwareenginePrivateCloudUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("delete_time", flattenVmwareenginePrivateCloudDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("expire_time", flattenVmwareenginePrivateCloudExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("uid", flattenVmwareenginePrivateCloudUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("state", flattenVmwareenginePrivateCloudState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("network_config", flattenVmwareenginePrivateCloudNetworkConfig(res["networkConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("management_cluster", flattenVmwareenginePrivateCloudManagementCluster(res["managementCluster"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("hcx", flattenVmwareenginePrivateCloudHcx(res["hcx"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("nsx", flattenVmwareenginePrivateCloudNsx(res["nsx"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("vcenter", flattenVmwareenginePrivateCloudVcenter(res["vcenter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err = d.Set("type", flattenVmwareenginePrivateCloudType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+
+	return nil
 }

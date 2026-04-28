@@ -568,20 +568,9 @@ func resourceBiglakeIcebergIcebergTableRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading IcebergTable: %s", err)
 	}
 
-	if err := d.Set("name", flattenBiglakeIcebergIcebergTableName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergTable: %s", err)
-	}
-	if err := d.Set("location", flattenBiglakeIcebergIcebergTableLocation(res["location"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergTable: %s", err)
-	}
-	if err := d.Set("schema", flattenBiglakeIcebergIcebergTableSchema(res["schema"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergTable: %s", err)
-	}
-	if err := d.Set("partition_spec", flattenBiglakeIcebergIcebergTablePartitionSpec(res["partition-spec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergTable: %s", err)
-	}
-	if err := d.Set("properties", flattenBiglakeIcebergIcebergTableProperties(res["properties"], d, config)); err != nil {
-		return fmt.Errorf("Error reading IcebergTable: %s", err)
+	err = ResourceBiglakeIcebergIcebergTableFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1289,4 +1278,26 @@ func resourceBiglakeIcebergIcebergTableUpdateEncoder(d *schema.ResourceData, met
 		}, nil
 	}
 	return nil, nil
+}
+
+func ResourceBiglakeIcebergIcebergTableFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBiglakeIcebergIcebergTableName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergTable: %s", err)
+	}
+	if err = d.Set("location", flattenBiglakeIcebergIcebergTableLocation(res["location"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergTable: %s", err)
+	}
+	if err = d.Set("schema", flattenBiglakeIcebergIcebergTableSchema(res["schema"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergTable: %s", err)
+	}
+	if err = d.Set("partition_spec", flattenBiglakeIcebergIcebergTablePartitionSpec(res["partition-spec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergTable: %s", err)
+	}
+	if err = d.Set("properties", flattenBiglakeIcebergIcebergTableProperties(res["properties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergTable: %s", err)
+	}
+
+	return nil
 }

@@ -504,32 +504,9 @@ func resourceBlockchainNodeEngineBlockchainNodesRead(d *schema.ResourceData, met
 		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
 	}
 
-	if err := d.Set("name", flattenBlockchainNodeEngineBlockchainNodesName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
-	}
-	if err := d.Set("create_time", flattenBlockchainNodeEngineBlockchainNodesCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
-	}
-	if err := d.Set("update_time", flattenBlockchainNodeEngineBlockchainNodesUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
-	}
-	if err := d.Set("labels", flattenBlockchainNodeEngineBlockchainNodesLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
-	}
-	if err := d.Set("connection_info", flattenBlockchainNodeEngineBlockchainNodesConnectionInfo(res["connectionInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
-	}
-	if err := d.Set("ethereum_details", flattenBlockchainNodeEngineBlockchainNodesEthereumDetails(res["ethereumDetails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
-	}
-	if err := d.Set("blockchain_type", flattenBlockchainNodeEngineBlockchainNodesBlockchainType(res["blockchainType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenBlockchainNodeEngineBlockchainNodesTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenBlockchainNodeEngineBlockchainNodesEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
+	err = ResourceBlockchainNodeEngineBlockchainNodesFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1171,4 +1148,38 @@ func expandBlockchainNodeEngineBlockchainNodesEffectiveLabels(v interface{}, d t
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceBlockchainNodeEngineBlockchainNodesFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBlockchainNodeEngineBlockchainNodesName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
+	}
+	if err = d.Set("create_time", flattenBlockchainNodeEngineBlockchainNodesCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
+	}
+	if err = d.Set("update_time", flattenBlockchainNodeEngineBlockchainNodesUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
+	}
+	if err = d.Set("labels", flattenBlockchainNodeEngineBlockchainNodesLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
+	}
+	if err = d.Set("connection_info", flattenBlockchainNodeEngineBlockchainNodesConnectionInfo(res["connectionInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
+	}
+	if err = d.Set("ethereum_details", flattenBlockchainNodeEngineBlockchainNodesEthereumDetails(res["ethereumDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
+	}
+	if err = d.Set("blockchain_type", flattenBlockchainNodeEngineBlockchainNodesBlockchainType(res["blockchainType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenBlockchainNodeEngineBlockchainNodesTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenBlockchainNodeEngineBlockchainNodesEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BlockchainNodes: %s", err)
+	}
+
+	return nil
 }

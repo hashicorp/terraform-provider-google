@@ -678,20 +678,9 @@ func resourceDialogflowCXToolVersionRead(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Finished reading DialogflowCXToolVersion %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenDialogflowCXToolVersionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ToolVersion: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowCXToolVersionDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ToolVersion: %s", err)
-	}
-	if err := d.Set("tool", flattenDialogflowCXToolVersionTool(res["tool"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ToolVersion: %s", err)
-	}
-	if err := d.Set("create_time", flattenDialogflowCXToolVersionCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ToolVersion: %s", err)
-	}
-	if err := d.Set("update_time", flattenDialogflowCXToolVersionUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ToolVersion: %s", err)
+	err = ResourceDialogflowCXToolVersionFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1802,5 +1791,27 @@ func resourceDialogflowCXToolVersionPostCreateSetComputedFields(d *schema.Resour
 	if err := d.Set("name", flattenDialogflowCXToolVersionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowCXToolVersionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowCXToolVersionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ToolVersion: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowCXToolVersionDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ToolVersion: %s", err)
+	}
+	if err = d.Set("tool", flattenDialogflowCXToolVersionTool(res["tool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ToolVersion: %s", err)
+	}
+	if err = d.Set("create_time", flattenDialogflowCXToolVersionCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ToolVersion: %s", err)
+	}
+	if err = d.Set("update_time", flattenDialogflowCXToolVersionUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ToolVersion: %s", err)
+	}
+
 	return nil
 }

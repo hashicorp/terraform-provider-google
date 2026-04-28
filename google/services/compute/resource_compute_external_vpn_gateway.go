@@ -433,32 +433,9 @@ func resourceComputeExternalVpnGatewayRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeExternalVpnGatewayDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeExternalVpnGatewayLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeExternalVpnGatewayLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
-	}
-	if err := d.Set("name", flattenComputeExternalVpnGatewayName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
-	}
-	if err := d.Set("redundancy_type", flattenComputeExternalVpnGatewayRedundancyType(res["redundancyType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
-	}
-	if err := d.Set("interface", flattenComputeExternalVpnGatewayInterface(res["interfaces"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenComputeExternalVpnGatewayTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenComputeExternalVpnGatewayEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
+	err = ResourceComputeExternalVpnGatewayFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -851,4 +828,37 @@ func expandComputeExternalVpnGatewayEffectiveLabels(v interface{}, d tpgresource
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceComputeExternalVpnGatewayFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputeExternalVpnGatewayDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
+	}
+	if err = d.Set("labels", flattenComputeExternalVpnGatewayLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
+	}
+	if err = d.Set("label_fingerprint", flattenComputeExternalVpnGatewayLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
+	}
+	if err = d.Set("name", flattenComputeExternalVpnGatewayName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
+	}
+	if err = d.Set("redundancy_type", flattenComputeExternalVpnGatewayRedundancyType(res["redundancyType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
+	}
+	if err = d.Set("interface", flattenComputeExternalVpnGatewayInterface(res["interfaces"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenComputeExternalVpnGatewayTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenComputeExternalVpnGatewayEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
+	}
+	return nil
 }

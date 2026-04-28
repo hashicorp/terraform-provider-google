@@ -540,35 +540,9 @@ func resourceStorageBatchOperationsJobRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenStorageBatchOperationsJobCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("update_time", flattenStorageBatchOperationsJobUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("schedule_time", flattenStorageBatchOperationsJobScheduleTime(res["scheduleTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("complete_time", flattenStorageBatchOperationsJobCompleteTime(res["completeTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("state", flattenStorageBatchOperationsJobState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("bucket_list", flattenStorageBatchOperationsJobBucketList(res["bucketList"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("delete_object", flattenStorageBatchOperationsJobDeleteObject(res["deleteObject"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("put_metadata", flattenStorageBatchOperationsJobPutMetadata(res["putMetadata"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("rewrite_object", flattenStorageBatchOperationsJobRewriteObject(res["rewriteObject"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := d.Set("put_object_hold", flattenStorageBatchOperationsJobPutObjectHold(res["putObjectHold"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
+	err = ResourceStorageBatchOperationsJobFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1187,4 +1161,41 @@ func expandStorageBatchOperationsJobPutObjectHoldEventBasedHold(v interface{}, d
 
 func expandStorageBatchOperationsJobPutObjectHoldTemporaryHold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceStorageBatchOperationsJobFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenStorageBatchOperationsJobCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("update_time", flattenStorageBatchOperationsJobUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("schedule_time", flattenStorageBatchOperationsJobScheduleTime(res["scheduleTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("complete_time", flattenStorageBatchOperationsJobCompleteTime(res["completeTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("state", flattenStorageBatchOperationsJobState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("bucket_list", flattenStorageBatchOperationsJobBucketList(res["bucketList"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("delete_object", flattenStorageBatchOperationsJobDeleteObject(res["deleteObject"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("put_metadata", flattenStorageBatchOperationsJobPutMetadata(res["putMetadata"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("rewrite_object", flattenStorageBatchOperationsJobRewriteObject(res["rewriteObject"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("put_object_hold", flattenStorageBatchOperationsJobPutObjectHold(res["putObjectHold"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+
+	return nil
 }

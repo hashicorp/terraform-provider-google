@@ -560,41 +560,9 @@ func resourceComputeRegionNetworkEndpointGroupRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeRegionNetworkEndpointGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionNetworkEndpointGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("network_endpoint_type", flattenComputeRegionNetworkEndpointGroupNetworkEndpointType(res["networkEndpointType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("psc_target_service", flattenComputeRegionNetworkEndpointGroupPscTargetService(res["pscTargetService"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("network", flattenComputeRegionNetworkEndpointGroupNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("subnetwork", flattenComputeRegionNetworkEndpointGroupSubnetwork(res["subnetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("psc_data", flattenComputeRegionNetworkEndpointGroupPscData(res["pscData"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("cloud_run", flattenComputeRegionNetworkEndpointGroupCloudRun(res["cloudRun"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("app_engine", flattenComputeRegionNetworkEndpointGroupAppEngine(res["appEngine"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("cloud_function", flattenComputeRegionNetworkEndpointGroupCloudFunction(res["cloudFunction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("region", flattenComputeRegionNetworkEndpointGroupRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	err = ResourceComputeRegionNetworkEndpointGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1035,4 +1003,46 @@ func expandComputeRegionNetworkEndpointGroupRegion(v interface{}, d tpgresource.
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeRegionNetworkEndpointGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenComputeRegionNetworkEndpointGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("description", flattenComputeRegionNetworkEndpointGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("network_endpoint_type", flattenComputeRegionNetworkEndpointGroupNetworkEndpointType(res["networkEndpointType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("psc_target_service", flattenComputeRegionNetworkEndpointGroupPscTargetService(res["pscTargetService"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("network", flattenComputeRegionNetworkEndpointGroupNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("subnetwork", flattenComputeRegionNetworkEndpointGroupSubnetwork(res["subnetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("psc_data", flattenComputeRegionNetworkEndpointGroupPscData(res["pscData"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("cloud_run", flattenComputeRegionNetworkEndpointGroupCloudRun(res["cloudRun"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("app_engine", flattenComputeRegionNetworkEndpointGroupAppEngine(res["appEngine"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("cloud_function", flattenComputeRegionNetworkEndpointGroupCloudFunction(res["cloudFunction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("region", flattenComputeRegionNetworkEndpointGroupRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	return nil
 }

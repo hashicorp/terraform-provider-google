@@ -335,8 +335,9 @@ func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading BackendServiceSignedUrlKey: %s", err)
 	}
 
-	if err := d.Set("name", flattenNestedComputeBackendServiceSignedUrlKeyName(res["keyName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackendServiceSignedUrlKey: %s", err)
+	err = ResourceComputeBackendServiceSignedUrlKeyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -508,4 +509,14 @@ func resourceComputeBackendServiceSignedUrlKeyFindNestedObjectInList(d *schema.R
 		return idx, item, nil
 	}
 	return -1, nil, nil
+}
+
+func ResourceComputeBackendServiceSignedUrlKeyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNestedComputeBackendServiceSignedUrlKeyName(res["keyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendServiceSignedUrlKey: %s", err)
+	}
+
+	return nil
 }

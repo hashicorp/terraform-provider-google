@@ -321,11 +321,9 @@ func resourceComposerUserWorkloadsConfigMapRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading UserWorkloadsConfigMap: %s", err)
 	}
 
-	if err := d.Set("name", flattenComposerUserWorkloadsConfigMapName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UserWorkloadsConfigMap: %s", err)
-	}
-	if err := d.Set("data", flattenComposerUserWorkloadsConfigMapData(res["data"], d, config)); err != nil {
-		return fmt.Errorf("Error reading UserWorkloadsConfigMap: %s", err)
+	err = ResourceComposerUserWorkloadsConfigMapFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -541,4 +539,17 @@ func expandComposerUserWorkloadsConfigMapData(v interface{}, d tpgresource.Terra
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceComposerUserWorkloadsConfigMapFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenComposerUserWorkloadsConfigMapName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UserWorkloadsConfigMap: %s", err)
+	}
+	if err = d.Set("data", flattenComposerUserWorkloadsConfigMapData(res["data"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UserWorkloadsConfigMap: %s", err)
+	}
+
+	return nil
 }

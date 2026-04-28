@@ -385,23 +385,9 @@ func resourceDialogflowCXVersionRead(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Finished reading DialogflowCXVersion %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenDialogflowCXVersionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Version: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowCXVersionDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Version: %s", err)
-	}
-	if err := d.Set("description", flattenDialogflowCXVersionDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Version: %s", err)
-	}
-	if err := d.Set("nlu_settings", flattenDialogflowCXVersionNluSettings(res["nluSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Version: %s", err)
-	}
-	if err := d.Set("create_time", flattenDialogflowCXVersionCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Version: %s", err)
-	}
-	if err := d.Set("state", flattenDialogflowCXVersionState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Version: %s", err)
+	err = ResourceDialogflowCXVersionFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -676,4 +662,29 @@ func expandDialogflowCXVersionDisplayName(v interface{}, d tpgresource.Terraform
 
 func expandDialogflowCXVersionDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceDialogflowCXVersionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowCXVersionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Version: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowCXVersionDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Version: %s", err)
+	}
+	if err = d.Set("description", flattenDialogflowCXVersionDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Version: %s", err)
+	}
+	if err = d.Set("nlu_settings", flattenDialogflowCXVersionNluSettings(res["nluSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Version: %s", err)
+	}
+	if err = d.Set("create_time", flattenDialogflowCXVersionCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Version: %s", err)
+	}
+	if err = d.Set("state", flattenDialogflowCXVersionState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Version: %s", err)
+	}
+
+	return nil
 }

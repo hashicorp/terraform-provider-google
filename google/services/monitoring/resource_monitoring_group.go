@@ -335,20 +335,9 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
 
-	if err := d.Set("parent_name", flattenMonitoringGroupParentName(res["parentName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("name", flattenMonitoringGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("is_cluster", flattenMonitoringGroupIsCluster(res["isCluster"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("display_name", flattenMonitoringGroupDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("filter", flattenMonitoringGroupFilter(res["filter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
+	err = ResourceMonitoringGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -578,5 +567,27 @@ func resourceMonitoringGroupPostCreateSetComputedFields(d *schema.ResourceData, 
 	if err := d.Set("name", flattenMonitoringGroupName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceMonitoringGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("parent_name", flattenMonitoringGroupParentName(res["parentName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("name", flattenMonitoringGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("is_cluster", flattenMonitoringGroupIsCluster(res["isCluster"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("display_name", flattenMonitoringGroupDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("filter", flattenMonitoringGroupFilter(res["filter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+
 	return nil
 }

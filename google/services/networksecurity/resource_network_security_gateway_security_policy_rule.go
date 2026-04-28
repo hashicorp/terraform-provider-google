@@ -415,35 +415,9 @@ func resourceNetworkSecurityGatewaySecurityPolicyRuleRead(d *schema.ResourceData
 		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
 	}
 
-	if err := d.Set("self_link", flattenNetworkSecurityGatewaySecurityPolicyRuleSelfLink(res["selfLink"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkSecurityGatewaySecurityPolicyRuleCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityGatewaySecurityPolicyRuleUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("enabled", flattenNetworkSecurityGatewaySecurityPolicyRuleEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("priority", flattenNetworkSecurityGatewaySecurityPolicyRulePriority(res["priority"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkSecurityGatewaySecurityPolicyRuleDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("session_matcher", flattenNetworkSecurityGatewaySecurityPolicyRuleSessionMatcher(res["sessionMatcher"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("application_matcher", flattenNetworkSecurityGatewaySecurityPolicyRuleApplicationMatcher(res["applicationMatcher"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("tls_inspection_enabled", flattenNetworkSecurityGatewaySecurityPolicyRuleTlsInspectionEnabled(res["tlsInspectionEnabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
-	}
-	if err := d.Set("basic_profile", flattenNetworkSecurityGatewaySecurityPolicyRuleBasicProfile(res["basicProfile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
+	err = ResourceNetworkSecurityGatewaySecurityPolicyRuleFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -811,4 +785,41 @@ func expandNetworkSecurityGatewaySecurityPolicyRuleTlsInspectionEnabled(v interf
 
 func expandNetworkSecurityGatewaySecurityPolicyRuleBasicProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceNetworkSecurityGatewaySecurityPolicyRuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("self_link", flattenNetworkSecurityGatewaySecurityPolicyRuleSelfLink(res["selfLink"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkSecurityGatewaySecurityPolicyRuleCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityGatewaySecurityPolicyRuleUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("enabled", flattenNetworkSecurityGatewaySecurityPolicyRuleEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("priority", flattenNetworkSecurityGatewaySecurityPolicyRulePriority(res["priority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkSecurityGatewaySecurityPolicyRuleDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("session_matcher", flattenNetworkSecurityGatewaySecurityPolicyRuleSessionMatcher(res["sessionMatcher"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("application_matcher", flattenNetworkSecurityGatewaySecurityPolicyRuleApplicationMatcher(res["applicationMatcher"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("tls_inspection_enabled", flattenNetworkSecurityGatewaySecurityPolicyRuleTlsInspectionEnabled(res["tlsInspectionEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
+	}
+	if err = d.Set("basic_profile", flattenNetworkSecurityGatewaySecurityPolicyRuleBasicProfile(res["basicProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GatewaySecurityPolicyRule: %s", err)
+	}
+
+	return nil
 }

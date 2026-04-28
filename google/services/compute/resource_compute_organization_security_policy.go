@@ -316,23 +316,9 @@ func resourceComputeOrganizationSecurityPolicyRead(d *schema.ResourceData, meta 
 
 	log.Printf("[DEBUG] Finished reading ComputeOrganizationSecurityPolicy %q: %#v", d.Id(), res)
 
-	if err := d.Set("description", flattenComputeOrganizationSecurityPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
-	}
-	if err := d.Set("short_name", flattenComputeOrganizationSecurityPolicyShortName(res["shortName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeOrganizationSecurityPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
-	}
-	if err := d.Set("policy_id", flattenComputeOrganizationSecurityPolicyPolicyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
-	}
-	if err := d.Set("type", flattenComputeOrganizationSecurityPolicyType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
-	}
-	if err := d.Set("parent", flattenComputeOrganizationSecurityPolicyParent(res["parent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
+	err = ResourceComputeOrganizationSecurityPolicyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -529,5 +515,30 @@ func resourceComputeOrganizationSecurityPolicyPostCreateSetComputedFields(d *sch
 	if err := d.Set("policy_id", flattenComputeOrganizationSecurityPolicyPolicyId(res["id"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "policy_id": %s`, err)
 	}
+	return nil
+}
+
+func ResourceComputeOrganizationSecurityPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputeOrganizationSecurityPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
+	}
+	if err = d.Set("short_name", flattenComputeOrganizationSecurityPolicyShortName(res["shortName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeOrganizationSecurityPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
+	}
+	if err = d.Set("policy_id", flattenComputeOrganizationSecurityPolicyPolicyId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
+	}
+	if err = d.Set("type", flattenComputeOrganizationSecurityPolicyType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
+	}
+	if err = d.Set("parent", flattenComputeOrganizationSecurityPolicyParent(res["parent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
+	}
+
 	return nil
 }

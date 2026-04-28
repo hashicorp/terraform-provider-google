@@ -451,29 +451,9 @@ func resourceHealthcareHl7V2StoreRead(d *schema.ResourceData, meta interface{}) 
 		return nil
 	}
 
-	if err := d.Set("name", flattenHealthcareHl7V2StoreName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
-	}
-	if err := d.Set("reject_duplicate_message", flattenHealthcareHl7V2StoreRejectDuplicateMessage(res["rejectDuplicateMessage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
-	}
-	if err := d.Set("parser_config", flattenHealthcareHl7V2StoreParserConfig(res["parserConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
-	}
-	if err := d.Set("labels", flattenHealthcareHl7V2StoreLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
-	}
-	if err := d.Set("notification_configs", flattenHealthcareHl7V2StoreNotificationConfigs(res["notificationConfigs"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
-	}
-	if err := d.Set("notification_config", flattenHealthcareHl7V2StoreNotificationConfig(res["notificationConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenHealthcareHl7V2StoreTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenHealthcareHl7V2StoreEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
+	err = ResourceHealthcareHl7V2StoreFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -972,4 +952,35 @@ func resourceHealthcareHl7V2StoreDecoder(d *schema.ResourceData, meta interface{
 	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
+}
+
+func ResourceHealthcareHl7V2StoreFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenHealthcareHl7V2StoreName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
+	}
+	if err = d.Set("reject_duplicate_message", flattenHealthcareHl7V2StoreRejectDuplicateMessage(res["rejectDuplicateMessage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
+	}
+	if err = d.Set("parser_config", flattenHealthcareHl7V2StoreParserConfig(res["parserConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
+	}
+	if err = d.Set("labels", flattenHealthcareHl7V2StoreLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
+	}
+	if err = d.Set("notification_configs", flattenHealthcareHl7V2StoreNotificationConfigs(res["notificationConfigs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
+	}
+	if err = d.Set("notification_config", flattenHealthcareHl7V2StoreNotificationConfig(res["notificationConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenHealthcareHl7V2StoreTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenHealthcareHl7V2StoreEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
+	}
+
+	return nil
 }

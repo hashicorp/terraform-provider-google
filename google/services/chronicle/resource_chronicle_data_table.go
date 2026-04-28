@@ -494,47 +494,9 @@ func resourceChronicleDataTableRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading DataTable: %s", err)
 	}
 
-	if err := d.Set("approximate_row_count", flattenChronicleDataTableApproximateRowCount(res["approximateRowCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("column_info", flattenChronicleDataTableColumnInfo(res["columnInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("create_time", flattenChronicleDataTableCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("data_table_uuid", flattenChronicleDataTableDataTableUuid(res["dataTableUuid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("description", flattenChronicleDataTableDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("display_name", flattenChronicleDataTableDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("name", flattenChronicleDataTableName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("row_time_to_live", flattenChronicleDataTableRowTimeToLive(res["rowTimeToLive"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("row_time_to_live_update_time", flattenChronicleDataTableRowTimeToLiveUpdateTime(res["rowTimeToLiveUpdateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("rule_associations_count", flattenChronicleDataTableRuleAssociationsCount(res["ruleAssociationsCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("rules", flattenChronicleDataTableRules(res["rules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("scope_info", flattenChronicleDataTableScopeInfo(res["scopeInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("update_source", flattenChronicleDataTableUpdateSource(res["updateSource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
-	}
-	if err := d.Set("update_time", flattenChronicleDataTableUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataTable: %s", err)
+	err = ResourceChronicleDataTableFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1030,4 +992,53 @@ func expandChronicleDataTableScopeInfo(v interface{}, d tpgresource.TerraformRes
 
 func expandChronicleDataTableScopeInfoDataAccessScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceChronicleDataTableFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("approximate_row_count", flattenChronicleDataTableApproximateRowCount(res["approximateRowCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("column_info", flattenChronicleDataTableColumnInfo(res["columnInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("create_time", flattenChronicleDataTableCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("data_table_uuid", flattenChronicleDataTableDataTableUuid(res["dataTableUuid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("description", flattenChronicleDataTableDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("display_name", flattenChronicleDataTableDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("name", flattenChronicleDataTableName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("row_time_to_live", flattenChronicleDataTableRowTimeToLive(res["rowTimeToLive"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("row_time_to_live_update_time", flattenChronicleDataTableRowTimeToLiveUpdateTime(res["rowTimeToLiveUpdateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("rule_associations_count", flattenChronicleDataTableRuleAssociationsCount(res["ruleAssociationsCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("rules", flattenChronicleDataTableRules(res["rules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("scope_info", flattenChronicleDataTableScopeInfo(res["scopeInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("update_source", flattenChronicleDataTableUpdateSource(res["updateSource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+	if err = d.Set("update_time", flattenChronicleDataTableUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataTable: %s", err)
+	}
+
+	return nil
 }

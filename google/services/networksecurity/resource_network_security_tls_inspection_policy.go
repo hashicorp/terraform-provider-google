@@ -387,32 +387,9 @@ func resourceNetworkSecurityTlsInspectionPolicyRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkSecurityTlsInspectionPolicyCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityTlsInspectionPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkSecurityTlsInspectionPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
-	}
-	if err := d.Set("ca_pool", flattenNetworkSecurityTlsInspectionPolicyCaPool(res["caPool"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
-	}
-	if err := d.Set("trust_config", flattenNetworkSecurityTlsInspectionPolicyTrustConfig(res["trustConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
-	}
-	if err := d.Set("min_tls_version", flattenNetworkSecurityTlsInspectionPolicyMinTlsVersion(res["minTlsVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
-	}
-	if err := d.Set("tls_feature_profile", flattenNetworkSecurityTlsInspectionPolicyTlsFeatureProfile(res["tlsFeatureProfile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
-	}
-	if err := d.Set("custom_tls_features", flattenNetworkSecurityTlsInspectionPolicyCustomTlsFeatures(res["customTlsFeatures"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
-	}
-	if err := d.Set("exclude_public_ca_set", flattenNetworkSecurityTlsInspectionPolicyExcludePublicCaSet(res["excludePublicCaSet"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	err = ResourceNetworkSecurityTlsInspectionPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -738,4 +715,38 @@ func expandNetworkSecurityTlsInspectionPolicyCustomTlsFeatures(v interface{}, d 
 
 func expandNetworkSecurityTlsInspectionPolicyExcludePublicCaSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceNetworkSecurityTlsInspectionPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkSecurityTlsInspectionPolicyCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityTlsInspectionPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkSecurityTlsInspectionPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err = d.Set("ca_pool", flattenNetworkSecurityTlsInspectionPolicyCaPool(res["caPool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err = d.Set("trust_config", flattenNetworkSecurityTlsInspectionPolicyTrustConfig(res["trustConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err = d.Set("min_tls_version", flattenNetworkSecurityTlsInspectionPolicyMinTlsVersion(res["minTlsVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err = d.Set("tls_feature_profile", flattenNetworkSecurityTlsInspectionPolicyTlsFeatureProfile(res["tlsFeatureProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err = d.Set("custom_tls_features", flattenNetworkSecurityTlsInspectionPolicyCustomTlsFeatures(res["customTlsFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err = d.Set("exclude_public_ca_set", flattenNetworkSecurityTlsInspectionPolicyExcludePublicCaSet(res["excludePublicCaSet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+
+	return nil
 }

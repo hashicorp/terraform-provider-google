@@ -259,11 +259,9 @@ func resourceServiceDirectoryServiceRead(d *schema.ResourceData, meta interface{
 		return nil
 	}
 
-	if err := d.Set("name", flattenServiceDirectoryServiceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
-	}
-	if err := d.Set("metadata", flattenServiceDirectoryServiceMetadata(res["metadata"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Service: %s", err)
+	err = ResourceServiceDirectoryServiceFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -487,5 +485,18 @@ func resourceServiceDirectoryServicePostCreateSetComputedFields(d *schema.Resour
 	if err := d.Set("name", flattenServiceDirectoryServiceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceServiceDirectoryServiceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenServiceDirectoryServiceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err = d.Set("metadata", flattenServiceDirectoryServiceMetadata(res["metadata"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+
 	return nil
 }

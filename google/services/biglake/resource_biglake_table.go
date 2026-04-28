@@ -356,26 +356,9 @@ func resourceBiglakeTableRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished reading BiglakeTable %q: %#v", d.Id(), res)
 
-	if err := d.Set("create_time", flattenBiglakeTableCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Table: %s", err)
-	}
-	if err := d.Set("update_time", flattenBiglakeTableUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Table: %s", err)
-	}
-	if err := d.Set("delete_time", flattenBiglakeTableDeleteTime(res["deleteTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Table: %s", err)
-	}
-	if err := d.Set("expire_time", flattenBiglakeTableExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Table: %s", err)
-	}
-	if err := d.Set("etag", flattenBiglakeTableEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Table: %s", err)
-	}
-	if err := d.Set("type", flattenBiglakeTableType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Table: %s", err)
-	}
-	if err := d.Set("hive_options", flattenBiglakeTableHiveOptions(res["hiveOptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Table: %s", err)
+	err = ResourceBiglakeTableFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -728,4 +711,32 @@ func expandBiglakeTableHiveOptionsStorageDescriptorInputFormat(v interface{}, d 
 
 func expandBiglakeTableHiveOptionsStorageDescriptorOutputFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceBiglakeTableFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenBiglakeTableCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Table: %s", err)
+	}
+	if err = d.Set("update_time", flattenBiglakeTableUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Table: %s", err)
+	}
+	if err = d.Set("delete_time", flattenBiglakeTableDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Table: %s", err)
+	}
+	if err = d.Set("expire_time", flattenBiglakeTableExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Table: %s", err)
+	}
+	if err = d.Set("etag", flattenBiglakeTableEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Table: %s", err)
+	}
+	if err = d.Set("type", flattenBiglakeTableType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Table: %s", err)
+	}
+	if err = d.Set("hive_options", flattenBiglakeTableHiveOptions(res["hiveOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Table: %s", err)
+	}
+
+	return nil
 }

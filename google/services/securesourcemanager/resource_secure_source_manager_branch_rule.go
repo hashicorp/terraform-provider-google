@@ -414,41 +414,9 @@ func resourceSecureSourceManagerBranchRuleRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading BranchRule: %s", err)
 	}
 
-	if err := d.Set("name", flattenSecureSourceManagerBranchRuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
-	}
-	if err := d.Set("uid", flattenSecureSourceManagerBranchRuleUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
-	}
-	if err := d.Set("create_time", flattenSecureSourceManagerBranchRuleCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
-	}
-	if err := d.Set("update_time", flattenSecureSourceManagerBranchRuleUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
-	}
-	if err := d.Set("include_pattern", flattenSecureSourceManagerBranchRuleIncludePattern(res["includePattern"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
-	}
-	if err := d.Set("disabled", flattenSecureSourceManagerBranchRuleDisabled(res["disabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
-	}
-	if err := d.Set("require_pull_request", flattenSecureSourceManagerBranchRuleRequirePullRequest(res["requirePullRequest"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
-	}
-	if err := d.Set("minimum_reviews_count", flattenSecureSourceManagerBranchRuleMinimumReviewsCount(res["minimumReviewsCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
-	}
-	if err := d.Set("minimum_approvals_count", flattenSecureSourceManagerBranchRuleMinimumApprovalsCount(res["minimumApprovalsCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
-	}
-	if err := d.Set("require_comments_resolved", flattenSecureSourceManagerBranchRuleRequireCommentsResolved(res["requireCommentsResolved"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
-	}
-	if err := d.Set("allow_stale_reviews", flattenSecureSourceManagerBranchRuleAllowStaleReviews(res["allowStaleReviews"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
-	}
-	if err := d.Set("require_linear_history", flattenSecureSourceManagerBranchRuleRequireLinearHistory(res["requireLinearHistory"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BranchRule: %s", err)
+	err = ResourceSecureSourceManagerBranchRuleFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -831,4 +799,47 @@ func expandSecureSourceManagerBranchRuleAllowStaleReviews(v interface{}, d tpgre
 
 func expandSecureSourceManagerBranchRuleRequireLinearHistory(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceSecureSourceManagerBranchRuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecureSourceManagerBranchRuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+	if err = d.Set("uid", flattenSecureSourceManagerBranchRuleUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+	if err = d.Set("create_time", flattenSecureSourceManagerBranchRuleCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+	if err = d.Set("update_time", flattenSecureSourceManagerBranchRuleUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+	if err = d.Set("include_pattern", flattenSecureSourceManagerBranchRuleIncludePattern(res["includePattern"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+	if err = d.Set("disabled", flattenSecureSourceManagerBranchRuleDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+	if err = d.Set("require_pull_request", flattenSecureSourceManagerBranchRuleRequirePullRequest(res["requirePullRequest"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+	if err = d.Set("minimum_reviews_count", flattenSecureSourceManagerBranchRuleMinimumReviewsCount(res["minimumReviewsCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+	if err = d.Set("minimum_approvals_count", flattenSecureSourceManagerBranchRuleMinimumApprovalsCount(res["minimumApprovalsCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+	if err = d.Set("require_comments_resolved", flattenSecureSourceManagerBranchRuleRequireCommentsResolved(res["requireCommentsResolved"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+	if err = d.Set("allow_stale_reviews", flattenSecureSourceManagerBranchRuleAllowStaleReviews(res["allowStaleReviews"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+	if err = d.Set("require_linear_history", flattenSecureSourceManagerBranchRuleRequireLinearHistory(res["requireLinearHistory"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BranchRule: %s", err)
+	}
+
+	return nil
 }

@@ -383,32 +383,9 @@ func resourceComputeManagedSslCertificateRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeManagedSslCertificateCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
-	}
-	if err := d.Set("description", flattenComputeManagedSslCertificateDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
-	}
-	if err := d.Set("certificate_id", flattenComputeManagedSslCertificateCertificateId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
-	}
-	if err := d.Set("name", flattenComputeManagedSslCertificateName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
-	}
-	if err := d.Set("managed", flattenComputeManagedSslCertificateManaged(res["managed"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
-	}
-	if err := d.Set("type", flattenComputeManagedSslCertificateType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
-	}
-	if err := d.Set("subject_alternative_names", flattenComputeManagedSslCertificateSubjectAlternativeNames(res["subjectAlternativeNames"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
-	}
-	if err := d.Set("expire_time", flattenComputeManagedSslCertificateExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+	err = ResourceComputeManagedSslCertificateFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -602,4 +579,37 @@ func expandComputeManagedSslCertificateManagedDomains(v interface{}, d tpgresour
 
 func expandComputeManagedSslCertificateType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeManagedSslCertificateFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeManagedSslCertificateCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+	}
+	if err = d.Set("description", flattenComputeManagedSslCertificateDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+	}
+	if err = d.Set("certificate_id", flattenComputeManagedSslCertificateCertificateId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+	}
+	if err = d.Set("name", flattenComputeManagedSslCertificateName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+	}
+	if err = d.Set("managed", flattenComputeManagedSslCertificateManaged(res["managed"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+	}
+	if err = d.Set("type", flattenComputeManagedSslCertificateType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+	}
+	if err = d.Set("subject_alternative_names", flattenComputeManagedSslCertificateSubjectAlternativeNames(res["subjectAlternativeNames"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+	}
+	if err = d.Set("expire_time", flattenComputeManagedSslCertificateExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+	}
+	return nil
 }

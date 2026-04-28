@@ -674,32 +674,9 @@ func resourceOracleDatabaseCloudExadataInfrastructureRead(d *schema.ResourceData
 		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
 	}
 
-	if err := d.Set("name", flattenOracleDatabaseCloudExadataInfrastructureName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
-	}
-	if err := d.Set("display_name", flattenOracleDatabaseCloudExadataInfrastructureDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
-	}
-	if err := d.Set("gcp_oracle_zone", flattenOracleDatabaseCloudExadataInfrastructureGcpOracleZone(res["gcpOracleZone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
-	}
-	if err := d.Set("entitlement_id", flattenOracleDatabaseCloudExadataInfrastructureEntitlementId(res["entitlementId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
-	}
-	if err := d.Set("properties", flattenOracleDatabaseCloudExadataInfrastructureProperties(res["properties"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
-	}
-	if err := d.Set("labels", flattenOracleDatabaseCloudExadataInfrastructureLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
-	}
-	if err := d.Set("create_time", flattenOracleDatabaseCloudExadataInfrastructureCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenOracleDatabaseCloudExadataInfrastructureTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenOracleDatabaseCloudExadataInfrastructureEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
+	err = ResourceOracleDatabaseCloudExadataInfrastructureFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1770,4 +1747,38 @@ func expandOracleDatabaseCloudExadataInfrastructureEffectiveLabels(v interface{}
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceOracleDatabaseCloudExadataInfrastructureFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenOracleDatabaseCloudExadataInfrastructureName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
+	}
+	if err = d.Set("display_name", flattenOracleDatabaseCloudExadataInfrastructureDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
+	}
+	if err = d.Set("gcp_oracle_zone", flattenOracleDatabaseCloudExadataInfrastructureGcpOracleZone(res["gcpOracleZone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
+	}
+	if err = d.Set("entitlement_id", flattenOracleDatabaseCloudExadataInfrastructureEntitlementId(res["entitlementId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
+	}
+	if err = d.Set("properties", flattenOracleDatabaseCloudExadataInfrastructureProperties(res["properties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
+	}
+	if err = d.Set("labels", flattenOracleDatabaseCloudExadataInfrastructureLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
+	}
+	if err = d.Set("create_time", flattenOracleDatabaseCloudExadataInfrastructureCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenOracleDatabaseCloudExadataInfrastructureTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenOracleDatabaseCloudExadataInfrastructureEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
+	}
+
+	return nil
 }

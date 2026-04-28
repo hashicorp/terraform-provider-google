@@ -291,17 +291,9 @@ func resourceApigeeEnvReferencesRead(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Finished reading ApigeeEnvReferences %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenApigeeEnvReferencesName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvReferences: %s", err)
-	}
-	if err := d.Set("description", flattenApigeeEnvReferencesDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvReferences: %s", err)
-	}
-	if err := d.Set("resource_type", flattenApigeeEnvReferencesResourceType(res["resourceType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvReferences: %s", err)
-	}
-	if err := d.Set("refers", flattenApigeeEnvReferencesRefers(res["refers"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvReferences: %s", err)
+	err = ResourceApigeeEnvReferencesFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -501,4 +493,23 @@ func expandApigeeEnvReferencesResourceType(v interface{}, d tpgresource.Terrafor
 
 func expandApigeeEnvReferencesRefers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeEnvReferencesFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenApigeeEnvReferencesName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvReferences: %s", err)
+	}
+	if err = d.Set("description", flattenApigeeEnvReferencesDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvReferences: %s", err)
+	}
+	if err = d.Set("resource_type", flattenApigeeEnvReferencesResourceType(res["resourceType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvReferences: %s", err)
+	}
+	if err = d.Set("refers", flattenApigeeEnvReferencesRefers(res["refers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvReferences: %s", err)
+	}
+
+	return nil
 }

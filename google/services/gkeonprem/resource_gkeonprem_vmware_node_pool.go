@@ -614,47 +614,9 @@ func resourceGkeonpremVmwareNodePoolRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
 	}
 
-	if err := d.Set("display_name", flattenGkeonpremVmwareNodePoolDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("annotations", flattenGkeonpremVmwareNodePoolAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("node_pool_autoscaling", flattenGkeonpremVmwareNodePoolNodePoolAutoscaling(res["nodePoolAutoscaling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("config", flattenGkeonpremVmwareNodePoolConfig(res["config"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("status", flattenGkeonpremVmwareNodePoolStatus(res["status"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("uid", flattenGkeonpremVmwareNodePoolUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("state", flattenGkeonpremVmwareNodePoolState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("reconciling", flattenGkeonpremVmwareNodePoolReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("create_time", flattenGkeonpremVmwareNodePoolCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("update_time", flattenGkeonpremVmwareNodePoolUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("delete_time", flattenGkeonpremVmwareNodePoolDeleteTime(res["deleteTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("etag", flattenGkeonpremVmwareNodePoolEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("on_prem_version", flattenGkeonpremVmwareNodePoolOnPremVersion(res["onPremVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenGkeonpremVmwareNodePoolEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	err = ResourceGkeonpremVmwareNodePoolFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1586,4 +1548,53 @@ func expandGkeonpremVmwareNodePoolEffectiveAnnotations(v interface{}, d tpgresou
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceGkeonpremVmwareNodePoolFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("display_name", flattenGkeonpremVmwareNodePoolDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("annotations", flattenGkeonpremVmwareNodePoolAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("node_pool_autoscaling", flattenGkeonpremVmwareNodePoolNodePoolAutoscaling(res["nodePoolAutoscaling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("config", flattenGkeonpremVmwareNodePoolConfig(res["config"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("status", flattenGkeonpremVmwareNodePoolStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("uid", flattenGkeonpremVmwareNodePoolUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("state", flattenGkeonpremVmwareNodePoolState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("reconciling", flattenGkeonpremVmwareNodePoolReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("create_time", flattenGkeonpremVmwareNodePoolCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("update_time", flattenGkeonpremVmwareNodePoolUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("delete_time", flattenGkeonpremVmwareNodePoolDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("etag", flattenGkeonpremVmwareNodePoolEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("on_prem_version", flattenGkeonpremVmwareNodePoolOnPremVersion(res["onPremVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenGkeonpremVmwareNodePoolEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareNodePool: %s", err)
+	}
+
+	return nil
 }

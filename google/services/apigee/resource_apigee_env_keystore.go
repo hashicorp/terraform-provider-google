@@ -262,11 +262,9 @@ func resourceApigeeEnvKeystoreRead(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[DEBUG] Finished reading ApigeeEnvKeystore %q: %#v", d.Id(), res)
 
-	if err := d.Set("aliases", flattenApigeeEnvKeystoreAliases(res["aliases"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvKeystore: %s", err)
-	}
-	if err := d.Set("name", flattenApigeeEnvKeystoreName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvKeystore: %s", err)
+	err = ResourceApigeeEnvKeystoreFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -363,4 +361,17 @@ func flattenApigeeEnvKeystoreName(v interface{}, d *schema.ResourceData, config 
 
 func expandApigeeEnvKeystoreName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeEnvKeystoreFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("aliases", flattenApigeeEnvKeystoreAliases(res["aliases"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvKeystore: %s", err)
+	}
+	if err = d.Set("name", flattenApigeeEnvKeystoreName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvKeystore: %s", err)
+	}
+
+	return nil
 }

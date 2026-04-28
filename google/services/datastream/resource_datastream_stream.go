@@ -2858,41 +2858,9 @@ func resourceDatastreamStreamRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Stream: %s", err)
 	}
 
-	if err := d.Set("name", flattenDatastreamStreamName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
-	}
-	if err := d.Set("labels", flattenDatastreamStreamLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
-	}
-	if err := d.Set("display_name", flattenDatastreamStreamDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
-	}
-	if err := d.Set("source_config", flattenDatastreamStreamSourceConfig(res["sourceConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
-	}
-	if err := d.Set("destination_config", flattenDatastreamStreamDestinationConfig(res["destinationConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
-	}
-	if err := d.Set("state", flattenDatastreamStreamState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
-	}
-	if err := d.Set("backfill_all", flattenDatastreamStreamBackfillAll(res["backfillAll"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
-	}
-	if err := d.Set("backfill_none", flattenDatastreamStreamBackfillNone(res["backfillNone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
-	}
-	if err := d.Set("customer_managed_encryption_key", flattenDatastreamStreamCustomerManagedEncryptionKey(res["customerManagedEncryptionKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
-	}
-	if err := d.Set("rule_sets", flattenDatastreamStreamRuleSets(res["ruleSets"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDatastreamStreamTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDatastreamStreamEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Stream: %s", err)
+	err = ResourceDatastreamStreamFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -12299,4 +12267,47 @@ func resourceDatastreamStreamEncoder(d *schema.ResourceData, meta interface{}, o
 		obj["state"] = d.Get("desired_state")
 	}
 	return obj, nil
+}
+
+func ResourceDatastreamStreamFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDatastreamStreamName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err = d.Set("labels", flattenDatastreamStreamLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err = d.Set("display_name", flattenDatastreamStreamDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err = d.Set("source_config", flattenDatastreamStreamSourceConfig(res["sourceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err = d.Set("destination_config", flattenDatastreamStreamDestinationConfig(res["destinationConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err = d.Set("state", flattenDatastreamStreamState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err = d.Set("backfill_all", flattenDatastreamStreamBackfillAll(res["backfillAll"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err = d.Set("backfill_none", flattenDatastreamStreamBackfillNone(res["backfillNone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err = d.Set("customer_managed_encryption_key", flattenDatastreamStreamCustomerManagedEncryptionKey(res["customerManagedEncryptionKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err = d.Set("rule_sets", flattenDatastreamStreamRuleSets(res["ruleSets"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDatastreamStreamTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDatastreamStreamEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+
+	return nil
 }

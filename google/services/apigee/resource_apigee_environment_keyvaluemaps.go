@@ -248,8 +248,9 @@ func resourceApigeeEnvironmentKeyvaluemapsRead(d *schema.ResourceData, meta inte
 		return nil
 	}
 
-	if err := d.Set("name", flattenApigeeEnvironmentKeyvaluemapsName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvironmentKeyvaluemaps: %s", err)
+	err = ResourceApigeeEnvironmentKeyvaluemapsFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -355,4 +356,14 @@ func resourceApigeeEnvironmentKeyvaluemapsDecoder(d *schema.ResourceData, meta i
 	res["encrypted"] = true
 
 	return res, nil
+}
+
+func ResourceApigeeEnvironmentKeyvaluemapsFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenApigeeEnvironmentKeyvaluemapsName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvironmentKeyvaluemaps: %s", err)
+	}
+
+	return nil
 }

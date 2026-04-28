@@ -542,62 +542,9 @@ func resourceChronicleRuleRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Rule: %s", err)
 	}
 
-	if err := d.Set("name", flattenChronicleRuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("rule_id", flattenChronicleRuleRuleId(res["ruleId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("text", flattenChronicleRuleText(res["text"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("metadata", flattenChronicleRuleMetadata(res["metadata"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("scope", flattenChronicleRuleScope(res["scope"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("near_real_time_live_rule_eligible", flattenChronicleRuleNearRealTimeLiveRuleEligible(res["nearRealTimeLiveRuleEligible"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("revision_id", flattenChronicleRuleRevisionId(res["revisionId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("severity", flattenChronicleRuleSeverity(res["severity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("revision_create_time", flattenChronicleRuleRevisionCreateTime(res["revisionCreateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("compilation_state", flattenChronicleRuleCompilationState(res["compilationState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("type", flattenChronicleRuleType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("reference_lists", flattenChronicleRuleReferenceLists(res["referenceLists"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("display_name", flattenChronicleRuleDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("create_time", flattenChronicleRuleCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("author", flattenChronicleRuleAuthor(res["author"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("allowed_run_frequencies", flattenChronicleRuleAllowedRunFrequencies(res["allowedRunFrequencies"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("etag", flattenChronicleRuleEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("compilation_diagnostics", flattenChronicleRuleCompilationDiagnostics(res["compilationDiagnostics"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
-	}
-	if err := d.Set("data_tables", flattenChronicleRuleDataTables(res["dataTables"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule: %s", err)
+	err = ResourceChronicleRuleFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1053,5 +1000,69 @@ func resourceChronicleRulePostCreateSetComputedFields(d *schema.ResourceData, me
 	if err := d.Set("rule_id", flattenChronicleRuleRuleId(res["ruleId"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "rule_id": %s`, err)
 	}
+	return nil
+}
+
+func ResourceChronicleRuleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenChronicleRuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("rule_id", flattenChronicleRuleRuleId(res["ruleId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("text", flattenChronicleRuleText(res["text"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("metadata", flattenChronicleRuleMetadata(res["metadata"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("scope", flattenChronicleRuleScope(res["scope"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("near_real_time_live_rule_eligible", flattenChronicleRuleNearRealTimeLiveRuleEligible(res["nearRealTimeLiveRuleEligible"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("revision_id", flattenChronicleRuleRevisionId(res["revisionId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("severity", flattenChronicleRuleSeverity(res["severity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("revision_create_time", flattenChronicleRuleRevisionCreateTime(res["revisionCreateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("compilation_state", flattenChronicleRuleCompilationState(res["compilationState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("type", flattenChronicleRuleType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("reference_lists", flattenChronicleRuleReferenceLists(res["referenceLists"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("display_name", flattenChronicleRuleDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("create_time", flattenChronicleRuleCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("author", flattenChronicleRuleAuthor(res["author"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("allowed_run_frequencies", flattenChronicleRuleAllowedRunFrequencies(res["allowedRunFrequencies"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("etag", flattenChronicleRuleEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("compilation_diagnostics", flattenChronicleRuleCompilationDiagnostics(res["compilationDiagnostics"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+	if err = d.Set("data_tables", flattenChronicleRuleDataTables(res["dataTables"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Rule: %s", err)
+	}
+
 	return nil
 }

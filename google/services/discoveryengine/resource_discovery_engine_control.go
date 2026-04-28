@@ -640,35 +640,9 @@ func resourceDiscoveryEngineControlRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Control: %s", err)
 	}
 
-	if err := d.Set("name", flattenDiscoveryEngineControlName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Control: %s", err)
-	}
-	if err := d.Set("display_name", flattenDiscoveryEngineControlDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Control: %s", err)
-	}
-	if err := d.Set("solution_type", flattenDiscoveryEngineControlSolutionType(res["solutionType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Control: %s", err)
-	}
-	if err := d.Set("use_cases", flattenDiscoveryEngineControlUseCases(res["useCases"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Control: %s", err)
-	}
-	if err := d.Set("conditions", flattenDiscoveryEngineControlConditions(res["conditions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Control: %s", err)
-	}
-	if err := d.Set("boost_action", flattenDiscoveryEngineControlBoostAction(res["boostAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Control: %s", err)
-	}
-	if err := d.Set("filter_action", flattenDiscoveryEngineControlFilterAction(res["filterAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Control: %s", err)
-	}
-	if err := d.Set("redirect_action", flattenDiscoveryEngineControlRedirectAction(res["redirectAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Control: %s", err)
-	}
-	if err := d.Set("synonyms_action", flattenDiscoveryEngineControlSynonymsAction(res["synonymsAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Control: %s", err)
-	}
-	if err := d.Set("promote_action", flattenDiscoveryEngineControlPromoteAction(res["promoteAction"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Control: %s", err)
+	err = ResourceDiscoveryEngineControlFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1737,4 +1711,41 @@ func expandDiscoveryEngineControlPromoteActionSearchLinkPromotionImageUri(v inte
 
 func expandDiscoveryEngineControlPromoteActionSearchLinkPromotionEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceDiscoveryEngineControlFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDiscoveryEngineControlName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Control: %s", err)
+	}
+	if err = d.Set("display_name", flattenDiscoveryEngineControlDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Control: %s", err)
+	}
+	if err = d.Set("solution_type", flattenDiscoveryEngineControlSolutionType(res["solutionType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Control: %s", err)
+	}
+	if err = d.Set("use_cases", flattenDiscoveryEngineControlUseCases(res["useCases"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Control: %s", err)
+	}
+	if err = d.Set("conditions", flattenDiscoveryEngineControlConditions(res["conditions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Control: %s", err)
+	}
+	if err = d.Set("boost_action", flattenDiscoveryEngineControlBoostAction(res["boostAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Control: %s", err)
+	}
+	if err = d.Set("filter_action", flattenDiscoveryEngineControlFilterAction(res["filterAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Control: %s", err)
+	}
+	if err = d.Set("redirect_action", flattenDiscoveryEngineControlRedirectAction(res["redirectAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Control: %s", err)
+	}
+	if err = d.Set("synonyms_action", flattenDiscoveryEngineControlSynonymsAction(res["synonymsAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Control: %s", err)
+	}
+	if err = d.Set("promote_action", flattenDiscoveryEngineControlPromoteAction(res["promoteAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Control: %s", err)
+	}
+
+	return nil
 }

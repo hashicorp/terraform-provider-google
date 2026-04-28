@@ -346,20 +346,9 @@ func resourceSecurityCenterV2FolderNotificationConfigRead(d *schema.ResourceData
 
 	log.Printf("[DEBUG] Finished reading SecurityCenterV2FolderNotificationConfig %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenSecurityCenterV2FolderNotificationConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
-	}
-	if err := d.Set("description", flattenSecurityCenterV2FolderNotificationConfigDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
-	}
-	if err := d.Set("pubsub_topic", flattenSecurityCenterV2FolderNotificationConfigPubsubTopic(res["pubsubTopic"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
-	}
-	if err := d.Set("service_account", flattenSecurityCenterV2FolderNotificationConfigServiceAccount(res["serviceAccount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
-	}
-	if err := d.Set("streaming_config", flattenSecurityCenterV2FolderNotificationConfigStreamingConfig(res["streamingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
+	err = ResourceSecurityCenterV2FolderNotificationConfigFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -633,4 +622,26 @@ func expandSecurityCenterV2FolderNotificationConfigStreamingConfig(v interface{}
 
 func expandSecurityCenterV2FolderNotificationConfigStreamingConfigFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceSecurityCenterV2FolderNotificationConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecurityCenterV2FolderNotificationConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
+	}
+	if err = d.Set("description", flattenSecurityCenterV2FolderNotificationConfigDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
+	}
+	if err = d.Set("pubsub_topic", flattenSecurityCenterV2FolderNotificationConfigPubsubTopic(res["pubsubTopic"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
+	}
+	if err = d.Set("service_account", flattenSecurityCenterV2FolderNotificationConfigServiceAccount(res["serviceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
+	}
+	if err = d.Set("streaming_config", flattenSecurityCenterV2FolderNotificationConfigStreamingConfig(res["streamingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
+	}
+
+	return nil
 }

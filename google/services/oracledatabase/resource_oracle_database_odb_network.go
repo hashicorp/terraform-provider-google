@@ -393,32 +393,9 @@ func resourceOracleDatabaseOdbNetworkRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading OdbNetwork: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenOracleDatabaseOdbNetworkCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OdbNetwork: %s", err)
-	}
-	if err := d.Set("entitlement_id", flattenOracleDatabaseOdbNetworkEntitlementId(res["entitlementId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OdbNetwork: %s", err)
-	}
-	if err := d.Set("labels", flattenOracleDatabaseOdbNetworkLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OdbNetwork: %s", err)
-	}
-	if err := d.Set("name", flattenOracleDatabaseOdbNetworkName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OdbNetwork: %s", err)
-	}
-	if err := d.Set("network", flattenOracleDatabaseOdbNetworkNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OdbNetwork: %s", err)
-	}
-	if err := d.Set("gcp_oracle_zone", flattenOracleDatabaseOdbNetworkGcpOracleZone(res["gcpOracleZone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OdbNetwork: %s", err)
-	}
-	if err := d.Set("state", flattenOracleDatabaseOdbNetworkState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OdbNetwork: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenOracleDatabaseOdbNetworkTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OdbNetwork: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenOracleDatabaseOdbNetworkEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OdbNetwork: %s", err)
+	err = ResourceOracleDatabaseOdbNetworkFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -612,4 +589,38 @@ func expandOracleDatabaseOdbNetworkEffectiveLabels(v interface{}, d tpgresource.
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceOracleDatabaseOdbNetworkFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenOracleDatabaseOdbNetworkCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OdbNetwork: %s", err)
+	}
+	if err = d.Set("entitlement_id", flattenOracleDatabaseOdbNetworkEntitlementId(res["entitlementId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OdbNetwork: %s", err)
+	}
+	if err = d.Set("labels", flattenOracleDatabaseOdbNetworkLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OdbNetwork: %s", err)
+	}
+	if err = d.Set("name", flattenOracleDatabaseOdbNetworkName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OdbNetwork: %s", err)
+	}
+	if err = d.Set("network", flattenOracleDatabaseOdbNetworkNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OdbNetwork: %s", err)
+	}
+	if err = d.Set("gcp_oracle_zone", flattenOracleDatabaseOdbNetworkGcpOracleZone(res["gcpOracleZone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OdbNetwork: %s", err)
+	}
+	if err = d.Set("state", flattenOracleDatabaseOdbNetworkState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OdbNetwork: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenOracleDatabaseOdbNetworkTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OdbNetwork: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenOracleDatabaseOdbNetworkEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OdbNetwork: %s", err)
+	}
+
+	return nil
 }

@@ -498,35 +498,9 @@ func resourceVertexAIFeatureOnlineStoreRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenVertexAIFeatureOnlineStoreCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
-	}
-	if err := d.Set("update_time", flattenVertexAIFeatureOnlineStoreUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
-	}
-	if err := d.Set("labels", flattenVertexAIFeatureOnlineStoreLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
-	}
-	if err := d.Set("state", flattenVertexAIFeatureOnlineStoreState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
-	}
-	if err := d.Set("bigtable", flattenVertexAIFeatureOnlineStoreBigtable(res["bigtable"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
-	}
-	if err := d.Set("optimized", flattenVertexAIFeatureOnlineStoreOptimized(res["optimized"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
-	}
-	if err := d.Set("dedicated_serving_endpoint", flattenVertexAIFeatureOnlineStoreDedicatedServingEndpoint(res["dedicatedServingEndpoint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
-	}
-	if err := d.Set("encryption_spec", flattenVertexAIFeatureOnlineStoreEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenVertexAIFeatureOnlineStoreTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenVertexAIFeatureOnlineStoreEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	err = ResourceVertexAIFeatureOnlineStoreFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1221,4 +1195,41 @@ func expandVertexAIFeatureOnlineStoreEffectiveLabels(v interface{}, d tpgresourc
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceVertexAIFeatureOnlineStoreFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenVertexAIFeatureOnlineStoreCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
+	if err = d.Set("update_time", flattenVertexAIFeatureOnlineStoreUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
+	if err = d.Set("labels", flattenVertexAIFeatureOnlineStoreLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
+	if err = d.Set("state", flattenVertexAIFeatureOnlineStoreState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
+	if err = d.Set("bigtable", flattenVertexAIFeatureOnlineStoreBigtable(res["bigtable"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
+	if err = d.Set("optimized", flattenVertexAIFeatureOnlineStoreOptimized(res["optimized"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
+	if err = d.Set("dedicated_serving_endpoint", flattenVertexAIFeatureOnlineStoreDedicatedServingEndpoint(res["dedicatedServingEndpoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
+	if err = d.Set("encryption_spec", flattenVertexAIFeatureOnlineStoreEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenVertexAIFeatureOnlineStoreTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenVertexAIFeatureOnlineStoreEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
+
+	return nil
 }

@@ -355,20 +355,9 @@ func resourceNetappVolumeSnapshotRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading VolumeSnapshot: %s", err)
 	}
 
-	if err := d.Set("description", flattenNetappVolumeSnapshotDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeSnapshot: %s", err)
-	}
-	if err := d.Set("labels", flattenNetappVolumeSnapshotLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeSnapshot: %s", err)
-	}
-	if err := d.Set("used_bytes", flattenNetappVolumeSnapshotUsedBytes(res["usedBytes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeSnapshot: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetappVolumeSnapshotTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeSnapshot: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetappVolumeSnapshotEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading VolumeSnapshot: %s", err)
+	err = ResourceNetappVolumeSnapshotFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -661,4 +650,26 @@ func expandNetappVolumeSnapshotEffectiveLabels(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetappVolumeSnapshotFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenNetappVolumeSnapshotDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeSnapshot: %s", err)
+	}
+	if err = d.Set("labels", flattenNetappVolumeSnapshotLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeSnapshot: %s", err)
+	}
+	if err = d.Set("used_bytes", flattenNetappVolumeSnapshotUsedBytes(res["usedBytes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeSnapshot: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetappVolumeSnapshotTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeSnapshot: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetappVolumeSnapshotEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeSnapshot: %s", err)
+	}
+
+	return nil
 }

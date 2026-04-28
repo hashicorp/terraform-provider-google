@@ -374,29 +374,9 @@ func resourceNetworkServicesMeshRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Mesh: %s", err)
 	}
 
-	if err := d.Set("self_link", flattenNetworkServicesMeshSelfLink(res["selfLink"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Mesh: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkServicesMeshCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Mesh: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkServicesMeshUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Mesh: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkServicesMeshLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Mesh: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkServicesMeshDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Mesh: %s", err)
-	}
-	if err := d.Set("interception_port", flattenNetworkServicesMeshInterceptionPort(res["interceptionPort"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Mesh: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkServicesMeshTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Mesh: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkServicesMeshEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Mesh: %s", err)
+	err = ResourceNetworkServicesMeshFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -803,4 +783,35 @@ func ResourceNetworkServicesMeshUpgradeV0(_ context.Context, rawState map[string
 	}
 	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
 	return rawState, nil
+}
+
+func ResourceNetworkServicesMeshFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("self_link", flattenNetworkServicesMeshSelfLink(res["selfLink"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Mesh: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkServicesMeshCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Mesh: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkServicesMeshUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Mesh: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkServicesMeshLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Mesh: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkServicesMeshDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Mesh: %s", err)
+	}
+	if err = d.Set("interception_port", flattenNetworkServicesMeshInterceptionPort(res["interceptionPort"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Mesh: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkServicesMeshTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Mesh: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkServicesMeshEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Mesh: %s", err)
+	}
+
+	return nil
 }

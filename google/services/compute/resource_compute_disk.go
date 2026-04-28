@@ -1321,110 +1321,9 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 
-	if err := d.Set("source_image_encryption_key", flattenComputeDiskSourceImageEncryptionKey(res["sourceImageEncryptionKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("source_instant_snapshot", flattenComputeDiskSourceInstantSnapshot(res["sourceInstantSnapshot"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("source_instant_snapshot_id", flattenComputeDiskSourceInstantSnapshotId(res["sourceInstantSnapshotId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("source_image_id", flattenComputeDiskSourceImageId(res["sourceImageId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("disk_encryption_key", flattenComputeDiskDiskEncryptionKey(res["diskEncryptionKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("source_snapshot_encryption_key", flattenComputeDiskSourceSnapshotEncryptionKey(res["sourceSnapshotEncryptionKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("source_snapshot_id", flattenComputeDiskSourceSnapshotId(res["sourceSnapshotId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeDiskLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeDiskCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("description", flattenComputeDiskDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("last_attach_timestamp", flattenComputeDiskLastAttachTimestamp(res["lastAttachTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("last_detach_timestamp", flattenComputeDiskLastDetachTimestamp(res["lastDetachTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeDiskLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("name", flattenComputeDiskName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("size", flattenComputeDiskSize(res["sizeGb"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("users", flattenComputeDiskUsers(res["users"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("physical_block_size_bytes", flattenComputeDiskPhysicalBlockSizeBytes(res["physicalBlockSizeBytes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("source_disk", flattenComputeDiskSourceDisk(res["sourceDisk"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("source_disk_id", flattenComputeDiskSourceDiskId(res["sourceDiskId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("disk_id", flattenComputeDiskDiskId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("type", flattenComputeDiskType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("image", flattenComputeDiskImage(res["sourceImage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("enable_confidential_compute", flattenComputeDiskEnableConfidentialCompute(res["enableConfidentialCompute"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("provisioned_iops", flattenComputeDiskProvisionedIops(res["provisionedIops"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("provisioned_throughput", flattenComputeDiskProvisionedThroughput(res["provisionedThroughput"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("async_primary_disk", flattenComputeDiskAsyncPrimaryDisk(res["asyncPrimaryDisk"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("guest_os_features", flattenComputeDiskGuestOsFeatures(res["guestOsFeatures"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("licenses", flattenComputeDiskLicenses(res["licenses"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("storage_pool", flattenComputeDiskStoragePool(res["storagePool"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("access_mode", flattenComputeDiskAccessMode(res["accessMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenComputeDiskTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenComputeDiskEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("zone", flattenComputeDiskZone(res["zone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("snapshot", flattenComputeDiskSnapshot(res["sourceSnapshot"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Disk: %s", err)
+	err = ResourceComputeDiskFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2680,4 +2579,115 @@ func resourceComputeDiskDecoder(d *schema.ResourceData, meta interface{}, res ma
 	}
 
 	return res, nil
+}
+
+func ResourceComputeDiskFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("source_image_encryption_key", flattenComputeDiskSourceImageEncryptionKey(res["sourceImageEncryptionKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("source_instant_snapshot", flattenComputeDiskSourceInstantSnapshot(res["sourceInstantSnapshot"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("source_instant_snapshot_id", flattenComputeDiskSourceInstantSnapshotId(res["sourceInstantSnapshotId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("source_image_id", flattenComputeDiskSourceImageId(res["sourceImageId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("disk_encryption_key", flattenComputeDiskDiskEncryptionKey(res["diskEncryptionKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("source_snapshot_encryption_key", flattenComputeDiskSourceSnapshotEncryptionKey(res["sourceSnapshotEncryptionKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("source_snapshot_id", flattenComputeDiskSourceSnapshotId(res["sourceSnapshotId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("label_fingerprint", flattenComputeDiskLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeDiskCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("description", flattenComputeDiskDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("last_attach_timestamp", flattenComputeDiskLastAttachTimestamp(res["lastAttachTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("last_detach_timestamp", flattenComputeDiskLastDetachTimestamp(res["lastDetachTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("labels", flattenComputeDiskLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("name", flattenComputeDiskName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("size", flattenComputeDiskSize(res["sizeGb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("users", flattenComputeDiskUsers(res["users"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("physical_block_size_bytes", flattenComputeDiskPhysicalBlockSizeBytes(res["physicalBlockSizeBytes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("source_disk", flattenComputeDiskSourceDisk(res["sourceDisk"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("source_disk_id", flattenComputeDiskSourceDiskId(res["sourceDiskId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("disk_id", flattenComputeDiskDiskId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("type", flattenComputeDiskType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("image", flattenComputeDiskImage(res["sourceImage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("enable_confidential_compute", flattenComputeDiskEnableConfidentialCompute(res["enableConfidentialCompute"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("provisioned_iops", flattenComputeDiskProvisionedIops(res["provisionedIops"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("provisioned_throughput", flattenComputeDiskProvisionedThroughput(res["provisionedThroughput"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("async_primary_disk", flattenComputeDiskAsyncPrimaryDisk(res["asyncPrimaryDisk"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("guest_os_features", flattenComputeDiskGuestOsFeatures(res["guestOsFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("licenses", flattenComputeDiskLicenses(res["licenses"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("storage_pool", flattenComputeDiskStoragePool(res["storagePool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("access_mode", flattenComputeDiskAccessMode(res["accessMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenComputeDiskTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenComputeDiskEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("zone", flattenComputeDiskZone(res["zone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("snapshot", flattenComputeDiskSnapshot(res["sourceSnapshot"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	return nil
 }

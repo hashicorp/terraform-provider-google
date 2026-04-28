@@ -336,23 +336,9 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		return nil
 	}
 
-	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
-	}
-	if err := d.Set("reason", flattenNestedResourceManagerLienReason(res["reason"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
-	}
-	if err := d.Set("origin", flattenNestedResourceManagerLienOrigin(res["origin"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
-	}
-	if err := d.Set("create_time", flattenNestedResourceManagerLienCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
-	}
-	if err := d.Set("parent", flattenNestedResourceManagerLienParent(res["parent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
-	}
-	if err := d.Set("restrictions", flattenNestedResourceManagerLienRestrictions(res["restrictions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Lien: %s", err)
+	err = ResourceResourceManagerLienFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -633,5 +619,30 @@ func resourceResourceManagerLienPostCreateSetComputedFields(d *schema.ResourceDa
 	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceResourceManagerLienFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Lien: %s", err)
+	}
+	if err = d.Set("reason", flattenNestedResourceManagerLienReason(res["reason"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Lien: %s", err)
+	}
+	if err = d.Set("origin", flattenNestedResourceManagerLienOrigin(res["origin"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Lien: %s", err)
+	}
+	if err = d.Set("create_time", flattenNestedResourceManagerLienCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Lien: %s", err)
+	}
+	if err = d.Set("parent", flattenNestedResourceManagerLienParent(res["parent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Lien: %s", err)
+	}
+	if err = d.Set("restrictions", flattenNestedResourceManagerLienRestrictions(res["restrictions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Lien: %s", err)
+	}
+
 	return nil
 }

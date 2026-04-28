@@ -417,32 +417,9 @@ func resourceCloudQuotasQuotaPreferenceRead(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Finished reading CloudQuotasQuotaPreference %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenCloudQuotasQuotaPreferenceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading QuotaPreference: %s", err)
-	}
-	if err := d.Set("service", flattenCloudQuotasQuotaPreferenceService(res["service"], d, config)); err != nil {
-		return fmt.Errorf("Error reading QuotaPreference: %s", err)
-	}
-	if err := d.Set("quota_id", flattenCloudQuotasQuotaPreferenceQuotaId(res["quotaId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading QuotaPreference: %s", err)
-	}
-	if err := d.Set("quota_config", flattenCloudQuotasQuotaPreferenceQuotaConfig(res["quotaConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading QuotaPreference: %s", err)
-	}
-	if err := d.Set("dimensions", flattenCloudQuotasQuotaPreferenceDimensions(res["dimensions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading QuotaPreference: %s", err)
-	}
-	if err := d.Set("etag", flattenCloudQuotasQuotaPreferenceEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading QuotaPreference: %s", err)
-	}
-	if err := d.Set("create_time", flattenCloudQuotasQuotaPreferenceCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading QuotaPreference: %s", err)
-	}
-	if err := d.Set("update_time", flattenCloudQuotasQuotaPreferenceUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading QuotaPreference: %s", err)
-	}
-	if err := d.Set("reconciling", flattenCloudQuotasQuotaPreferenceReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading QuotaPreference: %s", err)
+	err = ResourceCloudQuotasQuotaPreferenceFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -843,5 +820,39 @@ func resourceCloudQuotasQuotaPreferencePostCreateSetComputedFields(d *schema.Res
 			return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 		}
 	}
+	return nil
+}
+
+func ResourceCloudQuotasQuotaPreferenceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenCloudQuotasQuotaPreferenceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading QuotaPreference: %s", err)
+	}
+	if err = d.Set("service", flattenCloudQuotasQuotaPreferenceService(res["service"], d, config)); err != nil {
+		return fmt.Errorf("Error reading QuotaPreference: %s", err)
+	}
+	if err = d.Set("quota_id", flattenCloudQuotasQuotaPreferenceQuotaId(res["quotaId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading QuotaPreference: %s", err)
+	}
+	if err = d.Set("quota_config", flattenCloudQuotasQuotaPreferenceQuotaConfig(res["quotaConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading QuotaPreference: %s", err)
+	}
+	if err = d.Set("dimensions", flattenCloudQuotasQuotaPreferenceDimensions(res["dimensions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading QuotaPreference: %s", err)
+	}
+	if err = d.Set("etag", flattenCloudQuotasQuotaPreferenceEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading QuotaPreference: %s", err)
+	}
+	if err = d.Set("create_time", flattenCloudQuotasQuotaPreferenceCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading QuotaPreference: %s", err)
+	}
+	if err = d.Set("update_time", flattenCloudQuotasQuotaPreferenceUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading QuotaPreference: %s", err)
+	}
+	if err = d.Set("reconciling", flattenCloudQuotasQuotaPreferenceReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading QuotaPreference: %s", err)
+	}
+
 	return nil
 }

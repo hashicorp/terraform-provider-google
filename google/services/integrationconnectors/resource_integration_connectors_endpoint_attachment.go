@@ -373,32 +373,9 @@ func resourceIntegrationConnectorsEndpointAttachmentRead(d *schema.ResourceData,
 		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenIntegrationConnectorsEndpointAttachmentCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("update_time", flattenIntegrationConnectorsEndpointAttachmentUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("description", flattenIntegrationConnectorsEndpointAttachmentDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("labels", flattenIntegrationConnectorsEndpointAttachmentLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("service_attachment", flattenIntegrationConnectorsEndpointAttachmentServiceAttachment(res["serviceAttachment"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("endpoint_ip", flattenIntegrationConnectorsEndpointAttachmentEndpointIp(res["endpointIp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("endpoint_global_access", flattenIntegrationConnectorsEndpointAttachmentEndpointGlobalAccess(res["endpointGlobalAccess"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenIntegrationConnectorsEndpointAttachmentTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenIntegrationConnectorsEndpointAttachmentEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	err = ResourceIntegrationConnectorsEndpointAttachmentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -701,4 +678,38 @@ func expandIntegrationConnectorsEndpointAttachmentEffectiveLabels(v interface{},
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceIntegrationConnectorsEndpointAttachmentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenIntegrationConnectorsEndpointAttachmentCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("update_time", flattenIntegrationConnectorsEndpointAttachmentUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("description", flattenIntegrationConnectorsEndpointAttachmentDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("labels", flattenIntegrationConnectorsEndpointAttachmentLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("service_attachment", flattenIntegrationConnectorsEndpointAttachmentServiceAttachment(res["serviceAttachment"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("endpoint_ip", flattenIntegrationConnectorsEndpointAttachmentEndpointIp(res["endpointIp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("endpoint_global_access", flattenIntegrationConnectorsEndpointAttachmentEndpointGlobalAccess(res["endpointGlobalAccess"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenIntegrationConnectorsEndpointAttachmentTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenIntegrationConnectorsEndpointAttachmentEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
+
+	return nil
 }

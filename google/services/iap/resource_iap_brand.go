@@ -322,17 +322,9 @@ func resourceIapBrandRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Brand: %s", err)
 	}
 
-	if err := d.Set("support_email", flattenIapBrandSupportEmail(res["supportEmail"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Brand: %s", err)
-	}
-	if err := d.Set("application_title", flattenIapBrandApplicationTitle(res["applicationTitle"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Brand: %s", err)
-	}
-	if err := d.Set("org_internal_only", flattenIapBrandOrgInternalOnly(res["orgInternalOnly"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Brand: %s", err)
-	}
-	if err := d.Set("name", flattenIapBrandName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Brand: %s", err)
+	err = ResourceIapBrandFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -416,5 +408,24 @@ func resourceIapBrandPostCreateSetComputedFields(d *schema.ResourceData, meta in
 	if err := d.Set("name", flattenIapBrandName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceIapBrandFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("support_email", flattenIapBrandSupportEmail(res["supportEmail"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Brand: %s", err)
+	}
+	if err = d.Set("application_title", flattenIapBrandApplicationTitle(res["applicationTitle"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Brand: %s", err)
+	}
+	if err = d.Set("org_internal_only", flattenIapBrandOrgInternalOnly(res["orgInternalOnly"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Brand: %s", err)
+	}
+	if err = d.Set("name", flattenIapBrandName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Brand: %s", err)
+	}
+
 	return nil
 }

@@ -332,17 +332,9 @@ func resourceLoggingLogViewRead(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] Finished reading LoggingLogView %q: %#v", d.Id(), res)
 
-	if err := d.Set("description", flattenLoggingLogViewDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LogView: %s", err)
-	}
-	if err := d.Set("create_time", flattenLoggingLogViewCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LogView: %s", err)
-	}
-	if err := d.Set("update_time", flattenLoggingLogViewUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LogView: %s", err)
-	}
-	if err := d.Set("filter", flattenLoggingLogViewFilter(res["filter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LogView: %s", err)
+	err = ResourceLoggingLogViewFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -594,4 +586,23 @@ func resourceLoggingLogViewEncoder(d *schema.ResourceData, meta interface{}, obj
 	d.Set("bucket", bucket)
 	d.Set("name", name)
 	return obj, nil
+}
+
+func ResourceLoggingLogViewFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenLoggingLogViewDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LogView: %s", err)
+	}
+	if err = d.Set("create_time", flattenLoggingLogViewCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LogView: %s", err)
+	}
+	if err = d.Set("update_time", flattenLoggingLogViewUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LogView: %s", err)
+	}
+	if err = d.Set("filter", flattenLoggingLogViewFilter(res["filter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LogView: %s", err)
+	}
+
+	return nil
 }

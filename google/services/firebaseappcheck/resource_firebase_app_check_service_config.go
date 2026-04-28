@@ -319,11 +319,9 @@ func resourceFirebaseAppCheckServiceConfigRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading ServiceConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenFirebaseAppCheckServiceConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConfig: %s", err)
-	}
-	if err := d.Set("enforcement_mode", flattenFirebaseAppCheckServiceConfigEnforcementMode(res["enforcementMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceConfig: %s", err)
+	err = ResourceFirebaseAppCheckServiceConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -511,4 +509,17 @@ func flattenFirebaseAppCheckServiceConfigEnforcementMode(v interface{}, d *schem
 
 func expandFirebaseAppCheckServiceConfigEnforcementMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceFirebaseAppCheckServiceConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenFirebaseAppCheckServiceConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConfig: %s", err)
+	}
+	if err = d.Set("enforcement_mode", flattenFirebaseAppCheckServiceConfigEnforcementMode(res["enforcementMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConfig: %s", err)
+	}
+
+	return nil
 }

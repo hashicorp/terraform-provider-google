@@ -516,53 +516,9 @@ func resourceNetworkConnectivityv1InternalRangeRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
 
-	if err := d.Set("labels", flattenNetworkConnectivityv1InternalRangeLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkConnectivityv1InternalRangeDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("ip_cidr_range", flattenNetworkConnectivityv1InternalRangeIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("network", flattenNetworkConnectivityv1InternalRangeNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("usage", flattenNetworkConnectivityv1InternalRangeUsage(res["usage"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("peering", flattenNetworkConnectivityv1InternalRangePeering(res["peering"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("prefix_length", flattenNetworkConnectivityv1InternalRangePrefixLength(res["prefixLength"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("target_cidr_range", flattenNetworkConnectivityv1InternalRangeTargetCidrRange(res["targetCidrRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("exclude_cidr_ranges", flattenNetworkConnectivityv1InternalRangeExcludeCidrRanges(res["excludeCidrRanges"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("allocation_options", flattenNetworkConnectivityv1InternalRangeAllocationOptions(res["allocationOptions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("users", flattenNetworkConnectivityv1InternalRangeUsers(res["users"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("overlaps", flattenNetworkConnectivityv1InternalRangeOverlaps(res["overlaps"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("migration", flattenNetworkConnectivityv1InternalRangeMigration(res["migration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("immutable", flattenNetworkConnectivityv1InternalRangeImmutable(res["immutable"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkConnectivityv1InternalRangeTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkConnectivityv1InternalRangeEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
+	err = ResourceNetworkConnectivityv1InternalRangeFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1121,4 +1077,59 @@ func expandNetworkConnectivityv1InternalRangeEffectiveLabels(v interface{}, d tp
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkConnectivityv1InternalRangeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("labels", flattenNetworkConnectivityv1InternalRangeLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkConnectivityv1InternalRangeDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("ip_cidr_range", flattenNetworkConnectivityv1InternalRangeIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("network", flattenNetworkConnectivityv1InternalRangeNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("usage", flattenNetworkConnectivityv1InternalRangeUsage(res["usage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("peering", flattenNetworkConnectivityv1InternalRangePeering(res["peering"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("prefix_length", flattenNetworkConnectivityv1InternalRangePrefixLength(res["prefixLength"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("target_cidr_range", flattenNetworkConnectivityv1InternalRangeTargetCidrRange(res["targetCidrRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("exclude_cidr_ranges", flattenNetworkConnectivityv1InternalRangeExcludeCidrRanges(res["excludeCidrRanges"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("allocation_options", flattenNetworkConnectivityv1InternalRangeAllocationOptions(res["allocationOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("users", flattenNetworkConnectivityv1InternalRangeUsers(res["users"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("overlaps", flattenNetworkConnectivityv1InternalRangeOverlaps(res["overlaps"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("migration", flattenNetworkConnectivityv1InternalRangeMigration(res["migration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("immutable", flattenNetworkConnectivityv1InternalRangeImmutable(res["immutable"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkConnectivityv1InternalRangeTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkConnectivityv1InternalRangeEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+
+	return nil
 }

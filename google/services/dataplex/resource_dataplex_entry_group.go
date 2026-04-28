@@ -372,35 +372,9 @@ func resourceDataplexEntryGroupRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading EntryGroup: %s", err)
 	}
 
-	if err := d.Set("name", flattenDataplexEntryGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
-	}
-	if err := d.Set("uid", flattenDataplexEntryGroupUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
-	}
-	if err := d.Set("create_time", flattenDataplexEntryGroupCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
-	}
-	if err := d.Set("update_time", flattenDataplexEntryGroupUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
-	}
-	if err := d.Set("description", flattenDataplexEntryGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataplexEntryGroupDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
-	}
-	if err := d.Set("labels", flattenDataplexEntryGroupLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
-	}
-	if err := d.Set("transfer_status", flattenDataplexEntryGroupTransferStatus(res["transferStatus"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDataplexEntryGroupTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDataplexEntryGroupEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	err = ResourceDataplexEntryGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -703,4 +677,41 @@ func expandDataplexEntryGroupEffectiveLabels(v interface{}, d tpgresource.Terraf
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceDataplexEntryGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataplexEntryGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+	if err = d.Set("uid", flattenDataplexEntryGroupUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+	if err = d.Set("create_time", flattenDataplexEntryGroupCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+	if err = d.Set("update_time", flattenDataplexEntryGroupUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+	if err = d.Set("description", flattenDataplexEntryGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataplexEntryGroupDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+	if err = d.Set("labels", flattenDataplexEntryGroupLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+	if err = d.Set("transfer_status", flattenDataplexEntryGroupTransferStatus(res["transferStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDataplexEntryGroupTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDataplexEntryGroupEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EntryGroup: %s", err)
+	}
+
+	return nil
 }

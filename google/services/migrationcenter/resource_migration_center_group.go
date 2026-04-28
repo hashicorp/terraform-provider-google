@@ -360,29 +360,9 @@ func resourceMigrationCenterGroupRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
 
-	if err := d.Set("name", flattenMigrationCenterGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("create_time", flattenMigrationCenterGroupCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("update_time", flattenMigrationCenterGroupUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("labels", flattenMigrationCenterGroupLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("display_name", flattenMigrationCenterGroupDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("description", flattenMigrationCenterGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenMigrationCenterGroupTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenMigrationCenterGroupEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Group: %s", err)
+	err = ResourceMigrationCenterGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -677,4 +657,35 @@ func expandMigrationCenterGroupEffectiveLabels(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceMigrationCenterGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenMigrationCenterGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("create_time", flattenMigrationCenterGroupCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("update_time", flattenMigrationCenterGroupUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("labels", flattenMigrationCenterGroupLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("display_name", flattenMigrationCenterGroupDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("description", flattenMigrationCenterGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenMigrationCenterGroupTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenMigrationCenterGroupEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
+
+	return nil
 }

@@ -361,29 +361,9 @@ func resourceSecurityCenterProjectSccBigQueryExportRead(d *schema.ResourceData, 
 		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
 	}
 
-	if err := d.Set("name", flattenSecurityCenterProjectSccBigQueryExportName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
-	}
-	if err := d.Set("description", flattenSecurityCenterProjectSccBigQueryExportDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
-	}
-	if err := d.Set("dataset", flattenSecurityCenterProjectSccBigQueryExportDataset(res["dataset"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
-	}
-	if err := d.Set("create_time", flattenSecurityCenterProjectSccBigQueryExportCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
-	}
-	if err := d.Set("update_time", flattenSecurityCenterProjectSccBigQueryExportUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
-	}
-	if err := d.Set("most_recent_editor", flattenSecurityCenterProjectSccBigQueryExportMostRecentEditor(res["mostRecentEditor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
-	}
-	if err := d.Set("principal", flattenSecurityCenterProjectSccBigQueryExportPrincipal(res["principal"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
-	}
-	if err := d.Set("filter", flattenSecurityCenterProjectSccBigQueryExportFilter(res["filter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
+	err = ResourceSecurityCenterProjectSccBigQueryExportFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -623,4 +603,35 @@ func expandSecurityCenterProjectSccBigQueryExportDataset(v interface{}, d tpgres
 
 func expandSecurityCenterProjectSccBigQueryExportFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceSecurityCenterProjectSccBigQueryExportFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSecurityCenterProjectSccBigQueryExportName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
+	}
+	if err = d.Set("description", flattenSecurityCenterProjectSccBigQueryExportDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
+	}
+	if err = d.Set("dataset", flattenSecurityCenterProjectSccBigQueryExportDataset(res["dataset"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
+	}
+	if err = d.Set("create_time", flattenSecurityCenterProjectSccBigQueryExportCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
+	}
+	if err = d.Set("update_time", flattenSecurityCenterProjectSccBigQueryExportUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
+	}
+	if err = d.Set("most_recent_editor", flattenSecurityCenterProjectSccBigQueryExportMostRecentEditor(res["mostRecentEditor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
+	}
+	if err = d.Set("principal", flattenSecurityCenterProjectSccBigQueryExportPrincipal(res["principal"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
+	}
+	if err = d.Set("filter", flattenSecurityCenterProjectSccBigQueryExportFilter(res["filter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSccBigQueryExport: %s", err)
+	}
+
+	return nil
 }

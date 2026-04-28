@@ -280,11 +280,9 @@ func resourceApigeeEnvgroupRead(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] Finished reading ApigeeEnvgroup %q: %#v", d.Id(), res)
 
-	if err := d.Set("name", flattenApigeeEnvgroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Envgroup: %s", err)
-	}
-	if err := d.Set("hostnames", flattenApigeeEnvgroupHostnames(res["hostnames"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Envgroup: %s", err)
+	err = ResourceApigeeEnvgroupFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -504,4 +502,17 @@ func expandApigeeEnvgroupName(v interface{}, d tpgresource.TerraformResourceData
 
 func expandApigeeEnvgroupHostnames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceApigeeEnvgroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenApigeeEnvgroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Envgroup: %s", err)
+	}
+	if err = d.Set("hostnames", flattenApigeeEnvgroupHostnames(res["hostnames"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Envgroup: %s", err)
+	}
+
+	return nil
 }

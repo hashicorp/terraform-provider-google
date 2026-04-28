@@ -475,50 +475,9 @@ func resourceNetworkServicesAuthzExtensionRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading AuthzExtension: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkServicesAuthzExtensionCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkServicesAuthzExtensionUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkServicesAuthzExtensionDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkServicesAuthzExtensionLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("load_balancing_scheme", flattenNetworkServicesAuthzExtensionLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("authority", flattenNetworkServicesAuthzExtensionAuthority(res["authority"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("service", flattenNetworkServicesAuthzExtensionService(res["service"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("timeout", flattenNetworkServicesAuthzExtensionTimeout(res["timeout"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("fail_open", flattenNetworkServicesAuthzExtensionFailOpen(res["failOpen"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("metadata", flattenNetworkServicesAuthzExtensionMetadata(res["metadata"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("forward_headers", flattenNetworkServicesAuthzExtensionForwardHeaders(res["forwardHeaders"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("wire_format", flattenNetworkServicesAuthzExtensionWireFormat(res["wireFormat"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkServicesAuthzExtensionTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkServicesAuthzExtensionEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
-	}
-	if err := d.Set("name", flattenNetworkServicesAuthzExtensionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	err = ResourceNetworkServicesAuthzExtensionFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -967,4 +926,56 @@ func expandNetworkServicesAuthzExtensionEffectiveLabels(v interface{}, d tpgreso
 
 func expandNetworkServicesAuthzExtensionName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return fmt.Sprintf("projects/%s/locations/%s/authzExtensions/%s", d.Get("project"), d.Get("location"), v), nil
+}
+
+func ResourceNetworkServicesAuthzExtensionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkServicesAuthzExtensionCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkServicesAuthzExtensionUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkServicesAuthzExtensionDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkServicesAuthzExtensionLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("load_balancing_scheme", flattenNetworkServicesAuthzExtensionLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("authority", flattenNetworkServicesAuthzExtensionAuthority(res["authority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("service", flattenNetworkServicesAuthzExtensionService(res["service"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("timeout", flattenNetworkServicesAuthzExtensionTimeout(res["timeout"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("fail_open", flattenNetworkServicesAuthzExtensionFailOpen(res["failOpen"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("metadata", flattenNetworkServicesAuthzExtensionMetadata(res["metadata"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("forward_headers", flattenNetworkServicesAuthzExtensionForwardHeaders(res["forwardHeaders"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("wire_format", flattenNetworkServicesAuthzExtensionWireFormat(res["wireFormat"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkServicesAuthzExtensionTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkServicesAuthzExtensionEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("name", flattenNetworkServicesAuthzExtensionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+
+	return nil
 }

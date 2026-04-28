@@ -879,80 +879,9 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeSubnetworkCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("description", flattenComputeSubnetworkDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("subnetwork_id", flattenComputeSubnetworkSubnetworkId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("gateway_address", flattenComputeSubnetworkGatewayAddress(res["gatewayAddress"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("ip_cidr_range", flattenComputeSubnetworkIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("reserved_internal_range", flattenComputeSubnetworkReservedInternalRange(res["reservedInternalRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("name", flattenComputeSubnetworkName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("network", flattenComputeSubnetworkNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("purpose", flattenComputeSubnetworkPurpose(res["purpose"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("role", flattenComputeSubnetworkRole(res["role"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("secondary_ip_range", flattenComputeSubnetworkSecondaryIpRange(res["secondaryIpRanges"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("private_ip_google_access", flattenComputeSubnetworkPrivateIpGoogleAccess(res["privateIpGoogleAccess"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("private_ipv6_google_access", flattenComputeSubnetworkPrivateIpv6GoogleAccess(res["privateIpv6GoogleAccess"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("region", flattenComputeSubnetworkRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("log_config", flattenComputeSubnetworkLogConfig(res["logConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("stack_type", flattenComputeSubnetworkStackType(res["stackType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("ipv6_access_type", flattenComputeSubnetworkIpv6AccessType(res["ipv6AccessType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("ipv6_cidr_range", flattenComputeSubnetworkIpv6CidrRange(res["ipv6CidrRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("internal_ipv6_prefix", flattenComputeSubnetworkInternalIpv6Prefix(res["internalIpv6Prefix"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("external_ipv6_prefix", flattenComputeSubnetworkExternalIpv6Prefix(res["externalIpv6Prefix"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("ipv6_gce_endpoint", flattenComputeSubnetworkIpv6GceEndpoint(res["ipv6GceEndpoint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("allow_subnet_cidr_routes_overlap", flattenComputeSubnetworkAllowSubnetCidrRoutesOverlap(res["allowSubnetCidrRoutesOverlap"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("state", flattenComputeSubnetworkState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("resolve_subnet_mask", flattenComputeSubnetworkResolveSubnetMask(res["resolveSubnetMask"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	err = ResourceComputeSubnetworkFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2047,4 +1976,85 @@ func expandComputeSubnetworkParamsResourceManagerTags(v interface{}, d tpgresour
 
 func expandComputeSubnetworkResolveSubnetMask(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeSubnetworkFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeSubnetworkCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("description", flattenComputeSubnetworkDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("subnetwork_id", flattenComputeSubnetworkSubnetworkId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("gateway_address", flattenComputeSubnetworkGatewayAddress(res["gatewayAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("ip_cidr_range", flattenComputeSubnetworkIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("reserved_internal_range", flattenComputeSubnetworkReservedInternalRange(res["reservedInternalRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("name", flattenComputeSubnetworkName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("network", flattenComputeSubnetworkNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("purpose", flattenComputeSubnetworkPurpose(res["purpose"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("role", flattenComputeSubnetworkRole(res["role"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("secondary_ip_range", flattenComputeSubnetworkSecondaryIpRange(res["secondaryIpRanges"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("private_ip_google_access", flattenComputeSubnetworkPrivateIpGoogleAccess(res["privateIpGoogleAccess"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("private_ipv6_google_access", flattenComputeSubnetworkPrivateIpv6GoogleAccess(res["privateIpv6GoogleAccess"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("region", flattenComputeSubnetworkRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("log_config", flattenComputeSubnetworkLogConfig(res["logConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("stack_type", flattenComputeSubnetworkStackType(res["stackType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("ipv6_access_type", flattenComputeSubnetworkIpv6AccessType(res["ipv6AccessType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("ipv6_cidr_range", flattenComputeSubnetworkIpv6CidrRange(res["ipv6CidrRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("internal_ipv6_prefix", flattenComputeSubnetworkInternalIpv6Prefix(res["internalIpv6Prefix"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("external_ipv6_prefix", flattenComputeSubnetworkExternalIpv6Prefix(res["externalIpv6Prefix"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("ipv6_gce_endpoint", flattenComputeSubnetworkIpv6GceEndpoint(res["ipv6GceEndpoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("allow_subnet_cidr_routes_overlap", flattenComputeSubnetworkAllowSubnetCidrRoutesOverlap(res["allowSubnetCidrRoutesOverlap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("state", flattenComputeSubnetworkState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("resolve_subnet_mask", flattenComputeSubnetworkResolveSubnetMask(res["resolveSubnetMask"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	return nil
 }

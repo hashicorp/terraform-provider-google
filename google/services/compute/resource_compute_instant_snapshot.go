@@ -425,41 +425,9 @@ func resourceComputeInstantSnapshotRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeInstantSnapshotCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
-	}
-	if err := d.Set("name", flattenComputeInstantSnapshotName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
-	}
-	if err := d.Set("description", flattenComputeInstantSnapshotDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
-	}
-	if err := d.Set("source_disk_id", flattenComputeInstantSnapshotSourceDiskId(res["sourceDiskId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
-	}
-	if err := d.Set("disk_size_gb", flattenComputeInstantSnapshotDiskSizeGb(res["diskSizeGb"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeInstantSnapshotLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeInstantSnapshotLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenComputeInstantSnapshotTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenComputeInstantSnapshotEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
-	}
-	if err := d.Set("source_disk", flattenComputeInstantSnapshotSourceDisk(res["sourceDisk"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
-	}
-	if err := d.Set("zone", flattenComputeInstantSnapshotZone(res["zone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	err = ResourceComputeInstantSnapshotFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -815,4 +783,46 @@ func expandComputeInstantSnapshotZone(v interface{}, d tpgresource.TerraformReso
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeInstantSnapshotFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeInstantSnapshotCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	if err = d.Set("name", flattenComputeInstantSnapshotName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	if err = d.Set("description", flattenComputeInstantSnapshotDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	if err = d.Set("source_disk_id", flattenComputeInstantSnapshotSourceDiskId(res["sourceDiskId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	if err = d.Set("disk_size_gb", flattenComputeInstantSnapshotDiskSizeGb(res["diskSizeGb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	if err = d.Set("labels", flattenComputeInstantSnapshotLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	if err = d.Set("label_fingerprint", flattenComputeInstantSnapshotLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenComputeInstantSnapshotTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenComputeInstantSnapshotEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	if err = d.Set("source_disk", flattenComputeInstantSnapshotSourceDisk(res["sourceDisk"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	if err = d.Set("zone", flattenComputeInstantSnapshotZone(res["zone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading InstantSnapshot: %s", err)
+	}
+	return nil
 }

@@ -449,41 +449,9 @@ func resourceNetworkServicesEndpointPolicyRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkServicesEndpointPolicyCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkServicesEndpointPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkServicesEndpointPolicyLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkServicesEndpointPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
-	}
-	if err := d.Set("authorization_policy", flattenNetworkServicesEndpointPolicyAuthorizationPolicy(res["authorizationPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
-	}
-	if err := d.Set("server_tls_policy", flattenNetworkServicesEndpointPolicyServerTlsPolicy(res["serverTlsPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
-	}
-	if err := d.Set("client_tls_policy", flattenNetworkServicesEndpointPolicyClientTlsPolicy(res["clientTlsPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
-	}
-	if err := d.Set("type", flattenNetworkServicesEndpointPolicyType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
-	}
-	if err := d.Set("traffic_port_selector", flattenNetworkServicesEndpointPolicyTrafficPortSelector(res["trafficPortSelector"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
-	}
-	if err := d.Set("endpoint_matcher", flattenNetworkServicesEndpointPolicyEndpointMatcher(res["endpointMatcher"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkServicesEndpointPolicyTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkServicesEndpointPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	err = ResourceNetworkServicesEndpointPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1034,4 +1002,47 @@ func expandNetworkServicesEndpointPolicyEffectiveLabels(v interface{}, d tpgreso
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkServicesEndpointPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkServicesEndpointPolicyCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkServicesEndpointPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkServicesEndpointPolicyLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkServicesEndpointPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+	if err = d.Set("authorization_policy", flattenNetworkServicesEndpointPolicyAuthorizationPolicy(res["authorizationPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+	if err = d.Set("server_tls_policy", flattenNetworkServicesEndpointPolicyServerTlsPolicy(res["serverTlsPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+	if err = d.Set("client_tls_policy", flattenNetworkServicesEndpointPolicyClientTlsPolicy(res["clientTlsPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+	if err = d.Set("type", flattenNetworkServicesEndpointPolicyType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+	if err = d.Set("traffic_port_selector", flattenNetworkServicesEndpointPolicyTrafficPortSelector(res["trafficPortSelector"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+	if err = d.Set("endpoint_matcher", flattenNetworkServicesEndpointPolicyEndpointMatcher(res["endpointMatcher"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkServicesEndpointPolicyTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkServicesEndpointPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointPolicy: %s", err)
+	}
+
+	return nil
 }

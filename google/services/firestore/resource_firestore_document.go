@@ -325,20 +325,9 @@ func resourceFirestoreDocumentRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Document: %s", err)
 	}
 
-	if err := d.Set("name", flattenFirestoreDocumentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Document: %s", err)
-	}
-	if err := d.Set("path", flattenFirestoreDocumentPath(res["path"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Document: %s", err)
-	}
-	if err := d.Set("fields", flattenFirestoreDocumentFields(res["fields"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Document: %s", err)
-	}
-	if err := d.Set("create_time", flattenFirestoreDocumentCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Document: %s", err)
-	}
-	if err := d.Set("update_time", flattenFirestoreDocumentUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Document: %s", err)
+	err = ResourceFirestoreDocumentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -564,5 +553,27 @@ func resourceFirestoreDocumentPostCreateSetComputedFields(d *schema.ResourceData
 	if err := d.Set("name", flattenFirestoreDocumentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceFirestoreDocumentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenFirestoreDocumentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Document: %s", err)
+	}
+	if err = d.Set("path", flattenFirestoreDocumentPath(res["path"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Document: %s", err)
+	}
+	if err = d.Set("fields", flattenFirestoreDocumentFields(res["fields"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Document: %s", err)
+	}
+	if err = d.Set("create_time", flattenFirestoreDocumentCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Document: %s", err)
+	}
+	if err = d.Set("update_time", flattenFirestoreDocumentUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Document: %s", err)
+	}
+
 	return nil
 }

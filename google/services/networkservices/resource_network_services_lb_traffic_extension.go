@@ -487,26 +487,9 @@ func resourceNetworkServicesLbTrafficExtensionRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
 	}
 
-	if err := d.Set("description", flattenNetworkServicesLbTrafficExtensionDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkServicesLbTrafficExtensionLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
-	}
-	if err := d.Set("forwarding_rules", flattenNetworkServicesLbTrafficExtensionForwardingRules(res["forwardingRules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
-	}
-	if err := d.Set("extension_chains", flattenNetworkServicesLbTrafficExtensionExtensionChains(res["extensionChains"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
-	}
-	if err := d.Set("load_balancing_scheme", flattenNetworkServicesLbTrafficExtensionLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkServicesLbTrafficExtensionTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkServicesLbTrafficExtensionEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	err = ResourceNetworkServicesLbTrafficExtensionFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1087,4 +1070,32 @@ func expandNetworkServicesLbTrafficExtensionEffectiveLabels(v interface{}, d tpg
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkServicesLbTrafficExtensionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenNetworkServicesLbTrafficExtensionDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkServicesLbTrafficExtensionLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	}
+	if err = d.Set("forwarding_rules", flattenNetworkServicesLbTrafficExtensionForwardingRules(res["forwardingRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	}
+	if err = d.Set("extension_chains", flattenNetworkServicesLbTrafficExtensionExtensionChains(res["extensionChains"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	}
+	if err = d.Set("load_balancing_scheme", flattenNetworkServicesLbTrafficExtensionLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkServicesLbTrafficExtensionTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkServicesLbTrafficExtensionEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	}
+
+	return nil
 }

@@ -1240,89 +1240,9 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 
-	if err := d.Set("name", flattenAlloydbClusterName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("uid", flattenAlloydbClusterUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("labels", flattenAlloydbClusterLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("encryption_config", flattenAlloydbClusterEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("encryption_info", flattenAlloydbClusterEncryptionInfo(res["encryptionInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("continuous_backup_info", flattenAlloydbClusterContinuousBackupInfo(res["continuousBackupInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("network_config", flattenAlloydbClusterNetworkConfig(res["networkConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("display_name", flattenAlloydbClusterDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("etag", flattenAlloydbClusterEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("reconciling", flattenAlloydbClusterReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("state", flattenAlloydbClusterState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("annotations", flattenAlloydbClusterAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("database_version", flattenAlloydbClusterDatabaseVersion(res["databaseVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("psc_config", flattenAlloydbClusterPscConfig(res["pscConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("continuous_backup_config", flattenAlloydbClusterContinuousBackupConfig(res["continuousBackupConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("automated_backup_policy", flattenAlloydbClusterAutomatedBackupPolicy(res["automatedBackupPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("backup_source", flattenAlloydbClusterBackupSource(res["backupSource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("migration_source", flattenAlloydbClusterMigrationSource(res["migrationSource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("backupdr_backup_source", flattenAlloydbClusterBackupdrBackupSource(res["backupdrBackupSource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("cluster_type", flattenAlloydbClusterClusterType(res["clusterType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("secondary_config", flattenAlloydbClusterSecondaryConfig(res["secondaryConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("maintenance_update_policy", flattenAlloydbClusterMaintenanceUpdatePolicy(res["maintenanceUpdatePolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("subscription_type", flattenAlloydbClusterSubscriptionType(res["subscriptionType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("trial_metadata", flattenAlloydbClusterTrialMetadata(res["trialMetadata"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("dataplex_config", flattenAlloydbClusterDataplexConfig(res["dataplexConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenAlloydbClusterTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenAlloydbClusterEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenAlloydbClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
+	err = ResourceAlloydbClusterFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3440,4 +3360,95 @@ func expandAlloydbClusterEffectiveAnnotations(v interface{}, d tpgresource.Terra
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceAlloydbClusterFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenAlloydbClusterName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("uid", flattenAlloydbClusterUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("labels", flattenAlloydbClusterLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("encryption_config", flattenAlloydbClusterEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("encryption_info", flattenAlloydbClusterEncryptionInfo(res["encryptionInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("continuous_backup_info", flattenAlloydbClusterContinuousBackupInfo(res["continuousBackupInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("network_config", flattenAlloydbClusterNetworkConfig(res["networkConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("display_name", flattenAlloydbClusterDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("etag", flattenAlloydbClusterEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("reconciling", flattenAlloydbClusterReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("state", flattenAlloydbClusterState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("annotations", flattenAlloydbClusterAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("database_version", flattenAlloydbClusterDatabaseVersion(res["databaseVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("psc_config", flattenAlloydbClusterPscConfig(res["pscConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("continuous_backup_config", flattenAlloydbClusterContinuousBackupConfig(res["continuousBackupConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("automated_backup_policy", flattenAlloydbClusterAutomatedBackupPolicy(res["automatedBackupPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("backup_source", flattenAlloydbClusterBackupSource(res["backupSource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("migration_source", flattenAlloydbClusterMigrationSource(res["migrationSource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("backupdr_backup_source", flattenAlloydbClusterBackupdrBackupSource(res["backupdrBackupSource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("cluster_type", flattenAlloydbClusterClusterType(res["clusterType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("secondary_config", flattenAlloydbClusterSecondaryConfig(res["secondaryConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("maintenance_update_policy", flattenAlloydbClusterMaintenanceUpdatePolicy(res["maintenanceUpdatePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("subscription_type", flattenAlloydbClusterSubscriptionType(res["subscriptionType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("trial_metadata", flattenAlloydbClusterTrialMetadata(res["trialMetadata"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("dataplex_config", flattenAlloydbClusterDataplexConfig(res["dataplexConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenAlloydbClusterTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenAlloydbClusterEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("effective_annotations", flattenAlloydbClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+
+	return nil
 }

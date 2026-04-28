@@ -487,35 +487,9 @@ func resourceNetworkServicesWasmPluginRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading WasmPlugin: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkServicesWasmPluginCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WasmPlugin: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkServicesWasmPluginUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WasmPlugin: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkServicesWasmPluginDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WasmPlugin: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkServicesWasmPluginLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WasmPlugin: %s", err)
-	}
-	if err := d.Set("main_version_id", flattenNetworkServicesWasmPluginMainVersionId(res["mainVersionId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WasmPlugin: %s", err)
-	}
-	if err := d.Set("log_config", flattenNetworkServicesWasmPluginLogConfig(res["logConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WasmPlugin: %s", err)
-	}
-	if err := d.Set("versions", flattenNetworkServicesWasmPluginVersions(res["versions"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WasmPlugin: %s", err)
-	}
-	if err := d.Set("used_by", flattenNetworkServicesWasmPluginUsedBy(res["usedBy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WasmPlugin: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkServicesWasmPluginTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WasmPlugin: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkServicesWasmPluginEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WasmPlugin: %s", err)
+	err = ResourceNetworkServicesWasmPluginFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1057,4 +1031,41 @@ func expandNetworkServicesWasmPluginEffectiveLabels(v interface{}, d tpgresource
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkServicesWasmPluginFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkServicesWasmPluginCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WasmPlugin: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkServicesWasmPluginUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WasmPlugin: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkServicesWasmPluginDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WasmPlugin: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkServicesWasmPluginLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WasmPlugin: %s", err)
+	}
+	if err = d.Set("main_version_id", flattenNetworkServicesWasmPluginMainVersionId(res["mainVersionId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WasmPlugin: %s", err)
+	}
+	if err = d.Set("log_config", flattenNetworkServicesWasmPluginLogConfig(res["logConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WasmPlugin: %s", err)
+	}
+	if err = d.Set("versions", flattenNetworkServicesWasmPluginVersions(res["versions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WasmPlugin: %s", err)
+	}
+	if err = d.Set("used_by", flattenNetworkServicesWasmPluginUsedBy(res["usedBy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WasmPlugin: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkServicesWasmPluginTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WasmPlugin: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkServicesWasmPluginEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WasmPlugin: %s", err)
+	}
+
+	return nil
 }

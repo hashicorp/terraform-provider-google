@@ -363,32 +363,9 @@ func resourceIntegrationConnectorsManagedZoneRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenIntegrationConnectorsManagedZoneCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("update_time", flattenIntegrationConnectorsManagedZoneUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("description", flattenIntegrationConnectorsManagedZoneDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("labels", flattenIntegrationConnectorsManagedZoneLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("dns", flattenIntegrationConnectorsManagedZoneDns(res["dns"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("target_project", flattenIntegrationConnectorsManagedZoneTargetProject(res["targetProject"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("target_vpc", flattenIntegrationConnectorsManagedZoneTargetVpc(res["targetVpc"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenIntegrationConnectorsManagedZoneTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenIntegrationConnectorsManagedZoneEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	err = ResourceIntegrationConnectorsManagedZoneFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -704,4 +681,38 @@ func expandIntegrationConnectorsManagedZoneEffectiveLabels(v interface{}, d tpgr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceIntegrationConnectorsManagedZoneFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenIntegrationConnectorsManagedZoneCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("update_time", flattenIntegrationConnectorsManagedZoneUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("description", flattenIntegrationConnectorsManagedZoneDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("labels", flattenIntegrationConnectorsManagedZoneLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("dns", flattenIntegrationConnectorsManagedZoneDns(res["dns"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("target_project", flattenIntegrationConnectorsManagedZoneTargetProject(res["targetProject"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("target_vpc", flattenIntegrationConnectorsManagedZoneTargetVpc(res["targetVpc"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenIntegrationConnectorsManagedZoneTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenIntegrationConnectorsManagedZoneEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+
+	return nil
 }

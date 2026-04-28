@@ -308,14 +308,9 @@ func resourceFirebaseAppCheckRecaptchaV3ConfigRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading RecaptchaV3Config: %s", err)
 	}
 
-	if err := d.Set("name", flattenFirebaseAppCheckRecaptchaV3ConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecaptchaV3Config: %s", err)
-	}
-	if err := d.Set("token_ttl", flattenFirebaseAppCheckRecaptchaV3ConfigTokenTtl(res["tokenTtl"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecaptchaV3Config: %s", err)
-	}
-	if err := d.Set("site_secret_set", flattenFirebaseAppCheckRecaptchaV3ConfigSiteSecretSet(res["siteSecretSet"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RecaptchaV3Config: %s", err)
+	err = ResourceFirebaseAppCheckRecaptchaV3ConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -482,4 +477,20 @@ func expandFirebaseAppCheckRecaptchaV3ConfigTokenTtl(v interface{}, d tpgresourc
 
 func expandFirebaseAppCheckRecaptchaV3ConfigSiteSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceFirebaseAppCheckRecaptchaV3ConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenFirebaseAppCheckRecaptchaV3ConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecaptchaV3Config: %s", err)
+	}
+	if err = d.Set("token_ttl", flattenFirebaseAppCheckRecaptchaV3ConfigTokenTtl(res["tokenTtl"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecaptchaV3Config: %s", err)
+	}
+	if err = d.Set("site_secret_set", flattenFirebaseAppCheckRecaptchaV3ConfigSiteSecretSet(res["siteSecretSet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RecaptchaV3Config: %s", err)
+	}
+
+	return nil
 }

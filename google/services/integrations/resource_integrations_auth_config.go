@@ -748,56 +748,9 @@ func resourceIntegrationsAuthConfigRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading AuthConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenIntegrationsAuthConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("display_name", flattenIntegrationsAuthConfigDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("description", flattenIntegrationsAuthConfigDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("certificate_id", flattenIntegrationsAuthConfigCertificateId(res["certificateId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("credential_type", flattenIntegrationsAuthConfigCredentialType(res["credentialType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("creator_email", flattenIntegrationsAuthConfigCreatorEmail(res["creatorEmail"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("create_time", flattenIntegrationsAuthConfigCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("last_modifier_email", flattenIntegrationsAuthConfigLastModifierEmail(res["lastModifierEmail"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("update_time", flattenIntegrationsAuthConfigUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("visibility", flattenIntegrationsAuthConfigVisibility(res["visibility"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("state", flattenIntegrationsAuthConfigState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("reason", flattenIntegrationsAuthConfigReason(res["reason"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("expiry_notification_duration", flattenIntegrationsAuthConfigExpiryNotificationDuration(res["expiryNotificationDuration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("valid_time", flattenIntegrationsAuthConfigValidTime(res["validTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("override_valid_time", flattenIntegrationsAuthConfigOverrideValidTime(res["overrideValidTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("encrypted_credential", flattenIntegrationsAuthConfigEncryptedCredential(res["encryptedCredential"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
-	}
-	if err := d.Set("decrypted_credential", flattenIntegrationsAuthConfigDecryptedCredential(res["decryptedCredential"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	err = ResourceIntegrationsAuthConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2110,5 +2063,63 @@ func resourceIntegrationsAuthConfigPostCreateSetComputedFields(d *schema.Resourc
 	if err := d.Set("name", flattenIntegrationsAuthConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceIntegrationsAuthConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenIntegrationsAuthConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("display_name", flattenIntegrationsAuthConfigDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("description", flattenIntegrationsAuthConfigDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("certificate_id", flattenIntegrationsAuthConfigCertificateId(res["certificateId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("credential_type", flattenIntegrationsAuthConfigCredentialType(res["credentialType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("creator_email", flattenIntegrationsAuthConfigCreatorEmail(res["creatorEmail"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("create_time", flattenIntegrationsAuthConfigCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("last_modifier_email", flattenIntegrationsAuthConfigLastModifierEmail(res["lastModifierEmail"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("update_time", flattenIntegrationsAuthConfigUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("visibility", flattenIntegrationsAuthConfigVisibility(res["visibility"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("state", flattenIntegrationsAuthConfigState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("reason", flattenIntegrationsAuthConfigReason(res["reason"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("expiry_notification_duration", flattenIntegrationsAuthConfigExpiryNotificationDuration(res["expiryNotificationDuration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("valid_time", flattenIntegrationsAuthConfigValidTime(res["validTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("override_valid_time", flattenIntegrationsAuthConfigOverrideValidTime(res["overrideValidTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("encrypted_credential", flattenIntegrationsAuthConfigEncryptedCredential(res["encryptedCredential"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+	if err = d.Set("decrypted_credential", flattenIntegrationsAuthConfigDecryptedCredential(res["decryptedCredential"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthConfig: %s", err)
+	}
+
 	return nil
 }

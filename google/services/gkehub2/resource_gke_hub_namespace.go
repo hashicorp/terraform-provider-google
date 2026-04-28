@@ -392,38 +392,9 @@ func resourceGKEHub2NamespaceRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Namespace: %s", err)
 	}
 
-	if err := d.Set("name", flattenGKEHub2NamespaceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("uid", flattenGKEHub2NamespaceUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("create_time", flattenGKEHub2NamespaceCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("update_time", flattenGKEHub2NamespaceUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("delete_time", flattenGKEHub2NamespaceDeleteTime(res["deleteTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("scope", flattenGKEHub2NamespaceScope(res["scope"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("state", flattenGKEHub2NamespaceState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("namespace_labels", flattenGKEHub2NamespaceNamespaceLabels(res["namespaceLabels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("labels", flattenGKEHub2NamespaceLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenGKEHub2NamespaceTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenGKEHub2NamespaceEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Namespace: %s", err)
+	err = ResourceGKEHub2NamespaceFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -743,4 +714,44 @@ func expandGKEHub2NamespaceEffectiveLabels(v interface{}, d tpgresource.Terrafor
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceGKEHub2NamespaceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenGKEHub2NamespaceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("uid", flattenGKEHub2NamespaceUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("create_time", flattenGKEHub2NamespaceCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("update_time", flattenGKEHub2NamespaceUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("delete_time", flattenGKEHub2NamespaceDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("scope", flattenGKEHub2NamespaceScope(res["scope"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("state", flattenGKEHub2NamespaceState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("namespace_labels", flattenGKEHub2NamespaceNamespaceLabels(res["namespaceLabels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("labels", flattenGKEHub2NamespaceLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenGKEHub2NamespaceTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenGKEHub2NamespaceEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+
+	return nil
 }

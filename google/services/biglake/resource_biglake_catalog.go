@@ -312,17 +312,9 @@ func resourceBiglakeCatalogRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Catalog: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenBiglakeCatalogCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Catalog: %s", err)
-	}
-	if err := d.Set("update_time", flattenBiglakeCatalogUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Catalog: %s", err)
-	}
-	if err := d.Set("delete_time", flattenBiglakeCatalogDeleteTime(res["deleteTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Catalog: %s", err)
-	}
-	if err := d.Set("expire_time", flattenBiglakeCatalogExpireTime(res["expireTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Catalog: %s", err)
+	err = ResourceBiglakeCatalogFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -434,4 +426,23 @@ func flattenBiglakeCatalogDeleteTime(v interface{}, d *schema.ResourceData, conf
 
 func flattenBiglakeCatalogExpireTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func ResourceBiglakeCatalogFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenBiglakeCatalogCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Catalog: %s", err)
+	}
+	if err = d.Set("update_time", flattenBiglakeCatalogUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Catalog: %s", err)
+	}
+	if err = d.Set("delete_time", flattenBiglakeCatalogDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Catalog: %s", err)
+	}
+	if err = d.Set("expire_time", flattenBiglakeCatalogExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Catalog: %s", err)
+	}
+
+	return nil
 }

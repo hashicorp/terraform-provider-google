@@ -323,11 +323,9 @@ func resourceFirebaseAppCheckDebugTokenRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading DebugToken: %s", err)
 	}
 
-	if err := d.Set("debug_token_id", flattenFirebaseAppCheckDebugTokenDebugTokenId(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DebugToken: %s", err)
-	}
-	if err := d.Set("display_name", flattenFirebaseAppCheckDebugTokenDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DebugToken: %s", err)
+	err = ResourceFirebaseAppCheckDebugTokenFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -540,5 +538,18 @@ func resourceFirebaseAppCheckDebugTokenPostCreateSetComputedFields(d *schema.Res
 	if err := d.Set("debug_token_id", flattenFirebaseAppCheckDebugTokenDebugTokenId(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "debug_token_id": %s`, err)
 	}
+	return nil
+}
+
+func ResourceFirebaseAppCheckDebugTokenFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("debug_token_id", flattenFirebaseAppCheckDebugTokenDebugTokenId(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DebugToken: %s", err)
+	}
+	if err = d.Set("display_name", flattenFirebaseAppCheckDebugTokenDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DebugToken: %s", err)
+	}
+
 	return nil
 }

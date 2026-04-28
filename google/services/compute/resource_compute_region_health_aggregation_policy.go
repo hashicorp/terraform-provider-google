@@ -411,32 +411,9 @@ func resourceComputeRegionHealthAggregationPolicyRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeRegionHealthAggregationPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
-	}
-	if err := d.Set("policy_type", flattenComputeRegionHealthAggregationPolicyPolicyType(res["policyType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
-	}
-	if err := d.Set("healthy_percent_threshold", flattenComputeRegionHealthAggregationPolicyHealthyPercentThreshold(res["healthyPercentThreshold"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
-	}
-	if err := d.Set("min_healthy_threshold", flattenComputeRegionHealthAggregationPolicyMinHealthyThreshold(res["minHealthyThreshold"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
-	}
-	if err := d.Set("id", flattenComputeRegionHealthAggregationPolicyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeRegionHealthAggregationPolicyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
-	}
-	if err := d.Set("self_link_with_id", flattenComputeRegionHealthAggregationPolicySelfLinkWithId(res["selfLinkWithId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeRegionHealthAggregationPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionHealthAggregationPolicyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
+	err = ResourceComputeRegionHealthAggregationPolicyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -765,4 +742,38 @@ func expandComputeRegionHealthAggregationPolicyFingerprint(v interface{}, d tpgr
 
 func expandComputeRegionHealthAggregationPolicyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeRegionHealthAggregationPolicyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("description", flattenComputeRegionHealthAggregationPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
+	}
+	if err = d.Set("policy_type", flattenComputeRegionHealthAggregationPolicyPolicyType(res["policyType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
+	}
+	if err = d.Set("healthy_percent_threshold", flattenComputeRegionHealthAggregationPolicyHealthyPercentThreshold(res["healthyPercentThreshold"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
+	}
+	if err = d.Set("min_healthy_threshold", flattenComputeRegionHealthAggregationPolicyMinHealthyThreshold(res["minHealthyThreshold"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
+	}
+	if err = d.Set("id", flattenComputeRegionHealthAggregationPolicyId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeRegionHealthAggregationPolicyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
+	}
+	if err = d.Set("self_link_with_id", flattenComputeRegionHealthAggregationPolicySelfLinkWithId(res["selfLinkWithId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeRegionHealthAggregationPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionHealthAggregationPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthAggregationPolicy: %s", err)
+	}
+
+	return nil
 }

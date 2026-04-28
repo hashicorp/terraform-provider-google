@@ -420,33 +420,9 @@ func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interf
 	if err := d.Set("zone", zone); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-
-	if err := d.Set("name", flattenComputeNetworkEndpointGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("description", flattenComputeNetworkEndpointGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("network_endpoint_type", flattenComputeNetworkEndpointGroupNetworkEndpointType(res["networkEndpointType"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("size", flattenComputeNetworkEndpointGroupSize(res["size"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("network", flattenComputeNetworkEndpointGroupNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("subnetwork", flattenComputeNetworkEndpointGroupSubnetwork(res["subnetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("default_port", flattenComputeNetworkEndpointGroupDefaultPort(res["defaultPort"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("generated_id", flattenComputeNetworkEndpointGroupGeneratedId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
+	err = ResourceComputeNetworkEndpointGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -668,4 +644,37 @@ func expandComputeNetworkEndpointGroupZone(v interface{}, d tpgresource.Terrafor
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeNetworkEndpointGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenComputeNetworkEndpointGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("description", flattenComputeNetworkEndpointGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("network_endpoint_type", flattenComputeNetworkEndpointGroupNetworkEndpointType(res["networkEndpointType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("size", flattenComputeNetworkEndpointGroupSize(res["size"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("network", flattenComputeNetworkEndpointGroupNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("subnetwork", flattenComputeNetworkEndpointGroupSubnetwork(res["subnetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("default_port", flattenComputeNetworkEndpointGroupDefaultPort(res["defaultPort"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("generated_id", flattenComputeNetworkEndpointGroupGeneratedId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
+	}
+	return nil
 }

@@ -418,23 +418,9 @@ func resourceBigtableAppProfileRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading AppProfile: %s", err)
 	}
 
-	if err := d.Set("name", flattenBigtableAppProfileName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppProfile: %s", err)
-	}
-	if err := d.Set("description", flattenBigtableAppProfileDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppProfile: %s", err)
-	}
-	if err := d.Set("multi_cluster_routing_use_any", flattenBigtableAppProfileMultiClusterRoutingUseAny(res["multiClusterRoutingUseAny"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppProfile: %s", err)
-	}
-	if err := d.Set("single_cluster_routing", flattenBigtableAppProfileSingleClusterRouting(res["singleClusterRouting"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppProfile: %s", err)
-	}
-	if err := d.Set("standard_isolation", flattenBigtableAppProfileStandardIsolation(res["standardIsolation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppProfile: %s", err)
-	}
-	if err := d.Set("data_boost_isolation_read_only", flattenBigtableAppProfileDataBoostIsolationReadOnly(res["dataBoostIsolationReadOnly"], d, config)); err != nil {
-		return fmt.Errorf("Error reading AppProfile: %s", err)
+	err = ResourceBigtableAppProfileFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -914,4 +900,29 @@ func resourceBigtableAppProfileEncoder(d *schema.ResourceData, meta interface{},
 		return nil, fmt.Errorf("Error setting instance: %s", err)
 	}
 	return obj, nil
+}
+
+func ResourceBigtableAppProfileFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenBigtableAppProfileName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppProfile: %s", err)
+	}
+	if err = d.Set("description", flattenBigtableAppProfileDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppProfile: %s", err)
+	}
+	if err = d.Set("multi_cluster_routing_use_any", flattenBigtableAppProfileMultiClusterRoutingUseAny(res["multiClusterRoutingUseAny"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppProfile: %s", err)
+	}
+	if err = d.Set("single_cluster_routing", flattenBigtableAppProfileSingleClusterRouting(res["singleClusterRouting"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppProfile: %s", err)
+	}
+	if err = d.Set("standard_isolation", flattenBigtableAppProfileStandardIsolation(res["standardIsolation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppProfile: %s", err)
+	}
+	if err = d.Set("data_boost_isolation_read_only", flattenBigtableAppProfileDataBoostIsolationReadOnly(res["dataBoostIsolationReadOnly"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AppProfile: %s", err)
+	}
+
+	return nil
 }

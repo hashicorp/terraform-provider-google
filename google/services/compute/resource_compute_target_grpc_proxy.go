@@ -369,29 +369,9 @@ func resourceComputeTargetGrpcProxyRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeTargetGrpcProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeTargetGrpcProxyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeTargetGrpcProxyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
-	}
-	if err := d.Set("self_link_with_id", flattenComputeTargetGrpcProxySelfLinkWithId(res["selfLinkWithId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
-	}
-	if err := d.Set("url_map", flattenComputeTargetGrpcProxyUrlMap(res["urlMap"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
-	}
-	if err := d.Set("validate_for_proxyless", flattenComputeTargetGrpcProxyValidateForProxyless(res["validateForProxyless"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeTargetGrpcProxyFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
+	err = ResourceComputeTargetGrpcProxyFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -622,4 +602,34 @@ func expandComputeTargetGrpcProxyValidateForProxyless(v interface{}, d tpgresour
 
 func expandComputeTargetGrpcProxyFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceComputeTargetGrpcProxyFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeTargetGrpcProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
+	}
+	if err = d.Set("name", flattenComputeTargetGrpcProxyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
+	}
+	if err = d.Set("description", flattenComputeTargetGrpcProxyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
+	}
+	if err = d.Set("self_link_with_id", flattenComputeTargetGrpcProxySelfLinkWithId(res["selfLinkWithId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
+	}
+	if err = d.Set("url_map", flattenComputeTargetGrpcProxyUrlMap(res["urlMap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
+	}
+	if err = d.Set("validate_for_proxyless", flattenComputeTargetGrpcProxyValidateForProxyless(res["validateForProxyless"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeTargetGrpcProxyFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
+	}
+	return nil
 }

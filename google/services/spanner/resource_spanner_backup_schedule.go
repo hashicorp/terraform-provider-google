@@ -456,23 +456,9 @@ func resourceSpannerBackupScheduleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading BackupSchedule: %s", err)
 	}
 
-	if err := d.Set("name", flattenSpannerBackupScheduleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupSchedule: %s", err)
-	}
-	if err := d.Set("retention_duration", flattenSpannerBackupScheduleRetentionDuration(res["retentionDuration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupSchedule: %s", err)
-	}
-	if err := d.Set("spec", flattenSpannerBackupScheduleSpec(res["spec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupSchedule: %s", err)
-	}
-	if err := d.Set("full_backup_spec", flattenSpannerBackupScheduleFullBackupSpec(res["fullBackupSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupSchedule: %s", err)
-	}
-	if err := d.Set("incremental_backup_spec", flattenSpannerBackupScheduleIncrementalBackupSpec(res["incrementalBackupSpec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupSchedule: %s", err)
-	}
-	if err := d.Set("encryption_config", flattenSpannerBackupScheduleEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupSchedule: %s", err)
+	err = ResourceSpannerBackupScheduleFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -976,4 +962,29 @@ func resourceSpannerBackupScheduleDecoder(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 	return res, nil
+}
+
+func ResourceSpannerBackupScheduleFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenSpannerBackupScheduleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupSchedule: %s", err)
+	}
+	if err = d.Set("retention_duration", flattenSpannerBackupScheduleRetentionDuration(res["retentionDuration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupSchedule: %s", err)
+	}
+	if err = d.Set("spec", flattenSpannerBackupScheduleSpec(res["spec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupSchedule: %s", err)
+	}
+	if err = d.Set("full_backup_spec", flattenSpannerBackupScheduleFullBackupSpec(res["fullBackupSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupSchedule: %s", err)
+	}
+	if err = d.Set("incremental_backup_spec", flattenSpannerBackupScheduleIncrementalBackupSpec(res["incrementalBackupSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupSchedule: %s", err)
+	}
+	if err = d.Set("encryption_config", flattenSpannerBackupScheduleEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupSchedule: %s", err)
+	}
+
+	return nil
 }

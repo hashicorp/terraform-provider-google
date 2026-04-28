@@ -717,32 +717,9 @@ func resourceFirebaseAppHostingDomainRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading Domain: %s", err)
 	}
 
-	if err := d.Set("custom_domain_status", flattenFirebaseAppHostingDomainCustomDomainStatus(res["customDomainStatus"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("name", flattenFirebaseAppHostingDomainName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("uid", flattenFirebaseAppHostingDomainUid(res["uid"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("etag", flattenFirebaseAppHostingDomainEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("serve", flattenFirebaseAppHostingDomainServe(res["serve"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("update_time", flattenFirebaseAppHostingDomainUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("purge_time", flattenFirebaseAppHostingDomainPurgeTime(res["purgeTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("delete_time", flattenFirebaseAppHostingDomainDeleteTime(res["deleteTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
-	}
-	if err := d.Set("create_time", flattenFirebaseAppHostingDomainCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Domain: %s", err)
+	err = ResourceFirebaseAppHostingDomainFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1420,4 +1397,38 @@ func expandFirebaseAppHostingDomainServeRedirectUri(v interface{}, d tpgresource
 
 func expandFirebaseAppHostingDomainServeRedirectStatus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceFirebaseAppHostingDomainFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("custom_domain_status", flattenFirebaseAppHostingDomainCustomDomainStatus(res["customDomainStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("name", flattenFirebaseAppHostingDomainName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("uid", flattenFirebaseAppHostingDomainUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("etag", flattenFirebaseAppHostingDomainEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("serve", flattenFirebaseAppHostingDomainServe(res["serve"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("update_time", flattenFirebaseAppHostingDomainUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("purge_time", flattenFirebaseAppHostingDomainPurgeTime(res["purgeTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("delete_time", flattenFirebaseAppHostingDomainDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err = d.Set("create_time", flattenFirebaseAppHostingDomainCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+
+	return nil
 }

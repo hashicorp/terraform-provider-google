@@ -387,32 +387,9 @@ func resourceNetworkSecurityBackendAuthenticationConfigRead(d *schema.ResourceDa
 		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetworkSecurityBackendAuthenticationConfigCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityBackendAuthenticationConfigUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkSecurityBackendAuthenticationConfigLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkSecurityBackendAuthenticationConfigDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
-	}
-	if err := d.Set("client_certificate", flattenNetworkSecurityBackendAuthenticationConfigClientCertificate(res["clientCertificate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
-	}
-	if err := d.Set("trust_config", flattenNetworkSecurityBackendAuthenticationConfigTrustConfig(res["trustConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
-	}
-	if err := d.Set("well_known_roots", flattenNetworkSecurityBackendAuthenticationConfigWellKnownRoots(res["wellKnownRoots"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkSecurityBackendAuthenticationConfigTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkSecurityBackendAuthenticationConfigEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
+	err = ResourceNetworkSecurityBackendAuthenticationConfigFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -719,4 +696,38 @@ func expandNetworkSecurityBackendAuthenticationConfigEffectiveLabels(v interface
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkSecurityBackendAuthenticationConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("create_time", flattenNetworkSecurityBackendAuthenticationConfigCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityBackendAuthenticationConfigUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkSecurityBackendAuthenticationConfigLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkSecurityBackendAuthenticationConfigDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
+	}
+	if err = d.Set("client_certificate", flattenNetworkSecurityBackendAuthenticationConfigClientCertificate(res["clientCertificate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
+	}
+	if err = d.Set("trust_config", flattenNetworkSecurityBackendAuthenticationConfigTrustConfig(res["trustConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
+	}
+	if err = d.Set("well_known_roots", flattenNetworkSecurityBackendAuthenticationConfigWellKnownRoots(res["wellKnownRoots"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkSecurityBackendAuthenticationConfigTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkSecurityBackendAuthenticationConfigEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendAuthenticationConfig: %s", err)
+	}
+
+	return nil
 }

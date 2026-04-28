@@ -320,20 +320,9 @@ func resourceHealthcareConsentStoreRead(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Finished reading HealthcareConsentStore %q: %#v", d.Id(), res)
 
-	if err := d.Set("default_consent_ttl", flattenHealthcareConsentStoreDefaultConsentTtl(res["defaultConsentTtl"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConsentStore: %s", err)
-	}
-	if err := d.Set("enable_consent_create_on_update", flattenHealthcareConsentStoreEnableConsentCreateOnUpdate(res["enableConsentCreateOnUpdate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConsentStore: %s", err)
-	}
-	if err := d.Set("labels", flattenHealthcareConsentStoreLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConsentStore: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenHealthcareConsentStoreTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConsentStore: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenHealthcareConsentStoreEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConsentStore: %s", err)
+	err = ResourceHealthcareConsentStoreFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -576,4 +565,26 @@ func expandHealthcareConsentStoreEffectiveLabels(v interface{}, d tpgresource.Te
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceHealthcareConsentStoreFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("default_consent_ttl", flattenHealthcareConsentStoreDefaultConsentTtl(res["defaultConsentTtl"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConsentStore: %s", err)
+	}
+	if err = d.Set("enable_consent_create_on_update", flattenHealthcareConsentStoreEnableConsentCreateOnUpdate(res["enableConsentCreateOnUpdate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConsentStore: %s", err)
+	}
+	if err = d.Set("labels", flattenHealthcareConsentStoreLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConsentStore: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenHealthcareConsentStoreTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConsentStore: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenHealthcareConsentStoreEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConsentStore: %s", err)
+	}
+
+	return nil
 }

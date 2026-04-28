@@ -650,23 +650,9 @@ func resourceComputeRegionAutoscalerRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeRegionAutoscalerCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionAutoscalerName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionAutoscalerDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
-	}
-	if err := d.Set("autoscaling_policy", flattenComputeRegionAutoscalerAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
-	}
-	if err := d.Set("target", flattenComputeRegionAutoscalerTarget(res["target"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
-	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+	err = ResourceComputeRegionAutoscalerFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1620,4 +1606,28 @@ func expandComputeRegionAutoscalerRegion(v interface{}, d tpgresource.TerraformR
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeRegionAutoscalerFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("creation_timestamp", flattenComputeRegionAutoscalerCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+	}
+	if err = d.Set("name", flattenComputeRegionAutoscalerName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+	}
+	if err = d.Set("description", flattenComputeRegionAutoscalerDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+	}
+	if err = d.Set("autoscaling_policy", flattenComputeRegionAutoscalerAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+	}
+	if err = d.Set("target", flattenComputeRegionAutoscalerTarget(res["target"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+	}
+	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+	}
+	return nil
 }

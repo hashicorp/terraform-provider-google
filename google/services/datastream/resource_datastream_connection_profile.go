@@ -944,47 +944,9 @@ func resourceDatastreamConnectionProfileRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
 	}
 
-	if err := d.Set("name", flattenDatastreamConnectionProfileName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("labels", flattenDatastreamConnectionProfileLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("display_name", flattenDatastreamConnectionProfileDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("oracle_profile", flattenDatastreamConnectionProfileOracleProfile(res["oracleProfile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("gcs_profile", flattenDatastreamConnectionProfileGcsProfile(res["gcsProfile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("mysql_profile", flattenDatastreamConnectionProfileMysqlProfile(res["mysqlProfile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("bigquery_profile", flattenDatastreamConnectionProfileBigqueryProfile(res["bigqueryProfile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("postgresql_profile", flattenDatastreamConnectionProfilePostgresqlProfile(res["postgresqlProfile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("sql_server_profile", flattenDatastreamConnectionProfileSqlServerProfile(res["sqlServerProfile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("mongodb_profile", flattenDatastreamConnectionProfileMongodbProfile(res["mongodbProfile"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("forward_ssh_connectivity", flattenDatastreamConnectionProfileForwardSshConnectivity(res["forwardSshConnectivity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("private_connectivity", flattenDatastreamConnectionProfilePrivateConnectivity(res["privateConnectivity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenDatastreamConnectionProfileTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenDatastreamConnectionProfileEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	err = ResourceDatastreamConnectionProfileFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -2918,4 +2880,53 @@ func expandDatastreamConnectionProfileEffectiveLabels(v interface{}, d tpgresour
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceDatastreamConnectionProfileFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDatastreamConnectionProfileName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("labels", flattenDatastreamConnectionProfileLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("display_name", flattenDatastreamConnectionProfileDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("oracle_profile", flattenDatastreamConnectionProfileOracleProfile(res["oracleProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("gcs_profile", flattenDatastreamConnectionProfileGcsProfile(res["gcsProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("mysql_profile", flattenDatastreamConnectionProfileMysqlProfile(res["mysqlProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("bigquery_profile", flattenDatastreamConnectionProfileBigqueryProfile(res["bigqueryProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("postgresql_profile", flattenDatastreamConnectionProfilePostgresqlProfile(res["postgresqlProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("sql_server_profile", flattenDatastreamConnectionProfileSqlServerProfile(res["sqlServerProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("mongodb_profile", flattenDatastreamConnectionProfileMongodbProfile(res["mongodbProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("forward_ssh_connectivity", flattenDatastreamConnectionProfileForwardSshConnectivity(res["forwardSshConnectivity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("private_connectivity", flattenDatastreamConnectionProfilePrivateConnectivity(res["privateConnectivity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDatastreamConnectionProfileTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenDatastreamConnectionProfileEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+
+	return nil
 }

@@ -432,41 +432,9 @@ func resourceNetworkSecurityMirroringDeploymentGroupRead(d *schema.ResourceData,
 		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
 	}
 
-	if err := d.Set("name", flattenNetworkSecurityMirroringDeploymentGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
-	}
-	if err := d.Set("create_time", flattenNetworkSecurityMirroringDeploymentGroupCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
-	}
-	if err := d.Set("update_time", flattenNetworkSecurityMirroringDeploymentGroupUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
-	}
-	if err := d.Set("labels", flattenNetworkSecurityMirroringDeploymentGroupLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
-	}
-	if err := d.Set("network", flattenNetworkSecurityMirroringDeploymentGroupNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
-	}
-	if err := d.Set("connected_endpoint_groups", flattenNetworkSecurityMirroringDeploymentGroupConnectedEndpointGroups(res["connectedEndpointGroups"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
-	}
-	if err := d.Set("state", flattenNetworkSecurityMirroringDeploymentGroupState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
-	}
-	if err := d.Set("reconciling", flattenNetworkSecurityMirroringDeploymentGroupReconciling(res["reconciling"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
-	}
-	if err := d.Set("description", flattenNetworkSecurityMirroringDeploymentGroupDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
-	}
-	if err := d.Set("locations", flattenNetworkSecurityMirroringDeploymentGroupLocations(res["locations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
-	}
-	if err := d.Set("terraform_labels", flattenNetworkSecurityMirroringDeploymentGroupTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
-	}
-	if err := d.Set("effective_labels", flattenNetworkSecurityMirroringDeploymentGroupEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	err = ResourceNetworkSecurityMirroringDeploymentGroupFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -808,4 +776,47 @@ func expandNetworkSecurityMirroringDeploymentGroupEffectiveLabels(v interface{},
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceNetworkSecurityMirroringDeploymentGroupFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenNetworkSecurityMirroringDeploymentGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err = d.Set("create_time", flattenNetworkSecurityMirroringDeploymentGroupCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err = d.Set("update_time", flattenNetworkSecurityMirroringDeploymentGroupUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err = d.Set("labels", flattenNetworkSecurityMirroringDeploymentGroupLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err = d.Set("network", flattenNetworkSecurityMirroringDeploymentGroupNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err = d.Set("connected_endpoint_groups", flattenNetworkSecurityMirroringDeploymentGroupConnectedEndpointGroups(res["connectedEndpointGroups"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err = d.Set("state", flattenNetworkSecurityMirroringDeploymentGroupState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err = d.Set("reconciling", flattenNetworkSecurityMirroringDeploymentGroupReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err = d.Set("description", flattenNetworkSecurityMirroringDeploymentGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err = d.Set("locations", flattenNetworkSecurityMirroringDeploymentGroupLocations(res["locations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkSecurityMirroringDeploymentGroupTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenNetworkSecurityMirroringDeploymentGroupEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+
+	return nil
 }

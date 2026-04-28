@@ -408,50 +408,9 @@ func resourceComputeNetworkAttachmentRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
 	}
 
-	if err := d.Set("kind", flattenComputeNetworkAttachmentKind(res["kind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("id", flattenComputeNetworkAttachmentId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeNetworkAttachmentCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("description", flattenComputeNetworkAttachmentDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("self_link", flattenComputeNetworkAttachmentSelfLink(res["selfLink"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("self_link_with_id", flattenComputeNetworkAttachmentSelfLinkWithId(res["selfLinkWithId"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("connection_preference", flattenComputeNetworkAttachmentConnectionPreference(res["connectionPreference"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("connection_endpoints", flattenComputeNetworkAttachmentConnectionEndpoints(res["connectionEndpoints"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("subnetworks", flattenComputeNetworkAttachmentSubnetworks(res["subnetworks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("producer_reject_lists", flattenComputeNetworkAttachmentProducerRejectLists(res["producerRejectLists"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("producer_accept_lists", flattenComputeNetworkAttachmentProducerAcceptLists(res["producerAcceptLists"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeNetworkAttachmentFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("network", flattenComputeNetworkAttachmentNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("name", flattenComputeNetworkAttachmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
-	}
-	if err := d.Set("region", flattenComputeNetworkAttachmentRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	err = ResourceComputeNetworkAttachmentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -772,4 +731,56 @@ func expandComputeNetworkAttachmentRegion(v interface{}, d tpgresource.Terraform
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func ResourceComputeNetworkAttachmentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("kind", flattenComputeNetworkAttachmentKind(res["kind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("id", flattenComputeNetworkAttachmentId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("creation_timestamp", flattenComputeNetworkAttachmentCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("description", flattenComputeNetworkAttachmentDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("self_link", flattenComputeNetworkAttachmentSelfLink(res["selfLink"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("self_link_with_id", flattenComputeNetworkAttachmentSelfLinkWithId(res["selfLinkWithId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("connection_preference", flattenComputeNetworkAttachmentConnectionPreference(res["connectionPreference"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("connection_endpoints", flattenComputeNetworkAttachmentConnectionEndpoints(res["connectionEndpoints"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("subnetworks", flattenComputeNetworkAttachmentSubnetworks(res["subnetworks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("producer_reject_lists", flattenComputeNetworkAttachmentProducerRejectLists(res["producerRejectLists"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("producer_accept_lists", flattenComputeNetworkAttachmentProducerAcceptLists(res["producerAcceptLists"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("fingerprint", flattenComputeNetworkAttachmentFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("network", flattenComputeNetworkAttachmentNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("name", flattenComputeNetworkAttachmentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+	if err = d.Set("region", flattenComputeNetworkAttachmentRegion(res["region"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
+	}
+
+	return nil
 }

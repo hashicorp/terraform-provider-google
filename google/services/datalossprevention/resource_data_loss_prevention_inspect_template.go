@@ -968,17 +968,9 @@ func resourceDataLossPreventionInspectTemplateRead(d *schema.ResourceData, meta 
 		return nil
 	}
 
-	if err := d.Set("name", flattenDataLossPreventionInspectTemplateName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InspectTemplate: %s", err)
-	}
-	if err := d.Set("description", flattenDataLossPreventionInspectTemplateDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InspectTemplate: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataLossPreventionInspectTemplateDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InspectTemplate: %s", err)
-	}
-	if err := d.Set("inspect_config", flattenDataLossPreventionInspectTemplateInspectConfig(res["inspectConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InspectTemplate: %s", err)
+	err = ResourceDataLossPreventionInspectTemplateFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -3402,5 +3394,24 @@ func resourceDataLossPreventionInspectTemplatePostCreateSetComputedFields(d *sch
 	if err := d.Set("name", flattenDataLossPreventionInspectTemplateName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDataLossPreventionInspectTemplateFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDataLossPreventionInspectTemplateName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InspectTemplate: %s", err)
+	}
+	if err = d.Set("description", flattenDataLossPreventionInspectTemplateDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InspectTemplate: %s", err)
+	}
+	if err = d.Set("display_name", flattenDataLossPreventionInspectTemplateDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InspectTemplate: %s", err)
+	}
+	if err = d.Set("inspect_config", flattenDataLossPreventionInspectTemplateInspectConfig(res["inspectConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InspectTemplate: %s", err)
+	}
+
 	return nil
 }

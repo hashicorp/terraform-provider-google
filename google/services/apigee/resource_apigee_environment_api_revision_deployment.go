@@ -316,14 +316,9 @@ func resourceApigeeEnvironmentApiRevisionDeploymentRead(d *schema.ResourceData, 
 
 	log.Printf("[DEBUG] Finished reading ApigeeEnvironmentApiRevisionDeployment %q: %#v", d.Id(), res)
 
-	if err := d.Set("state", flattenApigeeEnvironmentApiRevisionDeploymentState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvironmentApiRevisionDeployment: %s", err)
-	}
-	if err := d.Set("basepaths", flattenApigeeEnvironmentApiRevisionDeploymentBasepaths(res["basePath"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvironmentApiRevisionDeployment: %s", err)
-	}
-	if err := d.Set("deploy_start_time", flattenApigeeEnvironmentApiRevisionDeploymentDeployStartTime(res["deployStartTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvironmentApiRevisionDeployment: %s", err)
+	err = ResourceApigeeEnvironmentApiRevisionDeploymentFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -431,4 +426,20 @@ func flattenApigeeEnvironmentApiRevisionDeploymentBasepaths(v interface{}, d *sc
 
 func flattenApigeeEnvironmentApiRevisionDeploymentDeployStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func ResourceApigeeEnvironmentApiRevisionDeploymentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("state", flattenApigeeEnvironmentApiRevisionDeploymentState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvironmentApiRevisionDeployment: %s", err)
+	}
+	if err = d.Set("basepaths", flattenApigeeEnvironmentApiRevisionDeploymentBasepaths(res["basePath"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvironmentApiRevisionDeployment: %s", err)
+	}
+	if err = d.Set("deploy_start_time", flattenApigeeEnvironmentApiRevisionDeploymentDeployStartTime(res["deployStartTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EnvironmentApiRevisionDeployment: %s", err)
+	}
+
+	return nil
 }

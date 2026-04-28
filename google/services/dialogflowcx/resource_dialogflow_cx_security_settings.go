@@ -466,38 +466,9 @@ func resourceDialogflowCXSecuritySettingsRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading SecuritySettings: %s", err)
 	}
 
-	if err := d.Set("name", flattenDialogflowCXSecuritySettingsName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecuritySettings: %s", err)
-	}
-	if err := d.Set("display_name", flattenDialogflowCXSecuritySettingsDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecuritySettings: %s", err)
-	}
-	if err := d.Set("redaction_strategy", flattenDialogflowCXSecuritySettingsRedactionStrategy(res["redactionStrategy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecuritySettings: %s", err)
-	}
-	if err := d.Set("redaction_scope", flattenDialogflowCXSecuritySettingsRedactionScope(res["redactionScope"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecuritySettings: %s", err)
-	}
-	if err := d.Set("inspect_template", flattenDialogflowCXSecuritySettingsInspectTemplate(res["inspectTemplate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecuritySettings: %s", err)
-	}
-	if err := d.Set("deidentify_template", flattenDialogflowCXSecuritySettingsDeidentifyTemplate(res["deidentifyTemplate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecuritySettings: %s", err)
-	}
-	if err := d.Set("purge_data_types", flattenDialogflowCXSecuritySettingsPurgeDataTypes(res["purgeDataTypes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecuritySettings: %s", err)
-	}
-	if err := d.Set("audio_export_settings", flattenDialogflowCXSecuritySettingsAudioExportSettings(res["audioExportSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecuritySettings: %s", err)
-	}
-	if err := d.Set("insights_export_settings", flattenDialogflowCXSecuritySettingsInsightsExportSettings(res["insightsExportSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecuritySettings: %s", err)
-	}
-	if err := d.Set("retention_window_days", flattenDialogflowCXSecuritySettingsRetentionWindowDays(res["retentionWindowDays"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecuritySettings: %s", err)
-	}
-	if err := d.Set("retention_strategy", flattenDialogflowCXSecuritySettingsRetentionStrategy(res["retentionStrategy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	err = ResourceDialogflowCXSecuritySettingsFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
 	}
 
 	identity, err := d.Identity()
@@ -1006,5 +977,45 @@ func resourceDialogflowCXSecuritySettingsPostCreateSetComputedFields(d *schema.R
 	if err := d.Set("name", flattenDialogflowCXSecuritySettingsName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	return nil
+}
+
+func ResourceDialogflowCXSecuritySettingsFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("name", flattenDialogflowCXSecuritySettingsName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	}
+	if err = d.Set("display_name", flattenDialogflowCXSecuritySettingsDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	}
+	if err = d.Set("redaction_strategy", flattenDialogflowCXSecuritySettingsRedactionStrategy(res["redactionStrategy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	}
+	if err = d.Set("redaction_scope", flattenDialogflowCXSecuritySettingsRedactionScope(res["redactionScope"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	}
+	if err = d.Set("inspect_template", flattenDialogflowCXSecuritySettingsInspectTemplate(res["inspectTemplate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	}
+	if err = d.Set("deidentify_template", flattenDialogflowCXSecuritySettingsDeidentifyTemplate(res["deidentifyTemplate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	}
+	if err = d.Set("purge_data_types", flattenDialogflowCXSecuritySettingsPurgeDataTypes(res["purgeDataTypes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	}
+	if err = d.Set("audio_export_settings", flattenDialogflowCXSecuritySettingsAudioExportSettings(res["audioExportSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	}
+	if err = d.Set("insights_export_settings", flattenDialogflowCXSecuritySettingsInsightsExportSettings(res["insightsExportSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	}
+	if err = d.Set("retention_window_days", flattenDialogflowCXSecuritySettingsRetentionWindowDays(res["retentionWindowDays"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	}
+	if err = d.Set("retention_strategy", flattenDialogflowCXSecuritySettingsRetentionStrategy(res["retentionStrategy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecuritySettings: %s", err)
+	}
+
 	return nil
 }
