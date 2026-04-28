@@ -1,0 +1,14 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_ces_app_root_agent_association
+generation_type: mmv1
+source_file: products/ces/AppRootAgentAssociation.yaml
+api_service_name: ces.googleapis.com
+api_version: v1
+api_resource_type_kind: App
+fields:
+    - api_field: agentId
+    - field: app_id
+      provider_only: true
+    - field: location
+      provider_only: true
