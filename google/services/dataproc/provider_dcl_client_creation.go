@@ -17,12 +17,26 @@
 package dataproc
 
 import (
+	"time"
+
 	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-	"time"
 )
 
-func NewDCLDataprocClient(config *transport_tpg.Config, userAgent, billingProject string, timeout time.Duration) *Client {
+// The Client is the base struct of all operations.  This will receive the
+// Get, Delete, List, and Apply operations on all resources.
+type DclClient struct {
+	Config *dcl.Config
+}
+
+// NewClient creates a client that retries all operations a few times each.
+func NewDclClient(c *dcl.Config) *DclClient {
+	return &DclClient{
+		Config: c,
+	}
+}
+
+func NewDCLDataprocClient(config *transport_tpg.Config, userAgent, billingProject string, timeout time.Duration) *DclClient {
 	configOptions := []dcl.ConfigOption{
 		dcl.WithHTTPClient(config.Client),
 		dcl.WithUserAgent(userAgent),
@@ -42,5 +56,5 @@ func NewDCLDataprocClient(config *transport_tpg.Config, userAgent, billingProjec
 	}
 
 	dclConfig := dcl.NewConfig(configOptions...)
-	return NewClient(dclConfig)
+	return NewDclClient(dclConfig)
 }

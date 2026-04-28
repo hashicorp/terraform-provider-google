@@ -50,7 +50,6 @@ import (
 	"golang.org/x/oauth2"
 	googleoauth "golang.org/x/oauth2/google"
 	externalaccount "golang.org/x/oauth2/google/externalaccount"
-	appengine "google.golang.org/api/appengine/v1"
 	backupdr "google.golang.org/api/backupdr/v1"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
@@ -59,23 +58,16 @@ import (
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
-	"google.golang.org/api/composer/v1"
 	"google.golang.org/api/container/v1"
 	dataflow "google.golang.org/api/dataflow/v1b3"
-	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/dns/v1"
-	healthcare "google.golang.org/api/healthcare/v1"
 	"google.golang.org/api/iam/v1"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
 	runadminv2 "google.golang.org/api/run/v2"
-	"google.golang.org/api/servicenetworking/v1"
 	"google.golang.org/api/serviceusage/v1"
-	"google.golang.org/api/sourcerepo/v1"
-	"google.golang.org/api/spanner/v1"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 	"google.golang.org/api/storage/v1"
-	"google.golang.org/api/storagetransfer/v1"
 	"google.golang.org/api/transport"
 	"google.golang.org/grpc"
 )
@@ -1491,20 +1483,6 @@ func (c *Config) NewCloudFunctionsClient(userAgent string) *cloudfunctions.Servi
 	return clientCloudFunctions
 }
 
-func (c *Config) NewSourceRepoClient(userAgent string) *sourcerepo.Service {
-	sourceRepoClientBasePath := RemoveBasePathVersion(c.SourceRepoBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Source Repo client for path %s", sourceRepoClientBasePath)
-	clientSourceRepo, err := sourcerepo.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client source repo: %s", err)
-		return nil
-	}
-	clientSourceRepo.UserAgent = userAgent
-	clientSourceRepo.BasePath = sourceRepoClientBasePath
-
-	return clientSourceRepo
-}
-
 func (c *Config) NewBigQueryClient(userAgent string) *bigquery.Service {
 	bigQueryClientBasePath := c.BigQueryBasePath
 	log.Printf("[INFO] Instantiating Google Cloud BigQuery client for path %s", bigQueryClientBasePath)
@@ -1518,104 +1496,6 @@ func (c *Config) NewBigQueryClient(userAgent string) *bigquery.Service {
 	clientBigQuery.BasePath = bigQueryClientBasePath
 
 	return clientBigQuery
-}
-
-func (c *Config) NewSpannerClient(userAgent string) *spanner.Service {
-	spannerClientBasePath := RemoveBasePathVersion(c.SpannerBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Spanner client for path %s", spannerClientBasePath)
-	clientSpanner, err := spanner.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client source repo: %s", err)
-		return nil
-	}
-	clientSpanner.UserAgent = userAgent
-	clientSpanner.BasePath = spannerClientBasePath
-
-	return clientSpanner
-}
-
-func (c *Config) NewDataprocClient(userAgent string) *dataproc.Service {
-	dataprocClientBasePath := RemoveBasePathVersion(c.DataprocBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Dataproc client for path %s", dataprocClientBasePath)
-	clientDataproc, err := dataproc.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client dataproc: %s", err)
-		return nil
-	}
-	clientDataproc.UserAgent = userAgent
-	clientDataproc.BasePath = dataprocClientBasePath
-
-	return clientDataproc
-}
-
-func (c *Config) NewAppEngineClient(userAgent string) *appengine.APIService {
-	appEngineClientBasePath := RemoveBasePathVersion(c.AppEngineBasePath)
-	log.Printf("[INFO] Instantiating App Engine client for path %s", appEngineClientBasePath)
-	clientAppEngine, err := appengine.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client appengine: %s", err)
-		return nil
-	}
-	clientAppEngine.UserAgent = userAgent
-	clientAppEngine.BasePath = appEngineClientBasePath
-
-	return clientAppEngine
-}
-
-func (c *Config) NewComposerClient(userAgent string) *composer.Service {
-	composerClientBasePath := RemoveBasePathVersion(c.ComposerBasePath)
-	log.Printf("[INFO] Instantiating Cloud Composer client for path %s", composerClientBasePath)
-	clientComposer, err := composer.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client composer: %s", err)
-		return nil
-	}
-	clientComposer.UserAgent = userAgent
-	clientComposer.BasePath = composerClientBasePath
-
-	return clientComposer
-}
-
-func (c *Config) NewServiceNetworkingClient(userAgent string) *servicenetworking.APIService {
-	serviceNetworkingClientBasePath := RemoveBasePathVersion(c.ServiceNetworkingBasePath)
-	log.Printf("[INFO] Instantiating Service Networking client for path %s", serviceNetworkingClientBasePath)
-	clientServiceNetworking, err := servicenetworking.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client service networking: %s", err)
-		return nil
-	}
-	clientServiceNetworking.UserAgent = userAgent
-	clientServiceNetworking.BasePath = serviceNetworkingClientBasePath
-
-	return clientServiceNetworking
-}
-
-func (c *Config) NewStorageTransferClient(userAgent string) *storagetransfer.Service {
-	storageTransferClientBasePath := RemoveBasePathVersion(c.StorageTransferBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Storage Transfer client for path %s", storageTransferClientBasePath)
-	clientStorageTransfer, err := storagetransfer.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client storage transfer: %s", err)
-		return nil
-	}
-	clientStorageTransfer.UserAgent = userAgent
-	clientStorageTransfer.BasePath = storageTransferClientBasePath
-
-	return clientStorageTransfer
-}
-
-func (c *Config) NewHealthcareClient(userAgent string) *healthcare.Service {
-	healthcareClientBasePath := RemoveBasePathVersion(c.HealthcareBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Healthcare client for path %s", healthcareClientBasePath)
-	clientHealthcare, err := healthcare.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client healthcare: %s", err)
-		return nil
-	}
-	clientHealthcare.UserAgent = userAgent
-	clientHealthcare.BasePath = healthcareClientBasePath
-
-	return clientHealthcare
 }
 
 func (c *Config) NewCloudIdentityClient(userAgent string) *cloudidentity.Service {

@@ -166,7 +166,7 @@ func testAccCheckGoogleHealthcareDicomStoreIamBindingExists(t *testing.T, bindin
 			return err
 		}
 
-		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.DicomStores.GetIamPolicy(dicomStoreId.DicomStoreId()).Do()
+		p, err := healthcare.NewClient(config, config.UserAgent).Projects.Locations.Datasets.DicomStores.GetIamPolicy(dicomStoreId.DicomStoreId()).Do()
 		if err != nil {
 			return err
 		}
@@ -202,7 +202,7 @@ func testAccCheckGoogleHealthcareDicomStoreIamMemberExists(t *testing.T, n, role
 			return err
 		}
 
-		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.DicomStores.GetIamPolicy(dicomStoreId.DicomStoreId()).Do()
+		p, err := healthcare.NewClient(config, config.UserAgent).Projects.Locations.Datasets.DicomStores.GetIamPolicy(dicomStoreId.DicomStoreId()).Do()
 		if err != nil {
 			return err
 		}
@@ -237,7 +237,7 @@ func testAccCheckGoogleHealthcareDicomStoreIamPolicyExists(t *testing.T, n, role
 			return err
 		}
 
-		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.DicomStores.GetIamPolicy(dicomStoreId.DicomStoreId()).Do()
+		p, err := healthcare.NewClient(config, config.UserAgent).Projects.Locations.Datasets.DicomStores.GetIamPolicy(dicomStoreId.DicomStoreId()).Do()
 		if err != nil {
 			return err
 		}

@@ -213,7 +213,7 @@ func testAccCheckGoogleHealthcareFhirStoreUpdate(t *testing.T, pubsubTopic strin
 				return err
 			}
 
-			response, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.FhirStores.Get(gcpResourceUri).Do()
+			response, err := healthcare.NewClient(config, config.UserAgent).Projects.Locations.Datasets.FhirStores.Get(gcpResourceUri).Do()
 			if err != nil {
 				return fmt.Errorf("Unexpected failure while verifying 'updated' dataset: %s", err)
 			}

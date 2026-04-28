@@ -156,7 +156,7 @@ func TestAccHealthcareDatasetIamPolicy(t *testing.T) {
 func testAccCheckGoogleHealthcareDatasetIam(t *testing.T, datasetId, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.GetIamPolicy(datasetId).Do()
+		p, err := healthcare.NewClient(config, config.UserAgent).Projects.Locations.Datasets.GetIamPolicy(datasetId).Do()
 		if err != nil {
 			return err
 		}

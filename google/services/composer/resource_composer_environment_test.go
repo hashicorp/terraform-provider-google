@@ -660,7 +660,7 @@ func testAccComposerEnvironmentDestroyProducer(t *testing.T) func(s *terraform.S
 				Environment: idTokens[5],
 			}
 
-			_, err := config.NewComposerClient(config.UserAgent).Projects.Locations.Environments.Get(envName.ResourceName()).Do()
+			_, err := composer.NewClient(config, config.UserAgent).Projects.Locations.Environments.Get(envName.ResourceName()).Do()
 			if err == nil {
 				return fmt.Errorf("environment %s still exists", envName.ResourceName())
 			}

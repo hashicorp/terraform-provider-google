@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/composer"
 )
 
 func TestAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicExample_update(t *testing.T) {
@@ -216,7 +217,7 @@ func testAccComposerUserWorkloadsConfigMapDestroyed(t *testing.T) func(s *terraf
 			if len(idTokens) != 8 {
 				return fmt.Errorf("Invalid ID %q, expected format projects/{project}/regions/{region}/environments/{environment}/userWorkloadsConfigMaps/{name}", rs.Primary.ID)
 			}
-			_, err := config.NewComposerClient(config.UserAgent).Projects.Locations.Environments.UserWorkloadsConfigMaps.Get(rs.Primary.ID).Do()
+			_, err := composer.NewClient(config, config.UserAgent).Projects.Locations.Environments.UserWorkloadsConfigMaps.Get(rs.Primary.ID).Do()
 			if err == nil {
 				return fmt.Errorf("config map %s still exists", rs.Primary.ID)
 			}

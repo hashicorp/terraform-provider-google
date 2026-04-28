@@ -791,7 +791,7 @@ func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string, par
 	networkId := fmt.Sprintf("projects/%v/global/networks/%v", project.ProjectNumber, networkName)
 	globalAddressName := BootstrapSharedTestGlobalAddress(t, testId, AddressWithPrefixLength(settings.PrefixLength))
 
-	readCall := config.NewServiceNetworkingClient(config.UserAgent).Services.Connections.List(parentService).Network(networkId)
+	readCall := tpgservicenetworking.NewClient(config, config.UserAgent).Services.Connections.List(parentService).Network(networkId)
 	if config.UserProjectOverride {
 		readCall.Header().Add("X-Goog-User-Project", projectId)
 	}
@@ -816,7 +816,7 @@ func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string, par
 			ReservedPeeringRanges: []string{globalAddressName},
 		}
 
-		createCall := config.NewServiceNetworkingClient(config.UserAgent).Services.Connections.Create(parentService, connection)
+		createCall := tpgservicenetworking.NewClient(config, config.UserAgent).Services.Connections.Create(parentService, connection)
 		if config.UserProjectOverride {
 			createCall.Header().Add("X-Goog-User-Project", projectId)
 		}

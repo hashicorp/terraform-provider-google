@@ -92,7 +92,7 @@ func (u *SpannerInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		return nil, err
 	}
 
-	call := u.Config.NewSpannerClient(userAgent).Projects.Instances.GetIamPolicy(SpannerInstanceId{
+	call := NewClient(u.Config, userAgent).Projects.Instances.GetIamPolicy(SpannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
 	}.instanceUri(), &spanner.GetIamPolicyRequest{
@@ -136,7 +136,7 @@ func (u *SpannerInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return err
 	}
 
-	call := u.Config.NewSpannerClient(userAgent).Projects.Instances.SetIamPolicy(SpannerInstanceId{
+	call := NewClient(u.Config, userAgent).Projects.Instances.SetIamPolicy(SpannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
 	}.instanceUri(), &spanner.SetIamPolicyRequest{

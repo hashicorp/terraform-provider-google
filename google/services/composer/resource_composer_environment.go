@@ -1119,7 +1119,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	updateOnlyEnv := getComposerEnvironmentPostCreateUpdateObj(env)
 
 	log.Printf("[DEBUG] Creating new Environment %q", envName.ParentName())
-	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Create(envName.ParentName(), env).Do()
+	op, err := NewClient(config, userAgent).Projects.Locations.Environments.Create(envName.ParentName(), env).Do()
 	if err != nil {
 		return err
 	}
@@ -1170,7 +1170,7 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	res, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Get(envName.ResourceName()).Do()
+	res, err := NewClient(config, userAgent).Projects.Locations.Environments.Get(envName.ResourceName()).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComposerEnvironment %q", d.Id()))
 	}
@@ -1611,7 +1611,7 @@ func resourceComposerEnvironmentPatchField(updateMask, userAgent string, env *co
 		return err
 	}
 
-	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.
+	op, err := NewClient(config, userAgent).Projects.Locations.Environments.
 		Patch(envName.ResourceName(), env).
 		UpdateMask(updateMask).Do()
 	if err != nil {
@@ -1643,7 +1643,7 @@ func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Deleting Environment %q", d.Id())
-	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Delete(envName.ResourceName()).Do()
+	op, err := NewClient(config, userAgent).Projects.Locations.Environments.Delete(envName.ResourceName()).Do()
 	if err != nil {
 		return err
 	}
@@ -2845,7 +2845,7 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *ComposerEnvi
 
 	log.Printf("[WARNING] Creation operation for Composer Environment %q failed, check Environment isn't still running", id)
 	// Try to get possible created but invalid environment.
-	env, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Get(envName.ResourceName()).Do()
+	env, err := NewClient(config, userAgent).Projects.Locations.Environments.Get(envName.ResourceName()).Do()
 	if err != nil {
 		// If error is 401, we don't have to clean up environment, return nil.
 		// Otherwise, we encountered another error.
@@ -2860,7 +2860,7 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *ComposerEnvi
 	}
 
 	log.Printf("[WARNING] Environment %q from failed creation operation was created, deleting.", id)
-	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Delete(envName.ResourceName()).Do()
+	op, err := NewClient(config, userAgent).Projects.Locations.Environments.Delete(envName.ResourceName()).Do()
 	if err != nil {
 		return fmt.Errorf("Could not delete the invalid created environment with state %q: %s", env.State, err)
 	}

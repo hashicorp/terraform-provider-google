@@ -139,7 +139,7 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
-			createCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.Create(parentService, connection)
+			createCall := NewClient(config, userAgent).Services.Connections.Create(parentService, connection)
 			if config.UserProjectOverride {
 				createCall.Header().Add("X-Goog-User-Project", project)
 			}
@@ -156,7 +156,7 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 
 	if err != nil {
 		if strings.Contains(err.Error(), "Cannot modify allocated ranges in CreateConnection.") && d.Get("update_on_creation_fail").(bool) {
-			patchCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true)
+			patchCall := NewClient(config, userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true)
 			if config.UserProjectOverride {
 				patchCall.Header().Add("X-Goog-User-Project", project)
 			}
@@ -211,7 +211,7 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 	}
 
 	parentService := formatParentService(connectionId.Service)
-	readCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.List(parentService).Network(serviceNetworkingNetworkName)
+	readCall := NewClient(config, userAgent).Services.Connections.List(parentService).Network(serviceNetworkingNetworkName)
 	if config.UserProjectOverride {
 		readCall.Header().Add("X-Goog-User-Project", project)
 	}
@@ -289,7 +289,7 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 			project = bp
 		}
 
-		patchCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true)
+		patchCall := NewClient(config, userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true)
 		if config.UserProjectOverride {
 			patchCall.Header().Add("X-Goog-User-Project", project)
 		}
@@ -339,7 +339,7 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 		ConsumerNetwork: serviceNetworkingNetworkName,
 	}
 
-	deleteCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.DeleteConnection(parentService+"/connections/servicenetworking-googleapis-com", deleteConnectionRequest)
+	deleteCall := NewClient(config, userAgent).Services.Connections.DeleteConnection(parentService+"/connections/servicenetworking-googleapis-com", deleteConnectionRequest)
 	if config.UserProjectOverride {
 		deleteCall.Header().Add("X-Goog-User-Project", project)
 	}

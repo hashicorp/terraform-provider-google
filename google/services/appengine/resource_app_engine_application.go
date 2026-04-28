@@ -254,7 +254,7 @@ func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	log.Printf("[DEBUG] Creating App Engine App")
-	op, err := config.NewAppEngineClient(userAgent).Apps.Create(app).Do()
+	op, err := NewClient(config, userAgent).Apps.Create(app).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating App Engine application: %s", err.Error())
 	}
@@ -280,7 +280,7 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	}
 	pid := d.Id()
 
-	app, err := config.NewAppEngineClient(userAgent).Apps.Get(pid).Do()
+	app, err := NewClient(config, userAgent).Apps.Get(pid).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("App Engine Application %q", pid))
 	}
@@ -367,7 +367,7 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	log.Printf("[DEBUG] Updating App Engine App")
-	op, err := config.NewAppEngineClient(userAgent).Apps.Patch(pid, app).UpdateMask("authDomain,databaseType,servingStatus,featureSettings.splitHealthChecks,iap").Do()
+	op, err := NewClient(config, userAgent).Apps.Patch(pid, app).UpdateMask("authDomain,databaseType,servingStatus,featureSettings.splitHealthChecks,iap").Do()
 	if err != nil {
 		return fmt.Errorf("Error updating App Engine application: %s", err.Error())
 	}

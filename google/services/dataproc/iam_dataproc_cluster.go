@@ -113,7 +113,7 @@ func (u *DataprocClusterIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		return nil, err
 	}
 
-	p, err := u.Config.NewDataprocClient(userAgent).Projects.Regions.Clusters.GetIamPolicy(u.GetResourceId(), req).Do()
+	p, err := NewClient(u.Config, userAgent).Projects.Regions.Clusters.GetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -138,7 +138,7 @@ func (u *DataprocClusterIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 	}
 
 	req := &dataproc.SetIamPolicyRequest{Policy: dataprocPolicy}
-	_, err = u.Config.NewDataprocClient(userAgent).Projects.Regions.Clusters.SetIamPolicy(u.GetResourceId(), req).Do()
+	_, err = NewClient(u.Config, userAgent).Projects.Regions.Clusters.SetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

@@ -40,7 +40,7 @@ func (w *DataprocClusterOperationWaiter) QueryOp() (interface{}, error) {
 
 func DataprocClusterOperationWait(config *transport_tpg.Config, op *dataproc.Operation, activity, userAgent string, timeout time.Duration) error {
 	w := &DataprocClusterOperationWaiter{
-		Service: config.NewDataprocClient(userAgent),
+		Service: NewClient(config, userAgent),
 	}
 	if err := w.SetOp(op); err != nil {
 		return err

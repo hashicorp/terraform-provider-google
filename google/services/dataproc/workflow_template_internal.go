@@ -541,10 +541,10 @@ func (r *WorkflowTemplate) deleteURL(userBasePath string) (string, error) {
 // workflowTemplateApiOperation represents a mutable operation in the underlying REST
 // API such as Create, Update, or Delete.
 type workflowTemplateApiOperation interface {
-	do(context.Context, *WorkflowTemplate, *Client) error
+	do(context.Context, *WorkflowTemplate, *DclClient) error
 }
 
-func (c *Client) listWorkflowTemplateRaw(ctx context.Context, r *WorkflowTemplate, pageToken string, pageSize int32) ([]byte, error) {
+func (c *DclClient) listWorkflowTemplateRaw(ctx context.Context, r *WorkflowTemplate, pageToken string, pageSize int32) ([]byte, error) {
 	u, err := r.urlNormalized().listURL(c.Config.BasePath)
 	if err != nil {
 		return nil, err
@@ -576,7 +576,7 @@ type listWorkflowTemplateOperation struct {
 	Token     string                   `json:"nextPageToken"`
 }
 
-func (c *Client) listWorkflowTemplate(ctx context.Context, r *WorkflowTemplate, pageToken string, pageSize int32) ([]*WorkflowTemplate, string, error) {
+func (c *DclClient) listWorkflowTemplate(ctx context.Context, r *WorkflowTemplate, pageToken string, pageSize int32) ([]*WorkflowTemplate, string, error) {
 	b, err := c.listWorkflowTemplateRaw(ctx, r, pageToken, pageSize)
 	if err != nil {
 		return nil, "", err
@@ -601,7 +601,7 @@ func (c *Client) listWorkflowTemplate(ctx context.Context, r *WorkflowTemplate, 
 	return l, m.Token, nil
 }
 
-func (c *Client) deleteAllWorkflowTemplate(ctx context.Context, f func(*WorkflowTemplate) bool, resources []*WorkflowTemplate) error {
+func (c *DclClient) deleteAllWorkflowTemplate(ctx context.Context, f func(*WorkflowTemplate) bool, resources []*WorkflowTemplate) error {
 	var errors []string
 	for _, res := range resources {
 		if f(res) {
@@ -621,7 +621,7 @@ func (c *Client) deleteAllWorkflowTemplate(ctx context.Context, f func(*Workflow
 
 type deleteWorkflowTemplateOperation struct{}
 
-func (op *deleteWorkflowTemplateOperation) do(ctx context.Context, r *WorkflowTemplate, c *Client) error {
+func (op *deleteWorkflowTemplateOperation) do(ctx context.Context, r *WorkflowTemplate, c *DclClient) error {
 	r, err := c.GetWorkflowTemplate(ctx, r)
 	if err != nil {
 		if dcl.IsNotFound(err) {
@@ -672,7 +672,7 @@ func (op *createWorkflowTemplateOperation) FirstResponse() (map[string]interface
 	return op.response, len(op.response) > 0
 }
 
-func (op *createWorkflowTemplateOperation) do(ctx context.Context, r *WorkflowTemplate, c *Client) error {
+func (op *createWorkflowTemplateOperation) do(ctx context.Context, r *WorkflowTemplate, c *DclClient) error {
 	c.Config.Logger.InfoWithContextf(ctx, "Attempting to create %v", r)
 	u, err := r.createURL(c.Config.BasePath)
 	if err != nil {
@@ -713,7 +713,7 @@ func (op *createWorkflowTemplateOperation) do(ctx context.Context, r *WorkflowTe
 	return nil
 }
 
-func (c *Client) getWorkflowTemplateRaw(ctx context.Context, r *WorkflowTemplate) ([]byte, error) {
+func (c *DclClient) getWorkflowTemplateRaw(ctx context.Context, r *WorkflowTemplate) ([]byte, error) {
 
 	u, err := r.getURL(c.Config.BasePath)
 	if err != nil {
@@ -732,7 +732,7 @@ func (c *Client) getWorkflowTemplateRaw(ctx context.Context, r *WorkflowTemplate
 	return b, nil
 }
 
-func (c *Client) workflowTemplateDiffsForRawDesired(ctx context.Context, rawDesired *WorkflowTemplate, opts ...dcl.ApplyOption) (initial, desired *WorkflowTemplate, diffs []*dcl.FieldDiff, err error) {
+func (c *DclClient) workflowTemplateDiffsForRawDesired(ctx context.Context, rawDesired *WorkflowTemplate, opts ...dcl.ApplyOption) (initial, desired *WorkflowTemplate, diffs []*dcl.FieldDiff, err error) {
 	c.Config.Logger.InfoWithContext(ctx, "Fetching initial state...")
 	// First, let us see if the user provided a state hint.  If they did, we will start fetching based on that.
 	var fetchState *WorkflowTemplate
@@ -842,7 +842,7 @@ func canonicalizeWorkflowTemplateDesiredState(rawDesired, rawInitial *WorkflowTe
 	return canonicalDesired, nil
 }
 
-func canonicalizeWorkflowTemplateNewState(c *Client, rawNew, rawDesired *WorkflowTemplate) (*WorkflowTemplate, error) {
+func canonicalizeWorkflowTemplateNewState(c *DclClient, rawNew, rawDesired *WorkflowTemplate) (*WorkflowTemplate, error) {
 
 	rawNew.Name = rawDesired.Name
 
@@ -957,7 +957,7 @@ func canonicalizeWorkflowTemplateEncryptionConfigSlice(des, initial []WorkflowTe
 
 }
 
-func canonicalizeNewWorkflowTemplateEncryptionConfig(c *Client, des, nw *WorkflowTemplateEncryptionConfig) *WorkflowTemplateEncryptionConfig {
+func canonicalizeNewWorkflowTemplateEncryptionConfig(c *DclClient, des, nw *WorkflowTemplateEncryptionConfig) *WorkflowTemplateEncryptionConfig {
 
 	if des == nil {
 		return nw
@@ -974,7 +974,7 @@ func canonicalizeNewWorkflowTemplateEncryptionConfig(c *Client, des, nw *Workflo
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateEncryptionConfigSet(c *Client, des, nw []WorkflowTemplateEncryptionConfig) []WorkflowTemplateEncryptionConfig {
+func canonicalizeNewWorkflowTemplateEncryptionConfigSet(c *DclClient, des, nw []WorkflowTemplateEncryptionConfig) []WorkflowTemplateEncryptionConfig {
 	if des == nil {
 		return nw
 	}
@@ -1000,7 +1000,7 @@ func canonicalizeNewWorkflowTemplateEncryptionConfigSet(c *Client, des, nw []Wor
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateEncryptionConfigSlice(c *Client, des, nw []WorkflowTemplateEncryptionConfig) []WorkflowTemplateEncryptionConfig {
+func canonicalizeNewWorkflowTemplateEncryptionConfigSlice(c *DclClient, des, nw []WorkflowTemplateEncryptionConfig) []WorkflowTemplateEncryptionConfig {
 	if des == nil {
 		return nw
 	}
@@ -1068,7 +1068,7 @@ func canonicalizeWorkflowTemplatePlacementSlice(des, initial []WorkflowTemplateP
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacement(c *Client, des, nw *WorkflowTemplatePlacement) *WorkflowTemplatePlacement {
+func canonicalizeNewWorkflowTemplatePlacement(c *DclClient, des, nw *WorkflowTemplatePlacement) *WorkflowTemplatePlacement {
 
 	if des == nil {
 		return nw
@@ -1088,7 +1088,7 @@ func canonicalizeNewWorkflowTemplatePlacement(c *Client, des, nw *WorkflowTempla
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementSet(c *Client, des, nw []WorkflowTemplatePlacement) []WorkflowTemplatePlacement {
+func canonicalizeNewWorkflowTemplatePlacementSet(c *DclClient, des, nw []WorkflowTemplatePlacement) []WorkflowTemplatePlacement {
 	if des == nil {
 		return nw
 	}
@@ -1114,7 +1114,7 @@ func canonicalizeNewWorkflowTemplatePlacementSet(c *Client, des, nw []WorkflowTe
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementSlice(c *Client, des, nw []WorkflowTemplatePlacement) []WorkflowTemplatePlacement {
+func canonicalizeNewWorkflowTemplatePlacementSlice(c *DclClient, des, nw []WorkflowTemplatePlacement) []WorkflowTemplatePlacement {
 	if des == nil {
 		return nw
 	}
@@ -1192,7 +1192,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterSlice(des, initial []Wor
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedCluster(c *Client, des, nw *WorkflowTemplatePlacementManagedCluster) *WorkflowTemplatePlacementManagedCluster {
+func canonicalizeNewWorkflowTemplatePlacementManagedCluster(c *DclClient, des, nw *WorkflowTemplatePlacementManagedCluster) *WorkflowTemplatePlacementManagedCluster {
 
 	if des == nil {
 		return nw
@@ -1214,7 +1214,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedCluster(c *Client, des, nw *
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterSet(c *Client, des, nw []WorkflowTemplatePlacementManagedCluster) []WorkflowTemplatePlacementManagedCluster {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedCluster) []WorkflowTemplatePlacementManagedCluster {
 	if des == nil {
 		return nw
 	}
@@ -1240,7 +1240,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterSet(c *Client, des, n
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedCluster) []WorkflowTemplatePlacementManagedCluster {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedCluster) []WorkflowTemplatePlacementManagedCluster {
 	if des == nil {
 		return nw
 	}
@@ -1329,7 +1329,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSlice(des, initial
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfig) *WorkflowTemplatePlacementManagedClusterConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfig) *WorkflowTemplatePlacementManagedClusterConfig {
 
 	if des == nil {
 		return nw
@@ -1358,7 +1358,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfig(c *Client, des
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfig) []WorkflowTemplatePlacementManagedClusterConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfig) []WorkflowTemplatePlacementManagedClusterConfig {
 	if des == nil {
 		return nw
 	}
@@ -1384,7 +1384,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSet(c *Client, 
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfig) []WorkflowTemplatePlacementManagedClusterConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfig) []WorkflowTemplatePlacementManagedClusterConfig {
 	if des == nil {
 		return nw
 	}
@@ -1503,7 +1503,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSl
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
 
 	if des == nil {
 		return nw
@@ -1536,7 +1536,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
 	if des == nil {
 		return nw
 	}
@@ -1562,7 +1562,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
 	if des == nil {
 		return nw
 	}
@@ -1644,7 +1644,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigRe
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
 
 	if des == nil {
 		return nw
@@ -1668,7 +1668,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
 	if des == nil {
 		return nw
 	}
@@ -1694,7 +1694,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
 	if des == nil {
 		return nw
 	}
@@ -1766,7 +1766,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNo
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
 
 	if des == nil {
 		return nw
@@ -1783,7 +1783,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
 	if des == nil {
 		return nw
 	}
@@ -1809,7 +1809,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
 	if des == nil {
 		return nw
 	}
@@ -1890,7 +1890,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSh
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
 
 	if des == nil {
 		return nw
@@ -1917,7 +1917,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
 	if des == nil {
 		return nw
 	}
@@ -1943,7 +1943,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
 	if des == nil {
 		return nw
 	}
@@ -2039,7 +2039,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigSlice(
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfig) *WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfig) *WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
 
 	if des == nil {
 		return nw
@@ -2072,7 +2072,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c 
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
 	if des == nil {
 		return nw
 	}
@@ -2098,7 +2098,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigSet
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
 	if des == nil {
 		return nw
 	}
@@ -2181,7 +2181,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskCo
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
 
 	if des == nil {
 		return nw
@@ -2202,7 +2202,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDis
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
 	if des == nil {
 		return nw
 	}
@@ -2228,7 +2228,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDis
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
 	if des == nil {
 		return nw
 	}
@@ -2293,7 +2293,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigManage
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
 
 	if des == nil {
 		return nw
@@ -2317,7 +2317,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigMan
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
 	if des == nil {
 		return nw
 	}
@@ -2343,7 +2343,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigMan
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
 	if des == nil {
 		return nw
 	}
@@ -2420,7 +2420,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccele
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
 
 	if des == nil {
 		return nw
@@ -2441,7 +2441,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcc
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
 	if des == nil {
 		return nw
 	}
@@ -2467,7 +2467,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcc
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
 	if des == nil {
 		return nw
 	}
@@ -2563,7 +2563,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSlice(
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
 
 	if des == nil {
 		return nw
@@ -2596,7 +2596,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c 
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
 	if des == nil {
 		return nw
 	}
@@ -2622,7 +2622,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSet
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
 	if des == nil {
 		return nw
 	}
@@ -2705,7 +2705,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskCo
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
 
 	if des == nil {
 		return nw
@@ -2726,7 +2726,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDis
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
 	if des == nil {
 		return nw
 	}
@@ -2752,7 +2752,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDis
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
 	if des == nil {
 		return nw
 	}
@@ -2817,7 +2817,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManage
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
 
 	if des == nil {
 		return nw
@@ -2841,7 +2841,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMan
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
 	if des == nil {
 		return nw
 	}
@@ -2867,7 +2867,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMan
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
 	if des == nil {
 		return nw
 	}
@@ -2944,7 +2944,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccele
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
 
 	if des == nil {
 		return nw
@@ -2965,7 +2965,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcc
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
 	if des == nil {
 		return nw
 	}
@@ -2991,7 +2991,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcc
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
 	if des == nil {
 		return nw
 	}
@@ -3087,7 +3087,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerCon
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
 
 	if des == nil {
 		return nw
@@ -3120,7 +3120,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
 	if des == nil {
 		return nw
 	}
@@ -3146,7 +3146,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
 	if des == nil {
 		return nw
 	}
@@ -3229,7 +3229,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerCon
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
 
 	if des == nil {
 		return nw
@@ -3250,7 +3250,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
 	if des == nil {
 		return nw
 	}
@@ -3276,7 +3276,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
 	if des == nil {
 		return nw
 	}
@@ -3341,7 +3341,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerCon
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
 
 	if des == nil {
 		return nw
@@ -3365,7 +3365,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
 	if des == nil {
 		return nw
 	}
@@ -3391,7 +3391,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
 	if des == nil {
 		return nw
 	}
@@ -3468,7 +3468,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerCon
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
 
 	if des == nil {
 		return nw
@@ -3489,7 +3489,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
 	if des == nil {
 		return nw
 	}
@@ -3515,7 +3515,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
 	if des == nil {
 		return nw
 	}
@@ -3598,7 +3598,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSlic
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig) *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig) *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
 
 	if des == nil {
 		return nw
@@ -3619,7 +3619,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig) []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig) []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
 	if des == nil {
 		return nw
 	}
@@ -3645,7 +3645,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigS
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig) []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig) []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
 	if des == nil {
 		return nw
 	}
@@ -3721,7 +3721,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigInitializationActi
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigInitializationActions(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigInitializationActions) *WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigInitializationActions(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigInitializationActions) *WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
 
 	if des == nil {
 		return nw
@@ -3745,7 +3745,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigInitializationA
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigInitializationActions) []WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigInitializationActions) []WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
 	if des == nil {
 		return nw
 	}
@@ -3771,7 +3771,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigInitializationA
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigInitializationActions) []WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigInitializationActions) []WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
 	if des == nil {
 		return nw
 	}
@@ -3843,7 +3843,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSl
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig) *WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig) *WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
 
 	if des == nil {
 		return nw
@@ -3860,7 +3860,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEncryptionConfi
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig) []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig) []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
 	if des == nil {
 		return nw
 	}
@@ -3886,7 +3886,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEncryptionConfi
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig) []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig) []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
 	if des == nil {
 		return nw
 	}
@@ -3958,7 +3958,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigS
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig) *WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig) *WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
 
 	if des == nil {
 		return nw
@@ -3975,7 +3975,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigAutoscalingConf
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig) []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig) []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
 	if des == nil {
 		return nw
 	}
@@ -4001,7 +4001,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigAutoscalingConf
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig) []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig) []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
 	if des == nil {
 		return nw
 	}
@@ -4068,7 +4068,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSlic
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecurityConfig) *WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecurityConfig) *WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
 
 	if des == nil {
 		return nw
@@ -4087,7 +4087,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
 	if des == nil {
 		return nw
 	}
@@ -4113,7 +4113,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigS
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
 	if des == nil {
 		return nw
 	}
@@ -4256,7 +4256,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerb
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig) *WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig) *WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
 
 	if des == nil {
 		return nw
@@ -4313,7 +4313,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigK
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
 	if des == nil {
 		return nw
 	}
@@ -4339,7 +4339,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigK
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
 	if des == nil {
 		return nw
 	}
@@ -4421,7 +4421,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSli
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig) *WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig) *WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
 
 	if des == nil {
 		return nw
@@ -4445,7 +4445,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig) []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig) []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
 	if des == nil {
 		return nw
 	}
@@ -4471,7 +4471,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig) []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig) []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
 	if des == nil {
 		return nw
 	}
@@ -4542,7 +4542,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSlic
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(c *Client, des, nw *WorkflowTemplatePlacementManagedClusterConfigEndpointConfig) *WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigEndpointConfig) *WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
 
 	if des == nil {
 		return nw
@@ -4563,7 +4563,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSet(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig) []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig) []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
 	if des == nil {
 		return nw
 	}
@@ -4589,7 +4589,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEndpointConfigS
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSlice(c *Client, des, nw []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig) []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig) []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
 	if des == nil {
 		return nw
 	}
@@ -4666,7 +4666,7 @@ func canonicalizeWorkflowTemplatePlacementClusterSelectorSlice(des, initial []Wo
 
 }
 
-func canonicalizeNewWorkflowTemplatePlacementClusterSelector(c *Client, des, nw *WorkflowTemplatePlacementClusterSelector) *WorkflowTemplatePlacementClusterSelector {
+func canonicalizeNewWorkflowTemplatePlacementClusterSelector(c *DclClient, des, nw *WorkflowTemplatePlacementClusterSelector) *WorkflowTemplatePlacementClusterSelector {
 
 	if des == nil {
 		return nw
@@ -4687,7 +4687,7 @@ func canonicalizeNewWorkflowTemplatePlacementClusterSelector(c *Client, des, nw 
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplatePlacementClusterSelectorSet(c *Client, des, nw []WorkflowTemplatePlacementClusterSelector) []WorkflowTemplatePlacementClusterSelector {
+func canonicalizeNewWorkflowTemplatePlacementClusterSelectorSet(c *DclClient, des, nw []WorkflowTemplatePlacementClusterSelector) []WorkflowTemplatePlacementClusterSelector {
 	if des == nil {
 		return nw
 	}
@@ -4713,7 +4713,7 @@ func canonicalizeNewWorkflowTemplatePlacementClusterSelectorSet(c *Client, des, 
 	return items
 }
 
-func canonicalizeNewWorkflowTemplatePlacementClusterSelectorSlice(c *Client, des, nw []WorkflowTemplatePlacementClusterSelector) []WorkflowTemplatePlacementClusterSelector {
+func canonicalizeNewWorkflowTemplatePlacementClusterSelectorSlice(c *DclClient, des, nw []WorkflowTemplatePlacementClusterSelector) []WorkflowTemplatePlacementClusterSelector {
 	if des == nil {
 		return nw
 	}
@@ -4804,7 +4804,7 @@ func canonicalizeWorkflowTemplateJobsSlice(des, initial []WorkflowTemplateJobs, 
 
 }
 
-func canonicalizeNewWorkflowTemplateJobs(c *Client, des, nw *WorkflowTemplateJobs) *WorkflowTemplateJobs {
+func canonicalizeNewWorkflowTemplateJobs(c *DclClient, des, nw *WorkflowTemplateJobs) *WorkflowTemplateJobs {
 
 	if des == nil {
 		return nw
@@ -4837,7 +4837,7 @@ func canonicalizeNewWorkflowTemplateJobs(c *Client, des, nw *WorkflowTemplateJob
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsSet(c *Client, des, nw []WorkflowTemplateJobs) []WorkflowTemplateJobs {
+func canonicalizeNewWorkflowTemplateJobsSet(c *DclClient, des, nw []WorkflowTemplateJobs) []WorkflowTemplateJobs {
 	if des == nil {
 		return nw
 	}
@@ -4863,7 +4863,7 @@ func canonicalizeNewWorkflowTemplateJobsSet(c *Client, des, nw []WorkflowTemplat
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsSlice(c *Client, des, nw []WorkflowTemplateJobs) []WorkflowTemplateJobs {
+func canonicalizeNewWorkflowTemplateJobsSlice(c *DclClient, des, nw []WorkflowTemplateJobs) []WorkflowTemplateJobs {
 	if des == nil {
 		return nw
 	}
@@ -4966,7 +4966,7 @@ func canonicalizeWorkflowTemplateJobsHadoopJobSlice(des, initial []WorkflowTempl
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsHadoopJob(c *Client, des, nw *WorkflowTemplateJobsHadoopJob) *WorkflowTemplateJobsHadoopJob {
+func canonicalizeNewWorkflowTemplateJobsHadoopJob(c *DclClient, des, nw *WorkflowTemplateJobsHadoopJob) *WorkflowTemplateJobsHadoopJob {
 
 	if des == nil {
 		return nw
@@ -5003,7 +5003,7 @@ func canonicalizeNewWorkflowTemplateJobsHadoopJob(c *Client, des, nw *WorkflowTe
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsHadoopJobSet(c *Client, des, nw []WorkflowTemplateJobsHadoopJob) []WorkflowTemplateJobsHadoopJob {
+func canonicalizeNewWorkflowTemplateJobsHadoopJobSet(c *DclClient, des, nw []WorkflowTemplateJobsHadoopJob) []WorkflowTemplateJobsHadoopJob {
 	if des == nil {
 		return nw
 	}
@@ -5029,7 +5029,7 @@ func canonicalizeNewWorkflowTemplateJobsHadoopJobSet(c *Client, des, nw []Workfl
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsHadoopJobSlice(c *Client, des, nw []WorkflowTemplateJobsHadoopJob) []WorkflowTemplateJobsHadoopJob {
+func canonicalizeNewWorkflowTemplateJobsHadoopJobSlice(c *DclClient, des, nw []WorkflowTemplateJobsHadoopJob) []WorkflowTemplateJobsHadoopJob {
 	if des == nil {
 		return nw
 	}
@@ -5101,7 +5101,7 @@ func canonicalizeWorkflowTemplateJobsHadoopJobLoggingConfigSlice(des, initial []
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsHadoopJobLoggingConfig(c *Client, des, nw *WorkflowTemplateJobsHadoopJobLoggingConfig) *WorkflowTemplateJobsHadoopJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsHadoopJobLoggingConfig(c *DclClient, des, nw *WorkflowTemplateJobsHadoopJobLoggingConfig) *WorkflowTemplateJobsHadoopJobLoggingConfig {
 
 	if des == nil {
 		return nw
@@ -5118,7 +5118,7 @@ func canonicalizeNewWorkflowTemplateJobsHadoopJobLoggingConfig(c *Client, des, n
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsHadoopJobLoggingConfigSet(c *Client, des, nw []WorkflowTemplateJobsHadoopJobLoggingConfig) []WorkflowTemplateJobsHadoopJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsHadoopJobLoggingConfigSet(c *DclClient, des, nw []WorkflowTemplateJobsHadoopJobLoggingConfig) []WorkflowTemplateJobsHadoopJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -5144,7 +5144,7 @@ func canonicalizeNewWorkflowTemplateJobsHadoopJobLoggingConfigSet(c *Client, des
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsHadoopJobLoggingConfigSlice(c *Client, des, nw []WorkflowTemplateJobsHadoopJobLoggingConfig) []WorkflowTemplateJobsHadoopJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsHadoopJobLoggingConfigSlice(c *DclClient, des, nw []WorkflowTemplateJobsHadoopJobLoggingConfig) []WorkflowTemplateJobsHadoopJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -5247,7 +5247,7 @@ func canonicalizeWorkflowTemplateJobsSparkJobSlice(des, initial []WorkflowTempla
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkJob(c *Client, des, nw *WorkflowTemplateJobsSparkJob) *WorkflowTemplateJobsSparkJob {
+func canonicalizeNewWorkflowTemplateJobsSparkJob(c *DclClient, des, nw *WorkflowTemplateJobsSparkJob) *WorkflowTemplateJobsSparkJob {
 
 	if des == nil {
 		return nw
@@ -5284,7 +5284,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkJob(c *Client, des, nw *WorkflowTem
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkJobSet(c *Client, des, nw []WorkflowTemplateJobsSparkJob) []WorkflowTemplateJobsSparkJob {
+func canonicalizeNewWorkflowTemplateJobsSparkJobSet(c *DclClient, des, nw []WorkflowTemplateJobsSparkJob) []WorkflowTemplateJobsSparkJob {
 	if des == nil {
 		return nw
 	}
@@ -5310,7 +5310,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkJobSet(c *Client, des, nw []Workflo
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkJobSlice(c *Client, des, nw []WorkflowTemplateJobsSparkJob) []WorkflowTemplateJobsSparkJob {
+func canonicalizeNewWorkflowTemplateJobsSparkJobSlice(c *DclClient, des, nw []WorkflowTemplateJobsSparkJob) []WorkflowTemplateJobsSparkJob {
 	if des == nil {
 		return nw
 	}
@@ -5382,7 +5382,7 @@ func canonicalizeWorkflowTemplateJobsSparkJobLoggingConfigSlice(des, initial []W
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkJobLoggingConfig(c *Client, des, nw *WorkflowTemplateJobsSparkJobLoggingConfig) *WorkflowTemplateJobsSparkJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsSparkJobLoggingConfig(c *DclClient, des, nw *WorkflowTemplateJobsSparkJobLoggingConfig) *WorkflowTemplateJobsSparkJobLoggingConfig {
 
 	if des == nil {
 		return nw
@@ -5399,7 +5399,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkJobLoggingConfig(c *Client, des, nw
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkJobLoggingConfigSet(c *Client, des, nw []WorkflowTemplateJobsSparkJobLoggingConfig) []WorkflowTemplateJobsSparkJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsSparkJobLoggingConfigSet(c *DclClient, des, nw []WorkflowTemplateJobsSparkJobLoggingConfig) []WorkflowTemplateJobsSparkJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -5425,7 +5425,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkJobLoggingConfigSet(c *Client, des,
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkJobLoggingConfigSlice(c *Client, des, nw []WorkflowTemplateJobsSparkJobLoggingConfig) []WorkflowTemplateJobsSparkJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsSparkJobLoggingConfigSlice(c *DclClient, des, nw []WorkflowTemplateJobsSparkJobLoggingConfig) []WorkflowTemplateJobsSparkJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -5528,7 +5528,7 @@ func canonicalizeWorkflowTemplateJobsPysparkJobSlice(des, initial []WorkflowTemp
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsPysparkJob(c *Client, des, nw *WorkflowTemplateJobsPysparkJob) *WorkflowTemplateJobsPysparkJob {
+func canonicalizeNewWorkflowTemplateJobsPysparkJob(c *DclClient, des, nw *WorkflowTemplateJobsPysparkJob) *WorkflowTemplateJobsPysparkJob {
 
 	if des == nil {
 		return nw
@@ -5565,7 +5565,7 @@ func canonicalizeNewWorkflowTemplateJobsPysparkJob(c *Client, des, nw *WorkflowT
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsPysparkJobSet(c *Client, des, nw []WorkflowTemplateJobsPysparkJob) []WorkflowTemplateJobsPysparkJob {
+func canonicalizeNewWorkflowTemplateJobsPysparkJobSet(c *DclClient, des, nw []WorkflowTemplateJobsPysparkJob) []WorkflowTemplateJobsPysparkJob {
 	if des == nil {
 		return nw
 	}
@@ -5591,7 +5591,7 @@ func canonicalizeNewWorkflowTemplateJobsPysparkJobSet(c *Client, des, nw []Workf
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsPysparkJobSlice(c *Client, des, nw []WorkflowTemplateJobsPysparkJob) []WorkflowTemplateJobsPysparkJob {
+func canonicalizeNewWorkflowTemplateJobsPysparkJobSlice(c *DclClient, des, nw []WorkflowTemplateJobsPysparkJob) []WorkflowTemplateJobsPysparkJob {
 	if des == nil {
 		return nw
 	}
@@ -5663,7 +5663,7 @@ func canonicalizeWorkflowTemplateJobsPysparkJobLoggingConfigSlice(des, initial [
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsPysparkJobLoggingConfig(c *Client, des, nw *WorkflowTemplateJobsPysparkJobLoggingConfig) *WorkflowTemplateJobsPysparkJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsPysparkJobLoggingConfig(c *DclClient, des, nw *WorkflowTemplateJobsPysparkJobLoggingConfig) *WorkflowTemplateJobsPysparkJobLoggingConfig {
 
 	if des == nil {
 		return nw
@@ -5680,7 +5680,7 @@ func canonicalizeNewWorkflowTemplateJobsPysparkJobLoggingConfig(c *Client, des, 
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsPysparkJobLoggingConfigSet(c *Client, des, nw []WorkflowTemplateJobsPysparkJobLoggingConfig) []WorkflowTemplateJobsPysparkJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsPysparkJobLoggingConfigSet(c *DclClient, des, nw []WorkflowTemplateJobsPysparkJobLoggingConfig) []WorkflowTemplateJobsPysparkJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -5706,7 +5706,7 @@ func canonicalizeNewWorkflowTemplateJobsPysparkJobLoggingConfigSet(c *Client, de
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsPysparkJobLoggingConfigSlice(c *Client, des, nw []WorkflowTemplateJobsPysparkJobLoggingConfig) []WorkflowTemplateJobsPysparkJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsPysparkJobLoggingConfigSlice(c *DclClient, des, nw []WorkflowTemplateJobsPysparkJobLoggingConfig) []WorkflowTemplateJobsPysparkJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -5800,7 +5800,7 @@ func canonicalizeWorkflowTemplateJobsHiveJobSlice(des, initial []WorkflowTemplat
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsHiveJob(c *Client, des, nw *WorkflowTemplateJobsHiveJob) *WorkflowTemplateJobsHiveJob {
+func canonicalizeNewWorkflowTemplateJobsHiveJob(c *DclClient, des, nw *WorkflowTemplateJobsHiveJob) *WorkflowTemplateJobsHiveJob {
 
 	if des == nil {
 		return nw
@@ -5828,7 +5828,7 @@ func canonicalizeNewWorkflowTemplateJobsHiveJob(c *Client, des, nw *WorkflowTemp
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsHiveJobSet(c *Client, des, nw []WorkflowTemplateJobsHiveJob) []WorkflowTemplateJobsHiveJob {
+func canonicalizeNewWorkflowTemplateJobsHiveJobSet(c *DclClient, des, nw []WorkflowTemplateJobsHiveJob) []WorkflowTemplateJobsHiveJob {
 	if des == nil {
 		return nw
 	}
@@ -5854,7 +5854,7 @@ func canonicalizeNewWorkflowTemplateJobsHiveJobSet(c *Client, des, nw []Workflow
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsHiveJobSlice(c *Client, des, nw []WorkflowTemplateJobsHiveJob) []WorkflowTemplateJobsHiveJob {
+func canonicalizeNewWorkflowTemplateJobsHiveJobSlice(c *DclClient, des, nw []WorkflowTemplateJobsHiveJob) []WorkflowTemplateJobsHiveJob {
 	if des == nil {
 		return nw
 	}
@@ -5925,7 +5925,7 @@ func canonicalizeWorkflowTemplateJobsHiveJobQueryListSlice(des, initial []Workfl
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsHiveJobQueryList(c *Client, des, nw *WorkflowTemplateJobsHiveJobQueryList) *WorkflowTemplateJobsHiveJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsHiveJobQueryList(c *DclClient, des, nw *WorkflowTemplateJobsHiveJobQueryList) *WorkflowTemplateJobsHiveJobQueryList {
 
 	if des == nil {
 		return nw
@@ -5946,7 +5946,7 @@ func canonicalizeNewWorkflowTemplateJobsHiveJobQueryList(c *Client, des, nw *Wor
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsHiveJobQueryListSet(c *Client, des, nw []WorkflowTemplateJobsHiveJobQueryList) []WorkflowTemplateJobsHiveJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsHiveJobQueryListSet(c *DclClient, des, nw []WorkflowTemplateJobsHiveJobQueryList) []WorkflowTemplateJobsHiveJobQueryList {
 	if des == nil {
 		return nw
 	}
@@ -5972,7 +5972,7 @@ func canonicalizeNewWorkflowTemplateJobsHiveJobQueryListSet(c *Client, des, nw [
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsHiveJobQueryListSlice(c *Client, des, nw []WorkflowTemplateJobsHiveJobQueryList) []WorkflowTemplateJobsHiveJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsHiveJobQueryListSlice(c *DclClient, des, nw []WorkflowTemplateJobsHiveJobQueryList) []WorkflowTemplateJobsHiveJobQueryList {
 	if des == nil {
 		return nw
 	}
@@ -6067,7 +6067,7 @@ func canonicalizeWorkflowTemplateJobsPigJobSlice(des, initial []WorkflowTemplate
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsPigJob(c *Client, des, nw *WorkflowTemplateJobsPigJob) *WorkflowTemplateJobsPigJob {
+func canonicalizeNewWorkflowTemplateJobsPigJob(c *DclClient, des, nw *WorkflowTemplateJobsPigJob) *WorkflowTemplateJobsPigJob {
 
 	if des == nil {
 		return nw
@@ -6096,7 +6096,7 @@ func canonicalizeNewWorkflowTemplateJobsPigJob(c *Client, des, nw *WorkflowTempl
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsPigJobSet(c *Client, des, nw []WorkflowTemplateJobsPigJob) []WorkflowTemplateJobsPigJob {
+func canonicalizeNewWorkflowTemplateJobsPigJobSet(c *DclClient, des, nw []WorkflowTemplateJobsPigJob) []WorkflowTemplateJobsPigJob {
 	if des == nil {
 		return nw
 	}
@@ -6122,7 +6122,7 @@ func canonicalizeNewWorkflowTemplateJobsPigJobSet(c *Client, des, nw []WorkflowT
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsPigJobSlice(c *Client, des, nw []WorkflowTemplateJobsPigJob) []WorkflowTemplateJobsPigJob {
+func canonicalizeNewWorkflowTemplateJobsPigJobSlice(c *DclClient, des, nw []WorkflowTemplateJobsPigJob) []WorkflowTemplateJobsPigJob {
 	if des == nil {
 		return nw
 	}
@@ -6193,7 +6193,7 @@ func canonicalizeWorkflowTemplateJobsPigJobQueryListSlice(des, initial []Workflo
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsPigJobQueryList(c *Client, des, nw *WorkflowTemplateJobsPigJobQueryList) *WorkflowTemplateJobsPigJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsPigJobQueryList(c *DclClient, des, nw *WorkflowTemplateJobsPigJobQueryList) *WorkflowTemplateJobsPigJobQueryList {
 
 	if des == nil {
 		return nw
@@ -6214,7 +6214,7 @@ func canonicalizeNewWorkflowTemplateJobsPigJobQueryList(c *Client, des, nw *Work
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsPigJobQueryListSet(c *Client, des, nw []WorkflowTemplateJobsPigJobQueryList) []WorkflowTemplateJobsPigJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsPigJobQueryListSet(c *DclClient, des, nw []WorkflowTemplateJobsPigJobQueryList) []WorkflowTemplateJobsPigJobQueryList {
 	if des == nil {
 		return nw
 	}
@@ -6240,7 +6240,7 @@ func canonicalizeNewWorkflowTemplateJobsPigJobQueryListSet(c *Client, des, nw []
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsPigJobQueryListSlice(c *Client, des, nw []WorkflowTemplateJobsPigJobQueryList) []WorkflowTemplateJobsPigJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsPigJobQueryListSlice(c *DclClient, des, nw []WorkflowTemplateJobsPigJobQueryList) []WorkflowTemplateJobsPigJobQueryList {
 	if des == nil {
 		return nw
 	}
@@ -6312,7 +6312,7 @@ func canonicalizeWorkflowTemplateJobsPigJobLoggingConfigSlice(des, initial []Wor
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsPigJobLoggingConfig(c *Client, des, nw *WorkflowTemplateJobsPigJobLoggingConfig) *WorkflowTemplateJobsPigJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsPigJobLoggingConfig(c *DclClient, des, nw *WorkflowTemplateJobsPigJobLoggingConfig) *WorkflowTemplateJobsPigJobLoggingConfig {
 
 	if des == nil {
 		return nw
@@ -6329,7 +6329,7 @@ func canonicalizeNewWorkflowTemplateJobsPigJobLoggingConfig(c *Client, des, nw *
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsPigJobLoggingConfigSet(c *Client, des, nw []WorkflowTemplateJobsPigJobLoggingConfig) []WorkflowTemplateJobsPigJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsPigJobLoggingConfigSet(c *DclClient, des, nw []WorkflowTemplateJobsPigJobLoggingConfig) []WorkflowTemplateJobsPigJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -6355,7 +6355,7 @@ func canonicalizeNewWorkflowTemplateJobsPigJobLoggingConfigSet(c *Client, des, n
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsPigJobLoggingConfigSlice(c *Client, des, nw []WorkflowTemplateJobsPigJobLoggingConfig) []WorkflowTemplateJobsPigJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsPigJobLoggingConfigSlice(c *DclClient, des, nw []WorkflowTemplateJobsPigJobLoggingConfig) []WorkflowTemplateJobsPigJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -6448,7 +6448,7 @@ func canonicalizeWorkflowTemplateJobsSparkRJobSlice(des, initial []WorkflowTempl
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkRJob(c *Client, des, nw *WorkflowTemplateJobsSparkRJob) *WorkflowTemplateJobsSparkRJob {
+func canonicalizeNewWorkflowTemplateJobsSparkRJob(c *DclClient, des, nw *WorkflowTemplateJobsSparkRJob) *WorkflowTemplateJobsSparkRJob {
 
 	if des == nil {
 		return nw
@@ -6479,7 +6479,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkRJob(c *Client, des, nw *WorkflowTe
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkRJobSet(c *Client, des, nw []WorkflowTemplateJobsSparkRJob) []WorkflowTemplateJobsSparkRJob {
+func canonicalizeNewWorkflowTemplateJobsSparkRJobSet(c *DclClient, des, nw []WorkflowTemplateJobsSparkRJob) []WorkflowTemplateJobsSparkRJob {
 	if des == nil {
 		return nw
 	}
@@ -6505,7 +6505,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkRJobSet(c *Client, des, nw []Workfl
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkRJobSlice(c *Client, des, nw []WorkflowTemplateJobsSparkRJob) []WorkflowTemplateJobsSparkRJob {
+func canonicalizeNewWorkflowTemplateJobsSparkRJobSlice(c *DclClient, des, nw []WorkflowTemplateJobsSparkRJob) []WorkflowTemplateJobsSparkRJob {
 	if des == nil {
 		return nw
 	}
@@ -6577,7 +6577,7 @@ func canonicalizeWorkflowTemplateJobsSparkRJobLoggingConfigSlice(des, initial []
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkRJobLoggingConfig(c *Client, des, nw *WorkflowTemplateJobsSparkRJobLoggingConfig) *WorkflowTemplateJobsSparkRJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsSparkRJobLoggingConfig(c *DclClient, des, nw *WorkflowTemplateJobsSparkRJobLoggingConfig) *WorkflowTemplateJobsSparkRJobLoggingConfig {
 
 	if des == nil {
 		return nw
@@ -6594,7 +6594,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkRJobLoggingConfig(c *Client, des, n
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkRJobLoggingConfigSet(c *Client, des, nw []WorkflowTemplateJobsSparkRJobLoggingConfig) []WorkflowTemplateJobsSparkRJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsSparkRJobLoggingConfigSet(c *DclClient, des, nw []WorkflowTemplateJobsSparkRJobLoggingConfig) []WorkflowTemplateJobsSparkRJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -6620,7 +6620,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkRJobLoggingConfigSet(c *Client, des
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkRJobLoggingConfigSlice(c *Client, des, nw []WorkflowTemplateJobsSparkRJobLoggingConfig) []WorkflowTemplateJobsSparkRJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsSparkRJobLoggingConfigSlice(c *DclClient, des, nw []WorkflowTemplateJobsSparkRJobLoggingConfig) []WorkflowTemplateJobsSparkRJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -6710,7 +6710,7 @@ func canonicalizeWorkflowTemplateJobsSparkSqlJobSlice(des, initial []WorkflowTem
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkSqlJob(c *Client, des, nw *WorkflowTemplateJobsSparkSqlJob) *WorkflowTemplateJobsSparkSqlJob {
+func canonicalizeNewWorkflowTemplateJobsSparkSqlJob(c *DclClient, des, nw *WorkflowTemplateJobsSparkSqlJob) *WorkflowTemplateJobsSparkSqlJob {
 
 	if des == nil {
 		return nw
@@ -6736,7 +6736,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkSqlJob(c *Client, des, nw *Workflow
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkSqlJobSet(c *Client, des, nw []WorkflowTemplateJobsSparkSqlJob) []WorkflowTemplateJobsSparkSqlJob {
+func canonicalizeNewWorkflowTemplateJobsSparkSqlJobSet(c *DclClient, des, nw []WorkflowTemplateJobsSparkSqlJob) []WorkflowTemplateJobsSparkSqlJob {
 	if des == nil {
 		return nw
 	}
@@ -6762,7 +6762,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkSqlJobSet(c *Client, des, nw []Work
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkSqlJobSlice(c *Client, des, nw []WorkflowTemplateJobsSparkSqlJob) []WorkflowTemplateJobsSparkSqlJob {
+func canonicalizeNewWorkflowTemplateJobsSparkSqlJobSlice(c *DclClient, des, nw []WorkflowTemplateJobsSparkSqlJob) []WorkflowTemplateJobsSparkSqlJob {
 	if des == nil {
 		return nw
 	}
@@ -6833,7 +6833,7 @@ func canonicalizeWorkflowTemplateJobsSparkSqlJobQueryListSlice(des, initial []Wo
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkSqlJobQueryList(c *Client, des, nw *WorkflowTemplateJobsSparkSqlJobQueryList) *WorkflowTemplateJobsSparkSqlJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsSparkSqlJobQueryList(c *DclClient, des, nw *WorkflowTemplateJobsSparkSqlJobQueryList) *WorkflowTemplateJobsSparkSqlJobQueryList {
 
 	if des == nil {
 		return nw
@@ -6854,7 +6854,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkSqlJobQueryList(c *Client, des, nw 
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkSqlJobQueryListSet(c *Client, des, nw []WorkflowTemplateJobsSparkSqlJobQueryList) []WorkflowTemplateJobsSparkSqlJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsSparkSqlJobQueryListSet(c *DclClient, des, nw []WorkflowTemplateJobsSparkSqlJobQueryList) []WorkflowTemplateJobsSparkSqlJobQueryList {
 	if des == nil {
 		return nw
 	}
@@ -6880,7 +6880,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkSqlJobQueryListSet(c *Client, des, 
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkSqlJobQueryListSlice(c *Client, des, nw []WorkflowTemplateJobsSparkSqlJobQueryList) []WorkflowTemplateJobsSparkSqlJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsSparkSqlJobQueryListSlice(c *DclClient, des, nw []WorkflowTemplateJobsSparkSqlJobQueryList) []WorkflowTemplateJobsSparkSqlJobQueryList {
 	if des == nil {
 		return nw
 	}
@@ -6952,7 +6952,7 @@ func canonicalizeWorkflowTemplateJobsSparkSqlJobLoggingConfigSlice(des, initial 
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkSqlJobLoggingConfig(c *Client, des, nw *WorkflowTemplateJobsSparkSqlJobLoggingConfig) *WorkflowTemplateJobsSparkSqlJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsSparkSqlJobLoggingConfig(c *DclClient, des, nw *WorkflowTemplateJobsSparkSqlJobLoggingConfig) *WorkflowTemplateJobsSparkSqlJobLoggingConfig {
 
 	if des == nil {
 		return nw
@@ -6969,7 +6969,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkSqlJobLoggingConfig(c *Client, des,
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkSqlJobLoggingConfigSet(c *Client, des, nw []WorkflowTemplateJobsSparkSqlJobLoggingConfig) []WorkflowTemplateJobsSparkSqlJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsSparkSqlJobLoggingConfigSet(c *DclClient, des, nw []WorkflowTemplateJobsSparkSqlJobLoggingConfig) []WorkflowTemplateJobsSparkSqlJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -6995,7 +6995,7 @@ func canonicalizeNewWorkflowTemplateJobsSparkSqlJobLoggingConfigSet(c *Client, d
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsSparkSqlJobLoggingConfigSlice(c *Client, des, nw []WorkflowTemplateJobsSparkSqlJobLoggingConfig) []WorkflowTemplateJobsSparkSqlJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsSparkSqlJobLoggingConfigSlice(c *DclClient, des, nw []WorkflowTemplateJobsSparkSqlJobLoggingConfig) []WorkflowTemplateJobsSparkSqlJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -7089,7 +7089,7 @@ func canonicalizeWorkflowTemplateJobsPrestoJobSlice(des, initial []WorkflowTempl
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsPrestoJob(c *Client, des, nw *WorkflowTemplateJobsPrestoJob) *WorkflowTemplateJobsPrestoJob {
+func canonicalizeNewWorkflowTemplateJobsPrestoJob(c *DclClient, des, nw *WorkflowTemplateJobsPrestoJob) *WorkflowTemplateJobsPrestoJob {
 
 	if des == nil {
 		return nw
@@ -7121,7 +7121,7 @@ func canonicalizeNewWorkflowTemplateJobsPrestoJob(c *Client, des, nw *WorkflowTe
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsPrestoJobSet(c *Client, des, nw []WorkflowTemplateJobsPrestoJob) []WorkflowTemplateJobsPrestoJob {
+func canonicalizeNewWorkflowTemplateJobsPrestoJobSet(c *DclClient, des, nw []WorkflowTemplateJobsPrestoJob) []WorkflowTemplateJobsPrestoJob {
 	if des == nil {
 		return nw
 	}
@@ -7147,7 +7147,7 @@ func canonicalizeNewWorkflowTemplateJobsPrestoJobSet(c *Client, des, nw []Workfl
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsPrestoJobSlice(c *Client, des, nw []WorkflowTemplateJobsPrestoJob) []WorkflowTemplateJobsPrestoJob {
+func canonicalizeNewWorkflowTemplateJobsPrestoJobSlice(c *DclClient, des, nw []WorkflowTemplateJobsPrestoJob) []WorkflowTemplateJobsPrestoJob {
 	if des == nil {
 		return nw
 	}
@@ -7218,7 +7218,7 @@ func canonicalizeWorkflowTemplateJobsPrestoJobQueryListSlice(des, initial []Work
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsPrestoJobQueryList(c *Client, des, nw *WorkflowTemplateJobsPrestoJobQueryList) *WorkflowTemplateJobsPrestoJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsPrestoJobQueryList(c *DclClient, des, nw *WorkflowTemplateJobsPrestoJobQueryList) *WorkflowTemplateJobsPrestoJobQueryList {
 
 	if des == nil {
 		return nw
@@ -7239,7 +7239,7 @@ func canonicalizeNewWorkflowTemplateJobsPrestoJobQueryList(c *Client, des, nw *W
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsPrestoJobQueryListSet(c *Client, des, nw []WorkflowTemplateJobsPrestoJobQueryList) []WorkflowTemplateJobsPrestoJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsPrestoJobQueryListSet(c *DclClient, des, nw []WorkflowTemplateJobsPrestoJobQueryList) []WorkflowTemplateJobsPrestoJobQueryList {
 	if des == nil {
 		return nw
 	}
@@ -7265,7 +7265,7 @@ func canonicalizeNewWorkflowTemplateJobsPrestoJobQueryListSet(c *Client, des, nw
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsPrestoJobQueryListSlice(c *Client, des, nw []WorkflowTemplateJobsPrestoJobQueryList) []WorkflowTemplateJobsPrestoJobQueryList {
+func canonicalizeNewWorkflowTemplateJobsPrestoJobQueryListSlice(c *DclClient, des, nw []WorkflowTemplateJobsPrestoJobQueryList) []WorkflowTemplateJobsPrestoJobQueryList {
 	if des == nil {
 		return nw
 	}
@@ -7337,7 +7337,7 @@ func canonicalizeWorkflowTemplateJobsPrestoJobLoggingConfigSlice(des, initial []
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsPrestoJobLoggingConfig(c *Client, des, nw *WorkflowTemplateJobsPrestoJobLoggingConfig) *WorkflowTemplateJobsPrestoJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsPrestoJobLoggingConfig(c *DclClient, des, nw *WorkflowTemplateJobsPrestoJobLoggingConfig) *WorkflowTemplateJobsPrestoJobLoggingConfig {
 
 	if des == nil {
 		return nw
@@ -7354,7 +7354,7 @@ func canonicalizeNewWorkflowTemplateJobsPrestoJobLoggingConfig(c *Client, des, n
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsPrestoJobLoggingConfigSet(c *Client, des, nw []WorkflowTemplateJobsPrestoJobLoggingConfig) []WorkflowTemplateJobsPrestoJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsPrestoJobLoggingConfigSet(c *DclClient, des, nw []WorkflowTemplateJobsPrestoJobLoggingConfig) []WorkflowTemplateJobsPrestoJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -7380,7 +7380,7 @@ func canonicalizeNewWorkflowTemplateJobsPrestoJobLoggingConfigSet(c *Client, des
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsPrestoJobLoggingConfigSlice(c *Client, des, nw []WorkflowTemplateJobsPrestoJobLoggingConfig) []WorkflowTemplateJobsPrestoJobLoggingConfig {
+func canonicalizeNewWorkflowTemplateJobsPrestoJobLoggingConfigSlice(c *DclClient, des, nw []WorkflowTemplateJobsPrestoJobLoggingConfig) []WorkflowTemplateJobsPrestoJobLoggingConfig {
 	if des == nil {
 		return nw
 	}
@@ -7458,7 +7458,7 @@ func canonicalizeWorkflowTemplateJobsSchedulingSlice(des, initial []WorkflowTemp
 
 }
 
-func canonicalizeNewWorkflowTemplateJobsScheduling(c *Client, des, nw *WorkflowTemplateJobsScheduling) *WorkflowTemplateJobsScheduling {
+func canonicalizeNewWorkflowTemplateJobsScheduling(c *DclClient, des, nw *WorkflowTemplateJobsScheduling) *WorkflowTemplateJobsScheduling {
 
 	if des == nil {
 		return nw
@@ -7475,7 +7475,7 @@ func canonicalizeNewWorkflowTemplateJobsScheduling(c *Client, des, nw *WorkflowT
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateJobsSchedulingSet(c *Client, des, nw []WorkflowTemplateJobsScheduling) []WorkflowTemplateJobsScheduling {
+func canonicalizeNewWorkflowTemplateJobsSchedulingSet(c *DclClient, des, nw []WorkflowTemplateJobsScheduling) []WorkflowTemplateJobsScheduling {
 	if des == nil {
 		return nw
 	}
@@ -7501,7 +7501,7 @@ func canonicalizeNewWorkflowTemplateJobsSchedulingSet(c *Client, des, nw []Workf
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateJobsSchedulingSlice(c *Client, des, nw []WorkflowTemplateJobsScheduling) []WorkflowTemplateJobsScheduling {
+func canonicalizeNewWorkflowTemplateJobsSchedulingSlice(c *DclClient, des, nw []WorkflowTemplateJobsScheduling) []WorkflowTemplateJobsScheduling {
 	if des == nil {
 		return nw
 	}
@@ -7583,7 +7583,7 @@ func canonicalizeWorkflowTemplateParametersSlice(des, initial []WorkflowTemplate
 
 }
 
-func canonicalizeNewWorkflowTemplateParameters(c *Client, des, nw *WorkflowTemplateParameters) *WorkflowTemplateParameters {
+func canonicalizeNewWorkflowTemplateParameters(c *DclClient, des, nw *WorkflowTemplateParameters) *WorkflowTemplateParameters {
 
 	if des == nil {
 		return nw
@@ -7611,7 +7611,7 @@ func canonicalizeNewWorkflowTemplateParameters(c *Client, des, nw *WorkflowTempl
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateParametersSet(c *Client, des, nw []WorkflowTemplateParameters) []WorkflowTemplateParameters {
+func canonicalizeNewWorkflowTemplateParametersSet(c *DclClient, des, nw []WorkflowTemplateParameters) []WorkflowTemplateParameters {
 	if des == nil {
 		return nw
 	}
@@ -7637,7 +7637,7 @@ func canonicalizeNewWorkflowTemplateParametersSet(c *Client, des, nw []WorkflowT
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateParametersSlice(c *Client, des, nw []WorkflowTemplateParameters) []WorkflowTemplateParameters {
+func canonicalizeNewWorkflowTemplateParametersSlice(c *DclClient, des, nw []WorkflowTemplateParameters) []WorkflowTemplateParameters {
 	if des == nil {
 		return nw
 	}
@@ -7705,7 +7705,7 @@ func canonicalizeWorkflowTemplateParametersValidationSlice(des, initial []Workfl
 
 }
 
-func canonicalizeNewWorkflowTemplateParametersValidation(c *Client, des, nw *WorkflowTemplateParametersValidation) *WorkflowTemplateParametersValidation {
+func canonicalizeNewWorkflowTemplateParametersValidation(c *DclClient, des, nw *WorkflowTemplateParametersValidation) *WorkflowTemplateParametersValidation {
 
 	if des == nil {
 		return nw
@@ -7725,7 +7725,7 @@ func canonicalizeNewWorkflowTemplateParametersValidation(c *Client, des, nw *Wor
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateParametersValidationSet(c *Client, des, nw []WorkflowTemplateParametersValidation) []WorkflowTemplateParametersValidation {
+func canonicalizeNewWorkflowTemplateParametersValidationSet(c *DclClient, des, nw []WorkflowTemplateParametersValidation) []WorkflowTemplateParametersValidation {
 	if des == nil {
 		return nw
 	}
@@ -7751,7 +7751,7 @@ func canonicalizeNewWorkflowTemplateParametersValidationSet(c *Client, des, nw [
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateParametersValidationSlice(c *Client, des, nw []WorkflowTemplateParametersValidation) []WorkflowTemplateParametersValidation {
+func canonicalizeNewWorkflowTemplateParametersValidationSlice(c *DclClient, des, nw []WorkflowTemplateParametersValidation) []WorkflowTemplateParametersValidation {
 	if des == nil {
 		return nw
 	}
@@ -7822,7 +7822,7 @@ func canonicalizeWorkflowTemplateParametersValidationRegexSlice(des, initial []W
 
 }
 
-func canonicalizeNewWorkflowTemplateParametersValidationRegex(c *Client, des, nw *WorkflowTemplateParametersValidationRegex) *WorkflowTemplateParametersValidationRegex {
+func canonicalizeNewWorkflowTemplateParametersValidationRegex(c *DclClient, des, nw *WorkflowTemplateParametersValidationRegex) *WorkflowTemplateParametersValidationRegex {
 
 	if des == nil {
 		return nw
@@ -7843,7 +7843,7 @@ func canonicalizeNewWorkflowTemplateParametersValidationRegex(c *Client, des, nw
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateParametersValidationRegexSet(c *Client, des, nw []WorkflowTemplateParametersValidationRegex) []WorkflowTemplateParametersValidationRegex {
+func canonicalizeNewWorkflowTemplateParametersValidationRegexSet(c *DclClient, des, nw []WorkflowTemplateParametersValidationRegex) []WorkflowTemplateParametersValidationRegex {
 	if des == nil {
 		return nw
 	}
@@ -7869,7 +7869,7 @@ func canonicalizeNewWorkflowTemplateParametersValidationRegexSet(c *Client, des,
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateParametersValidationRegexSlice(c *Client, des, nw []WorkflowTemplateParametersValidationRegex) []WorkflowTemplateParametersValidationRegex {
+func canonicalizeNewWorkflowTemplateParametersValidationRegexSlice(c *DclClient, des, nw []WorkflowTemplateParametersValidationRegex) []WorkflowTemplateParametersValidationRegex {
 	if des == nil {
 		return nw
 	}
@@ -7940,7 +7940,7 @@ func canonicalizeWorkflowTemplateParametersValidationValuesSlice(des, initial []
 
 }
 
-func canonicalizeNewWorkflowTemplateParametersValidationValues(c *Client, des, nw *WorkflowTemplateParametersValidationValues) *WorkflowTemplateParametersValidationValues {
+func canonicalizeNewWorkflowTemplateParametersValidationValues(c *DclClient, des, nw *WorkflowTemplateParametersValidationValues) *WorkflowTemplateParametersValidationValues {
 
 	if des == nil {
 		return nw
@@ -7961,7 +7961,7 @@ func canonicalizeNewWorkflowTemplateParametersValidationValues(c *Client, des, n
 	return nw
 }
 
-func canonicalizeNewWorkflowTemplateParametersValidationValuesSet(c *Client, des, nw []WorkflowTemplateParametersValidationValues) []WorkflowTemplateParametersValidationValues {
+func canonicalizeNewWorkflowTemplateParametersValidationValuesSet(c *DclClient, des, nw []WorkflowTemplateParametersValidationValues) []WorkflowTemplateParametersValidationValues {
 	if des == nil {
 		return nw
 	}
@@ -7987,7 +7987,7 @@ func canonicalizeNewWorkflowTemplateParametersValidationValuesSet(c *Client, des
 	return items
 }
 
-func canonicalizeNewWorkflowTemplateParametersValidationValuesSlice(c *Client, des, nw []WorkflowTemplateParametersValidationValues) []WorkflowTemplateParametersValidationValues {
+func canonicalizeNewWorkflowTemplateParametersValidationValuesSlice(c *DclClient, des, nw []WorkflowTemplateParametersValidationValues) []WorkflowTemplateParametersValidationValues {
 	if des == nil {
 		return nw
 	}
@@ -8014,7 +8014,7 @@ func canonicalizeNewWorkflowTemplateParametersValidationValuesSlice(c *Client, d
 // value. This empty value indicates that the user does not care about the state for
 // the field. Empty fields on the actual object will cause diffs.
 // TODO(magic-modules-eng): for efficiency in some resources, add batching.
-func diffWorkflowTemplate(c *Client, desired, actual *WorkflowTemplate, opts ...dcl.ApplyOption) ([]*dcl.FieldDiff, error) {
+func diffWorkflowTemplate(c *DclClient, desired, actual *WorkflowTemplate, opts ...dcl.ApplyOption) ([]*dcl.FieldDiff, error) {
 	if desired == nil || actual == nil {
 		return nil, fmt.Errorf("nil resource passed to diff - always a programming error: %#v, %#v", desired, actual)
 	}
@@ -10784,7 +10784,7 @@ func (r *WorkflowTemplate) updateURL(userBasePath, updateName string) (string, e
 // marshal encodes the WorkflowTemplate resource into JSON for a Create request, and
 // performs transformations from the resource schema to the API schema if
 // necessary.
-func (r *WorkflowTemplate) marshal(c *Client) ([]byte, error) {
+func (r *WorkflowTemplate) marshal(c *DclClient) ([]byte, error) {
 	m, err := expandWorkflowTemplate(c, r)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling WorkflowTemplate: %w", err)
@@ -10794,7 +10794,7 @@ func (r *WorkflowTemplate) marshal(c *Client) ([]byte, error) {
 }
 
 // unmarshalWorkflowTemplate decodes JSON responses into the WorkflowTemplate resource schema.
-func unmarshalWorkflowTemplate(b []byte, c *Client, res *WorkflowTemplate) (*WorkflowTemplate, error) {
+func unmarshalWorkflowTemplate(b []byte, c *DclClient, res *WorkflowTemplate) (*WorkflowTemplate, error) {
 	var m map[string]interface{}
 	if err := json.Unmarshal(b, &m); err != nil {
 		return nil, err
@@ -10802,7 +10802,7 @@ func unmarshalWorkflowTemplate(b []byte, c *Client, res *WorkflowTemplate) (*Wor
 	return unmarshalMapWorkflowTemplate(m, c, res)
 }
 
-func unmarshalMapWorkflowTemplate(m map[string]interface{}, c *Client, res *WorkflowTemplate) (*WorkflowTemplate, error) {
+func unmarshalMapWorkflowTemplate(m map[string]interface{}, c *DclClient, res *WorkflowTemplate) (*WorkflowTemplate, error) {
 
 	flattened := flattenWorkflowTemplate(c, m, res)
 	if flattened == nil {
@@ -10812,7 +10812,7 @@ func unmarshalMapWorkflowTemplate(m map[string]interface{}, c *Client, res *Work
 }
 
 // expandWorkflowTemplate expands WorkflowTemplate into a JSON request object.
-func expandWorkflowTemplate(c *Client, f *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplate(c *DclClient, f *WorkflowTemplate) (map[string]interface{}, error) {
 	m := make(map[string]interface{})
 	res := f
 	_ = res
@@ -10863,7 +10863,7 @@ func expandWorkflowTemplate(c *Client, f *WorkflowTemplate) (map[string]interfac
 
 // flattenWorkflowTemplate flattens WorkflowTemplate from a JSON request object into the
 // WorkflowTemplate type.
-func flattenWorkflowTemplate(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplate {
+func flattenWorkflowTemplate(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplate {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -10891,7 +10891,7 @@ func flattenWorkflowTemplate(c *Client, i interface{}, res *WorkflowTemplate) *W
 
 // expandWorkflowTemplateEncryptionConfigMap expands the contents of WorkflowTemplateEncryptionConfig into a JSON
 // request object.
-func expandWorkflowTemplateEncryptionConfigMap(c *Client, f map[string]WorkflowTemplateEncryptionConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateEncryptionConfigMap(c *DclClient, f map[string]WorkflowTemplateEncryptionConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -10912,7 +10912,7 @@ func expandWorkflowTemplateEncryptionConfigMap(c *Client, f map[string]WorkflowT
 
 // expandWorkflowTemplateEncryptionConfigSlice expands the contents of WorkflowTemplateEncryptionConfig into a JSON
 // request object.
-func expandWorkflowTemplateEncryptionConfigSlice(c *Client, f []WorkflowTemplateEncryptionConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateEncryptionConfigSlice(c *DclClient, f []WorkflowTemplateEncryptionConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -10932,7 +10932,7 @@ func expandWorkflowTemplateEncryptionConfigSlice(c *Client, f []WorkflowTemplate
 
 // flattenWorkflowTemplateEncryptionConfigMap flattens the contents of WorkflowTemplateEncryptionConfig from a JSON
 // response object.
-func flattenWorkflowTemplateEncryptionConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateEncryptionConfig {
+func flattenWorkflowTemplateEncryptionConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateEncryptionConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateEncryptionConfig{}
@@ -10952,7 +10952,7 @@ func flattenWorkflowTemplateEncryptionConfigMap(c *Client, i interface{}, res *W
 
 // flattenWorkflowTemplateEncryptionConfigSlice flattens the contents of WorkflowTemplateEncryptionConfig from a JSON
 // response object.
-func flattenWorkflowTemplateEncryptionConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateEncryptionConfig {
+func flattenWorkflowTemplateEncryptionConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateEncryptionConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateEncryptionConfig{}
@@ -10972,7 +10972,7 @@ func flattenWorkflowTemplateEncryptionConfigSlice(c *Client, i interface{}, res 
 
 // expandWorkflowTemplateEncryptionConfig expands an instance of WorkflowTemplateEncryptionConfig into a JSON
 // request object.
-func expandWorkflowTemplateEncryptionConfig(c *Client, f *WorkflowTemplateEncryptionConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateEncryptionConfig(c *DclClient, f *WorkflowTemplateEncryptionConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -10987,7 +10987,7 @@ func expandWorkflowTemplateEncryptionConfig(c *Client, f *WorkflowTemplateEncryp
 
 // flattenWorkflowTemplateEncryptionConfig flattens an instance of WorkflowTemplateEncryptionConfig from a JSON
 // response object.
-func flattenWorkflowTemplateEncryptionConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateEncryptionConfig {
+func flattenWorkflowTemplateEncryptionConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateEncryptionConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -11005,7 +11005,7 @@ func flattenWorkflowTemplateEncryptionConfig(c *Client, i interface{}, res *Work
 
 // expandWorkflowTemplatePlacementMap expands the contents of WorkflowTemplatePlacement into a JSON
 // request object.
-func expandWorkflowTemplatePlacementMap(c *Client, f map[string]WorkflowTemplatePlacement, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementMap(c *DclClient, f map[string]WorkflowTemplatePlacement, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11026,7 +11026,7 @@ func expandWorkflowTemplatePlacementMap(c *Client, f map[string]WorkflowTemplate
 
 // expandWorkflowTemplatePlacementSlice expands the contents of WorkflowTemplatePlacement into a JSON
 // request object.
-func expandWorkflowTemplatePlacementSlice(c *Client, f []WorkflowTemplatePlacement, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementSlice(c *DclClient, f []WorkflowTemplatePlacement, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11046,7 +11046,7 @@ func expandWorkflowTemplatePlacementSlice(c *Client, f []WorkflowTemplatePlaceme
 
 // flattenWorkflowTemplatePlacementMap flattens the contents of WorkflowTemplatePlacement from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacement {
+func flattenWorkflowTemplatePlacementMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacement {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacement{}
@@ -11066,7 +11066,7 @@ func flattenWorkflowTemplatePlacementMap(c *Client, i interface{}, res *Workflow
 
 // flattenWorkflowTemplatePlacementSlice flattens the contents of WorkflowTemplatePlacement from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacement {
+func flattenWorkflowTemplatePlacementSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacement {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacement{}
@@ -11086,7 +11086,7 @@ func flattenWorkflowTemplatePlacementSlice(c *Client, i interface{}, res *Workfl
 
 // expandWorkflowTemplatePlacement expands an instance of WorkflowTemplatePlacement into a JSON
 // request object.
-func expandWorkflowTemplatePlacement(c *Client, f *WorkflowTemplatePlacement, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacement(c *DclClient, f *WorkflowTemplatePlacement, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -11108,7 +11108,7 @@ func expandWorkflowTemplatePlacement(c *Client, f *WorkflowTemplatePlacement, re
 
 // flattenWorkflowTemplatePlacement flattens an instance of WorkflowTemplatePlacement from a JSON
 // response object.
-func flattenWorkflowTemplatePlacement(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacement {
+func flattenWorkflowTemplatePlacement(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacement {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -11127,7 +11127,7 @@ func flattenWorkflowTemplatePlacement(c *Client, i interface{}, res *WorkflowTem
 
 // expandWorkflowTemplatePlacementManagedClusterMap expands the contents of WorkflowTemplatePlacementManagedCluster into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterMap(c *Client, f map[string]WorkflowTemplatePlacementManagedCluster, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedCluster, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11148,7 +11148,7 @@ func expandWorkflowTemplatePlacementManagedClusterMap(c *Client, f map[string]Wo
 
 // expandWorkflowTemplatePlacementManagedClusterSlice expands the contents of WorkflowTemplatePlacementManagedCluster into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterSlice(c *Client, f []WorkflowTemplatePlacementManagedCluster, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterSlice(c *DclClient, f []WorkflowTemplatePlacementManagedCluster, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11168,7 +11168,7 @@ func expandWorkflowTemplatePlacementManagedClusterSlice(c *Client, f []WorkflowT
 
 // flattenWorkflowTemplatePlacementManagedClusterMap flattens the contents of WorkflowTemplatePlacementManagedCluster from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedCluster {
+func flattenWorkflowTemplatePlacementManagedClusterMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedCluster {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedCluster{}
@@ -11188,7 +11188,7 @@ func flattenWorkflowTemplatePlacementManagedClusterMap(c *Client, i interface{},
 
 // flattenWorkflowTemplatePlacementManagedClusterSlice flattens the contents of WorkflowTemplatePlacementManagedCluster from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedCluster {
+func flattenWorkflowTemplatePlacementManagedClusterSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedCluster {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedCluster{}
@@ -11208,7 +11208,7 @@ func flattenWorkflowTemplatePlacementManagedClusterSlice(c *Client, i interface{
 
 // expandWorkflowTemplatePlacementManagedCluster expands an instance of WorkflowTemplatePlacementManagedCluster into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedCluster(c *Client, f *WorkflowTemplatePlacementManagedCluster, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedCluster(c *DclClient, f *WorkflowTemplatePlacementManagedCluster, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -11231,7 +11231,7 @@ func expandWorkflowTemplatePlacementManagedCluster(c *Client, f *WorkflowTemplat
 
 // flattenWorkflowTemplatePlacementManagedCluster flattens an instance of WorkflowTemplatePlacementManagedCluster from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedCluster(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedCluster {
+func flattenWorkflowTemplatePlacementManagedCluster(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedCluster {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -11251,7 +11251,7 @@ func flattenWorkflowTemplatePlacementManagedCluster(c *Client, i interface{}, re
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11272,7 +11272,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMap(c *Client, f map[str
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11292,7 +11292,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSlice(c *Client, f []Wor
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfig{}
@@ -11312,7 +11312,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMap(c *Client, i interf
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfig{}
@@ -11332,7 +11332,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSlice(c *Client, i inte
 
 // expandWorkflowTemplatePlacementManagedClusterConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -11405,7 +11405,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfig(c *Client, f *WorkflowT
 
 // flattenWorkflowTemplatePlacementManagedClusterConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -11435,7 +11435,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfig(c *Client, i interface
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11456,7 +11456,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMap(c *C
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11476,7 +11476,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSlice(c 
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig{}
@@ -11496,7 +11496,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMap(c *
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig{}
@@ -11516,7 +11516,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSlice(c
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -11570,7 +11570,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(c *Clie
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -11599,7 +11599,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(c *Cli
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11620,7 +11620,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservat
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11640,7 +11640,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservat
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity{}
@@ -11660,7 +11660,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReserva
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity{}
@@ -11680,7 +11680,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReserva
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity expands an instance of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -11701,7 +11701,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservat
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity flattens an instance of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -11721,7 +11721,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReserva
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinityMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinityMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinityMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11742,7 +11742,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGrou
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11762,7 +11762,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGrou
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinityMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinityMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinityMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity{}
@@ -11782,7 +11782,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGro
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity{}
@@ -11802,7 +11802,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGro
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity expands an instance of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -11817,7 +11817,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGrou
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity flattens an instance of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -11835,7 +11835,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGro
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11856,7 +11856,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShielded
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11876,7 +11876,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShielded
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig{}
@@ -11896,7 +11896,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShielde
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig{}
@@ -11916,7 +11916,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShielde
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -11937,7 +11937,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShielded
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -11957,7 +11957,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShielde
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11978,7 +11978,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigMap(c *Clien
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -11998,7 +11998,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigSlice(c *Cli
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfig{}
@@ -12018,7 +12018,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigMap(c *Clie
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfig{}
@@ -12038,7 +12038,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigSlice(c *Cl
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -12075,7 +12075,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c *Client, 
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -12102,7 +12102,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c *Client,
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12123,7 +12123,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigMa
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12143,7 +12143,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSl
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig{}
@@ -12163,7 +12163,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigM
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig{}
@@ -12183,7 +12183,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigS
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -12204,7 +12204,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -12224,7 +12224,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12245,7 +12245,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroup
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12265,7 +12265,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroup
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig{}
@@ -12285,7 +12285,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGrou
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig{}
@@ -12305,7 +12305,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGrou
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -12317,7 +12317,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroup
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -12336,7 +12336,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGrou
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12357,7 +12357,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12377,7 +12377,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators{}
@@ -12397,7 +12397,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerator
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators{}
@@ -12417,7 +12417,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerator
 
 // expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators expands an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12435,7 +12435,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators flattens an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -12454,7 +12454,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerator
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12475,7 +12475,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMap(c *Clien
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12495,7 +12495,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSlice(c *Cli
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfig{}
@@ -12515,7 +12515,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMap(c *Clie
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig{}
@@ -12535,7 +12535,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSlice(c *Cl
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -12572,7 +12572,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c *Client, 
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -12599,7 +12599,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c *Client,
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12620,7 +12620,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigMa
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12640,7 +12640,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSl
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig{}
@@ -12660,7 +12660,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigM
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig{}
@@ -12680,7 +12680,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigS
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -12701,7 +12701,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -12721,7 +12721,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12742,7 +12742,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroup
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12762,7 +12762,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroup
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig{}
@@ -12782,7 +12782,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGrou
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig{}
@@ -12802,7 +12802,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGrou
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -12814,7 +12814,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroup
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -12833,7 +12833,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGrou
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12854,7 +12854,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12874,7 +12874,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators{}
@@ -12894,7 +12894,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerator
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators{}
@@ -12914,7 +12914,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerator
 
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators expands an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12932,7 +12932,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators flattens an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -12951,7 +12951,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerator
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12972,7 +12972,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMap
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -12992,7 +12992,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSli
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig{}
@@ -13012,7 +13012,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMa
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig{}
@@ -13032,7 +13032,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSl
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -13069,7 +13069,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c 
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -13096,7 +13096,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13117,7 +13117,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDis
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13137,7 +13137,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDis
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig{}
@@ -13157,7 +13157,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDi
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig{}
@@ -13177,7 +13177,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDi
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -13198,7 +13198,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDis
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -13218,7 +13218,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDi
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13239,7 +13239,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMan
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13259,7 +13259,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMan
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig{}
@@ -13279,7 +13279,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMa
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig{}
@@ -13299,7 +13299,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMa
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -13311,7 +13311,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMan
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -13330,7 +13330,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMa
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13351,7 +13351,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcc
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13371,7 +13371,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcc
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators{}
@@ -13391,7 +13391,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAc
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators{}
@@ -13411,7 +13411,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAc
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators expands an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13429,7 +13429,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcc
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators flattens an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -13448,7 +13448,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAc
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13469,7 +13469,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigMap(c *Cli
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13489,7 +13489,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSlice(c *C
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig{}
@@ -13509,7 +13509,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigMap(c *Cl
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig{}
@@ -13529,7 +13529,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSlice(c *
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -13550,7 +13550,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(c *Client
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -13570,7 +13570,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(c *Clien
 
 // expandWorkflowTemplatePlacementManagedClusterConfigInitializationActionsMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigInitializationActions into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigInitializationActionsMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigInitializationActions, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigInitializationActionsMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigInitializationActions, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13591,7 +13591,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigInitializationActionsMap
 
 // expandWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigInitializationActions into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigInitializationActions, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigInitializationActions, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13611,7 +13611,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSli
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActionsMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigInitializationActions from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActionsMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
+func flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActionsMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigInitializationActions{}
@@ -13631,7 +13631,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActionsMa
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigInitializationActions from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
+func flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigInitializationActions{}
@@ -13651,7 +13651,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSl
 
 // expandWorkflowTemplatePlacementManagedClusterConfigInitializationActions expands an instance of WorkflowTemplatePlacementManagedClusterConfigInitializationActions into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigInitializationActions(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigInitializationActions, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigInitializationActions(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigInitializationActions, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13669,7 +13669,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigInitializationActions(c 
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActions flattens an instance of WorkflowTemplatePlacementManagedClusterConfigInitializationActions from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActions(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
+func flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActions(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -13688,7 +13688,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActions(c
 
 // expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13709,7 +13709,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigMap(c *C
 
 // expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13729,7 +13729,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSlice(c 
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig{}
@@ -13749,7 +13749,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigMap(c *
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig{}
@@ -13769,7 +13769,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSlice(c
 
 // expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -13784,7 +13784,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(c *Clie
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -13802,7 +13802,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(c *Cli
 
 // expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13823,7 +13823,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigMap(c *
 
 // expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13843,7 +13843,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSlice(c
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig{}
@@ -13863,7 +13863,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigMap(c 
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig{}
@@ -13883,7 +13883,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSlice(
 
 // expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -13898,7 +13898,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(c *Cli
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -13916,7 +13916,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(c *Cl
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecurityConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecurityConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecurityConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13937,7 +13937,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigMap(c *Cli
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecurityConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -13957,7 +13957,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSlice(c *C
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecurityConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigSecurityConfig{}
@@ -13977,7 +13977,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigMap(c *Cl
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecurityConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigSecurityConfig{}
@@ -13997,7 +13997,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSlice(c *
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigSecurityConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigSecurityConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecurityConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -14014,7 +14014,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(c *Client
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigSecurityConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -14032,7 +14032,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(c *Clien
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14053,7 +14053,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosCo
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14073,7 +14073,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosCo
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig{}
@@ -14093,7 +14093,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosC
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig{}
@@ -14113,7 +14113,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosC
 
 // expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -14170,7 +14170,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosCo
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -14202,7 +14202,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosC
 
 // expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14223,7 +14223,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigMap(c *Cl
 
 // expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14243,7 +14243,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSlice(c *
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig{}
@@ -14263,7 +14263,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigMap(c *C
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig{}
@@ -14283,7 +14283,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSlice(c 
 
 // expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -14304,7 +14304,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(c *Clien
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -14325,7 +14325,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(c *Clie
 
 // expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigEndpointConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfigMap(c *Client, f map[string]WorkflowTemplatePlacementManagedClusterConfigEndpointConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigEndpointConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14346,7 +14346,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfigMap(c *Cli
 
 // expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigEndpointConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSlice(c *Client, f []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14366,7 +14366,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSlice(c *C
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigEndpointConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigEndpointConfig{}
@@ -14386,7 +14386,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfigMap(c *Cl
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigEndpointConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigEndpointConfig{}
@@ -14406,7 +14406,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSlice(c *
 
 // expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigEndpointConfig into a JSON
 // request object.
-func expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(c *Client, f *WorkflowTemplatePlacementManagedClusterConfigEndpointConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigEndpointConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -14421,7 +14421,7 @@ func expandWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(c *Client
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigEndpointConfig from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
+func flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -14440,7 +14440,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(c *Clien
 
 // expandWorkflowTemplatePlacementClusterSelectorMap expands the contents of WorkflowTemplatePlacementClusterSelector into a JSON
 // request object.
-func expandWorkflowTemplatePlacementClusterSelectorMap(c *Client, f map[string]WorkflowTemplatePlacementClusterSelector, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementClusterSelectorMap(c *DclClient, f map[string]WorkflowTemplatePlacementClusterSelector, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14461,7 +14461,7 @@ func expandWorkflowTemplatePlacementClusterSelectorMap(c *Client, f map[string]W
 
 // expandWorkflowTemplatePlacementClusterSelectorSlice expands the contents of WorkflowTemplatePlacementClusterSelector into a JSON
 // request object.
-func expandWorkflowTemplatePlacementClusterSelectorSlice(c *Client, f []WorkflowTemplatePlacementClusterSelector, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementClusterSelectorSlice(c *DclClient, f []WorkflowTemplatePlacementClusterSelector, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14481,7 +14481,7 @@ func expandWorkflowTemplatePlacementClusterSelectorSlice(c *Client, f []Workflow
 
 // flattenWorkflowTemplatePlacementClusterSelectorMap flattens the contents of WorkflowTemplatePlacementClusterSelector from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementClusterSelectorMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementClusterSelector {
+func flattenWorkflowTemplatePlacementClusterSelectorMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementClusterSelector {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementClusterSelector{}
@@ -14501,7 +14501,7 @@ func flattenWorkflowTemplatePlacementClusterSelectorMap(c *Client, i interface{}
 
 // flattenWorkflowTemplatePlacementClusterSelectorSlice flattens the contents of WorkflowTemplatePlacementClusterSelector from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementClusterSelectorSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementClusterSelector {
+func flattenWorkflowTemplatePlacementClusterSelectorSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementClusterSelector {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementClusterSelector{}
@@ -14521,7 +14521,7 @@ func flattenWorkflowTemplatePlacementClusterSelectorSlice(c *Client, i interface
 
 // expandWorkflowTemplatePlacementClusterSelector expands an instance of WorkflowTemplatePlacementClusterSelector into a JSON
 // request object.
-func expandWorkflowTemplatePlacementClusterSelector(c *Client, f *WorkflowTemplatePlacementClusterSelector, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplatePlacementClusterSelector(c *DclClient, f *WorkflowTemplatePlacementClusterSelector, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -14539,7 +14539,7 @@ func expandWorkflowTemplatePlacementClusterSelector(c *Client, f *WorkflowTempla
 
 // flattenWorkflowTemplatePlacementClusterSelector flattens an instance of WorkflowTemplatePlacementClusterSelector from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementClusterSelector(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementClusterSelector {
+func flattenWorkflowTemplatePlacementClusterSelector(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementClusterSelector {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -14558,7 +14558,7 @@ func flattenWorkflowTemplatePlacementClusterSelector(c *Client, i interface{}, r
 
 // expandWorkflowTemplateJobsMap expands the contents of WorkflowTemplateJobs into a JSON
 // request object.
-func expandWorkflowTemplateJobsMap(c *Client, f map[string]WorkflowTemplateJobs, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsMap(c *DclClient, f map[string]WorkflowTemplateJobs, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14579,7 +14579,7 @@ func expandWorkflowTemplateJobsMap(c *Client, f map[string]WorkflowTemplateJobs,
 
 // expandWorkflowTemplateJobsSlice expands the contents of WorkflowTemplateJobs into a JSON
 // request object.
-func expandWorkflowTemplateJobsSlice(c *Client, f []WorkflowTemplateJobs, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSlice(c *DclClient, f []WorkflowTemplateJobs, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14599,7 +14599,7 @@ func expandWorkflowTemplateJobsSlice(c *Client, f []WorkflowTemplateJobs, res *W
 
 // flattenWorkflowTemplateJobsMap flattens the contents of WorkflowTemplateJobs from a JSON
 // response object.
-func flattenWorkflowTemplateJobsMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobs {
+func flattenWorkflowTemplateJobsMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobs {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobs{}
@@ -14619,7 +14619,7 @@ func flattenWorkflowTemplateJobsMap(c *Client, i interface{}, res *WorkflowTempl
 
 // flattenWorkflowTemplateJobsSlice flattens the contents of WorkflowTemplateJobs from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobs {
+func flattenWorkflowTemplateJobsSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobs {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobs{}
@@ -14639,7 +14639,7 @@ func flattenWorkflowTemplateJobsSlice(c *Client, i interface{}, res *WorkflowTem
 
 // expandWorkflowTemplateJobs expands an instance of WorkflowTemplateJobs into a JSON
 // request object.
-func expandWorkflowTemplateJobs(c *Client, f *WorkflowTemplateJobs, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobs(c *DclClient, f *WorkflowTemplateJobs, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14705,7 +14705,7 @@ func expandWorkflowTemplateJobs(c *Client, f *WorkflowTemplateJobs, res *Workflo
 
 // flattenWorkflowTemplateJobs flattens an instance of WorkflowTemplateJobs from a JSON
 // response object.
-func flattenWorkflowTemplateJobs(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobs {
+func flattenWorkflowTemplateJobs(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobs {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -14734,7 +14734,7 @@ func flattenWorkflowTemplateJobs(c *Client, i interface{}, res *WorkflowTemplate
 
 // expandWorkflowTemplateJobsHadoopJobMap expands the contents of WorkflowTemplateJobsHadoopJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsHadoopJobMap(c *Client, f map[string]WorkflowTemplateJobsHadoopJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHadoopJobMap(c *DclClient, f map[string]WorkflowTemplateJobsHadoopJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14755,7 +14755,7 @@ func expandWorkflowTemplateJobsHadoopJobMap(c *Client, f map[string]WorkflowTemp
 
 // expandWorkflowTemplateJobsHadoopJobSlice expands the contents of WorkflowTemplateJobsHadoopJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsHadoopJobSlice(c *Client, f []WorkflowTemplateJobsHadoopJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHadoopJobSlice(c *DclClient, f []WorkflowTemplateJobsHadoopJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14775,7 +14775,7 @@ func expandWorkflowTemplateJobsHadoopJobSlice(c *Client, f []WorkflowTemplateJob
 
 // flattenWorkflowTemplateJobsHadoopJobMap flattens the contents of WorkflowTemplateJobsHadoopJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHadoopJobMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsHadoopJob {
+func flattenWorkflowTemplateJobsHadoopJobMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsHadoopJob {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsHadoopJob{}
@@ -14795,7 +14795,7 @@ func flattenWorkflowTemplateJobsHadoopJobMap(c *Client, i interface{}, res *Work
 
 // flattenWorkflowTemplateJobsHadoopJobSlice flattens the contents of WorkflowTemplateJobsHadoopJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHadoopJobSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsHadoopJob {
+func flattenWorkflowTemplateJobsHadoopJobSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsHadoopJob {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsHadoopJob{}
@@ -14815,7 +14815,7 @@ func flattenWorkflowTemplateJobsHadoopJobSlice(c *Client, i interface{}, res *Wo
 
 // expandWorkflowTemplateJobsHadoopJob expands an instance of WorkflowTemplateJobsHadoopJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsHadoopJob(c *Client, f *WorkflowTemplateJobsHadoopJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHadoopJob(c *DclClient, f *WorkflowTemplateJobsHadoopJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -14853,7 +14853,7 @@ func expandWorkflowTemplateJobsHadoopJob(c *Client, f *WorkflowTemplateJobsHadoo
 
 // flattenWorkflowTemplateJobsHadoopJob flattens an instance of WorkflowTemplateJobsHadoopJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHadoopJob(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsHadoopJob {
+func flattenWorkflowTemplateJobsHadoopJob(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsHadoopJob {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -14878,7 +14878,7 @@ func flattenWorkflowTemplateJobsHadoopJob(c *Client, i interface{}, res *Workflo
 
 // expandWorkflowTemplateJobsHadoopJobLoggingConfigMap expands the contents of WorkflowTemplateJobsHadoopJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsHadoopJobLoggingConfigMap(c *Client, f map[string]WorkflowTemplateJobsHadoopJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHadoopJobLoggingConfigMap(c *DclClient, f map[string]WorkflowTemplateJobsHadoopJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14899,7 +14899,7 @@ func expandWorkflowTemplateJobsHadoopJobLoggingConfigMap(c *Client, f map[string
 
 // expandWorkflowTemplateJobsHadoopJobLoggingConfigSlice expands the contents of WorkflowTemplateJobsHadoopJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsHadoopJobLoggingConfigSlice(c *Client, f []WorkflowTemplateJobsHadoopJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHadoopJobLoggingConfigSlice(c *DclClient, f []WorkflowTemplateJobsHadoopJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -14919,7 +14919,7 @@ func expandWorkflowTemplateJobsHadoopJobLoggingConfigSlice(c *Client, f []Workfl
 
 // flattenWorkflowTemplateJobsHadoopJobLoggingConfigMap flattens the contents of WorkflowTemplateJobsHadoopJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHadoopJobLoggingConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsHadoopJobLoggingConfig {
+func flattenWorkflowTemplateJobsHadoopJobLoggingConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsHadoopJobLoggingConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsHadoopJobLoggingConfig{}
@@ -14939,7 +14939,7 @@ func flattenWorkflowTemplateJobsHadoopJobLoggingConfigMap(c *Client, i interface
 
 // flattenWorkflowTemplateJobsHadoopJobLoggingConfigSlice flattens the contents of WorkflowTemplateJobsHadoopJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHadoopJobLoggingConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsHadoopJobLoggingConfig {
+func flattenWorkflowTemplateJobsHadoopJobLoggingConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsHadoopJobLoggingConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsHadoopJobLoggingConfig{}
@@ -14959,7 +14959,7 @@ func flattenWorkflowTemplateJobsHadoopJobLoggingConfigSlice(c *Client, i interfa
 
 // expandWorkflowTemplateJobsHadoopJobLoggingConfig expands an instance of WorkflowTemplateJobsHadoopJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsHadoopJobLoggingConfig(c *Client, f *WorkflowTemplateJobsHadoopJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHadoopJobLoggingConfig(c *DclClient, f *WorkflowTemplateJobsHadoopJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -14974,7 +14974,7 @@ func expandWorkflowTemplateJobsHadoopJobLoggingConfig(c *Client, f *WorkflowTemp
 
 // flattenWorkflowTemplateJobsHadoopJobLoggingConfig flattens an instance of WorkflowTemplateJobsHadoopJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHadoopJobLoggingConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsHadoopJobLoggingConfig {
+func flattenWorkflowTemplateJobsHadoopJobLoggingConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsHadoopJobLoggingConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -14992,7 +14992,7 @@ func flattenWorkflowTemplateJobsHadoopJobLoggingConfig(c *Client, i interface{},
 
 // expandWorkflowTemplateJobsSparkJobMap expands the contents of WorkflowTemplateJobsSparkJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkJobMap(c *Client, f map[string]WorkflowTemplateJobsSparkJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkJobMap(c *DclClient, f map[string]WorkflowTemplateJobsSparkJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15013,7 +15013,7 @@ func expandWorkflowTemplateJobsSparkJobMap(c *Client, f map[string]WorkflowTempl
 
 // expandWorkflowTemplateJobsSparkJobSlice expands the contents of WorkflowTemplateJobsSparkJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkJobSlice(c *Client, f []WorkflowTemplateJobsSparkJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkJobSlice(c *DclClient, f []WorkflowTemplateJobsSparkJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15033,7 +15033,7 @@ func expandWorkflowTemplateJobsSparkJobSlice(c *Client, f []WorkflowTemplateJobs
 
 // flattenWorkflowTemplateJobsSparkJobMap flattens the contents of WorkflowTemplateJobsSparkJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkJobMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkJob {
+func flattenWorkflowTemplateJobsSparkJobMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkJob {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsSparkJob{}
@@ -15053,7 +15053,7 @@ func flattenWorkflowTemplateJobsSparkJobMap(c *Client, i interface{}, res *Workf
 
 // flattenWorkflowTemplateJobsSparkJobSlice flattens the contents of WorkflowTemplateJobsSparkJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkJobSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkJob {
+func flattenWorkflowTemplateJobsSparkJobSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkJob {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsSparkJob{}
@@ -15073,7 +15073,7 @@ func flattenWorkflowTemplateJobsSparkJobSlice(c *Client, i interface{}, res *Wor
 
 // expandWorkflowTemplateJobsSparkJob expands an instance of WorkflowTemplateJobsSparkJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkJob(c *Client, f *WorkflowTemplateJobsSparkJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkJob(c *DclClient, f *WorkflowTemplateJobsSparkJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -15111,7 +15111,7 @@ func expandWorkflowTemplateJobsSparkJob(c *Client, f *WorkflowTemplateJobsSparkJ
 
 // flattenWorkflowTemplateJobsSparkJob flattens an instance of WorkflowTemplateJobsSparkJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkJob(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkJob {
+func flattenWorkflowTemplateJobsSparkJob(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkJob {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -15136,7 +15136,7 @@ func flattenWorkflowTemplateJobsSparkJob(c *Client, i interface{}, res *Workflow
 
 // expandWorkflowTemplateJobsSparkJobLoggingConfigMap expands the contents of WorkflowTemplateJobsSparkJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkJobLoggingConfigMap(c *Client, f map[string]WorkflowTemplateJobsSparkJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkJobLoggingConfigMap(c *DclClient, f map[string]WorkflowTemplateJobsSparkJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15157,7 +15157,7 @@ func expandWorkflowTemplateJobsSparkJobLoggingConfigMap(c *Client, f map[string]
 
 // expandWorkflowTemplateJobsSparkJobLoggingConfigSlice expands the contents of WorkflowTemplateJobsSparkJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkJobLoggingConfigSlice(c *Client, f []WorkflowTemplateJobsSparkJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkJobLoggingConfigSlice(c *DclClient, f []WorkflowTemplateJobsSparkJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15177,7 +15177,7 @@ func expandWorkflowTemplateJobsSparkJobLoggingConfigSlice(c *Client, f []Workflo
 
 // flattenWorkflowTemplateJobsSparkJobLoggingConfigMap flattens the contents of WorkflowTemplateJobsSparkJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkJobLoggingConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkJobLoggingConfig {
+func flattenWorkflowTemplateJobsSparkJobLoggingConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkJobLoggingConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsSparkJobLoggingConfig{}
@@ -15197,7 +15197,7 @@ func flattenWorkflowTemplateJobsSparkJobLoggingConfigMap(c *Client, i interface{
 
 // flattenWorkflowTemplateJobsSparkJobLoggingConfigSlice flattens the contents of WorkflowTemplateJobsSparkJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkJobLoggingConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkJobLoggingConfig {
+func flattenWorkflowTemplateJobsSparkJobLoggingConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkJobLoggingConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsSparkJobLoggingConfig{}
@@ -15217,7 +15217,7 @@ func flattenWorkflowTemplateJobsSparkJobLoggingConfigSlice(c *Client, i interfac
 
 // expandWorkflowTemplateJobsSparkJobLoggingConfig expands an instance of WorkflowTemplateJobsSparkJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkJobLoggingConfig(c *Client, f *WorkflowTemplateJobsSparkJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkJobLoggingConfig(c *DclClient, f *WorkflowTemplateJobsSparkJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -15232,7 +15232,7 @@ func expandWorkflowTemplateJobsSparkJobLoggingConfig(c *Client, f *WorkflowTempl
 
 // flattenWorkflowTemplateJobsSparkJobLoggingConfig flattens an instance of WorkflowTemplateJobsSparkJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkJobLoggingConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkJobLoggingConfig {
+func flattenWorkflowTemplateJobsSparkJobLoggingConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkJobLoggingConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -15250,7 +15250,7 @@ func flattenWorkflowTemplateJobsSparkJobLoggingConfig(c *Client, i interface{}, 
 
 // expandWorkflowTemplateJobsPysparkJobMap expands the contents of WorkflowTemplateJobsPysparkJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsPysparkJobMap(c *Client, f map[string]WorkflowTemplateJobsPysparkJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPysparkJobMap(c *DclClient, f map[string]WorkflowTemplateJobsPysparkJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15271,7 +15271,7 @@ func expandWorkflowTemplateJobsPysparkJobMap(c *Client, f map[string]WorkflowTem
 
 // expandWorkflowTemplateJobsPysparkJobSlice expands the contents of WorkflowTemplateJobsPysparkJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsPysparkJobSlice(c *Client, f []WorkflowTemplateJobsPysparkJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPysparkJobSlice(c *DclClient, f []WorkflowTemplateJobsPysparkJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15291,7 +15291,7 @@ func expandWorkflowTemplateJobsPysparkJobSlice(c *Client, f []WorkflowTemplateJo
 
 // flattenWorkflowTemplateJobsPysparkJobMap flattens the contents of WorkflowTemplateJobsPysparkJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPysparkJobMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPysparkJob {
+func flattenWorkflowTemplateJobsPysparkJobMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPysparkJob {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsPysparkJob{}
@@ -15311,7 +15311,7 @@ func flattenWorkflowTemplateJobsPysparkJobMap(c *Client, i interface{}, res *Wor
 
 // flattenWorkflowTemplateJobsPysparkJobSlice flattens the contents of WorkflowTemplateJobsPysparkJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPysparkJobSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPysparkJob {
+func flattenWorkflowTemplateJobsPysparkJobSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPysparkJob {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsPysparkJob{}
@@ -15331,7 +15331,7 @@ func flattenWorkflowTemplateJobsPysparkJobSlice(c *Client, i interface{}, res *W
 
 // expandWorkflowTemplateJobsPysparkJob expands an instance of WorkflowTemplateJobsPysparkJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsPysparkJob(c *Client, f *WorkflowTemplateJobsPysparkJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPysparkJob(c *DclClient, f *WorkflowTemplateJobsPysparkJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -15369,7 +15369,7 @@ func expandWorkflowTemplateJobsPysparkJob(c *Client, f *WorkflowTemplateJobsPysp
 
 // flattenWorkflowTemplateJobsPysparkJob flattens an instance of WorkflowTemplateJobsPysparkJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPysparkJob(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPysparkJob {
+func flattenWorkflowTemplateJobsPysparkJob(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPysparkJob {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -15394,7 +15394,7 @@ func flattenWorkflowTemplateJobsPysparkJob(c *Client, i interface{}, res *Workfl
 
 // expandWorkflowTemplateJobsPysparkJobLoggingConfigMap expands the contents of WorkflowTemplateJobsPysparkJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsPysparkJobLoggingConfigMap(c *Client, f map[string]WorkflowTemplateJobsPysparkJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPysparkJobLoggingConfigMap(c *DclClient, f map[string]WorkflowTemplateJobsPysparkJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15415,7 +15415,7 @@ func expandWorkflowTemplateJobsPysparkJobLoggingConfigMap(c *Client, f map[strin
 
 // expandWorkflowTemplateJobsPysparkJobLoggingConfigSlice expands the contents of WorkflowTemplateJobsPysparkJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsPysparkJobLoggingConfigSlice(c *Client, f []WorkflowTemplateJobsPysparkJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPysparkJobLoggingConfigSlice(c *DclClient, f []WorkflowTemplateJobsPysparkJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15435,7 +15435,7 @@ func expandWorkflowTemplateJobsPysparkJobLoggingConfigSlice(c *Client, f []Workf
 
 // flattenWorkflowTemplateJobsPysparkJobLoggingConfigMap flattens the contents of WorkflowTemplateJobsPysparkJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPysparkJobLoggingConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPysparkJobLoggingConfig {
+func flattenWorkflowTemplateJobsPysparkJobLoggingConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPysparkJobLoggingConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsPysparkJobLoggingConfig{}
@@ -15455,7 +15455,7 @@ func flattenWorkflowTemplateJobsPysparkJobLoggingConfigMap(c *Client, i interfac
 
 // flattenWorkflowTemplateJobsPysparkJobLoggingConfigSlice flattens the contents of WorkflowTemplateJobsPysparkJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPysparkJobLoggingConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPysparkJobLoggingConfig {
+func flattenWorkflowTemplateJobsPysparkJobLoggingConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPysparkJobLoggingConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsPysparkJobLoggingConfig{}
@@ -15475,7 +15475,7 @@ func flattenWorkflowTemplateJobsPysparkJobLoggingConfigSlice(c *Client, i interf
 
 // expandWorkflowTemplateJobsPysparkJobLoggingConfig expands an instance of WorkflowTemplateJobsPysparkJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsPysparkJobLoggingConfig(c *Client, f *WorkflowTemplateJobsPysparkJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPysparkJobLoggingConfig(c *DclClient, f *WorkflowTemplateJobsPysparkJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -15490,7 +15490,7 @@ func expandWorkflowTemplateJobsPysparkJobLoggingConfig(c *Client, f *WorkflowTem
 
 // flattenWorkflowTemplateJobsPysparkJobLoggingConfig flattens an instance of WorkflowTemplateJobsPysparkJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPysparkJobLoggingConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPysparkJobLoggingConfig {
+func flattenWorkflowTemplateJobsPysparkJobLoggingConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPysparkJobLoggingConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -15508,7 +15508,7 @@ func flattenWorkflowTemplateJobsPysparkJobLoggingConfig(c *Client, i interface{}
 
 // expandWorkflowTemplateJobsHiveJobMap expands the contents of WorkflowTemplateJobsHiveJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsHiveJobMap(c *Client, f map[string]WorkflowTemplateJobsHiveJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHiveJobMap(c *DclClient, f map[string]WorkflowTemplateJobsHiveJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15529,7 +15529,7 @@ func expandWorkflowTemplateJobsHiveJobMap(c *Client, f map[string]WorkflowTempla
 
 // expandWorkflowTemplateJobsHiveJobSlice expands the contents of WorkflowTemplateJobsHiveJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsHiveJobSlice(c *Client, f []WorkflowTemplateJobsHiveJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHiveJobSlice(c *DclClient, f []WorkflowTemplateJobsHiveJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15549,7 +15549,7 @@ func expandWorkflowTemplateJobsHiveJobSlice(c *Client, f []WorkflowTemplateJobsH
 
 // flattenWorkflowTemplateJobsHiveJobMap flattens the contents of WorkflowTemplateJobsHiveJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHiveJobMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsHiveJob {
+func flattenWorkflowTemplateJobsHiveJobMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsHiveJob {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsHiveJob{}
@@ -15569,7 +15569,7 @@ func flattenWorkflowTemplateJobsHiveJobMap(c *Client, i interface{}, res *Workfl
 
 // flattenWorkflowTemplateJobsHiveJobSlice flattens the contents of WorkflowTemplateJobsHiveJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHiveJobSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsHiveJob {
+func flattenWorkflowTemplateJobsHiveJobSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsHiveJob {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsHiveJob{}
@@ -15589,7 +15589,7 @@ func flattenWorkflowTemplateJobsHiveJobSlice(c *Client, i interface{}, res *Work
 
 // expandWorkflowTemplateJobsHiveJob expands an instance of WorkflowTemplateJobsHiveJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsHiveJob(c *Client, f *WorkflowTemplateJobsHiveJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHiveJob(c *DclClient, f *WorkflowTemplateJobsHiveJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -15621,7 +15621,7 @@ func expandWorkflowTemplateJobsHiveJob(c *Client, f *WorkflowTemplateJobsHiveJob
 
 // flattenWorkflowTemplateJobsHiveJob flattens an instance of WorkflowTemplateJobsHiveJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHiveJob(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsHiveJob {
+func flattenWorkflowTemplateJobsHiveJob(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsHiveJob {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -15644,7 +15644,7 @@ func flattenWorkflowTemplateJobsHiveJob(c *Client, i interface{}, res *WorkflowT
 
 // expandWorkflowTemplateJobsHiveJobQueryListMap expands the contents of WorkflowTemplateJobsHiveJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsHiveJobQueryListMap(c *Client, f map[string]WorkflowTemplateJobsHiveJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHiveJobQueryListMap(c *DclClient, f map[string]WorkflowTemplateJobsHiveJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15665,7 +15665,7 @@ func expandWorkflowTemplateJobsHiveJobQueryListMap(c *Client, f map[string]Workf
 
 // expandWorkflowTemplateJobsHiveJobQueryListSlice expands the contents of WorkflowTemplateJobsHiveJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsHiveJobQueryListSlice(c *Client, f []WorkflowTemplateJobsHiveJobQueryList, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHiveJobQueryListSlice(c *DclClient, f []WorkflowTemplateJobsHiveJobQueryList, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15685,7 +15685,7 @@ func expandWorkflowTemplateJobsHiveJobQueryListSlice(c *Client, f []WorkflowTemp
 
 // flattenWorkflowTemplateJobsHiveJobQueryListMap flattens the contents of WorkflowTemplateJobsHiveJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHiveJobQueryListMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsHiveJobQueryList {
+func flattenWorkflowTemplateJobsHiveJobQueryListMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsHiveJobQueryList {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsHiveJobQueryList{}
@@ -15705,7 +15705,7 @@ func flattenWorkflowTemplateJobsHiveJobQueryListMap(c *Client, i interface{}, re
 
 // flattenWorkflowTemplateJobsHiveJobQueryListSlice flattens the contents of WorkflowTemplateJobsHiveJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHiveJobQueryListSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsHiveJobQueryList {
+func flattenWorkflowTemplateJobsHiveJobQueryListSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsHiveJobQueryList {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsHiveJobQueryList{}
@@ -15725,7 +15725,7 @@ func flattenWorkflowTemplateJobsHiveJobQueryListSlice(c *Client, i interface{}, 
 
 // expandWorkflowTemplateJobsHiveJobQueryList expands an instance of WorkflowTemplateJobsHiveJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsHiveJobQueryList(c *Client, f *WorkflowTemplateJobsHiveJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsHiveJobQueryList(c *DclClient, f *WorkflowTemplateJobsHiveJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -15740,7 +15740,7 @@ func expandWorkflowTemplateJobsHiveJobQueryList(c *Client, f *WorkflowTemplateJo
 
 // flattenWorkflowTemplateJobsHiveJobQueryList flattens an instance of WorkflowTemplateJobsHiveJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsHiveJobQueryList(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsHiveJobQueryList {
+func flattenWorkflowTemplateJobsHiveJobQueryList(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsHiveJobQueryList {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -15758,7 +15758,7 @@ func flattenWorkflowTemplateJobsHiveJobQueryList(c *Client, i interface{}, res *
 
 // expandWorkflowTemplateJobsPigJobMap expands the contents of WorkflowTemplateJobsPigJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsPigJobMap(c *Client, f map[string]WorkflowTemplateJobsPigJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPigJobMap(c *DclClient, f map[string]WorkflowTemplateJobsPigJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15779,7 +15779,7 @@ func expandWorkflowTemplateJobsPigJobMap(c *Client, f map[string]WorkflowTemplat
 
 // expandWorkflowTemplateJobsPigJobSlice expands the contents of WorkflowTemplateJobsPigJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsPigJobSlice(c *Client, f []WorkflowTemplateJobsPigJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPigJobSlice(c *DclClient, f []WorkflowTemplateJobsPigJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15799,7 +15799,7 @@ func expandWorkflowTemplateJobsPigJobSlice(c *Client, f []WorkflowTemplateJobsPi
 
 // flattenWorkflowTemplateJobsPigJobMap flattens the contents of WorkflowTemplateJobsPigJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPigJobMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPigJob {
+func flattenWorkflowTemplateJobsPigJobMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPigJob {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsPigJob{}
@@ -15819,7 +15819,7 @@ func flattenWorkflowTemplateJobsPigJobMap(c *Client, i interface{}, res *Workflo
 
 // flattenWorkflowTemplateJobsPigJobSlice flattens the contents of WorkflowTemplateJobsPigJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPigJobSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPigJob {
+func flattenWorkflowTemplateJobsPigJobSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPigJob {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsPigJob{}
@@ -15839,7 +15839,7 @@ func flattenWorkflowTemplateJobsPigJobSlice(c *Client, i interface{}, res *Workf
 
 // expandWorkflowTemplateJobsPigJob expands an instance of WorkflowTemplateJobsPigJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsPigJob(c *Client, f *WorkflowTemplateJobsPigJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPigJob(c *DclClient, f *WorkflowTemplateJobsPigJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -15876,7 +15876,7 @@ func expandWorkflowTemplateJobsPigJob(c *Client, f *WorkflowTemplateJobsPigJob, 
 
 // flattenWorkflowTemplateJobsPigJob flattens an instance of WorkflowTemplateJobsPigJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPigJob(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPigJob {
+func flattenWorkflowTemplateJobsPigJob(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPigJob {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -15900,7 +15900,7 @@ func flattenWorkflowTemplateJobsPigJob(c *Client, i interface{}, res *WorkflowTe
 
 // expandWorkflowTemplateJobsPigJobQueryListMap expands the contents of WorkflowTemplateJobsPigJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsPigJobQueryListMap(c *Client, f map[string]WorkflowTemplateJobsPigJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPigJobQueryListMap(c *DclClient, f map[string]WorkflowTemplateJobsPigJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15921,7 +15921,7 @@ func expandWorkflowTemplateJobsPigJobQueryListMap(c *Client, f map[string]Workfl
 
 // expandWorkflowTemplateJobsPigJobQueryListSlice expands the contents of WorkflowTemplateJobsPigJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsPigJobQueryListSlice(c *Client, f []WorkflowTemplateJobsPigJobQueryList, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPigJobQueryListSlice(c *DclClient, f []WorkflowTemplateJobsPigJobQueryList, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -15941,7 +15941,7 @@ func expandWorkflowTemplateJobsPigJobQueryListSlice(c *Client, f []WorkflowTempl
 
 // flattenWorkflowTemplateJobsPigJobQueryListMap flattens the contents of WorkflowTemplateJobsPigJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPigJobQueryListMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPigJobQueryList {
+func flattenWorkflowTemplateJobsPigJobQueryListMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPigJobQueryList {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsPigJobQueryList{}
@@ -15961,7 +15961,7 @@ func flattenWorkflowTemplateJobsPigJobQueryListMap(c *Client, i interface{}, res
 
 // flattenWorkflowTemplateJobsPigJobQueryListSlice flattens the contents of WorkflowTemplateJobsPigJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPigJobQueryListSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPigJobQueryList {
+func flattenWorkflowTemplateJobsPigJobQueryListSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPigJobQueryList {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsPigJobQueryList{}
@@ -15981,7 +15981,7 @@ func flattenWorkflowTemplateJobsPigJobQueryListSlice(c *Client, i interface{}, r
 
 // expandWorkflowTemplateJobsPigJobQueryList expands an instance of WorkflowTemplateJobsPigJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsPigJobQueryList(c *Client, f *WorkflowTemplateJobsPigJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPigJobQueryList(c *DclClient, f *WorkflowTemplateJobsPigJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -15996,7 +15996,7 @@ func expandWorkflowTemplateJobsPigJobQueryList(c *Client, f *WorkflowTemplateJob
 
 // flattenWorkflowTemplateJobsPigJobQueryList flattens an instance of WorkflowTemplateJobsPigJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPigJobQueryList(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPigJobQueryList {
+func flattenWorkflowTemplateJobsPigJobQueryList(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPigJobQueryList {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -16014,7 +16014,7 @@ func flattenWorkflowTemplateJobsPigJobQueryList(c *Client, i interface{}, res *W
 
 // expandWorkflowTemplateJobsPigJobLoggingConfigMap expands the contents of WorkflowTemplateJobsPigJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsPigJobLoggingConfigMap(c *Client, f map[string]WorkflowTemplateJobsPigJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPigJobLoggingConfigMap(c *DclClient, f map[string]WorkflowTemplateJobsPigJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16035,7 +16035,7 @@ func expandWorkflowTemplateJobsPigJobLoggingConfigMap(c *Client, f map[string]Wo
 
 // expandWorkflowTemplateJobsPigJobLoggingConfigSlice expands the contents of WorkflowTemplateJobsPigJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsPigJobLoggingConfigSlice(c *Client, f []WorkflowTemplateJobsPigJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPigJobLoggingConfigSlice(c *DclClient, f []WorkflowTemplateJobsPigJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16055,7 +16055,7 @@ func expandWorkflowTemplateJobsPigJobLoggingConfigSlice(c *Client, f []WorkflowT
 
 // flattenWorkflowTemplateJobsPigJobLoggingConfigMap flattens the contents of WorkflowTemplateJobsPigJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPigJobLoggingConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPigJobLoggingConfig {
+func flattenWorkflowTemplateJobsPigJobLoggingConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPigJobLoggingConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsPigJobLoggingConfig{}
@@ -16075,7 +16075,7 @@ func flattenWorkflowTemplateJobsPigJobLoggingConfigMap(c *Client, i interface{},
 
 // flattenWorkflowTemplateJobsPigJobLoggingConfigSlice flattens the contents of WorkflowTemplateJobsPigJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPigJobLoggingConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPigJobLoggingConfig {
+func flattenWorkflowTemplateJobsPigJobLoggingConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPigJobLoggingConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsPigJobLoggingConfig{}
@@ -16095,7 +16095,7 @@ func flattenWorkflowTemplateJobsPigJobLoggingConfigSlice(c *Client, i interface{
 
 // expandWorkflowTemplateJobsPigJobLoggingConfig expands an instance of WorkflowTemplateJobsPigJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsPigJobLoggingConfig(c *Client, f *WorkflowTemplateJobsPigJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPigJobLoggingConfig(c *DclClient, f *WorkflowTemplateJobsPigJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -16110,7 +16110,7 @@ func expandWorkflowTemplateJobsPigJobLoggingConfig(c *Client, f *WorkflowTemplat
 
 // flattenWorkflowTemplateJobsPigJobLoggingConfig flattens an instance of WorkflowTemplateJobsPigJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPigJobLoggingConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPigJobLoggingConfig {
+func flattenWorkflowTemplateJobsPigJobLoggingConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPigJobLoggingConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -16128,7 +16128,7 @@ func flattenWorkflowTemplateJobsPigJobLoggingConfig(c *Client, i interface{}, re
 
 // expandWorkflowTemplateJobsSparkRJobMap expands the contents of WorkflowTemplateJobsSparkRJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkRJobMap(c *Client, f map[string]WorkflowTemplateJobsSparkRJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkRJobMap(c *DclClient, f map[string]WorkflowTemplateJobsSparkRJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16149,7 +16149,7 @@ func expandWorkflowTemplateJobsSparkRJobMap(c *Client, f map[string]WorkflowTemp
 
 // expandWorkflowTemplateJobsSparkRJobSlice expands the contents of WorkflowTemplateJobsSparkRJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkRJobSlice(c *Client, f []WorkflowTemplateJobsSparkRJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkRJobSlice(c *DclClient, f []WorkflowTemplateJobsSparkRJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16169,7 +16169,7 @@ func expandWorkflowTemplateJobsSparkRJobSlice(c *Client, f []WorkflowTemplateJob
 
 // flattenWorkflowTemplateJobsSparkRJobMap flattens the contents of WorkflowTemplateJobsSparkRJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkRJobMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkRJob {
+func flattenWorkflowTemplateJobsSparkRJobMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkRJob {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsSparkRJob{}
@@ -16189,7 +16189,7 @@ func flattenWorkflowTemplateJobsSparkRJobMap(c *Client, i interface{}, res *Work
 
 // flattenWorkflowTemplateJobsSparkRJobSlice flattens the contents of WorkflowTemplateJobsSparkRJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkRJobSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkRJob {
+func flattenWorkflowTemplateJobsSparkRJobSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkRJob {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsSparkRJob{}
@@ -16209,7 +16209,7 @@ func flattenWorkflowTemplateJobsSparkRJobSlice(c *Client, i interface{}, res *Wo
 
 // expandWorkflowTemplateJobsSparkRJob expands an instance of WorkflowTemplateJobsSparkRJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkRJob(c *Client, f *WorkflowTemplateJobsSparkRJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkRJob(c *DclClient, f *WorkflowTemplateJobsSparkRJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -16241,7 +16241,7 @@ func expandWorkflowTemplateJobsSparkRJob(c *Client, f *WorkflowTemplateJobsSpark
 
 // flattenWorkflowTemplateJobsSparkRJob flattens an instance of WorkflowTemplateJobsSparkRJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkRJob(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkRJob {
+func flattenWorkflowTemplateJobsSparkRJob(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkRJob {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -16264,7 +16264,7 @@ func flattenWorkflowTemplateJobsSparkRJob(c *Client, i interface{}, res *Workflo
 
 // expandWorkflowTemplateJobsSparkRJobLoggingConfigMap expands the contents of WorkflowTemplateJobsSparkRJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkRJobLoggingConfigMap(c *Client, f map[string]WorkflowTemplateJobsSparkRJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkRJobLoggingConfigMap(c *DclClient, f map[string]WorkflowTemplateJobsSparkRJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16285,7 +16285,7 @@ func expandWorkflowTemplateJobsSparkRJobLoggingConfigMap(c *Client, f map[string
 
 // expandWorkflowTemplateJobsSparkRJobLoggingConfigSlice expands the contents of WorkflowTemplateJobsSparkRJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkRJobLoggingConfigSlice(c *Client, f []WorkflowTemplateJobsSparkRJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkRJobLoggingConfigSlice(c *DclClient, f []WorkflowTemplateJobsSparkRJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16305,7 +16305,7 @@ func expandWorkflowTemplateJobsSparkRJobLoggingConfigSlice(c *Client, f []Workfl
 
 // flattenWorkflowTemplateJobsSparkRJobLoggingConfigMap flattens the contents of WorkflowTemplateJobsSparkRJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkRJobLoggingConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkRJobLoggingConfig {
+func flattenWorkflowTemplateJobsSparkRJobLoggingConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkRJobLoggingConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsSparkRJobLoggingConfig{}
@@ -16325,7 +16325,7 @@ func flattenWorkflowTemplateJobsSparkRJobLoggingConfigMap(c *Client, i interface
 
 // flattenWorkflowTemplateJobsSparkRJobLoggingConfigSlice flattens the contents of WorkflowTemplateJobsSparkRJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkRJobLoggingConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkRJobLoggingConfig {
+func flattenWorkflowTemplateJobsSparkRJobLoggingConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkRJobLoggingConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsSparkRJobLoggingConfig{}
@@ -16345,7 +16345,7 @@ func flattenWorkflowTemplateJobsSparkRJobLoggingConfigSlice(c *Client, i interfa
 
 // expandWorkflowTemplateJobsSparkRJobLoggingConfig expands an instance of WorkflowTemplateJobsSparkRJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkRJobLoggingConfig(c *Client, f *WorkflowTemplateJobsSparkRJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkRJobLoggingConfig(c *DclClient, f *WorkflowTemplateJobsSparkRJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -16360,7 +16360,7 @@ func expandWorkflowTemplateJobsSparkRJobLoggingConfig(c *Client, f *WorkflowTemp
 
 // flattenWorkflowTemplateJobsSparkRJobLoggingConfig flattens an instance of WorkflowTemplateJobsSparkRJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkRJobLoggingConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkRJobLoggingConfig {
+func flattenWorkflowTemplateJobsSparkRJobLoggingConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkRJobLoggingConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -16378,7 +16378,7 @@ func flattenWorkflowTemplateJobsSparkRJobLoggingConfig(c *Client, i interface{},
 
 // expandWorkflowTemplateJobsSparkSqlJobMap expands the contents of WorkflowTemplateJobsSparkSqlJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkSqlJobMap(c *Client, f map[string]WorkflowTemplateJobsSparkSqlJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkSqlJobMap(c *DclClient, f map[string]WorkflowTemplateJobsSparkSqlJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16399,7 +16399,7 @@ func expandWorkflowTemplateJobsSparkSqlJobMap(c *Client, f map[string]WorkflowTe
 
 // expandWorkflowTemplateJobsSparkSqlJobSlice expands the contents of WorkflowTemplateJobsSparkSqlJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkSqlJobSlice(c *Client, f []WorkflowTemplateJobsSparkSqlJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkSqlJobSlice(c *DclClient, f []WorkflowTemplateJobsSparkSqlJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16419,7 +16419,7 @@ func expandWorkflowTemplateJobsSparkSqlJobSlice(c *Client, f []WorkflowTemplateJ
 
 // flattenWorkflowTemplateJobsSparkSqlJobMap flattens the contents of WorkflowTemplateJobsSparkSqlJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkSqlJobMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkSqlJob {
+func flattenWorkflowTemplateJobsSparkSqlJobMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkSqlJob {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsSparkSqlJob{}
@@ -16439,7 +16439,7 @@ func flattenWorkflowTemplateJobsSparkSqlJobMap(c *Client, i interface{}, res *Wo
 
 // flattenWorkflowTemplateJobsSparkSqlJobSlice flattens the contents of WorkflowTemplateJobsSparkSqlJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkSqlJobSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkSqlJob {
+func flattenWorkflowTemplateJobsSparkSqlJobSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkSqlJob {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsSparkSqlJob{}
@@ -16459,7 +16459,7 @@ func flattenWorkflowTemplateJobsSparkSqlJobSlice(c *Client, i interface{}, res *
 
 // expandWorkflowTemplateJobsSparkSqlJob expands an instance of WorkflowTemplateJobsSparkSqlJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkSqlJob(c *Client, f *WorkflowTemplateJobsSparkSqlJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkSqlJob(c *DclClient, f *WorkflowTemplateJobsSparkSqlJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -16493,7 +16493,7 @@ func expandWorkflowTemplateJobsSparkSqlJob(c *Client, f *WorkflowTemplateJobsSpa
 
 // flattenWorkflowTemplateJobsSparkSqlJob flattens an instance of WorkflowTemplateJobsSparkSqlJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkSqlJob(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkSqlJob {
+func flattenWorkflowTemplateJobsSparkSqlJob(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkSqlJob {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -16516,7 +16516,7 @@ func flattenWorkflowTemplateJobsSparkSqlJob(c *Client, i interface{}, res *Workf
 
 // expandWorkflowTemplateJobsSparkSqlJobQueryListMap expands the contents of WorkflowTemplateJobsSparkSqlJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkSqlJobQueryListMap(c *Client, f map[string]WorkflowTemplateJobsSparkSqlJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkSqlJobQueryListMap(c *DclClient, f map[string]WorkflowTemplateJobsSparkSqlJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16537,7 +16537,7 @@ func expandWorkflowTemplateJobsSparkSqlJobQueryListMap(c *Client, f map[string]W
 
 // expandWorkflowTemplateJobsSparkSqlJobQueryListSlice expands the contents of WorkflowTemplateJobsSparkSqlJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkSqlJobQueryListSlice(c *Client, f []WorkflowTemplateJobsSparkSqlJobQueryList, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkSqlJobQueryListSlice(c *DclClient, f []WorkflowTemplateJobsSparkSqlJobQueryList, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16557,7 +16557,7 @@ func expandWorkflowTemplateJobsSparkSqlJobQueryListSlice(c *Client, f []Workflow
 
 // flattenWorkflowTemplateJobsSparkSqlJobQueryListMap flattens the contents of WorkflowTemplateJobsSparkSqlJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkSqlJobQueryListMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkSqlJobQueryList {
+func flattenWorkflowTemplateJobsSparkSqlJobQueryListMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkSqlJobQueryList {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsSparkSqlJobQueryList{}
@@ -16577,7 +16577,7 @@ func flattenWorkflowTemplateJobsSparkSqlJobQueryListMap(c *Client, i interface{}
 
 // flattenWorkflowTemplateJobsSparkSqlJobQueryListSlice flattens the contents of WorkflowTemplateJobsSparkSqlJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkSqlJobQueryListSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkSqlJobQueryList {
+func flattenWorkflowTemplateJobsSparkSqlJobQueryListSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkSqlJobQueryList {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsSparkSqlJobQueryList{}
@@ -16597,7 +16597,7 @@ func flattenWorkflowTemplateJobsSparkSqlJobQueryListSlice(c *Client, i interface
 
 // expandWorkflowTemplateJobsSparkSqlJobQueryList expands an instance of WorkflowTemplateJobsSparkSqlJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkSqlJobQueryList(c *Client, f *WorkflowTemplateJobsSparkSqlJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkSqlJobQueryList(c *DclClient, f *WorkflowTemplateJobsSparkSqlJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -16612,7 +16612,7 @@ func expandWorkflowTemplateJobsSparkSqlJobQueryList(c *Client, f *WorkflowTempla
 
 // flattenWorkflowTemplateJobsSparkSqlJobQueryList flattens an instance of WorkflowTemplateJobsSparkSqlJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkSqlJobQueryList(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkSqlJobQueryList {
+func flattenWorkflowTemplateJobsSparkSqlJobQueryList(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkSqlJobQueryList {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -16630,7 +16630,7 @@ func flattenWorkflowTemplateJobsSparkSqlJobQueryList(c *Client, i interface{}, r
 
 // expandWorkflowTemplateJobsSparkSqlJobLoggingConfigMap expands the contents of WorkflowTemplateJobsSparkSqlJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkSqlJobLoggingConfigMap(c *Client, f map[string]WorkflowTemplateJobsSparkSqlJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkSqlJobLoggingConfigMap(c *DclClient, f map[string]WorkflowTemplateJobsSparkSqlJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16651,7 +16651,7 @@ func expandWorkflowTemplateJobsSparkSqlJobLoggingConfigMap(c *Client, f map[stri
 
 // expandWorkflowTemplateJobsSparkSqlJobLoggingConfigSlice expands the contents of WorkflowTemplateJobsSparkSqlJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkSqlJobLoggingConfigSlice(c *Client, f []WorkflowTemplateJobsSparkSqlJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkSqlJobLoggingConfigSlice(c *DclClient, f []WorkflowTemplateJobsSparkSqlJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16671,7 +16671,7 @@ func expandWorkflowTemplateJobsSparkSqlJobLoggingConfigSlice(c *Client, f []Work
 
 // flattenWorkflowTemplateJobsSparkSqlJobLoggingConfigMap flattens the contents of WorkflowTemplateJobsSparkSqlJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkSqlJobLoggingConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkSqlJobLoggingConfig {
+func flattenWorkflowTemplateJobsSparkSqlJobLoggingConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsSparkSqlJobLoggingConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsSparkSqlJobLoggingConfig{}
@@ -16691,7 +16691,7 @@ func flattenWorkflowTemplateJobsSparkSqlJobLoggingConfigMap(c *Client, i interfa
 
 // flattenWorkflowTemplateJobsSparkSqlJobLoggingConfigSlice flattens the contents of WorkflowTemplateJobsSparkSqlJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkSqlJobLoggingConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkSqlJobLoggingConfig {
+func flattenWorkflowTemplateJobsSparkSqlJobLoggingConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsSparkSqlJobLoggingConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsSparkSqlJobLoggingConfig{}
@@ -16711,7 +16711,7 @@ func flattenWorkflowTemplateJobsSparkSqlJobLoggingConfigSlice(c *Client, i inter
 
 // expandWorkflowTemplateJobsSparkSqlJobLoggingConfig expands an instance of WorkflowTemplateJobsSparkSqlJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsSparkSqlJobLoggingConfig(c *Client, f *WorkflowTemplateJobsSparkSqlJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSparkSqlJobLoggingConfig(c *DclClient, f *WorkflowTemplateJobsSparkSqlJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -16726,7 +16726,7 @@ func expandWorkflowTemplateJobsSparkSqlJobLoggingConfig(c *Client, f *WorkflowTe
 
 // flattenWorkflowTemplateJobsSparkSqlJobLoggingConfig flattens an instance of WorkflowTemplateJobsSparkSqlJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSparkSqlJobLoggingConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkSqlJobLoggingConfig {
+func flattenWorkflowTemplateJobsSparkSqlJobLoggingConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsSparkSqlJobLoggingConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -16744,7 +16744,7 @@ func flattenWorkflowTemplateJobsSparkSqlJobLoggingConfig(c *Client, i interface{
 
 // expandWorkflowTemplateJobsPrestoJobMap expands the contents of WorkflowTemplateJobsPrestoJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsPrestoJobMap(c *Client, f map[string]WorkflowTemplateJobsPrestoJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPrestoJobMap(c *DclClient, f map[string]WorkflowTemplateJobsPrestoJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16765,7 +16765,7 @@ func expandWorkflowTemplateJobsPrestoJobMap(c *Client, f map[string]WorkflowTemp
 
 // expandWorkflowTemplateJobsPrestoJobSlice expands the contents of WorkflowTemplateJobsPrestoJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsPrestoJobSlice(c *Client, f []WorkflowTemplateJobsPrestoJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPrestoJobSlice(c *DclClient, f []WorkflowTemplateJobsPrestoJob, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16785,7 +16785,7 @@ func expandWorkflowTemplateJobsPrestoJobSlice(c *Client, f []WorkflowTemplateJob
 
 // flattenWorkflowTemplateJobsPrestoJobMap flattens the contents of WorkflowTemplateJobsPrestoJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPrestoJobMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPrestoJob {
+func flattenWorkflowTemplateJobsPrestoJobMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPrestoJob {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsPrestoJob{}
@@ -16805,7 +16805,7 @@ func flattenWorkflowTemplateJobsPrestoJobMap(c *Client, i interface{}, res *Work
 
 // flattenWorkflowTemplateJobsPrestoJobSlice flattens the contents of WorkflowTemplateJobsPrestoJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPrestoJobSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPrestoJob {
+func flattenWorkflowTemplateJobsPrestoJobSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPrestoJob {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsPrestoJob{}
@@ -16825,7 +16825,7 @@ func flattenWorkflowTemplateJobsPrestoJobSlice(c *Client, i interface{}, res *Wo
 
 // expandWorkflowTemplateJobsPrestoJob expands an instance of WorkflowTemplateJobsPrestoJob into a JSON
 // request object.
-func expandWorkflowTemplateJobsPrestoJob(c *Client, f *WorkflowTemplateJobsPrestoJob, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPrestoJob(c *DclClient, f *WorkflowTemplateJobsPrestoJob, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -16862,7 +16862,7 @@ func expandWorkflowTemplateJobsPrestoJob(c *Client, f *WorkflowTemplateJobsPrest
 
 // flattenWorkflowTemplateJobsPrestoJob flattens an instance of WorkflowTemplateJobsPrestoJob from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPrestoJob(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPrestoJob {
+func flattenWorkflowTemplateJobsPrestoJob(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPrestoJob {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -16886,7 +16886,7 @@ func flattenWorkflowTemplateJobsPrestoJob(c *Client, i interface{}, res *Workflo
 
 // expandWorkflowTemplateJobsPrestoJobQueryListMap expands the contents of WorkflowTemplateJobsPrestoJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsPrestoJobQueryListMap(c *Client, f map[string]WorkflowTemplateJobsPrestoJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPrestoJobQueryListMap(c *DclClient, f map[string]WorkflowTemplateJobsPrestoJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16907,7 +16907,7 @@ func expandWorkflowTemplateJobsPrestoJobQueryListMap(c *Client, f map[string]Wor
 
 // expandWorkflowTemplateJobsPrestoJobQueryListSlice expands the contents of WorkflowTemplateJobsPrestoJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsPrestoJobQueryListSlice(c *Client, f []WorkflowTemplateJobsPrestoJobQueryList, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPrestoJobQueryListSlice(c *DclClient, f []WorkflowTemplateJobsPrestoJobQueryList, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -16927,7 +16927,7 @@ func expandWorkflowTemplateJobsPrestoJobQueryListSlice(c *Client, f []WorkflowTe
 
 // flattenWorkflowTemplateJobsPrestoJobQueryListMap flattens the contents of WorkflowTemplateJobsPrestoJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPrestoJobQueryListMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPrestoJobQueryList {
+func flattenWorkflowTemplateJobsPrestoJobQueryListMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPrestoJobQueryList {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsPrestoJobQueryList{}
@@ -16947,7 +16947,7 @@ func flattenWorkflowTemplateJobsPrestoJobQueryListMap(c *Client, i interface{}, 
 
 // flattenWorkflowTemplateJobsPrestoJobQueryListSlice flattens the contents of WorkflowTemplateJobsPrestoJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPrestoJobQueryListSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPrestoJobQueryList {
+func flattenWorkflowTemplateJobsPrestoJobQueryListSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPrestoJobQueryList {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsPrestoJobQueryList{}
@@ -16967,7 +16967,7 @@ func flattenWorkflowTemplateJobsPrestoJobQueryListSlice(c *Client, i interface{}
 
 // expandWorkflowTemplateJobsPrestoJobQueryList expands an instance of WorkflowTemplateJobsPrestoJobQueryList into a JSON
 // request object.
-func expandWorkflowTemplateJobsPrestoJobQueryList(c *Client, f *WorkflowTemplateJobsPrestoJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPrestoJobQueryList(c *DclClient, f *WorkflowTemplateJobsPrestoJobQueryList, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -16982,7 +16982,7 @@ func expandWorkflowTemplateJobsPrestoJobQueryList(c *Client, f *WorkflowTemplate
 
 // flattenWorkflowTemplateJobsPrestoJobQueryList flattens an instance of WorkflowTemplateJobsPrestoJobQueryList from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPrestoJobQueryList(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPrestoJobQueryList {
+func flattenWorkflowTemplateJobsPrestoJobQueryList(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPrestoJobQueryList {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -17000,7 +17000,7 @@ func flattenWorkflowTemplateJobsPrestoJobQueryList(c *Client, i interface{}, res
 
 // expandWorkflowTemplateJobsPrestoJobLoggingConfigMap expands the contents of WorkflowTemplateJobsPrestoJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsPrestoJobLoggingConfigMap(c *Client, f map[string]WorkflowTemplateJobsPrestoJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPrestoJobLoggingConfigMap(c *DclClient, f map[string]WorkflowTemplateJobsPrestoJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17021,7 +17021,7 @@ func expandWorkflowTemplateJobsPrestoJobLoggingConfigMap(c *Client, f map[string
 
 // expandWorkflowTemplateJobsPrestoJobLoggingConfigSlice expands the contents of WorkflowTemplateJobsPrestoJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsPrestoJobLoggingConfigSlice(c *Client, f []WorkflowTemplateJobsPrestoJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPrestoJobLoggingConfigSlice(c *DclClient, f []WorkflowTemplateJobsPrestoJobLoggingConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17041,7 +17041,7 @@ func expandWorkflowTemplateJobsPrestoJobLoggingConfigSlice(c *Client, f []Workfl
 
 // flattenWorkflowTemplateJobsPrestoJobLoggingConfigMap flattens the contents of WorkflowTemplateJobsPrestoJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPrestoJobLoggingConfigMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPrestoJobLoggingConfig {
+func flattenWorkflowTemplateJobsPrestoJobLoggingConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsPrestoJobLoggingConfig {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsPrestoJobLoggingConfig{}
@@ -17061,7 +17061,7 @@ func flattenWorkflowTemplateJobsPrestoJobLoggingConfigMap(c *Client, i interface
 
 // flattenWorkflowTemplateJobsPrestoJobLoggingConfigSlice flattens the contents of WorkflowTemplateJobsPrestoJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPrestoJobLoggingConfigSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPrestoJobLoggingConfig {
+func flattenWorkflowTemplateJobsPrestoJobLoggingConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsPrestoJobLoggingConfig {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsPrestoJobLoggingConfig{}
@@ -17081,7 +17081,7 @@ func flattenWorkflowTemplateJobsPrestoJobLoggingConfigSlice(c *Client, i interfa
 
 // expandWorkflowTemplateJobsPrestoJobLoggingConfig expands an instance of WorkflowTemplateJobsPrestoJobLoggingConfig into a JSON
 // request object.
-func expandWorkflowTemplateJobsPrestoJobLoggingConfig(c *Client, f *WorkflowTemplateJobsPrestoJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsPrestoJobLoggingConfig(c *DclClient, f *WorkflowTemplateJobsPrestoJobLoggingConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -17096,7 +17096,7 @@ func expandWorkflowTemplateJobsPrestoJobLoggingConfig(c *Client, f *WorkflowTemp
 
 // flattenWorkflowTemplateJobsPrestoJobLoggingConfig flattens an instance of WorkflowTemplateJobsPrestoJobLoggingConfig from a JSON
 // response object.
-func flattenWorkflowTemplateJobsPrestoJobLoggingConfig(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPrestoJobLoggingConfig {
+func flattenWorkflowTemplateJobsPrestoJobLoggingConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsPrestoJobLoggingConfig {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -17114,7 +17114,7 @@ func flattenWorkflowTemplateJobsPrestoJobLoggingConfig(c *Client, i interface{},
 
 // expandWorkflowTemplateJobsSchedulingMap expands the contents of WorkflowTemplateJobsScheduling into a JSON
 // request object.
-func expandWorkflowTemplateJobsSchedulingMap(c *Client, f map[string]WorkflowTemplateJobsScheduling, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSchedulingMap(c *DclClient, f map[string]WorkflowTemplateJobsScheduling, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17135,7 +17135,7 @@ func expandWorkflowTemplateJobsSchedulingMap(c *Client, f map[string]WorkflowTem
 
 // expandWorkflowTemplateJobsSchedulingSlice expands the contents of WorkflowTemplateJobsScheduling into a JSON
 // request object.
-func expandWorkflowTemplateJobsSchedulingSlice(c *Client, f []WorkflowTemplateJobsScheduling, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateJobsSchedulingSlice(c *DclClient, f []WorkflowTemplateJobsScheduling, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17155,7 +17155,7 @@ func expandWorkflowTemplateJobsSchedulingSlice(c *Client, f []WorkflowTemplateJo
 
 // flattenWorkflowTemplateJobsSchedulingMap flattens the contents of WorkflowTemplateJobsScheduling from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSchedulingMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsScheduling {
+func flattenWorkflowTemplateJobsSchedulingMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateJobsScheduling {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateJobsScheduling{}
@@ -17175,7 +17175,7 @@ func flattenWorkflowTemplateJobsSchedulingMap(c *Client, i interface{}, res *Wor
 
 // flattenWorkflowTemplateJobsSchedulingSlice flattens the contents of WorkflowTemplateJobsScheduling from a JSON
 // response object.
-func flattenWorkflowTemplateJobsSchedulingSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsScheduling {
+func flattenWorkflowTemplateJobsSchedulingSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateJobsScheduling {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateJobsScheduling{}
@@ -17195,7 +17195,7 @@ func flattenWorkflowTemplateJobsSchedulingSlice(c *Client, i interface{}, res *W
 
 // expandWorkflowTemplateJobsScheduling expands an instance of WorkflowTemplateJobsScheduling into a JSON
 // request object.
-func expandWorkflowTemplateJobsScheduling(c *Client, f *WorkflowTemplateJobsScheduling, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateJobsScheduling(c *DclClient, f *WorkflowTemplateJobsScheduling, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -17213,7 +17213,7 @@ func expandWorkflowTemplateJobsScheduling(c *Client, f *WorkflowTemplateJobsSche
 
 // flattenWorkflowTemplateJobsScheduling flattens an instance of WorkflowTemplateJobsScheduling from a JSON
 // response object.
-func flattenWorkflowTemplateJobsScheduling(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsScheduling {
+func flattenWorkflowTemplateJobsScheduling(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateJobsScheduling {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -17232,7 +17232,7 @@ func flattenWorkflowTemplateJobsScheduling(c *Client, i interface{}, res *Workfl
 
 // expandWorkflowTemplateParametersMap expands the contents of WorkflowTemplateParameters into a JSON
 // request object.
-func expandWorkflowTemplateParametersMap(c *Client, f map[string]WorkflowTemplateParameters, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateParametersMap(c *DclClient, f map[string]WorkflowTemplateParameters, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17253,7 +17253,7 @@ func expandWorkflowTemplateParametersMap(c *Client, f map[string]WorkflowTemplat
 
 // expandWorkflowTemplateParametersSlice expands the contents of WorkflowTemplateParameters into a JSON
 // request object.
-func expandWorkflowTemplateParametersSlice(c *Client, f []WorkflowTemplateParameters, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateParametersSlice(c *DclClient, f []WorkflowTemplateParameters, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17273,7 +17273,7 @@ func expandWorkflowTemplateParametersSlice(c *Client, f []WorkflowTemplateParame
 
 // flattenWorkflowTemplateParametersMap flattens the contents of WorkflowTemplateParameters from a JSON
 // response object.
-func flattenWorkflowTemplateParametersMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateParameters {
+func flattenWorkflowTemplateParametersMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateParameters {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateParameters{}
@@ -17293,7 +17293,7 @@ func flattenWorkflowTemplateParametersMap(c *Client, i interface{}, res *Workflo
 
 // flattenWorkflowTemplateParametersSlice flattens the contents of WorkflowTemplateParameters from a JSON
 // response object.
-func flattenWorkflowTemplateParametersSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateParameters {
+func flattenWorkflowTemplateParametersSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateParameters {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateParameters{}
@@ -17313,7 +17313,7 @@ func flattenWorkflowTemplateParametersSlice(c *Client, i interface{}, res *Workf
 
 // expandWorkflowTemplateParameters expands an instance of WorkflowTemplateParameters into a JSON
 // request object.
-func expandWorkflowTemplateParameters(c *Client, f *WorkflowTemplateParameters, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateParameters(c *DclClient, f *WorkflowTemplateParameters, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17339,7 +17339,7 @@ func expandWorkflowTemplateParameters(c *Client, f *WorkflowTemplateParameters, 
 
 // flattenWorkflowTemplateParameters flattens an instance of WorkflowTemplateParameters from a JSON
 // response object.
-func flattenWorkflowTemplateParameters(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateParameters {
+func flattenWorkflowTemplateParameters(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateParameters {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -17360,7 +17360,7 @@ func flattenWorkflowTemplateParameters(c *Client, i interface{}, res *WorkflowTe
 
 // expandWorkflowTemplateParametersValidationMap expands the contents of WorkflowTemplateParametersValidation into a JSON
 // request object.
-func expandWorkflowTemplateParametersValidationMap(c *Client, f map[string]WorkflowTemplateParametersValidation, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateParametersValidationMap(c *DclClient, f map[string]WorkflowTemplateParametersValidation, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17381,7 +17381,7 @@ func expandWorkflowTemplateParametersValidationMap(c *Client, f map[string]Workf
 
 // expandWorkflowTemplateParametersValidationSlice expands the contents of WorkflowTemplateParametersValidation into a JSON
 // request object.
-func expandWorkflowTemplateParametersValidationSlice(c *Client, f []WorkflowTemplateParametersValidation, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateParametersValidationSlice(c *DclClient, f []WorkflowTemplateParametersValidation, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17401,7 +17401,7 @@ func expandWorkflowTemplateParametersValidationSlice(c *Client, f []WorkflowTemp
 
 // flattenWorkflowTemplateParametersValidationMap flattens the contents of WorkflowTemplateParametersValidation from a JSON
 // response object.
-func flattenWorkflowTemplateParametersValidationMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateParametersValidation {
+func flattenWorkflowTemplateParametersValidationMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateParametersValidation {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateParametersValidation{}
@@ -17421,7 +17421,7 @@ func flattenWorkflowTemplateParametersValidationMap(c *Client, i interface{}, re
 
 // flattenWorkflowTemplateParametersValidationSlice flattens the contents of WorkflowTemplateParametersValidation from a JSON
 // response object.
-func flattenWorkflowTemplateParametersValidationSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateParametersValidation {
+func flattenWorkflowTemplateParametersValidationSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateParametersValidation {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateParametersValidation{}
@@ -17441,7 +17441,7 @@ func flattenWorkflowTemplateParametersValidationSlice(c *Client, i interface{}, 
 
 // expandWorkflowTemplateParametersValidation expands an instance of WorkflowTemplateParametersValidation into a JSON
 // request object.
-func expandWorkflowTemplateParametersValidation(c *Client, f *WorkflowTemplateParametersValidation, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateParametersValidation(c *DclClient, f *WorkflowTemplateParametersValidation, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -17463,7 +17463,7 @@ func expandWorkflowTemplateParametersValidation(c *Client, f *WorkflowTemplatePa
 
 // flattenWorkflowTemplateParametersValidation flattens an instance of WorkflowTemplateParametersValidation from a JSON
 // response object.
-func flattenWorkflowTemplateParametersValidation(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateParametersValidation {
+func flattenWorkflowTemplateParametersValidation(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateParametersValidation {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -17482,7 +17482,7 @@ func flattenWorkflowTemplateParametersValidation(c *Client, i interface{}, res *
 
 // expandWorkflowTemplateParametersValidationRegexMap expands the contents of WorkflowTemplateParametersValidationRegex into a JSON
 // request object.
-func expandWorkflowTemplateParametersValidationRegexMap(c *Client, f map[string]WorkflowTemplateParametersValidationRegex, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateParametersValidationRegexMap(c *DclClient, f map[string]WorkflowTemplateParametersValidationRegex, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17503,7 +17503,7 @@ func expandWorkflowTemplateParametersValidationRegexMap(c *Client, f map[string]
 
 // expandWorkflowTemplateParametersValidationRegexSlice expands the contents of WorkflowTemplateParametersValidationRegex into a JSON
 // request object.
-func expandWorkflowTemplateParametersValidationRegexSlice(c *Client, f []WorkflowTemplateParametersValidationRegex, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateParametersValidationRegexSlice(c *DclClient, f []WorkflowTemplateParametersValidationRegex, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17523,7 +17523,7 @@ func expandWorkflowTemplateParametersValidationRegexSlice(c *Client, f []Workflo
 
 // flattenWorkflowTemplateParametersValidationRegexMap flattens the contents of WorkflowTemplateParametersValidationRegex from a JSON
 // response object.
-func flattenWorkflowTemplateParametersValidationRegexMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateParametersValidationRegex {
+func flattenWorkflowTemplateParametersValidationRegexMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateParametersValidationRegex {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateParametersValidationRegex{}
@@ -17543,7 +17543,7 @@ func flattenWorkflowTemplateParametersValidationRegexMap(c *Client, i interface{
 
 // flattenWorkflowTemplateParametersValidationRegexSlice flattens the contents of WorkflowTemplateParametersValidationRegex from a JSON
 // response object.
-func flattenWorkflowTemplateParametersValidationRegexSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateParametersValidationRegex {
+func flattenWorkflowTemplateParametersValidationRegexSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateParametersValidationRegex {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateParametersValidationRegex{}
@@ -17563,7 +17563,7 @@ func flattenWorkflowTemplateParametersValidationRegexSlice(c *Client, i interfac
 
 // expandWorkflowTemplateParametersValidationRegex expands an instance of WorkflowTemplateParametersValidationRegex into a JSON
 // request object.
-func expandWorkflowTemplateParametersValidationRegex(c *Client, f *WorkflowTemplateParametersValidationRegex, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateParametersValidationRegex(c *DclClient, f *WorkflowTemplateParametersValidationRegex, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -17578,7 +17578,7 @@ func expandWorkflowTemplateParametersValidationRegex(c *Client, f *WorkflowTempl
 
 // flattenWorkflowTemplateParametersValidationRegex flattens an instance of WorkflowTemplateParametersValidationRegex from a JSON
 // response object.
-func flattenWorkflowTemplateParametersValidationRegex(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateParametersValidationRegex {
+func flattenWorkflowTemplateParametersValidationRegex(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateParametersValidationRegex {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -17596,7 +17596,7 @@ func flattenWorkflowTemplateParametersValidationRegex(c *Client, i interface{}, 
 
 // expandWorkflowTemplateParametersValidationValuesMap expands the contents of WorkflowTemplateParametersValidationValues into a JSON
 // request object.
-func expandWorkflowTemplateParametersValidationValuesMap(c *Client, f map[string]WorkflowTemplateParametersValidationValues, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateParametersValidationValuesMap(c *DclClient, f map[string]WorkflowTemplateParametersValidationValues, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17617,7 +17617,7 @@ func expandWorkflowTemplateParametersValidationValuesMap(c *Client, f map[string
 
 // expandWorkflowTemplateParametersValidationValuesSlice expands the contents of WorkflowTemplateParametersValidationValues into a JSON
 // request object.
-func expandWorkflowTemplateParametersValidationValuesSlice(c *Client, f []WorkflowTemplateParametersValidationValues, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+func expandWorkflowTemplateParametersValidationValuesSlice(c *DclClient, f []WorkflowTemplateParametersValidationValues, res *WorkflowTemplate) ([]map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
 	}
@@ -17637,7 +17637,7 @@ func expandWorkflowTemplateParametersValidationValuesSlice(c *Client, f []Workfl
 
 // flattenWorkflowTemplateParametersValidationValuesMap flattens the contents of WorkflowTemplateParametersValidationValues from a JSON
 // response object.
-func flattenWorkflowTemplateParametersValidationValuesMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateParametersValidationValues {
+func flattenWorkflowTemplateParametersValidationValuesMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplateParametersValidationValues {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplateParametersValidationValues{}
@@ -17657,7 +17657,7 @@ func flattenWorkflowTemplateParametersValidationValuesMap(c *Client, i interface
 
 // flattenWorkflowTemplateParametersValidationValuesSlice flattens the contents of WorkflowTemplateParametersValidationValues from a JSON
 // response object.
-func flattenWorkflowTemplateParametersValidationValuesSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplateParametersValidationValues {
+func flattenWorkflowTemplateParametersValidationValuesSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplateParametersValidationValues {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplateParametersValidationValues{}
@@ -17677,7 +17677,7 @@ func flattenWorkflowTemplateParametersValidationValuesSlice(c *Client, i interfa
 
 // expandWorkflowTemplateParametersValidationValues expands an instance of WorkflowTemplateParametersValidationValues into a JSON
 // request object.
-func expandWorkflowTemplateParametersValidationValues(c *Client, f *WorkflowTemplateParametersValidationValues, res *WorkflowTemplate) (map[string]interface{}, error) {
+func expandWorkflowTemplateParametersValidationValues(c *DclClient, f *WorkflowTemplateParametersValidationValues, res *WorkflowTemplate) (map[string]interface{}, error) {
 	if dcl.IsEmptyValueIndirect(f) {
 		return nil, nil
 	}
@@ -17692,7 +17692,7 @@ func expandWorkflowTemplateParametersValidationValues(c *Client, f *WorkflowTemp
 
 // flattenWorkflowTemplateParametersValidationValues flattens an instance of WorkflowTemplateParametersValidationValues from a JSON
 // response object.
-func flattenWorkflowTemplateParametersValidationValues(c *Client, i interface{}, res *WorkflowTemplate) *WorkflowTemplateParametersValidationValues {
+func flattenWorkflowTemplateParametersValidationValues(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplateParametersValidationValues {
 	m, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -17710,7 +17710,7 @@ func flattenWorkflowTemplateParametersValidationValues(c *Client, i interface{},
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnumMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnumMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnumMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnum {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnum{}
@@ -17730,7 +17730,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivate
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnumSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnumSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnumSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnum {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnum{}
@@ -17761,7 +17761,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivate
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnumMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnumMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnumMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnum {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnum{}
@@ -17781,7 +17781,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReserva
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnumSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnumSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnumSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnum {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnum{}
@@ -17812,7 +17812,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReserva
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnumMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnumMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnumMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnum {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnum{}
@@ -17832,7 +17832,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibil
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnumSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnumSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnumSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnum {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnum{}
@@ -17863,7 +17863,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibil
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnumMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnumMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnumMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnum {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnum{}
@@ -17883,7 +17883,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibil
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnumSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnumSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnumSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnum {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnum{}
@@ -17914,7 +17914,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibil
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnumMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnumMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnumMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnum {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnum{}
@@ -17934,7 +17934,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPr
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnumSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnumSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnumSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnum {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnum{}
@@ -17965,7 +17965,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPr
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnumMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnumMap(c *Client, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnumMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum {
 	a, ok := i.(map[string]interface{})
 	if !ok {
 		return map[string]WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum{}
@@ -17985,7 +17985,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalC
 
 // flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnumSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum from a JSON
 // response object.
-func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnumSlice(c *Client, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum {
+func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnumSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum {
 	a, ok := i.([]interface{})
 	if !ok {
 		return []WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum{}
@@ -18017,7 +18017,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalC
 // This function returns a matcher that checks whether a serialized resource matches this resource
 // in its parameters (as defined by the fields in a Get, which definitionally define resource
 // identity).  This is useful in extracting the element from a List call.
-func (r *WorkflowTemplate) matcher(c *Client) func([]byte) bool {
+func (r *WorkflowTemplate) matcher(c *DclClient) func([]byte) bool {
 	return func(b []byte) bool {
 		cr, err := unmarshalWorkflowTemplate(b, c, r)
 		if err != nil {

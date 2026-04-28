@@ -78,7 +78,7 @@ func (u *HealthcareDatasetIamUpdater) GetResourceIamPolicy() (*cloudresourcemana
 		return nil, err
 	}
 
-	p, err := u.Config.NewHealthcareClient(userAgent).Projects.Locations.Datasets.GetIamPolicy(u.resourceId).Do()
+	p, err := NewClient(u.Config, userAgent).Projects.Locations.Datasets.GetIamPolicy(u.resourceId).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
@@ -105,7 +105,7 @@ func (u *HealthcareDatasetIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		return err
 	}
 
-	_, err = u.Config.NewHealthcareClient(userAgent).Projects.Locations.Datasets.SetIamPolicy(u.resourceId, &healthcare.SetIamPolicyRequest{
+	_, err = NewClient(u.Config, userAgent).Projects.Locations.Datasets.SetIamPolicy(u.resourceId, &healthcare.SetIamPolicyRequest{
 		Policy: healthcarePolicy,
 	}).Do()
 

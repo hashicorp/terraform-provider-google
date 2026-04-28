@@ -110,7 +110,7 @@ func resourceComposerUserWorkloadsSecretCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new UserWorkloadsSecret %q", secretName.ParentName())
-	resp, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Create(secretName.ParentName(), secret).Do()
+	resp, err := NewClient(config, userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Create(secretName.ParentName(), secret).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating UserWorkloadsSecret: %s", err)
 	}
@@ -139,7 +139,7 @@ func resourceComposerUserWorkloadsSecretRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	res, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Get(secretName.ResourceName()).Do()
+	res, err := NewClient(config, userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Get(secretName.ResourceName()).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("UserWorkloadsSecret %q", d.Id()))
 	}
@@ -180,7 +180,7 @@ func resourceComposerUserWorkloadsSecretUpdate(d *schema.ResourceData, meta inte
 		secretJson, _ := secret.MarshalJSON()
 		log.Printf("[DEBUG] Updating UserWorkloadsSecret %q: %s", d.Id(), string(secretJson))
 
-		resp, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Update(secretName.ResourceName(), secret).Do()
+		resp, err := NewClient(config, userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Update(secretName.ResourceName(), secret).Do()
 		if err != nil {
 			return err
 		}
@@ -205,7 +205,7 @@ func resourceComposerUserWorkloadsSecretDelete(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Deleting UserWorkloadsSecret %q", d.Id())
-	_, err = config.NewComposerClient(userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Delete(secretName.ResourceName()).Do()
+	_, err = NewClient(config, userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Delete(secretName.ResourceName()).Do()
 	if err != nil {
 		return err
 	}
@@ -233,7 +233,7 @@ func resourceComposerUserWorkloadsSecretImport(d *schema.ResourceData, meta inte
 		return nil, err
 	}
 
-	res, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Get(id).Do()
+	res, err := NewClient(config, userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Get(id).Do()
 	if err != nil {
 		return nil, err
 	}

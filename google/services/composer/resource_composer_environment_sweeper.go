@@ -69,7 +69,7 @@ func testSweepComposerResources(region string) error {
 }
 
 func testSweepComposerEnvironments(config *transport_tpg.Config, region string) error {
-	found, err := config.NewComposerClient(config.UserAgent).Projects.Locations.Environments.List(
+	found, err := NewClient(config, config.UserAgent).Projects.Locations.Environments.List(
 		fmt.Sprintf("projects/%s/locations/%s", config.Project, region)).Do()
 	if err != nil {
 		return fmt.Errorf("error listing storage buckets for composer environment: %s", err)
@@ -107,7 +107,7 @@ func testSweepComposerEnvironments(config *transport_tpg.Config, region string) 
 		case "ERROR":
 			fallthrough
 		default:
-			op, deleteErr := config.NewComposerClient(config.UserAgent).Projects.Locations.Environments.Delete(e.Name).Do()
+			op, deleteErr := NewClient(config, config.UserAgent).Projects.Locations.Environments.Delete(e.Name).Do()
 			if deleteErr != nil {
 				allErrors = errors.Join(allErrors, fmt.Errorf("composer: unable to delete environment %q: %s", e.Name, deleteErr))
 				continue

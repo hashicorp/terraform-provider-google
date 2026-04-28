@@ -2139,7 +2139,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Create the cluster
-	op, err := config.NewDataprocClient(userAgent).Projects.Regions.Clusters.Create(
+	op, err := NewClient(config, userAgent).Projects.Regions.Clusters.Create(
 		project, region, cluster).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating Dataproc cluster: %s", err)
@@ -3133,7 +3133,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	if len(updMask) > 0 {
 		gracefulDecommissionTimeout := d.Get("graceful_decommission_timeout").(string)
 
-		patch := config.NewDataprocClient(userAgent).Projects.Regions.Clusters.Patch(
+		patch := NewClient(config, userAgent).Projects.Regions.Clusters.Patch(
 			project, region, clusterName, cluster)
 		patch.GracefulDecommissionTimeout(gracefulDecommissionTimeout)
 		patch.UpdateMask(strings.Join(updMask, ","))
@@ -3169,7 +3169,7 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	region := d.Get("region").(string)
 	clusterName := d.Get("name").(string)
 
-	cluster, err := config.NewDataprocClient(userAgent).Projects.Regions.Clusters.Get(
+	cluster, err := NewClient(config, userAgent).Projects.Regions.Clusters.Get(
 		project, region, clusterName).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Dataproc Cluster %q", clusterName))
@@ -3873,7 +3873,7 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	clusterName := d.Get("name").(string)
 
 	log.Printf("[DEBUG] Deleting Dataproc cluster %s", clusterName)
-	op, err := config.NewDataprocClient(userAgent).Projects.Regions.Clusters.Delete(
+	op, err := NewClient(config, userAgent).Projects.Regions.Clusters.Delete(
 		project, region, clusterName).Do()
 	if err != nil {
 		return err

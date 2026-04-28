@@ -55,7 +55,7 @@ func dataSourceGoogleComposerUserWorkloadsSecretRead(d *schema.ResourceData, met
 		return err
 	}
 
-	res, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Get(id).Do()
+	res, err := NewClient(config, userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Get(id).Do()
 	if err != nil {
 		return err
 	}

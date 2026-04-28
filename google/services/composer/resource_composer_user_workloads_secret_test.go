@@ -235,7 +235,7 @@ func testAccComposerUserWorkloadsSecretDestroyed(t *testing.T) func(s *terraform
 				Secret:      idTokens[7],
 			}
 
-			_, err := config.NewComposerClient(config.UserAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Get(secretName.ResourceName()).Do()
+			_, err := composer.NewClient(config, config.UserAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Get(secretName.ResourceName()).Do()
 			if err == nil {
 				return fmt.Errorf("secret %s still exists", secretName.ResourceName())
 			}

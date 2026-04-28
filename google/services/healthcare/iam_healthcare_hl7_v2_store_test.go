@@ -166,7 +166,7 @@ func testAccCheckGoogleHealthcareHl7V2StoreIamBindingExists(t *testing.T, bindin
 			return err
 		}
 
-		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.Hl7V2Stores.GetIamPolicy(hl7V2StoreId.Hl7V2StoreId()).Do()
+		p, err := healthcare.NewClient(config, config.UserAgent).Projects.Locations.Datasets.Hl7V2Stores.GetIamPolicy(hl7V2StoreId.Hl7V2StoreId()).Do()
 		if err != nil {
 			return err
 		}
@@ -202,7 +202,7 @@ func testAccCheckGoogleHealthcareHl7V2StoreIamMemberExists(t *testing.T, n, role
 			return err
 		}
 
-		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.Hl7V2Stores.GetIamPolicy(hl7V2StoreId.Hl7V2StoreId()).Do()
+		p, err := healthcare.NewClient(config, config.UserAgent).Projects.Locations.Datasets.Hl7V2Stores.GetIamPolicy(hl7V2StoreId.Hl7V2StoreId()).Do()
 		if err != nil {
 			return err
 		}
@@ -237,7 +237,7 @@ func testAccCheckGoogleHealthcareHl7V2StoreIamPolicyExists(t *testing.T, n, role
 			return err
 		}
 
-		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.Hl7V2Stores.GetIamPolicy(hl7V2StoreId.Hl7V2StoreId()).Do()
+		p, err := healthcare.NewClient(config, config.UserAgent).Projects.Locations.Datasets.Hl7V2Stores.GetIamPolicy(hl7V2StoreId.Hl7V2StoreId()).Do()
 		if err != nil {
 			return err
 		}

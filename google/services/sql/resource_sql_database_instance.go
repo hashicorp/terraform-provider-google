@@ -3562,7 +3562,7 @@ func sqlDatabaseInstanceServiceNetworkPrecheck(d *schema.ResourceData, config *t
 		return err
 	}
 
-	response, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.List("services/servicenetworking.googleapis.com").Network(serviceNetworkingNetworkName).Do()
+	response, err := servicenetworking.NewClient(config, userAgent).Services.Connections.List("services/servicenetworking.googleapis.com").Network(serviceNetworkingNetworkName).Do()
 	if err != nil {
 		// It is possible that the actor creating the SQL Instance might not have permissions to call servicenetworking.services.connections.list
 		log.Printf("[WARNING] Failed to list Service Networking of the project. Skipped Service Networking precheck.")

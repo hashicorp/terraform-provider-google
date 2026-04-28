@@ -41,7 +41,7 @@ func (w *ServiceNetworkingOperationWaiterHW) QueryOp() (interface{}, error) {
 
 func ServiceNetworkingOperationWaitTimeHW(config *transport_tpg.Config, op *servicenetworking.Operation, activity, userAgent, project string, timeout time.Duration) error {
 	w := &ServiceNetworkingOperationWaiterHW{
-		Service:             config.NewServiceNetworkingClient(userAgent),
+		Service:             NewClient(config, userAgent),
 		Project:             project,
 		UserProjectOverride: config.UserProjectOverride,
 	}

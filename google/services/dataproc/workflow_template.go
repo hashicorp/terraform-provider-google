@@ -3206,7 +3206,7 @@ func (l *WorkflowTemplateList) HasNext() bool {
 	return l.nextToken != ""
 }
 
-func (l *WorkflowTemplateList) Next(ctx context.Context, c *Client) error {
+func (l *WorkflowTemplateList) Next(ctx context.Context, c *DclClient) error {
 	ctx, cancel := context.WithTimeout(ctx, c.Config.TimeoutOr(0*time.Second))
 	defer cancel()
 
@@ -3222,7 +3222,7 @@ func (l *WorkflowTemplateList) Next(ctx context.Context, c *Client) error {
 	return err
 }
 
-func (c *Client) ListWorkflowTemplate(ctx context.Context, project, location string) (*WorkflowTemplateList, error) {
+func (c *DclClient) ListWorkflowTemplate(ctx context.Context, project, location string) (*WorkflowTemplateList, error) {
 	ctx = dcl.ContextWithRequestID(ctx)
 	ctx, cancel := context.WithTimeout(ctx, c.Config.TimeoutOr(0*time.Second))
 	defer cancel()
@@ -3231,7 +3231,7 @@ func (c *Client) ListWorkflowTemplate(ctx context.Context, project, location str
 
 }
 
-func (c *Client) ListWorkflowTemplateWithMaxResults(ctx context.Context, project, location string, pageSize int32) (*WorkflowTemplateList, error) {
+func (c *DclClient) ListWorkflowTemplateWithMaxResults(ctx context.Context, project, location string, pageSize int32) (*WorkflowTemplateList, error) {
 	ctx, cancel := context.WithTimeout(ctx, c.Config.TimeoutOr(0*time.Second))
 	defer cancel()
 
@@ -3252,7 +3252,7 @@ func (c *Client) ListWorkflowTemplateWithMaxResults(ctx context.Context, project
 	}, nil
 }
 
-func (c *Client) GetWorkflowTemplate(ctx context.Context, r *WorkflowTemplate) (*WorkflowTemplate, error) {
+func (c *DclClient) GetWorkflowTemplate(ctx context.Context, r *WorkflowTemplate) (*WorkflowTemplate, error) {
 	ctx = dcl.ContextWithRequestID(ctx)
 	ctx, cancel := context.WithTimeout(ctx, c.Config.TimeoutOr(0*time.Second))
 	defer cancel()
@@ -3294,7 +3294,7 @@ func (c *Client) GetWorkflowTemplate(ctx context.Context, r *WorkflowTemplate) (
 	return result, nil
 }
 
-func (c *Client) DeleteWorkflowTemplate(ctx context.Context, r *WorkflowTemplate) error {
+func (c *DclClient) DeleteWorkflowTemplate(ctx context.Context, r *WorkflowTemplate) error {
 	ctx = dcl.ContextWithRequestID(ctx)
 	ctx, cancel := context.WithTimeout(ctx, c.Config.TimeoutOr(0*time.Second))
 	defer cancel()
@@ -3308,7 +3308,7 @@ func (c *Client) DeleteWorkflowTemplate(ctx context.Context, r *WorkflowTemplate
 }
 
 // DeleteAllWorkflowTemplate deletes all resources that the filter functions returns true on.
-func (c *Client) DeleteAllWorkflowTemplate(ctx context.Context, project, location string, filter func(*WorkflowTemplate) bool) error {
+func (c *DclClient) DeleteAllWorkflowTemplate(ctx context.Context, project, location string, filter func(*WorkflowTemplate) bool) error {
 	listObj, err := c.ListWorkflowTemplate(ctx, project, location)
 	if err != nil {
 		return err
@@ -3331,7 +3331,7 @@ func (c *Client) DeleteAllWorkflowTemplate(ctx context.Context, project, locatio
 	return nil
 }
 
-func (c *Client) ApplyWorkflowTemplate(ctx context.Context, rawDesired *WorkflowTemplate, opts ...dcl.ApplyOption) (*WorkflowTemplate, error) {
+func (c *DclClient) ApplyWorkflowTemplate(ctx context.Context, rawDesired *WorkflowTemplate, opts ...dcl.ApplyOption) (*WorkflowTemplate, error) {
 	ctx, cancel := context.WithTimeout(ctx, c.Config.TimeoutOr(0*time.Second))
 	defer cancel()
 
@@ -3353,7 +3353,7 @@ func (c *Client) ApplyWorkflowTemplate(ctx context.Context, rawDesired *Workflow
 	return resultNewState, err
 }
 
-func applyWorkflowTemplateHelper(c *Client, ctx context.Context, rawDesired *WorkflowTemplate, opts ...dcl.ApplyOption) (*WorkflowTemplate, error) {
+func applyWorkflowTemplateHelper(c *DclClient, ctx context.Context, rawDesired *WorkflowTemplate, opts ...dcl.ApplyOption) (*WorkflowTemplate, error) {
 	c.Config.Logger.InfoWithContext(ctx, "Beginning ApplyWorkflowTemplate...")
 	c.Config.Logger.InfoWithContextf(ctx, "User specified desired state: %v", rawDesired)
 
@@ -3426,7 +3426,7 @@ func applyWorkflowTemplateHelper(c *Client, ctx context.Context, rawDesired *Wor
 	return applyWorkflowTemplateDiff(c, ctx, desired, rawDesired, ops, opts...)
 }
 
-func applyWorkflowTemplateDiff(c *Client, ctx context.Context, desired *WorkflowTemplate, rawDesired *WorkflowTemplate, ops []workflowTemplateApiOperation, opts ...dcl.ApplyOption) (*WorkflowTemplate, error) {
+func applyWorkflowTemplateDiff(c *DclClient, ctx context.Context, desired *WorkflowTemplate, rawDesired *WorkflowTemplate, ops []workflowTemplateApiOperation, opts ...dcl.ApplyOption) (*WorkflowTemplate, error) {
 	// 3.1, 3.2a Retrieval of raw new state & canonicalization with desired state
 	c.Config.Logger.InfoWithContext(ctx, "Retrieving raw new state...")
 	rawNew, err := c.GetWorkflowTemplate(ctx, desired)
