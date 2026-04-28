@@ -53,7 +53,6 @@ import (
 	appengine "google.golang.org/api/appengine/v1"
 	backupdr "google.golang.org/api/backupdr/v1"
 	"google.golang.org/api/bigquery/v2"
-	"google.golang.org/api/bigtableadmin/v2"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudfunctions/v1"
 	"google.golang.org/api/cloudidentity/v1"
@@ -249,7 +248,7 @@ type Config struct {
 	Client             *http.Client
 	Context            context.Context
 	UserAgent          string
-	gRPCLoggingOptions []option.ClientOption
+	GRPCLoggingOptions []option.ClientOption
 
 	TokenSource oauth2.TokenSource
 
@@ -1115,8 +1114,8 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	logger.SetOutput(log.Writer())
 
 	alwaysLoggingDeciderClient := func(ctx context.Context, fullMethodName string) bool { return true }
-	c.gRPCLoggingOptions = append(
-		c.gRPCLoggingOptions, option.WithGRPCDialOption(grpc.WithUnaryInterceptor(
+	c.GRPCLoggingOptions = append(
+		c.GRPCLoggingOptions, option.WithGRPCDialOption(grpc.WithUnaryInterceptor(
 			grpc_logrus.PayloadUnaryClientInterceptor(logrus.NewEntry(logger), alwaysLoggingDeciderClient))),
 		option.WithGRPCDialOption(grpc.WithStreamInterceptor(
 			grpc_logrus.PayloadStreamClientInterceptor(logrus.NewEntry(logger), alwaysLoggingDeciderClient))),
@@ -1631,53 +1630,6 @@ func (c *Config) NewCloudIdentityClient(userAgent string) *cloudidentity.Service
 	clientCloudIdentity.BasePath = cloudidentityClientBasePath
 
 	return clientCloudIdentity
-}
-
-func (c *Config) BigTableClientFactory(userAgent string) *BigtableClientFactory {
-	bigtableClientFactory := &BigtableClientFactory{
-		UserAgent:           userAgent,
-		TokenSource:         c.TokenSource,
-		gRPCLoggingOptions:  c.gRPCLoggingOptions,
-		BillingProject:      c.BillingProject,
-		UserProjectOverride: c.UserProjectOverride,
-	}
-
-	return bigtableClientFactory
-}
-
-// Unlike other clients, the Bigtable Admin client doesn't use a single
-// service. Instead, there are several distinct services created off
-// the base service object. To imitate most other handwritten clients,
-// we expose those directly instead of providing the `Service` object
-// as a factory.
-func (c *Config) NewBigTableProjectsInstancesClient(userAgent string) *bigtableadmin.ProjectsInstancesService {
-	bigtableAdminBasePath := RemoveBasePathVersion(c.BigtableBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
-	clientBigtable, err := bigtableadmin.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client big table projects instances: %s", err)
-		return nil
-	}
-	clientBigtable.UserAgent = userAgent
-	clientBigtable.BasePath = bigtableAdminBasePath
-	clientBigtableProjectsInstances := bigtableadmin.NewProjectsInstancesService(clientBigtable)
-
-	return clientBigtableProjectsInstances
-}
-
-func (c *Config) NewBigTableProjectsInstancesTablesClient(userAgent string) *bigtableadmin.ProjectsInstancesTablesService {
-	bigtableAdminBasePath := RemoveBasePathVersion(c.BigtableBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
-	clientBigtable, err := bigtableadmin.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client projects instances tables: %s", err)
-		return nil
-	}
-	clientBigtable.UserAgent = userAgent
-	clientBigtable.BasePath = bigtableAdminBasePath
-	clientBigtableProjectsInstancesTables := bigtableadmin.NewProjectsInstancesTablesService(clientBigtable)
-
-	return clientBigtableProjectsInstancesTables
 }
 
 func (c *Config) NewCloudRunV2Client(userAgent string) *runadminv2.Service {

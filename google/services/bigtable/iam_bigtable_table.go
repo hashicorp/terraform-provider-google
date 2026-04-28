@@ -115,7 +115,7 @@ func (u *BigtableTableIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 		return nil, err
 	}
 
-	p, err := u.Config.NewBigTableProjectsInstancesTablesClient(userAgent).GetIamPolicy(u.GetResourceId(), req).Do()
+	p, err := NewProjectsInstancesTablesClient(u.Config, userAgent).GetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -141,7 +141,7 @@ func (u *BigtableTableIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 		return err
 	}
 
-	_, err = u.Config.NewBigTableProjectsInstancesTablesClient(userAgent).SetIamPolicy(u.GetResourceId(), req).Do()
+	_, err = NewProjectsInstancesTablesClient(u.Config, userAgent).SetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

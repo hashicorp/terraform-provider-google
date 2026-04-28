@@ -354,7 +354,7 @@ func testAccCheckBigtableGCPolicyDestroyProducer(t *testing.T) func(s *terraform
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			c, err := config.BigTableClientFactory(config.UserAgent).NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
+			c, err := tpgbigtable.NewClientFactory(config, config.UserAgent).NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
 			if err != nil {
 				// The instance is already gone
 				return nil
@@ -393,7 +393,7 @@ func testAccBigtableGCPolicyExists(t *testing.T, n string, compareGcRules bool) 
 			return fmt.Errorf("No ID is set")
 		}
 		config := acctest.GoogleProviderConfig(t)
-		c, err := config.BigTableClientFactory(config.UserAgent).NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
+		c, err := tpgbigtable.NewClientFactory(config, config.UserAgent).NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
 		if err != nil {
 			return fmt.Errorf("Error starting admin client. %s", err)
 		}
@@ -439,7 +439,7 @@ func testAccBigtableRemoteGCPolicyExists(t *testing.T, table_name_space string) 
 		}
 
 		config := acctest.GoogleProviderConfig(t)
-		c, err := config.BigTableClientFactory(config.UserAgent).NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
+		c, err := tpgbigtable.NewClientFactory(config, config.UserAgent).NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
 		if err != nil {
 			return fmt.Errorf("Error starting admin client. %s", err)
 		}
@@ -482,7 +482,7 @@ func testAccBigtableCanWriteData(t *testing.T, n string, numberOfRows int) resou
 			return fmt.Errorf("No ID is set")
 		}
 		config := acctest.GoogleProviderConfig(t)
-		c, err := config.BigTableClientFactory(config.UserAgent).NewClient(config.Project, rs.Primary.Attributes["instance_name"])
+		c, err := tpgbigtable.NewClientFactory(config, config.UserAgent).NewClient(config.Project, rs.Primary.Attributes["instance_name"])
 		if err != nil {
 			return fmt.Errorf("Error starting client. %s", err)
 		}
@@ -522,7 +522,7 @@ func testAccBigtableCanReadData(t *testing.T, n string, numberOfRows int) resour
 			return fmt.Errorf("No ID is set")
 		}
 		config := acctest.GoogleProviderConfig(t)
-		c, err := config.BigTableClientFactory(config.UserAgent).NewClient(config.Project, rs.Primary.Attributes["instance_name"])
+		c, err := tpgbigtable.NewClientFactory(config, config.UserAgent).NewClient(config.Project, rs.Primary.Attributes["instance_name"])
 		if err != nil {
 			return fmt.Errorf("Error starting client. %s", err)
 		}
