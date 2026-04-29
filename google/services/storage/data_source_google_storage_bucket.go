@@ -48,7 +48,7 @@ func dataSourceGoogleStorageBucketRead(d *schema.ResourceData, meta interface{})
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
 
-	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
+	res, err := NewClient(config, userAgent).Buckets.Get(bucket).Do()
 	if err != nil {
 		return err
 	}

@@ -78,20 +78,20 @@ func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta in
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
+	res, err := NewClient(config, userAgent).Buckets.Get(bucket).Do()
 	if err != nil {
 		return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
 	}
 
 	// Even with ForceSendFields the empty array wasn't working. Luckily, this is the same thing
 	if len(defaultObjectAcl) == 0 {
-		_, err = config.NewStorageClient(userAgent).Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).PredefinedDefaultObjectAcl("private").Do()
+		_, err = NewClient(config, userAgent).Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).PredefinedDefaultObjectAcl("private").Do()
 		if err != nil {
 			return fmt.Errorf("Error updating default object acl to empty for bucket %s: %v", bucket, err)
 		}
 	} else {
 		res.DefaultObjectAcl = defaultObjectAcl
-		_, err = config.NewStorageClient(userAgent).Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).Do()
+		_, err = NewClient(config, userAgent).Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating default object acl for bucket %s: %v", bucket, err)
 		}
@@ -108,7 +108,7 @@ func resourceStorageDefaultObjectAclRead(d *schema.ResourceData, meta interface{
 	}
 
 	bucket := d.Get("bucket").(string)
-	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Projection("full").Do()
+	res, err := NewClient(config, userAgent).Buckets.Get(bucket).Projection("full").Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Default Storage Object ACL for Bucket %q", d.Get("bucket").(string)))
 	}
@@ -144,12 +144,12 @@ func resourceStorageDefaultObjectAclDelete(d *schema.ResourceData, meta interfac
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	bucket := d.Get("bucket").(string)
-	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
+	res, err := NewClient(config, userAgent).Buckets.Get(bucket).Do()
 	if err != nil {
 		return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
 	}
 
-	_, err = config.NewStorageClient(userAgent).Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).PredefinedDefaultObjectAcl("private").Do()
+	_, err = NewClient(config, userAgent).Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).PredefinedDefaultObjectAcl("private").Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting (updating to private) default object acl for bucket %s: %v", bucket, err)
 	}

@@ -406,7 +406,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error, either \"content\" or \"source\" must be specified")
 	}
 
-	objectsService := storage.NewObjectsService(config.NewStorageClientWithTimeoutOverride(userAgent, d.Timeout(schema.TimeoutCreate)))
+	objectsService := storage.NewObjectsService(NewClientWithTimeoutOverride(config, userAgent, d.Timeout(schema.TimeoutCreate)))
 	object := &storage.Object{Bucket: bucket}
 
 	if v, ok := d.GetOk("cache_control"); ok {
@@ -497,7 +497,7 @@ func resourceStorageBucketObjectUpdate(d *schema.ResourceData, meta interface{})
 		return resourceStorageBucketObjectCreate(d, meta)
 	} else {
 
-		objectsService := storage.NewObjectsService(config.NewStorageClientWithTimeoutOverride(userAgent, d.Timeout(schema.TimeoutUpdate)))
+		objectsService := storage.NewObjectsService(NewClientWithTimeoutOverride(config, userAgent, d.Timeout(schema.TimeoutUpdate)))
 		getCall := objectsService.Get(bucket, name)
 
 		res, err := getCall.Do()
@@ -554,7 +554,7 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
 
-	objectsService := storage.NewObjectsService(config.NewStorageClientWithTimeoutOverride(userAgent, d.Timeout(schema.TimeoutRead)))
+	objectsService := storage.NewObjectsService(NewClientWithTimeoutOverride(config, userAgent, d.Timeout(schema.TimeoutRead)))
 	getCall := objectsService.Get(bucket, name)
 
 	if v, ok := d.GetOk("customer_encryption"); ok {
@@ -659,7 +659,7 @@ func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{})
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
 
-	objectsService := storage.NewObjectsService(config.NewStorageClientWithTimeoutOverride(userAgent, d.Timeout(schema.TimeoutDelete)))
+	objectsService := storage.NewObjectsService(NewClientWithTimeoutOverride(config, userAgent, d.Timeout(schema.TimeoutDelete)))
 
 	DeleteCall := objectsService.Delete(bucket, name)
 	err = DeleteCall.Do()

@@ -81,7 +81,7 @@ func dataSourceGoogleStorageBucketObjectContentRead(d *schema.ResourceData, meta
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
 
-	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
+	objectsService := storage.NewObjectsService(NewClient(config, userAgent))
 	getCall := objectsService.Get(bucket, name)
 
 	res, err := getCall.Download()

@@ -125,7 +125,7 @@ func dataSourceGoogleStorageBucketObjectContentsRead(d *schema.ResourceData, met
 	}
 
 	// Prepare API call
-	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
+	objectsService := storage.NewObjectsService(NewClient(config, userAgent))
 	getObjectsCall := objectsService.List(bucket).Prefix(prefix).MatchGlob(matchGlob)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()

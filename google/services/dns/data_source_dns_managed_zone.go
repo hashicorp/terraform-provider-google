@@ -92,7 +92,7 @@ func dataSourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) erro
 	name := d.Get("name").(string)
 	d.SetId(fmt.Sprintf("projects/%s/managedZones/%s", project, name))
 
-	zone, err := config.NewDnsClient(userAgent).ManagedZones.Get(
+	zone, err := NewClient(config, userAgent).ManagedZones.Get(
 		project, name).Do()
 	if err != nil {
 		return err

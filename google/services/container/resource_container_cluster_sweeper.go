@@ -40,7 +40,7 @@ func testSweepContainerClusters(region string) error {
 	}
 
 	// List clusters for all zones by using "-" as the zone name
-	found, err := config.NewContainerClient(config.UserAgent).Projects.Zones.Clusters.List(config.Project, "-").Do()
+	found, err := NewClient(config, config.UserAgent).Projects.Zones.Clusters.List(config.Project, "-").Do()
 	if err != nil {
 		log.Printf("error listing container clusters: %s", err)
 		return nil
@@ -55,7 +55,7 @@ func testSweepContainerClusters(region string) error {
 		if sweeper.IsSweepableTestResource(cluster.Name) {
 			log.Printf("Sweeping Container Cluster: %s", cluster.Name)
 			clusterURL := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", config.Project, cluster.Location, cluster.Name)
-			_, err := config.NewContainerClient(config.UserAgent).Projects.Locations.Clusters.Delete(clusterURL).Do()
+			_, err := NewClient(config, config.UserAgent).Projects.Locations.Clusters.Delete(clusterURL).Do()
 
 			if err != nil {
 				log.Printf("Error, failed to delete cluster %s: %s", cluster.Name, err)

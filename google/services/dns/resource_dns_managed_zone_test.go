@@ -264,13 +264,13 @@ func testAccCheckManagedZoneCreateRRs(t *testing.T, suffix string, project strin
 			},
 		}
 
-		chg, err := config.NewDnsClient(config.UserAgent).Changes.Create(project, zone, chg).Do()
+		chg, err := tpgdns.NewClient(config, config.UserAgent).Changes.Create(project, zone, chg).Do()
 		if err != nil {
 			return fmt.Errorf("Error creating DNS RecordSet: %s", err)
 		}
 
 		w := &tpgdns.DnsChangeWaiter{
-			Service:     config.NewDnsClient(config.UserAgent),
+			Service:     tpgdns.NewClient(config, config.UserAgent),
 			Change:      chg,
 			Project:     project,
 			ManagedZone: zone,

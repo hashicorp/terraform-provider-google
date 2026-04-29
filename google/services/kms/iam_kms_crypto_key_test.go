@@ -172,7 +172,7 @@ func testAccCheckGoogleKmsCryptoKeyIamBindingExists(t *testing.T, bindingResourc
 			return err
 		}
 
-		p, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.GetIamPolicy(cryptoKeyId.CryptoKeyId()).Do()
+		p, err := kms.NewClient(config, config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.GetIamPolicy(cryptoKeyId.CryptoKeyId()).Do()
 		if err != nil {
 			return err
 		}
@@ -208,7 +208,7 @@ func testAccCheckGoogleKmsCryptoKeyIamMemberExists(t *testing.T, n, role, member
 			return err
 		}
 
-		p, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.GetIamPolicy(cryptoKeyId.CryptoKeyId()).Do()
+		p, err := kms.NewClient(config, config.UserAgent).Projects.Locations.KeyRings.GetIamPolicy(cryptoKeyId.CryptoKeyId()).Do()
 		if err != nil {
 			return err
 		}
@@ -243,7 +243,7 @@ func testAccCheckGoogleCryptoKmsKeyIam(t *testing.T, n, role string, members []s
 			return err
 		}
 
-		p, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.GetIamPolicy(cryptoKeyId.CryptoKeyId()).Do()
+		p, err := kms.NewClient(config, config.UserAgent).Projects.Locations.KeyRings.GetIamPolicy(cryptoKeyId.CryptoKeyId()).Do()
 		if err != nil {
 			return err
 		}

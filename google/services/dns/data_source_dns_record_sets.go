@@ -98,7 +98,7 @@ func dataSourceDnsRecordSetsRead(d *schema.ResourceData, meta interface{}) error
 
 	zone := d.Get("managed_zone").(string)
 
-	req := config.NewDnsClient(userAgent).ResourceRecordSets.List(project, zone)
+	req := NewClient(config, userAgent).ResourceRecordSets.List(project, zone)
 
 	name := d.Get("name").(string)
 	recordType := d.Get("type").(string)

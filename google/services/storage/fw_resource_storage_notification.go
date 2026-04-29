@@ -208,7 +208,7 @@ func (r *storageNotificationResource) Create(ctx context.Context, req resource.C
 	userAgent := fwtransport.GenerateFrameworkUserAgentString(metaData, r.config.UserAgent)
 	bucket := plan.Bucket.ValueString()
 
-	res, err := r.config.NewStorageClient(userAgent).Notifications.Insert(bucket, storageNotification).Do()
+	res, err := NewClient(r.config, userAgent).Notifications.Insert(bucket, storageNotification).Do()
 	if err != nil {
 		resp.Diagnostics.AddError(fmt.Sprintf("Error creating notification config for bucket %s", bucket), err.Error())
 		return
@@ -275,7 +275,7 @@ func (r *storageNotificationResource) Delete(ctx context.Context, req resource.D
 
 	userAgent := fwtransport.GenerateFrameworkUserAgentString(metaData, r.config.UserAgent)
 
-	err = r.config.NewStorageClient(userAgent).Notifications.Delete(bucket, notificationID).Do()
+	err = NewClient(r.config, userAgent).Notifications.Delete(bucket, notificationID).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 			// Resource is gone. This is a successful deletion.
@@ -299,7 +299,7 @@ func (r *storageNotificationResource) refresh(ctx context.Context, model *storag
 
 	userAgent := fwtransport.GenerateFrameworkUserAgentString(metaData, r.config.UserAgent)
 
-	res, err := r.config.NewStorageClient(userAgent).Notifications.Get(bucket, notificationID).Do()
+	res, err := NewClient(r.config, userAgent).Notifications.Get(bucket, notificationID).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 			return false

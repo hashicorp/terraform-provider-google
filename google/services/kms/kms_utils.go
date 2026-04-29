@@ -244,7 +244,7 @@ func parseKmsCryptoKeyVersionId(id string, config *transport_tpg.Config) (*kmsCr
 }
 
 func clearCryptoKeyVersions(cryptoKeyId *KmsCryptoKeyId, userAgent string, config *transport_tpg.Config) error {
-	versionsClient := config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions
+	versionsClient := NewClient(config, userAgent).Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions
 
 	listCall := versionsClient.List(cryptoKeyId.CryptoKeyId())
 	if config.UserProjectOverride {
@@ -276,7 +276,7 @@ func clearCryptoKeyVersions(cryptoKeyId *KmsCryptoKeyId, userAgent string, confi
 }
 
 func deleteCryptoKeyVersions(cryptoKeyVersionId *kmsCryptoKeyVersionId, d *schema.ResourceData, userAgent string, config *transport_tpg.Config) error {
-	versionsClient := config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions
+	versionsClient := NewClient(config, userAgent).Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions
 	request := &cloudkms.DestroyCryptoKeyVersionRequest{}
 	destroyCall := versionsClient.Destroy(cryptoKeyVersionId.Name, request)
 	if config.UserProjectOverride {
@@ -291,7 +291,7 @@ func deleteCryptoKeyVersions(cryptoKeyVersionId *kmsCryptoKeyVersionId, d *schem
 }
 
 func disableCryptoKeyRotation(cryptoKeyId *KmsCryptoKeyId, userAgent string, config *transport_tpg.Config) error {
-	keyClient := config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys
+	keyClient := NewClient(config, userAgent).Projects.Locations.KeyRings.CryptoKeys
 	patchCall := keyClient.Patch(cryptoKeyId.CryptoKeyId(), &cloudkms.CryptoKey{
 		NullFields: []string{"rotationPeriod", "nextRotationTime"},
 	}).

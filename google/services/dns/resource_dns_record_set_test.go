@@ -533,7 +533,7 @@ func TestAccDNSRecordSet_readOutOfBandRrDataChange(t *testing.T) {
 func testAccCheckDnsRecordSetSetRoutingPolicyOutOfBand(t *testing.T, zoneName, rrsetName string, ttl int, rrdata []string, routingPolicy *dns.RRSetRoutingPolicy) func() {
 	return func() {
 		config := acctest.GoogleProviderConfig(t)
-		service := config.NewDnsClient(config.UserAgent).Changes
+		service := tpgdns.NewClient(config, config.UserAgent).Changes
 		chg := &dns.Change{
 			Deletions: []*dns.ResourceRecordSet{
 				{
@@ -558,7 +558,7 @@ func testAccCheckDnsRecordSetSetRoutingPolicyOutOfBand(t *testing.T, zoneName, r
 			return
 		}
 		w := &tpgdns.DnsChangeWaiter{
-			Service:     config.NewDnsClient(config.UserAgent),
+			Service:     tpgdns.NewClient(config, config.UserAgent),
 			Change:      chg,
 			Project:     config.Project,
 			ManagedZone: zoneName,
@@ -572,7 +572,7 @@ func testAccCheckDnsRecordSetSetRoutingPolicyOutOfBand(t *testing.T, zoneName, r
 func testAccCheckDnsRecordSetSetRrdataOutOfBand(t *testing.T, zoneName, rrsetName string, ttl int, rrdata []string, routingPolicy *dns.RRSetRoutingPolicy) func() {
 	return func() {
 		config := acctest.GoogleProviderConfig(t)
-		service := config.NewDnsClient(config.UserAgent).Changes
+		service := tpgdns.NewClient(config, config.UserAgent).Changes
 		chg := &dns.Change{
 			Deletions: []*dns.ResourceRecordSet{
 				{
@@ -597,7 +597,7 @@ func testAccCheckDnsRecordSetSetRrdataOutOfBand(t *testing.T, zoneName, rrsetNam
 			return
 		}
 		w := &tpgdns.DnsChangeWaiter{
-			Service:     config.NewDnsClient(config.UserAgent),
+			Service:     tpgdns.NewClient(config, config.UserAgent),
 			Change:      chg,
 			Project:     config.Project,
 			ManagedZone: zoneName,

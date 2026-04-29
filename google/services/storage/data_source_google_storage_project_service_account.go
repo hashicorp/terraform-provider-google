@@ -64,7 +64,7 @@ func dataSourceGoogleStorageProjectServiceAccountRead(d *schema.ResourceData, me
 		return err
 	}
 
-	serviceAccountGetRequest := config.NewStorageClient(userAgent).Projects.ServiceAccount.Get(project)
+	serviceAccountGetRequest := NewClient(config, userAgent).Projects.ServiceAccount.Get(project)
 
 	if v, ok := d.GetOk("user_project"); ok {
 		serviceAccountGetRequest = serviceAccountGetRequest.UserProject(v.(string))

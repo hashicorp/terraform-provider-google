@@ -77,7 +77,7 @@ func resourceLoggingFolderSinkCreate(d *schema.ResourceData, meta interface{}) e
 	sink.InterceptChildren = d.Get("intercept_children").(bool)
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err = config.NewLoggingClient(userAgent).Folders.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
+	_, err = NewClient(config, userAgent).Folders.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func resourceLoggingFolderSinkRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	sink, err := config.NewLoggingClient(userAgent).Folders.Sinks.Get(d.Id()).Do()
+	sink, err := NewClient(config, userAgent).Folders.Sinks.Get(d.Id()).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Folder Logging Sink %s", d.Get("name").(string)))
 	}
@@ -123,7 +123,7 @@ func resourceLoggingFolderSinkUpdate(d *schema.ResourceData, meta interface{}) e
 	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err = config.NewLoggingClient(userAgent).Folders.Sinks.Patch(d.Id(), sink).
+	_, err = NewClient(config, userAgent).Folders.Sinks.Patch(d.Id(), sink).
 		UpdateMask(updateMask).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
@@ -139,7 +139,7 @@ func resourceLoggingFolderSinkDelete(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	_, err = config.NewLoggingClient(userAgent).Projects.Sinks.Delete(d.Id()).Do()
+	_, err = NewClient(config, userAgent).Projects.Sinks.Delete(d.Id()).Do()
 	if err != nil {
 		return err
 	}

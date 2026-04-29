@@ -48,7 +48,7 @@ func dataSourceGoogleLoggingSinkRead(d *schema.ResourceData, meta interface{}) e
 
 	sinkId := d.Get("id").(string)
 
-	sink, err := config.NewLoggingClient(userAgent).Sinks.Get(sinkId).Do()
+	sink, err := NewClient(config, userAgent).Sinks.Get(sinkId).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Logging Sink %s", d.Id()), sinkId)
 	}

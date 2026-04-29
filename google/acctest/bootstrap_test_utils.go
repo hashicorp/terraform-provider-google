@@ -124,7 +124,7 @@ func BootstrapKMSAutokeyKeyHandleWithLocation(t *testing.T, locationID string) B
 	autokeyFolder, kmsProject, resourceProject := setupAutokeyTestResources(t, config)
 
 	// Enable autokey on autokey test folder
-	kmsClient := config.NewKmsClient(config.UserAgent)
+	kmsClient := kms.NewClient(config, config.UserAgent)
 	autokeyConfigID := fmt.Sprintf("%s/autokeyConfig", autokeyFolder.Name)
 	autokeyConfig, err := kmsClient.Folders.UpdateAutokeyConfig(autokeyConfigID, &cloudkms.AutokeyConfig{
 		KeyProject: fmt.Sprintf("projects/%s", kmsProject.ProjectId),
@@ -354,7 +354,7 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 	keyName := fmt.Sprintf("%s/cryptoKeys/%s", keyParent, keyShortName)
 
 	// Get or Create the hard coded shared keyring for testing
-	kmsClient := config.NewKmsClient(config.UserAgent)
+	kmsClient := kms.NewClient(config, config.UserAgent)
 	keyRing, err := kmsClient.Projects.Locations.KeyRings.Get(keyRingName).Do()
 	if err != nil {
 		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {

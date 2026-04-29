@@ -83,7 +83,7 @@ func dataSourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error 
 	dnsType := d.Get("type").(string)
 	d.SetId(fmt.Sprintf("projects/%s/managedZones/%s/rrsets/%s/%s", project, zone, name, dnsType))
 
-	resp, err := config.NewDnsClient(userAgent).ResourceRecordSets.List(project, zone).Name(name).Type(dnsType).Do()
+	resp, err := NewClient(config, userAgent).ResourceRecordSets.List(project, zone).Name(name).Type(dnsType).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("dataSourceDnsRecordSet %q", name))
 	}

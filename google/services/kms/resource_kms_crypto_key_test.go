@@ -395,7 +395,7 @@ func testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(t *testing.T, projectId, lo
 		config := acctest.GoogleProviderConfig(t)
 		gcpResourceUri := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s", projectId, location, keyRingName, cryptoKeyName)
 
-		response, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions.List(gcpResourceUri).Do()
+		response, err := kms.NewClient(config, config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions.List(gcpResourceUri).Do()
 
 		if err != nil {
 			return fmt.Errorf("Unexpected failure to list versions: %s", err)
@@ -420,7 +420,7 @@ func testAccCheckGoogleKmsCryptoKeyRotationDisabled(t *testing.T, projectId, loc
 		config := acctest.GoogleProviderConfig(t)
 		gcpResourceUri := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s", projectId, location, keyRingName, cryptoKeyName)
 
-		response, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.Get(gcpResourceUri).Do()
+		response, err := kms.NewClient(config, config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.Get(gcpResourceUri).Do()
 		if err != nil {
 			return fmt.Errorf("Unexpected failure while verifying 'deleted' crypto key: %s", err)
 		}

@@ -83,9 +83,9 @@ func resourceLoggingProjectSinkAcquireOrCreate(d *schema.ResourceData, meta inte
 
 	log.Printf("[DEBUG] Fetching logging sink config: %#v", id)
 
-	res, _ := config.NewLoggingClient(userAgent).Projects.Sinks.Get(id.canonicalId()).Do()
+	res, _ := NewClient(config, userAgent).Projects.Sinks.Get(id.canonicalId()).Do()
 	if res == nil {
-		projectSinkCreateRequest := config.NewLoggingClient(userAgent).Projects.Sinks.Create(id.parent(), sink)
+		projectSinkCreateRequest := NewClient(config, userAgent).Projects.Sinks.Create(id.parent(), sink)
 
 		// if custom-sa is specified, use it to write log and it requires uniqueWriterIdentity to be set as well
 		// otherwise set the uniqueWriter identity
@@ -165,7 +165,7 @@ func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	sink, err := config.NewLoggingClient(userAgent).Projects.Sinks.Get(d.Id()).Do()
+	sink, err := NewClient(config, userAgent).Projects.Sinks.Get(d.Id()).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project Logging Sink %s", d.Get("name").(string)))
 	}
@@ -201,7 +201,7 @@ func resourceLoggingProjectSinkUpdate(d *schema.ResourceData, meta interface{}) 
 	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
 	customWriterIdentity := d.Get("custom_writer_identity").(string)
 
-	projectSinkUpdateRequest := config.NewLoggingClient(userAgent).Projects.Sinks.Patch(d.Id(), sink).UpdateMask(updateMask)
+	projectSinkUpdateRequest := NewClient(config, userAgent).Projects.Sinks.Patch(d.Id(), sink).UpdateMask(updateMask)
 
 	// if custom-sa is specified, use it to write log and it reqiures uniqueWriterIdentity to be set as well
 	// otherwise set the uniqueWriter identity
@@ -235,7 +235,7 @@ func resourceLoggingProjectSinkDelete(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	_, err = config.NewLoggingClient(userAgent).Projects.Sinks.Delete(d.Id()).Do()
+	_, err = NewClient(config, userAgent).Projects.Sinks.Delete(d.Id()).Do()
 	if err != nil {
 		return err
 	}

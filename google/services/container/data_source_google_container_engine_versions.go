@@ -105,7 +105,7 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 	}
 
 	location = fmt.Sprintf("projects/%s/locations/%s", project, location)
-	resp, err := config.NewContainerClient(userAgent).Projects.Locations.GetServerConfig(location).Do()
+	resp, err := NewClient(config, userAgent).Projects.Locations.GetServerConfig(location).Do()
 	if err != nil {
 		return fmt.Errorf("Error retrieving available container cluster versions: %s", err.Error())
 	}

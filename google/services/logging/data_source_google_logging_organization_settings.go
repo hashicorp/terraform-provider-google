@@ -83,7 +83,7 @@ func dataSourceGoogleLoggingOrganizationSettingsRead(d *schema.ResourceData, met
 	}
 
 	organization := d.Get("organization").(string)
-	res, err := config.NewLoggingClient(userAgent).Organizations.GetSettings(fmt.Sprintf("organizations/%s", organization)).Do()
+	res, err := NewClient(config, userAgent).Organizations.GetSettings(fmt.Sprintf("organizations/%s", organization)).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("LoggingOrganizationSettings %q", d.Id()), d.Id())
 	}

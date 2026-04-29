@@ -29,6 +29,7 @@ import (
 	"google.golang.org/api/storage/v1"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	storage_tpg "github.com/hashicorp/terraform-provider-google/google/services/storage"
 )
 
 func TestAccStorageFolder_storageFolderBasic(t *testing.T) {
@@ -251,7 +252,7 @@ func testAccCheckStorageBucketUploadItem(t *testing.T, bucketName string) resour
 		dataReader := bytes.NewReader(data.Bytes())
 		object := &storage.Object{Name: "folder/" + "bucketDestroyTestFile"}
 
-		if res, err := config.NewStorageClient(config.UserAgent).Objects.Insert(bucketName, object).Media(dataReader).Do(); err == nil {
+		if res, err := storage_tpg.NewClient(config, config.UserAgent).Objects.Insert(bucketName, object).Media(dataReader).Do(); err == nil {
 			log.Printf("[INFO] Created object %v at location %v\n\n", res.Name, res.SelfLink)
 		} else {
 			return fmt.Errorf("Objects.Insert failed: %v", err)

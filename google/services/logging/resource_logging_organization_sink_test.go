@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	logging_tpg "github.com/hashicorp/terraform-provider-google/google/services/logging"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	"google.golang.org/api/logging/v2"
 )
@@ -231,7 +232,7 @@ func testAccCheckLoggingOrganizationSinkDestroyProducer(t *testing.T) func(s *te
 
 			attributes := rs.Primary.Attributes
 
-			_, err := config.NewLoggingClient(config.UserAgent).Organizations.Sinks.Get(attributes["id"]).Do()
+			_, err := logging_tpg.NewClient(config, config.UserAgent).Organizations.Sinks.Get(attributes["id"]).Do()
 			if err == nil {
 				return fmt.Errorf("organization sink still exists")
 			}
@@ -249,7 +250,7 @@ func testAccCheckLoggingOrganizationSinkExists(t *testing.T, n string, sink *log
 		}
 		config := acctest.GoogleProviderConfig(t)
 
-		si, err := config.NewLoggingClient(config.UserAgent).Organizations.Sinks.Get(attributes["id"]).Do()
+		si, err := logging_tpg.NewClient(config, config.UserAgent).Organizations.Sinks.Get(attributes["id"]).Do()
 		if err != nil {
 			return err
 		}

@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	"github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -128,7 +129,7 @@ func resourceContainerRegistryRead(d *schema.ResourceData, meta interface{}) err
 		name = fmt.Sprintf("artifacts.%s.appspot.com", project)
 	}
 
-	res, err := config.NewStorageClient(userAgent).Buckets.Get(name).Do()
+	res, err := storage.NewClient(config, userAgent).Buckets.Get(name).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Container Registry Storage Bucket %q", name))
 	}

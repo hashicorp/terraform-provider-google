@@ -370,7 +370,7 @@ func resourceStorageFolderDelete(d *schema.ResourceData, meta interface{}) error
 
 	var listError, deleteObjectError error
 	for deleteObjectError == nil {
-		res, err := config.NewStorageClient(userAgent).Objects.List(bucket).Prefix(name).Do()
+		res, err := NewClient(config, userAgent).Objects.List(bucket).Prefix(name).Do()
 		if err != nil {
 			log.Printf("Error listing contents of folder %s: %v", bucket, err)
 			listError = err
@@ -408,7 +408,7 @@ func resourceStorageFolderDelete(d *schema.ResourceData, meta interface{}) error
 
 			wp.Submit(func() {
 				log.Printf("[TRACE] Attempting to delete %s", object.Name)
-				if err := config.NewStorageClient(userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
+				if err := NewClient(config, userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
 					deleteObjectError = err
 					log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
 				} else {
@@ -422,7 +422,7 @@ func resourceStorageFolderDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	err = retry.Retry(1*time.Minute, func() *retry.RetryError {
-		err := config.NewStorageClient(userAgent).Folders.Delete(bucket, name).Do()
+		err := NewClient(config, userAgent).Folders.Delete(bucket, name).Do()
 		if err == nil {
 			return nil
 		}
@@ -450,7 +450,7 @@ func resourceStorageFolderDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// attempts to delete any sub folders within the folder
-	foldersList, err := config.NewStorageClient(userAgent).Folders.List(bucket).Prefix(name).Do()
+	foldersList, err := NewClient(config, userAgent).Folders.List(bucket).Prefix(name).Do()
 	if err != nil {
 		return err
 	}
@@ -460,7 +460,7 @@ func resourceStorageFolderDelete(d *schema.ResourceData, meta interface{}) error
 		for i := len(items) - 1; i >= 0; i-- {
 			err = transport_tpg.Retry(transport_tpg.RetryOptions{
 				RetryFunc: func() error {
-					err = config.NewStorageClient(userAgent).Folders.Delete(bucket, items[i].Name).Do()
+					err = NewClient(config, userAgent).Folders.Delete(bucket, items[i].Name).Do()
 					return err
 				},
 				Timeout:              d.Timeout(schema.TimeoutDelete),

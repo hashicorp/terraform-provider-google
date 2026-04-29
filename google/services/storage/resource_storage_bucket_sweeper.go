@@ -89,7 +89,7 @@ func deleteObjects(config *transport_tpg.Config, bucket string) bool {
 	userAgent := config.UserAgent
 	var listError, deleteObjectError error
 	for deleteObjectError == nil {
-		res, err := config.NewStorageClient(userAgent).Objects.List(bucket).Versions(true).Do()
+		res, err := NewClient(config, userAgent).Objects.List(bucket).Versions(true).Do()
 		if err != nil {
 			log.Printf("Error listing contents of bucket %s: %v", bucket, err)
 			listError = err
@@ -106,7 +106,7 @@ func deleteObjects(config *transport_tpg.Config, bucket string) bool {
 
 			wp.Submit(func() {
 				log.Printf("[TRACE] Attempting to delete %s", object.Name)
-				if err := config.NewStorageClient(userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
+				if err := NewClient(config, userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
 					deleteObjectError = err
 					log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
 				} else {

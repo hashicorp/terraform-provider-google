@@ -55,19 +55,14 @@ import (
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudfunctions/v1"
 	"google.golang.org/api/cloudidentity/v1"
-	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
-	"google.golang.org/api/container/v1"
 	dataflow "google.golang.org/api/dataflow/v1b3"
-	"google.golang.org/api/dns/v1"
 	"google.golang.org/api/iam/v1"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
-	cloudlogging "google.golang.org/api/logging/v2"
 	runadminv2 "google.golang.org/api/run/v2"
 	"google.golang.org/api/serviceusage/v1"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
-	"google.golang.org/api/storage/v1"
 	"google.golang.org/api/transport"
 	"google.golang.org/grpc"
 )
@@ -1244,105 +1239,6 @@ func (c *Config) getTokenSource(ctx context.Context, clientScopes []string, init
 // while most only want the host URL, some older ones also want the version and some
 // of those "projects" as well. You can find out if this is required by looking at
 // the basePath value in the client library file.
-func (c *Config) NewContainerClient(userAgent string) *container.Service {
-	containerClientBasePath := RemoveBasePathVersion(c.ContainerBasePath)
-	log.Printf("[INFO] Instantiating GKE client for path %s", containerClientBasePath)
-	clientContainer, err := container.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client container: %s", err)
-		return nil
-	}
-	clientContainer.UserAgent = userAgent
-	clientContainer.BasePath = containerClientBasePath
-
-	return clientContainer
-}
-
-func (c *Config) NewDnsClient(userAgent string) *dns.Service {
-	dnsClientBasePath := RemoveBasePathVersion(c.DNSBasePath)
-	dnsClientBasePath = strings.ReplaceAll(dnsClientBasePath, "/dns/", "")
-	log.Printf("[INFO] Instantiating Google Cloud DNS client for path %s", dnsClientBasePath)
-	clientDns, err := dns.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client dns: %s", err)
-		return nil
-	}
-	clientDns.UserAgent = userAgent
-	clientDns.BasePath = dnsClientBasePath
-
-	return clientDns
-}
-
-func (c *Config) NewKmsClientWithCtx(ctx context.Context, userAgent string) *cloudkms.Service {
-	kmsClientBasePath := RemoveBasePathVersion(c.KMSBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud KMS client for path %s", kmsClientBasePath)
-	clientKms, err := cloudkms.NewService(ctx, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client kms: %s", err)
-		return nil
-	}
-	clientKms.UserAgent = userAgent
-	clientKms.BasePath = kmsClientBasePath
-
-	return clientKms
-}
-
-func (c *Config) NewKmsClient(userAgent string) *cloudkms.Service {
-	return c.NewKmsClientWithCtx(c.Context, userAgent)
-}
-
-func (c *Config) NewLoggingClient(userAgent string) *cloudlogging.Service {
-	loggingClientBasePath := RemoveBasePathVersion(c.LoggingBasePath)
-	log.Printf("[INFO] Instantiating Google Stackdriver Logging client for path %s", loggingClientBasePath)
-	clientLogging, err := cloudlogging.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client logging: %s", err)
-		return nil
-	}
-	clientLogging.UserAgent = userAgent
-	clientLogging.BasePath = loggingClientBasePath
-
-	return clientLogging
-}
-
-func (c *Config) NewStorageClient(userAgent string) *storage.Service {
-	storageClientBasePath := c.StorageBasePath
-	log.Printf("[INFO] Instantiating Google Storage client for path %s", storageClientBasePath)
-	clientStorage, err := storage.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client storage: %s", err)
-		return nil
-	}
-	clientStorage.UserAgent = userAgent
-	clientStorage.BasePath = storageClientBasePath
-
-	return clientStorage
-}
-
-// For object uploads, we need to override the specific timeout because they are long, synchronous operations.
-func (c *Config) NewStorageClientWithTimeoutOverride(userAgent string, timeout time.Duration) *storage.Service {
-	storageClientBasePath := c.StorageBasePath
-	log.Printf("[INFO] Instantiating Google Storage client for path %s", storageClientBasePath)
-	// Copy the existing HTTP client (which has no unexported fields [as of Oct 2021 at least], so this is safe).
-	// We have to do this because otherwise we will accidentally change the timeout for all other
-	// synchronous operations, which would not be desirable.
-	httpClient := &http.Client{
-		Transport:     c.Client.Transport,
-		CheckRedirect: c.Client.CheckRedirect,
-		Jar:           c.Client.Jar,
-		Timeout:       timeout,
-	}
-	clientStorage, err := storage.NewService(c.Context, option.WithHTTPClient(httpClient))
-	if err != nil {
-		log.Printf("[WARN] Error creating client storage: %s", err)
-		return nil
-	}
-	clientStorage.UserAgent = userAgent
-	clientStorage.BasePath = storageClientBasePath
-
-	return clientStorage
-}
-
 func (c *Config) NewSqlAdminClient(userAgent string) *sqladmin.Service {
 	sqlClientBasePath := RemoveBasePathVersion(RemoveBasePathVersion(c.SQLBasePath))
 	log.Printf("[INFO] Instantiating Google SqlAdmin client for path %s", sqlClientBasePath)

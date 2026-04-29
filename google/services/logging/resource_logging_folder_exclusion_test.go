@@ -231,7 +231,7 @@ func testAccCheckLoggingFolderExclusionDestroyProducer(t *testing.T) func(s *ter
 
 			attributes := rs.Primary.Attributes
 
-			_, err := config.NewLoggingClient(config.UserAgent).Folders.Exclusions.Get(attributes["id"]).Do()
+			_, err := logging.NewClient(config, config.UserAgent).Folders.Exclusions.Get(attributes["id"]).Do()
 			if err == nil {
 				return fmt.Errorf("folder exclusion still exists")
 			}

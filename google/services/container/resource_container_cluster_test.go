@@ -7233,7 +7233,7 @@ func testAccContainerCluster_masterAuthorizedNetworksDisabled(t *testing.T, reso
 		config := acctest.GoogleProviderConfig(t)
 		attributes := rs.Primary.Attributes
 
-		cluster, err := config.NewContainerClient(config.UserAgent).Projects.Zones.Clusters.Get(
+		cluster, err := container.NewClient(config, config.UserAgent).Projects.Zones.Clusters.Get(
 			config.Project, attributes["location"], attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -7257,7 +7257,7 @@ func testAccCheckContainerClusterDestroyProducer(t *testing.T) func(s *terraform
 			}
 
 			attributes := rs.Primary.Attributes
-			_, err := config.NewContainerClient(config.UserAgent).Projects.Locations.Clusters.Get(
+			_, err := container.NewClient(config, config.UserAgent).Projects.Locations.Clusters.Get(
 				fmt.Sprintf("projects/%s/locations/%s/clusters/%s", config.Project, attributes["location"], attributes["name"])).Do()
 			if err == nil {
 				return fmt.Errorf("Cluster still exists")

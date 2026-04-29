@@ -83,7 +83,7 @@ func dataSourceGoogleLoggingFolderSettingsRead(d *schema.ResourceData, meta inte
 	}
 
 	folder := d.Get("folder").(string)
-	res, err := config.NewLoggingClient(userAgent).Folders.GetSettings(fmt.Sprintf("folders/%s", folder)).Do()
+	res, err := NewClient(config, userAgent).Folders.GetSettings(fmt.Sprintf("folders/%s", folder)).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("LoggingFolderSettings %q", d.Id()), d.Id())
 	}

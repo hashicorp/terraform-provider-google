@@ -81,7 +81,7 @@ func ProjectLoggingExclusionIdParseFunc(d *schema.ResourceData, config *transpor
 }
 
 func (u *ProjectLoggingExclusionUpdater) CreateLoggingExclusion(parent string, exclusion *logging.LogExclusion) error {
-	_, err := u.Config.NewLoggingClient(u.userAgent).Projects.Exclusions.Create(parent, exclusion).Do()
+	_, err := NewClient(u.Config, u.userAgent).Projects.Exclusions.Create(parent, exclusion).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error creating logging exclusion for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -90,7 +90,7 @@ func (u *ProjectLoggingExclusionUpdater) CreateLoggingExclusion(parent string, e
 }
 
 func (u *ProjectLoggingExclusionUpdater) ReadLoggingExclusion(id string) (*logging.LogExclusion, error) {
-	exclusion, err := u.Config.NewLoggingClient(u.userAgent).Projects.Exclusions.Get(id).Do()
+	exclusion, err := NewClient(u.Config, u.userAgent).Projects.Exclusions.Get(id).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving logging exclusion for %s: {{err}}", u.DescribeResource()), err)
@@ -100,7 +100,7 @@ func (u *ProjectLoggingExclusionUpdater) ReadLoggingExclusion(id string) (*loggi
 }
 
 func (u *ProjectLoggingExclusionUpdater) UpdateLoggingExclusion(id string, exclusion *logging.LogExclusion, updateMask string) error {
-	_, err := u.Config.NewLoggingClient(u.userAgent).Projects.Exclusions.Patch(id, exclusion).UpdateMask(updateMask).Do()
+	_, err := NewClient(u.Config, u.userAgent).Projects.Exclusions.Patch(id, exclusion).UpdateMask(updateMask).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error updating logging exclusion for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -109,7 +109,7 @@ func (u *ProjectLoggingExclusionUpdater) UpdateLoggingExclusion(id string, exclu
 }
 
 func (u *ProjectLoggingExclusionUpdater) DeleteLoggingExclusion(id string) error {
-	_, err := u.Config.NewLoggingClient(u.userAgent).Projects.Exclusions.Delete(id).Do()
+	_, err := NewClient(u.Config, u.userAgent).Projects.Exclusions.Delete(id).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error deleting logging exclusion for %s: {{err}}", u.DescribeResource()), err)
 	}

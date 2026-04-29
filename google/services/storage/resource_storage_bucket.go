@@ -966,7 +966,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
-			insertCall := config.NewStorageClient(userAgent).Buckets.Insert(project, sb)
+			insertCall := NewClient(config, userAgent).Buckets.Insert(project, sb)
 			if d.Get("enable_object_retention").(bool) {
 				insertCall.EnableObjectRetention(true)
 			}
@@ -989,7 +989,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	// to make sure it exists before moving on
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() (operr error) {
-			_, retryErr := config.NewStorageClient(userAgent).Buckets.Get(res.Name).Do()
+			_, retryErr := NewClient(config, userAgent).Buckets.Get(res.Name).Do()
 			return retryErr
 		},
 		Timeout:              d.Timeout(schema.TimeoutCreate),
@@ -1010,7 +1010,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		retentionPolicy := retention_policies[0].(map[string]interface{})
 
 		if locked, ok := retentionPolicy["is_locked"]; ok && locked.(bool) {
-			err = lockRetentionPolicy(config.NewStorageClient(userAgent).Buckets, bucket, res.Metageneration)
+			err = lockRetentionPolicy(NewClient(config, userAgent).Buckets, bucket, res.Metageneration)
 			if err != nil {
 				return err
 			}
@@ -1152,7 +1152,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	res, err := config.NewStorageClient(userAgent).Buckets.Patch(d.Get("name").(string), sb).Do()
+	res, err := NewClient(config, userAgent).Buckets.Patch(d.Get("name").(string), sb).Do()
 	if err != nil {
 		return err
 	}
@@ -1166,7 +1166,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	// to make sure it exists before moving on
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() (operr error) {
-			_, retryErr := config.NewStorageClient(userAgent).Buckets.Get(res.Name).Do()
+			_, retryErr := NewClient(config, userAgent).Buckets.Get(res.Name).Do()
 			return retryErr
 		},
 		Timeout:              d.Timeout(schema.TimeoutUpdate),
@@ -1186,7 +1186,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 			retentionPolicy := retention_policies[0].(map[string]interface{})
 
 			if locked, ok := retentionPolicy["is_locked"]; ok && locked.(bool) && d.HasChange("retention_policy.0.is_locked") {
-				err = lockRetentionPolicy(config.NewStorageClient(userAgent).Buckets, d.Get("name").(string), res.Metageneration)
+				err = lockRetentionPolicy(NewClient(config, userAgent).Buckets, d.Get("name").(string), res.Metageneration)
 				if err != nil {
 					return err
 				}
@@ -1213,7 +1213,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 
 	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
 	// to make sure it exists before moving on
-	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
+	res, err := NewClient(config, userAgent).Buckets.Get(bucket).Do()
 
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
@@ -1275,7 +1275,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	for token != "" || first {
 		first = false
 
-		listCall := config.NewStorageClient(userAgent).Objects.List(bucket).Versions(true)
+		listCall := NewClient(config, userAgent).Objects.List(bucket).Versions(true)
 		if token != "" {
 			listCall.PageToken(token)
 		}
@@ -1319,7 +1319,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		for _, object := range listResponse.Items {
 			object := object // ensure that local variable is maintained over loop iterations.
 			wp.Submit(func() {
-				err := config.NewStorageClient(userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do()
+				err := NewClient(config, userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do()
 				if err != nil {
 					errMu.Lock()
 					defer errMu.Unlock()
@@ -1337,7 +1337,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 
 	// destroy bucket
 	err = retry.Retry(1*time.Minute, func() *retry.RetryError {
-		err := config.NewStorageClient(userAgent).Buckets.Delete(bucket).Do()
+		err := NewClient(config, userAgent).Buckets.Delete(bucket).Do()
 		if err == nil {
 			return nil
 		}

@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	tpgdataproc "github.com/hashicorp/terraform-provider-google/google/services/dataproc"
+	"github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/googleapi"
@@ -429,12 +430,12 @@ func testAccCheckDataprocJobCompletesSuccessfully(t *testing.T, n string, job *d
 			if len(u) != 2 {
 				return fmt.Errorf("Job completed in ERROR state but no valid log URI found")
 			}
-			l, err := config.NewStorageClient(config.UserAgent).Objects.List(u[0]).Prefix(u[1]).Do()
+			l, err := storage.NewClient(config, config.UserAgent).Objects.List(u[0]).Prefix(u[1]).Do()
 			if err != nil {
 				return errwrap.Wrapf("Job completed in ERROR state, found error when trying to list logs: {{err}}", err)
 			}
 			for _, item := range l.Items {
-				resp, err := config.NewStorageClient(config.UserAgent).Objects.Get(item.Bucket, item.Name).Download()
+				resp, err := storage.NewClient(config, config.UserAgent).Objects.Get(item.Bucket, item.Name).Download()
 				if err != nil {
 					return errwrap.Wrapf("Job completed in ERROR state, found error when trying to read logs: {{err}}", err)
 				}
