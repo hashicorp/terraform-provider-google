@@ -2279,3 +2279,207 @@ resource "google_compute_region_instance_group_manager" "igm-tsp" {
 }
 `, template, igm)
 }
+
+func TestAccRegionInstanceGroupManager_resourcePoliciesWorkloadPolicyUpdate(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	workloadPolicyResourceName := "workload_policy"
+	workloadPolicyResourceUpdate := "workload_policy_2"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRegionInstanceGroupManager_resourcePoliciesWorkloadPolicyUpdate(suffix, workloadPolicyResourceName),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.igm-workload-policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+			{
+				Config: testAccRegionInstanceGroupManager_resourcePoliciesWorkloadPolicyUpdate(suffix, workloadPolicyResourceUpdate),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.igm-workload-policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+			{
+				Config: testAccRegionInstanceGroupManager_resourcePoliciesWorkloadPolicyUpdate2(suffix),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.igm-workload-policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+		},
+	})
+}
+
+func testAccRegionInstanceGroupManager_resourcePoliciesWorkloadPolicyUpdate(suffix, workloadPolicy string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_resource_policy" "workload_policy" {
+  name   = "tf-test-gce-policy-%s"
+  region = "us-east5"
+  workload_policy {
+    type = "HIGH_THROUGHPUT"
+    accelerator_topology="2x4"
+  }
+}
+
+resource "google_compute_resource_policy" "workload_policy_2" {
+  name   = "tf-test-gce-policy-%s-2"
+  region = "us-east5"
+  workload_policy {
+    type = "HIGH_THROUGHPUT"
+    accelerator_topology="2x4"
+  }
+}
+
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "igm-instance-template-%s"
+  machine_type   = "ct6e-standard-1t"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  scheduling {
+    automatic_restart = true # Corresponds to --restart-on-failure
+    on_host_maintenance = "TERMINATE"
+    provisioning_model = "FLEX_START"
+    max_run_duration {
+      seconds = 3600
+    }
+    instance_termination_action = "DELETE"
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    disk_type    = "hyperdisk-balanced"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "igm-workload-policy" {
+  description = "Terraform test instance group manager"
+  name        = "igm-basic-workload-policy-%s"
+
+  instance_lifecycle_policy {
+    default_action_on_failure = "DO_NOTHING"
+  }
+
+  distribution_policy_zones = ["us-east5-a", "us-east5-b", "us-east5-c"]
+  distribution_policy_target_shape = "ANY_SINGLE_ZONE"
+  target_size_policy {
+      mode = "BULK"
+    }
+  update_policy {
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "REPLACE"
+    instance_redistribution_type = "NONE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 3
+  }
+
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-basic.self_link
+  }
+
+  base_instance_name = "tf-test-igm-no-tp"
+  region             = "us-east5"
+  target_size        = 0
+
+  resource_policies {
+    workload_policy = google_compute_resource_policy.%s.self_link
+  }
+}
+`, suffix, suffix, suffix, suffix, workloadPolicy)
+}
+
+func testAccRegionInstanceGroupManager_resourcePoliciesWorkloadPolicyUpdate2(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "tmpl-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+
+  scheduling {
+    instance_termination_action  = "DELETE"
+    provisioning_model = "FLEX_START"
+    on_host_maintenance = "TERMINATE"
+    max_run_duration {
+      seconds = 900
+    }
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "igm-workload-policy" {
+  description = "Terraform test instance group manager"
+  name        = "igm-basic-workload-policy-%s"
+
+  instance_lifecycle_policy {
+    default_action_on_failure = "DO_NOTHING"
+  }
+
+  distribution_policy_zones = ["us-east5-a", "us-east5-b", "us-east5-c"]
+  distribution_policy_target_shape = "ANY_SINGLE_ZONE"
+  update_policy {
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "REPLACE"
+    instance_redistribution_type = "NONE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 3
+  }
+
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-basic.self_link
+  }
+
+  base_instance_name = "tf-test-igm-no-tp"
+  region             = "us-east5"
+  target_size        = 0
+}
+`, suffix, suffix)
+}

@@ -41,6 +41,7 @@ fields:
     field: 'named_port.port'
   - field: 'project'
   - api_field: 'region'
+  - api_field: 'resourcePolicies.workloadPolicy'
   - api_field: 'selfLink'
   - api_field: 'standbyPolicy.initialDelaySec'
   - api_field: 'standbyPolicy.mode'

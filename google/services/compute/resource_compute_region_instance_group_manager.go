@@ -52,6 +52,7 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderRegion,
+			customdiff.ForceNewIfChange("resource_policies.0.workload_policy", ForceNewResourcePoliciesWorkloadPolicyIfNewIsEmpty),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -623,6 +624,22 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
+			"resource_policies": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Resource policies for this managed instance group.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"workload_policy": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
+							Description:      `The URL of the workload policy that is specified for this managed instance group. It can be a full or partial URL.`,
+						},
+					},
+				},
+			},
 			"target_size_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -686,6 +703,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		AllInstancesConfig:          expandAllInstancesConfig(nil, d.Get("all_instances_config").([]interface{})),
 		DistributionPolicy:          expandDistributionPolicyForCreate(d),
 		StatefulPolicy:              expandStatefulPolicy(d),
+		ResourcePolicies:            expandResourcePolicies(d.Get("resource_policies").([]interface{})),
 		TargetSizePolicy:            expandTargetSizePolicy(d.Get("target_size_policy").([]interface{})),
 		// Force send TargetSize to allow size of 0.
 		ForceSendFields: []string{"TargetSize"},
@@ -903,6 +921,9 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	if err = d.Set("status", flattenStatus(manager.Status)); err != nil {
 		return fmt.Errorf("Error setting status in state: %s", err.Error())
 	}
+	if err = d.Set("resource_policies", flattenResourcePolicies(manager.ResourcePolicies)); err != nil {
+		return fmt.Errorf("Error setting resource_policies in state: %s", err.Error())
+	}
 	if err = d.Set("stateful_internal_ip", flattenStatefulPolicyStatefulInternalIps(d, manager.StatefulPolicy)); err != nil {
 		return fmt.Errorf("Error setting stateful_internal_ip in state: %s", err.Error())
 	}
@@ -1029,6 +1050,11 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("list_managed_instances_results") {
 		updatedManager.ListManagedInstancesResults = d.Get("list_managed_instances_results").(string)
+		change = true
+	}
+
+	if d.HasChange("resource_policies") {
+		updatedManager.ResourcePolicies = expandResourcePolicies(d.Get("resource_policies").([]interface{}))
 		change = true
 	}
 
