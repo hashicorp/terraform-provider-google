@@ -26,6 +26,8 @@ Creates a new Google SQL User on a Google SQL User Instance. For more informatio
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data). Passwords will not be retrieved when running
 "terraform import".
 
+-> **Note:** Write-Only argument `password_wo` is available to use in place of `password`. Write-Only arguments are supported in HashiCorp Terraform 1.11.0 and later. [Learn more](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments).
+
 ## Example Usage
 
 Example creating a SQL User.
@@ -157,6 +159,15 @@ The following arguments are supported:
     or CLOUD_IAM_SERVICE_ACCOUNT. Don't set this field for CLOUD_IAM_USER
     and CLOUD_IAM_SERVICE_ACCOUNT user types for any Cloud SQL instance.
 
+* `password_wo` - (Optional, write-only) The password for the user. Can be updated. For Postgres
+    instances this is a Required field, unless type is set to either CLOUD_IAM_USER
+    or CLOUD_IAM_SERVICE_ACCOUNT. Don't set this field for CLOUD_IAM_USER
+    and CLOUD_IAM_SERVICE_ACCOUNT user types for any Cloud SQL instance.
+
+* ~> **Note:** One of `value` or `value_wo` can only be set.
+
+* `password_wo_version` - (Optional) An integer value used to trigger an update for `password_wo`. This property should be incremented when updating `password_wo`. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes).
+
 * `type` - (Optional) The user type. It determines the method to authenticate the
     user during login. The default is the database's built-in user type. Flags
     include "BUILT_IN", "CLOUD_IAM_USER", "CLOUD_IAM_SERVICE_ACCOUNT", "CLOUD_IAM_GROUP",
@@ -169,8 +180,6 @@ The following arguments are supported:
     for Postgres, where users cannot be deleted from the API if they have been granted SQL roles.
 
     Possible values are: `ABANDON`.
-
-* `password_wo_version` - (Optional) The version of the password_wo. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes).
 
 - - -
 
@@ -207,16 +216,6 @@ The read only `password_policy.status` subblock supports:
 * `locked` - (read only) If true, user does not have login privileges.
 
 * `password_expiration_time` - (read only) Password expiration duration with one week grace period.
-
-## Ephemeral Attributes Reference
-
-The following write-only attributes are supported:
-
-* `password_wo` - (Optional) The password for the user. Can be updated. For Postgres
-    instances this is a Required field, unless type is set to either CLOUD_IAM_USER
-    or CLOUD_IAM_SERVICE_ACCOUNT. Don't set this field for CLOUD_IAM_USER
-    and CLOUD_IAM_SERVICE_ACCOUNT user types for any Cloud SQL instance.
-  **Note**: This property is write-only and will not be read from the API.
 
 ## Attributes Reference
 
