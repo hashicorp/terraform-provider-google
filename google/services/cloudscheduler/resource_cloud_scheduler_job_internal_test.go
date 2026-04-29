@@ -100,6 +100,22 @@ func TestCloudScheduler_FlattenHttpHeaders(t *testing.T) {
 				"My-Header": "my-header-value",
 			},
 		},
+
+		// Authorization header without oidc_token / oauth_token is preserved.
+		// d here is an empty ResourceData, so the flattener has no token
+		// blocks to detect and must leave the user-supplied value alone.
+		// This protects users who legitimately send a literal Authorization
+		// header from regression.
+		{
+			Input: map[string]interface{}{
+				"Authorization": "Bearer user-managed-value",
+				"My-Header":     "my-header-value",
+			},
+			Output: map[string]interface{}{
+				"Authorization": "Bearer user-managed-value",
+				"My-Header":     "my-header-value",
+			},
+		},
 	}
 
 	for _, c := range cases {
@@ -107,6 +123,109 @@ func TestCloudScheduler_FlattenHttpHeaders(t *testing.T) {
 		output := flattenCloudSchedulerJobAppEngineHttpTargetHeaders(c.Input, d, &transport_tpg.Config{})
 		if !reflect.DeepEqual(output, c.Output) {
 			t.Fatalf("Error matching output and expected: %#v vs %#v", output, c.Output)
+		}
+	}
+}
+
+// TestCloudScheduler_FlattenHttpHeaders_AuthorizationStrippedWithOidc verifies
+// the regression fix for headers + oidc_token drift: when an oidc_token block
+// is present on http_target, the Cloud Scheduler API injects an `Authorization`
+// header on read. The flattener must drop it so it does not appear in state
+// and cause a perpetual diff against the user-supplied `headers` map.
+func TestCloudScheduler_FlattenHttpHeaders_AuthorizationStrippedWithOidc(t *testing.T) {
+	cases := map[string]struct {
+		StateOidcCount  int
+		StateOauthCount int
+		Input           map[string]interface{}
+		Output          map[string]interface{}
+	}{
+		"oidc_token set strips Authorization": {
+			StateOidcCount: 1,
+			Input: map[string]interface{}{
+				"Authorization": "Bearer ya29.injected-by-gcp",
+				"My-Header":     "my-header-value",
+			},
+			Output: map[string]interface{}{
+				"My-Header": "my-header-value",
+			},
+		},
+		"oauth_token set strips Authorization": {
+			StateOauthCount: 1,
+			Input: map[string]interface{}{
+				"Authorization": "Bearer ya29.injected-by-gcp",
+				"My-Header":     "my-header-value",
+			},
+			Output: map[string]interface{}{
+				"My-Header": "my-header-value",
+			},
+		},
+		"no token block preserves Authorization": {
+			Input: map[string]interface{}{
+				"Authorization": "Bearer user-managed",
+				"My-Header":     "my-header-value",
+			},
+			Output: map[string]interface{}{
+				"Authorization": "Bearer user-managed",
+				"My-Header":     "my-header-value",
+			},
+		},
+	}
+
+	// Minimal schema mirroring the http_target shape the flattener inspects
+	// via d.Get("http_target.0.oidc_token.#") / oauth_token.
+	schemaMap := map[string]*schema.Schema{
+		"http_target": {
+			Type:     schema.TypeList,
+			Optional: true,
+			MaxItems: 1,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"oidc_token": {
+						Type:     schema.TypeList,
+						Optional: true,
+						MaxItems: 1,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"service_account_email": {Type: schema.TypeString, Required: true},
+							},
+						},
+					},
+					"oauth_token": {
+						Type:     schema.TypeList,
+						Optional: true,
+						MaxItems: 1,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"service_account_email": {Type: schema.TypeString, Required: true},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for tn, tc := range cases {
+		raw := map[string]interface{}{}
+		if tc.StateOidcCount > 0 || tc.StateOauthCount > 0 {
+			ht := map[string]interface{}{}
+			if tc.StateOidcCount > 0 {
+				ht["oidc_token"] = []interface{}{
+					map[string]interface{}{"service_account_email": "sa@example.iam.gserviceaccount.com"},
+				}
+			}
+			if tc.StateOauthCount > 0 {
+				ht["oauth_token"] = []interface{}{
+					map[string]interface{}{"service_account_email": "sa@example.iam.gserviceaccount.com"},
+				}
+			}
+			raw["http_target"] = []interface{}{ht}
+		}
+
+		d := schema.TestResourceDataRaw(t, schemaMap, raw)
+		output := flattenCloudSchedulerJobHttpTargetHeaders(tc.Input, d, &transport_tpg.Config{})
+		if !reflect.DeepEqual(output, tc.Output) {
+			t.Fatalf("%s: got %#v, want %#v", tn, output, tc.Output)
 		}
 	}
 }

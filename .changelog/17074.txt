@@ -1,0 +1,3 @@
+```release-note:bug
+cloudscheduler: fixed perpetual diff on `google_cloud_scheduler_job.http_target.headers` when `oidc_token` or `oauth_token` is set
+```

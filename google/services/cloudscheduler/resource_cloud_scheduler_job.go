@@ -125,6 +125,14 @@ func validateHttpHeaders() schema.SchemaValidateFunc {
 			es = append(es, fmt.Errorf("Cannot set the Content-Length header on %s", k))
 			return
 		}
+		// Warn (don't reject) on Authorization: legitimate use cases exist
+		// when no oidc_token / oauth_token is configured, but combining the
+		// two leads to drift because Cloud Scheduler overwrites the value
+		// server-side. The flattener strips Authorization on read in that
+		// case to keep state consistent.
+		if _, ok := headers["Authorization"]; ok {
+			s = append(s, fmt.Sprintf("Setting the Authorization header on %s is discouraged when http_target.oidc_token or http_target.oauth_token is configured; the API will overwrite it.", k))
+		}
 		r := regexp.MustCompile(`(X-Google-|X-AppEngine-).*`)
 		for key := range headers {
 			if r.MatchString(key) {
@@ -1256,6 +1264,30 @@ func flattenCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d *schema
 			delete(headers, key)
 		}
 	}
+	// The Cloud Scheduler API injects an `Authorization` header on read whenever
+	// `oidc_token` or `oauth_token` is configured on the http_target, even though
+	// it is not part of the user-supplied `headers` map. Leaving it in state
+	// causes perpetual drift against the configuration. Strip it only when one
+	// of the token blocks is set, so users who legitimately send a literal
+	// `Authorization` header (without token auth) are not affected.
+	//
+	// Note: this template is also used for `app_engine_http_target.headers`,
+	// which has no `oidc_token` / `oauth_token` siblings — the d.Get() lookups
+	// below return zero-valued counts in that case, so the Authorization key is
+	// preserved as-is for App Engine targets.
+	if d != nil {
+		oidcSet := false
+		oauthSet := false
+		if v, ok := d.Get("http_target.0.oidc_token.#").(int); ok && v > 0 {
+			oidcSet = true
+		}
+		if v, ok := d.Get("http_target.0.oauth_token.#").(int); ok && v > 0 {
+			oauthSet = true
+		}
+		if oidcSet || oauthSet {
+			delete(headers, "Authorization")
+		}
+	}
 	return headers
 }
 
@@ -1324,6 +1356,30 @@ func flattenCloudSchedulerJobHttpTargetHeaders(v interface{}, d *schema.Resource
 	for key := range headers {
 		if r.MatchString(key) {
 			delete(headers, key)
+		}
+	}
+	// The Cloud Scheduler API injects an `Authorization` header on read whenever
+	// `oidc_token` or `oauth_token` is configured on the http_target, even though
+	// it is not part of the user-supplied `headers` map. Leaving it in state
+	// causes perpetual drift against the configuration. Strip it only when one
+	// of the token blocks is set, so users who legitimately send a literal
+	// `Authorization` header (without token auth) are not affected.
+	//
+	// Note: this template is also used for `app_engine_http_target.headers`,
+	// which has no `oidc_token` / `oauth_token` siblings — the d.Get() lookups
+	// below return zero-valued counts in that case, so the Authorization key is
+	// preserved as-is for App Engine targets.
+	if d != nil {
+		oidcSet := false
+		oauthSet := false
+		if v, ok := d.Get("http_target.0.oidc_token.#").(int); ok && v > 0 {
+			oidcSet = true
+		}
+		if v, ok := d.Get("http_target.0.oauth_token.#").(int); ok && v > 0 {
+			oauthSet = true
+		}
+		if oidcSet || oauthSet {
+			delete(headers, "Authorization")
 		}
 	}
 	return headers
