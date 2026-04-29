@@ -1,0 +1,37 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_contact_center_insights_qa_question
+generation_type: mmv1
+source_file: products/contactcenterinsights/QaQuestion.yaml
+api_service_name: contactcenterinsights.googleapis.com
+api_version: v1
+api_resource_type_kind: QaQuestion
+autogen_status: true
+fields:
+    - api_field: abbreviation
+    - api_field: answerChoices.boolValue
+    - api_field: answerChoices.key
+    - api_field: answerChoices.naValue
+    - api_field: answerChoices.numValue
+    - api_field: answerChoices.score
+    - api_field: answerChoices.strValue
+    - api_field: answerInstructions
+    - api_field: createTime
+    - field: location
+      provider_only: true
+    - api_field: metrics.accuracy
+    - api_field: name
+    - api_field: order
+    - api_field: predefinedQuestionConfig.type
+    - api_field: qaQuestionDataOptions.conversationDataOptions.includeDialogflowInteractionData
+    - field: qa_scorecard
+      provider_only: true
+    - api_field: questionBody
+    - api_field: questionType
+    - field: revision
+      provider_only: true
+    - api_field: tags
+    - api_field: tuningMetadata.datasetValidationWarnings
+    - api_field: tuningMetadata.totalValidLabelCount
+    - api_field: tuningMetadata.tuningError
+    - api_field: updateTime

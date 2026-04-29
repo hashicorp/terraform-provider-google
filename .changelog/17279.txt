@@ -1,0 +1,11 @@
+```release-note:new-resource
+`google_contact_center_insights_qa_scorecard`
+```
+
+```release-note:new-resource
+`google_contact_center_insights_qa_question`
+```
+
+```release-note:new-resource
+`google_contact_center_insights_qa_scorecard_revision`
+```

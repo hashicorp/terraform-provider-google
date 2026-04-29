@@ -1,0 +1,27 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_contact_center_insights_qa_scorecard_revision
+generation_type: mmv1
+source_file: products/contactcenterinsights/QaScorecardRevision.yaml
+api_service_name: contactcenterinsights.googleapis.com
+api_version: v1
+api_resource_type_kind: QaScorecardRevision
+autogen_status: true
+fields:
+    - api_field: alternateIds
+    - api_field: createTime
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: qa_scorecard
+      provider_only: true
+    - field: qa_scorecard_revision_id
+      provider_only: true
+    - api_field: snapshot.createTime
+    - api_field: snapshot.description
+    - api_field: snapshot.displayName
+    - api_field: snapshot.isDefault
+    - api_field: snapshot.name
+    - api_field: snapshot.source
+    - api_field: snapshot.updateTime
+    - api_field: state
