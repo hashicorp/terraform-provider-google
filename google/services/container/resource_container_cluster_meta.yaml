@@ -422,6 +422,8 @@ fields:
     api_field: 'nodePools.name'
   - field: 'node_pool.name_prefix'
     provider_only: true
+  - field: 'node_pool.network_config.accelerator_network_profile'
+    api_field: 'nodePools.networkConfig.acceleratorNetworkProfile'
   - field: 'node_pool.network_config.additional_node_network_configs.network'
     api_field: 'nodePools.networkConfig.additionalNodeNetworkConfigs.network'
   - field: 'node_pool.network_config.additional_node_network_configs.subnetwork'

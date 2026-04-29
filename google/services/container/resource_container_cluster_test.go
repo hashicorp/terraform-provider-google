@@ -15888,6 +15888,89 @@ resource "google_container_cluster" "with_kubelet_config" {
 `, clusterName, networkName, subnetworkName, npName, npName)
 }
 
+func testAccContainerCluster_nodePool_acceleratorNetworkProfile(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name     = "%s"
+  location = "us-central1-c"
+
+  datapath_provider       = "ADVANCED_DATAPATH"
+  ip_allocation_policy    {}
+  deletion_protection = false
+  
+  node_pool {
+    name       = "anp-pool"
+    initial_node_count = 0
+
+	// Flex start
+    queued_provisioning {
+      enabled = true
+    }
+	autoscaling {
+      min_node_count = 0
+      max_node_count = 1
+    }
+    node_config {
+      machine_type = "a3-edgegpu-8g"
+      guest_accelerator {
+        type  = "nvidia-h100-80gb"
+        count = 8
+        gpu_driver_installation_config {
+          gpu_driver_version = "LATEST"
+        }
+      }
+
+      // Disable Reservations for Flex Start
+      reservation_affinity {
+        consume_reservation_type = "NO_RESERVATION"
+      }
+      ephemeral_storage_local_ssd_config {
+        local_ssd_count = 16
+      }
+      oauth_scopes = [ "https://www.googleapis.com/auth/cloud-platform" ]
+    }
+
+    network_config {
+      accelerator_network_profile = "auto"
+    }
+  }
+}
+`, clusterName)
+}
+
+func TestAccContainerCluster_nodePool_acceleratorNetworkProfile(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	resourceName := "google_container_cluster.primary"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_nodePool_acceleratorNetworkProfile(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", clusterName),
+					resource.TestCheckResourceAttr(resourceName, "node_pool.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "node_pool.0.name", "anp-pool"),
+					resource.TestCheckResourceAttr(resourceName, "node_pool.0.node_config.0.machine_type", "a3-edgegpu-8g"),
+					resource.TestCheckResourceAttr(resourceName, "node_pool.0.network_config.0.accelerator_network_profile", "auto"),
+					resource.TestCheckResourceAttrSet(resourceName, "node_pool.0.network_config.0.additional_node_network_configs.0.network"),
+					resource.TestCheckResourceAttrSet(resourceName, "node_pool.0.network_config.0.additional_node_network_configs.0.subnetwork"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"terraform_labels", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withClusterBootDisk(t *testing.T) {
 	t.Parallel()
 

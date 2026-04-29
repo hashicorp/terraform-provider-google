@@ -214,6 +214,7 @@ func ResourceContainerNodePool() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 			resourceNodeConfigEmptyGuestAccelerator,
+			nodePoolAcceleratorNetworkProfileCustomizeDiff,
 		),
 
 		UseJSONNumber: true,
@@ -530,7 +531,12 @@ var schemaNodePool = map[string]*schema.Schema{
 		Description: `Networking configuration for this NodePool. If specified, it overrides the cluster-level defaults.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-
+				"accelerator_network_profile": {
+					Type:        schema.TypeString,
+					Description: "The accelerator network profile to use for this node pool.",
+					Optional:    true,
+					ForceNew:    true,
+				},
 				"create_pod_range": {
 					Type:        schema.TypeBool,
 					Optional:    true,
@@ -1451,6 +1457,7 @@ func flattenNodeNetworkConfig(c *container.NodeNetworkConfig, d *schema.Resource
 			"additional_node_network_configs": flattenAdditionalNodeNetworkConfig(c.AdditionalNodeNetworkConfigs),
 			"additional_pod_network_configs":  flattenAdditionalPodNetworkConfig(c.AdditionalPodNetworkConfigs),
 			"subnetwork":                      c.Subnetwork,
+			"accelerator_network_profile":     c.AcceleratorNetworkProfile,
 		})
 	}
 	return result
@@ -1564,6 +1571,9 @@ func expandNodeNetworkConfig(v interface{}) *container.NodeNetworkConfig {
 		if total_egress_bandwidth_tier, ok := network_performance_config["total_egress_bandwidth_tier"]; ok {
 			nnc.NetworkPerformanceConfig.TotalEgressBandwidthTier = total_egress_bandwidth_tier.(string)
 		}
+	}
+	if v, ok := networkNodeConfig["accelerator_network_profile"]; ok {
+		nnc.AcceleratorNetworkProfile = v.(string)
 	}
 
 	// Allow user to set the top-level node-pool subnetwork via network_config.subnetwork
@@ -1972,6 +1982,88 @@ func retryWhileIncompatibleOperation(timeout time.Duration, lockKey string, f fu
 		}
 		return nil
 	})
+}
+
+func nodePoolAcceleratorNetworkProfileCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta any) error {
+	log.Printf("[DEBUG] ANP CustomizeDiff: Running...")
+
+	// 1. SKIP ON CREATE
+	if diff.Id() == "" {
+		return nil
+	}
+
+	// 2. DETECT USER CONFIG
+	userHasAdditionalConfigs := false
+	rawConfig := diff.GetRawConfig()
+	rawNetworkConfig := rawConfig.GetAttr("network_config")
+
+	if !rawNetworkConfig.IsNull() {
+		if rawNetworkConfig.Type().IsCollectionType() {
+			it := rawNetworkConfig.ElementIterator()
+			for it.Next() {
+				_, val := it.Element()
+				userConfig := val.GetAttr("additional_node_network_configs")
+				if !userConfig.IsNull() && userConfig.LengthInt() > 0 {
+					userHasAdditionalConfigs = true
+					break
+				}
+			}
+		}
+	}
+
+	// 3. LOGIC CHECK
+	shouldClear := false
+
+	oldProfile, newProfile := diff.GetChange("network_config.0.accelerator_network_profile")
+	anpIsActive := newProfile.(string) != ""
+	anpIsChanging := oldProfile.(string) != newProfile.(string)
+
+	if !userHasAdditionalConfigs {
+		if anpIsActive && anpIsChanging {
+			shouldClear = true
+		}
+		if !anpIsActive {
+			shouldClear = true
+		}
+	}
+
+	// Check the OLD state to avoid "Plan Not Empty" on defaults
+	currentCount := 0
+	if c, ok := diff.Get("network_config.0.additional_node_network_configs.#").(int); ok {
+		currentCount = c
+	}
+
+	if shouldClear && currentCount == 0 {
+		shouldClear = false
+	}
+
+	// 4. EXECUTE THE FIX
+	if shouldClear {
+		var newConfigMap map[string]interface{}
+		existingConfigs := diff.Get("network_config").([]interface{})
+
+		if len(existingConfigs) > 0 && existingConfigs[0] != nil {
+			currentMap := existingConfigs[0].(map[string]interface{})
+			newConfigMap = make(map[string]interface{})
+			for k, v := range currentMap {
+				newConfigMap[k] = v
+			}
+		} else {
+			newConfigMap = make(map[string]interface{})
+		}
+
+		newConfigMap["additional_node_network_configs"] = []interface{}{}
+		if !anpIsActive {
+			newConfigMap["accelerator_network_profile"] = ""
+		}
+
+		err := diff.SetNew("network_config", []interface{}{newConfigMap})
+		if err != nil {
+			return fmt.Errorf("Error updating network_config: %s", err)
+		}
+	}
+
+	return nil
 }
 
 func init() {

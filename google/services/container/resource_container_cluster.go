@@ -249,6 +249,7 @@ func ResourceContainerCluster() *schema.Resource {
 			containerClusterEnableK8sBetaApisCustomizeDiff,
 			containerClusterNodeVersionCustomizeDiff,
 			tpgresource.SetDiffForLabelsWithCustomizedName("resource_labels"),
+			clusterAcceleratorNetworkProfileCustomizeDiff,
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -8116,6 +8117,159 @@ func containerClusterNodeVersionCustomizeDiffFunc(diff tpgresource.TerraformReso
 
 	if masterVersion != nodeVersion {
 		return fmt.Errorf("Resource argument node_version (value: %s) must either be unset or set to the same value as min_master_version (value: %s) on create.", newValueNode, newValueMaster)
+	}
+
+	return nil
+}
+
+func clusterAcceleratorNetworkProfileCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta any) error {
+	// 1. SKIP ON CREATE
+	if diff.Id() == "" {
+		return nil
+	}
+
+	// 2. PREPARE TO UPDATE THE FULL LIST
+	oldNodePools := diff.Get("node_pool").([]interface{})
+	newNodePools := make([]interface{}, len(oldNodePools))
+	listChanged := false
+
+	// We need Raw Config to check what the user actually wrote
+	rawConfig := diff.GetRawConfig()
+	rawNodePools := rawConfig.GetAttr("node_pool")
+
+	// 3. ITERATE OVER ALL POOLS IN STATE
+	for i, np := range oldNodePools {
+		// Deep copy the node pool map
+		npMap := np.(map[string]interface{})
+		newNpMap := make(map[string]interface{})
+		for k, v := range npMap {
+			newNpMap[k] = v
+		}
+
+		// Check if this specific node pool is actually defined in the Raw Config (Inline).
+		// If it is not in Raw Config, it is a Standalone resource (or API generated).
+		// We must not touch Standalone resources from the Cluster resource.
+		isInline := false
+		currentName := npMap["name"].(string)
+
+		// Iterate over Raw Config to find a match by name
+		if !rawNodePools.IsNull() && rawNodePools.Type().IsCollectionType() {
+			it := rawNodePools.ElementIterator()
+			for it.Next() {
+				_, val := it.Element()
+				rawNameVal := val.GetAttr("name")
+				if !rawNameVal.IsNull() && rawNameVal.AsString() == currentName {
+					isInline = true
+					break
+				}
+			}
+		}
+
+		// If this is NOT an inline pool, copy it as-is and skip logic.
+		if !isInline {
+			newNodePools[i] = newNpMap
+			continue
+		}
+
+		// A. DETECT USER CONFIG (Raw Config Check for this specific pool)
+		userHasAdditionalConfigs := false
+
+		// Re-find the specific raw block for logic checking
+		if !rawNodePools.IsNull() {
+			it := rawNodePools.ElementIterator()
+			for it.Next() {
+				_, val := it.Element()
+				rawNameVal := val.GetAttr("name")
+				if !rawNameVal.IsNull() && rawNameVal.AsString() == currentName {
+					// We found the matching raw block, now check its network config
+					rawNc := val.GetAttr("network_config")
+					if !rawNc.IsNull() && rawNc.Type().IsCollectionType() {
+						ncIt := rawNc.ElementIterator()
+						for ncIt.Next() {
+							_, ncVal := ncIt.Element()
+							userConfig := ncVal.GetAttr("additional_node_network_configs")
+							if !userConfig.IsNull() && userConfig.LengthInt() > 0 {
+								userHasAdditionalConfigs = true
+							}
+						}
+					}
+					break
+				}
+			}
+		}
+
+		// B. CHECK TRANSITION LOGIC
+		shouldClear := false
+		basePath := fmt.Sprintf("node_pool.%d", i)
+		networkConfigPath := basePath + ".network_config.0"
+
+		oldProfile, newProfile := diff.GetChange(networkConfigPath + ".accelerator_network_profile")
+
+		newProfileStr := ""
+		if newProfile != nil {
+			newProfileStr = newProfile.(string)
+		}
+		oldProfileStr := ""
+		if oldProfile != nil {
+			oldProfileStr = oldProfile.(string)
+		}
+
+		anpIsActive := newProfileStr != ""
+		anpIsChanging := oldProfileStr != newProfileStr
+
+		if !userHasAdditionalConfigs {
+			if anpIsActive && anpIsChanging {
+				shouldClear = true
+			}
+			if !anpIsActive {
+				shouldClear = true
+			}
+		}
+
+		// Check if additional configs currently exist to avoid no-op
+		currentCount := 0
+		if c, ok := diff.Get(networkConfigPath + ".additional_node_network_configs.#").(int); ok {
+			currentCount = c
+		}
+		if shouldClear && currentCount == 0 {
+			shouldClear = false
+		}
+
+		// C. APPLY FIX TO THE MAP
+		if shouldClear {
+			log.Printf("[DEBUG] Cluster ANP CustomizeDiff: Clearing additional configs for INLINE pool %s", currentName)
+
+			var newConfigMap map[string]interface{}
+
+			if ncList, ok := newNpMap["network_config"].([]interface{}); ok && len(ncList) > 0 {
+				if existingMap, ok := ncList[0].(map[string]interface{}); ok {
+					newConfigMap = make(map[string]interface{})
+					for k, v := range existingMap {
+						newConfigMap[k] = v
+					}
+				}
+			}
+
+			if newConfigMap == nil {
+				newConfigMap = make(map[string]interface{})
+			}
+
+			newConfigMap["additional_node_network_configs"] = []interface{}{}
+
+			if !anpIsActive {
+				newConfigMap["accelerator_network_profile"] = ""
+			}
+
+			newNpMap["network_config"] = []interface{}{newConfigMap}
+			listChanged = true
+		}
+
+		newNodePools[i] = newNpMap
+	}
+
+	// 4. WRITE THE FULL LIST BACK
+	if listChanged {
+		return diff.SetNew("node_pool", newNodePools)
 	}
 
 	return nil
