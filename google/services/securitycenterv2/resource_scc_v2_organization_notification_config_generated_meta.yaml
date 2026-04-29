@@ -6,6 +6,8 @@ source_file: products/securitycenterv2/OrganizationNotificationConfig.yaml
 api_service_name: securitycenter.googleapis.com
 api_version: v2
 api_resource_type_kind: NotificationConfig
+cai_asset_name_formats:
+    - //securitycenter.googleapis.com/organizations/{{organization}}/locations/{{location}}/notificationConfigs/{{config_id}}
 api_variant_patterns:
     - organizations/{organization}/locations/{location}/notificationConfigs/{notificationConfig}
 fields:
