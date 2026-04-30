@@ -81,6 +81,7 @@ func testSweepFolder(region string) error {
 				continue
 			}
 			log.Printf("[INFO][SWEEPER_LOG] Sweeping Folder id: %s, name: %s", folder.Name, folder.DisplayName)
+			cleanupFolderContent(config, folder.Name)
 			_, err := config.NewResourceManagerV3Client(config.UserAgent).Folders.Delete(folder.Name).Do()
 			if err != nil {
 				if isCapabilityError(err) {
@@ -205,5 +206,60 @@ func disableCapability(folderName string) {
 
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error for disabling Capability operation: %s, err: %s", capName, err)
+	}
+}
+
+func cleanupFolderContent(config *transport_tpg.Config, folderName string) {
+	log.Printf("[INFO][SWEEPER_LOG] Cleaning up content of folder %s", folderName)
+
+	folderId := strings.TrimPrefix(folderName, "folders/")
+
+	// 1. Delete projects in folder
+	pSvc := config.NewResourceManagerClient(config.UserAgent)
+	fSvc := config.NewResourceManagerV3Client(config.UserAgent)
+	projectFilter := fmt.Sprintf("parent.id:%s -lifecycleState:DELETE_REQUESTED", folderId)
+
+	token := ""
+	for paginate := true; paginate; {
+		found, err := pSvc.Projects.List().Filter(projectFilter).PageToken(token).Do()
+		if err != nil {
+			log.Printf("[INFO][SWEEPER_LOG] error listing projects in folder %s: %s", folderName, err)
+			break
+		}
+		for _, project := range found.Projects {
+			log.Printf("[INFO][SWEEPER_LOG] Deleting project %s in folder %s", project.ProjectId, folderName)
+
+			// Cleanup liens before deleting project
+			cleanupLiens(fSvc, "projects/"+project.ProjectId)
+
+			_, err := pSvc.Projects.Delete(project.ProjectId).Do()
+			if err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error deleting project %s: %s", project.ProjectId, err)
+			}
+		}
+		token = found.NextPageToken
+		paginate = token != ""
+	}
+
+	// 2. Delete sub-folders
+	fToken := ""
+	for fPaginate := true; fPaginate; {
+		found, err := fSvc.Folders.List().Parent(folderName).PageToken(fToken).Do()
+		if err != nil {
+			log.Printf("[INFO][SWEEPER_LOG] error listing sub-folders in %s: %s", folderName, err)
+			break
+		}
+		for _, sf := range found.Folders {
+			log.Printf("[INFO][SWEEPER_LOG] Recursively cleaning up sub-folder %s", sf.Name)
+			cleanupFolderContent(config, sf.Name) // Recursive call to clean content
+
+			log.Printf("[INFO][SWEEPER_LOG] Deleting sub-folder %s", sf.Name)
+			_, err := fSvc.Folders.Delete(sf.Name).Do()
+			if err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error deleting sub-folder %s: %s", sf.Name, err)
+			}
+		}
+		fToken = found.NextPageToken
+		fPaginate = fToken != ""
 	}
 }
