@@ -26,8 +26,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-
-	"google.golang.org/api/compute/v1"
 )
 
 func DataSourceGoogleComputeImage() *schema.Resource {
@@ -148,29 +146,68 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	var image *compute.Image
+	var image map[string]interface{}
 	if v, ok := d.GetOk("name"); ok {
 		log.Printf("[DEBUG] Fetching image %s", v.(string))
-		image, err = NewClient(config, userAgent).Images.Get(project, v.(string)).Do()
+		url, urlErr := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}")
+		if urlErr != nil {
+			return urlErr
+		}
+		image, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
 		log.Printf("[DEBUG] Fetched image %s", v.(string))
 	} else if v, ok := d.GetOk("family"); ok {
 		log.Printf("[DEBUG] Fetching latest non-deprecated image from family %s", v.(string))
-		image, err = NewClient(config, userAgent).Images.GetFromFamily(project, v.(string)).Do()
+		url, urlErr := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/family/{{family}}")
+		if urlErr != nil {
+			return urlErr
+		}
+		image, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
 		log.Printf("[DEBUG] Fetched latest non-deprecated image from family %s", v.(string))
 	} else if v, ok := d.GetOk("filter"); ok {
-		images, err := NewClient(config, userAgent).Images.List(project).Filter(v.(string)).Do()
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images")
+		if err != nil {
+			return fmt.Errorf("error constructing images list URL: %s", err)
+		}
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"filter": v.(string)})
+		if err != nil {
+			return fmt.Errorf("error adding filter query param: %s", err)
+		}
+		imagesResp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
 		if err != nil {
 			return fmt.Errorf("error retrieving list of images: %s", err)
 		}
 
-		if len(images.Items) == 1 {
-			for _, im := range images.Items {
+		items, _ := imagesResp["items"].([]interface{})
+		if len(items) == 1 {
+			if im, ok := items[0].(map[string]interface{}); ok {
 				image = im
 			}
-		} else if mr, ok := d.GetOk("most_recent"); len(images.Items) >= 1 && ok && mr.(bool) {
+		} else if mr, ok := d.GetOk("most_recent"); len(items) >= 1 && ok && mr.(bool) {
 			most_recent := time.UnixMicro(0)
-			for _, im := range images.Items {
-				parsedTS, err := time.Parse(time.RFC3339, im.CreationTimestamp)
+			for _, raw := range items {
+				im, ok := raw.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				parsedTS, err := time.Parse(time.RFC3339, im["creationTimestamp"].(string))
 				if err != nil {
 					return fmt.Errorf("error parsing creation timestamp: %w", err)
 				}
@@ -193,66 +230,78 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 
 	var ieks256, sdeks256 string
 
-	if image.SourceDiskEncryptionKey != nil {
-		sdeks256 = image.SourceDiskEncryptionKey.Sha256
+	if sdek, ok := image["sourceDiskEncryptionKey"].(map[string]interface{}); ok {
+		sdeks256, _ = sdek["sha256"].(string)
 	}
 
-	if image.ImageEncryptionKey != nil {
-		ieks256 = image.ImageEncryptionKey.Sha256
+	if iek, ok := image["imageEncryptionKey"].(map[string]interface{}); ok {
+		ieks256, _ = iek["sha256"].(string)
 	}
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("name", image.Name); err != nil {
+	if err := d.Set("name", image["name"]); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if err := d.Set("family", image.Family); err != nil {
+	if err := d.Set("family", image["family"]); err != nil {
 		return fmt.Errorf("Error setting family: %s", err)
 	}
-	if err := d.Set("archive_size_bytes", image.ArchiveSizeBytes); err != nil {
-		return fmt.Errorf("Error setting archive_size_bytes: %s", err)
+	if v, ok := image["archiveSizeBytes"].(string); ok {
+		archiveSizeBytes, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return fmt.Errorf("Error parsing archive_size_bytes: %s", err)
+		}
+		if err := d.Set("archive_size_bytes", archiveSizeBytes); err != nil {
+			return fmt.Errorf("Error setting archive_size_bytes: %s", err)
+		}
 	}
-	if err := d.Set("creation_timestamp", image.CreationTimestamp); err != nil {
+	if err := d.Set("creation_timestamp", image["creationTimestamp"]); err != nil {
 		return fmt.Errorf("Error setting creation_timestamp: %s", err)
 	}
-	if err := d.Set("description", image.Description); err != nil {
+	if err := d.Set("description", image["description"]); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
-	if err := d.Set("disk_size_gb", image.DiskSizeGb); err != nil {
-		return fmt.Errorf("Error setting disk_size_gb: %s", err)
+	if v, ok := image["diskSizeGb"].(string); ok {
+		diskSizeGb, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return fmt.Errorf("Error parsing disk_size_gb: %s", err)
+		}
+		if err := d.Set("disk_size_gb", diskSizeGb); err != nil {
+			return fmt.Errorf("Error setting disk_size_gb: %s", err)
+		}
 	}
-	if err := d.Set("image_id", strconv.FormatUint(image.Id, 10)); err != nil {
+	if err := d.Set("image_id", image["id"]); err != nil {
 		return fmt.Errorf("Error setting image_id: %s", err)
 	}
 	if err := d.Set("image_encryption_key_sha256", ieks256); err != nil {
 		return fmt.Errorf("Error setting image_encryption_key_sha256: %s", err)
 	}
-	if err := d.Set("label_fingerprint", image.LabelFingerprint); err != nil {
+	if err := d.Set("label_fingerprint", image["labelFingerprint"]); err != nil {
 		return fmt.Errorf("Error setting label_fingerprint: %s", err)
 	}
-	if err := d.Set("labels", image.Labels); err != nil {
+	if err := d.Set("labels", image["labels"]); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
 	}
-	if err := d.Set("licenses", image.Licenses); err != nil {
+	if err := d.Set("licenses", image["licenses"]); err != nil {
 		return fmt.Errorf("Error setting licenses: %s", err)
 	}
-	if err := d.Set("self_link", image.SelfLink); err != nil {
+	if err := d.Set("self_link", image["selfLink"]); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
-	if err := d.Set("source_disk", image.SourceDisk); err != nil {
+	if err := d.Set("source_disk", image["sourceDisk"]); err != nil {
 		return fmt.Errorf("Error setting source_disk: %s", err)
 	}
 	if err := d.Set("source_disk_encryption_key_sha256", sdeks256); err != nil {
 		return fmt.Errorf("Error setting source_disk_encryption_key_sha256: %s", err)
 	}
-	if err := d.Set("source_disk_id", image.SourceDiskId); err != nil {
+	if err := d.Set("source_disk_id", image["sourceDiskId"]); err != nil {
 		return fmt.Errorf("Error setting source_disk_id: %s", err)
 	}
-	if err := d.Set("source_image_id", image.SourceImageId); err != nil {
+	if err := d.Set("source_image_id", image["sourceImageId"]); err != nil {
 		return fmt.Errorf("Error setting source_image_id: %s", err)
 	}
-	if err := d.Set("status", image.Status); err != nil {
+	if err := d.Set("status", image["status"]); err != nil {
 		return fmt.Errorf("Error setting status: %s", err)
 	}
 
