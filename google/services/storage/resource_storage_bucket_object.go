@@ -32,7 +32,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"crypto/sha256"
 	"encoding/base64"
@@ -52,6 +51,7 @@ func ResourceStorageBucketObject() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			resourceStorageBucketObjectCustomizeDiff,
 			validateContexts,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -368,12 +368,9 @@ func ResourceStorageBucketObject() *schema.Resource {
 				Description: `A url reference to download this object.`,
 			},
 
-			"deletion_policy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Description:  `The deletion policy for the object. Setting ABANDON allows the resource to be abandoned rather than deleted when removed from your Terraform configuration.`,
-				ValidateFunc: validation.StringInSlice([]string{"ABANDON"}, false),
-			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -481,6 +478,11 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceStorageBucketObjectUpdate(d *schema.ResourceData, meta interface{}) error {
+	//UDP update shortcircuit start
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceStorageBucketObject) {
+		return ResourceStorageBucketObject().Read(d, meta)
+	}
+	//UDP update shortcircuit end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -637,6 +639,11 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("contexts", flattenContexts(d, res.Contexts)); err != nil {
 		return fmt.Errorf("Error reading Contexts: %s", err)
 	}
+	//UDP default read start
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+	//UDP default read end
 
 	d.SetId(objectGetID(res))
 
@@ -644,6 +651,13 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{}) error {
+	//UDP pre-delete start
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+	//UDP pre-delete end
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

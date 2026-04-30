@@ -175,10 +175,15 @@ The following arguments are supported:
 
 * `gc_rules` - (Optional) Serialized JSON object to represent a more complex GC policy. Conflicts with `mode`, `max_age` and `max_version`. Conflicts with `mode`, `max_age` and `max_version`.
 
-* `deletion_policy` - (Optional) The deletion policy for the GC policy.
-    Setting ABANDON allows the resource to be abandoned rather than deleted. This is useful for GC policy as it cannot be deleted in a replicated instance.
+* `deletion_policy` - (Optional) The deletion policy for the GC policy. Setting ABANDON allows the resource
+    to be abandoned rather than deleted. This is useful for GC policy as it cannot be deleted
+    in a replicated instance.
+    
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "DELETE" or "", deleting the resource is allowed.
 
-    Possible values are: `ABANDON`.
+    Possible values: PREVENT, ABANDON, DELETE.
 
 * `ignore_warnings` - (Optional) Boolean for whether to allow ignoring warnings when updating the gc policy.
     Setting this to `true` allows relaxing the gc policy for replicated clusters by up to 90 days, but keep in mind this may increase how long clusters are inconsistent. Make sure
