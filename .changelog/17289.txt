@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_ces_evaluation` (beta)
+```
+
+```release-note:enhancement
+ces: switched to the v1beta API for Customer Engagement Suite resources (beta)
+```
