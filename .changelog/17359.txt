@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed `ignore_auto_generated_schema` evaluation for `google_bigquery_table` external tables which caused spurious replacement
+```

@@ -614,6 +614,27 @@ func resourceBigQueryTableSchemaCustomizeDiffFunc(d tpgresource.TerraformResourc
 			}
 		}
 
+		if ignore, ok := d.Get("ignore_auto_generated_schema").(bool); ok && ignore {
+			oldSchemaObj, err1 := expandSchema(oldSchemaText, false)
+			newSchemaObj, err2 := expandSchema(newSchemaText, false)
+			if err1 == nil && err2 == nil && oldSchemaObj != nil && newSchemaObj != nil {
+				filteredOldSchema, autogenFields := filterLiveSchemaByConfig(oldSchemaObj, newSchemaObj)
+				if len(autogenFields) > 0 {
+					filteredOldJsonStr, err := flattenSchema(filteredOldSchema)
+					if err == nil {
+						if bigQueryTableSchemaDiffSuppress("schema", filteredOldJsonStr, newSchemaText, nil) {
+							// Suppress diff by setting new to old in diff
+							if err := d.SetNew("schema", oldSchemaText); err != nil {
+								return err
+							}
+							// Update local variable so reflect.DeepEqual returns true
+							new = old
+						}
+					}
+				}
+			}
+		}
+
 		// no is schema changeable check needed, if new schema is old schema
 		if reflect.DeepEqual(old, new) {
 			return nil
