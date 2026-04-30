@@ -355,3 +355,7 @@ func (p *FrameworkProvider) ListResources(_ context.Context) []func() list.ListR
 	listResources = append(listResources, handwrittenListResources...)
 	return listResources
 }
+
+func (p *FrameworkProvider) GenerateResourceConfig(context.Context, any) (any, error) {
+	return nil, nil
+}
