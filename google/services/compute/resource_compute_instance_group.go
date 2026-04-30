@@ -618,6 +618,17 @@ func resourceComputeInstanceGroupImportState(d *schema.ResourceData, meta interf
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenNamedPorts(namedPorts []*compute.NamedPort) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(namedPorts))
+	for _, namedPort := range namedPorts {
+		result = append(result, map[string]interface{}{
+			"name": namedPort.Name,
+			"port": namedPort.Port,
+		})
+	}
+	return result
+}
+
 func init() {
 	registry.Schema{
 		Name:        "google_compute_instance_group",
