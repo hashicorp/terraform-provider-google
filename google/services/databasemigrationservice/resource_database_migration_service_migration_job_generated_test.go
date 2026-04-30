@@ -337,6 +337,160 @@ resource "google_database_migration_service_migration_job" "psqltopsql" {
 `, context)
 }
 
+func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrationJobPostgresToPostgresObjectsExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"destination_cp":    "tf-test-destination-cp" + randomSuffix,
+		"destination_csql":  "tf-test-destination-csql" + randomSuffix,
+		"migration_id":      "tf-test-my-migrationid" + randomSuffix,
+		"source_cp":         "tf-test-source-cp" + randomSuffix,
+		"source_csql":       "tf-test-source-csql" + randomSuffix,
+		"source_sqldb_cert": "cert" + randomSuffix,
+		"source_sqldb_pass": "password" + randomSuffix,
+		"source_sqldb_user": "username" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatabaseMigrationServiceMigrationJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrationJobPostgresToPostgresObjectsExample(context),
+			},
+			{
+				ResourceName:            "google_database_migration_service_migration_job.psqltopsqlobjects",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_database_migration_service_migration_job.psqltopsqlobjects",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrationJobPostgresToPostgresObjectsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+resource "google_sql_database_instance" "source_csql" {
+  name             = "%{source_csql}"
+  database_version = "POSTGRES_15"
+  settings {
+    tier = "db-custom-2-13312"
+    deletion_protection_enabled = false
+  }
+  deletion_protection = false
+}
+
+resource "google_sql_ssl_cert" "source_sql_client_cert" {
+  common_name = "%{source_sqldb_cert}"
+  instance    = google_sql_database_instance.source_csql.name
+
+  depends_on = [google_sql_database_instance.source_csql]
+}
+
+resource "google_sql_user" "source_sqldb_user" {
+  name     = "%{source_sqldb_user}"
+  instance = google_sql_database_instance.source_csql.name
+  password = "%{source_sqldb_pass}"
+
+  depends_on = [google_sql_ssl_cert.source_sql_client_cert]
+}
+
+resource "google_database_migration_service_connection_profile" "source_cp" {
+  location              = "us-central1"
+  connection_profile_id = "%{source_cp}"
+  display_name          = "%{source_cp}_display"
+  labels = {
+    foo = "bar"
+  }
+  postgresql {
+    host     = google_sql_database_instance.source_csql.ip_address.0.ip_address
+    port     = 3306
+    username = google_sql_user.source_sqldb_user.name
+    password = google_sql_user.source_sqldb_user.password
+    ssl {
+      client_key         = google_sql_ssl_cert.source_sql_client_cert.private_key
+      client_certificate = google_sql_ssl_cert.source_sql_client_cert.cert
+      ca_certificate     = google_sql_ssl_cert.source_sql_client_cert.server_ca_cert
+      type = "SERVER_CLIENT"
+    }
+    cloud_sql_id = "%{source_csql}"
+  }
+
+  depends_on = [google_sql_user.source_sqldb_user]
+}
+
+resource "google_sql_database_instance" "destination_csql" {
+  name             = "%{destination_csql}"
+  database_version = "POSTGRES_15"
+  settings {
+    tier = "db-custom-2-13312"
+    deletion_protection_enabled = false
+  }
+  deletion_protection = false
+}
+
+resource "google_database_migration_service_connection_profile" "destination_cp" {
+  location              = "us-central1"
+  connection_profile_id = "%{destination_cp}"
+  display_name          = "%{destination_cp}_display"
+  labels = {
+    foo = "bar"
+  }
+  postgresql {
+    cloud_sql_id = "%{destination_csql}"
+  }
+  depends_on = [google_sql_database_instance.destination_csql]
+}
+
+resource "google_database_migration_service_migration_job" "psqltopsqlobjects" {
+  location         = "us-central1"
+  migration_job_id = "%{migration_id}"
+  display_name     = "%{migration_id}_display"
+  labels = {
+    foo = "bar"
+  }
+  static_ip_connectivity {
+  }
+  source      = google_database_migration_service_connection_profile.source_cp.name
+  destination = google_database_migration_service_connection_profile.destination_cp.name
+  type        = "CONTINUOUS"
+
+  objects_config {
+    source_objects_config {
+      objects_selection_type = "SPECIFIED_OBJECTS"
+      object_configs {
+        object_identifier {
+          type     = "DATABASE"
+          database = "my_database"
+        }
+      }
+      object_configs {
+        object_identifier {
+          type     = "TABLE"
+          database = "my_other_database"
+          schema   = "public"
+          table    = "users"
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
 func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrationJobPostgresToAlloydbExample(t *testing.T) {
 	t.Parallel()
 

@@ -246,6 +246,124 @@ resource "google_database_migration_service_migration_job" "psqltopsql" {
 
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=database_migration_service_migration_job_postgres_to_postgres_objects&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Database Migration Service Migration Job Postgres To Postgres Objects
+
+
+```hcl
+data "google_project" "project" {
+}
+
+resource "google_sql_database_instance" "source_csql" {
+  name             = "source-csql"
+  database_version = "POSTGRES_15"
+  settings {
+    tier = "db-custom-2-13312"
+    deletion_protection_enabled = false
+  }
+  deletion_protection = false
+}
+
+resource "google_sql_ssl_cert" "source_sql_client_cert" {
+  common_name = "cert"
+  instance    = google_sql_database_instance.source_csql.name
+
+  depends_on = [google_sql_database_instance.source_csql]
+}
+
+resource "google_sql_user" "source_sqldb_user" {
+  name     = "username"
+  instance = google_sql_database_instance.source_csql.name
+  password = "password"
+
+  depends_on = [google_sql_ssl_cert.source_sql_client_cert]
+}
+
+resource "google_database_migration_service_connection_profile" "source_cp" {
+  location              = "us-central1"
+  connection_profile_id = "source-cp"
+  display_name          = "source-cp_display"
+  labels = {
+    foo = "bar"
+  }
+  postgresql {
+    host     = google_sql_database_instance.source_csql.ip_address.0.ip_address
+    port     = 3306
+    username = google_sql_user.source_sqldb_user.name
+    password = google_sql_user.source_sqldb_user.password
+    ssl {
+      client_key         = google_sql_ssl_cert.source_sql_client_cert.private_key
+      client_certificate = google_sql_ssl_cert.source_sql_client_cert.cert
+      ca_certificate     = google_sql_ssl_cert.source_sql_client_cert.server_ca_cert
+      type = "SERVER_CLIENT"
+    }
+    cloud_sql_id = "source-csql"
+  }
+
+  depends_on = [google_sql_user.source_sqldb_user]
+}
+
+resource "google_sql_database_instance" "destination_csql" {
+  name             = "destination-csql"
+  database_version = "POSTGRES_15"
+  settings {
+    tier = "db-custom-2-13312"
+    deletion_protection_enabled = false
+  }
+  deletion_protection = false
+}
+
+resource "google_database_migration_service_connection_profile" "destination_cp" {
+  location              = "us-central1"
+  connection_profile_id = "destination-cp"
+  display_name          = "destination-cp_display"
+  labels = {
+    foo = "bar"
+  }
+  postgresql {
+    cloud_sql_id = "destination-csql"
+  }
+  depends_on = [google_sql_database_instance.destination_csql]
+}
+
+resource "google_database_migration_service_migration_job" "psqltopsqlobjects" {
+  location         = "us-central1"
+  migration_job_id = "my-migrationid"
+  display_name     = "my-migrationid_display"
+  labels = {
+    foo = "bar"
+  }
+  static_ip_connectivity {
+  }
+  source      = google_database_migration_service_connection_profile.source_cp.name
+  destination = google_database_migration_service_connection_profile.destination_cp.name
+  type        = "CONTINUOUS"
+
+  objects_config {
+    source_objects_config {
+      objects_selection_type = "SPECIFIED_OBJECTS"
+      object_configs {
+        object_identifier {
+          type     = "DATABASE"
+          database = "my_database"
+        }
+      }
+      object_configs {
+        object_identifier {
+          type     = "TABLE"
+          database = "my_other_database"
+          schema   = "public"
+          table    = "users"
+        }
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=database_migration_service_migration_job_postgres_to_alloydb&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -451,6 +569,12 @@ The following arguments are supported:
   The details of the VPC network that the source database is located in.
   Structure is [documented below](#nested_vpc_peering_connectivity).
 
+* `objects_config` -
+  (Optional)
+  The objects that need to be migrated. If unset, the default is to migrate
+  all objects available on the source.
+  Structure is [documented below](#nested_objects_config).
+
 * `location` -
   (Optional)
   The location where the migration job should reside.
@@ -511,6 +635,62 @@ The following arguments are supported:
 * `vpc` -
   (Optional)
   The name of the VPC network to peer with the Cloud SQL private network.
+
+<a name="nested_objects_config"></a>The `objects_config` block supports:
+
+* `source_objects_config` -
+  (Optional)
+  Configuration for the source objects to be migrated.
+  Structure is [documented below](#nested_objects_config_source_objects_config).
+
+
+<a name="nested_objects_config_source_objects_config"></a>The `source_objects_config` block supports:
+
+* `objects_selection_type` -
+  (Optional)
+  The objects selection type of the migration job. When set to
+  `SPECIFIED_OBJECTS`, only the objects listed in `objectConfigs` are
+  migrated. When set to `ALL_OBJECTS`, all objects available on the
+  source are migrated.
+  Possible values are: `ALL_OBJECTS`, `SPECIFIED_OBJECTS`.
+
+* `object_configs` -
+  (Optional)
+  The list of objects to migrate. Should only be set when
+  `objectsSelectionType` is `SPECIFIED_OBJECTS`.
+  Structure is [documented below](#nested_objects_config_source_objects_config_object_configs).
+
+
+<a name="nested_objects_config_source_objects_config_object_configs"></a>The `object_configs` block supports:
+
+* `object_identifier` -
+  (Optional)
+  The identifier of the migration job object.
+  Structure is [documented below](#nested_objects_config_source_objects_config_object_configs_object_identifier).
+
+
+<a name="nested_objects_config_source_objects_config_object_configs_object_identifier"></a>The `object_identifier` block supports:
+
+* `type` -
+  (Required)
+  The category of the migration job object: `DATABASE`,
+  `SCHEMA`, or `TABLE`.
+  Possible values are: `DATABASE`, `SCHEMA`, `TABLE`.
+
+* `database` -
+  (Optional)
+  The database name. Required only if the object uses
+  a database name as part of its unique identifier.
+
+* `schema` -
+  (Optional)
+  The schema name. Required only if the object uses
+  a schema name as part of its unique identifier.
+
+* `table` -
+  (Optional)
+  The table name. Required only if the object is a level
+  below database or schema.
 
 ## Attributes Reference
 

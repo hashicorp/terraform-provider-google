@@ -25,6 +25,11 @@ fields:
     - field: migration_job_id
       provider_only: true
     - api_field: name
+    - api_field: objectsConfig.sourceObjectsConfig.objectConfigs.objectIdentifier.database
+    - api_field: objectsConfig.sourceObjectsConfig.objectConfigs.objectIdentifier.schema
+    - api_field: objectsConfig.sourceObjectsConfig.objectConfigs.objectIdentifier.table
+    - api_field: objectsConfig.sourceObjectsConfig.objectConfigs.objectIdentifier.type
+    - api_field: objectsConfig.sourceObjectsConfig.objectsSelectionType
     - api_field: performanceConfig.dumpParallelLevel
     - api_field: phase
     - api_field: reverseSshConnectivity.vm

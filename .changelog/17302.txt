@@ -1,0 +1,3 @@
+```release-note:enhancement
+databasemigrationservice: added `objects_config` field to `google_database_migration_service_migration_job` resource
+```

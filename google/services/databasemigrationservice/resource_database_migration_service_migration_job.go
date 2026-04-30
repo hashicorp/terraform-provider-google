@@ -231,6 +231,93 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				ForceNew:    true,
 				Description: `The location where the migration job should reside.`,
 			},
+			"objects_config": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The objects that need to be migrated. If unset, the default is to migrate
+all objects available on the source.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"source_objects_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Configuration for the source objects to be migrated.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"object_configs": {
+										Type:     schema.TypeList,
+										Optional: true,
+										ForceNew: true,
+										Description: `The list of objects to migrate. Should only be set when
+'objectsSelectionType' is 'SPECIFIED_OBJECTS'.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"object_identifier": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													ForceNew:    true,
+													Description: `The identifier of the migration job object.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"type": {
+																Type:         schema.TypeString,
+																Required:     true,
+																ForceNew:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"DATABASE", "SCHEMA", "TABLE"}),
+																Description: `The category of the migration job object: 'DATABASE',
+'SCHEMA', or 'TABLE'. Possible values: ["DATABASE", "SCHEMA", "TABLE"]`,
+															},
+															"database": {
+																Type:     schema.TypeString,
+																Optional: true,
+																ForceNew: true,
+																Description: `The database name. Required only if the object uses
+a database name as part of its unique identifier.`,
+															},
+															"schema": {
+																Type:     schema.TypeString,
+																Optional: true,
+																ForceNew: true,
+																Description: `The schema name. Required only if the object uses
+a schema name as part of its unique identifier.`,
+															},
+															"table": {
+																Type:     schema.TypeString,
+																Optional: true,
+																ForceNew: true,
+																Description: `The table name. Required only if the object is a level
+below database or schema.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"objects_selection_type": {
+										Type:         schema.TypeString,
+										Computed:     true,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"ALL_OBJECTS", "SPECIFIED_OBJECTS", ""}),
+										Description: `The objects selection type of the migration job. When set to
+'SPECIFIED_OBJECTS', only the objects listed in 'objectConfigs' are
+migrated. When set to 'ALL_OBJECTS', all objects available on the
+source are migrated. Possible values: ["ALL_OBJECTS", "SPECIFIED_OBJECTS"]`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"performance_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -454,6 +541,12 @@ func resourceDatabaseMigrationServiceMigrationJobCreate(d *schema.ResourceData, 
 		return err
 	} else if v, ok := d.GetOkExists("vpc_peering_connectivity"); !tpgresource.IsEmptyValue(reflect.ValueOf(vpcPeeringConnectivityProp)) && (ok || !reflect.DeepEqual(v, vpcPeeringConnectivityProp)) {
 		obj["vpcPeeringConnectivity"] = vpcPeeringConnectivityProp
+	}
+	objectsConfigProp, err := expandDatabaseMigrationServiceMigrationJobObjectsConfig(d.Get("objects_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("objects_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(objectsConfigProp)) && (ok || !reflect.DeepEqual(v, objectsConfigProp)) {
+		obj["objectsConfig"] = objectsConfigProp
 	}
 	effectiveLabelsProp, err := expandDatabaseMigrationServiceMigrationJobEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1117,6 +1210,91 @@ func flattenDatabaseMigrationServiceMigrationJobVpcPeeringConnectivityVpc(v inte
 	return v
 }
 
+func flattenDatabaseMigrationServiceMigrationJobObjectsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["source_objects_config"] =
+		flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfig(original["sourceObjectsConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["objects_selection_type"] =
+		flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectsSelectionType(original["objectsSelectionType"], d, config)
+	transformed["object_configs"] =
+		flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigs(original["objectConfigs"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectsSelectionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"object_identifier": flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifier(original["objectIdentifier"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["type"] =
+		flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierType(original["type"], d, config)
+	transformed["database"] =
+		flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierDatabase(original["database"], d, config)
+	transformed["schema"] =
+		flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierSchema(original["schema"], d, config)
+	transformed["table"] =
+		flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierTable(original["table"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierDatabase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDatabaseMigrationServiceMigrationJobTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1351,6 +1529,145 @@ func expandDatabaseMigrationServiceMigrationJobVpcPeeringConnectivityVpc(v inter
 	return v, nil
 }
 
+func expandDatabaseMigrationServiceMigrationJobObjectsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSourceObjectsConfig, err := expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfig(original["source_objects_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceObjectsConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceObjectsConfig"] = transformedSourceObjectsConfig
+	}
+
+	return transformed, nil
+}
+
+func expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedObjectsSelectionType, err := expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectsSelectionType(original["objects_selection_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedObjectsSelectionType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["objectsSelectionType"] = transformedObjectsSelectionType
+	}
+
+	transformedObjectConfigs, err := expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigs(original["object_configs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedObjectConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["objectConfigs"] = transformedObjectConfigs
+	}
+
+	return transformed, nil
+}
+
+func expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectsSelectionType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedObjectIdentifier, err := expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifier(original["object_identifier"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedObjectIdentifier); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["objectIdentifier"] = transformedObjectIdentifier
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedType, err := expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
+	transformedDatabase, err := expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierDatabase(original["database"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDatabase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["database"] = transformedDatabase
+	}
+
+	transformedSchema, err := expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierSchema(original["schema"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["schema"] = transformedSchema
+	}
+
+	transformedTable, err := expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierTable(original["table"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["table"] = transformedTable
+	}
+
+	return transformed, nil
+}
+
+func expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierDatabase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatabaseMigrationServiceMigrationJobObjectsConfigSourceObjectsConfigObjectConfigsObjectIdentifierTable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDatabaseMigrationServiceMigrationJobEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1414,6 +1731,9 @@ func ResourceDatabaseMigrationServiceMigrationJobFlatten(d *schema.ResourceData,
 		return fmt.Errorf("Error reading MigrationJob: %s", err)
 	}
 	if err = d.Set("vpc_peering_connectivity", flattenDatabaseMigrationServiceMigrationJobVpcPeeringConnectivity(res["vpcPeeringConnectivity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MigrationJob: %s", err)
+	}
+	if err = d.Set("objects_config", flattenDatabaseMigrationServiceMigrationJobObjectsConfig(res["objectsConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MigrationJob: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenDatabaseMigrationServiceMigrationJobTerraformLabels(res["labels"], d, config)); err != nil {
