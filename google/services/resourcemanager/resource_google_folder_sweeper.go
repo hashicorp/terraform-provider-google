@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -96,7 +97,7 @@ func testSweepFolder(region string) error {
 
 					// 3. Handle Liens on Management Project
 					if folder.ManagementProject != "" {
-						cleanupLiens(svc, folder.ManagementProject)
+						cleanupLiens(svc, folder.ManagementProject, config)
 					}
 
 					// 4. Disable configured capability
@@ -145,7 +146,7 @@ func isCapabilityError(err error) bool {
 	return false
 }
 
-func cleanupLiens(svc *resourceManagerV3.Service, project string) {
+func cleanupLiens(svc *resourceManagerV3.Service, project string, config *transport_tpg.Config) {
 	log.Printf("[INFO][SWEEPER_LOG]Checking liens on %s...\n", project)
 	resp, err := svc.Liens.List().Parent(project).Do()
 	if err != nil {
@@ -153,6 +154,15 @@ func cleanupLiens(svc *resourceManagerV3.Service, project string) {
 		return
 	}
 	for _, l := range resp.Liens {
+		if l.Origin == "xpn.googleapis.com" {
+			log.Printf("[INFO][SWEEPER_LOG] Found XPN lien on %s. Disabling XPN host...", project)
+			projectId := strings.TrimPrefix(project, "projects/")
+			_, err := tpgcompute.NewClient(config, config.UserAgent).Projects.DisableXpnHost(projectId).Do()
+			if err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error disabling XPN host for %s: %s", projectId, err)
+			}
+		}
+
 		log.Printf("[INFO][SWEEPER_LOG]Deleting lien: %s\n", l.Name)
 		_, err = svc.Liens.Delete(l.Name).Do()
 
@@ -230,7 +240,7 @@ func cleanupFolderContent(config *transport_tpg.Config, folderName string) {
 			log.Printf("[INFO][SWEEPER_LOG] Deleting project %s in folder %s", project.ProjectId, folderName)
 
 			// Cleanup liens before deleting project
-			cleanupLiens(fSvc, "projects/"+project.ProjectId)
+			cleanupLiens(fSvc, "projects/"+project.ProjectId, config)
 
 			_, err := pSvc.Projects.Delete(project.ProjectId).Do()
 			if err != nil {
