@@ -164,11 +164,14 @@ The following arguments are supported:
     [Postgres](https://cloud.google.com/sql/docs/postgres/admin-api/rest/v1beta4/users#sqlusertype)
     and [MySQL](https://cloud.google.com/sql/docs/mysql/admin-api/rest/v1beta4/users#sqlusertype).
 
-* `deletion_policy` - (Optional) The deletion policy for the user.
-    Setting `ABANDON` allows the resource to be abandoned rather than deleted. This is useful
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "ABANDON", the command will remove the resource from Terraform
+    management without updating or deleting the resource in the API. This is useful
     for Postgres, where users cannot be deleted from the API if they have been granted SQL roles.
 
-    Possible values are: `ABANDON`.
+    When set to "DELETE", deleting the resource is allowed.
 
 * `password_wo_version` - (Optional) The version of the password_wo. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes).
 
