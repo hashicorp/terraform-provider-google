@@ -221,6 +221,26 @@ Note that only MACHINE commitments should have a Type specified. Possible values
 					},
 				},
 			},
+			"params": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Additional params passed with the request, but not persisted as part of resource payload`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"resource_manager_tags": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							ForceNew: true,
+							Description: `Resource manager tags to be bound to the commitment. Tag keys and values have the
+same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+and values are in the format tagValues/456.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -380,6 +400,12 @@ func resourceComputeRegionCommitmentCreate(d *schema.ResourceData, meta interfac
 		return err
 	} else if v, ok := d.GetOkExists("existing_reservations"); !tpgresource.IsEmptyValue(reflect.ValueOf(existingReservationsProp)) && (ok || !reflect.DeepEqual(v, existingReservationsProp)) {
 		obj["existingReservations"] = existingReservationsProp
+	}
+	paramsProp, err := expandComputeRegionCommitmentParams(d.Get("params"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("params"); !tpgresource.IsEmptyValue(reflect.ValueOf(paramsProp)) && (ok || !reflect.DeepEqual(v, paramsProp)) {
+		obj["params"] = paramsProp
 	}
 	regionProp, err := expandComputeRegionCommitmentRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -829,6 +855,39 @@ func expandComputeRegionCommitmentAutoRenew(v interface{}, d tpgresource.Terrafo
 
 func expandComputeRegionCommitmentExistingReservations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandComputeRegionCommitmentParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedResourceManagerTags, err := expandComputeRegionCommitmentParamsResourceManagerTags(original["resource_manager_tags"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResourceManagerTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resourceManagerTags"] = transformedResourceManagerTags
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionCommitmentParamsResourceManagerTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandComputeRegionCommitmentRegion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

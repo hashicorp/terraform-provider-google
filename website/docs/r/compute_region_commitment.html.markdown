@@ -70,6 +70,21 @@ resource "google_compute_region_commitment" "foobar" {
       type = "MEMORY"
       amount = "9"
   }
+  params {
+    resource_manager_tags = {
+      (google_tags_tag_key.tag_key.id) = (google_tags_tag_value.tag_value.id)
+    }
+  }
+}
+
+resource "google_tags_tag_key" "tag_key" {
+  parent     = "organizations/ORG_ID"
+  short_name = "tagkey"
+}
+
+resource "google_tags_tag_value" "tag_value" {
+  parent     = google_tags_tag_key.tag_key.id
+  short_name = "tagvalue"
 }
 ```
 
@@ -135,6 +150,11 @@ The following arguments are supported:
   (Optional)
   Specifies the already existing reservations to attach to the Commitment.
 
+* `params` -
+  (Optional)
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `region` -
   (Optional)
   URL of the region where this commitment may be used.
@@ -175,6 +195,14 @@ The following arguments are supported:
 * `cores_per_license` -
   (Optional)
   Specifies the core range of the instance for which this license applies.
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the commitment. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456.
 
 ## Attributes Reference
 

@@ -19,6 +19,7 @@ fields:
     - api_field: licenseResource.coresPerLicense
     - api_field: licenseResource.license
     - api_field: name
+    - api_field: params.resourceManagerTags
     - api_field: plan
     - api_field: region
     - api_field: resources.acceleratorType
