@@ -70,7 +70,7 @@ func (v TargetExecutionConfigsUsagesEnum) Validate() error {
 		// Empty enum is okay.
 		return nil
 	}
-	for _, s := range []string{"EXECUTION_ENVIRONMENT_USAGE_UNSPECIFIED", "RENDER", "DEPLOY"} {
+	for _, s := range []string{"EXECUTION_ENVIRONMENT_USAGE_UNSPECIFIED", "RENDER", "DEPLOY", "ANALYSIS"} {
 		if string(v) == s {
 			return nil
 		}
@@ -183,6 +183,19 @@ func (r *TargetAnthosCluster) HashCode() string {
 	return fmt.Sprintf("%x", hash)
 }
 
+type TargetExecutionConfigsDefaultPool struct {
+	empty           bool    `json:"-"`
+	ServiceAccount  *string `json:"serviceAccount"`
+	ArtifactStorage *string `json:"artifactStorage"`
+}
+
+type TargetExecutionConfigsPrivatePool struct {
+	empty           bool    `json:"-"`
+	WorkerPool      *string `json:"workerPool"`
+	ServiceAccount  *string `json:"serviceAccount"`
+	ArtifactStorage *string `json:"artifactStorage"`
+}
+
 type TargetExecutionConfigs struct {
 	empty            bool                               `json:"-"`
 	Usages           []TargetExecutionConfigsUsagesEnum `json:"usages"`
@@ -191,6 +204,8 @@ type TargetExecutionConfigs struct {
 	ArtifactStorage  *string                            `json:"artifactStorage"`
 	ExecutionTimeout *string                            `json:"executionTimeout"`
 	Verbose          *bool                              `json:"verbose"`
+	DefaultPool      *TargetExecutionConfigsDefaultPool `json:"defaultPool"`
+	PrivatePool      *TargetExecutionConfigsPrivatePool `json:"privatePool"`
 }
 
 type jsonTargetExecutionConfigs TargetExecutionConfigs
@@ -219,6 +234,10 @@ func (r *TargetExecutionConfigs) UnmarshalJSON(data []byte) error {
 		r.ExecutionTimeout = res.ExecutionTimeout
 
 		r.Verbose = res.Verbose
+
+		r.DefaultPool = res.DefaultPool
+
+		r.PrivatePool = res.PrivatePool
 
 	}
 	return nil

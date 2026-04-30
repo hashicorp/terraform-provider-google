@@ -2957,8 +2957,66 @@ func flattenTargetExecutionConfigsSlice(c *Client, i interface{}, res *Target) [
 	return items
 }
 
-// expandTargetExecutionConfigs expands an instance of TargetExecutionConfigs into a JSON
-// request object.
+func expandTargetExecutionConfigsDefaultPool(c *Client, f *TargetExecutionConfigsDefaultPool, res *Target) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+	m := make(map[string]interface{})
+	if v := f.ServiceAccount; !dcl.IsEmptyValueIndirect(v) {
+		m["serviceAccount"] = v
+	}
+	if v := f.ArtifactStorage; !dcl.IsEmptyValueIndirect(v) {
+		m["artifactStorage"] = v
+	}
+	return m, nil
+}
+
+func flattenTargetExecutionConfigsDefaultPool(c *Client, i interface{}, res *Target) *TargetExecutionConfigsDefaultPool {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	r := &TargetExecutionConfigsDefaultPool{}
+	if dcl.IsEmptyValueIndirect(i) {
+		return nil
+	}
+	r.ServiceAccount = dcl.FlattenString(m["serviceAccount"])
+	r.ArtifactStorage = dcl.FlattenString(m["artifactStorage"])
+	return r
+}
+
+func expandTargetExecutionConfigsPrivatePool(c *Client, f *TargetExecutionConfigsPrivatePool, res *Target) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+	m := make(map[string]interface{})
+	if v := f.WorkerPool; !dcl.IsEmptyValueIndirect(v) {
+		m["workerPool"] = v
+	}
+	if v := f.ServiceAccount; !dcl.IsEmptyValueIndirect(v) {
+		m["serviceAccount"] = v
+	}
+	if v := f.ArtifactStorage; !dcl.IsEmptyValueIndirect(v) {
+		m["artifactStorage"] = v
+	}
+	return m, nil
+}
+
+func flattenTargetExecutionConfigsPrivatePool(c *Client, i interface{}, res *Target) *TargetExecutionConfigsPrivatePool {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	r := &TargetExecutionConfigsPrivatePool{}
+	if dcl.IsEmptyValueIndirect(i) {
+		return nil
+	}
+	r.WorkerPool = dcl.FlattenString(m["workerPool"])
+	r.ServiceAccount = dcl.FlattenString(m["serviceAccount"])
+	r.ArtifactStorage = dcl.FlattenString(m["artifactStorage"])
+	return r
+}
+
 func expandTargetExecutionConfigs(c *Client, f *TargetExecutionConfigs, res *Target) (map[string]interface{}, error) {
 	if f == nil {
 		return nil, nil
@@ -2983,12 +3041,20 @@ func expandTargetExecutionConfigs(c *Client, f *TargetExecutionConfigs, res *Tar
 	if v := f.Verbose; !dcl.IsEmptyValueIndirect(v) {
 		m["verbose"] = v
 	}
+	if v, err := expandTargetExecutionConfigsDefaultPool(c, f.DefaultPool, res); err != nil {
+		return nil, fmt.Errorf("error expanding DefaultPool into defaultPool: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["defaultPool"] = v
+	}
+	if v, err := expandTargetExecutionConfigsPrivatePool(c, f.PrivatePool, res); err != nil {
+		return nil, fmt.Errorf("error expanding PrivatePool into privatePool: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["privatePool"] = v
+	}
 
 	return m, nil
 }
 
-// flattenTargetExecutionConfigs flattens an instance of TargetExecutionConfigs from a JSON
-// response object.
 func flattenTargetExecutionConfigs(c *Client, i interface{}, res *Target) *TargetExecutionConfigs {
 	m, ok := i.(map[string]interface{})
 	if !ok {
@@ -3006,6 +3072,8 @@ func flattenTargetExecutionConfigs(c *Client, i interface{}, res *Target) *Targe
 	r.ArtifactStorage = dcl.FlattenString(m["artifactStorage"])
 	r.ExecutionTimeout = dcl.FlattenString(m["executionTimeout"])
 	r.Verbose = dcl.FlattenBool(m["verbose"])
+	r.DefaultPool = flattenTargetExecutionConfigsDefaultPool(c, m["defaultPool"], res)
+	r.PrivatePool = flattenTargetExecutionConfigsPrivatePool(c, m["privatePool"], res)
 
 	return r
 }

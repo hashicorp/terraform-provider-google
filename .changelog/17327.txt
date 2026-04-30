@@ -1,0 +1,8 @@
+```release-note:enhancement
+clouddeploy: added `tasks` and `analysis` fields to `google_clouddeploy_delivery_pipeline` resource
+```
+
+
+```release-note:enhancement
+clouddeploy: added `default_pool` and `private_pool` fields to `google_clouddeploy_target` resource
+```

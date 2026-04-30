@@ -199,10 +199,12 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategy) HashCode() string {
 }
 
 type DeliveryPipelineSerialPipelineStagesStrategyStandard struct {
-	empty      bool                                                            `json:"-"`
-	Verify     *bool                                                           `json:"verify"`
-	Predeploy  *DeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy  `json:"predeploy"`
-	Postdeploy *DeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy `json:"postdeploy"`
+	empty        bool                                                              `json:"-"`
+	Verify       *bool                                                             `json:"verify"`
+	Predeploy    *DeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy    `json:"predeploy"`
+	Postdeploy   *DeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy   `json:"postdeploy"`
+	VerifyConfig *DeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig `json:"verifyConfig"`
+	Analysis     *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis     `json:"analysis"`
 }
 
 type jsonDeliveryPipelineSerialPipelineStagesStrategyStandard DeliveryPipelineSerialPipelineStagesStrategyStandard
@@ -225,6 +227,10 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyStandard) UnmarshalJSON(dat
 		r.Predeploy = res.Predeploy
 
 		r.Postdeploy = res.Postdeploy
+
+		r.VerifyConfig = res.VerifyConfig
+
+		r.Analysis = res.Analysis
 
 	}
 	return nil
@@ -251,8 +257,9 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyStandard) HashCode() string
 }
 
 type DeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy struct {
-	empty   bool     `json:"-"`
-	Actions []string `json:"actions"`
+	empty   bool                   `json:"-"`
+	Actions []string               `json:"actions"`
+	Tasks   []DeliveryPipelineTask `json:"tasks"`
 }
 
 type jsonDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy DeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy
@@ -271,6 +278,8 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy) Unmarsha
 	} else {
 
 		r.Actions = res.Actions
+
+		r.Tasks = res.Tasks
 
 	}
 	return nil
@@ -297,8 +306,9 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy) HashCode
 }
 
 type DeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy struct {
-	empty   bool     `json:"-"`
-	Actions []string `json:"actions"`
+	empty   bool                   `json:"-"`
+	Actions []string               `json:"actions"`
+	Tasks   []DeliveryPipelineTask `json:"tasks"`
 }
 
 type jsonDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy DeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy
@@ -317,6 +327,8 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy) Unmarsh
 	} else {
 
 		r.Actions = res.Actions
+
+		r.Tasks = res.Tasks
 
 	}
 	return nil
@@ -340,6 +352,50 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy) HashCod
 	// Hash resource body for easy comparison later
 	hash := sha256.Sum256([]byte(r.String()))
 	return fmt.Sprintf("%x", hash)
+}
+
+type DeliveryPipelineTask struct {
+	empty     bool                       `json:"-"`
+	Container *DeliveryPipelineContainer `json:"container"`
+}
+
+type DeliveryPipelineContainer struct {
+	empty   bool              `json:"-"`
+	Image   *string           `json:"image"`
+	Command []string          `json:"command"`
+	Args    []string          `json:"args"`
+	Env     map[string]string `json:"env"`
+}
+
+type DeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig struct {
+	empty bool                   `json:"-"`
+	Tasks []DeliveryPipelineTask `json:"tasks"`
+}
+
+type DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis struct {
+	empty        bool                                                                       `json:"-"`
+	Duration     *string                                                                    `json:"duration"`
+	GoogleCloud  *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisGoogleCloud   `json:"googleCloud"`
+	CustomChecks []DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks `json:"customChecks"`
+}
+
+type DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisGoogleCloud struct {
+	empty             bool                                                                           `json:"-"`
+	AlertPolicyChecks []DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck `json:"alertPolicyChecks"`
+}
+
+type DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck struct {
+	empty         bool              `json:"-"`
+	Id            *string           `json:"id"`
+	AlertPolicies []string          `json:"alertPolicies"`
+	Labels        map[string]string `json:"labels"`
+}
+
+type DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks struct {
+	empty     bool                  `json:"-"`
+	Id        *string               `json:"id"`
+	Frequency *string               `json:"frequency"`
+	Task      *DeliveryPipelineTask `json:"task"`
 }
 
 type DeliveryPipelineSerialPipelineStagesStrategyCanary struct {
@@ -716,11 +772,13 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigCloudRun
 }
 
 type DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeployment struct {
-	empty       bool                                                                          `json:"-"`
-	Percentages []int64                                                                       `json:"percentages"`
-	Verify      *bool                                                                         `json:"verify"`
-	Predeploy   *DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy  `json:"predeploy"`
-	Postdeploy  *DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy `json:"postdeploy"`
+	empty        bool                                                                          `json:"-"`
+	Percentages  []int64                                                                       `json:"percentages"`
+	Verify       *bool                                                                         `json:"verify"`
+	Predeploy    *DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy  `json:"predeploy"`
+	Postdeploy   *DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy `json:"postdeploy"`
+	VerifyConfig *DeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig             `json:"verifyConfig"`
+	Analysis     *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis                 `json:"analysis"`
 }
 
 type jsonDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeployment DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeployment
@@ -745,6 +803,10 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeployment) Unm
 		r.Predeploy = res.Predeploy
 
 		r.Postdeploy = res.Postdeploy
+
+		r.VerifyConfig = res.VerifyConfig
+
+		r.Analysis = res.Analysis
 
 	}
 	return nil
@@ -771,8 +833,9 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeployment) Has
 }
 
 type DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy struct {
-	empty   bool     `json:"-"`
-	Actions []string `json:"actions"`
+	empty   bool                   `json:"-"`
+	Actions []string               `json:"actions"`
+	Tasks   []DeliveryPipelineTask `json:"tasks"`
 }
 
 type jsonDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy
@@ -817,8 +880,9 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPrede
 }
 
 type DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy struct {
-	empty   bool     `json:"-"`
-	Actions []string `json:"actions"`
+	empty   bool                   `json:"-"`
+	Actions []string               `json:"actions"`
+	Tasks   []DeliveryPipelineTask `json:"tasks"`
 }
 
 type jsonDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy
@@ -909,13 +973,15 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymen
 }
 
 type DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigs struct {
-	empty      bool                                                                                            `json:"-"`
-	PhaseId    *string                                                                                         `json:"phaseId"`
-	Percentage *int64                                                                                          `json:"percentage"`
-	Profiles   []string                                                                                        `json:"profiles"`
-	Verify     *bool                                                                                           `json:"verify"`
-	Predeploy  *DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy  `json:"predeploy"`
-	Postdeploy *DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy `json:"postdeploy"`
+	empty        bool                                                                                            `json:"-"`
+	PhaseId      *string                                                                                         `json:"phaseId"`
+	Percentage   *int64                                                                                          `json:"percentage"`
+	Profiles     []string                                                                                        `json:"profiles"`
+	Verify       *bool                                                                                           `json:"verify"`
+	Predeploy    *DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy  `json:"predeploy"`
+	Postdeploy   *DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy `json:"postdeploy"`
+	VerifyConfig *DeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig                               `json:"verifyConfig"`
+	Analysis     *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis                                   `json:"analysis"`
 }
 
 type jsonDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigs DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigs
@@ -945,6 +1011,10 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymen
 
 		r.Postdeploy = res.Postdeploy
 
+		r.VerifyConfig = res.VerifyConfig
+
+		r.Analysis = res.Analysis
+
 	}
 	return nil
 }
@@ -970,8 +1040,9 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymen
 }
 
 type DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy struct {
-	empty   bool     `json:"-"`
-	Actions []string `json:"actions"`
+	empty   bool                   `json:"-"`
+	Actions []string               `json:"actions"`
+	Tasks   []DeliveryPipelineTask `json:"tasks"`
 }
 
 type jsonDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy
@@ -1016,8 +1087,9 @@ func (r *DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymen
 }
 
 type DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy struct {
-	empty   bool     `json:"-"`
-	Actions []string `json:"actions"`
+	empty   bool                   `json:"-"`
+	Actions []string               `json:"actions"`
+	Tasks   []DeliveryPipelineTask `json:"tasks"`
 }
 
 type jsonDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy

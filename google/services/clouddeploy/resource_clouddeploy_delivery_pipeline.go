@@ -315,6 +315,22 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeployme
 				Optional:    true,
 				Description: "Whether to run verify tests after each percentage deployment.",
 			},
+
+			"verify_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the verify job.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfigSchema(),
+			},
+
+			"analysis": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the analysis job.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisSchema(),
+			},
 		},
 	}
 }
@@ -400,6 +416,22 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDe
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Whether to run verify tests after the deployment.",
+			},
+
+			"verify_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the verify job.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfigSchema(),
+			},
+
+			"analysis": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the analysis job.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisSchema(),
 			},
 		},
 	}
@@ -631,6 +663,22 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardSchema() *sc
 				Optional:    true,
 				Description: "Whether to verify a deployment.",
 			},
+
+			"verify_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the verify job.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfigSchema(),
+			},
+
+			"analysis": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the analysis job.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisSchema(),
+			},
 		},
 	}
 }
@@ -644,6 +692,12 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploySc
 				Description: "Optional. A sequence of skaffold custom actions to invoke during execution of the postdeploy job.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"tasks": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. The tasks that will run as a part of the postdeploy job. Only one of `actions` or `tasks` can be specified.",
+				Elem:        ClouddeployDeliveryPipelineTaskSchema(),
+			},
 		},
 	}
 }
@@ -656,6 +710,164 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploySch
 				Optional:    true,
 				Description: "Optional. A sequence of skaffold custom actions to invoke during execution of the predeploy job.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"tasks": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. The tasks that will run as a part of the predeploy job. Only one of `actions` or `tasks` can be specified.",
+				Elem:        ClouddeployDeliveryPipelineTaskSchema(),
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineTaskSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"container": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. This task is represented by a container that is executed in the Cloud Build execution environment.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineTaskContainerSchema(),
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineTaskContainerSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"image": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Image is the container image to use.",
+			},
+
+			"command": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Command is the container entrypoint to use. This overrides the default entrypoint defined in the container image.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"args": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Args is the container arguments to use. This overrides the default arguments defined in the container image.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"env": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Optional. Environment variables that are set in the container.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"tasks": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. The tasks that will run as a part of the verify job.",
+				Elem:        ClouddeployDeliveryPipelineTaskSchema(),
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"duration": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Duration of the analysis.",
+			},
+
+			"google_cloud": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Google Cloud specific analysis configuration.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisGoogleCloudSchema(),
+			},
+
+			"custom_checks": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Custom checks to perform during analysis.",
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecksSchema(),
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisGoogleCloudSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"alert_policy_checks": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Alert policy checks to perform.",
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheckSchema(),
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheckSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Unique identifier for the alert policy check.",
+			},
+
+			"alert_policies": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: "Required. The list of alert policy names to check. Format: `projects/{project}/alertPolicies/{alert_policy}`.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Optional. Labels to filter the alert policies.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecksSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Unique identifier for the custom check.",
+			},
+
+			"frequency": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Optional. Frequency of the custom check.",
+			},
+
+			"task": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. The task to run for the custom check.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineTaskSchema(),
 			},
 		},
 	}
@@ -1221,10 +1433,12 @@ func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDe
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeployment{
-		Percentages: tpgdclresource.ExpandIntegerArray(obj["percentages"]),
-		Postdeploy:  expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy(obj["postdeploy"]),
-		Predeploy:   expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy(obj["predeploy"]),
-		Verify:      dcl.Bool(obj["verify"].(bool)),
+		Percentages:  tpgdclresource.ExpandIntegerArray(obj["percentages"]),
+		Postdeploy:   expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy(obj["postdeploy"]),
+		Predeploy:    expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy(obj["predeploy"]),
+		Verify:       dcl.Bool(obj["verify"].(bool)),
+		VerifyConfig: expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig(obj["verify_config"]),
+		Analysis:     expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis(obj["analysis"]),
 	}
 }
 
@@ -1233,10 +1447,12 @@ func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryD
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"percentages": obj.Percentages,
-		"postdeploy":  flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy(obj.Postdeploy),
-		"predeploy":   flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy(obj.Predeploy),
-		"verify":      obj.Verify,
+		"percentages":   obj.Percentages,
+		"postdeploy":    flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy(obj.Postdeploy),
+		"predeploy":     flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy(obj.Predeploy),
+		"verify":        obj.Verify,
+		"verify_config": flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig(obj.VerifyConfig),
+		"analysis":      flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis(obj.Analysis),
 	}
 
 	return []interface{}{transformed}
@@ -1346,12 +1562,14 @@ func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCa
 
 	obj := o.(map[string]interface{})
 	return &DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigs{
-		Percentage: dcl.Int64(int64(obj["percentage"].(int))),
-		PhaseId:    dcl.String(obj["phase_id"].(string)),
-		Postdeploy: expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy(obj["postdeploy"]),
-		Predeploy:  expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy(obj["predeploy"]),
-		Profiles:   tpgdclresource.ExpandStringArray(obj["profiles"]),
-		Verify:     dcl.Bool(obj["verify"].(bool)),
+		Percentage:   dcl.Int64(int64(obj["percentage"].(int))),
+		PhaseId:      dcl.String(obj["phase_id"].(string)),
+		Postdeploy:   expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy(obj["postdeploy"]),
+		Predeploy:    expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy(obj["predeploy"]),
+		Profiles:     tpgdclresource.ExpandStringArray(obj["profiles"]),
+		Verify:       dcl.Bool(obj["verify"].(bool)),
+		VerifyConfig: expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig(obj["verify_config"]),
+		Analysis:     expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis(obj["analysis"]),
 	}
 }
 
@@ -1374,12 +1592,14 @@ func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomC
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"percentage": obj.Percentage,
-		"phase_id":   obj.PhaseId,
-		"postdeploy": flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy(obj.Postdeploy),
-		"predeploy":  flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy(obj.Predeploy),
-		"profiles":   obj.Profiles,
-		"verify":     obj.Verify,
+		"percentage":    obj.Percentage,
+		"phase_id":      obj.PhaseId,
+		"postdeploy":    flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy(obj.Postdeploy),
+		"predeploy":     flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy(obj.Predeploy),
+		"profiles":      obj.Profiles,
+		"verify":        obj.Verify,
+		"verify_config": flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig(obj.VerifyConfig),
+		"analysis":      flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis(obj.Analysis),
 	}
 
 	return transformed
@@ -1634,9 +1854,11 @@ func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandard(o int
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &DeliveryPipelineSerialPipelineStagesStrategyStandard{
-		Postdeploy: expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy(obj["postdeploy"]),
-		Predeploy:  expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy(obj["predeploy"]),
-		Verify:     dcl.Bool(obj["verify"].(bool)),
+		Postdeploy:   expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy(obj["postdeploy"]),
+		Predeploy:    expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy(obj["predeploy"]),
+		Verify:       dcl.Bool(obj["verify"].(bool)),
+		VerifyConfig: expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig(obj["verify_config"]),
+		Analysis:     expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis(obj["analysis"]),
 	}
 }
 
@@ -1645,9 +1867,11 @@ func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandard(obj 
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"postdeploy": flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy(obj.Postdeploy),
-		"predeploy":  flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy(obj.Predeploy),
-		"verify":     obj.Verify,
+		"postdeploy":    flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy(obj.Postdeploy),
+		"predeploy":     flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy(obj.Predeploy),
+		"verify":        obj.Verify,
+		"verify_config": flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig(obj.VerifyConfig),
+		"analysis":      flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis(obj.Analysis),
 	}
 
 	return []interface{}{transformed}
@@ -1704,6 +1928,271 @@ func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPrede
 
 	return []interface{}{transformed}
 
+}
+
+func expandClouddeployDeliveryPipelineTaskArray(o interface{}) []DeliveryPipelineTask {
+	if o == nil {
+		return make([]DeliveryPipelineTask, 0)
+	}
+	objs := o.([]interface{})
+	items := make([]DeliveryPipelineTask, 0, len(objs))
+	for _, item := range objs {
+		i := expandClouddeployDeliveryPipelineTask(item)
+		if i != nil {
+			items = append(items, *i)
+		}
+	}
+	return items
+}
+
+func flattenClouddeployDeliveryPipelineTaskArray(objs []DeliveryPipelineTask) []interface{} {
+	if objs == nil {
+		return nil
+	}
+	items := make([]interface{}, 0, len(objs))
+	for _, item := range objs {
+		i := flattenClouddeployDeliveryPipelineTask(&item)
+		if i != nil {
+			items = append(items, i)
+		}
+	}
+	return items
+}
+
+func expandClouddeployDeliveryPipelineTask(o interface{}) *DeliveryPipelineTask {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &DeliveryPipelineTask{
+		Container: expandClouddeployDeliveryPipelineTaskContainer(obj["container"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineTask(obj *DeliveryPipelineTask) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"container": flattenClouddeployDeliveryPipelineTaskContainer(obj.Container),
+	}
+	return []interface{}{transformed}
+}
+
+func expandClouddeployDeliveryPipelineTaskContainer(o interface{}) *DeliveryPipelineContainer {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &DeliveryPipelineContainer{
+		Image:   dcl.String(obj["image"].(string)),
+		Command: tpgdclresource.ExpandStringArray(obj["command"]),
+		Args:    tpgdclresource.ExpandStringArray(obj["args"]),
+		Env:     tpgresource.CheckStringMap(obj["env"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineTaskContainer(obj *DeliveryPipelineContainer) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"image":   obj.Image,
+		"command": obj.Command,
+		"args":    obj.Args,
+		"env":     obj.Env,
+	}
+	return []interface{}{transformed}
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig(o interface{}) *DeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &DeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig{
+		Tasks: expandClouddeployDeliveryPipelineTaskArray(obj["tasks"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig(obj *DeliveryPipelineSerialPipelineStagesStrategyStandardVerifyConfig) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"tasks": flattenClouddeployDeliveryPipelineTaskArray(obj.Tasks),
+	}
+	return []interface{}{transformed}
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis(o interface{}) *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis{
+		Duration:     dcl.String(obj["duration"].(string)),
+		GoogleCloud:  expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisGoogleCloud(obj["google_cloud"]),
+		CustomChecks: expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecksArray(obj["custom_checks"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis(obj *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysis) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"duration":      obj.Duration,
+		"google_cloud":  flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisGoogleCloud(obj.GoogleCloud),
+		"custom_checks": flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecksArray(obj.CustomChecks),
+	}
+	return []interface{}{transformed}
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisGoogleCloud(o interface{}) *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisGoogleCloud {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisGoogleCloud{
+		AlertPolicyChecks: expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheckArray(obj["alert_policy_checks"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisGoogleCloud(obj *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisGoogleCloud) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"alert_policy_checks": flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheckArray(obj.AlertPolicyChecks),
+	}
+	return []interface{}{transformed}
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheckArray(o interface{}) []DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck {
+	if o == nil {
+		return nil
+	}
+	objs := o.([]interface{})
+	items := make([]DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck, 0, len(objs))
+	for _, item := range objs {
+		i := expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck(item)
+		if i != nil {
+			items = append(items, *i)
+		}
+	}
+	return items
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheckArray(objs []DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck) []interface{} {
+	if objs == nil {
+		return nil
+	}
+	items := make([]interface{}, 0, len(objs))
+	for _, item := range objs {
+		i := flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck(&item)
+		if i != nil {
+			items = append(items, i)
+		}
+	}
+	return items
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck(o interface{}) *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck {
+	if o == nil {
+		return nil
+	}
+	obj := o.(map[string]interface{})
+	return &DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck{
+		Id:            dcl.String(obj["id"].(string)),
+		AlertPolicies: tpgdclresource.ExpandStringArray(obj["alert_policies"]),
+		Labels:        tpgresource.CheckStringMap(obj["labels"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck(obj *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisAlertPolicyCheck) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"id":             obj.Id,
+		"alert_policies": obj.AlertPolicies,
+		"labels":         obj.Labels,
+	}
+	return transformed
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecksArray(o interface{}) []DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks {
+	if o == nil {
+		return nil
+	}
+	objs := o.([]interface{})
+	items := make([]DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks, 0, len(objs))
+	for _, item := range objs {
+		i := expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks(item)
+		if i != nil {
+			items = append(items, *i)
+		}
+	}
+	return items
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecksArray(objs []DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks) []interface{} {
+	if objs == nil {
+		return nil
+	}
+	items := make([]interface{}, 0, len(objs))
+	for _, item := range objs {
+		i := flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks(&item)
+		if i != nil {
+			items = append(items, i)
+		}
+	}
+	return items
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks(o interface{}) *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks {
+	if o == nil {
+		return nil
+	}
+	obj := o.(map[string]interface{})
+	return &DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks{
+		Id:        dcl.String(obj["id"].(string)),
+		Frequency: dcl.StringOrNil(obj["frequency"].(string)),
+		Task:      expandClouddeployDeliveryPipelineTask(obj["task"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks(obj *DeliveryPipelineSerialPipelineStagesStrategyStandardAnalysisCustomChecks) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"id":        obj.Id,
+		"frequency": obj.Frequency,
+		"task":      flattenClouddeployDeliveryPipelineTask(obj.Task),
+	}
+	return transformed
 }
 
 func flattenClouddeployDeliveryPipelineCondition(obj *DeliveryPipelineCondition) interface{} {

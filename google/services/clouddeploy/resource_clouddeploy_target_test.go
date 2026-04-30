@@ -641,3 +641,80 @@ resource "google_clouddeploy_target" "primary" {
 }
 `, context)
 }
+
+func TestAccClouddeployTarget_withPrivatePool(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"region":        envvar.GetTestRegionFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckClouddeployTargetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccClouddeployTarget_withPrivatePool(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "execution_configs.#", "3"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "execution_configs.2.usages.0", "ANALYSIS"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "execution_configs.2.private_pool.#", "1"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "execution_configs.2.private_pool.0.worker_pool", "projects/"+context["project_name"].(string)+"/locations/"+context["region"].(string)+"/workerPools/my-pool"),
+				),
+			},
+			{
+				ResourceName:            "google_clouddeploy_target.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
+			},
+		},
+	})
+}
+
+func testAccClouddeployTarget_withPrivatePool(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_clouddeploy_target" "primary" {
+  location = "%{region}"
+  name     = "tf-test-target%{random_suffix}"
+
+  description = "basic description"
+
+  gke {
+    cluster = "projects/%{project_name}/locations/%{region}/clusters/example-cluster-name"
+  }
+
+  project          = "%{project_name}"
+  require_approval = false
+
+  execution_configs {
+    usages = ["RENDER"]
+    default_pool {
+      artifact_storage = "gs://%{project_name}-bucket/render-dir"
+      service_account  = "render-owner@%{project_name}.iam.gserviceaccount.com"
+    }
+  }
+
+  execution_configs {
+    usages = ["DEPLOY"]
+    default_pool {
+      artifact_storage = "gs://%{project_name}-bucket/deploy-dir"
+      service_account  = "deploy-owner@%{project_name}.iam.gserviceaccount.com"
+    }
+  }
+
+  execution_configs {
+    usages = ["ANALYSIS"]
+    worker_pool = "projects/%{project_name}/locations/%{region}/workerPools/my-pool"
+    private_pool {
+      worker_pool = "projects/%{project_name}/locations/%{region}/workerPools/my-pool"
+      service_account = "my-service-account@%{project_name}.iam.gserviceaccount.com"
+      artifact_storage = "gs://%{project_name}-bucket/my-dir"
+    }
+  }
+}
+`, context)
+}

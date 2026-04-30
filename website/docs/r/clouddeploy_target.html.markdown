@@ -258,9 +258,17 @@ The `execution_configs` block supports:
   (Optional)
   Optional. Cloud Storage location in which to store execution outputs. This can either be a bucket ("gs://my-bucket") or a path within a bucket ("gs://my-bucket/my-dir"). If unspecified, a default bucket located in the same region will be used.
     
+* `default_pool` -
+  (Optional)
+  Optional. Use default Cloud Build pool.
+    
 * `execution_timeout` -
   (Optional)
   Optional. Execution timeout for a Cloud Build Execution. This must be between 10m and 24h in seconds format. If unspecified, a default timeout of 1h is used.
+    
+* `private_pool` -
+  (Optional)
+  Optional. Use private Cloud Build pool.
     
 * `service_account` -
   (Optional)
@@ -277,6 +285,30 @@ The `execution_configs` block supports:
 * `worker_pool` -
   (Optional)
   Optional. The resource name of the `WorkerPool`, with the format `projects/{project}/locations/{location}/workerPools/{worker_pool}`. If this optional field is unspecified, the default Cloud Build pool will be used.
+
+The `default_pool` block supports:
+    
+* `artifact_storage` -
+  (Optional)
+  Optional. Cloud Storage location where execution outputs should be stored. This can either be a bucket ("gs://my-bucket") or a path within a bucket ("gs://my-bucket/my-dir"). If unspecified, a default bucket located in the same region will be used.
+    
+* `service_account` -
+  (Optional)
+  Optional. Google service account to use for execution. If unspecified, the project execution service account (-compute@developer.gserviceaccount.com) will be used.
+
+The `private_pool` block supports:
+    
+* `artifact_storage` -
+  (Optional)
+  Optional. Cloud Storage location where execution outputs should be stored. This can either be a bucket ("gs://my-bucket") or a path within a bucket ("gs://my-bucket/my-dir"). If unspecified, a default bucket located in the same region will be used.
+    
+* `service_account` -
+  (Optional)
+  Optional. Google service account to use for execution. If unspecified, the project execution service account (-compute@developer.gserviceaccount.com) will be used.
+    
+* `worker_pool` -
+  (Required)
+  Required. Resource name of the Cloud Build worker pool to use. The format is `projects/{project}/locations/{location}/workerPools/{pool}`.
     
 The `gke` block supports:
     

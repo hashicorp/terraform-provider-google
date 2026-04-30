@@ -357,6 +357,71 @@ func ClouddeployTargetExecutionConfigsSchema() *schema.Resource {
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      "Optional. The resource name of the `WorkerPool`, with the format `projects/{project}/locations/{location}/workerPools/{worker_pool}`. If this optional field is unspecified, the default Cloud Build pool will be used.",
 			},
+
+			"default_pool": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: "Optional. Use default Cloud Build pool.",
+				MaxItems:    1,
+				Elem:        ClouddeployTargetExecutionConfigsDefaultPoolSchema(),
+			},
+
+			"private_pool": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: "Optional. Use private Cloud Build pool.",
+				MaxItems:    1,
+				Elem:        ClouddeployTargetExecutionConfigsPrivatePoolSchema(),
+			},
+		},
+	}
+}
+
+func ClouddeployTargetExecutionConfigsDefaultPoolSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"service_account": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Optional. Google service account to use for execution. If unspecified, the project execution service account (-compute@developer.gserviceaccount.com) will be used.",
+			},
+
+			"artifact_storage": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Optional. Cloud Storage location where execution outputs should be stored. This can either be a bucket (\"gs://my-bucket\") or a path within a bucket (\"gs://my-bucket/my-dir\"). If unspecified, a default bucket located in the same region will be used.",
+			},
+		},
+	}
+}
+
+func ClouddeployTargetExecutionConfigsPrivatePoolSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"worker_pool": {
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      "Required. Resource name of the Cloud Build worker pool to use. The format is `projects/{project}/locations/{location}/workerPools/{pool}`.",
+			},
+
+			"service_account": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Optional. Google service account to use for execution. If unspecified, the project execution service account (-compute@developer.gserviceaccount.com) will be used.",
+			},
+
+			"artifact_storage": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Optional. Cloud Storage location where execution outputs should be stored. This can either be a bucket (\"gs://my-bucket\") or a path within a bucket (\"gs://my-bucket/my-dir\"). If unspecified, a default bucket located in the same region will be used.",
+			},
 		},
 	}
 }
@@ -987,6 +1052,8 @@ func expandClouddeployTargetExecutionConfigs(o interface{}) *TargetExecutionConf
 		ServiceAccount:   dcl.StringOrNil(obj["service_account"].(string)),
 		Verbose:          dcl.Bool(obj["verbose"].(bool)),
 		WorkerPool:       dcl.String(obj["worker_pool"].(string)),
+		DefaultPool:      expandClouddeployTargetExecutionConfigsDefaultPool(obj["default_pool"]),
+		PrivatePool:      expandClouddeployTargetExecutionConfigsPrivatePool(obj["private_pool"]),
 	}
 }
 
@@ -1015,10 +1082,66 @@ func flattenClouddeployTargetExecutionConfigs(obj *TargetExecutionConfigs) inter
 		"service_account":   obj.ServiceAccount,
 		"verbose":           obj.Verbose,
 		"worker_pool":       obj.WorkerPool,
+		"default_pool":      flattenClouddeployTargetExecutionConfigsDefaultPool(obj.DefaultPool),
+		"private_pool":      flattenClouddeployTargetExecutionConfigsPrivatePool(obj.PrivatePool),
 	}
 
 	return transformed
 
+}
+
+func expandClouddeployTargetExecutionConfigsDefaultPool(o interface{}) *TargetExecutionConfigsDefaultPool {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &TargetExecutionConfigsDefaultPool{
+		ServiceAccount:  dcl.StringOrNil(obj["service_account"].(string)),
+		ArtifactStorage: dcl.StringOrNil(obj["artifact_storage"].(string)),
+	}
+}
+
+func flattenClouddeployTargetExecutionConfigsDefaultPool(obj *TargetExecutionConfigsDefaultPool) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"service_account":  obj.ServiceAccount,
+		"artifact_storage": obj.ArtifactStorage,
+	}
+	return []interface{}{transformed}
+}
+
+func expandClouddeployTargetExecutionConfigsPrivatePool(o interface{}) *TargetExecutionConfigsPrivatePool {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &TargetExecutionConfigsPrivatePool{
+		WorkerPool:      dcl.String(obj["worker_pool"].(string)),
+		ServiceAccount:  dcl.StringOrNil(obj["service_account"].(string)),
+		ArtifactStorage: dcl.StringOrNil(obj["artifact_storage"].(string)),
+	}
+}
+
+func flattenClouddeployTargetExecutionConfigsPrivatePool(obj *TargetExecutionConfigsPrivatePool) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"worker_pool":      obj.WorkerPool,
+		"service_account":  obj.ServiceAccount,
+		"artifact_storage": obj.ArtifactStorage,
+	}
+	return []interface{}{transformed}
 }
 
 func expandClouddeployTargetGke(o interface{}) *TargetGke {

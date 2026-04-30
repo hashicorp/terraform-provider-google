@@ -23,7 +23,12 @@ fields:
     provider_only: true
   - api_field: 'etag'
   - api_field: 'executionConfigs.artifactStorage'
+  - api_field: 'executionConfigs.defaultPool.artifactStorage'
+  - api_field: 'executionConfigs.defaultPool.serviceAccount'
   - api_field: 'executionConfigs.executionTimeout'
+  - api_field: 'executionConfigs.privatePool.artifactStorage'
+  - api_field: 'executionConfigs.privatePool.serviceAccount'
+  - api_field: 'executionConfigs.privatePool.workerPool'
   - api_field: 'executionConfigs.serviceAccount'
   - api_field: 'executionConfigs.usages'
   - api_field: 'executionConfigs.verbose'

@@ -366,6 +366,14 @@ The `canary_deployment` block supports:
 * `verify` -
   (Optional)
   Whether to run verify tests after each percentage deployment.
+
+* `verify_config` -
+  (Optional)
+  Optional. Configuration for the verify job.
+
+* `analysis` -
+  (Optional)
+  Optional. Configuration for the analysis job.
     
 The `postdeploy` block supports:
     
@@ -373,12 +381,20 @@ The `postdeploy` block supports:
   (Optional)
   Optional. A sequence of skaffold custom actions to invoke during execution of the postdeploy job.
     
+* `tasks` -
+  (Optional)
+  Optional. The tasks that will run as a part of the postdeploy job. Only one of `actions` or `tasks` can be specified.
+
 The `predeploy` block supports:
     
 * `actions` -
   (Optional)
   Optional. A sequence of skaffold custom actions to invoke during execution of the predeploy job.
     
+* `tasks` -
+  (Optional)
+  Optional. The tasks that will run as a part of the predeploy job. Only one of `actions` or `tasks` can be specified.
+
 The `custom_canary_deployment` block supports:
     
 * `phase_configs` -
@@ -410,19 +426,35 @@ The `phase_configs` block supports:
 * `verify` -
   (Optional)
   Whether to run verify tests after the deployment.
-    
+
+* `verify_config` -
+  (Optional)
+  Optional. Configuration for the verify job.
+
+* `analysis` -
+  (Optional)
+  Optional. Configuration for the analysis job.
+
 The `postdeploy` block supports:
     
 * `actions` -
   (Optional)
   Optional. A sequence of skaffold custom actions to invoke during execution of the postdeploy job.
     
+* `tasks` -
+  (Optional)
+  Optional. The tasks that will run as a part of the postdeploy job. Only one of `actions` or `tasks` can be specified.
+
 The `predeploy` block supports:
     
 * `actions` -
   (Optional)
   Optional. A sequence of skaffold custom actions to invoke during execution of the predeploy job.
     
+* `tasks` -
+  (Optional)
+  Optional. The tasks that will run as a part of the predeploy job. Only one of `actions` or `tasks` can be specified.
+
 The `runtime_config` block supports:
     
 * `cloud_run` -
@@ -532,19 +564,118 @@ The `standard` block supports:
 * `verify` -
   (Optional)
   Whether to verify a deployment.
-    
+
+* `verify_config` -
+  (Optional)
+  Optional. Configuration for the verify job.
+
+* `analysis` -
+  (Optional)
+  Optional. Configuration for the analysis job.
+
 The `postdeploy` block supports:
     
 * `actions` -
   (Optional)
   Optional. A sequence of skaffold custom actions to invoke during execution of the postdeploy job.
     
+* `tasks` -
+  (Optional)
+  Optional. The tasks that will run as a part of the postdeploy job. Only one of `actions` or `tasks` can be specified.
+
 The `predeploy` block supports:
     
 * `actions` -
   (Optional)
   Optional. A sequence of skaffold custom actions to invoke during execution of the predeploy job.
     
+* `tasks` -
+  (Optional)
+  Optional. The tasks that will run as a part of the predeploy job. Only one of `actions` or `tasks` can be specified.
+
+The `verify_config` block supports:
+    
+* `tasks` -
+  (Optional)
+  Optional. The tasks that will run as a part of the verify job. The tasks are executed sequentially in the order specified.
+
+The `analysis` block supports:
+    
+* `duration` -
+  (Required)
+  Required. The amount of time in minutes the analysis on the target will last. If all analysis checks have successfully completed before the specified duration, the analysis is successful. If a check is still running while the specified duration passes, it will wait for that check to complete to determine if the analysis is successful. The maximum duration is 48 hours.
+    
+* `google_cloud` -
+  (Optional)
+  Optional. Google Cloud - based analysis checks.
+    
+* `custom_checks` -
+  (Optional)
+  Optional. Custom analysis checks from 3P metric providers.
+
+The `google_cloud` block supports:
+    
+* `alert_policy_checks` -
+  (Optional)
+  Optional. A list of Cloud Monitoring Alert Policy checks to perform as part of the analysis.
+
+The `alert_policy_checks` block supports:
+    
+* `id` -
+  (Required)
+  Required. The ID of the analysis check.
+    
+* `alert_policies` -
+  (Required)
+  Required. The Cloud Monitoring Alert Policies to check for active alerts. Format is `projects/{project}/alertPolicies/{alert_policy}`.
+    
+* `labels` -
+  (Optional)
+  Optional. A set of labels to filter active alerts. If set, only alerts having all of the specified labels will be considered. Otherwise, all active alerts will be considered.
+
+The `custom_checks` block supports:
+    
+* `id` -
+  (Required)
+  Required. The ID of the custom Analysis check.
+    
+* `frequency` -
+  (Optional)
+  Optional. The frequency at which the custom check will be run, with a minimum and default of 5 minutes.
+    
+* `task` -
+  (Required)
+  Required. The Task to be run for this custom check.
+
+The `task` block supports:
+    
+* `container` -
+  (Optional)
+  Optional. This task is represented by a container that is executed in the Cloud Build execution environment.
+
+The `tasks` block supports:
+    
+* `container` -
+  (Optional)
+  Optional. This task is represented by a container that is executed in the Cloud Build execution environment.
+
+The `container` block supports:
+    
+* `image` -
+  (Required)
+  Required. Image is the container image to use.
+    
+* `command` -
+  (Optional)
+  Optional. Command is the container entrypoint to use. This overrides the default entrypoint defined in the container image.
+    
+* `args` -
+  (Optional)
+  Optional. Args is the container arguments to use. This overrides the default arguments defined in the container image.
+    
+* `env` -
+  (Optional)
+  Optional. Environment variables that are set in the container.    
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
