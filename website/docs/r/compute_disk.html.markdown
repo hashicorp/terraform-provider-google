@@ -46,7 +46,7 @@ To get more information about Disk, see:
     * [Adding a persistent disk](https://cloud.google.com/compute/docs/disks/add-persistent-disk)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `disk_encryption_key.raw_key`, `disk_encryption_key.rsa_encrypted_key`.
+values will be stored in the raw state as plain text: `source_image_encryption_key.raw_key`, `disk_encryption_key.raw_key`, `disk_encryption_key.rsa_encrypted_key`, `source_snapshot_encryption_key.raw_key`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -367,6 +367,7 @@ The name of the snapshot by default will be `{{disk-name}}-YYYYMMDD-HHmm`
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `sha256` -
   (Output)
@@ -425,6 +426,7 @@ The name of the snapshot by default will be `{{disk-name}}-YYYYMMDD-HHmm`
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `kms_key_self_link` -
   (Optional)
