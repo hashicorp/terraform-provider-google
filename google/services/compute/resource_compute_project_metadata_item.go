@@ -97,8 +97,7 @@ func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta inter
 	key := d.Get("key").(string)
 	val := d.Get("value").(string)
 
-	err = updateComputeCommonInstanceMetadata(config, projectID, key, userAgent, &val, d.Timeout(schema.TimeoutCreate), failIfPresent)
-	if err != nil {
+	if err = updateComputeCommonInstanceMetadata(d, config, projectID, key, userAgent, &val, d.Timeout(schema.TimeoutCreate), failIfPresent); err != nil {
 		return err
 	}
 
@@ -120,7 +119,7 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 	}
 
 	log.Printf("[DEBUG] Loading project metadata: %s", projectID)
-	project, err := NewClient(config, userAgent).Projects.Get(projectID).Do()
+	project, err := getComputeProject(d, config, projectID, userAgent)
 	if err != nil {
 		return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 	}
@@ -163,8 +162,7 @@ func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta inter
 		_, n := d.GetChange("value")
 		new := n.(string)
 
-		err = updateComputeCommonInstanceMetadata(config, projectID, key, userAgent, &new, d.Timeout(schema.TimeoutUpdate), overwritePresent)
-		if err != nil {
+		if err = updateComputeCommonInstanceMetadata(d, config, projectID, key, userAgent, &new, d.Timeout(schema.TimeoutUpdate), overwritePresent); err != nil {
 			return err
 		}
 	}
@@ -185,8 +183,7 @@ func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta inter
 
 	key := d.Get("key").(string)
 
-	err = updateComputeCommonInstanceMetadata(config, projectID, key, userAgent, nil, d.Timeout(schema.TimeoutDelete), overwritePresent)
-	if err != nil {
+	if err = updateComputeCommonInstanceMetadata(d, config, projectID, key, userAgent, nil, d.Timeout(schema.TimeoutDelete), overwritePresent); err != nil {
 		return err
 	}
 
@@ -213,14 +210,14 @@ func resourceComputeProjectMetadataItemImportState(d *schema.ResourceData, meta 
 	return []*schema.ResourceData{d}, nil
 }
 
-func updateComputeCommonInstanceMetadata(config *transport_tpg.Config, projectID, key, userAgent string, afterVal *string, timeout time.Duration, failIfPresent metadataPresentBehavior) error {
+func updateComputeCommonInstanceMetadata(d *schema.ResourceData, config *transport_tpg.Config, projectID, key, userAgent string, afterVal *string, timeout time.Duration, failIfPresent metadataPresentBehavior) error {
 	updateMD := func() error {
 		lockName := fmt.Sprintf("projects/%s/commoninstancemetadata", projectID)
 		transport_tpg.MutexStore.Lock(lockName)
 		defer transport_tpg.MutexStore.Unlock(lockName)
 
 		log.Printf("[DEBUG] Loading project metadata: %s", projectID)
-		project, err := NewClient(config, userAgent).Projects.Get(projectID).Do()
+		project, err := getComputeProject(d, config, projectID, userAgent)
 		if err != nil {
 			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 		}
@@ -255,22 +252,35 @@ func updateComputeCommonInstanceMetadata(config *transport_tpg.Config, projectID
 			fingerprint = project.CommonInstanceMetadata.Fingerprint
 		}
 
-		// Attempt to write the new value now
-		op, err := NewClient(config, userAgent).Projects.SetCommonInstanceMetadata(
-			projectID,
-			&compute.Metadata{
-				Fingerprint: fingerprint,
-				Items:       expandComputeMetadata(md),
-			},
-		).Do()
+		body, err := computeMetadataToMap(&compute.Metadata{
+			Fingerprint: fingerprint,
+			Items:       expandComputeMetadata(md),
+		})
+		if err != nil {
+			return fmt.Errorf("Error encoding metadata: %s", err)
+		}
 
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
+		if err != nil {
+			return err
+		}
+		url = fmt.Sprintf("%sprojects/%s/setCommonInstanceMetadata", url, projectID)
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   projectID,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      body,
+			Timeout:   timeout,
+		})
 		if err != nil {
 			return err
 		}
 
-		log.Printf("[DEBUG] SetCommonInstanceMetadata: %d (%s)", op.Id, op.SelfLink)
+		log.Printf("[DEBUG] SetCommonInstanceMetadata: %v", res["selfLink"])
 
-		return ComputeOperationWaitTime(config, op, project.Name, "SetCommonInstanceMetadata", userAgent, timeout)
+		return ComputeOperationWaitTime(config, res, project.Name, "SetCommonInstanceMetadata", userAgent, timeout)
 	}
 
 	return transport_tpg.MetadataRetryWrapper(updateMD)

@@ -17,6 +17,7 @@
 package compute
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -88,8 +89,7 @@ func resourceComputeProjectMetadataCreateOrUpdate(d *schema.ResourceData, meta i
 		Items: expandComputeMetadata(d.Get("metadata").(map[string]interface{})),
 	}
 
-	err = resourceComputeProjectMetadataSet(projectID, userAgent, config, md, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
+	if err = resourceComputeProjectMetadataSet(d, projectID, userAgent, config, md, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
 	}
 
@@ -116,7 +116,7 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 	// but would create metadata for the provider project on a destroy/create.
 	projectId := d.Id()
 
-	project, err := NewClient(config, userAgent).Projects.Get(projectId).Do()
+	project, err := getComputeProject(d, config, projectId, userAgent)
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectId))
 	}
@@ -146,18 +146,17 @@ func resourceComputeProjectMetadataDelete(d *schema.ResourceData, meta interface
 	}
 
 	md := &compute.Metadata{}
-	err = resourceComputeProjectMetadataSet(projectID, userAgent, config, md, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
+	if err = resourceComputeProjectMetadataSet(d, projectID, userAgent, config, md, d.Timeout(schema.TimeoutDelete)); err != nil {
 		return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
 	}
 
 	return resourceComputeProjectMetadataRead(d, meta)
 }
 
-func resourceComputeProjectMetadataSet(projectID, userAgent string, config *transport_tpg.Config, md *compute.Metadata, timeout time.Duration) error {
+func resourceComputeProjectMetadataSet(d *schema.ResourceData, projectID, userAgent string, config *transport_tpg.Config, md *compute.Metadata, timeout time.Duration) error {
 	createMD := func() error {
 		log.Printf("[DEBUG] Loading project service: %s", projectID)
-		project, err := NewClient(config, userAgent).Projects.Get(projectID).Do()
+		project, err := getComputeProject(d, config, projectID, userAgent)
 		if err != nil {
 			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 		}
@@ -165,17 +164,76 @@ func resourceComputeProjectMetadataSet(projectID, userAgent string, config *tran
 		if project.CommonInstanceMetadata != nil {
 			md.Fingerprint = project.CommonInstanceMetadata.Fingerprint
 		}
-		op, err := NewClient(config, userAgent).Projects.SetCommonInstanceMetadata(projectID, md).Do()
+
+		body, err := computeMetadataToMap(md)
+		if err != nil {
+			return fmt.Errorf("Error encoding metadata: %s", err)
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
+		if err != nil {
+			return err
+		}
+		url = fmt.Sprintf("%sprojects/%s/setCommonInstanceMetadata", url, projectID)
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   projectID,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      body,
+			Timeout:   timeout,
+		})
 		if err != nil {
 			return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
 		}
 
-		log.Printf("[DEBUG] SetCommonMetadata: %d (%s)", op.Id, op.SelfLink)
-		return ComputeOperationWaitTime(config, op, project.Name, "SetCommonMetadata", userAgent, timeout)
+		log.Printf("[DEBUG] SetCommonMetadata: %v", res["selfLink"])
+		return ComputeOperationWaitTime(config, res, project.Name, "SetCommonMetadata", userAgent, timeout)
 	}
 
 	err := transport_tpg.MetadataRetryWrapper(createMD)
 	return err
+}
+
+func getComputeProject(d *schema.ResourceData, config *transport_tpg.Config, projectID, userAgent string) (*compute.Project, error) {
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
+	if err != nil {
+		return nil, err
+	}
+	url = fmt.Sprintf("%sprojects/%s", url, projectID)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   projectID,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	resBytes, err := json.Marshal(res)
+	if err != nil {
+		return nil, err
+	}
+	project := &compute.Project{}
+	if err := json.Unmarshal(resBytes, project); err != nil {
+		return nil, err
+	}
+	return project, nil
+}
+
+func computeMetadataToMap(md *compute.Metadata) (map[string]interface{}, error) {
+	mdBytes, err := json.Marshal(md)
+	if err != nil {
+		return nil, err
+	}
+	body := map[string]interface{}{}
+	if err := json.Unmarshal(mdBytes, &body); err != nil {
+		return nil, err
+	}
+	return body, nil
 }
 
 func init() {
