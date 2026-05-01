@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -31,6 +32,14 @@ var (
 	_ ephemeral.EphemeralResource              = &GoogleClientConfigEphemeralResource{}
 	_ ephemeral.EphemeralResourceWithConfigure = &GoogleClientConfigEphemeralResource{}
 )
+
+func init() {
+	registry.FrameworkEphemeralResource{
+		Name:        "google_client_config",
+		ProductName: "resourcemanager",
+		Func:        GoogleEphemeralClientConfig,
+	}.Register()
+}
 
 func GoogleEphemeralClientConfig() ephemeral.EphemeralResource {
 	return &GoogleClientConfigEphemeralResource{}

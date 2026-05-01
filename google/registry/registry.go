@@ -23,6 +23,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
+	"github.com/hashicorp/terraform-plugin-framework/list"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -176,6 +180,153 @@ func DatasourceMap() map[string]*schema.Resource {
 	ret := map[string]*schema.Resource{}
 	for k, v := range schemas.d {
 		ret[k] = v.Schema
+	}
+	return ret
+}
+
+type frameworkRegistry struct {
+	sync.RWMutex
+	dataSource map[string]FrameworkDataSource
+	resource   map[string]FrameworkResource
+	ephemeral  map[string]FrameworkEphemeralResource
+	list       map[string]FrameworkListResource
+}
+
+var framework = &frameworkRegistry{
+	dataSource: map[string]FrameworkDataSource{},
+	resource:   map[string]FrameworkResource{},
+	ephemeral:  map[string]FrameworkEphemeralResource{},
+	list:       map[string]FrameworkListResource{},
+}
+
+type FrameworkDataSource struct {
+	Name        string
+	ProductName string
+	Func        func() datasource.DataSource
+}
+
+func (d FrameworkDataSource) Register() {
+	framework.Lock()
+	defer framework.Unlock()
+	if _, ok := framework.dataSource[d.Name]; ok {
+		log.Fatalf("Duplicate registration attempt for framework data source %q", d.Name)
+	}
+	framework.dataSource[d.Name] = d
+}
+
+func FrameworkDataSourceFuncs() []func() datasource.DataSource {
+	framework.RLock()
+	defer framework.RUnlock()
+	var datasources []FrameworkDataSource
+	for _, d := range framework.dataSource {
+		datasources = append(datasources, d)
+	}
+	slices.SortFunc(datasources, func(a, b FrameworkDataSource) int {
+		return strings.Compare(a.Name, b.Name)
+	})
+
+	var ret []func() datasource.DataSource
+	for _, d := range datasources {
+		ret = append(ret, d.Func)
+	}
+	return ret
+}
+
+type FrameworkResource struct {
+	Name        string
+	ProductName string
+	Func        func() resource.Resource
+}
+
+func (r FrameworkResource) Register() {
+	framework.Lock()
+	defer framework.Unlock()
+	if _, ok := framework.resource[r.Name]; ok {
+		log.Fatalf("Duplicate registration attempt for framework resource %q", r.Name)
+	}
+	framework.resource[r.Name] = r
+}
+
+func FrameworkResourceFuncs() []func() resource.Resource {
+	framework.RLock()
+	defer framework.RUnlock()
+	var resources []FrameworkResource
+	for _, r := range framework.resource {
+		resources = append(resources, r)
+	}
+	slices.SortFunc(resources, func(a, b FrameworkResource) int {
+		return strings.Compare(a.Name, b.Name)
+	})
+
+	var ret []func() resource.Resource
+	for _, r := range resources {
+		ret = append(ret, r.Func)
+	}
+	return ret
+}
+
+type FrameworkEphemeralResource struct {
+	Name        string
+	ProductName string
+	Func        func() ephemeral.EphemeralResource
+}
+
+func (r FrameworkEphemeralResource) Register() {
+	framework.Lock()
+	defer framework.Unlock()
+	if _, ok := framework.ephemeral[r.Name]; ok {
+		log.Fatalf("Duplicate registration attempt for framework ephemeral resource %q", r.Name)
+	}
+	framework.ephemeral[r.Name] = r
+}
+
+func FrameworkEphemeralResourceFuncs() []func() ephemeral.EphemeralResource {
+	framework.RLock()
+	defer framework.RUnlock()
+	var resources []FrameworkEphemeralResource
+	for _, r := range framework.ephemeral {
+		resources = append(resources, r)
+	}
+	slices.SortFunc(resources, func(a, b FrameworkEphemeralResource) int {
+		return strings.Compare(a.Name, b.Name)
+	})
+
+	var ret []func() ephemeral.EphemeralResource
+	for _, r := range resources {
+		ret = append(ret, r.Func)
+	}
+	return ret
+}
+
+type FrameworkListResource struct {
+	Name        string
+	ProductName string
+	Func        func() list.ListResource
+}
+
+func (r FrameworkListResource) Register() {
+	framework.Lock()
+	defer framework.Unlock()
+	if _, ok := framework.list[r.Name]; ok {
+		log.Fatalf("Duplicate registration attempt for framework list resource %q", r.Name)
+	}
+	framework.list[r.Name] = r
+}
+
+func FrameworkListResourceFuncs() []func() list.ListResource {
+	framework.RLock()
+	defer framework.RUnlock()
+	var resources []FrameworkListResource
+	for _, r := range framework.list {
+		resources = append(resources, r)
+	}
+	slices.SortFunc(resources, func(a, b FrameworkListResource) int {
+		return strings.Compare(a.Name, b.Name)
+	})
+
+	var ret []func() list.ListResource
+	for _, r := range resources {
+		ret = append(ret, r.Func)
 	}
 	return ret
 }

@@ -25,10 +25,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var _ ephemeral.EphemeralResource = &googleEphemeralSecretManagerSecretVersion{}
+
+func init() {
+	registry.FrameworkEphemeralResource{
+		Name:        "google_secret_manager_secret_version",
+		ProductName: "secretmanager",
+		Func:        GoogleEphemeralSecretManagerSecretVersion,
+	}.Register()
+}
 
 func GoogleEphemeralSecretManagerSecretVersion() ephemeral.EphemeralResource {
 	return &googleEphemeralSecretManagerSecretVersion{}
