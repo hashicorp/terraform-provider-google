@@ -309,7 +309,7 @@ func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 						Host:     "%",
 						Password: acctest.RandString(t, 26),
 					}
-					op, err := config.NewSqlAdminClient(config.UserAgent).Users.Insert(config.Project, databaseName, &user).Do()
+					op, err := sql.NewClient(config, config.UserAgent).Users.Insert(config.Project, databaseName, &user).Do()
 					if err != nil {
 						t.Errorf("Error while inserting root@%% user: %s", err)
 						return
@@ -362,7 +362,7 @@ func TestAccSqlDatabaseInstance_deleteDefaultUserBeforeSubsequentApiCalls(t *tes
 						Host:     "%",
 						Password: acctest.RandString(t, 26),
 					}
-					op, err := config.NewSqlAdminClient(config.UserAgent).Users.Insert(config.Project, databaseName, &user).Do()
+					op, err := sql.NewClient(config, config.UserAgent).Users.Insert(config.Project, databaseName, &user).Do()
 					if err != nil {
 						t.Errorf("Error while inserting root@%% user: %s", err)
 						return
@@ -2006,7 +2006,7 @@ func testAccSqlDatabaseInstanceDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			_, err := config.NewSqlAdminClient(config.UserAgent).Instances.Get(config.Project,
+			_, err := sql.NewClient(config, config.UserAgent).Instances.Get(config.Project,
 				rs.Primary.Attributes["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("Database Instance still exists")
@@ -2021,7 +2021,7 @@ func testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(t *testing.T, instance st
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		users, err := config.NewSqlAdminClient(config.UserAgent).Users.List(config.Project, instance).Do()
+		users, err := sql.NewClient(config, config.UserAgent).Users.List(config.Project, instance).Do()
 
 		if err != nil {
 			return fmt.Errorf("Could not list database users for %q: %s", instance, err)
@@ -9349,7 +9349,7 @@ func testGoogleSqlDatabaseInstanceResizeDisk(t *testing.T, instance string, addG
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+		sqlAdminClient := sql.NewClient(config, config.UserAgent)
 
 		inst, err := sqlAdminClient.Instances.Get(config.Project, instance).Do()
 		if err != nil {
@@ -9379,7 +9379,7 @@ func testGoogleSqlDatabaseInstanceCheckDiskSize(t *testing.T, instance string, s
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+		sqlAdminClient := sql.NewClient(config, config.UserAgent)
 
 		inst, err := sqlAdminClient.Instances.Get(config.Project, instance).Do()
 		if err != nil {
@@ -9398,7 +9398,7 @@ func testGoogleSqlDatabaseInstanceChangeNodeCount(t *testing.T, instance string,
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+		sqlAdminClient := sql.NewClient(config, config.UserAgent)
 
 		operation, err := sqlAdminClient.Instances.Patch(config.Project, instance, &sqladmin.DatabaseInstance{
 			NodeCount: newNodeCount,
@@ -9420,7 +9420,7 @@ func testGoogleSqlDatabaseInstanceCheckNodeCount(t *testing.T, instance string, 
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+		sqlAdminClient := sql.NewClient(config, config.UserAgent)
 
 		inst, err := sqlAdminClient.Instances.Get(config.Project, instance).Do()
 		if err != nil {

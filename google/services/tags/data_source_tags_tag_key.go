@@ -22,11 +22,12 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
+	cloudresourcemanagerv3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
 func DataSourceGoogleTagsTagKey() *schema.Resource {
@@ -81,13 +82,13 @@ func dataSourceGoogleTagsTagKeyRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	var tagKeyMatch *resourceManagerV3.TagKey
+	var tagKeyMatch *cloudresourcemanagerv3.TagKey
 	parent := d.Get("parent").(string)
 	shortName := d.Get("short_name").(string)
 	token := ""
 
 	for paginate := true; paginate; {
-		resp, err := config.NewResourceManagerV3Client(userAgent).TagKeys.List().Parent(parent).PageSize(300).PageToken(token).Do()
+		resp, err := resourcemanagerv3.NewClient(config, userAgent).TagKeys.List().Parent(parent).PageSize(300).PageToken(token).Do()
 		if err != nil {
 			return fmt.Errorf("error reading tag key list: %s", err)
 		}

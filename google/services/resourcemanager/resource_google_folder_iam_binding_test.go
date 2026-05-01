@@ -24,12 +24,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
+	cloudresourcemanagerv3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
 // Test that an IAM binding can be applied to a folder
@@ -275,11 +276,11 @@ func testAccCheckGoogleFolderIamBindingExists(t *testing.T, expected *cloudresou
 }
 
 func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config *transport_tpg.Config) (*cloudresourcemanager.Policy, error) {
-	var folderMatch *resourceManagerV3.Folder
+	var folderMatch *cloudresourcemanagerv3.Folder
 	token := ""
 
 	for paginate := true; paginate; {
-		resp, err := config.NewResourceManagerV3Client(config.UserAgent).Folders.List().Parent(parent).PageSize(300).PageToken(token).Do()
+		resp, err := resourcemanagerv3.NewClient(config, config.UserAgent).Folders.List().Parent(parent).PageSize(300).PageToken(token).Do()
 		if err != nil {
 			return nil, fmt.Errorf("Error reading folder list: %s", err)
 		}

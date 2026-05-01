@@ -119,7 +119,7 @@ func dataSourceSqlDatabaseInstancesRead(d *schema.ResourceData, meta interface{}
 		var instances *sqladmin.InstancesListResponse
 		err = transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() (rerr error) {
-				instances, rerr = config.NewSqlAdminClient(userAgent).Instances.List(project).Filter(filter).PageToken(pageToken).Do()
+				instances, rerr = NewClient(config, userAgent).Instances.List(project).Filter(filter).PageToken(pageToken).Do()
 				return rerr
 			},
 			Timeout:              d.Timeout(schema.TimeoutRead),

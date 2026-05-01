@@ -21,6 +21,7 @@ import (
 	"sort"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -72,7 +73,7 @@ func dataSourceGoogleComputeSnapshotRead(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		projectGetCall := config.NewResourceManagerClient(userAgent).Projects.Get(project)
+		projectGetCall := rmClient.NewClient(config, userAgent).Projects.Get(project)
 
 		if config.UserProjectOverride {
 			billingProject := project

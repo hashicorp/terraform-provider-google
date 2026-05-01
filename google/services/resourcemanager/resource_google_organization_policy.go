@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -217,7 +218,7 @@ func resourceGoogleOrganizationPolicyRead(d *schema.ResourceData, meta interface
 	var policy *cloudresourcemanager.OrgPolicy
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() (readErr error) {
-			policy, readErr = config.NewResourceManagerClient(userAgent).Organizations.GetOrgPolicy(org, &cloudresourcemanager.GetOrgPolicyRequest{
+			policy, readErr = rmClient.NewClient(config, userAgent).Organizations.GetOrgPolicy(org, &cloudresourcemanager.GetOrgPolicyRequest{
 				Constraint: CanonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 			}).Do()
 			return readErr
@@ -275,7 +276,7 @@ func resourceGoogleOrganizationPolicyDelete(d *schema.ResourceData, meta interfa
 
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
-			_, dErr := config.NewResourceManagerClient(userAgent).Organizations.ClearOrgPolicy(org, &cloudresourcemanager.ClearOrgPolicyRequest{
+			_, dErr := rmClient.NewClient(config, userAgent).Organizations.ClearOrgPolicy(org, &cloudresourcemanager.ClearOrgPolicyRequest{
 				Constraint: CanonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 			}).Do()
 			return dErr
@@ -339,7 +340,7 @@ func setOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
 
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() (setErr error) {
-			_, setErr = config.NewResourceManagerClient(userAgent).Organizations.SetOrgPolicy(org, &cloudresourcemanager.SetOrgPolicyRequest{
+			_, setErr = rmClient.NewClient(config, userAgent).Organizations.SetOrgPolicy(org, &cloudresourcemanager.SetOrgPolicyRequest{
 				Policy: &cloudresourcemanager.OrgPolicy{
 					Constraint:     CanonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 					BooleanPolicy:  expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),

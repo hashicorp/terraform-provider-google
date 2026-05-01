@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	tpgserviceusage "github.com/hashicorp/terraform-provider-google/google/services/serviceusage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -205,7 +206,7 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 	project = tpgresource.GetResourceNameFromSelfLink(project)
 
 	// Verify project for services still exists
-	projectGetCall := config.NewResourceManagerClient(userAgent).Projects.Get(project)
+	projectGetCall := rmClient.NewClient(config, userAgent).Projects.Get(project)
 	if config.UserProjectOverride {
 		billingProject := project
 

@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/sql"
 )
 
 func TestAccSqlClientCert_mysql(t *testing.T) {
@@ -74,7 +75,7 @@ func testAccCheckGoogleSqlClientCertExists(t *testing.T, n string) resource.Test
 
 		instance := rs.Primary.Attributes["instance"]
 		fingerprint := rs.Primary.Attributes["sha1_fingerprint"]
-		sslClientCert, err := config.NewSqlAdminClient(config.UserAgent).SslCerts.Get(config.Project, instance, fingerprint).Do()
+		sslClientCert, err := sql.NewClient(config, config.UserAgent).SslCerts.Get(config.Project, instance, fingerprint).Do()
 
 		if err != nil {
 			return err
@@ -98,7 +99,7 @@ func testAccSqlClientCertDestroyProducer(t *testing.T) func(s *terraform.State) 
 
 			fingerprint := rs.Primary.Attributes["sha1_fingerprint"]
 			instance := rs.Primary.Attributes["instance"]
-			sslCert, _ := config.NewSqlAdminClient(config.UserAgent).SslCerts.Get(config.Project, instance, fingerprint).Do()
+			sslCert, _ := sql.NewClient(config, config.UserAgent).SslCerts.Get(config.Project, instance, fingerprint).Do()
 
 			commonName := rs.Primary.Attributes["common_name"]
 			if sslCert != nil {

@@ -32,9 +32,12 @@ import (
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	backupdr_tpg "github.com/hashicorp/terraform-provider-google/google/services/backupdr"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/privateca"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 	tpgservicenetworking "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/services/sql"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
@@ -203,15 +206,15 @@ func setupAutokeyTestResources(t *testing.T, config *transport_tpg.Config) (*res
 	if err != nil {
 		t.Errorf("unable to bootstrap KMS keyHandle. Cannot create cloudkms service identity: %s", err)
 	}
-	err = addFolderBinding2(config.NewResourceManagerV3Client(config.UserAgent), autokeyFolder.Name, fmt.Sprintf("user:%s", curUserEmail), []string{"roles/cloudkms.admin"})
+	err = addFolderBinding2(resourcemanagerv3.NewClient(config, config.UserAgent), autokeyFolder.Name, fmt.Sprintf("user:%s", curUserEmail), []string{"roles/cloudkms.admin"})
 	if err != nil {
 		t.Errorf("unable to bootstrap KMS keyHandle. Cannot assign cloudkms.admin role to current user on autokey test folder: %s", err)
 	}
-	err = addProjectBinding(config.NewResourceManagerV3Client(config.UserAgent), kmsProjectID, fmt.Sprintf("user:%s", curUserEmail), []string{"roles/resourcemanager.projectIamAdmin", "roles/cloudkms.admin"})
+	err = addProjectBinding(resourcemanagerv3.NewClient(config, config.UserAgent), kmsProjectID, fmt.Sprintf("user:%s", curUserEmail), []string{"roles/resourcemanager.projectIamAdmin", "roles/cloudkms.admin"})
 	if err != nil {
 		t.Errorf("unable to bootstrap KMS keyHandle. Cannot assign cloudkms.admin and projectIamAdmin role to current user on kms project: %s", err)
 	}
-	err = addProjectBinding(config.NewResourceManagerV3Client(config.UserAgent), kmsProjectID, fmt.Sprintf("serviceAccount:%s", kmsSAEmail), []string{"roles/cloudkms.admin"})
+	err = addProjectBinding(resourcemanagerv3.NewClient(config, config.UserAgent), kmsProjectID, fmt.Sprintf("serviceAccount:%s", kmsSAEmail), []string{"roles/cloudkms.admin"})
 	if err != nil {
 		t.Errorf("unable to bootstrap KMS keyHandle. Cannot assign cloudkms.admin role to cloudkms service identity on kms project: %s", err)
 	}
@@ -781,7 +784,7 @@ func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string, par
 	}
 
 	// Get project number by calling the API
-	crmClient := config.NewResourceManagerClient(config.UserAgent)
+	crmClient := rmClient.NewClient(config, config.UserAgent)
 	project, err := crmClient.Projects.Get(projectId).Do()
 	if err != nil {
 		t.Fatalf("Error getting project: %s", err)
@@ -850,7 +853,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 	// doesn't seem to allow for prefix matching. Don't change this to include the parent type unless
 	// that API behavior changes.
 	prefixFilter := fmt.Sprintf("id:%s* parent.id:%s", SharedServicePerimeterProjectPrefix, org)
-	res, err := config.NewResourceManagerClient(config.UserAgent).Projects.List().Filter(prefixFilter).Do()
+	res, err := rmClient.NewClient(config, config.UserAgent).Projects.List().Filter(prefixFilter).Do()
 	if err != nil {
 		t.Fatalf("Error getting shared test projects: %s", err)
 	}
@@ -866,7 +869,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 				Id:   org,
 			},
 		}
-		op, err := config.NewResourceManagerClient(config.UserAgent).Projects.Create(project).Do()
+		op, err := rmClient.NewClient(config, config.UserAgent).Projects.Create(project).Do()
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared test project: %s", err)
 		}
@@ -881,7 +884,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 			t.Fatalf("Error bootstrapping shared test project: %s", err)
 		}
 
-		p, err := config.NewResourceManagerClient(config.UserAgent).Projects.Get(pid).Do()
+		p, err := rmClient.NewClient(config, config.UserAgent).Projects.Get(pid).Do()
 		if err != nil {
 			t.Fatalf("Error getting shared test project: %s", err)
 		}
@@ -898,7 +901,7 @@ func BootstrapFolder(t *testing.T, folderDisplayName string) *resourceManagerV3.
 		return nil
 	}
 
-	crmClient := config.NewResourceManagerV3Client(config.UserAgent)
+	crmClient := resourcemanagerv3.NewClient(config, config.UserAgent)
 	searchQuery := fmt.Sprintf("displayName=%s", folderDisplayName)
 	folderSearchResp, err := crmClient.Folders.Search().Query(searchQuery).Do()
 	if err != nil {
@@ -963,7 +966,7 @@ func BootstrapProjectWithParent(t *testing.T, projectID string, billingAccount s
 	if config == nil {
 		return nil
 	}
-	crmClient := config.NewResourceManagerClient(config.UserAgent)
+	crmClient := rmClient.NewClient(config, config.UserAgent)
 
 	project, err := crmClient.Projects.Get(projectID).Do()
 	if err != nil {
@@ -1094,7 +1097,7 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 
 	log.Printf("[DEBUG] Getting list of existing sql instances")
 
-	instances, err := config.NewSqlAdminClient(config.UserAgent).Instances.List(project).Do()
+	instances, err := sql.NewClient(config, config.UserAgent).Instances.List(project).Do()
 	if err != nil {
 		t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve instance list: %s", err)
 	}
@@ -1131,7 +1134,7 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 		var op *sqladmin.Operation
 		err = transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() (operr error) {
-				op, operr = config.NewSqlAdminClient(config.UserAgent).Instances.Insert(project, bootstrapInstance).Do()
+				op, operr = sql.NewClient(config, config.UserAgent).Instances.Insert(project, bootstrapInstance).Do()
 				return operr
 			},
 			Timeout:              20 * time.Minute,
@@ -1147,7 +1150,7 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 	}
 
 	// Look for backups in bootstrap instance
-	res, err := config.NewSqlAdminClient(config.UserAgent).BackupRuns.List(project, bootstrapInstance.Name).Do()
+	res, err := sql.NewClient(config, config.UserAgent).BackupRuns.List(project, bootstrapInstance.Name).Do()
 	if err != nil {
 		t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve backup list: %s", err)
 	}
@@ -1161,7 +1164,7 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 		var op *sqladmin.Operation
 		err = transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() (operr error) {
-				op, operr = config.NewSqlAdminClient(config.UserAgent).BackupRuns.Insert(project, bootstrapInstance.Name, backupRun).Do()
+				op, operr = sql.NewClient(config, config.UserAgent).BackupRuns.Insert(project, bootstrapInstance.Name, backupRun).Do()
 				return operr
 			},
 			Timeout:              20 * time.Minute,
@@ -1224,12 +1227,12 @@ func BootstrapBackupDRVault(t *testing.T, vaultID, location string) string {
 	}
 
 	// Create a backupdr client and check if the vault exists, if not create a vault
-	// backupdrClient := config.NewBackupDRClient(config.UserAgent)
+	// backupdrClient := backupdr_tpg.NewClient(config, config.UserAgent)
 	vaultName := fmt.Sprintf("projects/%s/locations/%s/backupVaults/%s", project, location, vaultID)
 	projectAndLocation := fmt.Sprintf("projects/%s/locations/%s", project, location)
 
 	log.Printf("[DEBUG] Getting BackupDR vault %q", vaultName)
-	backupdrService := config.NewBackupDRClient(config.UserAgent)
+	backupdrService := backupdr_tpg.NewClient(config, config.UserAgent)
 	_, err := backupdrService.Projects.Locations.BackupVaults.Get(vaultName).Do()
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] BackupDR vault %q not found, bootstrapping", vaultName)
@@ -1625,7 +1628,7 @@ func BootstrapComputeStoragePool(t *testing.T, storagePoolName, storagePoolType 
 
 func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *transport_tpg.Config) (string, error) {
 	// Create project-1 and project-2
-	rmService := config.NewResourceManagerClient(config.UserAgent)
+	rmService := rmClient.NewClient(config, config.UserAgent)
 
 	project := &cloudresourcemanager.Project{
 		ProjectId: pid,
@@ -1740,7 +1743,7 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	}
 
 	p.Bindings = tpgiamresource.MergeBindings(append(p.Bindings, bindings...))
-	_, err = config.NewResourceManagerClient(config.UserAgent).Projects.SetIamPolicy(pid,
+	_, err = rmClient.NewClient(config, config.UserAgent).Projects.SetIamPolicy(pid,
 		&cloudresourcemanager.SetIamPolicyRequest{
 			Policy:     p,
 			UpdateMask: "bindings,etag,auditConfigs",
@@ -1796,7 +1799,7 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	}
 
 	p.Bindings = tpgiamresource.MergeBindings(append(p.Bindings, bindings...))
-	_, err = config.NewResourceManagerClient(config.UserAgent).Projects.SetIamPolicy(p2,
+	_, err = rmClient.NewClient(config, config.UserAgent).Projects.SetIamPolicy(p2,
 		&cloudresourcemanager.SetIamPolicyRequest{
 			Policy:     p,
 			UpdateMask: "bindings,etag,auditConfigs",

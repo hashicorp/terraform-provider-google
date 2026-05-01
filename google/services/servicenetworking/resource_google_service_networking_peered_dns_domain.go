@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -268,7 +269,7 @@ func getProjectNumber(d *schema.ResourceData, config *transport_tpg.Config, proj
 		billingProject = bp
 	}
 
-	getProjectCall := config.NewResourceManagerClient(userAgent).Projects.Get(project)
+	getProjectCall := rmClient.NewClient(config, userAgent).Projects.Get(project)
 	if config.UserProjectOverride {
 		getProjectCall.Header().Add("X-Goog-User-Project", billingProject)
 	}

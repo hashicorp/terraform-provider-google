@@ -36,6 +36,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
+)
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -174,7 +178,7 @@ func testAccCheckMonitoringMonitoredProjectDestroyProducer(t *testing.T) func(s 
 			})
 
 			rName := tpgresource.GetResourceNameFromSelfLink(rs.Primary.Attributes["name"])
-			project, err := config.NewResourceManagerClient(config.UserAgent).Projects.Get(rName).Do()
+			project, err := rmClient.NewClient(config, config.UserAgent).Projects.Get(rName).Do()
 			rName = strconv.FormatInt(project.ProjectNumber, 10)
 
 			for _, monitoredProject := range res["monitoredProjects"].([]any) {

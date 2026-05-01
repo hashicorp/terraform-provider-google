@@ -140,7 +140,7 @@ func resourceSqlSslCertCreate(d *schema.ResourceData, meta interface{}) error {
 
 	transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
 	defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
-	resp, err := config.NewSqlAdminClient(userAgent).SslCerts.Insert(project, instance, sslCertsInsertRequest).Do()
+	resp, err := NewClient(config, userAgent).SslCerts.Insert(project, instance, sslCertsInsertRequest).Do()
 	if err != nil {
 		return fmt.Errorf("Error, failed to insert "+
 			"ssl cert %s into instance %s: %s", commonName, instance, err)
@@ -185,7 +185,7 @@ func resourceSqlSslCertRead(d *schema.ResourceData, meta interface{}) error {
 	commonName := d.Get("common_name").(string)
 	fingerprint := d.Get("sha1_fingerprint").(string)
 
-	sslCerts, err := config.NewSqlAdminClient(userAgent).SslCerts.Get(project, instance, fingerprint).Do()
+	sslCerts, err := NewClient(config, userAgent).SslCerts.Get(project, instance, fingerprint).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SQL Ssl Cert %q in instance %q", commonName, instance))
 	}
@@ -244,7 +244,7 @@ func resourceSqlSslCertDelete(d *schema.ResourceData, meta interface{}) error {
 
 	transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
 	defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
-	op, err := config.NewSqlAdminClient(userAgent).SslCerts.Delete(project, instance, fingerprint).Do()
+	op, err := NewClient(config, userAgent).SslCerts.Delete(project, instance, fingerprint).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete "+

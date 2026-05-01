@@ -69,7 +69,7 @@ func dataSourceSqlDatabaseInstanceLatestRecoveryTimeRead(d *schema.ResourceData,
 
 	deletionTime := d.Get("source_instance_deletion_time").(string)
 
-	latestRecoveryTimeCall := config.NewSqlAdminClient(userAgent).Projects.Instances.GetLatestRecoveryTime(project, instance)
+	latestRecoveryTimeCall := NewClient(config, userAgent).Projects.Instances.GetLatestRecoveryTime(project, instance)
 
 	if deletionTime != "" {
 		latestRecoveryTimeCall = latestRecoveryTimeCall.SourceInstanceDeletionTime(deletionTime)

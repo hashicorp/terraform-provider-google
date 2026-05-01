@@ -85,7 +85,7 @@ func (r *SQLUserFWResource) Configure(ctx context.Context, req resource.Configur
 		return
 	}
 
-	p, ok := req.ProviderData.(*transport_tpg.Config)
+	config, ok := req.ProviderData.(*transport_tpg.Config)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
@@ -94,11 +94,11 @@ func (r *SQLUserFWResource) Configure(ctx context.Context, req resource.Configur
 		return
 	}
 
-	r.client = p.NewSqlAdminClient(p.UserAgent)
+	r.client = NewClient(config, config.UserAgent)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	r.providerConfig = p
+	r.providerConfig = config
 }
 
 func (d *SQLUserFWResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {

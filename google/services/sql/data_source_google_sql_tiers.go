@@ -88,7 +88,7 @@ func dataSourceGoogleSQLTiersRead(d *schema.ResourceData, meta interface{}) erro
 
 	log.Printf("[DEBUG] Fetching tiers for project %s", project)
 
-	response, err := config.NewSqlAdminClient(userAgent).Tiers.List(project).Do()
+	response, err := NewClient(config, userAgent).Tiers.List(project).Do()
 	if err != nil {
 		return fmt.Errorf("error retrieving tiers: %s", err)
 	}

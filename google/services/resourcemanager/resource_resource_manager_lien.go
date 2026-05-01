@@ -55,6 +55,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
+)
+
+var _ = rmClient.NewClient
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -576,7 +582,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 		log.Printf("[DEBUG] The old value was a real number: %d", oldVal)
 		oldProjId = oldVal
 	} else {
-		pOld, err := config.NewResourceManagerClient(userAgent).Projects.Get(old).Do()
+		pOld, err := rmClient.NewClient(config, userAgent).Projects.Get(old).Do()
 		if err != nil {
 			return res, nil
 		}
@@ -586,7 +592,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 		log.Printf("[DEBUG] The new value was a real number: %d", newVal)
 		newProjId = newVal
 	} else {
-		pNew, err := config.NewResourceManagerClient(userAgent).Projects.Get(new).Do()
+		pNew, err := rmClient.NewClient(config, userAgent).Projects.Get(new).Do()
 		if err != nil {
 			return res, nil
 		}

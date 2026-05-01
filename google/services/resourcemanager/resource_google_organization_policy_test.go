@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -237,7 +238,7 @@ func testAccCheckGoogleOrganizationPolicyDestroyProducer(t *testing.T) func(s *t
 
 			org := "organizations/" + rs.Primary.Attributes["org_id"]
 			constraint := resourcemanager.CanonicalOrgPolicyConstraint(rs.Primary.Attributes["constraint"])
-			policy, err := config.NewResourceManagerClient(config.UserAgent).Organizations.GetOrgPolicy(org, &cloudresourcemanager.GetOrgPolicyRequest{
+			policy, err := rmClient.NewClient(config, config.UserAgent).Organizations.GetOrgPolicy(org, &cloudresourcemanager.GetOrgPolicyRequest{
 				Constraint: constraint,
 			}).Do()
 
@@ -350,7 +351,7 @@ func getGoogleOrganizationPolicyTestResource(t *testing.T, s *terraform.State, n
 
 	config := acctest.GoogleProviderConfig(t)
 
-	return config.NewResourceManagerClient(config.UserAgent).Organizations.GetOrgPolicy("organizations/"+rs.Primary.Attributes["org_id"], &cloudresourcemanager.GetOrgPolicyRequest{
+	return rmClient.NewClient(config, config.UserAgent).Organizations.GetOrgPolicy("organizations/"+rs.Primary.Attributes["org_id"], &cloudresourcemanager.GetOrgPolicyRequest{
 		Constraint: rs.Primary.Attributes["constraint"],
 	}).Do()
 }

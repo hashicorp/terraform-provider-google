@@ -130,7 +130,7 @@ func resourceSqlProvisionScriptCreate(d *schema.ResourceData, meta interface{}) 
 	var databaseInstance *sqladmin.DatabaseInstance
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() (rerr error) {
-			databaseInstance, rerr = config.NewSqlAdminClient(userAgent).Instances.Get(project, instance).Do()
+			databaseInstance, rerr = NewClient(config, userAgent).Instances.Get(project, instance).Do()
 			return rerr
 		},
 		Timeout:              d.Timeout(schema.TimeoutCreate),
@@ -145,7 +145,7 @@ func resourceSqlProvisionScriptCreate(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[INFO] executing script %s on database %s on instance %s", description, database, instance)
 
-	resp, err := config.NewSqlAdminClient(userAgent).Instances.ExecuteSql(project, instance,
+	resp, err := NewClient(config, userAgent).Instances.ExecuteSql(project, instance,
 		executeSqlPayload).Do()
 
 	if err != nil {

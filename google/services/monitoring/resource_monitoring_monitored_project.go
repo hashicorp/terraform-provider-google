@@ -55,6 +55,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
+)
+
+var _ = rmClient.NewClient
+
 func ResourceMonitoringMonitoredProjectNameDiffSuppressFunc(k, old, new string, d tpgresource.TerraformResourceDataChange) bool {
 	// Don't suppress if values are empty strings
 	if old == "" || new == "" {
@@ -421,7 +427,7 @@ func resourceMonitoringMonitoredProjectDecoder(d *schema.ResourceData, meta inte
 	monitoredProjects, _ := res["monitoredProjects"].([]interface{})
 
 	// Convert configured terraform monitored_project resource name to a ProjectNumber
-	expectedProject, configProjectErr := config.NewResourceManagerClient(config.UserAgent).Projects.Get(d.Get("name").(string)).Do()
+	expectedProject, configProjectErr := rmClient.NewClient(config, config.UserAgent).Projects.Get(d.Get("name").(string)).Do()
 	if configProjectErr != nil {
 		return nil, configProjectErr
 	}

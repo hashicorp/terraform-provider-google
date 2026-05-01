@@ -25,9 +25,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
+	cloudresourcemanagerv3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
 func ResourceGoogleFolder() *schema.Resource {
@@ -122,7 +124,7 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 	displayName := d.Get("display_name").(string)
 	parent := d.Get("parent").(string)
 
-	folder := &resourceManagerV3.Folder{
+	folder := &cloudresourcemanagerv3.Folder{
 		DisplayName: displayName,
 		Parent:      parent,
 	}
@@ -130,11 +132,11 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 		folder.Tags = tpgresource.ExpandStringMap(d, "tags")
 	}
 
-	var op *resourceManagerV3.Operation
+	var op *cloudresourcemanagerv3.Operation
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
 			var reqErr error
-			op, reqErr = config.NewResourceManagerV3Client(userAgent).Folders.Create(folder).Do()
+			op, reqErr = resourcemanagerv3.NewClient(config, userAgent).Folders.Create(folder).Do()
 			return reqErr
 		},
 		Timeout: d.Timeout(schema.TimeoutCreate),
@@ -154,7 +156,7 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Since we waited above, the operation is guaranteed to have been successful by this point.
-	waitOp, err := config.NewResourceManagerClient(userAgent).Operations.Get(op.Name).Do()
+	waitOp, err := rmClient.NewClient(config, userAgent).Operations.Get(op.Name).Do()
 	if err != nil {
 		return fmt.Errorf("The folder '%s' has been created but we could not retrieve its id. Delete the folder manually and retry or use 'terraform import': %s", displayName, err)
 	}
@@ -243,7 +245,7 @@ func resourceGoogleFolderUpdate(d *schema.ResourceData, meta interface{}) error 
 	if d.HasChange("display_name") {
 		err := transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() error {
-				_, reqErr := config.NewResourceManagerV3Client(userAgent).Folders.Patch(d.Id(), &resourceManagerV3.Folder{
+				_, reqErr := resourcemanagerv3.NewClient(config, userAgent).Folders.Patch(d.Id(), &cloudresourcemanagerv3.Folder{
 					DisplayName: displayName,
 				}).Do()
 				return reqErr
@@ -257,11 +259,11 @@ func resourceGoogleFolderUpdate(d *schema.ResourceData, meta interface{}) error 
 	if d.HasChange("parent") {
 		newParent := d.Get("parent").(string)
 
-		var op *resourceManagerV3.Operation
+		var op *cloudresourcemanagerv3.Operation
 		err := transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() error {
 				var reqErr error
-				op, reqErr = config.NewResourceManagerV3Client(userAgent).Folders.Move(d.Id(), &resourceManagerV3.MoveFolderRequest{
+				op, reqErr = resourcemanagerv3.NewClient(config, userAgent).Folders.Move(d.Id(), &cloudresourcemanagerv3.MoveFolderRequest{
 					DestinationParent: newParent,
 				}).Do()
 				return reqErr
@@ -300,11 +302,11 @@ func resourceGoogleFolderDelete(d *schema.ResourceData, meta interface{}) error 
 
 	displayName := d.Get("display_name").(string)
 
-	var op *resourceManagerV3.Operation
+	var op *cloudresourcemanagerv3.Operation
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
 			var reqErr error
-			op, reqErr = config.NewResourceManagerV3Client(userAgent).Folders.Delete(d.Id()).Do()
+			op, reqErr = resourcemanagerv3.NewClient(config, userAgent).Folders.Delete(d.Id()).Do()
 			return reqErr
 		},
 		Timeout: d.Timeout(schema.TimeoutDelete),
@@ -340,12 +342,12 @@ func resourceGoogleFolderImportState(d *schema.ResourceData, m interface{}) ([]*
 
 // Util to get a Folder resource from API. Note that folder described by name is not necessarily the
 // ResourceData resource.
-func getGoogleFolder(folderName, userAgent string, d *schema.ResourceData, config *transport_tpg.Config) (*resourceManagerV3.Folder, error) {
-	var folder *resourceManagerV3.Folder
+func getGoogleFolder(folderName, userAgent string, d *schema.ResourceData, config *transport_tpg.Config) (*cloudresourcemanagerv3.Folder, error) {
+	var folder *cloudresourcemanagerv3.Folder
 	err := transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
 			var reqErr error
-			folder, reqErr = config.NewResourceManagerV3Client(userAgent).Folders.Get(folderName).Do()
+			folder, reqErr = resourcemanagerv3.NewClient(config, userAgent).Folders.Get(folderName).Do()
 			return reqErr
 		},
 		Timeout: d.Timeout(schema.TimeoutRead),

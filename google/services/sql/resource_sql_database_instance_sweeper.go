@@ -41,7 +41,7 @@ func testSweepSQLDatabaseInstance(region string) error {
 		log.Fatalf("error loading: %s", err)
 	}
 
-	found, err := config.NewSqlAdminClient(config.UserAgent).Instances.List(config.Project).Do()
+	found, err := NewClient(config, config.UserAgent).Instances.List(config.Project).Do()
 	if err != nil {
 		log.Printf("error listing databases: %s", err)
 		return nil
@@ -89,7 +89,7 @@ func testSweepSQLDatabaseInstance(region string) error {
 			}
 
 			// need to stop replication before being able to destroy a database
-			op, err := config.NewSqlAdminClient(config.UserAgent).Instances.StopReplica(config.Project, replicaName).Do()
+			op, err := NewClient(config, config.UserAgent).Instances.StopReplica(config.Project, replicaName).Do()
 
 			// if the replica can't be stopped, still try deleting it later (in case it is stopped by then)
 			if err != nil {
@@ -115,7 +115,7 @@ func testSweepSQLDatabaseInstance(region string) error {
 
 		for _, db := range ordering {
 			// destroy instances, replicas first
-			op, err := config.NewSqlAdminClient(config.UserAgent).Instances.Delete(config.Project, db).Do()
+			op, err := NewClient(config, config.UserAgent).Instances.Delete(config.Project, db).Do()
 
 			if err != nil {
 				if strings.Contains(err.Error(), "409") {

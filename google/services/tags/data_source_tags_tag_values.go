@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -59,7 +60,7 @@ func dataSourceGoogleTagsTagValuesRead(d *schema.ResourceData, meta interface{})
 	tagValues := make([]map[string]interface{}, 0)
 
 	for paginate := true; paginate; {
-		resp, err := config.NewResourceManagerV3Client(userAgent).TagValues.List().Parent(parent).PageSize(300).PageToken(token).Do()
+		resp, err := resourcemanagerv3.NewClient(config, userAgent).TagValues.List().Parent(parent).PageSize(300).PageToken(token).Do()
 		if err != nil {
 			return fmt.Errorf("error reading tag value list: %s", err)
 		}

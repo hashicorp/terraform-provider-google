@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -80,7 +81,7 @@ func datasourceGoogleProjectAncestryRead(d *schema.ResourceData, meta interface{
 	}
 
 	request := &cloudresourcemanager.GetAncestryRequest{}
-	response, err := config.NewResourceManagerClient(userAgent).Projects.GetAncestry(project, request).Context(context.Background()).Do()
+	response, err := rmClient.NewClient(config, userAgent).Projects.GetAncestry(project, request).Context(context.Background()).Do()
 	if err != nil {
 		return fmt.Errorf("Error retrieving project ancestry: %s", err)
 	}

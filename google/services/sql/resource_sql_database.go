@@ -344,7 +344,7 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 
 	headers := make(http.Header)
 	instance := d.Get("instance").(string)
-	databaseInstance, err := config.NewSqlAdminClient(userAgent).Instances.Get(project, instance).Do()
+	databaseInstance, err := NewClient(config, userAgent).Instances.Get(project, instance).Do()
 	if err != nil {
 		return err
 	}

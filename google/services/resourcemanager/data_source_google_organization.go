@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -80,7 +81,7 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 		var resp *cloudresourcemanager.SearchOrganizationsResponse
 		err := transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() (err error) {
-				resp, err = config.NewResourceManagerClient(userAgent).Organizations.Search(&cloudresourcemanager.SearchOrganizationsRequest{
+				resp, err = rmClient.NewClient(config, userAgent).Organizations.Search(&cloudresourcemanager.SearchOrganizationsRequest{
 					Filter: filter,
 				}).Do()
 				return err
@@ -114,7 +115,7 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 		var resp *cloudresourcemanager.Organization
 		err := transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() (err error) {
-				resp, err = config.NewResourceManagerClient(userAgent).Organizations.Get(canonicalOrganizationName(v.(string))).Do()
+				resp, err = rmClient.NewClient(config, userAgent).Organizations.Get(canonicalOrganizationName(v.(string))).Do()
 				return err
 			},
 			Timeout: d.Timeout(schema.TimeoutRead),

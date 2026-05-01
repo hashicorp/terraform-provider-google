@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -66,7 +67,7 @@ func (u *ProjectIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy
 		return nil, err
 	}
 
-	p, err := u.Config.NewResourceManagerClient(userAgent).Projects.GetIamPolicy(projectId,
+	p, err := rmClient.NewClient(u.Config, userAgent).Projects.GetIamPolicy(projectId,
 		&cloudresourcemanager.GetIamPolicyRequest{
 			Options: &cloudresourcemanager.GetPolicyOptions{
 				RequestedPolicyVersion: tpgiamresource.IamPolicyVersion,
@@ -88,7 +89,7 @@ func (u *ProjectIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Po
 		return err
 	}
 
-	_, err = u.Config.NewResourceManagerClient(userAgent).Projects.SetIamPolicy(projectId,
+	_, err = rmClient.NewClient(u.Config, userAgent).Projects.SetIamPolicy(projectId,
 		&cloudresourcemanager.SetIamPolicyRequest{
 			Policy:     policy,
 			UpdateMask: "bindings,etag,auditConfigs",

@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
@@ -65,7 +66,7 @@ func resourceGoogleProjectIamMemberRemoveCreate(d *schema.ResourceData, meta int
 	member := d.Get("member").(string)
 
 	found := false
-	iamPolicy, err := config.NewResourceManagerClient(config.UserAgent).Projects.GetIamPolicy(project,
+	iamPolicy, err := rmClient.NewClient(config, config.UserAgent).Projects.GetIamPolicy(project,
 		&cloudresourcemanager.GetIamPolicyRequest{
 			Options: &cloudresourcemanager.GetPolicyOptions{
 				RequestedPolicyVersion: tpgiamresource.IamPolicyVersion,
@@ -94,7 +95,7 @@ func resourceGoogleProjectIamMemberRemoveCreate(d *schema.ResourceData, meta int
 			Policy:     iamPolicy,
 			UpdateMask: "bindings",
 		}
-		_, err = config.NewResourceManagerClient(config.UserAgent).Projects.SetIamPolicy(project, updateRequest).Do()
+		_, err = rmClient.NewClient(config, config.UserAgent).Projects.SetIamPolicy(project, updateRequest).Do()
 		if err != nil {
 			return fmt.Errorf("cannot update IAM policy on project %s: %v", project, err)
 		}
@@ -113,7 +114,7 @@ func resourceGoogleProjectIamMemberRemoveRead(d *schema.ResourceData, meta inter
 	member := d.Get("member").(string)
 
 	found := false
-	iamPolicy, err := config.NewResourceManagerClient(config.UserAgent).Projects.GetIamPolicy(project,
+	iamPolicy, err := rmClient.NewClient(config, config.UserAgent).Projects.GetIamPolicy(project,
 		&cloudresourcemanager.GetIamPolicyRequest{
 			Options: &cloudresourcemanager.GetPolicyOptions{
 				RequestedPolicyVersion: tpgiamresource.IamPolicyVersion,

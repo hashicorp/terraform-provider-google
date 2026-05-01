@@ -21,10 +21,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
-	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
+	cloudresourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
 func DataSourceGoogleActiveFolder() *schema.Resource {
@@ -62,7 +63,7 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	var folderMatch *resourceManagerV3.Folder
+	var folderMatch *cloudresourceManagerV3.Folder
 	parent := d.Get("parent").(string)
 	displayName := d.Get("display_name").(string)
 	apiMethod := d.Get("api_method").(string)
@@ -71,7 +72,7 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 		token := ""
 
 		for paginate := true; paginate; {
-			resp, err := config.NewResourceManagerV3Client(userAgent).Folders.List().Parent(parent).PageSize(300).PageToken(token).Do()
+			resp, err := resourcemanagerv3.NewClient(config, userAgent).Folders.List().Parent(parent).PageSize(300).PageToken(token).Do()
 			if err != nil {
 				return fmt.Errorf("error reading folder list: %s", err)
 			}
@@ -89,7 +90,7 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 		}
 	} else {
 		queryString := fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=\"%s\"", parent, displayName)
-		searchRequest := config.NewResourceManagerV3Client(userAgent).Folders.Search()
+		searchRequest := resourcemanagerv3.NewClient(config, userAgent).Folders.Search()
 		searchRequest.Query(queryString)
 		searchResponse, err := searchRequest.Do()
 		if err != nil {

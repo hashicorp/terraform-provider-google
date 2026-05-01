@@ -21,6 +21,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -67,7 +68,7 @@ func migrateGoogleProjectStateV0toV1(s *terraform.InstanceState, config *transpo
 
 // Retrieve the existing IAM Policy for a Project
 func GetProjectIamPolicy(project string, config *transport_tpg.Config) (*cloudresourcemanager.Policy, error) {
-	p, err := config.NewResourceManagerClient(config.UserAgent).Projects.GetIamPolicy(project,
+	p, err := rmClient.NewClient(config, config.UserAgent).Projects.GetIamPolicy(project,
 		&cloudresourcemanager.GetIamPolicyRequest{
 			Options: &cloudresourcemanager.GetPolicyOptions{
 				RequestedPolicyVersion: tpgiamresource.IamPolicyVersion,

@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/sql"
 
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
@@ -164,7 +165,7 @@ func testAccCheckGoogleSqlDatabaseExists(t *testing.T, n string, database *sqlad
 
 		database_name := rs.Primary.Attributes["name"]
 		instance_name := rs.Primary.Attributes["instance"]
-		found, err := config.NewSqlAdminClient(config.UserAgent).Databases.Get(config.Project,
+		found, err := sql.NewClient(config, config.UserAgent).Databases.Get(config.Project,
 			instance_name, database_name).Do()
 
 		if err != nil {
@@ -187,7 +188,7 @@ func testAccSqlDatabaseDestroyProducer(t *testing.T) func(s *terraform.State) er
 
 			database_name := rs.Primary.Attributes["name"]
 			instance_name := rs.Primary.Attributes["instance"]
-			_, err := config.NewSqlAdminClient(config.UserAgent).Databases.Get(config.Project,
+			_, err := sql.NewClient(config, config.UserAgent).Databases.Get(config.Project,
 				instance_name, database_name).Do()
 
 			if err == nil {

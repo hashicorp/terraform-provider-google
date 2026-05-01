@@ -25,8 +25,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 
-	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
+	cloudresourcemanagerv3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
 func TestAccFolder_rename(t *testing.T) {
@@ -36,7 +37,7 @@ func TestAccFolder_rename(t *testing.T) {
 	newFolderDisplayName := "tf-test-renamed-" + acctest.RandString(t, 10)
 	org := envvar.GetTestOrgFromEnv(t)
 	parent := "organizations/" + org
-	folder := resourceManagerV3.Folder{}
+	folder := cloudresourcemanagerv3.Folder{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -75,8 +76,8 @@ func TestAccFolder_moveParent(t *testing.T) {
 	folder2DisplayName := "tf-test-" + acctest.RandString(t, 10)
 	org := envvar.GetTestOrgFromEnv(t)
 	parent := "organizations/" + org
-	folder1 := resourceManagerV3.Folder{}
-	folder2 := resourceManagerV3.Folder{}
+	folder1 := cloudresourcemanagerv3.Folder{}
+	folder2 := cloudresourcemanagerv3.Folder{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -117,7 +118,7 @@ func TestAccFolder_tags(t *testing.T) {
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	folder_tags := resourceManagerV3.Folder{}
+	folder_tags := cloudresourcemanagerv3.Folder{}
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -156,7 +157,7 @@ func testAccCheckGoogleFolderDestroyProducer(t *testing.T) func(s *terraform.Sta
 				continue
 			}
 
-			folder, err := config.NewResourceManagerV3Client(config.UserAgent).Folders.Get(rs.Primary.ID).Do()
+			folder, err := resourcemanagerv3.NewClient(config, config.UserAgent).Folders.Get(rs.Primary.ID).Do()
 			if err != nil || folder.State != "DELETE_REQUESTED" {
 				return fmt.Errorf("Folder '%s' hasn't been marked for deletion", rs.Primary.Attributes["display_name"])
 			}
@@ -166,7 +167,7 @@ func testAccCheckGoogleFolderDestroyProducer(t *testing.T) func(s *terraform.Sta
 	}
 }
 
-func testAccCheckGoogleFolderExists(t *testing.T, n string, folder *resourceManagerV3.Folder) resource.TestCheckFunc {
+func testAccCheckGoogleFolderExists(t *testing.T, n string, folder *cloudresourcemanagerv3.Folder) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -179,7 +180,7 @@ func testAccCheckGoogleFolderExists(t *testing.T, n string, folder *resourceMana
 
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := config.NewResourceManagerV3Client(config.UserAgent).Folders.Get(rs.Primary.ID).Do()
+		found, err := resourcemanagerv3.NewClient(config, config.UserAgent).Folders.Get(rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}
@@ -190,7 +191,7 @@ func testAccCheckGoogleFolderExists(t *testing.T, n string, folder *resourceMana
 	}
 }
 
-func testAccCheckGoogleFolderDisplayName(folder *resourceManagerV3.Folder, displayName string) resource.TestCheckFunc {
+func testAccCheckGoogleFolderDisplayName(folder *cloudresourcemanagerv3.Folder, displayName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if folder.DisplayName != displayName {
 			return fmt.Errorf("Incorrect display name . Expected '%s', got '%s'", displayName, folder.DisplayName)
@@ -199,7 +200,7 @@ func testAccCheckGoogleFolderDisplayName(folder *resourceManagerV3.Folder, displ
 	}
 }
 
-func testAccCheckGoogleFolderParent(folder *resourceManagerV3.Folder, parent string) resource.TestCheckFunc {
+func testAccCheckGoogleFolderParent(folder *cloudresourcemanagerv3.Folder, parent string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if folder.Parent != parent {
 			return fmt.Errorf("Incorrect parent. Expected '%s', got '%s'", parent, folder.Parent)

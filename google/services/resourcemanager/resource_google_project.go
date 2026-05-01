@@ -33,6 +33,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	tpgserviceusage "github.com/hashicorp/terraform-provider-google/google/services/serviceusage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -198,7 +199,7 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	var op *cloudresourcemanager.Operation
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() (reqErr error) {
-			op, reqErr = config.NewResourceManagerClient(userAgent).Projects.Create(project).Do()
+			op, reqErr = rmClient.NewClient(config, userAgent).Projects.Create(project).Do()
 			return reqErr
 		},
 		Timeout: d.Timeout(schema.TimeoutCreate),
@@ -519,7 +520,7 @@ func updateProject(config *transport_tpg.Config, d *schema.ResourceData, project
 	var newProj *cloudresourcemanager.Project
 	if err := transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() (updateErr error) {
-			newProj, updateErr = config.NewResourceManagerClient(userAgent).Projects.Update(desiredProject.ProjectId, desiredProject).Do()
+			newProj, updateErr = rmClient.NewClient(config, userAgent).Projects.Update(desiredProject.ProjectId, desiredProject).Do()
 			return updateErr
 		},
 		Timeout: d.Timeout(schema.TimeoutUpdate),
@@ -549,7 +550,7 @@ func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error
 		pid := parts[len(parts)-1]
 		if err := transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() error {
-				_, delErr := config.NewResourceManagerClient(userAgent).Projects.Delete(pid).Do()
+				_, delErr := rmClient.NewClient(config, userAgent).Projects.Delete(pid).Do()
 				return delErr
 			},
 			Timeout: d.Timeout(schema.TimeoutDelete),
@@ -696,7 +697,7 @@ func readGoogleProject(d *schema.ResourceData, config *transport_tpg.Config, use
 	pid := parts[len(parts)-1]
 	err := transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() (reqErr error) {
-			p, reqErr = config.NewResourceManagerClient(userAgent).Projects.Get(pid).Do()
+			p, reqErr = rmClient.NewClient(config, userAgent).Projects.Get(pid).Do()
 			return reqErr
 		},
 		Timeout: d.Timeout(schema.TimeoutRead),

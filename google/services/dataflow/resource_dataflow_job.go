@@ -621,30 +621,30 @@ func resourceDataflowJobMapRequestedState(policy string) (string, error) {
 
 func resourceDataflowJobCreateJob(config *transport_tpg.Config, project, region, userAgent string, request *dataflow.CreateJobFromTemplateRequest) (*dataflow.Job, error) {
 	if region == "" {
-		return config.NewDataflowClient(userAgent).Projects.Templates.Create(project, request).Do()
+		return NewClient(config, userAgent).Projects.Templates.Create(project, request).Do()
 	}
-	return config.NewDataflowClient(userAgent).Projects.Locations.Templates.Create(project, region, request).Do()
+	return NewClient(config, userAgent).Projects.Locations.Templates.Create(project, region, request).Do()
 }
 
 func resourceDataflowJobGetJob(config *transport_tpg.Config, project, region, userAgent string, id string) (*dataflow.Job, error) {
 	if region == "" {
-		return config.NewDataflowClient(userAgent).Projects.Jobs.Get(project, id).View("JOB_VIEW_ALL").Do()
+		return NewClient(config, userAgent).Projects.Jobs.Get(project, id).View("JOB_VIEW_ALL").Do()
 	}
-	return config.NewDataflowClient(userAgent).Projects.Locations.Jobs.Get(project, region, id).View("JOB_VIEW_ALL").Do()
+	return NewClient(config, userAgent).Projects.Locations.Jobs.Get(project, region, id).View("JOB_VIEW_ALL").Do()
 }
 
 func resourceDataflowJobUpdateJob(config *transport_tpg.Config, project, region, userAgent string, id string, job *dataflow.Job) (*dataflow.Job, error) {
 	if region == "" {
-		return config.NewDataflowClient(userAgent).Projects.Jobs.Update(project, id, job).Do()
+		return NewClient(config, userAgent).Projects.Jobs.Update(project, id, job).Do()
 	}
-	return config.NewDataflowClient(userAgent).Projects.Locations.Jobs.Update(project, region, id, job).Do()
+	return NewClient(config, userAgent).Projects.Locations.Jobs.Update(project, region, id, job).Do()
 }
 
 func resourceDataflowJobLaunchTemplate(config *transport_tpg.Config, project, region, userAgent string, gcsPath string, request *dataflow.LaunchTemplateParameters) (*dataflow.LaunchTemplateResponse, error) {
 	if region == "" {
-		return config.NewDataflowClient(userAgent).Projects.Templates.Launch(project, request).GcsPath(gcsPath).Do()
+		return NewClient(config, userAgent).Projects.Templates.Launch(project, request).GcsPath(gcsPath).Do()
 	}
-	return config.NewDataflowClient(userAgent).Projects.Locations.Templates.Launch(project, region, request).GcsPath(gcsPath).Do()
+	return NewClient(config, userAgent).Projects.Locations.Templates.Launch(project, region, request).GcsPath(gcsPath).Do()
 }
 
 func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *transport_tpg.Config) (dataflow.RuntimeEnvironment, error) {

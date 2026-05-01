@@ -604,7 +604,7 @@ func testAccCheckDataflowJobDestroyProducer(t *testing.T) func(s *terraform.Stat
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			job, err := config.NewDataflowClient(config.UserAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
+			job, err := dataflow.NewClient(config, config.UserAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 			if job != nil {
 				var ok bool
 				skipWait, err := strconv.ParseBool(rs.Primary.Attributes["skip_wait_on_job_termination"])
@@ -634,7 +634,7 @@ func testAccCheckDataflowJobRegionDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 			config := acctest.GoogleProviderConfig(t)
-			job, err := config.NewDataflowClient(config.UserAgent).Projects.Locations.Jobs.Get(config.Project, "us-central1", rs.Primary.ID).Do()
+			job, err := dataflow.NewClient(config, config.UserAgent).Projects.Locations.Jobs.Get(config.Project, "us-central1", rs.Primary.ID).Do()
 			if job != nil {
 				var ok bool
 				skipWait, err := strconv.ParseBool(rs.Primary.Attributes["skip_wait_on_job_termination"])
@@ -680,7 +680,7 @@ func testAccDataflowGetJob(t *testing.T, s *terraform.State, resource string) (*
 	config := acctest.GoogleProviderConfig(t)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
-	job, err := config.NewDataflowClient(config.UserAgent).Projects.Locations.Jobs.Get(config.Project, region, rs.Primary.ID).Context(ctx).View("JOB_VIEW_ALL").Do()
+	job, err := dataflow.NewClient(config, config.UserAgent).Projects.Locations.Jobs.Get(config.Project, region, rs.Primary.ID).Context(ctx).View("JOB_VIEW_ALL").Do()
 	if err != nil {
 		return nil, fmt.Errorf("could not get Dataflow Job 'projects/%s/regions/%s/jobs/%s': %w", config.Project, config.Region, rs.Primary.ID, err)
 	}
@@ -831,7 +831,7 @@ func testAccRegionalDataflowJobExists(t *testing.T, res, region string) resource
 			return fmt.Errorf("No ID is set")
 		}
 		config := acctest.GoogleProviderConfig(t)
-		_, err := config.NewDataflowClient(config.UserAgent).Projects.Locations.Jobs.Get(config.Project, region, rs.Primary.ID).Do()
+		_, err := dataflow.NewClient(config, config.UserAgent).Projects.Locations.Jobs.Get(config.Project, region, rs.Primary.ID).Do()
 		if err != nil {
 			return fmt.Errorf("Job does not exist")
 		}

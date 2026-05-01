@@ -55,6 +55,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
+)
+
+var _ = resourcemanagerv3.NewClient
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -647,7 +653,7 @@ func resourceBigqueryAnalyticsHubListingSubscriptionImport(d *schema.ResourceDat
 	}
 
 	projectNumber := d.Get("project").(string)
-	resourceManager := config.NewResourceManagerV3Client(userAgent)
+	resourceManager := resourcemanagerv3.NewClient(config, userAgent)
 	projectData, err := resourceManager.Projects.Get("projects/" + d.Get("project").(string)).Do()
 	if err != nil {
 		return nil, err

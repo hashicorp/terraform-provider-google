@@ -50,19 +50,14 @@ import (
 	"golang.org/x/oauth2"
 	googleoauth "golang.org/x/oauth2/google"
 	externalaccount "golang.org/x/oauth2/google/externalaccount"
-	backupdr "google.golang.org/api/backupdr/v1"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudfunctions/v1"
 	"google.golang.org/api/cloudidentity/v1"
-	"google.golang.org/api/cloudresourcemanager/v1"
-	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
-	dataflow "google.golang.org/api/dataflow/v1b3"
 	"google.golang.org/api/iam/v1"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	runadminv2 "google.golang.org/api/run/v2"
 	"google.golang.org/api/serviceusage/v1"
-	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 	"google.golang.org/api/transport"
 	"google.golang.org/grpc"
 )
@@ -1239,76 +1234,6 @@ func (c *Config) getTokenSource(ctx context.Context, clientScopes []string, init
 // while most only want the host URL, some older ones also want the version and some
 // of those "projects" as well. You can find out if this is required by looking at
 // the basePath value in the client library file.
-func (c *Config) NewSqlAdminClient(userAgent string) *sqladmin.Service {
-	sqlClientBasePath := RemoveBasePathVersion(RemoveBasePathVersion(c.SQLBasePath))
-	log.Printf("[INFO] Instantiating Google SqlAdmin client for path %s", sqlClientBasePath)
-	clientSqlAdmin, err := sqladmin.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client storage: %s", err)
-		return nil
-	}
-	clientSqlAdmin.UserAgent = userAgent
-	clientSqlAdmin.BasePath = sqlClientBasePath
-
-	return clientSqlAdmin
-}
-
-func (c *Config) NewBackupDRClient(userAgent string) *backupdr.Service {
-	backupdrClientBasePath := RemoveBasePathVersion(RemoveBasePathVersion(c.BackupDRBasePath))
-	log.Printf("[INFO] Instantiating Google SqlAdmin client for path %s", backupdrClientBasePath)
-	clientBackupdrAdmin, err := backupdr.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client storage: %s", err)
-		return nil
-	}
-	clientBackupdrAdmin.UserAgent = userAgent
-	clientBackupdrAdmin.BasePath = backupdrClientBasePath
-
-	return clientBackupdrAdmin
-}
-
-func (c *Config) NewDataflowClient(userAgent string) *dataflow.Service {
-	dataflowClientBasePath := RemoveBasePathVersion(c.DataflowBasePath)
-	log.Printf("[INFO] Instantiating Google Dataflow client for path %s", dataflowClientBasePath)
-	clientDataflow, err := dataflow.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client dataflow: %s", err)
-		return nil
-	}
-	clientDataflow.UserAgent = userAgent
-	clientDataflow.BasePath = dataflowClientBasePath
-
-	return clientDataflow
-}
-
-func (c *Config) NewResourceManagerClient(userAgent string) *cloudresourcemanager.Service {
-	resourceManagerBasePath := RemoveBasePathVersion(c.ResourceManagerBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud ResourceManager client for path %s", resourceManagerBasePath)
-	clientResourceManager, err := cloudresourcemanager.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client resource manager: %s", err)
-		return nil
-	}
-	clientResourceManager.UserAgent = userAgent
-	clientResourceManager.BasePath = resourceManagerBasePath
-
-	return clientResourceManager
-}
-
-func (c *Config) NewResourceManagerV3Client(userAgent string) *resourceManagerV3.Service {
-	resourceManagerV3BasePath := RemoveBasePathVersion(c.ResourceManagerV3BasePath)
-	log.Printf("[INFO] Instantiating Google Cloud ResourceManager V3 client for path %s", resourceManagerV3BasePath)
-	clientResourceManagerV3, err := resourceManagerV3.NewService(c.Context, option.WithHTTPClient(c.Client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client resource manager v3: %s", err)
-		return nil
-	}
-	clientResourceManagerV3.UserAgent = userAgent
-	clientResourceManagerV3.BasePath = resourceManagerV3BasePath
-
-	return clientResourceManagerV3
-}
-
 func (c *Config) NewIamClient(userAgent string) *iam.Service {
 	iamClientBasePath := RemoveBasePathVersion(c.IAMBetaBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud IAM client for path %s", iamClientBasePath)

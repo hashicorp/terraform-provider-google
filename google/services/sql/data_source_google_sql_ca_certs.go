@@ -95,7 +95,7 @@ func dataSourceGoogleSQLCaCertsRead(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Fetching CA certs from instance %s", instance)
 
-	response, err := config.NewSqlAdminClient(userAgent).Instances.ListServerCas(project, instance).Do()
+	response, err := NewClient(config, userAgent).Instances.ListServerCas(project, instance).Do()
 	if err != nil {
 		return fmt.Errorf("error retrieving CA certs: %s", err)
 	}

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -83,7 +84,7 @@ func datasourceGoogleOrganizationsRead(d *schema.ResourceData, meta interface{})
 		filter = v.(string)
 	}
 
-	request := config.NewResourceManagerClient(userAgent).Organizations.Search(&cloudresourcemanager.SearchOrganizationsRequest{
+	request := rmClient.NewClient(config, userAgent).Organizations.Search(&cloudresourcemanager.SearchOrganizationsRequest{
 		Filter: filter,
 	})
 

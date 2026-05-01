@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/sql"
 )
 
 func TestAccSqlUser_mysql(t *testing.T) {
@@ -274,7 +275,7 @@ func testAccCheckGoogleSqlUserExists(t *testing.T, n string) resource.TestCheckF
 		name := rs.Primary.Attributes["name"]
 		instance := rs.Primary.Attributes["instance"]
 		host := rs.Primary.Attributes["host"]
-		users, err := config.NewSqlAdminClient(config.UserAgent).Users.List(config.Project,
+		users, err := sql.NewClient(config, config.UserAgent).Users.List(config.Project,
 			instance).Do()
 
 		if err != nil {
@@ -295,7 +296,7 @@ func testAccCheckGoogleSqlUserExistsWithName(t *testing.T, instance, name string
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		users, err := config.NewSqlAdminClient(config.UserAgent).Users.List(config.Project,
+		users, err := sql.NewClient(config, config.UserAgent).Users.List(config.Project,
 			instance).Do()
 
 		if err != nil {
@@ -323,7 +324,7 @@ func testAccSqlUserDestroyProducer(t *testing.T) func(s *terraform.State) error 
 			name := rs.Primary.Attributes["name"]
 			instance := rs.Primary.Attributes["instance"]
 			host := rs.Primary.Attributes["host"]
-			users, err := config.NewSqlAdminClient(config.UserAgent).Users.List(config.Project,
+			users, err := sql.NewClient(config, config.UserAgent).Users.List(config.Project,
 				instance).Do()
 
 			if users == nil {
