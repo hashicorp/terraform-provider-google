@@ -81,7 +81,7 @@ func dataSourceAccessContextManagerSupportedServicesRead(d *schema.ResourceData,
 		return err
 	}
 
-	urlRequest := config.AccessContextManagerBasePath + "services"
+	urlRequest := transport_tpg.BaseUrl(Product, config) + "services"
 
 	headers := make(http.Header)
 	supportedServices := make([]map[string]interface{}, 0)

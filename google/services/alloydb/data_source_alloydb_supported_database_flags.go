@@ -152,7 +152,7 @@ func dataSourceAlloydbSupportedDatabaseFlagsRead(d *schema.ResourceData, meta in
 		billingProject = bp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/supportedDatabaseFlags")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/supportedDatabaseFlags")
 	if err != nil {
 		return fmt.Errorf("Error setting api endpoint")
 	}

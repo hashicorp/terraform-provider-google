@@ -53,7 +53,7 @@ func dataSourceAccessApprovalOrganizationServiceAccountRead(d *schema.ResourceDa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/serviceAccount")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization_id}}/serviceAccount")
 	if err != nil {
 		return err
 	}

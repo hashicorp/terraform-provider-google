@@ -38,7 +38,7 @@ func resourceApigeeNatAddressActivate(config *transport_tpg.Config, d *schema.Re
 	}
 
 	// 2. activation
-	activateUrl, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses/{{name}}:activate")
+	activateUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{instance_id}}/natAddresses/{{name}}:activate")
 	if err != nil {
 		return err
 	}

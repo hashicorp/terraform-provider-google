@@ -51,7 +51,7 @@ func testSweepAccessContextManagerPolicies(region string) error {
 	log.Printf("[DEBUG] Listing Access Policies for org %q", testOrg)
 
 	parent := neturl.QueryEscape(fmt.Sprintf("organizations/%s", testOrg))
-	listUrl := fmt.Sprintf("%saccessPolicies?parent=%s", config.AccessContextManagerBasePath, parent)
+	listUrl := fmt.Sprintf("%saccessPolicies?parent=%s", transport_tpg.BaseUrl(Product, config), parent)
 
 	resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -82,7 +82,7 @@ func testSweepAccessContextManagerPolicies(region string) error {
 	policy := policies[0].(map[string]interface{})
 	log.Printf("[DEBUG] Deleting test Access Policies %q", policy["name"])
 
-	policyUrl := config.AccessContextManagerBasePath + policy["name"].(string)
+	policyUrl := transport_tpg.BaseUrl(Product, config) + policy["name"].(string)
 	if _, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",

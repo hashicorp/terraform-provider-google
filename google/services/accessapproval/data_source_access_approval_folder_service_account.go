@@ -53,7 +53,7 @@ func dataSourceAccessApprovalFolderServiceAccountRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/serviceAccount")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder_id}}/serviceAccount")
 	if err != nil {
 		return err
 	}

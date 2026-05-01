@@ -182,7 +182,7 @@ func resourceApigeeApiCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error, \"config_bundle\" must be specified")
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/apis?name={{name}}&action=import")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/apis?name={{name}}&action=import")
 	if err != nil {
 		return err
 	}
@@ -233,7 +233,7 @@ func resourceApigeeApiRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/apis/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/apis/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -308,7 +308,7 @@ func resourceApigeeApiDelete(d *schema.ResourceData, meta interface{}) error {
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/apis/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/apis/{{name}}")
 	if err != nil {
 		return err
 	}

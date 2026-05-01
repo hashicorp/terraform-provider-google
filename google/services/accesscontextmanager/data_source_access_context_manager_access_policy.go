@@ -62,7 +62,7 @@ func dataSourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies?parent={{parent}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"accessPolicies?parent={{parent}}")
 	if err != nil {
 		return err
 	}

@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/accesscontextmanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -79,7 +80,7 @@ func testAccCheckAccessContextManagerServicePerimetersDestroyProducer(t *testing
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(accesscontextmanager.Product, config)+"{{parent}}/servicePerimeters")
 			if err != nil {
 				return err
 			}
@@ -230,93 +231,93 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
     use_explicit_dry_run_spec = true
     spec {
     restricted_services = ["bigquery.googleapis.com", "storage.googleapis.com"]
-    	access_levels       = [google_access_context_manager_access_level.test-access.name]
+      access_levels       = [google_access_context_manager_access_level.test-access.name]
     
-    	vpc_accessible_services {
-    		enable_restriction = true
-    		allowed_services   = ["bigquery.googleapis.com", "storage.googleapis.com"]
-    	}
+      vpc_accessible_services {
+        enable_restriction = true
+        allowed_services   = ["bigquery.googleapis.com", "storage.googleapis.com"]
+      }
     
-    	ingress_policies {
-    		title = "ingress policy title 1"
-    		ingress_from {
-    			sources {
-    				access_level = google_access_context_manager_access_level.test-access.name
-    			}
-    			identity_type = "ANY_IDENTITY"
-    		}
+      ingress_policies {
+        title = "ingress policy title 1"
+        ingress_from {
+          sources {
+            access_level = google_access_context_manager_access_level.test-access.name
+          }
+          identity_type = "ANY_IDENTITY"
+        }
     
-    		ingress_to {
-    			resources = [ "*" ]
-    			operations {
-    				service_name = "bigquery.googleapis.com"
+        ingress_to {
+          resources = [ "*" ]
+          operations {
+            service_name = "bigquery.googleapis.com"
     
-    				method_selectors {
-    					method = "BigQueryStorage.ReadRows"
-    				}
+            method_selectors {
+              method = "BigQueryStorage.ReadRows"
+            }
     
-    				method_selectors {
-    					method = "TableService.ListTables"
-    				}
+            method_selectors {
+              method = "TableService.ListTables"
+            }
     
-    				method_selectors {
-    					permission = "bigquery.jobs.get"
-    				}
-    			}
+            method_selectors {
+              permission = "bigquery.jobs.get"
+            }
+          }
     
-    			operations {
-    				service_name = "storage.googleapis.com"
+          operations {
+            service_name = "storage.googleapis.com"
     
-    				method_selectors {
-    					method = "google.storage.objects.create"
-    				}
-    			}
-    		}
-    	}
-    	ingress_policies {
-    		title = "ingress policy title 2"
-    		ingress_from {
-    			identities = ["group:test@google.com"]
-    		}
-    		ingress_to {
-    			resources = ["*"]
+            method_selectors {
+              method = "google.storage.objects.create"
+            }
+          }
+        }
+      }
+      ingress_policies {
+        title = "ingress policy title 2"
+        ingress_from {
+          identities = ["group:test@google.com"]
+        }
+        ingress_to {
+          resources = ["*"]
           roles = ["roles/bigquery.admin"]
-    		}
-    	}
+        }
+      }
     
-    	egress_policies {
-    		title = "egress policy title 1"
-    		egress_from {
-    			identity_type = "ANY_USER_ACCOUNT"
-    		}
-    		egress_to {
-    			operations {
-    				service_name = "bigquery.googleapis.com"
-    				method_selectors {
-    					permission = "externalResource.read"
-    				}
-    			}
-    			external_resources = ["s3://bucket1"]
-    		}
-    	}
-    	egress_policies {
-    		title = "egress policy title 2"
-    		egress_from {
-    			identities = ["group:test@google.com"]
-    		}
-    		egress_to {
-    			resources = ["*"]
-          roles = ["roles/bigquery.admin"]
-    		}
-    	}
       egress_policies {
-    		egress_from {
-    			sources {
+        title = "egress policy title 1"
+        egress_from {
+          identity_type = "ANY_USER_ACCOUNT"
+        }
+        egress_to {
+          operations {
+            service_name = "bigquery.googleapis.com"
+            method_selectors {
+              permission = "externalResource.read"
+            }
+          }
+          external_resources = ["s3://bucket1"]
+        }
+      }
+      egress_policies {
+        title = "egress policy title 2"
+        egress_from {
+          identities = ["group:test@google.com"]
+        }
+        egress_to {
+          resources = ["*"]
+          roles = ["roles/bigquery.admin"]
+        }
+      }
+      egress_policies {
+        egress_from {
+          sources {
             resource = "projects/%s"
           }
           source_restriction = "SOURCE_RESTRICTION_ENABLED"
-    		}
-    	}
+        }
+      }
     }
     status {
       restricted_services = ["bigquery.googleapis.com", "storage.googleapis.com"]

@@ -26,6 +26,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/accesscontextmanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -126,26 +127,26 @@ resource "google_access_context_manager_gcp_user_access_binding" "gcp_user_acces
     scope {
       client_scope {
         restricted_client_application {
-	        client_id = "TEST_APPLICATION"
+          client_id = "TEST_APPLICATION"
          }
       }
     }
     active_settings {
-  	  access_levels = [
-  		  google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
-  	  ]
-  	  session_settings {
-  		  session_length = "3600s"
-  		  session_length_enabled = true
-  		  session_reauth_method = "LOGIN"
-  		  use_oidc_max_age = false
-  	  }
-  	}
-  	dry_run_settings {
-  	  access_levels = [
-  		  google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
-  	  ]
-  	}
+      access_levels = [
+        google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
+      ]
+      session_settings {
+        session_length = "3600s"
+        session_length_enabled = true
+        session_reauth_method = "LOGIN"
+        use_oidc_max_age = false
+      }
+    }
+    dry_run_settings {
+      access_levels = [
+        google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
+      ]
+    }
   }
 }
 `, context)
@@ -207,27 +208,27 @@ resource "google_access_context_manager_gcp_user_access_binding" "gcp_user_acces
     scope {
       client_scope {
         restricted_client_application {
-	        name = "Cloud Console"
+          name = "Cloud Console"
          }
       }
     }
     active_settings {
-  	  access_levels = [
-  		  google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
-  	  ]
-  	  session_settings {
-  		  max_inactivity = "400s"
-  		  session_length = "3600s"
-  		  session_length_enabled = true
-  		  session_reauth_method = "LOGIN"
-  		  use_oidc_max_age = false
-  	  }
-  	}
-  	dry_run_settings {
-  	  access_levels = [
-  		  google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
-  	  ]
-  	}
+      access_levels = [
+        google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
+      ]
+      session_settings {
+        max_inactivity = "400s"
+        session_length = "3600s"
+        session_length_enabled = true
+        session_reauth_method = "LOGIN"
+        use_oidc_max_age = false
+      }
+    }
+    dry_run_settings {
+      access_levels = [
+        google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
+      ]
+    }
   }
 }
 `, context)
@@ -245,7 +246,7 @@ func testAccCheckAccessContextManagerGcpUserAccessBindingDestroyProducer(t *test
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}organizations/{{organization_id}}/gcpUserAccessBindings/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(accesscontextmanager.Product, config)+"organizations/{{organization_id}}/gcpUserAccessBindings/{{name}}")
 			if err != nil {
 				return err
 			}

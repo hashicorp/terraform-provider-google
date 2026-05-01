@@ -183,7 +183,7 @@ func resourceApigeeSharedFlowCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error, \"config_bundle\" must be specified")
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/sharedflows?name={{name}}&action=import")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/sharedflows?name={{name}}&action=import")
 	if err != nil {
 		return err
 	}
@@ -232,7 +232,7 @@ func resourceApigeeSharedFlowRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/sharedflows/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/sharedflows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -308,7 +308,7 @@ func resourceApigeeSharedFlowDelete(d *schema.ResourceData, meta interface{}) er
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/sharedflows/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/sharedflows/{{name}}")
 	if err != nil {
 		return err
 	}
