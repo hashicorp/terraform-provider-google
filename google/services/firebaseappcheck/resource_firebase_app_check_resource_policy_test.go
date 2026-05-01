@@ -36,7 +36,7 @@ func TestAccFirebaseAppCheckResourcePolicy_firebaseAppCheckResourcePolicyUpdate(
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderBetaFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckFirebaseAppCheckResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -75,7 +75,6 @@ func testAccFirebaseAppCheckResourcePolicy_firebaseAppCheckResourcePolicyUpdate(
 	context["service_id"] = serviceId
 	return acctest.Nprintf(`
 resource "google_firebase_app_check_resource_policy" "default" {
-  provider = google-beta
   service_id = "%{service_id}"
   enforcement_mode = "%{enforcement_mode}"
   target_resource = "//%{service_id}/projects/%{project_name}/oauthClients/tf-test%{random_suffix}"
