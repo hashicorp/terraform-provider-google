@@ -581,6 +581,40 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `Directories to persist across workstation sessions.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"gce_hd": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `A directory to persist across workstation sessions, backed by a Compute Engine Hyperdisk Balanced High Availability disk.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"archive_timeout": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Optional:    true,
+										Description: `How long to wait before converting the disk into a snapshot.`,
+									},
+									"reclaim_policy": {
+										Type:         schema.TypeString,
+										Computed:     true,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"DELETE", "RETAIN", ""}),
+										Description:  `Whether the persistent disk should be deleted when the workstation is deleted. Possible values: ["DELETE", "RETAIN"]`,
+									},
+									"size_gb": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Optional:    true,
+										Description: `The GB capacity of a persistent home directory. Defaults to '200'.`,
+									},
+									"source_snapshot": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Name of the snapshot to use as the source for the disk.`,
+									},
+								},
+							},
+						},
 						"gce_pd": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -1754,6 +1788,7 @@ func flattenWorkstationsWorkstationConfigPersistentDirectories(v interface{}, d 
 		transformed = append(transformed, map[string]interface{}{
 			"mount_path": flattenWorkstationsWorkstationConfigPersistentDirectoriesMountPath(original["mountPath"], d, config),
 			"gce_pd":     flattenWorkstationsWorkstationConfigPersistentDirectoriesGcePd(original["gcePd"], d, config),
+			"gce_hd":     flattenWorkstationsWorkstationConfigPersistentDirectoriesGceHd(original["gceHd"], d, config),
 		})
 	}
 	return transformed
@@ -1813,6 +1848,54 @@ func flattenWorkstationsWorkstationConfigPersistentDirectoriesGcePdReclaimPolicy
 }
 
 func flattenWorkstationsWorkstationConfigPersistentDirectoriesGcePdSourceSnapshot(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkstationsWorkstationConfigPersistentDirectoriesGceHd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["size_gb"] =
+		flattenWorkstationsWorkstationConfigPersistentDirectoriesGceHdSizeGb(original["sizeGb"], d, config)
+	transformed["source_snapshot"] =
+		flattenWorkstationsWorkstationConfigPersistentDirectoriesGceHdSourceSnapshot(original["sourceSnapshot"], d, config)
+	transformed["reclaim_policy"] =
+		flattenWorkstationsWorkstationConfigPersistentDirectoriesGceHdReclaimPolicy(original["reclaimPolicy"], d, config)
+	transformed["archive_timeout"] =
+		flattenWorkstationsWorkstationConfigPersistentDirectoriesGceHdArchiveTimeout(original["archiveTimeout"], d, config)
+	return []interface{}{transformed}
+}
+func flattenWorkstationsWorkstationConfigPersistentDirectoriesGceHdSizeGb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenWorkstationsWorkstationConfigPersistentDirectoriesGceHdSourceSnapshot(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkstationsWorkstationConfigPersistentDirectoriesGceHdReclaimPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkstationsWorkstationConfigPersistentDirectoriesGceHdArchiveTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2610,6 +2693,13 @@ func expandWorkstationsWorkstationConfigPersistentDirectories(v interface{}, d t
 			transformed["gcePd"] = transformedGcePd
 		}
 
+		transformedGceHd, err := expandWorkstationsWorkstationConfigPersistentDirectoriesGceHd(original["gce_hd"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedGceHd); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["gceHd"] = transformedGceHd
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2686,6 +2776,65 @@ func expandWorkstationsWorkstationConfigPersistentDirectoriesGcePdReclaimPolicy(
 }
 
 func expandWorkstationsWorkstationConfigPersistentDirectoriesGcePdSourceSnapshot(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkstationsWorkstationConfigPersistentDirectoriesGceHd(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSizeGb, err := expandWorkstationsWorkstationConfigPersistentDirectoriesGceHdSizeGb(original["size_gb"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSizeGb); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sizeGb"] = transformedSizeGb
+	}
+
+	transformedSourceSnapshot, err := expandWorkstationsWorkstationConfigPersistentDirectoriesGceHdSourceSnapshot(original["source_snapshot"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceSnapshot); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceSnapshot"] = transformedSourceSnapshot
+	}
+
+	transformedReclaimPolicy, err := expandWorkstationsWorkstationConfigPersistentDirectoriesGceHdReclaimPolicy(original["reclaim_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReclaimPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["reclaimPolicy"] = transformedReclaimPolicy
+	}
+
+	transformedArchiveTimeout, err := expandWorkstationsWorkstationConfigPersistentDirectoriesGceHdArchiveTimeout(original["archive_timeout"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedArchiveTimeout); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["archiveTimeout"] = transformedArchiveTimeout
+	}
+
+	return transformed, nil
+}
+
+func expandWorkstationsWorkstationConfigPersistentDirectoriesGceHdSizeGb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkstationsWorkstationConfigPersistentDirectoriesGceHdSourceSnapshot(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkstationsWorkstationConfigPersistentDirectoriesGceHdReclaimPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkstationsWorkstationConfigPersistentDirectoriesGceHdArchiveTimeout(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

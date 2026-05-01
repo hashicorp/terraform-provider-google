@@ -168,6 +168,133 @@ resource "google_workstations_workstation_config" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_hyperdisk&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Workstation Config Hyperdisk
+
+
+```hcl
+resource "google_compute_network" "default" {
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.name
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-central1"
+}
+
+resource "google_workstations_workstation_config" "default" {
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-central1"
+
+  host {
+    gce_instance {
+      # C3 machine types require Hyperdisk storage
+      machine_type = "c3-standard-22"
+    }
+  }
+
+  persistent_directories {
+    mount_path = "/home"
+    gce_hd {
+      size_gb         = 200
+      reclaim_policy  = "DELETE"
+      archive_timeout = "3600s"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_hyperdisk_source_snapshot&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Workstation Config Hyperdisk Source Snapshot
+
+
+```hcl
+resource "google_tags_tag_key" "tag_key1" {
+  parent     = "organizations/0123456789"
+  short_name = "keyname"
+}
+
+resource "google_tags_tag_value" "tag_value1" {
+  parent     = google_tags_tag_key.tag_key1.id
+  short_name = "valuename"
+}
+
+resource "google_compute_network" "default" {
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.name
+}
+
+resource "google_compute_disk" "my_source_disk" {
+  name  = "workstation-config-source-disk"
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "my_source_snapshot" {
+  name        = "workstation-config-source-snapshot"
+  source_disk = google_compute_disk.my_source_disk.name
+  zone        = "us-central1-a"
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-central1"
+}
+
+resource "google_workstations_workstation_config" "default" {
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-central1"
+
+  host {
+      gce_instance {
+        machine_type                = "c3-standard-22"
+        boot_disk_size_gb           = 35
+        disable_public_ip_addresses = true
+        vm_tags = {
+          (google_tags_tag_key.tag_key1.id) = google_tags_tag_value.tag_value1.id
+        }
+      }
+    }
+
+  persistent_directories {
+    mount_path = "/home"
+    gce_hd {
+      source_snapshot = google_compute_snapshot.my_source_snapshot.id
+      reclaim_policy  = "DELETE"
+      archive_timeout = "3600s"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_persistent_directories&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -870,6 +997,11 @@ The following arguments are supported:
   A directory to persist across workstation sessions, backed by a Compute Engine regional persistent disk. Can only be updated if not empty during creation.
   Structure is [documented below](#nested_persistent_directories_gce_pd).
 
+* `gce_hd` -
+  (Optional)
+  A directory to persist across workstation sessions, backed by a Compute Engine Hyperdisk Balanced High Availability disk.
+  Structure is [documented below](#nested_persistent_directories_gce_hd).
+
 
 <a name="nested_persistent_directories_gce_pd"></a>The `gce_pd` block supports:
 
@@ -894,6 +1026,25 @@ The following arguments are supported:
 * `source_snapshot` -
   (Optional)
   Name of the snapshot to use as the source for the disk. This can be the snapshot's `self_link`, `id`, or a string in the format of `projects/{project}/global/snapshots/{snapshot}`. If set, `sizeGb` and `fsType` must be empty. Can only be updated if it has an existing value.
+
+<a name="nested_persistent_directories_gce_hd"></a>The `gce_hd` block supports:
+
+* `size_gb` -
+  (Optional)
+  The GB capacity of a persistent home directory. Defaults to '200'.
+
+* `source_snapshot` -
+  (Optional)
+  Name of the snapshot to use as the source for the disk.
+
+* `reclaim_policy` -
+  (Optional)
+  Whether the persistent disk should be deleted when the workstation is deleted.
+  Possible values are: `DELETE`, `RETAIN`.
+
+* `archive_timeout` -
+  (Optional)
+  How long to wait before converting the disk into a snapshot.
 
 <a name="nested_ephemeral_directories"></a>The `ephemeral_directories` block supports:
 

@@ -65,6 +65,10 @@ fields:
       provider_only: true
     - api_field: maxUsableWorkstations
     - api_field: name
+    - api_field: persistentDirectories.gceHd.archiveTimeout
+    - api_field: persistentDirectories.gceHd.reclaimPolicy
+    - api_field: persistentDirectories.gceHd.sizeGb
+    - api_field: persistentDirectories.gceHd.sourceSnapshot
     - api_field: persistentDirectories.gcePd.diskType
     - api_field: persistentDirectories.gcePd.fsType
     - api_field: persistentDirectories.gcePd.reclaimPolicy
