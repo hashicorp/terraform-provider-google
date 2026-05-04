@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudbilling"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -99,7 +100,7 @@ func testAccCheckGoogleBillingAccountIamBindingExists(t *testing.T, bindingResou
 		}
 
 		config := acctest.GoogleProviderConfig(t)
-		p, err := config.NewBillingClient(config.UserAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + bindingRs.Primary.Attributes["billing_account_id"]).Do()
+		p, err := cloudbilling.NewClient(config, config.UserAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + bindingRs.Primary.Attributes["billing_account_id"]).Do()
 		if err != nil {
 			return err
 		}
@@ -129,7 +130,7 @@ func testAccCheckGoogleBillingAccountIamMemberExists(t *testing.T, n, role, memb
 		}
 
 		config := acctest.GoogleProviderConfig(t)
-		p, err := config.NewBillingClient(config.UserAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + rs.Primary.Attributes["billing_account_id"]).Do()
+		p, err := cloudbilling.NewClient(config, config.UserAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + rs.Primary.Attributes["billing_account_id"]).Do()
 		if err != nil {
 			return err
 		}

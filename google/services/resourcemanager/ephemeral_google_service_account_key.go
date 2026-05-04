@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -134,7 +135,7 @@ func (p *googleEphemeralServiceAccountKey) Open(ctx context.Context, req ephemer
 		publicKeyType = "TYPE_X509_PEM_FILE"
 	}
 
-	sak, err := p.providerConfig.NewIamClient(p.providerConfig.UserAgent).Projects.ServiceAccounts.Keys.Get(keyName).PublicKeyType(publicKeyType).Do()
+	sak, err := iambeta.NewClient(p.providerConfig, p.providerConfig.UserAgent).Projects.ServiceAccounts.Keys.Get(keyName).PublicKeyType(publicKeyType).Do()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error retrieving Service Account Key",

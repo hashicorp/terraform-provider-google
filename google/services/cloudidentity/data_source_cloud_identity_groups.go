@@ -66,7 +66,7 @@ func dataSourceGoogleCloudIdentityGroupsRead(d *schema.ResourceData, meta interf
 	}
 
 	result := []map[string]interface{}{}
-	groupsCall := config.NewCloudIdentityClient(userAgent).Groups.List().Parent(d.Get("parent").(string)).View("FULL")
+	groupsCall := NewClient(config, userAgent).Groups.List().Parent(d.Get("parent").(string)).View("FULL")
 	if config.UserProjectOverride {
 		billingProject := ""
 		// err may be nil - project isn't required for this resource

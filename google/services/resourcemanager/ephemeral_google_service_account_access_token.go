@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/fwutils"
 	"github.com/hashicorp/terraform-provider-google/google/fwvalidators"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	iamcredentials_tpg "github.com/hashicorp/terraform-provider-google/google/services/iamcredentials"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/iamcredentials/v1"
@@ -143,7 +144,7 @@ func (p *googleEphemeralServiceAccountAccessToken) Open(ctx context.Context, req
 		data.Lifetime = types.StringValue("3600s")
 	}
 
-	service := p.providerConfig.NewIamCredentialsClient(p.providerConfig.UserAgent)
+	service := iamcredentials_tpg.NewClient(p.providerConfig, p.providerConfig.UserAgent)
 	name := fmt.Sprintf("projects/-/serviceAccounts/%s", data.TargetServiceAccount.ValueString())
 
 	ScopesSetValue, diags := data.Scopes.ToSetValue(ctx)

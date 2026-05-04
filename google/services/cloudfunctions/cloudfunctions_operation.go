@@ -39,7 +39,7 @@ func (w *CloudFunctionsOperationWaiter) QueryOp() (interface{}, error) {
 
 func CloudFunctionsOperationWait(config *transport_tpg.Config, op *cloudfunctions.Operation, activity, userAgent string, timeout time.Duration) error {
 	w := &CloudFunctionsOperationWaiter{
-		Service: config.NewCloudFunctionsClient(userAgent),
+		Service: NewClient(config, userAgent),
 	}
 	if err := w.SetOp(op); err != nil {
 		return err

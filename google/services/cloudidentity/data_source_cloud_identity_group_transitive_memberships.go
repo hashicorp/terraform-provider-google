@@ -122,7 +122,7 @@ func dataSourceGoogleCloudIdentityGroupTransitiveMembershipsRead(d *schema.Resou
 	}
 
 	result := []map[string]interface{}{}
-	membershipsCall := config.NewCloudIdentityClient(userAgent).Groups.Memberships.SearchTransitiveMemberships(d.Get("group").(string))
+	membershipsCall := NewClient(config, userAgent).Groups.Memberships.SearchTransitiveMemberships(d.Get("group").(string))
 	if config.UserProjectOverride {
 		billingProject := ""
 		// err may be nil - project isn't required for this resource

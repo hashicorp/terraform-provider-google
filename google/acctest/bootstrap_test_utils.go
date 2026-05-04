@@ -33,12 +33,16 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	backupdr_tpg "github.com/hashicorp/terraform-provider-google/google/services/backupdr"
+	tpgcloudbilling "github.com/hashicorp/terraform-provider-google/google/services/cloudbilling"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
+	tpgiamcredentials "github.com/hashicorp/terraform-provider-google/google/services/iamcredentials"
 	"github.com/hashicorp/terraform-provider-google/google/services/privateca"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 	tpgservicenetworking "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+	tpgserviceusage "github.com/hashicorp/terraform-provider-google/google/services/serviceusage"
 	"github.com/hashicorp/terraform-provider-google/google/services/sql"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
@@ -431,7 +435,7 @@ func getOrCreateServiceAccount(config *transport_tpg.Config, project, serviceAcc
 	name := fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", project, serviceAccountEmail, project)
 	log.Printf("[DEBUG] Verifying %s as bootstrapped service account.\n", name)
 
-	sa, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Get(name).Do()
+	sa, err := iambeta.NewClient(config, config.UserAgent).Projects.ServiceAccounts.Get(name).Do()
 	if err != nil && !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		return nil, fmt.Errorf("encountered a non-404 error when looking for bootstrapped service account %s: %w", name, err)
 	}
@@ -446,7 +450,7 @@ func getOrCreateServiceAccount(config *transport_tpg.Config, project, serviceAcc
 			AccountId:      serviceAccountEmail,
 			ServiceAccount: sa,
 		}
-		sa, err = config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
+		sa, err = iambeta.NewClient(config, config.UserAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
 		if err != nil {
 			return nil, fmt.Errorf("error when creating bootstrapped service account %s: %w", name, err)
 		}
@@ -474,7 +478,7 @@ func impersonationServiceAccountPermissions(config *transport_tpg.Config, sa *ia
 	// Overwrite the roles each time on this service account. This is because this account is
 	// only created for the test suite and will stop snowflaking of permissions to get tests
 	// to run. Overwriting permissions on 1 service account shouldn't affect others.
-	_, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.SetIamPolicy(sa.Name, &iam.SetIamPolicyRequest{
+	_, err := iambeta.NewClient(config, config.UserAgent).Projects.ServiceAccounts.SetIamPolicy(sa.Name, &iam.SetIamPolicyRequest{
 		Policy: &policy,
 	}).Do()
 	if err != nil {
@@ -1007,7 +1011,7 @@ func BootstrapProjectWithParent(t *testing.T, projectID string, billingAccount s
 	}
 
 	if billingAccount != "" {
-		billingClient := config.NewBillingClient(config.UserAgent)
+		billingClient := tpgcloudbilling.NewClient(config, config.UserAgent)
 		var pbi *cloudbilling.ProjectBillingInfo
 		err = transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() error {
@@ -1024,7 +1028,7 @@ func BootstrapProjectWithParent(t *testing.T, projectID string, billingAccount s
 			pbi.BillingAccountName = "billingAccounts/" + billingAccount
 			err := transport_tpg.Retry(transport_tpg.RetryOptions{
 				RetryFunc: func() error {
-					_, err := config.NewBillingClient(config.UserAgent).Projects.UpdateBillingInfo(resourcemanager.PrefixedProject(projectID), pbi).Do()
+					_, err := tpgcloudbilling.NewClient(config, config.UserAgent).Projects.UpdateBillingInfo(resourcemanager.PrefixedProject(projectID), pbi).Do()
 					return err
 				},
 				Timeout: 2 * time.Minute,
@@ -1665,7 +1669,7 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	ba := &cloudbilling.ProjectBillingInfo{
 		BillingAccountName: fmt.Sprintf("billingAccounts/%s", billing),
 	}
-	_, err = config.NewBillingClient(config.UserAgent).Projects.UpdateBillingInfo(resourcemanager.PrefixedProject(pid), ba).Do()
+	_, err = tpgcloudbilling.NewClient(config, config.UserAgent).Projects.UpdateBillingInfo(resourcemanager.PrefixedProject(pid), ba).Do()
 	if err != nil {
 		return "", fmt.Errorf("error updating billing info for 'project-1' with project id %s: %w", pid, err)
 	}
@@ -1696,13 +1700,13 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 		return "", waitErr
 	}
 
-	_, err = config.NewBillingClient(config.UserAgent).Projects.UpdateBillingInfo(resourcemanager.PrefixedProject(p2), ba).Do()
+	_, err = tpgcloudbilling.NewClient(config, config.UserAgent).Projects.UpdateBillingInfo(resourcemanager.PrefixedProject(p2), ba).Do()
 	if err != nil {
 		return "", fmt.Errorf("error updating billing info for 'project-2' with project id %s: %w", p2, err)
 	}
 
 	// Enable the appropriate service in project-2 only
-	suService := config.NewServiceUsageClient(config.UserAgent)
+	suService := tpgserviceusage.NewClient(config, config.UserAgent)
 
 	serviceReq := &serviceusage.BatchEnableServicesRequest{
 		ServiceIds: []string{fmt.Sprintf("%s.googleapis.com", service)},
@@ -1812,7 +1816,7 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	// actually usable. Wait a solid 2 minutes to ensure we can use it.
 	time.Sleep(2 * time.Minute)
 
-	iamCredsService := config.NewIamCredentialsClient(config.UserAgent)
+	iamCredsService := tpgiamcredentials.NewClient(config, config.UserAgent)
 	tokenRequest := &iamcredentials.GenerateAccessTokenRequest{
 		Lifetime: "300s",
 		Scope:    []string{"https://www.googleapis.com/auth/cloud-platform"},

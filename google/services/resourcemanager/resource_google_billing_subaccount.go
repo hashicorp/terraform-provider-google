@@ -91,7 +91,7 @@ func resourceBillingSubaccountCreate(d *schema.ResourceData, meta interface{}) e
 		MasterBillingAccount: cloudbilling_tpg.CanonicalBillingAccountName(masterBillingAccount),
 	}
 
-	res, err := config.NewBillingClient(userAgent).BillingAccounts.Create(billingAccount).Do()
+	res, err := cloudbilling_tpg.NewClient(config, userAgent).BillingAccounts.Create(billingAccount).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating billing subaccount '%s' in master account '%s': %s", displayName, masterBillingAccount, err)
 	}
@@ -110,7 +110,7 @@ func resourceBillingSubaccountRead(d *schema.ResourceData, meta interface{}) err
 
 	id := d.Id()
 
-	billingAccount, err := config.NewBillingClient(userAgent).BillingAccounts.Get(d.Id()).Do()
+	billingAccount, err := cloudbilling_tpg.NewClient(config, userAgent).BillingAccounts.Get(d.Id()).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Billing Subaccount Not Found : %s", id))
 	}
@@ -145,7 +145,7 @@ func resourceBillingSubaccountUpdate(d *schema.ResourceData, meta interface{}) e
 		billingAccount := &cloudbilling.BillingAccount{
 			DisplayName: d.Get("display_name").(string),
 		}
-		_, err := config.NewBillingClient(userAgent).BillingAccounts.Patch(d.Id(), billingAccount).UpdateMask("display_name").Do()
+		_, err := cloudbilling_tpg.NewClient(config, userAgent).BillingAccounts.Patch(d.Id(), billingAccount).UpdateMask("display_name").Do()
 		if err != nil {
 			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Error updating billing account : %s", d.Id()))
 		}
@@ -167,7 +167,7 @@ func resourceBillingSubaccountDelete(d *schema.ResourceData, meta interface{}) e
 		billingAccount := &cloudbilling.BillingAccount{
 			DisplayName: "Terraform Destroyed " + t.Format("20060102150405"),
 		}
-		_, err := config.NewBillingClient(userAgent).BillingAccounts.Patch(d.Id(), billingAccount).UpdateMask("display_name").Do()
+		_, err := cloudbilling_tpg.NewClient(config, userAgent).BillingAccounts.Patch(d.Id(), billingAccount).UpdateMask("display_name").Do()
 		if err != nil {
 			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Error updating billing account : %s", d.Id()))
 		}

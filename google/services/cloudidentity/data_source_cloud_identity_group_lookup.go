@@ -80,7 +80,7 @@ func dataSourceGoogleCloudIdentityGroupLookupRead(d *schema.ResourceData, meta i
 	}
 	id := gkId.(string)
 
-	groupsLookupCall := config.NewCloudIdentityClient(userAgent).Groups.Lookup().GroupKeyId(id)
+	groupsLookupCall := NewClient(config, userAgent).Groups.Lookup().GroupKeyId(id)
 
 	gkNamespace, ok := d.GetOk("group_key.0.namespace")
 	if ok {

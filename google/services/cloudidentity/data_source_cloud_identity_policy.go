@@ -95,7 +95,7 @@ func dataSourceGoogleCloudIdentityPolicyRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("error getting policy name")
 	}
 
-	policiesGetCall := config.NewCloudIdentityClient(userAgent).Policies.Get(name.(string))
+	policiesGetCall := NewClient(config, userAgent).Policies.Get(name.(string))
 
 	if config.UserProjectOverride {
 		billingProject := ""

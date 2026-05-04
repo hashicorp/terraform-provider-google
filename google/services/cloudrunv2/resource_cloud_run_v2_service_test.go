@@ -530,7 +530,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceGRPCProbesUpdate(t *testing.T) {
 func testAccCheckCloudRunV2ServiceDestroyByNameProducer(t *testing.T, serviceName string) func() {
 	return func() {
 		config := acctest.GoogleProviderConfig(t)
-		service := config.NewCloudRunV2Client(config.UserAgent).Projects.Locations.Services
+		service := cloudrunv2.NewClient(config, config.UserAgent).Projects.Locations.Services
 		qualifiedServiceName := fmt.Sprintf("projects/%s/locations/%s/services/%s", config.Project, config.Region, serviceName)
 		op, err := service.Delete(qualifiedServiceName).Do()
 		if err != nil {
