@@ -59,6 +59,10 @@ fields:
     - api_field: circuitBreakers.maxRetries
     - api_field: connectionDraining.drainingTimeoutSec
       field: connection_draining_timeout_sec
+    - api_field: connectionTrackingPolicy.connectionPersistenceOnUnhealthyBackends
+    - api_field: connectionTrackingPolicy.enableStrongAffinity
+    - api_field: connectionTrackingPolicy.idleTimeoutSec
+    - api_field: connectionTrackingPolicy.trackingMode
     - api_field: consistentHash.httpCookie.name
     - api_field: consistentHash.httpCookie.path
     - api_field: consistentHash.httpCookie.ttl.nanos
