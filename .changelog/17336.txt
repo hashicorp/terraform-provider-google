@@ -1,0 +1,3 @@
+```release-note:enhancement
+recaptchaenterprise: added `POLICY_BASED_CHALLENGE` `intergration_type` and `challenge_settings` to `google_recaptcha_enterprise_key`
+```

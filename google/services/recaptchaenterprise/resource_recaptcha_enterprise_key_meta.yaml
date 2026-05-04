@@ -28,3 +28,7 @@ fields:
   - api_field: 'webSettings.allowedDomains'
   - api_field: 'webSettings.challengeSecurityPreference'
   - api_field: 'webSettings.integrationType'
+  - api_field: 'webSettings.challengeSettings.defaultSettings.scoreThreshold'
+  - field: 'web_settings.challenge_settings.action_settings.action'
+    provider_only: true
+  - api_field: 'webSettings.challengeSettings.actionSettings.scoreThreshold'

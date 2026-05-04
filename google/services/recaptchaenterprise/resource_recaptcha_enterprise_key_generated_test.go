@@ -216,6 +216,40 @@ func TestAccRecaptchaEnterpriseKey_WebScoreKey(t *testing.T) {
 		},
 	})
 }
+func TestAccRecaptchaEnterpriseKey_WebPolicyBasedChallengeKey(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRecaptchaEnterpriseKey_WebPolicyBasedChallengeKey(context),
+			},
+			{
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccRecaptchaEnterpriseKey_WebPolicyBasedChallengeKeyUpdate0(context),
+			},
+			{
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
 
 func testAccRecaptchaEnterpriseKey_AndroidKey(context map[string]interface{}) string {
 	return acctest.Nprintf(`
@@ -505,4 +539,76 @@ func testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t *testing.T) func(s *ter
 		}
 		return nil
 	}
+}
+
+func testAccRecaptchaEnterpriseKey_WebPolicyBasedChallengeKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_recaptcha_enterprise_key" "primary" {
+  display_name = "policy-based-challenge-key-%{random_suffix}"
+  project      = "%{project_name}"
+
+  web_settings {
+    allow_all_domains = false
+    allowed_domains   = ["www.example.com"]
+    allow_amp_traffic = false
+    integration_type  = "POLICY_BASED_CHALLENGE"
+
+    challenge_settings {
+      default_settings {
+        score_threshold = 0.5
+      }
+
+      action_settings {
+        action          = "login"
+        score_threshold = 0.3
+      }
+
+      action_settings {
+        action          = "signup"
+        score_threshold = 0.7
+      }
+    }
+  }
+
+  labels = {
+    label-one = "value-one"
+  }
+}
+`, context)
+}
+
+func testAccRecaptchaEnterpriseKey_WebPolicyBasedChallengeKeyUpdate0(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_recaptcha_enterprise_key" "primary" {
+  display_name = "policy-based-challenge-key-%{random_suffix}"
+  project      = "%{project_name}"
+
+  web_settings {
+    allow_all_domains = false
+    allowed_domains   = ["www.example.com"]
+    allow_amp_traffic = false
+    integration_type  = "POLICY_BASED_CHALLENGE"
+
+    challenge_settings {
+      default_settings {
+        score_threshold = 0.6
+      }
+
+      action_settings {
+        action          = "login"
+        score_threshold = 0.4
+      }
+
+      action_settings {
+        action          = "signup"
+        score_threshold = 0.8
+      }
+    }
+  }
+
+  labels = {
+    label-one = "value-one"
+  }
+}
+`, context)
 }
