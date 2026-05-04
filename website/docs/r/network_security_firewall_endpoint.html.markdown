@@ -56,15 +56,25 @@ resource "google_network_security_firewall_endpoint" "default" {
   }
 }
 ```
+## Example Usage - Network Security Firewall Endpoint Project
+
+
+```hcl
+resource "google_network_security_firewall_endpoint" "default" {
+  name               = "my-firewall-endpoint"
+  parent             = "projects/my-project-name"
+  location           = "us-central1-a"
+
+  labels = {
+    foo = "bar"
+  }
+}
+```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-
-* `billing_project_id` -
-  (Required)
-  Project to bill on endpoint uptime usage.
 
 * `name` -
   (Required)
@@ -77,7 +87,7 @@ The following arguments are supported:
 * `parent` -
   (Required)
   The name of the parent this firewall endpoint belongs to.
-  Format: organizations/{organization_id}.
+  Format: `organizations/{organization_id}` or `projects/{project_id}`.
 
 
 * `labels` -
@@ -86,6 +96,13 @@ The following arguments are supported:
 
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `billing_project_id` -
+  (Optional)
+  Project to charge for the deployed firewall endpoint.
+  This field is required for organization-scoped endpoints.
+  For project-scoped endpoints, it is optional but must match the
+  endpoint's project if specified.
 
 * `endpoint_settings` -
   (Optional)

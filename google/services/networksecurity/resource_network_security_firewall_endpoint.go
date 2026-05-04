@@ -141,11 +141,6 @@ func ResourceNetworkSecurityFirewallEndpoint() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"billing_project_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Project to bill on endpoint uptime usage.`,
-			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -163,7 +158,16 @@ func ResourceNetworkSecurityFirewallEndpoint() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				Description: `The name of the parent this firewall endpoint belongs to.
-Format: organizations/{organization_id}.`,
+Format: 'organizations/{organization_id}' or 'projects/{project_id}'.`,
+			},
+			"billing_project_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `Project to charge for the deployed firewall endpoint.
+This field is required for organization-scoped endpoints.
+For project-scoped endpoints, it is optional but must match the
+endpoint's project if specified.`,
 			},
 			"endpoint_settings": {
 				Type:        schema.TypeList,
