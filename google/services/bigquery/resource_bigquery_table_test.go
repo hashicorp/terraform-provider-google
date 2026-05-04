@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/bigquery"
 )
 
 func TestAccBigQueryTable_Basic(t *testing.T) {
@@ -2370,7 +2371,7 @@ func testAccCheckBigQueryExtData(t *testing.T, expectedQuoteChar string) resourc
 			config := acctest.GoogleProviderConfig(t)
 			dataset := rs.Primary.Attributes["dataset_id"]
 			table := rs.Primary.Attributes["table_id"]
-			res, err := config.NewBigQueryClient(config.UserAgent).Tables.Get(config.Project, dataset, table).Do()
+			res, err := bigquery.NewClient(config, config.UserAgent).Tables.Get(config.Project, dataset, table).Do()
 			if err != nil {
 				return err
 			}
@@ -2396,7 +2397,7 @@ func testAccCheckBigQueryTableDestroyProducer(t *testing.T) func(s *terraform.St
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			_, err := config.NewBigQueryClient(config.UserAgent).Tables.Get(config.Project, rs.Primary.Attributes["dataset_id"], rs.Primary.Attributes["table_id"]).Do()
+			_, err := bigquery.NewClient(config, config.UserAgent).Tables.Get(config.Project, rs.Primary.Attributes["dataset_id"], rs.Primary.Attributes["table_id"]).Do()
 			if err == nil {
 				return fmt.Errorf("Table still present")
 			}
@@ -2435,7 +2436,7 @@ EOH
 func testAccCheckBigQueryTableMergedPolicies(t *testing.T, datasetID, tableID string, expectedCols []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-		res, err := config.NewBigQueryClient(config.UserAgent).Tables.Get(config.Project, datasetID, tableID).Do()
+		res, err := bigquery.NewClient(config, config.UserAgent).Tables.Get(config.Project, datasetID, tableID).Do()
 		if err != nil {
 			return err
 		}
@@ -2482,7 +2483,7 @@ func testAccCheckBigQueryTableMergedPolicies(t *testing.T, datasetID, tableID st
 func testAccCheckBigQueryTableColumnDescription(t *testing.T, datasetID, tableID, colPath, expectedDesc string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-		res, err := config.NewBigQueryClient(config.UserAgent).Tables.Get(config.Project, datasetID, tableID).Do()
+		res, err := bigquery.NewClient(config, config.UserAgent).Tables.Get(config.Project, datasetID, tableID).Do()
 		if err != nil {
 			return err
 		}
@@ -5310,7 +5311,7 @@ func testAccCheckBigQueryTableCollation(t *testing.T, datasetID, tableID, colNam
 
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-		res, err := config.NewBigQueryClient(config.UserAgent).Tables.Get(config.Project, datasetID, tableID).Do()
+		res, err := bigquery.NewClient(config, config.UserAgent).Tables.Get(config.Project, datasetID, tableID).Do()
 		if err != nil {
 			return err
 		}

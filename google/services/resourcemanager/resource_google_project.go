@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	tpgcloudbilling "github.com/hashicorp/terraform-provider-google/google/services/cloudbilling"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	tpgserviceusage "github.com/hashicorp/terraform-provider-google/google/services/serviceusage"
@@ -287,7 +288,7 @@ func resourceGoogleProjectCheckPreRequisites(config *transport_tpg.Config, d *sc
 	req := &cloudbilling.TestIamPermissionsRequest{
 		Permissions: []string{perm},
 	}
-	resp, err := config.NewBillingClient(userAgent).BillingAccounts.TestIamPermissions(ba, req).Do()
+	resp, err := tpgcloudbilling.NewClient(config, userAgent).BillingAccounts.TestIamPermissions(ba, req).Do()
 	if err != nil {
 		return fmt.Errorf("failed to check permissions on billing account %q: %v", ba, err)
 	}
@@ -295,7 +296,7 @@ func resourceGoogleProjectCheckPreRequisites(config *transport_tpg.Config, d *sc
 		return fmt.Errorf("missing permission on %q: %v", ba, perm)
 	}
 	if !d.Get("auto_create_network").(bool) {
-		call := config.NewServiceUsageClient(userAgent).Services.Get("projects/00000000000/services/serviceusage.googleapis.com")
+		call := tpgserviceusage.NewClient(config, userAgent).Services.Get("projects/00000000000/services/serviceusage.googleapis.com")
 		if config.UserProjectOverride {
 			if billingProject, err := tpgresource.GetBillingProject(d, config); err == nil {
 				call.Header().Add("X-Goog-User-Project", billingProject)
@@ -384,7 +385,7 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 	var ba *cloudbilling.ProjectBillingInfo
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() (reqErr error) {
-			ba, reqErr = config.NewBillingClient(userAgent).Projects.GetBillingInfo(PrefixedProject(pid)).Do()
+			ba, reqErr = tpgcloudbilling.NewClient(config, userAgent).Projects.GetBillingInfo(PrefixedProject(pid)).Do()
 			return reqErr
 		},
 		Timeout: d.Timeout(schema.TimeoutRead),
@@ -638,7 +639,7 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *transport_tpg.C
 		ba.BillingAccountName = "billingAccounts/" + name
 	}
 	updateBillingInfoFunc := func() error {
-		_, err := config.NewBillingClient(userAgent).Projects.UpdateBillingInfo(PrefixedProject(pid), ba).Do()
+		_, err := tpgcloudbilling.NewClient(config, userAgent).Projects.UpdateBillingInfo(PrefixedProject(pid), ba).Do()
 		return err
 	}
 	err := transport_tpg.Retry(transport_tpg.RetryOptions{
@@ -658,7 +659,7 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *transport_tpg.C
 		var ba *cloudbilling.ProjectBillingInfo
 		err = transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() (reqErr error) {
-				ba, reqErr = config.NewBillingClient(userAgent).Projects.GetBillingInfo(PrefixedProject(pid)).Do()
+				ba, reqErr = tpgcloudbilling.NewClient(config, userAgent).Projects.GetBillingInfo(PrefixedProject(pid)).Do()
 				return reqErr
 			},
 			Timeout: d.Timeout(schema.TimeoutRead),
@@ -749,12 +750,12 @@ func doEnableServicesRequest(services []string, project, billingProject, userAge
 						// BatchEnable returns an error for a single item, so enable with single endpoint
 						name := fmt.Sprintf("projects/%s/services/%s", project, services[0])
 						req := &serviceusage.EnableServiceRequest{}
-						call = config.NewServiceUsageClient(userAgent).Services.Enable(name, req)
+						call = tpgserviceusage.NewClient(config, userAgent).Services.Enable(name, req)
 					} else {
 						// Batch enable for multiple services.
 						name := fmt.Sprintf("projects/%s", project)
 						req := &serviceusage.BatchEnableServicesRequest{ServiceIds: services}
-						call = config.NewServiceUsageClient(userAgent).Services.BatchEnable(name, req)
+						call = tpgserviceusage.NewClient(config, userAgent).Services.BatchEnable(name, req)
 					}
 
 					if config.UserProjectOverride && billingProject != "" {
@@ -818,7 +819,7 @@ func ListCurrentlyEnabledServices(project, billingProject, userAgent string, con
 	err := transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
 			ctx := context.Background()
-			call := config.NewServiceUsageClient(userAgent).Services.List(fmt.Sprintf("projects/%s", project)).PageSize(200)
+			call := tpgserviceusage.NewClient(config, userAgent).Services.List(fmt.Sprintf("projects/%s", project)).PageSize(200)
 			if config.UserProjectOverride && billingProject != "" {
 				call.Header().Add("X-Goog-User-Project", billingProject)
 			}

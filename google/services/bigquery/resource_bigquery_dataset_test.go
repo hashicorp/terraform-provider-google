@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	bigquery_tpg "github.com/hashicorp/terraform-provider-google/google/services/bigquery"
 	"google.golang.org/api/bigquery/v2"
 	"regexp"
 	"strings"
@@ -630,7 +631,7 @@ func testAccAddTable(t *testing.T, datasetID string, tableID string) resource.Te
 				ProjectId: config.Project,
 			},
 		}
-		_, err := config.NewBigQueryClient(config.UserAgent).Tables.Insert(config.Project, datasetID, table).Do()
+		_, err := bigquery_tpg.NewClient(config, config.UserAgent).Tables.Insert(config.Project, datasetID, table).Do()
 		if err != nil {
 			return fmt.Errorf("Could not create table")
 		}
@@ -643,13 +644,13 @@ func addOutOfBandLabels(t *testing.T, datasetID string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		dataset, err := config.NewBigQueryClient(config.UserAgent).Datasets.Get(config.Project, datasetID).Do()
+		dataset, err := bigquery_tpg.NewClient(config, config.UserAgent).Datasets.Get(config.Project, datasetID).Do()
 		if err != nil {
 			return fmt.Errorf("Could not get dataset with ID %s", datasetID)
 		}
 
 		dataset.Labels["outband_key"] = "test"
-		_, err = config.NewBigQueryClient(config.UserAgent).Datasets.Patch(config.Project, datasetID, dataset).Do()
+		_, err = bigquery_tpg.NewClient(config, config.UserAgent).Datasets.Patch(config.Project, datasetID, dataset).Do()
 		if err != nil {
 			return fmt.Errorf("Could not update labele for the dataset")
 		}

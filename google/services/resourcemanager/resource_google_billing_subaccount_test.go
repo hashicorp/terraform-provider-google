@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudbilling"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -117,7 +118,7 @@ func testAccCheckGoogleBillingSubaccountExists(t *testing.T, bindingResourceName
 		}
 
 		config := acctest.GoogleProviderConfig(t)
-		_, err := config.NewBillingClient(config.UserAgent).BillingAccounts.Get(subaccount.Primary.ID).Do()
+		_, err := cloudbilling.NewClient(config, config.UserAgent).BillingAccounts.Get(subaccount.Primary.ID).Do()
 		if err != nil {
 			return err
 		}
@@ -138,7 +139,7 @@ func testAccCheckGoogleBillingSubaccountRenameOnDestroy(t *testing.T) func(s *te
 
 			config := acctest.GoogleProviderConfig(t)
 
-			res, err := config.NewBillingClient(config.UserAgent).BillingAccounts.Get(rs.Primary.ID).Do()
+			res, err := cloudbilling.NewClient(config, config.UserAgent).BillingAccounts.Get(rs.Primary.ID).Do()
 			if err != nil {
 				return err
 			}

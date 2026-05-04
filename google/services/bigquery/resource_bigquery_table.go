@@ -2078,7 +2078,7 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 
 		log.Printf("[INFO] Creating a replica materialized view with DDL: '%s'", replicationDDL)
 
-		_, err := config.NewBigQueryClient(userAgent).Jobs.Query(project, req).Do()
+		_, err := NewClient(config, userAgent).Jobs.Query(project, req).Do()
 
 		id := fmt.Sprintf("projects/%s/datasets/%s/tables/%s", project, datasetID, d.Get("table_id").(string))
 		if err != nil {
@@ -2105,7 +2105,7 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 
 		log.Printf("[INFO] Creating BigQuery table: %s without schema", table.TableReference.TableId)
 
-		res, err := config.NewBigQueryClient(userAgent).Tables.Insert(project, datasetID, table).Do()
+		res, err := NewClient(config, userAgent).Tables.Insert(project, datasetID, table).Do()
 		if err != nil {
 			return err
 		}
@@ -2115,7 +2115,7 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 
 		table.Schema = schemaBack
 		log.Printf("[INFO] Updating BigQuery table: %s with schema", table.TableReference.TableId)
-		if _, err = config.NewBigQueryClient(userAgent).Tables.Update(project, datasetID, res.TableReference.TableId, table).Do(); err != nil {
+		if _, err = NewClient(config, userAgent).Tables.Update(project, datasetID, res.TableReference.TableId, table).Do(); err != nil {
 			return err
 		}
 
@@ -2123,7 +2123,7 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 	} else {
 		log.Printf("[INFO] Creating BigQuery table: %s", table.TableReference.TableId)
 
-		res, err := config.NewBigQueryClient(userAgent).Tables.Insert(project, datasetID, table).Do()
+		res, err := NewClient(config, userAgent).Tables.Insert(project, datasetID, table).Do()
 		if err != nil {
 			return err
 		}
@@ -2152,7 +2152,7 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	datasetID := d.Get("dataset_id").(string)
 	tableID := d.Get("table_id").(string)
 
-	client := config.NewBigQueryClient(userAgent).Tables.Get(project, datasetID, tableID)
+	client := NewClient(config, userAgent).Tables.Get(project, datasetID, tableID)
 	if tableMetadataViewRaw, ok := d.GetOk("table_metadata_view"); ok {
 		client = client.View(tableMetadataViewRaw.(string))
 	}
@@ -2490,7 +2490,7 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 	var errOldTable error
 
 	if shouldDropColumns || shouldIgnoreDataPolicies {
-		client := config.NewBigQueryClient(userAgent).Tables.Get(project, datasetID, tableID)
+		client := NewClient(config, userAgent).Tables.Get(project, datasetID, tableID)
 		if len(tableMetadataView) > 0 {
 			client = client.View(tableMetadataView)
 		}
@@ -2519,7 +2519,7 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if _, err = config.NewBigQueryClient(userAgent).Tables.Update(project, datasetID, tableID, table).Do(); err != nil {
+	if _, err = NewClient(config, userAgent).Tables.Update(project, datasetID, tableID, table).Do(); err != nil {
 		return err
 	}
 
@@ -2559,7 +2559,7 @@ func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent str
 			UseLegacySql: &useLegacySQL,
 		}
 
-		_, err := config.NewBigQueryClient(userAgent).Jobs.Query(tableReference.project, req).Do()
+		_, err := NewClient(config, userAgent).Jobs.Query(tableReference.project, req).Do()
 		if err != nil {
 			return err
 		}
@@ -2589,7 +2589,7 @@ func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error
 	datasetID := d.Get("dataset_id").(string)
 	tableID := d.Get("table_id").(string)
 
-	if err := config.NewBigQueryClient(userAgent).Tables.Delete(project, datasetID, tableID).Do(); err != nil {
+	if err := NewClient(config, userAgent).Tables.Delete(project, datasetID, tableID).Do(); err != nil {
 		return err
 	}
 

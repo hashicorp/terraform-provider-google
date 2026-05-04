@@ -58,7 +58,7 @@ func dataSourceGoogleBigqueryDefaultServiceAccountRead(d *schema.ResourceData, m
 		return err
 	}
 
-	projectResource, err := config.NewBigQueryClient(userAgent).Projects.GetServiceAccount(project).Do()
+	projectResource, err := NewClient(config, userAgent).Projects.GetServiceAccount(project).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Project %q BigQuery service account", project), fmt.Sprintf("Project %q BigQuery service account", project))
 	}

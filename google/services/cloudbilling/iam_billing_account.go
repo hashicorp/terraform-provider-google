@@ -78,7 +78,7 @@ func (u *BillingAccountIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 		return err
 	}
 
-	_, err = u.Config.NewBillingClient(userAgent).BillingAccounts.SetIamPolicy("billingAccounts/"+u.billingAccountId, &cloudbilling.SetIamPolicyRequest{
+	_, err = NewClient(u.Config, userAgent).BillingAccounts.SetIamPolicy("billingAccounts/"+u.billingAccountId, &cloudbilling.SetIamPolicyRequest{
 		Policy: billingPolicy,
 	}).Do()
 
@@ -125,7 +125,7 @@ func billingToResourceManagerPolicy(p *cloudbilling.Policy) (*cloudresourcemanag
 
 // Retrieve the existing IAM Policy for a billing account
 func getBillingAccountIamPolicyByBillingAccountName(resource string, config *transport_tpg.Config, userAgent string) (*cloudresourcemanager.Policy, error) {
-	p, err := config.NewBillingClient(userAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + resource).Do()
+	p, err := NewClient(config, userAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + resource).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for billing account %q: {{err}}", resource), err)

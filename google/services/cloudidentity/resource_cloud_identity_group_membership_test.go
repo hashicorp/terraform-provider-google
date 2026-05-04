@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/iam/v1"
@@ -218,7 +219,7 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 		ServiceAccount: &iam.ServiceAccount{},
 	}
 
-	sa, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
+	sa, err := iambeta.NewClient(config, config.UserAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
 	if err != nil {
 		t.Fatalf("Error creating service account: %s", err)
 	}
@@ -237,7 +238,7 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 				PreConfig: func() {
 					config := acctest.GoogleProviderConfig(t)
 
-					_, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Delete(sa.Name).Do()
+					_, err := iambeta.NewClient(config, config.UserAgent).Projects.ServiceAccounts.Delete(sa.Name).Do()
 					if err != nil {
 						t.Errorf("cannot delete service account %s: %v", sa.Name, err)
 						return

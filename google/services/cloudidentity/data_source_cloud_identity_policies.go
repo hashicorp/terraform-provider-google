@@ -104,7 +104,7 @@ func dataSourceGoogleCloudIdentityPoliciesRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	policiesListCall := config.NewCloudIdentityClient(userAgent).Policies.List()
+	policiesListCall := NewClient(config, userAgent).Policies.List()
 
 	if filter, ok := d.GetOk("filter"); ok {
 		policiesListCall = policiesListCall.Filter(filter.(string))
