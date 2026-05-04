@@ -453,6 +453,70 @@ resource "google_compute_subnetwork" "default" {
 `, context)
 }
 
+func TestAccComputeRegionBackendService_regionBackendServiceConnectionTrackingExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"health_check_name":           "tf-test-rbs-health-check" + randomSuffix,
+		"region_backend_service_name": "tf-test-region-service" + randomSuffix,
+		"random_suffix":               randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_regionBackendServiceConnectionTrackingExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "network", "params", "region"},
+			},
+			{
+				ResourceName:       "google_compute_region_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionBackendService_regionBackendServiceConnectionTrackingExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_backend_service" "default" {
+  name                            = "%{region_backend_service_name}"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_region_health_check.health_check.id]
+  connection_draining_timeout_sec = 10
+  session_affinity                = "CLIENT_IP"
+  protocol                        = "TCP"
+  load_balancing_scheme           = "EXTERNAL"
+  connection_tracking_policy {
+    tracking_mode                                = "PER_SESSION"
+    connection_persistence_on_unhealthy_backends = "NEVER_PERSIST"
+    idle_timeout_sec                             = 60
+    enable_strong_affinity                       = false
+  }
+}
+
+resource "google_compute_region_health_check" "health_check" {
+  name               = "%{health_check_name}"
+  region             = "us-central1"
+
+  tcp_health_check {
+    port = 22
+  }
+}
+`, context)
+}
+
 func TestAccComputeRegionBackendService_regionBackendServiceIpAddressSelectionPolicyExample(t *testing.T) {
 	t.Parallel()
 
