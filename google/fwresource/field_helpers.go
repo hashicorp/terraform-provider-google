@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -93,7 +94,7 @@ func ParseProjectFieldValueFramework(resourceType, fieldValue, projectSchemaFiel
 
 // This function isn't a test of transport.go; instead, it is used as an alternative
 // to ReplaceVars inside tests.
-func ReplaceVarsForFrameworkTest(prov *transport_tpg.Config, rs *terraform.ResourceState, linkTmpl string) (string, error) {
+func ReplaceVarsForFrameworkTest(config *transport_tpg.Config, rs *terraform.ResourceState, linkTmpl string) (string, error) {
 	re := regexp.MustCompile("{{([[:word:]]+)}}")
 	var project, region, zone string
 
@@ -125,8 +126,13 @@ func ReplaceVarsForFrameworkTest(prov *transport_tpg.Config, rs *terraform.Resou
 			return v
 		}
 
-		// Attempt to draw values from the provider
-		if f := reflect.Indirect(reflect.ValueOf(prov)).FieldByName(m); f.IsValid() {
+		// Draw base path values from the provider config. For other config fields, fall back to reflection.
+		if pName, found := strings.CutSuffix(m, "BasePath"); found {
+			// the field will look like ComputeBasePath, but the product name will be like compute (just lowercase, no underscores)
+			p := registry.GetProduct(strings.ToLower(pName))
+			return transport_tpg.BaseUrl(p, config)
+		}
+		if f := reflect.Indirect(reflect.ValueOf(config)).FieldByName(m); f.IsValid() {
 			return f.String()
 		}
 
