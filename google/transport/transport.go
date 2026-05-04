@@ -234,11 +234,6 @@ type ListPagesOptions struct {
 // calls Flattener to write each element into TempData, then invokes Callback for further
 // processing of each item.
 func ListPages(opt ListPagesOptions) error {
-	itemKey := opt.ItemName
-	if itemKey == "" {
-		itemKey = "items"
-	}
-
 	params := make(map[string]string)
 	if opt.Filter != "" {
 		params["filter"] = opt.Filter
@@ -266,8 +261,12 @@ func ListPages(opt ListPagesOptions) error {
 			return HandleListGoogleApiError(err, url)
 		}
 
-		if v, ok := res[itemKey].([]interface{}); ok {
-			for _, item := range v {
+		items, ok := res[opt.ItemName].([]interface{})
+		if !ok && opt.ItemName != "items" {
+			items, ok = res["items"].([]interface{})
+		}
+		if ok {
+			for _, item := range items {
 				itemMap, ok := item.(map[string]interface{})
 				if !ok {
 					return fmt.Errorf("expected item to be map[string]interface{}, got %T", item)
