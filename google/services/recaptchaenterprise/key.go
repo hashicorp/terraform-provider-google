@@ -59,7 +59,7 @@ func (v KeyWebSettingsIntegrationTypeEnum) Validate() error {
 		// Empty enum is okay.
 		return nil
 	}
-	for _, s := range []string{"SCORE", "CHECKBOX", "INVISIBLE"} {
+	for _, s := range []string{"SCORE", "CHECKBOX", "INVISIBLE", "POLICY_BASED_CHALLENGE"} {
 		if string(v) == s {
 			return nil
 		}
@@ -186,6 +186,7 @@ type KeyWebSettings struct {
 	AllowAmpTraffic             *bool                                          `json:"allowAmpTraffic"`
 	IntegrationType             *KeyWebSettingsIntegrationTypeEnum             `json:"integrationType"`
 	ChallengeSecurityPreference *KeyWebSettingsChallengeSecurityPreferenceEnum `json:"challengeSecurityPreference"`
+	ChallengeSettings           *KeyWebSettingsChallengeSettings               `json:"challengeSettings"`
 }
 
 type jsonKeyWebSettings KeyWebSettings
@@ -213,6 +214,8 @@ func (r *KeyWebSettings) UnmarshalJSON(data []byte) error {
 
 		r.ChallengeSecurityPreference = res.ChallengeSecurityPreference
 
+		r.ChallengeSettings = res.ChallengeSettings
+
 	}
 	return nil
 }
@@ -233,6 +236,125 @@ func (r *KeyWebSettings) String() string {
 func (r *KeyWebSettings) HashCode() string {
 	// Placeholder for a more complex hash method that handles ordering, etc
 	// Hash resource body for easy comparison later
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type KeyWebSettingsChallengeSettings struct {
+	empty           bool                                                     `json:"-"`
+	DefaultSettings *KeyWebSettingsChallengeSettingsDefaultSettings          `json:"defaultSettings"`
+	ActionSettings  map[string]KeyWebSettingsChallengeSettingsActionSettings `json:"actionSettings"`
+}
+
+type jsonKeyWebSettingsChallengeSettings KeyWebSettingsChallengeSettings
+
+func (r *KeyWebSettingsChallengeSettings) UnmarshalJSON(data []byte) error {
+	var res jsonKeyWebSettingsChallengeSettings
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if len(m) == 0 {
+		*r = *EmptyKeyWebSettingsChallengeSettings
+	} else {
+		r.DefaultSettings = res.DefaultSettings
+		r.ActionSettings = res.ActionSettings
+	}
+	return nil
+}
+
+var EmptyKeyWebSettingsChallengeSettings *KeyWebSettingsChallengeSettings = &KeyWebSettingsChallengeSettings{empty: true}
+
+func (r *KeyWebSettingsChallengeSettings) Empty() bool {
+	return r.empty
+}
+
+func (r *KeyWebSettingsChallengeSettings) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *KeyWebSettingsChallengeSettings) HashCode() string {
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type KeyWebSettingsChallengeSettingsDefaultSettings struct {
+	empty          bool     `json:"-"`
+	ScoreThreshold *float64 `json:"scoreThreshold"`
+}
+
+type jsonKeyWebSettingsChallengeSettingsDefaultSettings KeyWebSettingsChallengeSettingsDefaultSettings
+
+func (r *KeyWebSettingsChallengeSettingsDefaultSettings) UnmarshalJSON(data []byte) error {
+	var res jsonKeyWebSettingsChallengeSettingsDefaultSettings
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if len(m) == 0 {
+		*r = *EmptyKeyWebSettingsChallengeSettingsDefaultSettings
+	} else {
+		r.ScoreThreshold = res.ScoreThreshold
+	}
+	return nil
+}
+
+var EmptyKeyWebSettingsChallengeSettingsDefaultSettings *KeyWebSettingsChallengeSettingsDefaultSettings = &KeyWebSettingsChallengeSettingsDefaultSettings{empty: true}
+
+func (r *KeyWebSettingsChallengeSettingsDefaultSettings) Empty() bool {
+	return r.empty
+}
+
+func (r *KeyWebSettingsChallengeSettingsDefaultSettings) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *KeyWebSettingsChallengeSettingsDefaultSettings) HashCode() string {
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type KeyWebSettingsChallengeSettingsActionSettings struct {
+	empty          bool     `json:"-"`
+	ScoreThreshold *float64 `json:"scoreThreshold"`
+}
+
+type jsonKeyWebSettingsChallengeSettingsActionSettings KeyWebSettingsChallengeSettingsActionSettings
+
+func (r *KeyWebSettingsChallengeSettingsActionSettings) UnmarshalJSON(data []byte) error {
+	var res jsonKeyWebSettingsChallengeSettingsActionSettings
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if len(m) == 0 {
+		*r = *EmptyKeyWebSettingsChallengeSettingsActionSettings
+	} else {
+		r.ScoreThreshold = res.ScoreThreshold
+	}
+	return nil
+}
+
+var EmptyKeyWebSettingsChallengeSettingsActionSettings *KeyWebSettingsChallengeSettingsActionSettings = &KeyWebSettingsChallengeSettingsActionSettings{empty: true}
+
+func (r *KeyWebSettingsChallengeSettingsActionSettings) Empty() bool {
+	return r.empty
+}
+
+func (r *KeyWebSettingsChallengeSettingsActionSettings) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *KeyWebSettingsChallengeSettingsActionSettings) HashCode() string {
 	hash := sha256.Sum256([]byte(r.String()))
 	return fmt.Sprintf("%x", hash)
 }

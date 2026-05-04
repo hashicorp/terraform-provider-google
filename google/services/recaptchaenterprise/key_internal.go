@@ -69,6 +69,34 @@ func (r *KeyWebSettings) validate() error {
 	if err := dcl.Required(r, "integrationType"); err != nil {
 		return err
 	}
+	if !dcl.IsEmptyValueIndirect(r.ChallengeSettings) {
+		if err := r.ChallengeSettings.validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func (r *KeyWebSettingsChallengeSettings) validate() error {
+	if err := dcl.Required(r, "defaultSettings"); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(r.DefaultSettings) {
+		if err := r.DefaultSettings.validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func (r *KeyWebSettingsChallengeSettingsDefaultSettings) validate() error {
+	if err := dcl.Required(r, "scoreThreshold"); err != nil {
+		return err
+	}
+	return nil
+}
+func (r *KeyWebSettingsChallengeSettingsActionSettings) validate() error {
+	if err := dcl.Required(r, "scoreThreshold"); err != nil {
+		return err
+	}
 	return nil
 }
 func (r *KeyAndroidSettings) validate() error {
@@ -651,8 +679,109 @@ func canonicalizeKeyWebSettings(des, initial *KeyWebSettings, opts ...dcl.ApplyO
 	} else {
 		cDes.ChallengeSecurityPreference = des.ChallengeSecurityPreference
 	}
+	cDes.ChallengeSettings = canonicalizeKeyWebSettingsChallengeSettings(des.ChallengeSettings, initial.ChallengeSettings, opts...)
 
 	return cDes
+}
+
+func canonicalizeKeyWebSettingsChallengeSettings(des, initial *KeyWebSettingsChallengeSettings, opts ...dcl.ApplyOption) *KeyWebSettingsChallengeSettings {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &KeyWebSettingsChallengeSettings{}
+
+	cDes.DefaultSettings = canonicalizeKeyWebSettingsChallengeSettingsDefaultSettings(des.DefaultSettings, initial.DefaultSettings, opts...)
+	cDes.ActionSettings = canonicalizeKeyWebSettingsChallengeSettingsActionSettingsMap(des.ActionSettings, initial.ActionSettings, opts...)
+
+	return cDes
+}
+
+func canonicalizeKeyWebSettingsChallengeSettingsDefaultSettings(des, initial *KeyWebSettingsChallengeSettingsDefaultSettings, opts ...dcl.ApplyOption) *KeyWebSettingsChallengeSettingsDefaultSettings {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &KeyWebSettingsChallengeSettingsDefaultSettings{}
+
+	if dcl.IsZeroValue(des.ScoreThreshold) || (dcl.IsEmptyValueIndirect(des.ScoreThreshold) && dcl.IsEmptyValueIndirect(initial.ScoreThreshold)) {
+		cDes.ScoreThreshold = initial.ScoreThreshold
+	} else {
+		cDes.ScoreThreshold = des.ScoreThreshold
+	}
+
+	return cDes
+}
+
+func canonicalizeKeyWebSettingsChallengeSettingsActionSettings(des, initial *KeyWebSettingsChallengeSettingsActionSettings, opts ...dcl.ApplyOption) *KeyWebSettingsChallengeSettingsActionSettings {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &KeyWebSettingsChallengeSettingsActionSettings{}
+
+	if dcl.IsZeroValue(des.ScoreThreshold) || (dcl.IsEmptyValueIndirect(des.ScoreThreshold) && dcl.IsEmptyValueIndirect(initial.ScoreThreshold)) {
+		cDes.ScoreThreshold = initial.ScoreThreshold
+	} else {
+		cDes.ScoreThreshold = des.ScoreThreshold
+	}
+
+	return cDes
+}
+
+func canonicalizeKeyWebSettingsChallengeSettingsActionSettingsMap(des, initial map[string]KeyWebSettingsChallengeSettingsActionSettings, opts ...dcl.ApplyOption) map[string]KeyWebSettingsChallengeSettingsActionSettings {
+	if dcl.IsEmptyValueIndirect(des) {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+		items := make(map[string]KeyWebSettingsChallengeSettingsActionSettings)
+		for k, d := range des {
+			cd := canonicalizeKeyWebSettingsChallengeSettingsActionSettings(&d, nil, opts...)
+			if cd != nil {
+				items[k] = *cd
+			}
+		}
+		return items
+	}
+
+	items := make(map[string]KeyWebSettingsChallengeSettingsActionSettings)
+	for k, d := range des {
+		i, ok := initial[k]
+		if ok {
+			cd := canonicalizeKeyWebSettingsChallengeSettingsActionSettings(&d, &i, opts...)
+			if cd != nil {
+				items[k] = *cd
+			}
+		} else {
+			cd := canonicalizeKeyWebSettingsChallengeSettingsActionSettings(&d, nil, opts...)
+			if cd != nil {
+				items[k] = *cd
+			}
+		}
+	}
+	return items
 }
 
 func canonicalizeKeyWebSettingsSlice(des, initial []KeyWebSettings, opts ...dcl.ApplyOption) []KeyWebSettings {
@@ -706,8 +835,97 @@ func canonicalizeNewKeyWebSettings(c *Client, des, nw *KeyWebSettings) *KeyWebSe
 	if dcl.BoolCanonicalize(des.AllowAmpTraffic, nw.AllowAmpTraffic) {
 		nw.AllowAmpTraffic = des.AllowAmpTraffic
 	}
+	nw.ChallengeSettings = canonicalizeNewKeyWebSettingsChallengeSettings(c, des.ChallengeSettings, nw.ChallengeSettings)
 
 	return nw
+}
+
+func canonicalizeNewKeyWebSettingsChallengeSettings(c *Client, des, nw *KeyWebSettingsChallengeSettings) *KeyWebSettingsChallengeSettings {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for KeyWebSettingsChallengeSettings while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	nw.DefaultSettings = canonicalizeNewKeyWebSettingsChallengeSettingsDefaultSettings(c, des.DefaultSettings, nw.DefaultSettings)
+	nw.ActionSettings = canonicalizeNewKeyWebSettingsChallengeSettingsActionSettingsMap(c, des.ActionSettings, nw.ActionSettings)
+
+	return nw
+}
+
+func canonicalizeNewKeyWebSettingsChallengeSettingsDefaultSettings(c *Client, des, nw *KeyWebSettingsChallengeSettingsDefaultSettings) *KeyWebSettingsChallengeSettingsDefaultSettings {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for KeyWebSettingsChallengeSettingsDefaultSettings while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	if dcl.IsZeroValue(des.ScoreThreshold) || (dcl.IsEmptyValueIndirect(des.ScoreThreshold) && dcl.IsEmptyValueIndirect(nw.ScoreThreshold)) {
+		nw.ScoreThreshold = des.ScoreThreshold
+	} else if nw.ScoreThreshold != nil && des.ScoreThreshold != nil && *des.ScoreThreshold == *nw.ScoreThreshold {
+		nw.ScoreThreshold = des.ScoreThreshold
+	}
+
+	return nw
+}
+
+func canonicalizeNewKeyWebSettingsChallengeSettingsActionSettings(c *Client, des, nw *KeyWebSettingsChallengeSettingsActionSettings) *KeyWebSettingsChallengeSettingsActionSettings {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for KeyWebSettingsChallengeSettingsActionSettings while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	if dcl.IsZeroValue(des.ScoreThreshold) || (dcl.IsEmptyValueIndirect(des.ScoreThreshold) && dcl.IsEmptyValueIndirect(nw.ScoreThreshold)) {
+		nw.ScoreThreshold = des.ScoreThreshold
+	} else if nw.ScoreThreshold != nil && des.ScoreThreshold != nil && *des.ScoreThreshold == *nw.ScoreThreshold {
+		nw.ScoreThreshold = des.ScoreThreshold
+	}
+
+	return nw
+}
+
+func canonicalizeNewKeyWebSettingsChallengeSettingsActionSettingsMap(c *Client, des, nw map[string]KeyWebSettingsChallengeSettingsActionSettings) map[string]KeyWebSettingsChallengeSettingsActionSettings {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for KeyWebSettingsChallengeSettingsActionSettings while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	items := make(map[string]KeyWebSettingsChallengeSettingsActionSettings)
+	for k, d := range des {
+		n, ok := nw[k]
+		if ok {
+			items[k] = *canonicalizeNewKeyWebSettingsChallengeSettingsActionSettings(c, &d, &n)
+		} else {
+			items[k] = d
+		}
+	}
+	return items
 }
 
 func canonicalizeNewKeyWebSettingsSet(c *Client, des, nw []KeyWebSettings) []KeyWebSettings {
@@ -1397,6 +1615,155 @@ func compareKeyWebSettingsNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.F
 		}
 		diffs = append(diffs, ds...)
 	}
+
+	if ds, err := dcl.Diff(desired.ChallengeSettings, actual.ChallengeSettings, dcl.DiffInfo{ObjectFunction: compareKeyWebSettingsChallengeSettingsNewStyle, EmptyObject: EmptyKeyWebSettingsChallengeSettings, OperationSelector: dcl.TriggersOperation("updateKeyUpdateKeyOperation")}, fn.AddNest("ChallengeSettings")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	return diffs, nil
+}
+
+func compareKeyWebSettingsChallengeSettingsNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*KeyWebSettingsChallengeSettings)
+	if !ok {
+		desiredNotPointer, ok := d.(KeyWebSettingsChallengeSettings)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a KeyWebSettingsChallengeSettings or *KeyWebSettingsChallengeSettings", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*KeyWebSettingsChallengeSettings)
+	if !ok {
+		actualNotPointer, ok := a.(KeyWebSettingsChallengeSettings)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a KeyWebSettingsChallengeSettings", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.DefaultSettings, actual.DefaultSettings, dcl.DiffInfo{ObjectFunction: compareKeyWebSettingsChallengeSettingsDefaultSettingsNewStyle, EmptyObject: EmptyKeyWebSettingsChallengeSettingsDefaultSettings, OperationSelector: dcl.TriggersOperation("updateKeyUpdateKeyOperation")}, fn.AddNest("DefaultSettings")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ActionSettings, actual.ActionSettings, dcl.DiffInfo{ObjectFunction: compareKeyWebSettingsChallengeSettingsActionSettingsMapNewStyle, EmptyObject: EmptyKeyWebSettingsChallengeSettingsActionSettings, OperationSelector: dcl.TriggersOperation("updateKeyUpdateKeyOperation")}, fn.AddNest("ActionSettings")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	return diffs, nil
+}
+
+func compareKeyWebSettingsChallengeSettingsDefaultSettingsNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*KeyWebSettingsChallengeSettingsDefaultSettings)
+	if !ok {
+		desiredNotPointer, ok := d.(KeyWebSettingsChallengeSettingsDefaultSettings)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a KeyWebSettingsChallengeSettingsDefaultSettings or *KeyWebSettingsChallengeSettingsDefaultSettings", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*KeyWebSettingsChallengeSettingsDefaultSettings)
+	if !ok {
+		actualNotPointer, ok := a.(KeyWebSettingsChallengeSettingsDefaultSettings)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a KeyWebSettingsChallengeSettingsDefaultSettings", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.ScoreThreshold, actual.ScoreThreshold, dcl.DiffInfo{OperationSelector: dcl.TriggersOperation("updateKeyUpdateKeyOperation")}, fn.AddNest("ScoreThreshold")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	return diffs, nil
+}
+
+func compareKeyWebSettingsChallengeSettingsActionSettingsNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*KeyWebSettingsChallengeSettingsActionSettings)
+	if !ok {
+		desiredNotPointer, ok := d.(KeyWebSettingsChallengeSettingsActionSettings)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a KeyWebSettingsChallengeSettingsActionSettings or *KeyWebSettingsChallengeSettingsActionSettings", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*KeyWebSettingsChallengeSettingsActionSettings)
+	if !ok {
+		actualNotPointer, ok := a.(KeyWebSettingsChallengeSettingsActionSettings)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a KeyWebSettingsChallengeSettingsActionSettings", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.ScoreThreshold, actual.ScoreThreshold, dcl.DiffInfo{OperationSelector: dcl.TriggersOperation("updateKeyUpdateKeyOperation")}, fn.AddNest("ScoreThreshold")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	return diffs, nil
+}
+
+func compareKeyWebSettingsChallengeSettingsActionSettingsMapNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(map[string]KeyWebSettingsChallengeSettingsActionSettings)
+	if !ok {
+		return nil, fmt.Errorf("obj %v is not a map[string]KeyWebSettingsChallengeSettingsActionSettings", d)
+	}
+	actual, ok := a.(map[string]KeyWebSettingsChallengeSettingsActionSettings)
+	if !ok {
+		return nil, fmt.Errorf("obj %v is not a map[string]KeyWebSettingsChallengeSettingsActionSettings", a)
+	}
+
+	for k, desiredVal := range desired {
+		if actualVal, ok := actual[k]; ok {
+			if ds, err := compareKeyWebSettingsChallengeSettingsActionSettingsNewStyle(&desiredVal, &actualVal, fn.AddNest(k)); len(ds) != 0 || err != nil {
+				if err != nil {
+					return nil, err
+				}
+				diffs = append(diffs, ds...)
+			}
+		} else {
+			if ds, err := compareKeyWebSettingsChallengeSettingsActionSettingsNewStyle(&desiredVal, nil, fn.AddNest(k)); len(ds) != 0 || err != nil {
+				if err != nil {
+					return nil, err
+				}
+				diffs = append(diffs, ds...)
+			}
+		}
+	}
+
+	for k, actualVal := range actual {
+		if _, ok := desired[k]; !ok {
+			if ds, err := compareKeyWebSettingsChallengeSettingsActionSettingsNewStyle(nil, &actualVal, fn.AddNest(k)); len(ds) != 0 || err != nil {
+				if err != nil {
+					return nil, err
+				}
+				diffs = append(diffs, ds...)
+			}
+		}
+	}
+
 	return diffs, nil
 }
 
@@ -1779,6 +2146,11 @@ func expandKeyWebSettings(c *Client, f *KeyWebSettings, res *Key) (map[string]in
 	if v := f.ChallengeSecurityPreference; !dcl.IsEmptyValueIndirect(v) {
 		m["challengeSecurityPreference"] = v
 	}
+	if v, err := expandKeyWebSettingsChallengeSettings(c, f.ChallengeSettings, res); err != nil {
+		return nil, fmt.Errorf("error expanding ChallengeSettings into challengeSettings: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["challengeSettings"] = v
+	}
 
 	return m, nil
 }
@@ -1801,8 +2173,141 @@ func flattenKeyWebSettings(c *Client, i interface{}, res *Key) *KeyWebSettings {
 	r.AllowAmpTraffic = dcl.FlattenBool(m["allowAmpTraffic"])
 	r.IntegrationType = flattenKeyWebSettingsIntegrationTypeEnum(m["integrationType"])
 	r.ChallengeSecurityPreference = flattenKeyWebSettingsChallengeSecurityPreferenceEnum(m["challengeSecurityPreference"])
+	r.ChallengeSettings = flattenKeyWebSettingsChallengeSettings(c, m["challengeSettings"], res)
 
 	return r
+}
+
+func expandKeyWebSettingsChallengeSettings(c *Client, f *KeyWebSettingsChallengeSettings, res *Key) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v, err := expandKeyWebSettingsChallengeSettingsDefaultSettings(c, f.DefaultSettings, res); err != nil {
+		return nil, fmt.Errorf("error expanding DefaultSettings into defaultSettings: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["defaultSettings"] = v
+	}
+	if v, err := expandKeyWebSettingsChallengeSettingsActionSettingsMap(c, f.ActionSettings, res); err != nil {
+		return nil, fmt.Errorf("error expanding ActionSettings into actionSettings: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["actionSettings"] = v
+	}
+
+	return m, nil
+}
+
+func flattenKeyWebSettingsChallengeSettings(c *Client, i interface{}, res *Key) *KeyWebSettingsChallengeSettings {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &KeyWebSettingsChallengeSettings{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyKeyWebSettingsChallengeSettings
+	}
+	r.DefaultSettings = flattenKeyWebSettingsChallengeSettingsDefaultSettings(c, m["defaultSettings"], res)
+	r.ActionSettings = flattenKeyWebSettingsChallengeSettingsActionSettingsMap(c, m["actionSettings"], res)
+
+	return r
+}
+
+func expandKeyWebSettingsChallengeSettingsDefaultSettings(c *Client, f *KeyWebSettingsChallengeSettingsDefaultSettings, res *Key) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.ScoreThreshold; !dcl.IsEmptyValueIndirect(v) {
+		m["scoreThreshold"] = v
+	}
+
+	return m, nil
+}
+
+func flattenKeyWebSettingsChallengeSettingsDefaultSettings(c *Client, i interface{}, res *Key) *KeyWebSettingsChallengeSettingsDefaultSettings {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &KeyWebSettingsChallengeSettingsDefaultSettings{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyKeyWebSettingsChallengeSettingsDefaultSettings
+	}
+	r.ScoreThreshold = dcl.FlattenDouble(m["scoreThreshold"])
+
+	return r
+}
+
+func expandKeyWebSettingsChallengeSettingsActionSettings(c *Client, f *KeyWebSettingsChallengeSettingsActionSettings, res *Key) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.ScoreThreshold; !dcl.IsEmptyValueIndirect(v) {
+		m["scoreThreshold"] = v
+	}
+
+	return m, nil
+}
+
+func flattenKeyWebSettingsChallengeSettingsActionSettings(c *Client, i interface{}, res *Key) *KeyWebSettingsChallengeSettingsActionSettings {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &KeyWebSettingsChallengeSettingsActionSettings{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyKeyWebSettingsChallengeSettingsActionSettings
+	}
+	r.ScoreThreshold = dcl.FlattenDouble(m["scoreThreshold"])
+
+	return r
+}
+
+func expandKeyWebSettingsChallengeSettingsActionSettingsMap(c *Client, f map[string]KeyWebSettingsChallengeSettingsActionSettings, res *Key) (map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := make(map[string]interface{})
+	for k, item := range f {
+		i, err := expandKeyWebSettingsChallengeSettingsActionSettings(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+		if i != nil {
+			items[k] = i
+		}
+	}
+
+	return items, nil
+}
+
+func flattenKeyWebSettingsChallengeSettingsActionSettingsMap(c *Client, i interface{}, res *Key) map[string]KeyWebSettingsChallengeSettingsActionSettings {
+	a, ok := i.(map[string]interface{})
+	if !ok {
+		return map[string]KeyWebSettingsChallengeSettingsActionSettings{}
+	}
+
+	if len(a) == 0 {
+		return map[string]KeyWebSettingsChallengeSettingsActionSettings{}
+	}
+
+	items := make(map[string]KeyWebSettingsChallengeSettingsActionSettings)
+	for k, item := range a {
+		items[k] = *flattenKeyWebSettingsChallengeSettingsActionSettings(c, item.(map[string]interface{}), res)
+	}
+
+	return items
 }
 
 // expandKeyAndroidSettingsMap expands the contents of KeyAndroidSettings into a JSON

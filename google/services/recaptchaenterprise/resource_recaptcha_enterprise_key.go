@@ -235,7 +235,7 @@ func RecaptchaEnterpriseKeyWebSettingsSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. Describes how this key is integrated with the website. Possible values: SCORE, CHECKBOX, INVISIBLE",
+				Description: "Required. Describes how this key is integrated with the website. Possible values: SCORE, CHECKBOX, INVISIBLE, POLICY_BASED_CHALLENGE",
 			},
 
 			"allow_all_domains": {
@@ -262,6 +262,66 @@ func RecaptchaEnterpriseKeyWebSettingsSchema() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 				Description: "Settings for the frequency and difficulty at which this key triggers captcha challenges. This should only be specified for IntegrationTypes CHECKBOX and INVISIBLE. Possible values: CHALLENGE_SECURITY_PREFERENCE_UNSPECIFIED, USABILITY, BALANCE, SECURITY",
+			},
+
+			"challenge_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Settings for POLICY_BASED_CHALLENGE keys to control when a challenge is triggered.",
+				MaxItems:    1,
+				Elem:        RecaptchaEnterpriseKeyWebSettingsChallengeSettingsSchema(),
+			},
+		},
+	}
+}
+
+func RecaptchaEnterpriseKeyWebSettingsChallengeSettingsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"default_settings": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: "Defines when a challenge is triggered by default.",
+				MaxItems:    1,
+				Elem:        RecaptchaEnterpriseKeyWebSettingsChallengeSettingsDefaultSettingsSchema(),
+			},
+
+			"action_settings": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "The action to score threshold map. The action name should be the same as the action name passed in the `data-action` attribute. Action names are case-insensitive.",
+				Elem:        RecaptchaEnterpriseKeyWebSettingsChallengeSettingsActionSettingsSchema(),
+				Set:         schema.HashResource(RecaptchaEnterpriseKeyWebSettingsChallengeSettingsActionSettingsSchema()),
+			},
+		},
+	}
+}
+
+func RecaptchaEnterpriseKeyWebSettingsChallengeSettingsDefaultSettingsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"score_threshold": {
+				Type:        schema.TypeFloat,
+				Required:    true,
+				Description: "A challenge is triggered if the end-user score is below that threshold. Value must be between 0 and 1 (inclusive).",
+			},
+		},
+	}
+}
+
+func RecaptchaEnterpriseKeyWebSettingsChallengeSettingsActionSettingsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"action": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The action name.",
+			},
+
+			"score_threshold": {
+				Type:        schema.TypeFloat,
+				Required:    true,
+				Description: "A challenge is triggered if the end-user score is below that threshold. Value must be between 0 and 1 (inclusive).",
 			},
 		},
 	}
@@ -656,6 +716,7 @@ func expandRecaptchaEnterpriseKeyWebSettings(o interface{}) *KeyWebSettings {
 		AllowAmpTraffic:             dcl.Bool(obj["allow_amp_traffic"].(bool)),
 		AllowedDomains:              tpgdclresource.ExpandStringArray(obj["allowed_domains"]),
 		ChallengeSecurityPreference: KeyWebSettingsChallengeSecurityPreferenceEnumRef(obj["challenge_security_preference"].(string)),
+		ChallengeSettings:           expandRecaptchaEnterpriseKeyWebSettingsChallengeSettings(obj["challenge_settings"]),
 	}
 }
 
@@ -669,10 +730,114 @@ func flattenRecaptchaEnterpriseKeyWebSettings(obj *KeyWebSettings) interface{} {
 		"allow_amp_traffic":             obj.AllowAmpTraffic,
 		"allowed_domains":               obj.AllowedDomains,
 		"challenge_security_preference": obj.ChallengeSecurityPreference,
+		"challenge_settings":            flattenRecaptchaEnterpriseKeyWebSettingsChallengeSettings(obj.ChallengeSettings),
 	}
 
 	return []interface{}{transformed}
 
+}
+
+func expandRecaptchaEnterpriseKeyWebSettingsChallengeSettings(o interface{}) *KeyWebSettingsChallengeSettings {
+	if o == nil {
+		return EmptyKeyWebSettingsChallengeSettings
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return EmptyKeyWebSettingsChallengeSettings
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &KeyWebSettingsChallengeSettings{
+		DefaultSettings: expandRecaptchaEnterpriseKeyWebSettingsChallengeSettingsDefaultSettings(obj["default_settings"]),
+		ActionSettings:  expandRecaptchaEnterpriseKeyWebSettingsChallengeSettingsActionSettingsMap(obj["action_settings"]),
+	}
+}
+
+func flattenRecaptchaEnterpriseKeyWebSettingsChallengeSettings(obj *KeyWebSettingsChallengeSettings) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"default_settings": flattenRecaptchaEnterpriseKeyWebSettingsChallengeSettingsDefaultSettings(obj.DefaultSettings),
+		"action_settings":  flattenRecaptchaEnterpriseKeyWebSettingsChallengeSettingsActionSettingsMap(obj.ActionSettings),
+	}
+
+	return []interface{}{transformed}
+}
+
+func expandRecaptchaEnterpriseKeyWebSettingsChallengeSettingsDefaultSettings(o interface{}) *KeyWebSettingsChallengeSettingsDefaultSettings {
+	if o == nil {
+		return EmptyKeyWebSettingsChallengeSettingsDefaultSettings
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return EmptyKeyWebSettingsChallengeSettingsDefaultSettings
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &KeyWebSettingsChallengeSettingsDefaultSettings{
+		ScoreThreshold: dcl.Float64(obj["score_threshold"].(float64)),
+	}
+}
+
+func flattenRecaptchaEnterpriseKeyWebSettingsChallengeSettingsDefaultSettings(obj *KeyWebSettingsChallengeSettingsDefaultSettings) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{}
+	if obj.ScoreThreshold != nil {
+		transformed["score_threshold"] = *obj.ScoreThreshold
+	}
+
+	return []interface{}{transformed}
+}
+
+func expandRecaptchaEnterpriseKeyWebSettingsChallengeSettingsActionSettings(o interface{}) *KeyWebSettingsChallengeSettingsActionSettings {
+	if o == nil {
+		return EmptyKeyWebSettingsChallengeSettingsActionSettings
+	}
+	obj := o.(map[string]interface{})
+	return &KeyWebSettingsChallengeSettingsActionSettings{
+		ScoreThreshold: dcl.Float64(obj["score_threshold"].(float64)),
+	}
+}
+
+func flattenRecaptchaEnterpriseKeyWebSettingsChallengeSettingsActionSettings(obj KeyWebSettingsChallengeSettingsActionSettings) interface{} {
+	transformed := map[string]interface{}{
+		"score_threshold": obj.ScoreThreshold,
+	}
+	return transformed
+}
+
+func expandRecaptchaEnterpriseKeyWebSettingsChallengeSettingsActionSettingsMap(o interface{}) map[string]KeyWebSettingsChallengeSettingsActionSettings {
+	if o == nil {
+		return nil
+	}
+	s := o.(*schema.Set)
+	items := make(map[string]KeyWebSettingsChallengeSettingsActionSettings)
+	for _, v := range s.List() {
+		obj := v.(map[string]interface{})
+		action := obj["action"].(string)
+		items[action] = KeyWebSettingsChallengeSettingsActionSettings{
+			ScoreThreshold: dcl.Float64(obj["score_threshold"].(float64)),
+		}
+	}
+	return items
+}
+
+func flattenRecaptchaEnterpriseKeyWebSettingsChallengeSettingsActionSettingsMap(obj map[string]KeyWebSettingsChallengeSettingsActionSettings) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := make([]interface{}, 0, len(obj))
+	for k, v := range obj {
+		m := map[string]interface{}{
+			"action": k,
+		}
+		if v.ScoreThreshold != nil {
+			m["score_threshold"] = *v.ScoreThreshold
+		}
+		transformed = append(transformed, m)
+	}
+	return schema.NewSet(schema.HashResource(RecaptchaEnterpriseKeyWebSettingsChallengeSettingsActionSettingsSchema()), transformed)
 }
 
 func flattenRecaptchaEnterpriseKeyLabels(v map[string]string, d *schema.ResourceData) interface{} {
