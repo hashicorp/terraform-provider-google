@@ -8,6 +8,8 @@ api_version: v1
 api_resource_type_kind: Address
 fields:
     - api_field: address
+    - api_field: id
+      field: address_id
     - api_field: addressType
     - api_field: creationTimestamp
     - api_field: description

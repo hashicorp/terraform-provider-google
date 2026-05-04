@@ -310,6 +310,9 @@ In addition to the arguments listed above, the following computed attributes are
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.
 
+* `address_id` -
+  The unique numeric identifier for the resource. This identifier is defined by the server.
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.

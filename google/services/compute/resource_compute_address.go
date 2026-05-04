@@ -317,6 +317,11 @@ address is specified, it must be within the subnetwork's IP range.
 This field can only be used with INTERNAL type with
 GCE_ENDPOINT/DNS_RESOLVER purposes.`,
 			},
+			"address_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique numeric identifier for the resource. This identifier is defined by the server.`,
+			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -945,6 +950,10 @@ func flattenComputeAddressIpCollection(v interface{}, d *schema.ResourceData, co
 	return v
 }
 
+func flattenComputeAddressAddressId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeAddressTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1099,6 +1108,9 @@ func ResourceComputeAddressFlatten(d *schema.ResourceData, meta interface{}, res
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 	if err = d.Set("ip_collection", flattenComputeAddressIpCollection(res["ipCollection"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Address: %s", err)
+	}
+	if err = d.Set("address_id", flattenComputeAddressAddressId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenComputeAddressTerraformLabels(res["labels"], d, config)); err != nil {

@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `address_id` field to `google_compute_address` resource
+```
