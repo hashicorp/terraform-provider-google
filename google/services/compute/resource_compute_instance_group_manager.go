@@ -885,13 +885,21 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if err = d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts)); err != nil {
 		return fmt.Errorf("Error setting named_port in state: %s", err.Error())
 	}
-	if err = d.Set("stateful_disk", flattenStatefulPolicy(manager.StatefulPolicy)); err != nil {
+	var statefulPolicyMap map[string]interface{}
+	if manager.StatefulPolicy != nil {
+		spMap, err := tpgresource.ConvertToMap(manager.StatefulPolicy)
+		if err != nil {
+			return fmt.Errorf("Error converting stateful policy: %s", err)
+		}
+		statefulPolicyMap = spMap
+	}
+	if err = d.Set("stateful_disk", flattenStatefulPolicy(statefulPolicyMap)); err != nil {
 		return fmt.Errorf("Error setting stateful_disk in state: %s", err.Error())
 	}
-	if err = d.Set("stateful_internal_ip", flattenStatefulPolicyStatefulInternalIps(d, manager.StatefulPolicy)); err != nil {
+	if err = d.Set("stateful_internal_ip", flattenStatefulPolicyStatefulInternalIps(d, statefulPolicyMap)); err != nil {
 		return fmt.Errorf("Error setting stateful_internal_ip in state: %s", err.Error())
 	}
-	if err = d.Set("stateful_external_ip", flattenStatefulPolicyStatefulExternalIps(d, manager.StatefulPolicy)); err != nil {
+	if err = d.Set("stateful_external_ip", flattenStatefulPolicyStatefulExternalIps(d, statefulPolicyMap)); err != nil {
 		return fmt.Errorf("Error setting stateful_external_ip in state: %s", err.Error())
 	}
 	if err := d.Set("fingerprint", manager.Fingerprint); err != nil {
@@ -1440,53 +1448,80 @@ func flattenAutoHealingPolicies(autoHealingPolicies []*compute.InstanceGroupMana
 	return autoHealingPoliciesSchema
 }
 
-func flattenStatefulPolicy(statefulPolicy *compute.StatefulPolicy) []map[string]interface{} {
-	if statefulPolicy == nil || statefulPolicy.PreservedState == nil || statefulPolicy.PreservedState.Disks == nil {
+func flattenStatefulPolicy(statefulPolicy map[string]interface{}) []map[string]interface{} {
+	if statefulPolicy == nil {
 		return make([]map[string]interface{}, 0, 0)
 	}
-	result := make([]map[string]interface{}, 0, len(statefulPolicy.PreservedState.Disks))
-	for deviceName, disk := range statefulPolicy.PreservedState.Disks {
+	preservedState, ok := statefulPolicy["preservedState"].(map[string]interface{})
+	if !ok || preservedState == nil {
+		return make([]map[string]interface{}, 0, 0)
+	}
+	disks, ok := preservedState["disks"].(map[string]interface{})
+	if !ok || disks == nil {
+		return make([]map[string]interface{}, 0, 0)
+	}
+	result := make([]map[string]interface{}, 0, len(disks))
+	for deviceName, rawDisk := range disks {
+		disk, ok := rawDisk.(map[string]interface{})
+		if !ok {
+			continue
+		}
 		data := map[string]interface{}{
 			"device_name": deviceName,
-			"delete_rule": disk.AutoDelete,
+			"delete_rule": disk["autoDelete"],
 		}
-
 		result = append(result, data)
 	}
 	return result
 }
 
-func flattenStatefulPolicyStatefulInternalIps(d *schema.ResourceData, statefulPolicy *compute.StatefulPolicy) []map[string]interface{} {
-	if statefulPolicy == nil || statefulPolicy.PreservedState == nil || statefulPolicy.PreservedState.InternalIPs == nil {
+func flattenStatefulPolicyStatefulInternalIps(d *schema.ResourceData, statefulPolicy map[string]interface{}) []map[string]interface{} {
+	if statefulPolicy == nil {
 		return make([]map[string]interface{}, 0, 0)
 	}
-
-	return flattenStatefulPolicyStatefulIps(d, "stateful_internal_ip", statefulPolicy.PreservedState.InternalIPs)
+	preservedState, ok := statefulPolicy["preservedState"].(map[string]interface{})
+	if !ok || preservedState == nil {
+		return make([]map[string]interface{}, 0, 0)
+	}
+	internalIPs, ok := preservedState["internalIPs"].(map[string]interface{})
+	if !ok || internalIPs == nil {
+		return make([]map[string]interface{}, 0, 0)
+	}
+	return flattenStatefulPolicyStatefulIps(d, "stateful_internal_ip", internalIPs)
 }
 
-func flattenStatefulPolicyStatefulExternalIps(d *schema.ResourceData, statefulPolicy *compute.StatefulPolicy) []map[string]interface{} {
-	if statefulPolicy == nil || statefulPolicy.PreservedState == nil || statefulPolicy.PreservedState.ExternalIPs == nil {
+func flattenStatefulPolicyStatefulExternalIps(d *schema.ResourceData, statefulPolicy map[string]interface{}) []map[string]interface{} {
+	if statefulPolicy == nil {
 		return make([]map[string]interface{}, 0)
 	}
-
-	return flattenStatefulPolicyStatefulIps(d, "stateful_external_ip", statefulPolicy.PreservedState.ExternalIPs)
+	preservedState, ok := statefulPolicy["preservedState"].(map[string]interface{})
+	if !ok || preservedState == nil {
+		return make([]map[string]interface{}, 0)
+	}
+	externalIPs, ok := preservedState["externalIPs"].(map[string]interface{})
+	if !ok || externalIPs == nil {
+		return make([]map[string]interface{}, 0)
+	}
+	return flattenStatefulPolicyStatefulIps(d, "stateful_external_ip", externalIPs)
 }
 
-func flattenStatefulPolicyStatefulIps(d *schema.ResourceData, ipfieldName string, ips map[string]compute.StatefulPolicyPreservedStateNetworkIp) []map[string]interface{} {
-	// statefulPolicy.PreservedState.ExternalIPs and statefulPolicy.PreservedState.InternalIPs are affected by API-side reordering
-	// of external/internal IPs, where ordering is done by the interface_name value.
+func flattenStatefulPolicyStatefulIps(d *schema.ResourceData, ipfieldName string, ips map[string]interface{}) []map[string]interface{} {
+	// ExternalIPs and InternalIPs are affected by API-side reordering by interface_name.
 	// Below we reorder the IPs to match the order in the config.
-	// Also, data is converted from a map (client library's statefulPolicy.PreservedState.ExternalIPs, or .InternalIPs) to a slice (stored in state).
-	// Any IPs found from the API response that aren't in the config are appended to the end of the slice.
+	// Any IPs from the API response that aren't in the config are appended to the end.
 	configData := []map[string]interface{}{}
 	for _, item := range d.Get(ipfieldName).([]interface{}) {
 		configData = append(configData, item.(map[string]interface{}))
 	}
 	apiData := []map[string]interface{}{}
-	for interfaceName, ip := range ips {
+	for interfaceName, rawIp := range ips {
+		ip, ok := rawIp.(map[string]interface{})
+		if !ok {
+			continue
+		}
 		data := map[string]interface{}{
 			"interface_name": interfaceName,
-			"delete_rule":    ip.AutoDelete,
+			"delete_rule":    ip["autoDelete"],
 		}
 		apiData = append(apiData, data)
 	}
