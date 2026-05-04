@@ -424,6 +424,258 @@ resource "google_ces_evaluation" "ces_evaluation_toolset" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_evaluation_scenario_full&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ces Evaluation Scenario Full
+
+
+```hcl
+resource "google_ces_app" "app" {
+  provider = google-beta
+  app_id = "app-id-scenario"
+  location = "us"
+  display_name = "my-app-scenario"
+
+  language_settings {
+    default_language_code    = "en-US"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_tool" "tool" {
+  provider = google-beta
+  location       = "us"
+  app            = google_ces_app.app.app_id
+  tool_id        = "tool-id-scenario"
+  execution_type = "SYNCHRONOUS"
+  python_function {
+      name = "example_function"
+      python_code = "def example_function() -> int: return 0"
+  }
+}
+
+resource "google_ces_evaluation" "ces_evaluation_scenario_full" {
+  provider = google-beta
+  evaluation_id = "eval-scenario-full"
+  display_name = "my-evaluation-scenario-full"
+  location     = "us"
+  app          = google_ces_app.app.app_id
+  description  = "Full evaluation for testing scenario"
+  tags         = ["test", "full", "scenario"]
+
+  scenario {
+    task = "Test task"
+    max_turns = 5
+    rubrics = ["projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/rubrics/dummy-rubric"]
+    user_goal_behavior = "USER_GOAL_SATISFIED"
+    task_completion_behavior = "TASK_SATISFIED"
+    variable_overrides = {
+      key = "value"
+    }
+    evaluation_expectations = ["projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/evaluationExpectations/dummy-exp"]
+
+    user_facts {
+      name = "user_name"
+      value = "John Doe"
+    }
+
+    scenario_expectations {
+      tool_expectation {
+        expected_tool_call {
+          id = "tool-call-id"
+          tool = "projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/tools/${google_ces_tool.tool.tool_id}"
+          args = {
+            param = "value"
+          }
+        }
+        mock_tool_response {
+          id = "tool-call-id"
+          response = { result = "mocked" }
+          tool = "projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/tools/${google_ces_tool.tool.tool_id}"
+        }
+      }
+    }
+
+    scenario_expectations {
+      agent_response {
+        role = "agent"
+        chunks {
+          text = "Hello"
+        }
+        chunks {
+          updated_variables = { "key": "value" }
+        }
+        chunks {
+          blob {
+            mime_type = "text/plain"
+            data = "c29tZSBibG9iIGRhdGE="
+          }
+        }
+        chunks {
+          image {
+            mime_type = "image/png"
+            data = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+          }
+        }
+        chunks {
+          tool_call {
+            id = "tool-call-id-3"
+            tool = "projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/tools/${google_ces_tool.tool.tool_id}"
+            args = {
+              param = "value"
+            }
+          }
+        }
+        chunks {
+          tool_response {
+            id = "tool-call-id-3"
+            response = { result = "success" }
+            tool = "projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/tools/${google_ces_tool.tool.tool_id}"
+          }
+        }
+        chunks {
+          agent_transfer {
+            target_agent = "projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/agents/dummy-agent"
+          }
+        }
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_evaluation_scenario_toolset&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ces Evaluation Scenario Toolset
+
+
+```hcl
+resource "google_ces_app" "app" {
+  provider = google-beta
+  app_id = "app-id-scenario-ts"
+  location = "us"
+  display_name = "my-app-scenario-ts"
+
+  language_settings {
+    default_language_code    = "en-US"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_toolset" "toolset" {
+  provider = google-beta
+  toolset_id = "ts-scen"
+  location = "us"
+  app      = google_ces_app.app.app_id
+  display_name = "Basic toolset display name"
+  description = "Test description"
+  execution_type = "SYNCHRONOUS"
+
+  open_api_toolset {
+    open_api_schema = <<-EOT
+      openapi: 3.0.0
+      info:
+        title: My Sample API
+        version: 1.0.0
+        description: A simple API example
+      servers:
+        - url: https://api.example.com/v1
+      paths: {}
+    EOT
+    ignore_unknown_fields = false
+  }
+}
+
+resource "google_ces_evaluation" "ces_evaluation_scenario_toolset" {
+  provider = google-beta
+  evaluation_id = "eval-scen-ts"
+  display_name = "my-evaluation-scenario-toolset"
+  location     = "us"
+  app          = google_ces_app.app.app_id
+  description  = "Full evaluation for testing scenario with toolset"
+  tags         = ["test", "full", "scenario", "toolset"]
+
+  scenario {
+    task = "Test task"
+    max_turns = 5
+    rubrics = ["projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/rubrics/dummy-rubric"]
+    user_goal_behavior = "USER_GOAL_SATISFIED"
+    task_completion_behavior = "TASK_SATISFIED"
+    variable_overrides = {
+      key = "value"
+    }
+    evaluation_expectations = ["projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/evaluationExpectations/dummy-exp"]
+
+    user_facts {
+      name = "user_name"
+      value = "John Doe"
+    }
+
+    scenario_expectations {
+      tool_expectation {
+        expected_tool_call {
+          id = "tool-call-id"
+          toolset_tool {
+            toolset = "projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/toolsets/${google_ces_toolset.toolset.toolset_id}"
+            tool_id = "dummy-tool"
+          }
+          args = {
+            param = "value"
+          }
+        }
+        mock_tool_response {
+          id = "tool-call-id"
+          response = { result = "mocked" }
+          toolset_tool {
+            toolset = "projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/toolsets/${google_ces_toolset.toolset.toolset_id}"
+            tool_id = "dummy-tool"
+          }
+        }
+      }
+    }
+
+    scenario_expectations {
+      agent_response {
+        role = "agent"
+        chunks {
+          text = "Hello"
+        }
+        chunks {
+          tool_call {
+            id = "tool-call-id-3"
+            toolset_tool {
+              toolset = "projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/toolsets/${google_ces_toolset.toolset.toolset_id}"
+              tool_id = "dummy-tool"
+            }
+            args = {
+              param = "value"
+            }
+          }
+        }
+        chunks {
+          tool_response {
+            id = "tool-call-id-3"
+            response = { result = "success" }
+            toolset_tool {
+              toolset = "projects/${google_ces_app.app.project}/locations/us/apps/${google_ces_app.app.app_id}/toolsets/${google_ces_toolset.toolset.toolset_id}"
+              tool_id = "dummy-tool"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -459,6 +711,11 @@ The following arguments are supported:
   (Optional)
   Golden input.
   Structure is [documented below](#nested_golden).
+
+* `scenario` -
+  (Optional)
+  Scenario input.
+  Structure is [documented below](#nested_scenario).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -955,6 +1212,297 @@ The following arguments are supported:
 * `tool_id` -
   (Optional)
   The tool ID to filter the tools to retrieve the schema for.
+
+<a name="nested_scenario"></a>The `scenario` block supports:
+
+* `task` -
+  (Required)
+  The task to evaluate.
+
+* `user_facts` -
+  (Optional)
+  Facts about the user as a key value pair.
+  Structure is [documented below](#nested_scenario_user_facts).
+
+* `max_turns` -
+  (Optional)
+  Max turns.
+
+* `rubrics` -
+  (Required)
+  Rubrics.
+
+* `scenario_expectations` -
+  (Required)
+  Scenario expectations.
+  Structure is [documented below](#nested_scenario_scenario_expectations).
+
+* `variable_overrides` -
+  (Optional)
+  Variables / Session Parameters as context for the session, keyed by variable names. Members of this struct will override any default values set by the system.
+
+* `user_goal_behavior` -
+  (Optional)
+  User goal behavior.
+
+* `task_completion_behavior` -
+  (Optional)
+  Task completion behavior.
+
+* `evaluation_expectations` -
+  (Optional)
+  Evaluation expectations.
+
+
+<a name="nested_scenario_user_facts"></a>The `user_facts` block supports:
+
+* `name` -
+  (Required)
+  The name of the user fact.
+
+* `value` -
+  (Required)
+  The value of the user fact.
+
+<a name="nested_scenario_scenario_expectations"></a>The `scenario_expectations` block supports:
+
+* `tool_expectation` -
+  (Optional)
+  Tool expectation.
+  Structure is [documented below](#nested_scenario_scenario_expectations_tool_expectation).
+
+* `agent_response` -
+  (Optional)
+  Agent response.
+  Structure is [documented below](#nested_scenario_scenario_expectations_agent_response).
+
+
+<a name="nested_scenario_scenario_expectations_tool_expectation"></a>The `tool_expectation` block supports:
+
+* `expected_tool_call` -
+  (Optional)
+  Expected tool call.
+  Structure is [documented below](#nested_scenario_scenario_expectations_tool_expectation_expected_tool_call).
+
+* `mock_tool_response` -
+  (Optional)
+  Mock tool response.
+  Structure is [documented below](#nested_scenario_scenario_expectations_tool_expectation_mock_tool_response).
+
+
+<a name="nested_scenario_scenario_expectations_tool_expectation_expected_tool_call"></a>The `expected_tool_call` block supports:
+
+* `id` -
+  (Optional)
+  Optional. The unique identifier of the tool call.
+
+* `display_name` -
+  (Output)
+  Output only. Display name of the tool.
+
+* `args` -
+  (Optional)
+  The input parameters and values for the tool in JSON object format.
+
+* `tool` -
+  (Optional)
+  Name of the tool.
+
+* `toolset_tool` -
+  (Optional)
+  The toolset tool.
+  Structure is [documented below](#nested_scenario_scenario_expectations_tool_expectation_expected_tool_call_toolset_tool).
+
+
+<a name="nested_scenario_scenario_expectations_tool_expectation_expected_tool_call_toolset_tool"></a>The `toolset_tool` block supports:
+
+* `toolset` -
+  (Optional)
+  Required. The toolset name.
+
+* `tool_id` -
+  (Optional)
+  The tool ID.
+
+<a name="nested_scenario_scenario_expectations_tool_expectation_mock_tool_response"></a>The `mock_tool_response` block supports:
+
+* `id` -
+  (Optional)
+  Optional. Matching ID of the tool call.
+
+* `display_name` -
+  (Output)
+  Output only. Display name of the tool.
+
+* `response` -
+  (Optional)
+  The tool execution result in JSON object format.
+
+* `tool` -
+  (Optional)
+  Name of the tool to execute.
+
+* `toolset_tool` -
+  (Optional)
+  The toolset tool that got executed.
+  Structure is [documented below](#nested_scenario_scenario_expectations_tool_expectation_mock_tool_response_toolset_tool).
+
+
+<a name="nested_scenario_scenario_expectations_tool_expectation_mock_tool_response_toolset_tool"></a>The `toolset_tool` block supports:
+
+* `toolset` -
+  (Optional)
+  Required. The toolset name.
+
+* `tool_id` -
+  (Optional)
+  The tool ID.
+
+<a name="nested_scenario_scenario_expectations_agent_response"></a>The `agent_response` block supports:
+
+* `role` -
+  (Optional)
+  The role within the conversation, e.g., user, agent.
+
+* `chunks` -
+  (Optional)
+  Content of the message as a series of chunks.
+  Structure is [documented below](#nested_scenario_scenario_expectations_agent_response_chunks).
+
+
+<a name="nested_scenario_scenario_expectations_agent_response_chunks"></a>The `chunks` block supports:
+
+* `text` -
+  (Optional)
+  Text data.
+
+* `updated_variables` -
+  (Optional)
+  Updated variables in JSON object format.
+
+* `blob` -
+  (Optional)
+  Represents a blob input or output in the conversation.
+  Structure is [documented below](#nested_scenario_scenario_expectations_agent_response_chunks_blob).
+
+* `image` -
+  (Optional)
+  Represents an image input or output in the conversation.
+  Structure is [documented below](#nested_scenario_scenario_expectations_agent_response_chunks_image).
+
+* `tool_call` -
+  (Optional)
+  Request for the client or the agent to execute the specified tool.
+  Structure is [documented below](#nested_scenario_scenario_expectations_agent_response_chunks_tool_call).
+
+* `tool_response` -
+  (Optional)
+  The execution result of a specific tool from the client or the agent.
+  Structure is [documented below](#nested_scenario_scenario_expectations_agent_response_chunks_tool_response).
+
+* `agent_transfer` -
+  (Optional)
+  Represents an event indicating the transfer of a conversation to a different agent.
+  Structure is [documented below](#nested_scenario_scenario_expectations_agent_response_chunks_agent_transfer).
+
+
+<a name="nested_scenario_scenario_expectations_agent_response_chunks_blob"></a>The `blob` block supports:
+
+* `mime_type` -
+  (Required)
+  The IANA standard MIME type of the source data.
+
+* `data` -
+  (Required)
+  Raw bytes of the blob.
+
+<a name="nested_scenario_scenario_expectations_agent_response_chunks_image"></a>The `image` block supports:
+
+* `mime_type` -
+  (Required)
+  The IANA standard MIME type of the source data.
+
+* `data` -
+  (Required)
+  Raw bytes of the image.
+
+<a name="nested_scenario_scenario_expectations_agent_response_chunks_tool_call"></a>The `tool_call` block supports:
+
+* `id` -
+  (Optional)
+  The unique identifier of the tool call.
+
+* `display_name` -
+  (Output)
+  Display name of the tool.
+
+* `args` -
+  (Optional)
+  The input parameters and values for the tool in JSON object format.
+
+* `tool` -
+  (Optional)
+  The resource name of the tool.
+
+* `toolset_tool` -
+  (Optional)
+  A tool that is created from a toolset.
+  Structure is [documented below](#nested_scenario_scenario_expectations_agent_response_chunks_tool_call_toolset_tool).
+
+
+<a name="nested_scenario_scenario_expectations_agent_response_chunks_tool_call_toolset_tool"></a>The `toolset_tool` block supports:
+
+* `toolset` -
+  (Required)
+  The resource name of the Toolset.
+
+* `tool_id` -
+  (Optional)
+  The tool ID to filter the tools to retrieve the schema for.
+
+<a name="nested_scenario_scenario_expectations_agent_response_chunks_tool_response"></a>The `tool_response` block supports:
+
+* `id` -
+  (Optional)
+  The matching ID of the tool call the response is for.
+
+* `display_name` -
+  (Output)
+  Display name of the tool.
+
+* `response` -
+  (Optional)
+  The tool execution result in JSON object format.
+
+* `tool` -
+  (Optional)
+  The resource name of the tool.
+
+* `toolset_tool` -
+  (Optional)
+  A tool that is created from a toolset.
+  Structure is [documented below](#nested_scenario_scenario_expectations_agent_response_chunks_tool_response_toolset_tool).
+
+
+<a name="nested_scenario_scenario_expectations_agent_response_chunks_tool_response_toolset_tool"></a>The `toolset_tool` block supports:
+
+* `toolset` -
+  (Required)
+  The resource name of the Toolset.
+
+* `tool_id` -
+  (Optional)
+  The tool ID to filter the tools to retrieve the schema for.
+
+<a name="nested_scenario_scenario_expectations_agent_response_chunks_agent_transfer"></a>The `agent_transfer` block supports:
+
+* `target_agent` -
+  (Required)
+  The agent to which the conversation is being transferred.
+
+* `display_name` -
+  (Output)
+  Display name of the agent.
 
 ## Attributes Reference
 
