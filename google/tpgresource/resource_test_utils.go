@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -196,7 +197,12 @@ func ReplaceVarsForTest(config *transport_tpg.Config, rs *terraform.ResourceStat
 			return v
 		}
 
-		// Attempt to draw values from the provider config
+		// Draw base path values from the provider config. For other config fields, fall back to reflection.
+		if pName, found := strings.CutSuffix(m, "BasePath"); found {
+			// the field will look like ComputeBasePath, but the product name will be like compute (just lowercase, no underscores)
+			p := registry.GetProduct(strings.ToLower(pName))
+			return transport_tpg.BaseUrl(p, config)
+		}
 		if f := reflect.Indirect(reflect.ValueOf(config)).FieldByName(m); f.IsValid() {
 			return f.String()
 		}
