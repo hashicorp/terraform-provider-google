@@ -915,7 +915,15 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 			return fmt.Errorf("Error setting all_instances_config in state: %s", err.Error())
 		}
 	}
-	if err = d.Set("stateful_disk", flattenStatefulPolicy(manager.StatefulPolicy)); err != nil {
+	var statefulPolicyMap map[string]interface{}
+	if manager.StatefulPolicy != nil {
+		spMap, err := tpgresource.ConvertToMap(manager.StatefulPolicy)
+		if err != nil {
+			return fmt.Errorf("Error converting stateful policy: %s", err)
+		}
+		statefulPolicyMap = spMap
+	}
+	if err = d.Set("stateful_disk", flattenStatefulPolicy(statefulPolicyMap)); err != nil {
 		return fmt.Errorf("Error setting stateful_disk in state: %s", err.Error())
 	}
 	if err = d.Set("status", flattenStatus(manager.Status)); err != nil {
@@ -924,10 +932,10 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	if err = d.Set("resource_policies", flattenResourcePolicies(manager.ResourcePolicies)); err != nil {
 		return fmt.Errorf("Error setting resource_policies in state: %s", err.Error())
 	}
-	if err = d.Set("stateful_internal_ip", flattenStatefulPolicyStatefulInternalIps(d, manager.StatefulPolicy)); err != nil {
+	if err = d.Set("stateful_internal_ip", flattenStatefulPolicyStatefulInternalIps(d, statefulPolicyMap)); err != nil {
 		return fmt.Errorf("Error setting stateful_internal_ip in state: %s", err.Error())
 	}
-	if err = d.Set("stateful_external_ip", flattenStatefulPolicyStatefulExternalIps(d, manager.StatefulPolicy)); err != nil {
+	if err = d.Set("stateful_external_ip", flattenStatefulPolicyStatefulExternalIps(d, statefulPolicyMap)); err != nil {
 		return fmt.Errorf("Error setting stateful_external_ip in state: %s", err.Error())
 	}
 	if err = d.Set("target_size_policy", flattenTargetSizePolicy(manager.TargetSizePolicy)); err != nil {
