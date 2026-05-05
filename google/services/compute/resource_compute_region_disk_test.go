@@ -834,3 +834,273 @@ resource "google_compute_region_disk" "kms-encrypted-name" {
 
 `, context)
 }
+
+func TestAccComputeRegionDisk_fromImageKMS(t *testing.T) {
+	t.Parallel()
+
+	kms := acctest.BootstrapKMSKey(t)
+	suffix := acctest.RandString(t, 10)
+	diskName := fmt.Sprintf("tf-test-kms-disk-%s", suffix)
+	imageName := fmt.Sprintf("tf-test-kms-image-%s", suffix)
+
+	context := map[string]interface{}{
+		"random_suffix":     suffix,
+		"kms_key_self_link": kms.CryptoKey.Name,
+		"image_name":        imageName,
+		"disk_name":         diskName,
+	}
+
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@compute-system.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
+	var disk compute.Disk
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_fromImageKMS(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionDiskExists(
+						t, "google_compute_region_disk.kms_disk", &disk),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDisk_fromImageKMS(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_image" "kms_image" {
+  name         = "%{image_name}"
+  source_image = data.google_compute_image.debian.self_link
+
+  image_encryption_key {
+    kms_key_self_link = "%{kms_key_self_link}"
+  }
+}
+
+resource "google_compute_region_disk" "kms_disk" {
+  name          = "%{disk_name}"
+  image         = google_compute_image.kms_image.self_link
+  region        = "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-f"]
+  size          = 200
+
+  source_image_encryption_key {
+    kms_key_name = "%{kms_key_self_link}"
+  }
+}
+`, context)
+}
+
+func TestAccComputeRegionDisk_fromImageCSEK(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	diskName := fmt.Sprintf("tf-test-csek-disk-%s", suffix)
+	imageName := fmt.Sprintf("tf-test-csek-image-%s", suffix)
+
+	context := map[string]interface{}{
+		"random_suffix": suffix,
+		"raw_key":       "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"image_name":    imageName,
+		"disk_name":     diskName,
+	}
+
+	var disk compute.Disk
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_fromImageCSEK(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionDiskExists(
+						t, "google_compute_region_disk.csek_disk", &disk),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDisk_fromImageCSEK(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_image" "csek_image" {
+  name              = "%{image_name}"
+  source_image      = data.google_compute_image.debian.self_link
+  storage_locations = ["us"]
+
+  image_encryption_key {
+    raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_region_disk" "csek_disk" {
+  name          = "%{disk_name}"
+  image         = google_compute_image.csek_image.self_link
+  region        = "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-f"]
+  size          = 200
+
+  source_image_encryption_key {
+    raw_key = "%{raw_key}"
+  }
+}
+`, context)
+}
+
+func TestAccComputeRegionDisk_fromImageRSA(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	diskName := fmt.Sprintf("tf-test-rsa-disk-%s", suffix)
+	imageName := fmt.Sprintf("tf-test-rsa-image-%s", suffix)
+
+	context := map[string]interface{}{
+		"random_suffix":     suffix,
+		"rsa_encrypted_key": "fB6BS8tJGhGVDZDjGt1pwUo2wyNbkzNxgH1avfOtiwB9X6oPG94gWgenygitnsYJyKjdOJ7DyXLmxwQOSmnCYCUBWdKCSssyLV5907HL2mb5TfqmgHk5JcArI/t6QADZWiuGtR+XVXqiLa5B9usxFT2BTmbHvSKfkpJ7McCNc/3U0PQR8euFRZ9i75o/w+pLHFMJ05IX3JB0zHbXMV173PjObiV3ItSJm2j3mp5XKabRGSA5rmfMnHIAMz6stGhcuom6+bMri2u/axmPsdxmC6MeWkCkCmPjaKsVz1+uQUNCJkAnzesluhoD+R6VjFDm4WI7yYabu4MOOAOTaQXdEg==",
+		"image_name":        imageName,
+		"disk_name":         diskName,
+	}
+
+	var disk compute.Disk
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_fromImageRSA(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionDiskExists(
+						t, "google_compute_region_disk.disk_from_rsa_image", &disk),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDisk_fromImageRSA(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_image" "rsa_image" {
+  name              = "%{image_name}"
+  source_image      = data.google_compute_image.debian.self_link
+  storage_locations = ["us"]
+
+  image_encryption_key {
+    rsa_encrypted_key = "%{rsa_encrypted_key}"
+  }
+}
+
+resource "google_compute_region_disk" "disk_from_rsa_image" {
+  name          = "%{disk_name}"
+  image         = google_compute_image.rsa_image.self_link
+  region        = "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-f"]
+  size          = 200
+
+  source_image_encryption_key {
+    rsa_encrypted_key = "%{rsa_encrypted_key}"
+  }
+}
+`, context)
+}
+
+func TestAccComputeRegionDisk_fromImageKMSWithServiceAccount(t *testing.T) {
+	t.Parallel()
+
+	kms := acctest.BootstrapKMSKey(t)
+	suffix := acctest.RandString(t, 10)
+	diskName := fmt.Sprintf("tf-test-kms-sa-disk-%s", suffix)
+	imageName := fmt.Sprintf("tf-test-kms-sa-image-%s", suffix)
+
+	context := map[string]interface{}{
+		"random_suffix":     suffix,
+		"kms_key_self_link": kms.CryptoKey.Name,
+		"image_name":        imageName,
+		"disk_name":         diskName,
+	}
+
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@compute-system.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
+	var disk compute.Disk
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_fromImageKMSWithServiceAccount(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionDiskExists(
+						t, "google_compute_region_disk.kms_disk", &disk),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDisk_fromImageKMSWithServiceAccount(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+data "google_compute_default_service_account" "default" {
+}
+
+resource "google_compute_image" "kms_image" {
+  name         = "%{image_name}"
+  source_image = data.google_compute_image.debian.self_link
+
+  image_encryption_key {
+    kms_key_self_link = "%{kms_key_self_link}"
+  }
+}
+
+resource "google_compute_region_disk" "kms_disk" {
+  name          = "%{disk_name}"
+  image         = google_compute_image.kms_image.self_link
+  region        = "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-f"]
+  size          = 200
+
+  source_image_encryption_key {
+    kms_key_name = "%{kms_key_self_link}"
+    kms_key_service_account = data.google_compute_default_service_account.default.email
+  }
+}
+`, context)
+}

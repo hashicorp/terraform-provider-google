@@ -269,6 +269,21 @@ Applicable only for bootable disks.`,
 				Elem: computeRegionDiskGuestOsFeaturesSchema(),
 				// Default schema.HashSchema is used.
 			},
+			"image": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: DiskImageDiffSuppress,
+				Description: `The image from which to initialize this disk. This can be
+one of: the image's 'self_link', 'projects/{project}/global/images/{image}',
+'projects/{project}/global/images/family/{family}', 'global/images/{image}',
+'global/images/family/{family}', 'family/{family}', '{project}/{family}',
+'{project}/{image}', '{family}', or '{image}'. If referred by family, the
+images names must include the family name. If they don't, use the
+[google_compute_image data source](/docs/providers/google/d/compute_image.html).
+For instance, the image 'centos-6-v20180104' includes its family name 'centos-6'.
+These images can be referred by family name here.`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -366,6 +381,54 @@ For example, the following are valid values:
 * zones/{zone}/disks/{disk}
 * regions/{region}/disks/{disk}`,
 			},
+			"source_image_encryption_key": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `The customer-supplied encryption key of the source image. Required if
+the source image is protected by a customer-supplied encryption key.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The name of the encryption key that is stored in Google Cloud KMS.`,
+						},
+						"kms_key_service_account": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The service account used for the encryption request for the given KMS key.
+If absent, the Compute Engine Service Agent service account is used.`,
+						},
+						"raw_key": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
+RFC 4648 base64 to either encrypt or decrypt this resource.`,
+							Sensitive: true,
+						},
+						"rsa_encrypted_key": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
+customer-supplied encryption key to either encrypt or decrypt
+this resource. You can provide either the rawKey or the rsaEncryptedKey.`,
+							Sensitive: true,
+						},
+						"sha256": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
+encryption key that protects this resource.`,
+						},
+					},
+				},
+			},
 			"source_snapshot_encryption_key": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -440,6 +503,15 @@ internally during updates.`,
 				Description: `The ID value of the disk used to create this image. This value may
 be used to determine whether the image was taken from the current
 or a previous instance of a given disk name.`,
+			},
+			"source_image_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The ID value of the image used to create this disk. This value
+identifies the exact image that was used to create this persistent
+disk. For example, if you created the persistent disk from an image
+that was later deleted and recreated under the same name, the source
+image ID would identify the exact version of the image that was used.`,
 			},
 			"source_snapshot_id": {
 				Type:     schema.TypeString,
@@ -522,6 +594,12 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("disk_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(diskEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, diskEncryptionKeyProp)) {
 		obj["diskEncryptionKey"] = diskEncryptionKeyProp
+	}
+	sourceImageEncryptionKeyProp, err := expandComputeRegionDiskSourceImageEncryptionKey(d.Get("source_image_encryption_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_image_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceImageEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, sourceImageEncryptionKeyProp)) {
+		obj["sourceImageEncryptionKey"] = sourceImageEncryptionKeyProp
 	}
 	sourceSnapshotEncryptionKeyProp, err := expandComputeRegionDiskSourceSnapshotEncryptionKey(d.Get("source_snapshot_encryption_key"), d, config)
 	if err != nil {
@@ -630,6 +708,12 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(snapshotProp)) && (ok || !reflect.DeepEqual(v, snapshotProp)) {
 		obj["sourceSnapshot"] = snapshotProp
+	}
+	imageProp, err := expandComputeRegionDiskImage(d.Get("image"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("image"); !tpgresource.IsEmptyValue(reflect.ValueOf(imageProp)) && (ok || !reflect.DeepEqual(v, imageProp)) {
+		obj["sourceImage"] = imageProp
 	}
 
 	obj, err = resourceComputeRegionDiskEncoder(d, meta, obj)
@@ -1264,6 +1348,10 @@ func flattenComputeRegionDiskDiskEncryptionKeyKmsKeyName(v interface{}, d *schem
 	return v
 }
 
+func flattenComputeRegionDiskSourceImageId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionDiskSourceSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1514,6 +1602,10 @@ func flattenComputeRegionDiskSnapshot(v interface{}, d *schema.ResourceData, con
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeRegionDiskImage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandComputeRegionDiskDiskEncryptionKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1570,6 +1662,76 @@ func expandComputeRegionDiskDiskEncryptionKeySha256(v interface{}, d tpgresource
 }
 
 func expandComputeRegionDiskDiskEncryptionKeyKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionDiskSourceImageEncryptionKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRawKey, err := expandComputeRegionDiskSourceImageEncryptionKeyRawKey(original["raw_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRawKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rawKey"] = transformedRawKey
+	}
+
+	transformedRsaEncryptedKey, err := expandComputeRegionDiskSourceImageEncryptionKeyRsaEncryptedKey(original["rsa_encrypted_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRsaEncryptedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rsaEncryptedKey"] = transformedRsaEncryptedKey
+	}
+
+	transformedSha256, err := expandComputeRegionDiskSourceImageEncryptionKeySha256(original["sha256"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSha256); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sha256"] = transformedSha256
+	}
+
+	transformedKmsKeyName, err := expandComputeRegionDiskSourceImageEncryptionKeyKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	transformedKmsKeyServiceAccount, err := expandComputeRegionDiskSourceImageEncryptionKeyKmsKeyServiceAccount(original["kms_key_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyServiceAccount"] = transformedKmsKeyServiceAccount
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionDiskSourceImageEncryptionKeyRawKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionDiskSourceImageEncryptionKeyRsaEncryptedKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionDiskSourceImageEncryptionKeySha256(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionDiskSourceImageEncryptionKeyKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionDiskSourceImageEncryptionKeyKmsKeyServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1769,6 +1931,10 @@ func expandComputeRegionDiskSnapshot(v interface{}, d tpgresource.TerraformResou
 	return f.RelativeLink(), nil
 }
 
+func expandComputeRegionDiskImage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceComputeRegionDiskEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
 
@@ -1892,6 +2058,9 @@ func ResourceComputeRegionDiskFlatten(d *schema.ResourceData, meta interface{}, 
 	if err = d.Set("disk_encryption_key", flattenComputeRegionDiskDiskEncryptionKey(res["diskEncryptionKey"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
+	if err = d.Set("source_image_id", flattenComputeRegionDiskSourceImageId(res["sourceImageId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
 	if err = d.Set("source_snapshot_encryption_key", flattenComputeRegionDiskSourceSnapshotEncryptionKey(res["sourceSnapshotEncryptionKey"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
@@ -1971,6 +2140,9 @@ func ResourceComputeRegionDiskFlatten(d *schema.ResourceData, meta interface{}, 
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
 	if err = d.Set("snapshot", flattenComputeRegionDiskSnapshot(res["sourceSnapshot"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
+	if err = d.Set("image", flattenComputeRegionDiskImage(res["sourceImage"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
 	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
