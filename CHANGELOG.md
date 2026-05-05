@@ -1,4 +1,102 @@
-## 7.30.0 (Unreleased)
+## 7.32.0 (Unreleased)
+
+## 7.31.0 (May 5, 2026)
+
+NOTES:
+* compute: migrated `google_compute_instance.network_interface` field to use direct HTTP rather than a client library ([#27104](https://github.com/hashicorp/terraform-provider-google/pull/27104))
+* compute: migrated `google_compute_image` datasource to use direct HTTP rather then a client library ([#27179](https://github.com/hashicorp/terraform-provider-google/pull/27179))
+* compute: migrated `partner_metadata` field on `google_compute_instance`, `google_compute_instance_template`, and `google_compute_region_instance_template` to use direct HTTP rather than a client library ([#27131](https://github.com/hashicorp/terraform-provider-google/pull/27131))
+* compute: migrated `google_compute_node_types` data source to use direct HTTP rather than a client library ([#27184](https://github.com/hashicorp/terraform-provider-google/pull/27184))
+* compute: migrated `google_compute_region_instance_group` data source to use direct HTTP rather than a client library ([#27178](https://github.com/hashicorp/terraform-provider-google/pull/27178))
+* compute: migrated `google_compute_subnetwork` data source to use direct HTTP rather than a client library ([#27167](https://github.com/hashicorp/terraform-provider-google/pull/27167))
+* compute: migrated `google_compute_vpn_gateway` data source to use direct HTTP rather than a client library ([#27168](https://github.com/hashicorp/terraform-provider-google/pull/27168))
+
+FEATURES:
+* **New Data Source:** `google_artifact_registry_file` ([#27183](https://github.com/hashicorp/terraform-provider-google/pull/27183))
+* **New Resource:** `google_ces_app_root_agent_association` ([#27123](https://github.com/hashicorp/terraform-provider-google/pull/27123))
+* **New Resource:** `google_contact_center_insights_qa_question` ([#27169](https://github.com/hashicorp/terraform-provider-google/pull/27169))
+* **New Resource:** `google_contact_center_insights_qa_scorecard_revision` ([#27169](https://github.com/hashicorp/terraform-provider-google/pull/27169))
+* **New Resource:** `google_contact_center_insights_qa_scorecard` ([#27169](https://github.com/hashicorp/terraform-provider-google/pull/27169))
+* **New Resource:** `google_firebase_app_check_resource_policy` ([#27185](https://github.com/hashicorp/terraform-provider-google/pull/27185))
+
+IMPROVEMENTS:
+* clouddeploy: added `default_pool` and `private_pool` fields to `google_clouddeploy_target` resource ([#27187](https://github.com/hashicorp/terraform-provider-google/pull/27187))
+* clouddeploy: added `tasks` and `analysis` fields to `google_clouddeploy_delivery_pipeline` resource ([#27187](https://github.com/hashicorp/terraform-provider-google/pull/27187))
+* compute: added `params.resource_manager_tags` field to `google_compute_image` ([#27107](https://github.com/hashicorp/terraform-provider-google/pull/27107))
+* compute: added `params.resource_manager_tags` field to `google_compute_region_commitment` resource ([#27181](https://github.com/hashicorp/terraform-provider-google/pull/27181))
+* compute: added `resource_policies.workload_policy` to `google_compute_region_instance_group_manager` resource ([#27170](https://github.com/hashicorp/terraform-provider-google/pull/27170))
+* compute: marked csek disk encryption key fields as sensitive in compute resources ([#27193](https://github.com/hashicorp/terraform-provider-google/pull/27193))
+* container: added `node_pool.network_config.accelerator_network_profile` to `google_container_cluster` resource and `network_config.accelerator_network_profile` to `google_container_node_pool` resource ([#27171](https://github.com/hashicorp/terraform-provider-google/pull/27171))
+* databasemigrationservice: added `objects_config` field to `google_database_migration_service_migration_job` resource ([#27180](https://github.com/hashicorp/terraform-provider-google/pull/27180))
+* dataplex: added `attributes`, `template_reference`, `enable_catalog_basedRules`, and `filter` fields to `google_dataplex_datascan` resource ([#27130](https://github.com/hashicorp/terraform-provider-google/pull/27130))
+* firestore: added `search_config` field to `google_firestore_index` resource ([#27108](https://github.com/hashicorp/terraform-provider-google/pull/27108))
+* oracle_database: added `pluggable_database_id`, `pluggable_database_name` fields to `google_oracle_database_db_system` resource ([#27127](https://github.com/hashicorp/terraform-provider-google/pull/27127))
+
+BUG FIXES:
+* provider: fixed a bad `timeouts` diff across a number of resources that had resource identity support added in `7.29.0` ([#27189](https://github.com/hashicorp/terraform-provider-google/pull/27189))
+* assuredworkloads: made assuredworkloads resources use GA endpoint instead of beta ([#27122](https://github.com/hashicorp/terraform-provider-google/pull/27122))
+* bigquery: fixed `ignore_auto_generated_schema` evaluation for `google_bigquery_table` external tables which caused spurious replacement ([#27188](https://github.com/hashicorp/terraform-provider-google/pull/27188))
+* cloudscheduler: fixed perpetual diff on `google_cloud_scheduler_job.http_target.headers` when `oidc_token` or `oauth_token` is set ([#27173](https://github.com/hashicorp/terraform-provider-google/pull/27173))
+* servicenetworking: fixed a permadiff issue of `reserved_peering_ranges` in `google_service_networking_connection` ([#27132](https://github.com/hashicorp/terraform-provider-google/pull/27132))
+* storage: fix inconsistent plan issue for `custom_attributes` field ([#27129](https://github.com/hashicorp/terraform-provider-google/pull/27129))
+
+## 7.30.0 (Apr 28, 2026)
+
+BREAKING CHANGES:
+* apigee: fixed `google_apigee_env_keystore` to require the `name` field which is mandatory in the Apigee API ([#27006](https://github.com/hashicorp/terraform-provider-google/pull/27006))
+
+FEATURES:
+* **New Data Source:** `google_data_lineage_config` ([#27098](https://github.com/hashicorp/terraform-provider-google/pull/27098))
+* **New Resource:** `google_artifact_registry_rule` ([#27049](https://github.com/hashicorp/terraform-provider-google/pull/27049))
+* **New Resource:** `google_data_lineage_config` ([#27098](https://github.com/hashicorp/terraform-provider-google/pull/27098))
+* **New Resource:** `google_document_ai_schema` ([#27102](https://github.com/hashicorp/terraform-provider-google/pull/27102))
+* **New Resource:** `google_firebase_remote_config_remote_config` ([#27050](https://github.com/hashicorp/terraform-provider-google/pull/27050))
+
+IMPROVEMENTS:
+* provider: added support for `prefer_global_endpoints` and `prefer_regional_endpoints` to the provider configuration. Support for regional endpoints will be rolled out on a per-product level ([#27014](https://github.com/hashicorp/terraform-provider-google/pull/27014))
+* artifactregistry: added support for regionalized endpoints ([#27014](https://github.com/hashicorp/terraform-provider-google/pull/27014))
+* assuredworkloads: added `SPAIN_DATA_BOUNDARY_BY_TELEFONICA` value to `partner` field on `google_assured_workloads_workload` resource ([#27027](https://github.com/hashicorp/terraform-provider-google/pull/27027))
+* bigqueryconnection: added `configuration` block to `google_bigquery_connection` resource to support AlloyDB and other connector types via the BigQuery Connector framework ([#27029](https://github.com/hashicorp/terraform-provider-google/pull/27029))
+* bigtable: added support for `tags` to `google_bigtable_instance` ([#27060](https://github.com/hashicorp/terraform-provider-google/pull/27060))
+* cloudrunv2: added `DISK` fields to `google_cloud_run_v2_job` resource ([#27052](https://github.com/hashicorp/terraform-provider-google/pull/27052))
+* cloudrunv2: added `DISK` fields to `google_cloud_run_v2_worker_pool` resource ([#27048](https://github.com/hashicorp/terraform-provider-google/pull/27048))
+* compute: add `params.resourceManagerTags` field to the `google_compute_storage_pool` ([#27051](https://github.com/hashicorp/terraform-provider-google/pull/27051))
+* compute: added `cache_policy` field to `google_compute_url_map` ([#27011](https://github.com/hashicorp/terraform-provider-google/pull/27011))
+* compute: added `params.resource_manager_tags` field to `google_compute_instant_snapshot` resource ([#27087](https://github.com/hashicorp/terraform-provider-google/pull/27087))
+* compute: added `resource_manager_tags` field to `google_compute_machine_image` resource ([#27075](https://github.com/hashicorp/terraform-provider-google/pull/27075))
+* container: added `node_config.linux_node_config.accurate_time_config` field to `google_container_node_pool` resource ([#27064](https://github.com/hashicorp/terraform-provider-google/pull/27064))
+* container: added `node_pool.node_config.linux_node_config.accurate_time_config` and `node_config.linux_node_config.accurate_time_config` fields to `google_container_cluster` resource ([#27064](https://github.com/hashicorp/terraform-provider-google/pull/27064))
+* container: added `node_pool.node_config.linux_node_config.swap_config` field to `google_container_node_pool` resource ([#26982](https://github.com/hashicorp/terraform-provider-google/pull/26982))
+* container: increased default timeout for `google_container_cluster` to 90 minutes (from 40/60 depending on operation) and `google_container_node_pool` to 60 minutes (from 30) ([#27101](https://github.com/hashicorp/terraform-provider-google/pull/27101))
+* discoveryengine: added `destionation_configs.destionations.port` and `destionation_configs.params` fields to `google_discovery_engine_data_connector ` resource ([#27058](https://github.com/hashicorp/terraform-provider-google/pull/27058))
+* dns: added support for IAM conditions to `google_dns_managed_zone` resource ([#27010](https://github.com/hashicorp/terraform-provider-google/pull/27010))
+* datastream: added `deletion_policy` field to control whether child routes are force-deleted to `google_datastream_private_connection` ([#27033](https://github.com/hashicorp/terraform-provider-google/pull/27033))
+* networkconnectivity: added support for IAM conditions to `google_network_connectivity_hub` resource ([#27005](https://github.com/hashicorp/terraform-provider-google/pull/27005))
+* networksecurity: added `parent` field to `google_network_security_address_groups` data source ([#27082](https://github.com/hashicorp/terraform-provider-google/pull/27082))
+* workbench: added support for new disk types and accelerators to `google_workbench_instance` ([#27061](https://github.com/hashicorp/terraform-provider-google/pull/27061))
+
+BUG FIXES:
+* alloydb: fixed `google_alloydb_cluster` so that `maintenance_update_policy.maintenance_windows.start_time.hours` can be set to `0` (midnight) ([#26981](https://github.com/hashicorp/terraform-provider-google/pull/26981))
+* ces: fixed type mismatch in `google_ces_app` variable default value ([#27084](https://github.com/hashicorp/terraform-provider-google/pull/27084))
+* compute: fixed an issue where an erroneous error could occur for having an unset `zone` field in `google_compute_instance_template` ([#27076](https://github.com/hashicorp/terraform-provider-google/pull/27076))
+* compute: fixed permadiff for `iap.oauth2_client_id` in `google_compute_backend_service` and `google_compute_region_backend_service` when the API returns a single space ([#26975](https://github.com/hashicorp/terraform-provider-google/pull/26975))
+* container: fixed a permadiff in `google_container_cluster` where `database_encryption.state` returning `ALL_OBJECTS_ENCRYPTION_ENABLED` instead of the configured `ENCRYPTED` caused unintended reapplies ([#27040](https://github.com/hashicorp/terraform-provider-google/pull/27040))
+* dataplex: fixed acceptance test failure for one time scans ([#27095](https://github.com/hashicorp/terraform-provider-google/pull/27095))
+* dialogflowcx: fixed a perma-diff in `google_dialogflow_cx_test_case` when `session_parameters` was omitted from the configuration ([#26985](https://github.com/hashicorp/terraform-provider-google/pull/26985))
+* hypercomputecluster: fixed a permadiff in `google_hypercomputecluster_cluster` when `count`, `static_node_count`, or `max_dynamic_node_count` were explicitly set to `0`. ([#27073](https://github.com/hashicorp/terraform-provider-google/pull/27073))
+* identityplatform: fixed a premadiff on `multi_tenant` in `google_identity_platform_config` resource. Removing the value from config will now preserve the existing settings instead of removing them. ([#26986](https://github.com/hashicorp/terraform-provider-google/pull/26986))
+* memorystore: fixed an issue preventing updating multiple properties at once for `google_redis_cluster` ([#27077](https://github.com/hashicorp/terraform-provider-google/pull/27077))
+
+NOTES:
+* compute: Migrate `resource_compute_instance_group.go.tmpl` resource to use direct HTTP rather then a client library ([#27080](https://github.com/hashicorp/terraform-provider-google/pull/27080))
+* compute: migrated `compute-operation` resource to use direct HTTP rather then a client library ([#27053](https://github.com/hashicorp/terraform-provider-google/pull/27053))
+* compute: migrated `compute_backend_bucket_security_policy` resource to use direct HTTP rather than a client library ([#27012](https://github.com/hashicorp/terraform-provider-google/pull/27012))
+* compute: migrated `compute_instance_network_interface_helpers` resource to use direct HTTP rather than a client library ([#27104](https://github.com/hashicorp/terraform-provider-google/pull/27104))
+* compute: migrated `data_source_google_compute_addresses.go.tmpl` data source to use direct HTTP rather then a client library ([#27016](https://github.com/hashicorp/terraform-provider-google/pull/27016))
+* compute: migrated `data_source_google_compute_machine_types` datasource to use direct HTTP rather than a client library ([#27017](https://github.com/hashicorp/terraform-provider-google/pull/27017))
+* compute: migrated `google_disk_test` to use direct HTTP rather than a client library ([#27079](https://github.com/hashicorp/terraform-provider-google/pull/27079))
+* compute: migrated `resource_compute_disk_async_replication` resource to use direct HTTP rather then a client library ([#27028](https://github.com/hashicorp/terraform-provider-google/pull/27028))
+* compute: migrated `resource_compute_http_health_check_test.go.tmpl` resource to use direct HTTP rather then a client library ([#27057](https://github.com/hashicorp/terraform-provider-google/pull/27057))
 
 ## 7.29.0 (Apr 21, 2026)
 
