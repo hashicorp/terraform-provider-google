@@ -38,7 +38,7 @@ BUG FIXES:
 * bigquery: fixed `ignore_auto_generated_schema` evaluation for `google_bigquery_table` external tables which caused spurious replacement ([#27188](https://github.com/hashicorp/terraform-provider-google/pull/27188))
 * cloudscheduler: fixed perpetual diff on `google_cloud_scheduler_job.http_target.headers` when `oidc_token` or `oauth_token` is set ([#27173](https://github.com/hashicorp/terraform-provider-google/pull/27173))
 * servicenetworking: fixed a permadiff issue of `reserved_peering_ranges` in `google_service_networking_connection` ([#27132](https://github.com/hashicorp/terraform-provider-google/pull/27132))
-* storage: fix inconsistent plan issue for `custom_attributes` field ([#27129](https://github.com/hashicorp/terraform-provider-google/pull/27129))
+* storage: fix inconsistent plan issue for `google_storage_notification.custom_attributes` field ([#27129](https://github.com/hashicorp/terraform-provider-google/pull/27129))
 
 ## 7.30.0 (Apr 28, 2026)
 
