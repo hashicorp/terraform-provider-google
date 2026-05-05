@@ -46,7 +46,7 @@ To get more information about RegionDisk, see:
     * [Adding or Resizing Regional Persistent Disks](https://cloud.google.com/compute/docs/disks/regional-persistent-disk)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `disk_encryption_key.raw_key`, `disk_encryption_key.rsa_encrypted_key`, `source_snapshot_encryption_key.raw_key`.
+values will be stored in the raw state as plain text: `disk_encryption_key.raw_key`, `disk_encryption_key.rsa_encrypted_key`, `source_image_encryption_key.raw_key`, `source_image_encryption_key.rsa_encrypted_key`, `source_snapshot_encryption_key.raw_key`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -196,6 +196,12 @@ The following arguments are supported:
   you do not need to provide a key to use the disk later.
   Structure is [documented below](#nested_disk_encryption_key).
 
+* `source_image_encryption_key` -
+  (Optional)
+  The customer-supplied encryption key of the source image. Required if
+  the source image is protected by a customer-supplied encryption key.
+  Structure is [documented below](#nested_source_image_encryption_key).
+
 * `source_snapshot_encryption_key` -
   (Optional)
   The customer-supplied encryption key of the source snapshot. Required
@@ -308,6 +314,18 @@ The following arguments are supported:
   * `global/snapshots/snapshot`
   * `snapshot`
 
+* `image` -
+  (Optional)
+  The image from which to initialize this disk. This can be
+  one of: the image's `self_link`, `projects/{project}/global/images/{image}`,
+  `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
+  `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
+  `{project}/{image}`, `{family}`, or `{image}`. If referred by family, the
+  images names must include the family name. If they don't, use the
+  [google_compute_image data source](/docs/providers/google/d/compute_image.html).
+  For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
+  These images can be referred by family name here.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -342,6 +360,35 @@ The name of the snapshot by default will be `{{disk-name}}-YYYYMMDD-HHmm`
 * `kms_key_name` -
   (Optional)
   The name of the encryption key that is stored in Google Cloud KMS.
+
+<a name="nested_source_image_encryption_key"></a>The `source_image_encryption_key` block supports:
+
+* `raw_key` -
+  (Optional)
+  Specifies a 256-bit customer-supplied encryption key, encoded in
+  RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `rsa_encrypted_key` -
+  (Optional)
+  Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
+  customer-supplied encryption key to either encrypt or decrypt
+  this resource. You can provide either the rawKey or the rsaEncryptedKey.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `sha256` -
+  (Output)
+  The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
+  encryption key that protects this resource.
+
+* `kms_key_name` -
+  (Optional)
+  The name of the encryption key that is stored in Google Cloud KMS.
+
+* `kms_key_service_account` -
+  (Optional)
+  The service account used for the encryption request for the given KMS key.
+  If absent, the Compute Engine Service Agent service account is used.
 
 <a name="nested_source_snapshot_encryption_key"></a>The `source_snapshot_encryption_key` block supports:
 
@@ -378,6 +425,13 @@ The name of the snapshot by default will be `{{disk-name}}-YYYYMMDD-HHmm`
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/disks/{{name}}`
+
+* `source_image_id` -
+  The ID value of the image used to create this disk. This value
+  identifies the exact image that was used to create this persistent
+  disk. For example, if you created the persistent disk from an image
+  that was later deleted and recreated under the same name, the source
+  image ID would identify the exact version of the image that was used.
 
 * `source_snapshot_id` -
   The unique ID of the snapshot used to create this disk. This value
