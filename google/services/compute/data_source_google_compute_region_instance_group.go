@@ -115,7 +115,7 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 	}
 	id := fmt.Sprintf("projects/%s/regions/%s/instanceGroups/%s", project, region, name)
 
-	instanceGroupUrl := fmt.Sprintf("%sprojects/%s/regions/%s/instanceGroups/%s", config.ComputeBasePath, project, region, name)
+	instanceGroupUrl := fmt.Sprintf("%sprojects/%s/regions/%s/instanceGroups/%s", transport_tpg.BaseUrl(Product, config), project, region, name)
 	instanceGroup, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -127,7 +127,7 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Region Instance Group %q", name), id)
 	}
 
-	listInstancesUrl := fmt.Sprintf("%sprojects/%s/regions/%s/instanceGroups/%s/listInstances", config.ComputeBasePath, project, region, name)
+	listInstancesUrl := fmt.Sprintf("%sprojects/%s/regions/%s/instanceGroups/%s/listInstances", transport_tpg.BaseUrl(Product, config), project, region, name)
 	members, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",

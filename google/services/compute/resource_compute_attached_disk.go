@@ -145,7 +145,7 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["interface"] = v
 	}
 
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/attachDisk", config.ComputeBasePath, zv.Project, zv.Zone, zv.Name)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/attachDisk", transport_tpg.BaseUrl(Product, config), zv.Project, zv.Zone, zv.Name)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -191,7 +191,7 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 
 	diskName := tpgresource.GetResourceNameFromSelfLink(d.Get("disk").(string))
 
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", config.ComputeBasePath, zv.Project, zv.Zone, zv.Name)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(Product, config), zv.Project, zv.Zone, zv.Name)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -252,7 +252,7 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 
 	diskName := tpgresource.GetResourceNameFromSelfLink(d.Get("disk").(string))
 
-	getUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", config.ComputeBasePath, zv.Project, zv.Zone, zv.Name)
+	getUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(Product, config), zv.Project, zv.Zone, zv.Name)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -272,7 +272,7 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	deviceName := ad["deviceName"].(string)
-	detachUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/detachDisk", config.ComputeBasePath, zv.Project, zv.Zone, zv.Name)
+	detachUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/detachDisk", transport_tpg.BaseUrl(Product, config), zv.Project, zv.Zone, zv.Name)
 	detachUrl, err = transport_tpg.AddQueryParams(detachUrl, map[string]string{"deviceName": deviceName})
 	if err != nil {
 		return err

@@ -38,7 +38,7 @@ func (w *RunAdminV2OperationWaiter) QueryOp() (interface{}, error) {
 	if w == nil {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
-	url := fmt.Sprintf("%s%s", w.Config.CloudRunV2BasePath, w.CommonOperationWaiter.Op.Name)
+	url := fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, w.Config), w.CommonOperationWaiter.Op.Name)
 
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    w.Config,

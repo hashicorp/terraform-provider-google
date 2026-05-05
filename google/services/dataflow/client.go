@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *dataflow.Service {
-	dataflowClientBasePath := transport_tpg.RemoveBasePathVersion(c.DataflowBasePath)
+	dataflowClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Dataflow client for path %s", dataflowClientBasePath)
 	clientDataflow, err := dataflow.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

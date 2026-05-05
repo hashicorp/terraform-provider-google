@@ -81,7 +81,7 @@ func NewBigqueryDatasetIamMemberUpdater(d tpgresource.TerraformResourceData, con
 }
 
 func (u *BigqueryDatasetIamMemberUpdater) policyURL() string {
-	return fmt.Sprintf("%s%s?accessPolicyVersion=3", u.Config.BigQueryBasePath, u.GetResourceId())
+	return fmt.Sprintf("%s%s?accessPolicyVersion=3", transport_tpg.BaseUrl(Product, u.Config), u.GetResourceId())
 }
 
 func (u *BigqueryDatasetIamMemberUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {

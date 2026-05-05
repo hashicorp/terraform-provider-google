@@ -169,7 +169,7 @@ func dataSourceGoogleComputeMachineTypesRead(ctx context.Context, d *schema.Reso
 		if token != "" {
 			params.Set("pageToken", token)
 		}
-		url := fmt.Sprintf("%sprojects/%s/zones/%s/machineTypes", config.ComputeBasePath, project, zone)
+		url := fmt.Sprintf("%sprojects/%s/zones/%s/machineTypes", transport_tpg.BaseUrl(Product, config), project, zone)
 		if len(params) > 0 {
 			url = fmt.Sprintf("%s?%s", url, params.Encode())
 		}

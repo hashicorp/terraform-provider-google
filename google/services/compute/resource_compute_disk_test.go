@@ -363,7 +363,7 @@ func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) 
 			if token != "" {
 				params.Set("pageToken", token)
 			}
-			listURL := fmt.Sprintf("%sprojects/%s/global/images?%s", config.ComputeBasePath, publicImageProject, params.Encode())
+			listURL := fmt.Sprintf("%sprojects/%s/global/images?%s", transport_tpg.BaseUrl(tpgcompute.Product, config), publicImageProject, params.Encode())
 			resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 				Config:    config,
 				Method:    "GET",
@@ -872,7 +872,7 @@ func testAccCheckComputeDiskExists(t *testing.T, n, p string, disk *map[string]i
 		config := acctest.GoogleProviderConfig(t)
 
 		url := fmt.Sprintf("%sprojects/%s/zones/%s/disks/%s",
-			config.ComputeBasePath, p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
+			transport_tpg.BaseUrl(tpgcompute.Product, config), p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
 		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "GET",
@@ -922,7 +922,7 @@ func testAccCheckComputeDisk_removeBackupSnapshot(t *testing.T, parentDiskName s
 
 		listParams := neturl.Values{}
 		listParams.Set("filter", fmt.Sprintf("name eq %s.*", parentDiskName))
-		listURL := fmt.Sprintf("%sprojects/%s/global/snapshots?%s", config.ComputeBasePath, project, listParams.Encode())
+		listURL := fmt.Sprintf("%sprojects/%s/global/snapshots?%s", transport_tpg.BaseUrl(tpgcompute.Product, config), project, listParams.Encode())
 		snapshotResp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "GET",
@@ -944,7 +944,7 @@ func testAccCheckComputeDisk_removeBackupSnapshot(t *testing.T, parentDiskName s
 		}
 		snapshotName, _ := firstSnapshot["name"].(string)
 
-		deleteURL := fmt.Sprintf("%sprojects/%s/global/snapshots/%s", config.ComputeBasePath, project, snapshotName)
+		deleteURL := fmt.Sprintf("%sprojects/%s/global/snapshots/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), project, snapshotName)
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "DELETE",
@@ -1781,9 +1781,8 @@ resource "google_compute_disk" "foobar" {
 
 func TestExpandStoragePoolUrl_withDataProjectAndZone(t *testing.T) {
 	config := &transport_tpg.Config{
-		ComputeBasePath: "https://www.googleapis.com/compute/v1/",
-		Project:         "other-project",
-		Zone:            "other-zone",
+		Project: "other-project",
+		Zone:    "other-zone",
 	}
 
 	data := &tpgresource.ResourceDataMock{
@@ -1796,7 +1795,7 @@ func TestExpandStoragePoolUrl_withDataProjectAndZone(t *testing.T) {
 	name := "test-storage-pool"
 	zoneUrl := "zones/test-zone/storagePools/" + name
 	projectUrl := "projects/test-project/" + zoneUrl
-	fullUrl := config.ComputeBasePath + projectUrl
+	fullUrl := transport_tpg.BaseUrl(tpgcompute.Product, config) + projectUrl
 
 	cases := []struct {
 		name     string
@@ -1846,9 +1845,8 @@ func TestExpandStoragePoolUrl_withDataProjectAndZone(t *testing.T) {
 
 func TestExpandStoragePoolUrl_withConfigProjectAndZone(t *testing.T) {
 	config := &transport_tpg.Config{
-		ComputeBasePath: "https://www.googleapis.com/compute/v1/",
-		Project:         "test-project",
-		Zone:            "test-zone",
+		Project: "test-project",
+		Zone:    "test-zone",
 	}
 
 	data := &tpgresource.ResourceDataMock{}
@@ -1856,7 +1854,7 @@ func TestExpandStoragePoolUrl_withConfigProjectAndZone(t *testing.T) {
 	name := "test-storage-pool"
 	zoneUrl := "zones/test-zone/storagePools/" + name
 	projectUrl := "projects/test-project/" + zoneUrl
-	fullUrl := config.ComputeBasePath + projectUrl
+	fullUrl := transport_tpg.BaseUrl(tpgcompute.Product, config) + projectUrl
 
 	cases := []struct {
 		name     string
@@ -1905,16 +1903,14 @@ func TestExpandStoragePoolUrl_withConfigProjectAndZone(t *testing.T) {
 }
 
 func TestExpandStoragePoolUrl_noProjectAndZoneFromConfigAndData(t *testing.T) {
-	config := &transport_tpg.Config{
-		ComputeBasePath: "https://www.googleapis.com/compute/v1/",
-	}
+	config := &transport_tpg.Config{}
 
 	data := &tpgresource.ResourceDataMock{}
 
 	name := "test-storage-pool"
 	zoneUrl := "zones/test-zone/storagePools/" + name
 	projectUrl := "projects/test-project/" + zoneUrl
-	fullUrl := config.ComputeBasePath + projectUrl
+	fullUrl := transport_tpg.BaseUrl(tpgcompute.Product, config) + projectUrl
 
 	cases := []struct {
 		name     string

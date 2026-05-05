@@ -67,7 +67,7 @@ func dataSourceGoogleComputeNodeTypesRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Please specify zone to get appropriate node types for zone. Unable to get zone: %s", err)
 	}
 
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/nodeTypes", config.ComputeBasePath, project, zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/nodeTypes", transport_tpg.BaseUrl(Product, config), project, zone)
 	resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",

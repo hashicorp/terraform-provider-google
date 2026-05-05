@@ -377,10 +377,10 @@ func ExpandStoragePoolUrl(v interface{}, d tpgresource.TerraformResourceData, co
 		return formattedStr, nil
 	} else if strings.HasPrefix(formattedStr, "projects/") {
 		// If the self link references a project, we'll just stuck the compute prefix on it
-		replacedStr = config.ComputeBasePath + formattedStr
+		replacedStr = transport_tpg.BaseUrl(Product, config) + formattedStr
 	} else if strings.HasPrefix(formattedStr, "zones/") {
 		// For regional or zonal resources which include their region or zone, just put the project in front.
-		replacedStr = config.ComputeBasePath + "projects/" + project + "/" + formattedStr
+		replacedStr = transport_tpg.BaseUrl(Product, config) + "projects/" + project + "/" + formattedStr
 	} else {
 		// Resources like instance template do not have a zone argument.
 		// In this case, run GetZone when it is strictly necessary.
@@ -389,7 +389,7 @@ func ExpandStoragePoolUrl(v interface{}, d tpgresource.TerraformResourceData, co
 			return "", err
 		}
 		// Anything else is assumed to be a zonal resource, with a partial link that begins with the resource name.
-		replacedStr = config.ComputeBasePath + "projects/" + project + "/zones/" + zone + "/storagePools/" + formattedStr
+		replacedStr = transport_tpg.BaseUrl(Product, config) + "projects/" + project + "/zones/" + zone + "/storagePools/" + formattedStr
 	}
 	return replacedStr, nil
 }

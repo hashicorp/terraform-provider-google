@@ -174,7 +174,7 @@ func dataSourceGoogleCloudBackupDRBackupPlanAssociationsRead(d *schema.ResourceD
 
 	location := d.Get("location").(string)
 
-	url := fmt.Sprintf("%sprojects/%s/locations/%s/backupPlanAssociations", config.BackupDRBasePath, project, location)
+	url := fmt.Sprintf("%sprojects/%s/locations/%s/backupPlanAssociations", transport_tpg.BaseUrl(Product, config), project, location)
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,

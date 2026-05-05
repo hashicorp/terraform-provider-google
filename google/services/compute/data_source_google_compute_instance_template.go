@@ -78,7 +78,7 @@ func datasourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interfac
 
 		params := neturl.Values{}
 		params.Set("filter", v.(string))
-		listUrl := fmt.Sprintf("%sprojects/%s/global/instanceTemplates?%s", config.ComputeBasePath, project, params.Encode())
+		listUrl := fmt.Sprintf("%sprojects/%s/global/instanceTemplates?%s", transport_tpg.BaseUrl(Product, config), project, params.Encode())
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "GET",

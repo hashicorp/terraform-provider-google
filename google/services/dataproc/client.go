@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *dataproc.Service {
-	dataprocClientBasePath := transport_tpg.RemoveBasePathVersion(c.DataprocBasePath)
+	dataprocClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud Dataproc client for path %s", dataprocClientBasePath)
 	clientDataproc, err := dataproc.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

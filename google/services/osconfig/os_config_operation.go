@@ -38,7 +38,7 @@ func (w *OSConfigOperationWaiter) QueryOp() (interface{}, error) {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
 	// Returns the proper get.
-	url := fmt.Sprintf("%s%s", w.Config.OSConfigBasePath, w.CommonOperationWaiter.Op.Name)
+	url := fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, w.Config), w.CommonOperationWaiter.Op.Name)
 	url = strings.ReplaceAll(url, "https://osconfig.googleapis.com/v1beta", "https://osconfig.googleapis.com/v1")
 
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

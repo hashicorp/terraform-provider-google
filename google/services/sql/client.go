@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *sqladmin.Service {
-	sqlClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.RemoveBasePathVersion(c.SQLBasePath))
+	sqlClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c)))
 	log.Printf("[INFO] Instantiating Google SqlAdmin client for path %s", sqlClientBasePath)
 	clientSqlAdmin, err := sqladmin.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

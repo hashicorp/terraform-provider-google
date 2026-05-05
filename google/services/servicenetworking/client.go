@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *servicenetworking.APIService {
-	serviceNetworkingClientBasePath := transport_tpg.RemoveBasePathVersion(c.ServiceNetworkingBasePath)
+	serviceNetworkingClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Service Networking client for path %s", serviceNetworkingClientBasePath)
 	clientServiceNetworking, err := servicenetworking.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

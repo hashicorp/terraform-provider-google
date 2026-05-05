@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *cloudlogging.Service {
-	loggingClientBasePath := transport_tpg.RemoveBasePathVersion(c.LoggingBasePath)
+	loggingClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Stackdriver Logging client for path %s", loggingClientBasePath)
 	clientLogging, err := cloudlogging.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

@@ -25,7 +25,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *certificatemanager.Service {
-	certificateManagerClientBasePath := transport_tpg.RemoveBasePathVersion(c.CertificateManagerBasePath)
+	certificateManagerClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Certificate Manager client for path %s", certificateManagerClientBasePath)
 	clientCertificateManager, err := certificatemanager.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

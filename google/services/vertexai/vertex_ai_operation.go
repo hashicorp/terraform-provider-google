@@ -41,7 +41,7 @@ func (w *VertexAIOperationWaiter) QueryOp() (interface{}, error) {
 	// Replace any occurences of the `{{region}}` tag with `region` directly.
 	// ReplaceVars can't be used because we don't have all of the necessary inputs.
 	region := tpgresource.GetRegionFromRegionalSelfLink(w.CommonOperationWaiter.Op.Name)
-	baseUrl := strings.ReplaceAll(w.Config.VertexAIBasePath, "{{region}}", region)
+	baseUrl := strings.ReplaceAll(transport_tpg.BaseUrl(Product, w.Config), "{{region}}", region)
 	url := fmt.Sprintf("%s%s", baseUrl, w.CommonOperationWaiter.Op.Name)
 
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

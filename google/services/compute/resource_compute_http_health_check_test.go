@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -78,7 +79,7 @@ func testAccCheckComputeHttpHealthCheckExists(t *testing.T, n string, healthChec
 
 		config := acctest.GoogleProviderConfig(t)
 
-		url := fmt.Sprintf("%sprojects/%s/global/httpHealthChecks/%s", config.ComputeBasePath, config.Project, rs.Primary.Attributes["name"])
+		url := fmt.Sprintf("%sprojects/%s/global/httpHealthChecks/%s", transport_tpg.BaseUrl(compute.Product, config), config.Project, rs.Primary.Attributes["name"])
 		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "GET",

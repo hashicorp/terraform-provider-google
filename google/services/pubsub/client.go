@@ -25,7 +25,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *pubsub.Service {
-	pubsubClientBasePath := transport_tpg.RemoveBasePathVersion(c.PubsubBasePath)
+	pubsubClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Pubsub client for path %s", pubsubClientBasePath)
 	wrappedPubsubClient := transport_tpg.ClientWithAdditionalRetries(c.Client, transport_tpg.PubsubTopicProjectNotReady)
 	clientPubsub, err := pubsub.NewService(c.Context, option.WithHTTPClient(wrappedPubsubClient))

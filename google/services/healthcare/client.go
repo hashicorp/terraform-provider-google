@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *healthcare.Service {
-	healthcareClientBasePath := transport_tpg.RemoveBasePathVersion(c.HealthcareBasePath)
+	healthcareClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud Healthcare client for path %s", healthcareClientBasePath)
 	clientHealthcare, err := healthcare.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

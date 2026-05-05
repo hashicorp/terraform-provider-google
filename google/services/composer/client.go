@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *composer.Service {
-	composerClientBasePath := transport_tpg.RemoveBasePathVersion(c.ComposerBasePath)
+	composerClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Cloud Composer client for path %s", composerClientBasePath)
 	clientComposer, err := composer.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

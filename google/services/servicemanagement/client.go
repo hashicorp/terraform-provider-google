@@ -25,7 +25,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *servicemanagement.APIService {
-	serviceManagementClientBasePath := transport_tpg.RemoveBasePathVersion(c.ServiceManagementBasePath)
+	serviceManagementClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud Service Management client for path %s", serviceManagementClientBasePath)
 	clientServiceMan, err := servicemanagement.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

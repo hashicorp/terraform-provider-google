@@ -27,7 +27,7 @@ func NewDCLApikeysClient(config *transport_tpg.Config, userAgent, billingProject
 		dcl.WithHTTPClient(config.Client),
 		dcl.WithUserAgent(userAgent),
 		dcl.WithLogger(dcl.DCLLogger{}),
-		dcl.WithBasePath(config.ApikeysBasePath),
+		dcl.WithBasePath(transport_tpg.BaseUrl(Product, config)),
 	}
 
 	if timeout != 0 {

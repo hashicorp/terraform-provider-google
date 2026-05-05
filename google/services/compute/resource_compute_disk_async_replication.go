@@ -121,11 +121,11 @@ func asyncReplicationGetDiskStatus(config *transport_tpg.Config, userAgent strin
 	var url string
 	var project string
 	if rv == nil { // Zonal disk
-		url = fmt.Sprintf("%sprojects/%s/zones/%s/disks/%s", config.ComputeBasePath, zv.Project, zv.Zone, zv.Name)
+		url = fmt.Sprintf("%sprojects/%s/zones/%s/disks/%s", transport_tpg.BaseUrl(Product, config), zv.Project, zv.Zone, zv.Name)
 		project = zv.Project
 		log.Printf("[DEBUG] Get disk zones/%s/%s", zv.Zone, zv.Name)
 	} else {
-		url = fmt.Sprintf("%sprojects/%s/regions/%s/disks/%s", config.ComputeBasePath, rv.Project, rv.Region, rv.Name)
+		url = fmt.Sprintf("%sprojects/%s/regions/%s/disks/%s", transport_tpg.BaseUrl(Product, config), rv.Project, rv.Region, rv.Name)
 		project = rv.Project
 		log.Printf("[DEBUG] Get disk regions/%s/%s", rv.Region, rv.Name)
 	}
@@ -157,7 +157,7 @@ func resourceDiskAsyncReplicationCreate(d *schema.ResourceData, meta interface{}
 	secondaryDiskMap := secondaryDiskList[0].(map[string]interface{})
 	secondaryDisk := secondaryDiskMap["disk"].(string)
 	if rv == nil { // Zonal disk
-		url := fmt.Sprintf("%sprojects/%s/zones/%s/disks/%s/startAsyncReplication", config.ComputeBasePath, zv.Project, zv.Zone, zv.Name)
+		url := fmt.Sprintf("%sprojects/%s/zones/%s/disks/%s/startAsyncReplication", transport_tpg.BaseUrl(Product, config), zv.Project, zv.Zone, zv.Name)
 		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
@@ -172,7 +172,7 @@ func resourceDiskAsyncReplicationCreate(d *schema.ResourceData, meta interface{}
 			return err
 		}
 	} else {
-		url := fmt.Sprintf("%sprojects/%s/regions/%s/disks/%s/startAsyncReplication", config.ComputeBasePath, rv.Project, rv.Region, rv.Name)
+		url := fmt.Sprintf("%sprojects/%s/regions/%s/disks/%s/startAsyncReplication", transport_tpg.BaseUrl(Product, config), rv.Project, rv.Region, rv.Name)
 		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
@@ -332,7 +332,7 @@ func resourceDiskAsyncReplicationDelete(d *schema.ResourceData, meta interface{}
 		if state != "STOPPED" {
 			replicationStopped = true
 			if rv == nil { // Zonal disk
-				url := fmt.Sprintf("%sprojects/%s/zones/%s/disks/%s/stopAsyncReplication", config.ComputeBasePath, zv.Project, zv.Zone, zv.Name)
+				url := fmt.Sprintf("%sprojects/%s/zones/%s/disks/%s/stopAsyncReplication", transport_tpg.BaseUrl(Product, config), zv.Project, zv.Zone, zv.Name)
 				_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 					Config:    config,
 					Method:    "POST",
@@ -344,7 +344,7 @@ func resourceDiskAsyncReplicationDelete(d *schema.ResourceData, meta interface{}
 					return err
 				}
 			} else {
-				url := fmt.Sprintf("%sprojects/%s/regions/%s/disks/%s/stopAsyncReplication", config.ComputeBasePath, rv.Project, rv.Region, rv.Name)
+				url := fmt.Sprintf("%sprojects/%s/regions/%s/disks/%s/stopAsyncReplication", transport_tpg.BaseUrl(Product, config), rv.Project, rv.Region, rv.Name)
 				_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 					Config:    config,
 					Method:    "POST",

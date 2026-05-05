@@ -27,7 +27,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *dns.Service {
-	dnsClientBasePath := transport_tpg.RemoveBasePathVersion(c.DNSBasePath)
+	dnsClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	dnsClientBasePath = strings.ReplaceAll(dnsClientBasePath, "/dns/", "")
 	log.Printf("[INFO] Instantiating Google Cloud DNS client for path %s", dnsClientBasePath)
 	clientDns, err := dns.NewService(c.Context, option.WithHTTPClient(c.Client))

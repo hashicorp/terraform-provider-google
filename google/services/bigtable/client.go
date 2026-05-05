@@ -103,7 +103,7 @@ func NewClientFactory(c *transport_tpg.Config, userAgent string) *ClientFactory 
 // we expose those directly instead of providing the `Service` object
 // as a factory.
 func NewProjectsInstancesClient(c *transport_tpg.Config, userAgent string) *bigtableadmin.ProjectsInstancesService {
-	bigtableAdminBasePath := transport_tpg.RemoveBasePathVersion(c.BigtableBasePath)
+	bigtableAdminBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
 	clientBigtable, err := bigtableadmin.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {
@@ -118,7 +118,7 @@ func NewProjectsInstancesClient(c *transport_tpg.Config, userAgent string) *bigt
 }
 
 func NewProjectsInstancesTablesClient(c *transport_tpg.Config, userAgent string) *bigtableadmin.ProjectsInstancesTablesService {
-	bigtableAdminBasePath := transport_tpg.RemoveBasePathVersion(c.BigtableBasePath)
+	bigtableAdminBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
 	clientBigtable, err := bigtableadmin.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

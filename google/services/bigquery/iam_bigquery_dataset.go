@@ -113,7 +113,7 @@ func BigqueryDatasetIdParseFunc(d *schema.ResourceData, config *transport_tpg.Co
 }
 
 func (u *BigqueryDatasetIamUpdater) policyURL() string {
-	return fmt.Sprintf("%s%s?accessPolicyVersion=3", u.Config.BigQueryBasePath, u.GetResourceId())
+	return fmt.Sprintf("%s%s?accessPolicyVersion=3", transport_tpg.BaseUrl(Product, u.Config), u.GetResourceId())
 }
 
 func (u *BigqueryDatasetIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
