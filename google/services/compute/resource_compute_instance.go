@@ -678,8 +678,8 @@ func ResourceComputeInstance() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"GVNIC", "VIRTIO_NET", "IDPF", "MRDMA", "IRDMA"}, false),
-							Description:  `The type of vNIC to be used on this interface. Possible values:GVNIC, VIRTIO_NET, IDPF, MRDMA, and IRDMA`,
+							ValidateFunc: validation.StringInSlice([]string{"GVNIC", "VIRTIO_NET", "IDPF", "MRDMA", "IRDMA", "IDPF"}, false),
+							Description:  `The type of vNIC to be used on this interface. Possible values:GVNIC, VIRTIO_NET, IDPF, MRDMA, IRDMA and IDPF`,
 						},
 
 						"access_config": {
