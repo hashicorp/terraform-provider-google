@@ -812,7 +812,7 @@ The following arguments are supported:
   (Optional)
   The nodeType for the Redis cluster.
   If not provided, REDIS_HIGHMEM_MEDIUM will be used as default
-  Possible values are: `REDIS_SHARED_CORE_NANO`, `REDIS_HIGHMEM_MEDIUM`, `REDIS_HIGHMEM_XLARGE`, `REDIS_STANDARD_SMALL`.
+  Possible values are: `REDIS_SHARED_CORE_NANO`, `REDIS_HIGHMEM_MEDIUM`, `REDIS_HIGHCPU_MEDIUM`, `REDIS_STANDARD_LARGE`, `REDIS_HIGHMEM_XLARGE`, `REDIS_HIGHMEM_2XLARGE`, `REDIS_STANDARD_SMALL`.
 
 * `zone_distribution_config` -
   (Optional)

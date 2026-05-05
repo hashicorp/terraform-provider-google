@@ -544,9 +544,15 @@ The following arguments are supported:
   Optional. Machine type for individual nodes of the instance. 
    Possible values:
    SHARED_CORE_NANO
+  CUSTOM_PICO
+  CUSTOM_MICRO
+  CUSTOM_MINI
   HIGHMEM_MEDIUM
+  HIGHCPU_MEDIUM
   HIGHMEM_XLARGE
   STANDARD_SMALL
+  STANDARD_LARGE
+  HIGHMEM_2XLARGE
 
 * `persistence_config` -
   (Optional)
