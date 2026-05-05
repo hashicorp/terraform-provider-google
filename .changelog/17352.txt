@@ -1,0 +1,3 @@
+```release-note:note
+compute: migrated `resource_compute_region_disk_test.go.tmpl` test to use direct HTTP rather than a client library
+```

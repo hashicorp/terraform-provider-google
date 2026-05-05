@@ -17,12 +17,13 @@
 package compute_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"testing"
 
-	compute_tpg "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -427,9 +428,24 @@ func testAccCheckComputeRegionDiskExists(t *testing.T, n string, disk *compute.D
 
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := compute_tpg.NewClient(config, config.UserAgent).RegionDisks.Get(
-			p, rs.Primary.Attributes["region"], rs.Primary.Attributes["name"]).Do()
+		url := fmt.Sprintf("%sprojects/%s/regions/%s/disks/%s", config.ComputeBasePath, p, rs.Primary.Attributes["region"], rs.Primary.Attributes["name"])
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   p,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
+			return err
+		}
+
+		var found compute.Disk
+		resBytes, err := json.Marshal(res)
+		if err != nil {
+			return err
+		}
+		if err := json.Unmarshal(resBytes, &found); err != nil {
 			return err
 		}
 
@@ -437,7 +453,7 @@ func testAccCheckComputeRegionDiskExists(t *testing.T, n string, disk *compute.D
 			return fmt.Errorf("RegionDisk not found")
 		}
 
-		*disk = *found
+		*disk = found
 
 		return nil
 	}
