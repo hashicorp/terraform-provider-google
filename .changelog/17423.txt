@@ -1,0 +1,13 @@
+```release-note:enhancement
+compute: added `IDPF` value to `nic_type` in `resource_compute_instance`
+```
+
+
+```release-note:enhancement
+compute: added `IDPF` value to `nic_type` in `resource_compute_instance_template`
+```
+
+
+```release-note:enhancement
+compute: added `IDPF` value to `nic_type` in `resource_compute_region_instance_template`
+```
