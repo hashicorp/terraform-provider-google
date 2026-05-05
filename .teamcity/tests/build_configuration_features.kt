@@ -21,9 +21,9 @@ class BuildConfigurationFeatureTests {
 
         val gaProject = getSubProject(root, gaProjectName)
         val betaProject = getSubProject(root, betaProjectName)
-        val projectSweeperProject = getSubProject(root, projectSweeperProjectName)
+        val globalSweepersProject = getSubProject(root, globalSweepersProjectName)
 
-        (gaProject.subProjects + betaProject.subProjects + projectSweeperProject.subProjects).forEach{p ->
+        (gaProject.subProjects + betaProject.subProjects + globalSweepersProject.subProjects).forEach{p ->
             p.buildTypes.forEach{bt ->
                 assertTrue("Build '${bt.id}' should fail on errors!", bt.failureConditions.errorMessage)
             }
@@ -36,9 +36,9 @@ class BuildConfigurationFeatureTests {
 
         val gaProject = getSubProject(root, gaProjectName)
         val betaProject = getSubProject(root, betaProjectName)
-        val projectSweeperProject = getSubProject(root, projectSweeperProjectName)
+        val globalSweepersProject = getSubProject(root, globalSweepersProjectName)
 
-        (gaProject.subProjects + betaProject.subProjects + projectSweeperProject.subProjects).forEach{p ->
+        (gaProject.subProjects + betaProject.subProjects + globalSweepersProject.subProjects).forEach{p ->
             var exists: ArrayList<Boolean> = arrayListOf()
             p.buildTypes.forEach{bt ->
                 bt.features.items.forEach { f ->

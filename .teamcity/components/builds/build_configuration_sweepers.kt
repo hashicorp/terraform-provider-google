@@ -33,11 +33,10 @@ fun BuildConfigurationForServiceSweeper(providerName: String, sweeperName: Strin
     return bc
 }
 
-fun BuildConfigurationForProjectSweeper(providerName: String, sweeperName: String, packages: Map<String, Map<String, String>>, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration): BuildType {
+fun BuildConfigurationForGlobalSweeper(providerName: String, sweeperName: String, sweeperRun: String, packages: Map<String, Map<String, String>>, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration): BuildType {
     val sweeperPackage: Map<String, String> = packages.getValue("sweeper")
     val sweeperPath: String = sweeperPackage.getValue("path").toString()
 
-    val sweeperRun = "GoogleProject" // Name from .google/services/resourcemanager/resource_google_project_sweeper.go
     val sweeperRegions = "us-central1" // A value needs to be present, despite projects not being regional resources
 
     val s = SweeperDetails(sweeperName, parentProjectName, providerName, sweeperRun, sweeperRegions)
