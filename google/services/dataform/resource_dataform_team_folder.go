@@ -188,7 +188,7 @@ func resourceDataformTeamFolderCreate(d *schema.ResourceData, meta interface{}) 
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataformBasePath}}projects/{{project}}/locations/{{region}}/teamFolders")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/teamFolders"))
 	if err != nil {
 		return err
 	}
@@ -271,7 +271,7 @@ func resourceDataformTeamFolderRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataformBasePath}}projects/{{project}}/locations/{{region}}/teamFolders/{{teamfolder_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/teamFolders/{{teamfolder_id}}"))
 	if err != nil {
 		return err
 	}
@@ -383,7 +383,7 @@ func resourceDataformTeamFolderUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataformBasePath}}projects/{{project}}/locations/{{region}}/teamFolders/{{teamfolder_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/teamFolders/{{teamfolder_id}}"))
 	if err != nil {
 		return err
 	}
@@ -445,8 +445,7 @@ func resourceDataformTeamFolderDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error fetching project for TeamFolder: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataformBasePath}}projects/{{project}}/locations/{{region}}/teamFolders/{{teamfolder_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/teamFolders/{{teamfolder_id}}"))
 	if err != nil {
 		return err
 	}

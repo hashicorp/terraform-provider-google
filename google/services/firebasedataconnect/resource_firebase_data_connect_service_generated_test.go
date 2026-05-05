@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/firebasedataconnect"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = firebasedataconnect.Product
 )
 
 func TestAccFirebaseDataConnectService_firebasedataconnectServiceBasicExample(t *testing.T) {
@@ -180,8 +182,7 @@ func testAccCheckFirebaseDataConnectServiceDestroyProducer(t *testing.T) func(s 
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{FirebaseDataConnectBasePath}}projects/{{project}}/locations/{{location}}/services/{{service_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(firebasedataconnect.Product, config), "projects/{{project}}/locations/{{location}}/services/{{service_id}}"))
 			if err != nil {
 				return err
 			}

@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/firebaseappcheck"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = firebaseappcheck.Product
 )
 
 func TestAccFirebaseAppCheckResourcePolicy_firebaseAppCheckResourcePolicyOauth2BasicExample(t *testing.T) {
@@ -114,8 +116,7 @@ func testAccCheckFirebaseAppCheckResourcePolicyDestroyProducer(t *testing.T) fun
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{FirebaseAppCheckBasePath}}projects/{{project}}/services/{{service_id}}/resourcePolicies/{{resource_policy_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(firebaseappcheck.Product, config), "projects/{{project}}/services/{{service_id}}/resourcePolicies/{{resource_policy_id}}"))
 			if err != nil {
 				return err
 			}

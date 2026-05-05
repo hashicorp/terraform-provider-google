@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/dns"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = dns.Product
 )
 
 func TestAccDNSResponsePolicyRule_dnsResponsePolicyRuleBasicExample(t *testing.T) {
@@ -140,8 +142,7 @@ func testAccCheckDNSResponsePolicyRuleDestroyProducer(t *testing.T) func(s *terr
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{DNSBasePath}}projects/{{project}}/responsePolicies/{{response_policy}}/rules/{{rule_name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(dns.Product, config), "projects/{{project}}/responsePolicies/{{response_policy}}/rules/{{rule_name}}"))
 			if err != nil {
 				return err
 			}

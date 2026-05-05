@@ -193,7 +193,7 @@ func resourceEventarcGoogleChannelConfigCreate(d *schema.ResourceData, meta inte
 		obj["cryptoKeyName"] = cryptoKeyNameProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/googleChannelConfig?updateMask=cryptoKeyName")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/googleChannelConfig?updateMask=cryptoKeyName"))
 	if err != nil {
 		return err
 	}
@@ -262,7 +262,7 @@ func resourceEventarcGoogleChannelConfigRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/googleChannelConfig")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/googleChannelConfig"))
 	if err != nil {
 		return err
 	}
@@ -363,7 +363,7 @@ func resourceEventarcGoogleChannelConfigUpdate(d *schema.ResourceData, meta inte
 		obj["cryptoKeyName"] = cryptoKeyNameProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/googleChannelConfig")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/googleChannelConfig"))
 	if err != nil {
 		return err
 	}

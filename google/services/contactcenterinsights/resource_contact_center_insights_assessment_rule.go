@@ -313,7 +313,7 @@ func resourceContactCenterInsightsAssessmentRuleCreate(d *schema.ResourceData, m
 		obj["scheduleInfo"] = scheduleInfoProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/assessmentRules?assessmentRuleId={{assessment_rule_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/assessmentRules?assessmentRuleId={{assessment_rule_id}}"))
 	if err != nil {
 		return err
 	}
@@ -393,7 +393,7 @@ func resourceContactCenterInsightsAssessmentRuleRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/assessmentRules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/assessmentRules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -523,7 +523,7 @@ func resourceContactCenterInsightsAssessmentRuleUpdate(d *schema.ResourceData, m
 		obj["scheduleInfo"] = scheduleInfoProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/assessmentRules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/assessmentRules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -597,8 +597,7 @@ func resourceContactCenterInsightsAssessmentRuleDelete(d *schema.ResourceData, m
 		return fmt.Errorf("Error fetching project for AssessmentRule: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/assessmentRules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/assessmentRules/{{name}}"))
 	if err != nil {
 		return err
 	}

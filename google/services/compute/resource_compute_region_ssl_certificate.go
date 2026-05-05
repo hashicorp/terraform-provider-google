@@ -307,7 +307,7 @@ func resourceComputeRegionSslCertificateCreate(d *schema.ResourceData, meta inte
 		obj["region"] = regionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/sslCertificates")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/sslCertificates"))
 	if err != nil {
 		return err
 	}
@@ -391,7 +391,7 @@ func resourceComputeRegionSslCertificateRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/sslCertificates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/sslCertificates/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -474,8 +474,7 @@ func resourceComputeRegionSslCertificateDelete(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error fetching project for RegionSslCertificate: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/sslCertificates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/sslCertificates/{{name}}"))
 	if err != nil {
 		return err
 	}

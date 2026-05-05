@@ -259,7 +259,7 @@ func resourceBigqueryReservationCapacityCommitmentCreate(d *schema.ResourceData,
 		obj["edition"] = editionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments?capacityCommitmentId={{capacity_commitment_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/capacityCommitments?capacityCommitmentId={{capacity_commitment_id}}"))
 	if err != nil {
 		return err
 	}
@@ -339,7 +339,7 @@ func resourceBigqueryReservationCapacityCommitmentRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -457,7 +457,7 @@ func resourceBigqueryReservationCapacityCommitmentUpdate(d *schema.ResourceData,
 		obj["renewalPlan"] = renewalPlanProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -523,8 +523,7 @@ func resourceBigqueryReservationCapacityCommitmentDelete(d *schema.ResourceData,
 		return fmt.Errorf("Error fetching project for CapacityCommitment: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 	if err != nil {
 		return err
 	}

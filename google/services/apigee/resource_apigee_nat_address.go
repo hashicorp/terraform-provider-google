@@ -214,7 +214,7 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{instance_id}}/natAddresses"))
 	if err != nil {
 		return err
 	}
@@ -298,7 +298,7 @@ func resourceApigeeNatAddressRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{instance_id}}/natAddresses/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -410,7 +410,7 @@ func resourceApigeeNatAddressDelete(d *schema.ResourceData, meta interface{}) er
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{instance_id}}/natAddresses/{{name}}"))
 	if err != nil {
 		return err
 	}

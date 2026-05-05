@@ -384,7 +384,7 @@ func resourceComputePacketMirroringCreate(d *schema.ResourceData, meta interface
 		obj["enable"] = enableProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/packetMirrorings"))
 	if err != nil {
 		return err
 	}
@@ -468,7 +468,7 @@ func resourceComputePacketMirroringRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -616,7 +616,7 @@ func resourceComputePacketMirroringUpdate(d *schema.ResourceData, meta interface
 		obj["enable"] = enableProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -671,8 +671,7 @@ func resourceComputePacketMirroringDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error fetching project for PacketMirroring: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}"))
 	if err != nil {
 		return err
 	}

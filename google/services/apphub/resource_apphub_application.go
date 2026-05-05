@@ -375,7 +375,7 @@ func resourceApphubApplicationCreate(d *schema.ResourceData, meta interface{}) e
 		obj["scope"] = scopeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/{{location}}/applications?applicationId={{application_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/applications?applicationId={{application_id}}"))
 	if err != nil {
 		return err
 	}
@@ -459,7 +459,7 @@ func resourceApphubApplicationRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/{{location}}/applications/{{application_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/applications/{{application_id}}"))
 	if err != nil {
 		return err
 	}
@@ -589,7 +589,7 @@ func resourceApphubApplicationUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["scope"] = scopeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/{{location}}/applications/{{application_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/applications/{{application_id}}"))
 	if err != nil {
 		return err
 	}
@@ -670,8 +670,7 @@ func resourceApphubApplicationDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error fetching project for Application: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/{{location}}/applications/{{application_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/applications/{{application_id}}"))
 	if err != nil {
 		return err
 	}

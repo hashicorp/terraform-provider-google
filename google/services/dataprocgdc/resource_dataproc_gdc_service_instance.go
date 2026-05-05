@@ -329,7 +329,7 @@ func resourceDataprocGdcServiceInstanceCreate(d *schema.ResourceData, meta inter
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataprocGdcBasePath}}projects/{{project}}/locations/{{location}}/serviceInstances?serviceInstanceId={{service_instance_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/serviceInstances?serviceInstanceId={{service_instance_id}}"))
 	if err != nil {
 		return err
 	}
@@ -413,7 +413,7 @@ func resourceDataprocGdcServiceInstanceRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataprocGdcBasePath}}projects/{{project}}/locations/{{location}}/serviceInstances/{{service_instance_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/serviceInstances/{{service_instance_id}}"))
 	if err != nil {
 		return err
 	}
@@ -501,8 +501,7 @@ func resourceDataprocGdcServiceInstanceDelete(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for ServiceInstance: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataprocGdcBasePath}}projects/{{project}}/locations/{{location}}/serviceInstances/{{service_instance_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/serviceInstances/{{service_instance_id}}"))
 	if err != nil {
 		return err
 	}

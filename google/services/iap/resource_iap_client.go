@@ -178,7 +178,7 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{brand}}/identityAwareProxyClients"))
 	if err != nil {
 		return err
 	}
@@ -248,7 +248,7 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{brand}}/identityAwareProxyClients/{{client_id}}"))
 	if err != nil {
 		return err
 	}
@@ -311,7 +311,7 @@ func resourceIapClientDelete(d *schema.ResourceData, meta interface{}) error {
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{brand}}/identityAwareProxyClients/{{client_id}}"))
 	if err != nil {
 		return err
 	}

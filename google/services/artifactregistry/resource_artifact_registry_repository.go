@@ -1014,22 +1014,12 @@ func resourceArtifactRegistryRepositoryCreate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	urlFormatted, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/repositories?repository_id={{repository_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories?repository_id={{repository_id}}"))
 	if err != nil {
 		return err
 	}
-	loc := tpgresource.LocationFromId(urlFormatted)
-
-	basePath, err := transport_tpg.ResourceBasePath(config.ArtifactRegistryBasePath, config.ArtifactRegistryRepBasePath, "ArtifactRegistry", config, loc)
-	if err != nil {
-		return fmt.Errorf("Error qualifying Create base path for Repository: %s", err)
-	}
-
-	url, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/repositories?repository_id={{repository_id}}")
-	url = fmt.Sprintf("%s%s", basePath, url)
-
-	if err != nil {
-		return err
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	log.Printf("[DEBUG] Creating new Repository: %#v", obj)
@@ -1112,21 +1102,13 @@ func resourceArtifactRegistryRepositoryRead(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
-	urlFormatted, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/repositories?repository_id={{repository_id}}")
+
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}"))
 	if err != nil {
 		return err
 	}
-	loc := tpgresource.LocationFromId(urlFormatted)
-
-	basePath, err := transport_tpg.ResourceBasePath(config.ArtifactRegistryBasePath, config.ArtifactRegistryRepBasePath, "ArtifactRegistry", config, loc)
-	if err != nil {
-		return fmt.Errorf("Error qualifying base path for Repository: %s", err)
-	}
-	url, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
-	url = fmt.Sprintf("%s%s", basePath, url)
-
-	if err != nil {
-		return err
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -1283,17 +1265,12 @@ func resourceArtifactRegistryRepositoryUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	loc := tpgresource.LocationFromId(d.Id())
-
-	basePath, err := transport_tpg.ResourceBasePath(config.ArtifactRegistryBasePath, config.ArtifactRegistryRepBasePath, "ArtifactRegistry", config, loc)
-	if err != nil {
-		return fmt.Errorf("Error qualifying base path for Repository: %s", err)
-	}
-	url, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
-	url = fmt.Sprintf("%s%s", basePath, url)
-
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}"))
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	log.Printf("[DEBUG] Updating Repository %q: %#v", d.Id(), obj)
@@ -1381,17 +1358,12 @@ func resourceArtifactRegistryRepositoryDelete(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
-	loc := tpgresource.LocationFromId(d.Id())
-
-	basePath, err := transport_tpg.ResourceBasePath(config.ArtifactRegistryBasePath, config.ArtifactRegistryRepBasePath, "ArtifactRegistry", config, loc)
-	if err != nil {
-		return fmt.Errorf("Error qualifying base path for Repository: %s", err)
-	}
-	url, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
-	url = fmt.Sprintf("%s%s", basePath, url)
-
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}"))
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

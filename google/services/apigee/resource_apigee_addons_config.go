@@ -250,7 +250,7 @@ func resourceApigeeAddonsConfigCreate(d *schema.ResourceData, meta interface{}) 
 		obj["addonsConfig"] = addonsConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}:setAddons")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{org}}:setAddons"))
 	if err != nil {
 		return err
 	}
@@ -318,7 +318,7 @@ func resourceApigeeAddonsConfigRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{org}}"))
 	if err != nil {
 		return err
 	}
@@ -392,7 +392,7 @@ func resourceApigeeAddonsConfigUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["addonsConfig"] = addonsConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}:setAddons")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{org}}:setAddons"))
 	if err != nil {
 		return err
 	}
@@ -442,7 +442,7 @@ func resourceApigeeAddonsConfigDelete(d *schema.ResourceData, meta interface{}) 
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}:setAddons")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{org}}:setAddons"))
 	if err != nil {
 		return err
 	}

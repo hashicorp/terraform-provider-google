@@ -1109,7 +1109,7 @@ func resourceHypercomputeclusterClusterCreate(d *schema.ResourceData, meta inter
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{HypercomputeclusterBasePath}}projects/{{project}}/locations/{{location}}/clusters?clusterId={{cluster_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters?clusterId={{cluster_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1193,7 +1193,7 @@ func resourceHypercomputeclusterClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{HypercomputeclusterBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1335,7 +1335,7 @@ func resourceHypercomputeclusterClusterUpdate(d *schema.ResourceData, meta inter
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{HypercomputeclusterBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1424,8 +1424,7 @@ func resourceHypercomputeclusterClusterDelete(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for Cluster: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{HypercomputeclusterBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}"))
 	if err != nil {
 		return err
 	}

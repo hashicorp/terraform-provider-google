@@ -247,7 +247,7 @@ func resourceBiglakeIcebergIcebergCatalogCreate(d *schema.ResourceData, meta int
 		obj["catalog-type"] = catalogTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}&primary_location={{primary_location}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}&primary_location={{primary_location}}"))
 	if err != nil {
 		return err
 	}
@@ -320,7 +320,7 @@ func resourceBiglakeIcebergIcebergCatalogRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -475,8 +475,7 @@ func resourceBiglakeIcebergIcebergCatalogDelete(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error fetching project for IcebergCatalog: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}"))
 	if err != nil {
 		return err
 	}

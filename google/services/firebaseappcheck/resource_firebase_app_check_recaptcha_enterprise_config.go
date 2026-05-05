@@ -197,7 +197,7 @@ func resourceFirebaseAppCheckRecaptchaEnterpriseConfigCreate(d *schema.ResourceD
 		obj["siteKey"] = siteKeyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/recaptchaEnterpriseConfig?updateMask=tokenTtl,siteKey")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/recaptchaEnterpriseConfig?updateMask=tokenTtl,siteKey"))
 	if err != nil {
 		return err
 	}
@@ -266,7 +266,7 @@ func resourceFirebaseAppCheckRecaptchaEnterpriseConfigRead(d *schema.ResourceDat
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/recaptchaEnterpriseConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/recaptchaEnterpriseConfig"))
 	if err != nil {
 		return err
 	}
@@ -373,7 +373,7 @@ func resourceFirebaseAppCheckRecaptchaEnterpriseConfigUpdate(d *schema.ResourceD
 		obj["siteKey"] = siteKeyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/recaptchaEnterpriseConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/recaptchaEnterpriseConfig"))
 	if err != nil {
 		return err
 	}

@@ -199,7 +199,7 @@ func resourceComputeFirewallPolicyAssociationCreate(d *schema.ResourceData, meta
 		obj["firewallPolicy"] = firewallPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/addAssociation")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{firewall_policy}}/addAssociation"))
 	if err != nil {
 		return err
 	}
@@ -274,7 +274,7 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/getAssociation?name={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{firewall_policy}}/getAssociation?name={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -419,7 +419,7 @@ func resourceComputeFirewallPolicyAssociationDelete(d *schema.ResourceData, meta
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/removeAssociation?name={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{firewall_policy}}/removeAssociation?name={{name}}"))
 	if err != nil {
 		return err
 	}

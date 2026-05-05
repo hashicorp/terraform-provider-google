@@ -248,7 +248,7 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 		obj["activeKeyVersion"] = activeKeyVersionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization_id}}/accessApprovalSettings"))
 	if err != nil {
 		return err
 	}
@@ -330,7 +330,7 @@ func resourceAccessApprovalOrganizationSettingsRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization_id}}/accessApprovalSettings"))
 	if err != nil {
 		return err
 	}
@@ -416,7 +416,7 @@ func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, me
 		obj["activeKeyVersion"] = activeKeyVersionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization_id}}/accessApprovalSettings"))
 	if err != nil {
 		return err
 	}

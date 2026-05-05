@@ -251,7 +251,7 @@ func resourceDiscoveryEngineCmekConfigCreate(d *schema.ResourceData, meta interf
 		obj["singleRegionKeys"] = singleRegionKeysProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/cmekConfigs/{{cmek_config_id}}?&setDefault={{set_default}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/cmekConfigs/{{cmek_config_id}}?&setDefault={{set_default}}"))
 	if err != nil {
 		return err
 	}
@@ -335,7 +335,7 @@ func resourceDiscoveryEngineCmekConfigRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/cmekConfigs/{{cmek_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/cmekConfigs/{{cmek_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -452,7 +452,7 @@ func resourceDiscoveryEngineCmekConfigUpdate(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/cmekConfigs/{{cmek_config_id}}?&setDefault={{set_default}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/cmekConfigs/{{cmek_config_id}}?&setDefault={{set_default}}"))
 	if err != nil {
 		return err
 	}
@@ -507,8 +507,7 @@ func resourceDiscoveryEngineCmekConfigDelete(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error fetching project for CmekConfig: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/cmekConfigs/{{cmek_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/cmekConfigs/{{cmek_config_id}}"))
 	if err != nil {
 		return err
 	}

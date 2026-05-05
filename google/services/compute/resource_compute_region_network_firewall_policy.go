@@ -243,7 +243,7 @@ func resourceComputeRegionNetworkFirewallPolicyCreate(d *schema.ResourceData, me
 		obj["fingerprint"] = fingerprintProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/firewallPolicies")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies"))
 	if err != nil {
 		return err
 	}
@@ -327,7 +327,7 @@ func resourceComputeRegionNetworkFirewallPolicyRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -445,7 +445,7 @@ func resourceComputeRegionNetworkFirewallPolicyUpdate(d *schema.ResourceData, me
 		obj["fingerprint"] = fingerprintProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -500,8 +500,7 @@ func resourceComputeRegionNetworkFirewallPolicyDelete(d *schema.ResourceData, me
 		return fmt.Errorf("Error fetching project for RegionNetworkFirewallPolicy: %s", err)
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
-
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}

@@ -279,7 +279,7 @@ func resourceNetappVolumeQuotaRuleCreate(d *schema.ResourceData, meta interface{
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/quotaRules?quotaRuleId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/quotaRules?quotaRuleId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -368,7 +368,7 @@ func resourceNetappVolumeQuotaRuleRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/quotaRules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/quotaRules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -515,7 +515,7 @@ func resourceNetappVolumeQuotaRuleUpdate(d *schema.ResourceData, meta interface{
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/quotaRules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/quotaRules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -600,8 +600,7 @@ func resourceNetappVolumeQuotaRuleDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for VolumeQuotaRule: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/quotaRules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/quotaRules/{{name}}"))
 	if err != nil {
 		return err
 	}

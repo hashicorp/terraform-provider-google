@@ -213,7 +213,7 @@ func resourceFirebaseAppCheckDeviceCheckConfigCreate(d *schema.ResourceData, met
 		obj["privateKey"] = privateKeyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/deviceCheckConfig?updateMask=tokenTtl,keyId,privateKey")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/deviceCheckConfig?updateMask=tokenTtl,keyId,privateKey"))
 	if err != nil {
 		return err
 	}
@@ -282,7 +282,7 @@ func resourceFirebaseAppCheckDeviceCheckConfigRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/deviceCheckConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/deviceCheckConfig"))
 	if err != nil {
 		return err
 	}
@@ -395,7 +395,7 @@ func resourceFirebaseAppCheckDeviceCheckConfigUpdate(d *schema.ResourceData, met
 		obj["privateKey"] = privateKeyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/deviceCheckConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/deviceCheckConfig"))
 	if err != nil {
 		return err
 	}

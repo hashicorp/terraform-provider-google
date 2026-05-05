@@ -1201,7 +1201,7 @@ func resourceNetworkSecurityAuthzPolicyCreate(d *schema.ResourceData, meta inter
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/authzPolicies?authzPolicyId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/authzPolicies?authzPolicyId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1285,7 +1285,7 @@ func resourceNetworkSecurityAuthzPolicyRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/authzPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/authzPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1433,7 +1433,7 @@ func resourceNetworkSecurityAuthzPolicyUpdate(d *schema.ResourceData, meta inter
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/authzPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/authzPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1526,8 +1526,7 @@ func resourceNetworkSecurityAuthzPolicyDelete(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for AuthzPolicy: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/authzPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/authzPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}

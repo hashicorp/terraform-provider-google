@@ -266,7 +266,7 @@ func resourceSecurityCenterV2ProjectSccBigQueryExportCreate(d *schema.ResourceDa
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}projects/{{project}}/locations/{{location}}/bigQueryExports?bigQueryExportId={{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bigQueryExports?bigQueryExportId={{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}
@@ -340,7 +340,7 @@ func resourceSecurityCenterV2ProjectSccBigQueryExportRead(d *schema.ResourceData
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}
@@ -464,7 +464,7 @@ func resourceSecurityCenterV2ProjectSccBigQueryExportUpdate(d *schema.ResourceDa
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}
@@ -534,8 +534,7 @@ func resourceSecurityCenterV2ProjectSccBigQueryExportDelete(d *schema.ResourceDa
 		return fmt.Errorf("Error fetching project for ProjectSccBigQueryExport: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}

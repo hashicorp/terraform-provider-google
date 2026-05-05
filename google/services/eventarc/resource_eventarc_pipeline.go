@@ -896,7 +896,7 @@ func resourceEventarcPipelineCreate(d *schema.ResourceData, meta interface{}) er
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/pipelines?pipelineId={{pipeline_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/pipelines?pipelineId={{pipeline_id}}"))
 	if err != nil {
 		return err
 	}
@@ -980,7 +980,7 @@ func resourceEventarcPipelineRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/pipelines/{{pipeline_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/pipelines/{{pipeline_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1140,7 +1140,7 @@ func resourceEventarcPipelineUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/pipelines/{{pipeline_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/pipelines/{{pipeline_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1241,8 +1241,7 @@ func resourceEventarcPipelineDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error fetching project for Pipeline: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/pipelines/{{pipeline_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/pipelines/{{pipeline_id}}"))
 	if err != nil {
 		return err
 	}

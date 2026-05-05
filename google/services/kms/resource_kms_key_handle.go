@@ -198,7 +198,7 @@ func resourceKMSKeyHandleCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["resourceTypeSelector"] = resourceTypeSelectorProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/locations/{{location}}/keyHandles?keyHandleId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/keyHandles?keyHandleId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -282,7 +282,7 @@ func resourceKMSKeyHandleRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/locations/{{location}}/keyHandles/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/keyHandles/{{name}}"))
 	if err != nil {
 		return err
 	}

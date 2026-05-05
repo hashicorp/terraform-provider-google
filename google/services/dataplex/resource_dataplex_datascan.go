@@ -1074,7 +1074,7 @@ func resourceDataplexDatascanCreate(d *schema.ResourceData, meta interface{}) er
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/dataScans?dataScanId={{data_scan_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/dataScans?dataScanId={{data_scan_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1158,7 +1158,7 @@ func resourceDataplexDatascanRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/dataScans/{{data_scan_id}}?view=FULL")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/dataScans/{{data_scan_id}}?view=FULL"))
 	if err != nil {
 		return err
 	}
@@ -1312,7 +1312,7 @@ func resourceDataplexDatascanUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/dataScans/{{data_scan_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/dataScans/{{data_scan_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1409,8 +1409,7 @@ func resourceDataplexDatascanDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error fetching project for Datascan: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/dataScans/{{data_scan_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/dataScans/{{data_scan_id}}"))
 	if err != nil {
 		return err
 	}

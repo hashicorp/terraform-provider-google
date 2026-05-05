@@ -362,7 +362,7 @@ func resourceSecurityCenterFolderCustomModuleCreate(d *schema.ResourceData, meta
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/securityHealthAnalyticsSettings/customModules")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/securityHealthAnalyticsSettings/customModules"))
 	if err != nil {
 		return err
 	}
@@ -431,7 +431,7 @@ func resourceSecurityCenterFolderCustomModuleRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -529,7 +529,7 @@ func resourceSecurityCenterFolderCustomModuleUpdate(d *schema.ResourceData, meta
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -596,8 +596,7 @@ func resourceSecurityCenterFolderCustomModuleDelete(d *schema.ResourceData, meta
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}"))
 	if err != nil {
 		return err
 	}

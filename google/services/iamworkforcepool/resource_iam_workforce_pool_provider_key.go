@@ -281,7 +281,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderKeyCreate(d *schema.ResourceDa
 		obj["use"] = useProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/keys?workforcePoolProviderKeyId={{key_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/keys?workforcePoolProviderKeyId={{key_id}}"))
 	if err != nil {
 		return err
 	}
@@ -364,7 +364,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderKeyRead(d *schema.ResourceData
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/keys/{{key_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/keys/{{key_id}}"))
 	if err != nil {
 		return err
 	}
@@ -438,7 +438,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderKeyDelete(d *schema.ResourceDa
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/keys/{{key_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/keys/{{key_id}}"))
 	if err != nil {
 		return err
 	}

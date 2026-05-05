@@ -860,7 +860,7 @@ func resourceDataLossPreventionInspectTemplateCreate(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/inspectTemplates"))
 	if err != nil {
 		return err
 	}
@@ -929,7 +929,7 @@ func resourceDataLossPreventionInspectTemplateRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/inspectTemplates/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1043,7 +1043,7 @@ func resourceDataLossPreventionInspectTemplateUpdate(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/inspectTemplates/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1108,7 +1108,7 @@ func resourceDataLossPreventionInspectTemplateDelete(d *schema.ResourceData, met
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/inspectTemplates/{{name}}"))
 	if err != nil {
 		return err
 	}

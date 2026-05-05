@@ -277,7 +277,7 @@ func resourceNetworkSecurityFirewallEndpointCreate(d *schema.ResourceData, meta 
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/firewallEndpoints?firewallEndpointId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/firewallEndpoints?firewallEndpointId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -355,7 +355,7 @@ func resourceNetworkSecurityFirewallEndpointRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/firewallEndpoints/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/firewallEndpoints/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -464,7 +464,7 @@ func resourceNetworkSecurityFirewallEndpointUpdate(d *schema.ResourceData, meta 
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/firewallEndpoints/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/firewallEndpoints/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -537,7 +537,7 @@ func resourceNetworkSecurityFirewallEndpointDelete(d *schema.ResourceData, meta 
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/firewallEndpoints/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/firewallEndpoints/{{name}}"))
 	if err != nil {
 		return err
 	}

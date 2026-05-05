@@ -251,7 +251,7 @@ func resourceSecurityCenterV2FolderNotificationConfigCreate(d *schema.ResourceDa
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}folders/{{folder}}/locations/{{location}}/notificationConfigs?configId={{config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/notificationConfigs?configId={{config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -319,7 +319,7 @@ func resourceSecurityCenterV2FolderNotificationConfigRead(d *schema.ResourceData
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}folders/{{folder}}/locations/{{location}}/notificationConfigs/{{config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/notificationConfigs/{{config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -427,7 +427,7 @@ func resourceSecurityCenterV2FolderNotificationConfigUpdate(d *schema.ResourceDa
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}folders/{{folder}}/locations/{{location}}/notificationConfigs/{{config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/notificationConfigs/{{config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -492,7 +492,7 @@ func resourceSecurityCenterV2FolderNotificationConfigDelete(d *schema.ResourceDa
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}folders/{{folder}}/locations/{{location}}/notificationConfigs/{{config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/notificationConfigs/{{config_id}}"))
 	if err != nil {
 		return err
 	}

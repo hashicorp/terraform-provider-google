@@ -312,7 +312,7 @@ func resourceIAMBetaWorkloadIdentityPoolManagedIdentityCreate(d *schema.Resource
 		obj["attestationRules"] = attestationRulesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}/managedIdentities?workloadIdentityPoolManagedIdentityId={{workload_identity_pool_managed_identity_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}/managedIdentities?workloadIdentityPoolManagedIdentityId={{workload_identity_pool_managed_identity_id}}"))
 	if err != nil {
 		return err
 	}
@@ -441,7 +441,7 @@ func resourceIAMBetaWorkloadIdentityPoolManagedIdentityRead(d *schema.ResourceDa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}/managedIdentities/{{workload_identity_pool_managed_identity_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}/managedIdentities/{{workload_identity_pool_managed_identity_id}}"))
 	if err != nil {
 		return err
 	}
@@ -600,7 +600,7 @@ func resourceIAMBetaWorkloadIdentityPoolManagedIdentityUpdate(d *schema.Resource
 		obj["disabled"] = disabledProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}/managedIdentities/{{workload_identity_pool_managed_identity_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}/managedIdentities/{{workload_identity_pool_managed_identity_id}}"))
 	if err != nil {
 		return err
 	}
@@ -667,7 +667,7 @@ func resourceIAMBetaWorkloadIdentityPoolManagedIdentityUpdate(d *schema.Resource
 			obj["attestationRules"] = attestationRulesProp
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}/managedIdentities/{{workload_identity_pool_managed_identity_id}}:setAttestationRules")
+		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}/managedIdentities/{{workload_identity_pool_managed_identity_id}}:setAttestationRules"))
 		if err != nil {
 			return err
 		}
@@ -722,8 +722,7 @@ func resourceIAMBetaWorkloadIdentityPoolManagedIdentityDelete(d *schema.Resource
 		return fmt.Errorf("Error fetching project for WorkloadIdentityPoolManagedIdentity: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}/managedIdentities/{{workload_identity_pool_managed_identity_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}/managedIdentities/{{workload_identity_pool_managed_identity_id}}"))
 	if err != nil {
 		return err
 	}

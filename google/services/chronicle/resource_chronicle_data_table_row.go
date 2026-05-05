@@ -236,7 +236,7 @@ func resourceChronicleDataTableRowCreate(d *schema.ResourceData, meta interface{
 		obj["values"] = valuesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataTables/{{data_table_id}}/dataTableRows")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataTables/{{data_table_id}}/dataTableRows"))
 	if err != nil {
 		return err
 	}
@@ -326,7 +326,7 @@ func resourceChronicleDataTableRowRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataTables/{{data_table_id}}/dataTableRows/{{data_table_row}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataTables/{{data_table_id}}/dataTableRows/{{data_table_row}}"))
 	if err != nil {
 		return err
 	}
@@ -460,7 +460,7 @@ func resourceChronicleDataTableRowUpdate(d *schema.ResourceData, meta interface{
 		obj["rowTimeToLive"] = rowTimeToLiveProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataTables/{{data_table_id}}/dataTableRows/{{data_table_row}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataTables/{{data_table_id}}/dataTableRows/{{data_table_row}}"))
 	if err != nil {
 		return err
 	}
@@ -522,8 +522,7 @@ func resourceChronicleDataTableRowDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for DataTableRow: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataTables/{{data_table_id}}/dataTableRows/{{data_table_row}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataTables/{{data_table_id}}/dataTableRows/{{data_table_row}}"))
 	if err != nil {
 		return err
 	}

@@ -180,7 +180,7 @@ func resourceDialogflowVersionCreate(d *schema.ResourceData, meta interface{}) e
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowBasePath}}{{parent}}/versions")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/versions"))
 	if err != nil {
 		return err
 	}
@@ -249,7 +249,7 @@ func resourceDialogflowVersionRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowBasePath}}{{parent}}/versions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/versions/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -334,7 +334,7 @@ func resourceDialogflowVersionUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowBasePath}}{{parent}}/versions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/versions/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -391,7 +391,7 @@ func resourceDialogflowVersionDelete(d *schema.ResourceData, meta interface{}) e
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowBasePath}}{{parent}}/versions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/versions/{{name}}"))
 	if err != nil {
 		return err
 	}

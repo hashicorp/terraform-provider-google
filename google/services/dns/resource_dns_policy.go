@@ -333,7 +333,7 @@ func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["networks"] = networksProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/policies"))
 	if err != nil {
 		return err
 	}
@@ -402,7 +402,7 @@ func resourceDNSPolicyRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/policies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -531,7 +531,7 @@ func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 			obj["networks"] = networksProp
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
+		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/policies/{{name}}"))
 		if err != nil {
 			return err
 		}
@@ -580,8 +580,7 @@ func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error fetching project for Policy: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/policies/{{name}}"))
 	if err != nil {
 		return err
 	}

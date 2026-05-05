@@ -340,7 +340,7 @@ func resourceNetworkServicesLbEdgeExtensionCreate(d *schema.ResourceData, meta i
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbEdgeExtensions?lbEdgeExtensionId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/lbEdgeExtensions?lbEdgeExtensionId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -424,7 +424,7 @@ func resourceNetworkServicesLbEdgeExtensionRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbEdgeExtensions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/lbEdgeExtensions/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -554,7 +554,7 @@ func resourceNetworkServicesLbEdgeExtensionUpdate(d *schema.ResourceData, meta i
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbEdgeExtensions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/lbEdgeExtensions/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -635,8 +635,7 @@ func resourceNetworkServicesLbEdgeExtensionDelete(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error fetching project for LbEdgeExtension: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbEdgeExtensions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/lbEdgeExtensions/{{name}}"))
 	if err != nil {
 		return err
 	}

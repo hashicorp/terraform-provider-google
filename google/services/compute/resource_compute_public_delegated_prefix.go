@@ -357,7 +357,7 @@ func resourceComputePublicDelegatedPrefixCreate(d *schema.ResourceData, meta int
 		obj["ipCidrRange"] = ipCidrRangeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/publicDelegatedPrefixes")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/publicDelegatedPrefixes"))
 	if err != nil {
 		return err
 	}
@@ -441,7 +441,7 @@ func resourceComputePublicDelegatedPrefixRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/publicDelegatedPrefixes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/publicDelegatedPrefixes/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -524,8 +524,7 @@ func resourceComputePublicDelegatedPrefixDelete(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error fetching project for PublicDelegatedPrefix: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/publicDelegatedPrefixes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/publicDelegatedPrefixes/{{name}}"))
 	if err != nil {
 		return err
 	}

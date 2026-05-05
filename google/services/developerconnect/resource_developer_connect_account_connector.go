@@ -418,7 +418,7 @@ func resourceDeveloperConnectAccountConnectorCreate(d *schema.ResourceData, meta
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DeveloperConnectBasePath}}projects/{{project}}/locations/{{location}}/accountConnectors?accountConnectorId={{account_connector_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/accountConnectors?accountConnectorId={{account_connector_id}}"))
 	if err != nil {
 		return err
 	}
@@ -502,7 +502,7 @@ func resourceDeveloperConnectAccountConnectorRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DeveloperConnectBasePath}}projects/{{project}}/locations/{{location}}/accountConnectors/{{account_connector_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/accountConnectors/{{account_connector_id}}"))
 	if err != nil {
 		return err
 	}
@@ -644,7 +644,7 @@ func resourceDeveloperConnectAccountConnectorUpdate(d *schema.ResourceData, meta
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DeveloperConnectBasePath}}projects/{{project}}/locations/{{location}}/accountConnectors/{{account_connector_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/accountConnectors/{{account_connector_id}}"))
 	if err != nil {
 		return err
 	}
@@ -733,8 +733,7 @@ func resourceDeveloperConnectAccountConnectorDelete(d *schema.ResourceData, meta
 		return fmt.Errorf("Error fetching project for AccountConnector: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DeveloperConnectBasePath}}projects/{{project}}/locations/{{location}}/accountConnectors/{{account_connector_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/accountConnectors/{{account_connector_id}}"))
 	if err != nil {
 		return err
 	}

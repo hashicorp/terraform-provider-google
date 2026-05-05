@@ -247,7 +247,7 @@ func resourceGeminiLoggingSettingCreate(d *schema.ResourceData, meta interface{}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GeminiBasePath}}projects/{{project}}/locations/{{location}}/loggingSettings?loggingSettingId={{logging_setting_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/loggingSettings?loggingSettingId={{logging_setting_id}}"))
 	if err != nil {
 		return err
 	}
@@ -321,7 +321,7 @@ func resourceGeminiLoggingSettingRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GeminiBasePath}}projects/{{project}}/locations/{{location}}/loggingSettings/{{logging_setting_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/loggingSettings/{{logging_setting_id}}"))
 	if err != nil {
 		return err
 	}
@@ -452,7 +452,7 @@ func resourceGeminiLoggingSettingUpdate(d *schema.ResourceData, meta interface{}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GeminiBasePath}}projects/{{project}}/locations/{{location}}/loggingSettings/{{logging_setting_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/loggingSettings/{{logging_setting_id}}"))
 	if err != nil {
 		return err
 	}
@@ -529,8 +529,7 @@ func resourceGeminiLoggingSettingDelete(d *schema.ResourceData, meta interface{}
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{GeminiBasePath}}projects/{{project}}/locations/{{location}}/loggingSettings/{{logging_setting_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/loggingSettings/{{logging_setting_id}}"))
 	if err != nil {
 		return err
 	}

@@ -315,7 +315,7 @@ func resourceKMSEkmConnectionCreate(d *schema.ResourceData, meta interface{}) er
 		obj["cryptoSpacePath"] = cryptoSpacePathProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/locations/{{location}}/ekmConnections?ekmConnectionId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/ekmConnections?ekmConnectionId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -389,7 +389,7 @@ func resourceKMSEkmConnectionRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/locations/{{location}}/ekmConnections/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/ekmConnections/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -519,7 +519,7 @@ func resourceKMSEkmConnectionUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["cryptoSpacePath"] = cryptoSpacePathProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/locations/{{location}}/ekmConnections/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/ekmConnections/{{name}}"))
 	if err != nil {
 		return err
 	}

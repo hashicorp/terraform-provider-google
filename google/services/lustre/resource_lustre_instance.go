@@ -714,7 +714,7 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LustreBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{instance_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances?instanceId={{instance_id}}"))
 	if err != nil {
 		return err
 	}
@@ -798,7 +798,7 @@ func resourceLustreInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LustreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance_id}}"))
 	if err != nil {
 		return err
 	}
@@ -946,7 +946,7 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LustreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1039,8 +1039,7 @@ func resourceLustreInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{LustreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance_id}}"))
 	if err != nil {
 		return err
 	}

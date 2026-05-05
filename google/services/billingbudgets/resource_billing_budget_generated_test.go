@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/billingbudgets"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = billingbudgets.Product
 )
 
 func TestAccBillingBudgetsBudget_billingBudgetBasicExample(t *testing.T) {
@@ -564,8 +566,7 @@ func testAccCheckBillingBudgetsBudgetDestroyProducer(t *testing.T) func(s *terra
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{BillingBudgetsBasePath}}billingAccounts/{{billing_account}}/budgets/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(billingbudgets.Product, config), "billingAccounts/{{billing_account}}/budgets/{{name}}"))
 			if err != nil {
 				return err
 			}

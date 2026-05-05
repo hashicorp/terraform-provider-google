@@ -650,7 +650,7 @@ func resourceComputeRegionSecurityPolicyRuleCreate(d *schema.ResourceData, meta 
 		obj["networkMatch"] = networkMatchProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/securityPolicies/{{security_policy}}/addRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/securityPolicies/{{security_policy}}/addRule?priority={{priority}}"))
 	if err != nil {
 		return err
 	}
@@ -724,7 +724,7 @@ func resourceComputeRegionSecurityPolicyRuleRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/securityPolicies/{{security_policy}}/getRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/securityPolicies/{{security_policy}}/getRule?priority={{priority}}"))
 	if err != nil {
 		return err
 	}
@@ -834,7 +834,7 @@ func resourceComputeRegionSecurityPolicyRuleUpdate(d *schema.ResourceData, meta 
 		obj["networkMatch"] = networkMatchProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/securityPolicies/{{security_policy}}/patchRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/securityPolicies/{{security_policy}}/patchRule?priority={{priority}}"))
 	if err != nil {
 		return err
 	}
@@ -946,8 +946,7 @@ func resourceComputeRegionSecurityPolicyRuleDelete(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error fetching project for RegionSecurityPolicyRule: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/securityPolicies/{{security_policy}}/removeRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/securityPolicies/{{security_policy}}/removeRule?priority={{priority}}"))
 	if err != nil {
 		return err
 	}

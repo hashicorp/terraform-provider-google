@@ -635,7 +635,7 @@ func resourceCloudbuildv2ConnectionCreate(d *schema.ResourceData, meta interface
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{Cloudbuildv2BasePath}}projects/{{project}}/locations/{{location}}/connections?connectionId={{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections?connectionId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -719,7 +719,7 @@ func resourceCloudbuildv2ConnectionRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{Cloudbuildv2BasePath}}projects/{{project}}/locations/{{location}}/connections/{{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -873,7 +873,7 @@ func resourceCloudbuildv2ConnectionUpdate(d *schema.ResourceData, meta interface
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{Cloudbuildv2BasePath}}projects/{{project}}/locations/{{location}}/connections/{{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -928,8 +928,7 @@ func resourceCloudbuildv2ConnectionDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error fetching project for Connection: %s", err)
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
-
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{Cloudbuildv2BasePath}}projects/{{project}}/locations/{{location}}/connections/{{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{name}}"))
 	if err != nil {
 		return err
 	}

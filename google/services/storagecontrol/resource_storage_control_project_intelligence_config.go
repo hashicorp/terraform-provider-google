@@ -403,7 +403,7 @@ func resourceStorageControlProjectIntelligenceConfigCreate(d *schema.ResourceDat
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageControlBasePath}}projects/{{name}}/locations/global/intelligenceConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{name}}/locations/global/intelligenceConfig"))
 	if err != nil {
 		return err
 	}
@@ -472,7 +472,7 @@ func resourceStorageControlProjectIntelligenceConfigRead(d *schema.ResourceData,
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageControlBasePath}}projects/{{name}}/locations/global/intelligenceConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{name}}/locations/global/intelligenceConfig"))
 	if err != nil {
 		return err
 	}
@@ -552,7 +552,7 @@ func resourceStorageControlProjectIntelligenceConfigUpdate(d *schema.ResourceDat
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageControlBasePath}}projects/{{name}}/locations/global/intelligenceConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{name}}/locations/global/intelligenceConfig"))
 	if err != nil {
 		return err
 	}

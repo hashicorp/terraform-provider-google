@@ -286,7 +286,7 @@ func resourceChronicleRetrohuntCreate(d *schema.ResourceData, meta interface{}) 
 		obj["retrohunt"] = retrohuntProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule}}/retrohunts")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule}}/retrohunts"))
 	if err != nil {
 		return err
 	}
@@ -400,7 +400,7 @@ func resourceChronicleRetrohuntRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule}}/retrohunts/{{retrohunt}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule}}/retrohunts/{{retrohunt}}"))
 	if err != nil {
 		return err
 	}

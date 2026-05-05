@@ -209,7 +209,7 @@ func resourceApigeeEnvironmentKeyvaluemapsRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keyvaluemaps/{{name}}/entries")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/keyvaluemaps/{{name}}/entries"))
 	if err != nil {
 		return err
 	}
@@ -283,7 +283,7 @@ func resourceApigeeEnvironmentKeyvaluemapsDelete(d *schema.ResourceData, meta in
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keyvaluemaps/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/keyvaluemaps/{{name}}"))
 	if err != nil {
 		return err
 	}

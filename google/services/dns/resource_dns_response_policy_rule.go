@@ -242,7 +242,7 @@ func resourceDNSResponsePolicyRuleCreate(d *schema.ResourceData, meta interface{
 		obj["localData"] = localDataProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/responsePolicies/{{response_policy}}/rules")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/responsePolicies/{{response_policy}}/rules"))
 	if err != nil {
 		return err
 	}
@@ -316,7 +316,7 @@ func resourceDNSResponsePolicyRuleRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/responsePolicies/{{response_policy}}/rules/{{rule_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/responsePolicies/{{response_policy}}/rules/{{rule_name}}"))
 	if err != nil {
 		return err
 	}
@@ -434,7 +434,7 @@ func resourceDNSResponsePolicyRuleUpdate(d *schema.ResourceData, meta interface{
 		obj["localData"] = localDataProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/responsePolicies/{{response_policy}}/rules/{{rule_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/responsePolicies/{{response_policy}}/rules/{{rule_name}}"))
 	if err != nil {
 		return err
 	}
@@ -481,8 +481,7 @@ func resourceDNSResponsePolicyRuleDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for ResponsePolicyRule: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/responsePolicies/{{response_policy}}/rules/{{rule_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/responsePolicies/{{response_policy}}/rules/{{rule_name}}"))
 	if err != nil {
 		return err
 	}

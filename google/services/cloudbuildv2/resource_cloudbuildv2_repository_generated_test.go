@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudbuildv2"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = cloudbuildv2.Product
 )
 
 func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGheExample(t *testing.T) {
@@ -263,8 +265,7 @@ func testAccCheckCloudbuildv2RepositoryDestroyProducer(t *testing.T) func(s *ter
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{Cloudbuildv2BasePath}}projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/repositories/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(cloudbuildv2.Product, config), "projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/repositories/{{name}}"))
 			if err != nil {
 				return err
 			}

@@ -220,7 +220,7 @@ func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions?subscriptionId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{zone}}/subscriptions?subscriptionId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -294,7 +294,7 @@ func resourcePubsubLiteSubscriptionRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func resourcePubsubLiteSubscriptionUpdate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -473,8 +473,7 @@ func resourcePubsubLiteSubscriptionDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}"))
 	if err != nil {
 		return err
 	}

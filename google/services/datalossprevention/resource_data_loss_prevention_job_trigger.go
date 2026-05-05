@@ -1572,7 +1572,7 @@ func resourceDataLossPreventionJobTriggerCreate(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/jobTriggers"))
 	if err != nil {
 		return err
 	}
@@ -1641,7 +1641,7 @@ func resourceDataLossPreventionJobTriggerRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/jobTriggers/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1767,7 +1767,7 @@ func resourceDataLossPreventionJobTriggerUpdate(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/jobTriggers/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1840,7 +1840,7 @@ func resourceDataLossPreventionJobTriggerDelete(d *schema.ResourceData, meta int
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/jobTriggers/{{name}}"))
 	if err != nil {
 		return err
 	}

@@ -486,7 +486,7 @@ func resourceDialogflowCXToolCreate(d *schema.ResourceData, meta interface{}) er
 		obj["functionSpec"] = functionSpecProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/tools")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/tools"))
 	if err != nil {
 		return err
 	}
@@ -600,7 +600,7 @@ func resourceDialogflowCXToolRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/tools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/tools/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -729,7 +729,7 @@ func resourceDialogflowCXToolUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["functionSpec"] = functionSpecProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/tools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/tools/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -822,7 +822,7 @@ func resourceDialogflowCXToolDelete(d *schema.ResourceData, meta interface{}) er
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/tools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/tools/{{name}}"))
 	if err != nil {
 		return err
 	}

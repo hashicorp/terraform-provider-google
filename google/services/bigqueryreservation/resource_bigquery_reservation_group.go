@@ -180,7 +180,7 @@ func resourceBigqueryReservationReservationGroupCreate(d *schema.ResourceData, m
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservationGroups?reservationGroupId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reservationGroups?reservationGroupId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -254,7 +254,7 @@ func resourceBigqueryReservationReservationGroupRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservationGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reservationGroups/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -337,8 +337,7 @@ func resourceBigqueryReservationReservationGroupDelete(d *schema.ResourceData, m
 		return fmt.Errorf("Error fetching project for ReservationGroup: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservationGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reservationGroups/{{name}}"))
 	if err != nil {
 		return err
 	}

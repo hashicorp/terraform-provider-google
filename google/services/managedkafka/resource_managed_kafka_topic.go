@@ -223,7 +223,7 @@ func resourceManagedKafkaTopicCreate(d *schema.ResourceData, meta interface{}) e
 		obj["configs"] = configsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/topics?topicId={{topic_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/topics?topicId={{topic_id}}"))
 	if err != nil {
 		return err
 	}
@@ -307,7 +307,7 @@ func resourceManagedKafkaTopicRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/topics/{{topic_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/topics/{{topic_id}}"))
 	if err != nil {
 		return err
 	}
@@ -436,7 +436,7 @@ func resourceManagedKafkaTopicUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["configs"] = configsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/topics/{{topic_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/topics/{{topic_id}}"))
 	if err != nil {
 		return err
 	}
@@ -506,8 +506,7 @@ func resourceManagedKafkaTopicDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error fetching project for Topic: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/topics/{{topic_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/topics/{{topic_id}}"))
 	if err != nil {
 		return err
 	}

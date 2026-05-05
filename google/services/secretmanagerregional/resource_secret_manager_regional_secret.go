@@ -425,7 +425,7 @@ func resourceSecretManagerRegionalRegionalSecretCreate(d *schema.ResourceData, m
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerRegionalBasePath}}projects/{{project}}/locations/{{location}}/secrets?secretId={{secret_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/secrets?secretId={{secret_id}}"))
 	if err != nil {
 		return err
 	}
@@ -499,7 +499,7 @@ func resourceSecretManagerRegionalRegionalSecretRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerRegionalBasePath}}projects/{{project}}/locations/{{location}}/secrets/{{secret_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/secrets/{{secret_id}}"))
 	if err != nil {
 		return err
 	}
@@ -665,7 +665,7 @@ func resourceSecretManagerRegionalRegionalSecretUpdate(d *schema.ResourceData, m
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerRegionalBasePath}}projects/{{project}}/locations/{{location}}/secrets/{{secret_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/secrets/{{secret_id}}"))
 	if err != nil {
 		return err
 	}
@@ -763,8 +763,7 @@ func resourceSecretManagerRegionalRegionalSecretDelete(d *schema.ResourceData, m
 		return fmt.Errorf("Error fetching project for RegionalSecret: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerRegionalBasePath}}projects/{{project}}/locations/{{location}}/secrets/{{secret_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/secrets/{{secret_id}}"))
 	if err != nil {
 		return err
 	}

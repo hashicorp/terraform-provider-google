@@ -230,7 +230,7 @@ func resourceHealthcareConsentStoreCreate(d *schema.ResourceData, meta interface
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores?consentStoreId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{dataset}}/consentStores?consentStoreId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -293,7 +293,7 @@ func resourceHealthcareConsentStoreRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{dataset}}/consentStores/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -390,7 +390,7 @@ func resourceHealthcareConsentStoreUpdate(d *schema.ResourceData, meta interface
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{dataset}}/consentStores/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -455,7 +455,7 @@ func resourceHealthcareConsentStoreDelete(d *schema.ResourceData, meta interface
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{dataset}}/consentStores/{{name}}"))
 	if err != nil {
 		return err
 	}

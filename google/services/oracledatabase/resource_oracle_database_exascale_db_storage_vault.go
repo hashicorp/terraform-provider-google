@@ -389,7 +389,7 @@ func resourceOracleDatabaseExascaleDbStorageVaultCreate(d *schema.ResourceData, 
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/exascaleDbStorageVaults?exascaleDbStorageVaultId={{exascale_db_storage_vault_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/exascaleDbStorageVaults?exascaleDbStorageVaultId={{exascale_db_storage_vault_id}}"))
 	if err != nil {
 		return err
 	}
@@ -473,7 +473,7 @@ func resourceOracleDatabaseExascaleDbStorageVaultRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/exascaleDbStorageVaults/{{exascale_db_storage_vault_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/exascaleDbStorageVaults/{{exascale_db_storage_vault_id}}"))
 	if err != nil {
 		return err
 	}
@@ -567,8 +567,7 @@ func resourceOracleDatabaseExascaleDbStorageVaultDelete(d *schema.ResourceData, 
 		return fmt.Errorf("Error fetching project for ExascaleDbStorageVault: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/exascaleDbStorageVaults/{{exascale_db_storage_vault_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/exascaleDbStorageVaults/{{exascale_db_storage_vault_id}}"))
 	if err != nil {
 		return err
 	}

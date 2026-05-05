@@ -198,7 +198,7 @@ func resourceApigeeDnsZoneCreate(d *schema.ResourceData, meta interface{}) error
 		obj["peeringConfig"] = peeringConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/dnsZones?dnsZoneId={{dns_zone_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/dnsZones?dnsZoneId={{dns_zone_id}}"))
 	if err != nil {
 		return err
 	}
@@ -255,7 +255,7 @@ func resourceApigeeDnsZoneRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/dnsZones/{{dns_zone_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/dnsZones/{{dns_zone_id}}"))
 	if err != nil {
 		return err
 	}
@@ -299,7 +299,7 @@ func resourceApigeeDnsZoneDelete(d *schema.ResourceData, meta interface{}) error
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/dnsZones/{{dns_zone_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/dnsZones/{{dns_zone_id}}"))
 	if err != nil {
 		return err
 	}

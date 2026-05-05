@@ -181,7 +181,7 @@ func resourceApigeeSyncAuthorizationCreate(d *schema.ResourceData, meta interfac
 		obj["etag"] = etagProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}:setSyncAuthorization")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{name}}:setSyncAuthorization"))
 	if err != nil {
 		return err
 	}
@@ -239,7 +239,7 @@ func resourceApigeeSyncAuthorizationRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}:getSyncAuthorization")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{name}}:getSyncAuthorization"))
 	if err != nil {
 		return err
 	}
@@ -319,7 +319,7 @@ func resourceApigeeSyncAuthorizationUpdate(d *schema.ResourceData, meta interfac
 		obj["etag"] = etagProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}:setSyncAuthorization")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{name}}:setSyncAuthorization"))
 	if err != nil {
 		return err
 	}

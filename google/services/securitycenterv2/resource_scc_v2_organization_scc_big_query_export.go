@@ -269,7 +269,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportCreate(d *schema.Resou
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}organizations/{{organization}}/locations/{{location}}/bigQueryExports?bigQueryExportId={{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/bigQueryExports?bigQueryExportId={{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}
@@ -337,7 +337,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportRead(d *schema.Resourc
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}
@@ -451,7 +451,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportUpdate(d *schema.Resou
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}
@@ -520,7 +520,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportDelete(d *schema.Resou
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}

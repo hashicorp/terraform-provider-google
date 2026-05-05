@@ -196,7 +196,7 @@ func resourceComputeNetworkFirewallPolicyAssociationCreate(d *schema.ResourceDat
 		obj["attachmentTarget"] = attachmentTargetProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/addAssociation")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/addAssociation"))
 	if err != nil {
 		return err
 	}
@@ -280,7 +280,7 @@ func resourceComputeNetworkFirewallPolicyAssociationRead(d *schema.ResourceData,
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/getAssociation?name={{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/getAssociation?name={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -363,8 +363,7 @@ func resourceComputeNetworkFirewallPolicyAssociationDelete(d *schema.ResourceDat
 		return fmt.Errorf("Error fetching project for NetworkFirewallPolicyAssociation: %s", err)
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
-
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/removeAssociation?name={{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/removeAssociation?name={{name}}"))
 	if err != nil {
 		return err
 	}

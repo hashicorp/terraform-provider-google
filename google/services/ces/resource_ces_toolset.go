@@ -734,7 +734,7 @@ func resourceCESToolsetCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["mcpToolset"] = mcpToolsetProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/toolsets?toolsetId={{toolset_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/toolsets?toolsetId={{toolset_id}}"))
 	if err != nil {
 		return err
 	}
@@ -813,7 +813,7 @@ func resourceCESToolsetRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/toolsets/{{toolset_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/toolsets/{{toolset_id}}"))
 	if err != nil {
 		return err
 	}
@@ -960,7 +960,7 @@ func resourceCESToolsetUpdate(d *schema.ResourceData, meta interface{}) error {
 		obj["mcpToolset"] = mcpToolsetProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/toolsets/{{toolset_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/toolsets/{{toolset_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1038,8 +1038,7 @@ func resourceCESToolsetDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error fetching project for Toolset: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/toolsets/{{toolset_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/toolsets/{{toolset_id}}"))
 	if err != nil {
 		return err
 	}

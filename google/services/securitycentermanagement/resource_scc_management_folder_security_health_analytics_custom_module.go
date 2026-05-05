@@ -373,7 +373,7 @@ func resourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleCr
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterManagementBasePath}}folders/{{folder}}/locations/{{location}}/securityHealthAnalyticsCustomModules")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/securityHealthAnalyticsCustomModules"))
 	if err != nil {
 		return err
 	}
@@ -447,7 +447,7 @@ func resourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleRe
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterManagementBasePath}}folders/{{folder}}/locations/{{location}}/securityHealthAnalyticsCustomModules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/securityHealthAnalyticsCustomModules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -556,7 +556,7 @@ func resourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleUp
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterManagementBasePath}}folders/{{folder}}/locations/{{location}}/securityHealthAnalyticsCustomModules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/securityHealthAnalyticsCustomModules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -623,8 +623,7 @@ func resourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleDe
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterManagementBasePath}}folders/{{folder}}/locations/{{location}}/securityHealthAnalyticsCustomModules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/securityHealthAnalyticsCustomModules/{{name}}"))
 	if err != nil {
 		return err
 	}

@@ -207,7 +207,7 @@ func resourceAlloydbUserCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["userType"] = userTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/users?userId={{user_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{cluster}}/users?userId={{user_id}}"))
 	if err != nil {
 		return err
 	}
@@ -254,7 +254,7 @@ func resourceAlloydbUserRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/users/{{user_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{cluster}}/users/{{user_id}}"))
 	if err != nil {
 		return err
 	}
@@ -318,7 +318,7 @@ func resourceAlloydbUserUpdate(d *schema.ResourceData, meta interface{}) error {
 		obj["password"] = passwordWoProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/users/{{user_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{cluster}}/users/{{user_id}}"))
 	if err != nil {
 		return err
 	}
@@ -400,7 +400,7 @@ func resourceAlloydbUserDelete(d *schema.ResourceData, meta interface{}) error {
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/users/{{user_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{cluster}}/users/{{user_id}}"))
 	if err != nil {
 		return err
 	}

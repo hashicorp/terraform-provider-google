@@ -501,7 +501,7 @@ func resourceIapSettingsCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["applicationSettings"] = applicationSettingsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}{{name}}:iapSettings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}:iapSettings"))
 	if err != nil {
 		return err
 	}
@@ -559,7 +559,7 @@ func resourceIapSettingsRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}{{name}}:iapSettings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}:iapSettings"))
 	if err != nil {
 		return err
 	}
@@ -639,7 +639,7 @@ func resourceIapSettingsUpdate(d *schema.ResourceData, meta interface{}) error {
 		obj["applicationSettings"] = applicationSettingsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}{{name}}:iapSettings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}:iapSettings"))
 	if err != nil {
 		return err
 	}

@@ -267,7 +267,7 @@ func resourceComputeManagedSslCertificateCreate(d *schema.ResourceData, meta int
 		obj["type"] = typeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/sslCertificates"))
 	if err != nil {
 		return err
 	}
@@ -346,7 +346,7 @@ func resourceComputeManagedSslCertificateRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/sslCertificates/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -423,8 +423,7 @@ func resourceComputeManagedSslCertificateDelete(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error fetching project for ManagedSslCertificate: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/sslCertificates/{{name}}"))
 	if err != nil {
 		return err
 	}

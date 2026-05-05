@@ -312,7 +312,7 @@ func resourceApigeeTargetServerCreate(d *schema.ResourceData, meta interface{}) 
 		obj["protocol"] = protocolProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/targetservers")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/targetservers"))
 	if err != nil {
 		return err
 	}
@@ -375,7 +375,7 @@ func resourceApigeeTargetServerRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/targetservers/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/targetservers/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -496,7 +496,7 @@ func resourceApigeeTargetServerUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["protocol"] = protocolProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/targetservers/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/targetservers/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -538,7 +538,7 @@ func resourceApigeeTargetServerDelete(d *schema.ResourceData, meta interface{}) 
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/targetservers/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/targetservers/{{name}}"))
 	if err != nil {
 		return err
 	}

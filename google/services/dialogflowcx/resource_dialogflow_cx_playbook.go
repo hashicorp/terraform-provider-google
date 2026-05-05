@@ -313,7 +313,7 @@ func resourceDialogflowCXPlaybookCreate(d *schema.ResourceData, meta interface{}
 		obj["playbookType"] = playbookTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/playbooks")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/playbooks"))
 	if err != nil {
 		return err
 	}
@@ -402,7 +402,7 @@ func resourceDialogflowCXPlaybookRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/playbooks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/playbooks/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -537,7 +537,7 @@ func resourceDialogflowCXPlaybookUpdate(d *schema.ResourceData, meta interface{}
 		obj["playbookType"] = playbookTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/playbooks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/playbooks/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -655,7 +655,7 @@ func resourceDialogflowCXPlaybookDelete(d *schema.ResourceData, meta interface{}
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/playbooks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/playbooks/{{name}}"))
 	if err != nil {
 		return err
 	}

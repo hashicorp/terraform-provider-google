@@ -600,7 +600,7 @@ func resourceDialogflowCXWebhookCreate(d *schema.ResourceData, meta interface{})
 		obj["enableSpellCorrection"] = enableSpellCorrectionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/webhooks"))
 	if err != nil {
 		return err
 	}
@@ -689,7 +689,7 @@ func resourceDialogflowCXWebhookRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/webhooks/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -836,7 +836,7 @@ func resourceDialogflowCXWebhookUpdate(d *schema.ResourceData, meta interface{})
 		obj["enableSpellCorrection"] = enableSpellCorrectionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/webhooks/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -941,7 +941,7 @@ func resourceDialogflowCXWebhookDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/webhooks/{{name}}"))
 	if err != nil {
 		return err
 	}

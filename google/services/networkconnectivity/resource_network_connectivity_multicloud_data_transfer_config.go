@@ -303,7 +303,7 @@ func resourceNetworkConnectivityMulticloudDataTransferConfigCreate(d *schema.Res
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/{{location}}/multicloudDataTransferConfigs?multicloudDataTransferConfigId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicloudDataTransferConfigs?multicloudDataTransferConfigId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -387,7 +387,7 @@ func resourceNetworkConnectivityMulticloudDataTransferConfigRead(d *schema.Resou
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/{{location}}/multicloudDataTransferConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicloudDataTransferConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -517,7 +517,7 @@ func resourceNetworkConnectivityMulticloudDataTransferConfigUpdate(d *schema.Res
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/{{location}}/multicloudDataTransferConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicloudDataTransferConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -598,8 +598,7 @@ func resourceNetworkConnectivityMulticloudDataTransferConfigDelete(d *schema.Res
 		return fmt.Errorf("Error fetching project for MulticloudDataTransferConfig: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/{{location}}/multicloudDataTransferConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicloudDataTransferConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}

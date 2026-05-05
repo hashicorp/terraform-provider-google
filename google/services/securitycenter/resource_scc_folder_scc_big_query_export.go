@@ -251,7 +251,7 @@ func resourceSecurityCenterFolderSccBigQueryExportCreate(d *schema.ResourceData,
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/bigQueryExports?bigQueryExportId={{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/bigQueryExports?bigQueryExportId={{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}
@@ -314,7 +314,7 @@ func resourceSecurityCenterFolderSccBigQueryExportRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/bigQueryExports/{{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/bigQueryExports/{{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func resourceSecurityCenterFolderSccBigQueryExportUpdate(d *schema.ResourceData,
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/bigQueryExports/{{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/bigQueryExports/{{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}
@@ -476,7 +476,7 @@ func resourceSecurityCenterFolderSccBigQueryExportDelete(d *schema.ResourceData,
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/bigQueryExports/{{big_query_export_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/bigQueryExports/{{big_query_export_id}}"))
 	if err != nil {
 		return err
 	}

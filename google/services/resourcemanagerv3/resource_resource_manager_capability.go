@@ -168,7 +168,7 @@ func resourceResourceManagerV3CapabilityCreate(d *schema.ResourceData, meta inte
 		obj["value"] = valueProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ResourceManagerV3BasePath}}{{parent}}/capabilities/{{capability_name}}?updateMask=value")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/capabilities/{{capability_name}}?updateMask=value"))
 	if err != nil {
 		return err
 	}
@@ -241,7 +241,7 @@ func resourceResourceManagerV3CapabilityRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ResourceManagerV3BasePath}}{{parent}}/capabilities/{{capability_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/capabilities/{{capability_name}}"))
 	if err != nil {
 		return err
 	}
@@ -326,7 +326,7 @@ func resourceResourceManagerV3CapabilityUpdate(d *schema.ResourceData, meta inte
 		obj["value"] = valueProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ResourceManagerV3BasePath}}{{parent}}/capabilities/{{capability_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/capabilities/{{capability_name}}"))
 	if err != nil {
 		return err
 	}

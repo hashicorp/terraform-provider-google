@@ -304,7 +304,7 @@ func resourceVmwareengineNetworkPeeringCreate(d *schema.ResourceData, meta inter
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/global/networkPeerings?networkPeeringId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/networkPeerings?networkPeeringId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -383,7 +383,7 @@ func resourceVmwareengineNetworkPeeringRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/global/networkPeerings/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/networkPeerings/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -526,7 +526,7 @@ func resourceVmwareengineNetworkPeeringUpdate(d *schema.ResourceData, meta inter
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/global/networkPeerings/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/networkPeerings/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -581,8 +581,7 @@ func resourceVmwareengineNetworkPeeringDelete(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for NetworkPeering: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/global/networkPeerings/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/networkPeerings/{{name}}"))
 	if err != nil {
 		return err
 	}

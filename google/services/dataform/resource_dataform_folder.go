@@ -200,7 +200,7 @@ func resourceDataformFolderCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["containingFolder"] = containingFolderProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataformBasePath}}projects/{{project}}/locations/{{region}}/folders")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/folders"))
 	if err != nil {
 		return err
 	}
@@ -283,7 +283,7 @@ func resourceDataformFolderRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataformBasePath}}projects/{{project}}/locations/{{region}}/folders/{{folder_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/folders/{{folder_id}}"))
 	if err != nil {
 		return err
 	}
@@ -401,7 +401,7 @@ func resourceDataformFolderUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["containingFolder"] = containingFolderProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataformBasePath}}projects/{{project}}/locations/{{region}}/folders/{{folder_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/folders/{{folder_id}}"))
 	if err != nil {
 		return err
 	}
@@ -467,8 +467,7 @@ func resourceDataformFolderDelete(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error fetching project for Folder: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataformBasePath}}projects/{{project}}/locations/{{region}}/folders/{{folder_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/folders/{{folder_id}}"))
 	if err != nil {
 		return err
 	}

@@ -293,7 +293,7 @@ func resourceFirebaseDataConnectServiceCreate(d *schema.ResourceData, meta inter
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseDataConnectBasePath}}projects/{{project}}/locations/{{location}}/services?serviceId={{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/services?serviceId={{service_id}}"))
 	if err != nil {
 		return err
 	}
@@ -377,7 +377,7 @@ func resourceFirebaseDataConnectServiceRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseDataConnectBasePath}}projects/{{project}}/locations/{{location}}/services/{{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/services/{{service_id}}"))
 	if err != nil {
 		return err
 	}
@@ -513,7 +513,7 @@ func resourceFirebaseDataConnectServiceUpdate(d *schema.ResourceData, meta inter
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseDataConnectBasePath}}projects/{{project}}/locations/{{location}}/services/{{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/services/{{service_id}}"))
 	if err != nil {
 		return err
 	}
@@ -594,8 +594,7 @@ func resourceFirebaseDataConnectServiceDelete(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseDataConnectBasePath}}projects/{{project}}/locations/{{location}}/services/{{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/services/{{service_id}}"))
 	if err != nil {
 		return err
 	}

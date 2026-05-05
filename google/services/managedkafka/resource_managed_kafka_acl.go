@@ -269,7 +269,7 @@ func resourceManagedKafkaAclCreate(d *schema.ResourceData, meta interface{}) err
 		obj["etag"] = etagProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/acls?aclId={{acl_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/acls?aclId={{acl_id}}"))
 	if err != nil {
 		return err
 	}
@@ -353,7 +353,7 @@ func resourceManagedKafkaAclRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/acls/{{acl_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/acls/{{acl_id}}"))
 	if err != nil {
 		return err
 	}
@@ -482,7 +482,7 @@ func resourceManagedKafkaAclUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["etag"] = etagProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/acls/{{acl_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/acls/{{acl_id}}"))
 	if err != nil {
 		return err
 	}
@@ -552,8 +552,7 @@ func resourceManagedKafkaAclDelete(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error fetching project for Acl: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/acls/{{acl_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/acls/{{acl_id}}"))
 	if err != nil {
 		return err
 	}

@@ -253,7 +253,7 @@ func resourceComputeTargetGrpcProxyCreate(d *schema.ResourceData, meta interface
 		obj["fingerprint"] = fingerprintProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetGrpcProxies")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/targetGrpcProxies"))
 	if err != nil {
 		return err
 	}
@@ -332,7 +332,7 @@ func resourceComputeTargetGrpcProxyRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetGrpcProxies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/targetGrpcProxies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -439,7 +439,7 @@ func resourceComputeTargetGrpcProxyUpdate(d *schema.ResourceData, meta interface
 		obj["fingerprint"] = fingerprintProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetGrpcProxies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/targetGrpcProxies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -494,8 +494,7 @@ func resourceComputeTargetGrpcProxyDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error fetching project for TargetGrpcProxy: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetGrpcProxies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/targetGrpcProxies/{{name}}"))
 	if err != nil {
 		return err
 	}

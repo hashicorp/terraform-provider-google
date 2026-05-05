@@ -488,7 +488,7 @@ func resourceClouddeployCustomTargetTypeCreate(d *schema.ResourceData, meta inte
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ClouddeployBasePath}}projects/{{project}}/locations/{{location}}/customTargetTypes?customTargetTypeId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/customTargetTypes?customTargetTypeId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -572,7 +572,7 @@ func resourceClouddeployCustomTargetTypeRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ClouddeployBasePath}}projects/{{project}}/locations/{{location}}/customTargetTypes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/customTargetTypes/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -708,7 +708,7 @@ func resourceClouddeployCustomTargetTypeUpdate(d *schema.ResourceData, meta inte
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ClouddeployBasePath}}projects/{{project}}/locations/{{location}}/customTargetTypes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/customTargetTypes/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -793,8 +793,7 @@ func resourceClouddeployCustomTargetTypeDelete(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error fetching project for CustomTargetType: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ClouddeployBasePath}}projects/{{project}}/locations/{{location}}/customTargetTypes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/customTargetTypes/{{name}}"))
 	if err != nil {
 		return err
 	}

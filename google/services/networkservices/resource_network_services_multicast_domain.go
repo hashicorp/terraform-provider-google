@@ -350,7 +350,7 @@ func resourceNetworkServicesMulticastDomainCreate(d *schema.ResourceData, meta i
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastDomains?multicastDomainId={{multicast_domain_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastDomains?multicastDomainId={{multicast_domain_id}}"))
 	if err != nil {
 		return err
 	}
@@ -434,7 +434,7 @@ func resourceNetworkServicesMulticastDomainRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastDomains/{{multicast_domain_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastDomains/{{multicast_domain_id}}"))
 	if err != nil {
 		return err
 	}
@@ -552,7 +552,7 @@ func resourceNetworkServicesMulticastDomainUpdate(d *schema.ResourceData, meta i
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastDomains/{{multicast_domain_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastDomains/{{multicast_domain_id}}"))
 	if err != nil {
 		return err
 	}
@@ -625,8 +625,7 @@ func resourceNetworkServicesMulticastDomainDelete(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error fetching project for MulticastDomain: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastDomains/{{multicast_domain_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastDomains/{{multicast_domain_id}}"))
 	if err != nil {
 		return err
 	}

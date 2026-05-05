@@ -202,7 +202,7 @@ func resourceComputeSnapshotSettingsCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/snapshotSettings/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/snapshotSettings/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -276,7 +276,7 @@ func resourceComputeSnapshotSettingsRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/snapshotSettings/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/snapshotSettings/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -371,7 +371,7 @@ func resourceComputeSnapshotSettingsUpdate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/snapshotSettings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/snapshotSettings"))
 	if err != nil {
 		return err
 	}

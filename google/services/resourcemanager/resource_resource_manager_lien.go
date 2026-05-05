@@ -222,7 +222,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 		obj["restrictions"] = restrictionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "liens"))
 	if err != nil {
 		return err
 	}
@@ -291,7 +291,7 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "liens?parent={{parent}}"))
 	if err != nil {
 		return err
 	}
@@ -377,7 +377,7 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "liens?parent={{parent}}"))
 	if err != nil {
 		return err
 	}

@@ -253,7 +253,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantCreate(d *schema.Res
 		obj["claimMapping"] = claimMappingProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants?workforcePoolProviderScimTenantId={{scim_tenant_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants?workforcePoolProviderScimTenantId={{scim_tenant_id}}"))
 	if err != nil {
 		return err
 	}
@@ -331,7 +331,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantRead(d *schema.Resou
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants/{{scim_tenant_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants/{{scim_tenant_id}}"))
 	if err != nil {
 		return err
 	}
@@ -462,7 +462,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantUpdate(d *schema.Res
 		obj["claimMapping"] = claimMappingProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants/{{scim_tenant_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants/{{scim_tenant_id}}"))
 	if err != nil {
 		return err
 	}
@@ -531,7 +531,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantDelete(d *schema.Res
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants/{{scim_tenant_id}}?hardDelete={{hard_delete}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants/{{scim_tenant_id}}?hardDelete={{hard_delete}}"))
 	if err != nil {
 		return err
 	}

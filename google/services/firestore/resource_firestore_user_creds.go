@@ -218,7 +218,7 @@ func resourceFirestoreUserCredsCreate(d *schema.ResourceData, meta interface{}) 
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/userCreds?userCredsId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/databases/{{database}}/userCreds?userCredsId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -301,7 +301,7 @@ func resourceFirestoreUserCredsRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/userCreds/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/databases/{{database}}/userCreds/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -384,8 +384,7 @@ func resourceFirestoreUserCredsDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error fetching project for UserCreds: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/userCreds/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/databases/{{database}}/userCreds/{{name}}"))
 	if err != nil {
 		return err
 	}

@@ -268,7 +268,7 @@ func resourceContactCenterInsightsQaScorecardRevisionCreate(d *schema.ResourceDa
 
 	obj := make(map[string]interface{})
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard}}/revisions?qaScorecardRevisionId={{qa_scorecard_revision_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard}}/revisions?qaScorecardRevisionId={{qa_scorecard_revision_id}}"))
 	if err != nil {
 		return err
 	}
@@ -385,7 +385,7 @@ func resourceContactCenterInsightsQaScorecardRevisionRead(d *schema.ResourceData
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard}}/revisions/{{qa_scorecard_revision_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard}}/revisions/{{qa_scorecard_revision_id}}"))
 	if err != nil {
 		return err
 	}

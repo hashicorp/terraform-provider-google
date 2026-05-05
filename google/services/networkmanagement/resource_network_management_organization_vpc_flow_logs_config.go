@@ -332,7 +332,7 @@ func resourceNetworkManagementOrganizationVpcFlowLogsConfigCreate(d *schema.Reso
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkManagementBasePath}}organizations/{{organization}}/locations/{{location}}/vpcFlowLogsConfigs?vpcFlowLogsConfigId={{vpc_flow_logs_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/vpcFlowLogsConfigs?vpcFlowLogsConfigId={{vpc_flow_logs_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -410,7 +410,7 @@ func resourceNetworkManagementOrganizationVpcFlowLogsConfigRead(d *schema.Resour
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkManagementBasePath}}organizations/{{organization}}/locations/{{location}}/vpcFlowLogsConfigs/{{vpc_flow_logs_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/vpcFlowLogsConfigs/{{vpc_flow_logs_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -555,7 +555,7 @@ func resourceNetworkManagementOrganizationVpcFlowLogsConfigUpdate(d *schema.Reso
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkManagementBasePath}}organizations/{{organization}}/locations/{{location}}/vpcFlowLogsConfigs/{{vpc_flow_logs_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/vpcFlowLogsConfigs/{{vpc_flow_logs_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -652,7 +652,7 @@ func resourceNetworkManagementOrganizationVpcFlowLogsConfigDelete(d *schema.Reso
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkManagementBasePath}}organizations/{{organization}}/locations/{{location}}/vpcFlowLogsConfigs/{{vpc_flow_logs_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/vpcFlowLogsConfigs/{{vpc_flow_logs_config_id}}"))
 	if err != nil {
 		return err
 	}

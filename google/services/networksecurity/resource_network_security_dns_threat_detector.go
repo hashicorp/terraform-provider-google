@@ -251,7 +251,7 @@ func resourceNetworkSecurityDnsThreatDetectorCreate(d *schema.ResourceData, meta
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/dnsThreatDetectors?dnsThreatDetectorId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/dnsThreatDetectors?dnsThreatDetectorId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func resourceNetworkSecurityDnsThreatDetectorRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/dnsThreatDetectors/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/dnsThreatDetectors/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -443,7 +443,7 @@ func resourceNetworkSecurityDnsThreatDetectorUpdate(d *schema.ResourceData, meta
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/dnsThreatDetectors/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/dnsThreatDetectors/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -509,8 +509,7 @@ func resourceNetworkSecurityDnsThreatDetectorDelete(d *schema.ResourceData, meta
 		return fmt.Errorf("Error fetching project for DnsThreatDetector: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/dnsThreatDetectors/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/dnsThreatDetectors/{{name}}"))
 	if err != nil {
 		return err
 	}

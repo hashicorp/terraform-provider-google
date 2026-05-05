@@ -401,7 +401,7 @@ func resourceBackupDRBackupVaultCreate(d *schema.ResourceData, meta interface{})
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupVaults?backupVaultId={{backup_vault_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupVaults?backupVaultId={{backup_vault_id}}"))
 	if err != nil {
 		return err
 	}
@@ -485,7 +485,7 @@ func resourceBackupDRBackupVaultRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupVaults/{{backup_vault_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupVaults/{{backup_vault_id}}"))
 	if err != nil {
 		return err
 	}
@@ -633,7 +633,7 @@ func resourceBackupDRBackupVaultUpdate(d *schema.ResourceData, meta interface{})
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupVaults/{{backup_vault_id}}?force={{force_update}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupVaults/{{backup_vault_id}}?force={{force_update}}"))
 	if err != nil {
 		return err
 	}
@@ -726,8 +726,7 @@ func resourceBackupDRBackupVaultDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error fetching project for BackupVault: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupVaults/{{backup_vault_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupVaults/{{backup_vault_id}}"))
 	if err != nil {
 		return err
 	}

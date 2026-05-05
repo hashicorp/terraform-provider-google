@@ -213,7 +213,7 @@ func resourceFirebaseAppCheckServiceConfigCreate(d *schema.ResourceData, meta in
 		obj["enforcementMode"] = enforcementModeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/services/{{service_id}}?updateMask=enforcementMode")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/services/{{service_id}}?updateMask=enforcementMode"))
 	if err != nil {
 		return err
 	}
@@ -282,7 +282,7 @@ func resourceFirebaseAppCheckServiceConfigRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/services/{{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/services/{{service_id}}"))
 	if err != nil {
 		return err
 	}
@@ -383,7 +383,7 @@ func resourceFirebaseAppCheckServiceConfigUpdate(d *schema.ResourceData, meta in
 		obj["enforcementMode"] = enforcementModeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/services/{{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/services/{{service_id}}"))
 	if err != nil {
 		return err
 	}
@@ -445,8 +445,7 @@ func resourceFirebaseAppCheckServiceConfigDelete(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error fetching project for ServiceConfig: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/services/{{service_id}}?updateMask=enforcementMode")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/services/{{service_id}}?updateMask=enforcementMode"))
 	if err != nil {
 		return err
 	}

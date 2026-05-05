@@ -464,7 +464,7 @@ func resourceApphubServiceCreate(d *schema.ResourceData, meta interface{}) error
 		obj["discoveredService"] = discoveredServiceProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/{{location}}/applications/{{application_id}}/services?serviceId={{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/applications/{{application_id}}/services?serviceId={{service_id}}"))
 	if err != nil {
 		return err
 	}
@@ -553,7 +553,7 @@ func resourceApphubServiceRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/{{location}}/applications/{{application_id}}/services/{{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/applications/{{application_id}}/services/{{service_id}}"))
 	if err != nil {
 		return err
 	}
@@ -688,7 +688,7 @@ func resourceApphubServiceUpdate(d *schema.ResourceData, meta interface{}) error
 		obj["attributes"] = attributesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/{{location}}/applications/{{application_id}}/services/{{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/applications/{{application_id}}/services/{{service_id}}"))
 	if err != nil {
 		return err
 	}
@@ -765,8 +765,7 @@ func resourceApphubServiceDelete(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/{{location}}/applications/{{application_id}}/services/{{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/applications/{{application_id}}/services/{{service_id}}"))
 	if err != nil {
 		return err
 	}

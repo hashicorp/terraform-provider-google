@@ -169,7 +169,7 @@ func resourceApigeeEnvgroupAttachmentCreate(d *schema.ResourceData, meta interfa
 		obj["environment"] = environmentProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{envgroup_id}}/attachments")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{envgroup_id}}/attachments"))
 	if err != nil {
 		return err
 	}
@@ -256,7 +256,7 @@ func resourceApigeeEnvgroupAttachmentRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{envgroup_id}}/attachments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{envgroup_id}}/attachments/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -318,7 +318,7 @@ func resourceApigeeEnvgroupAttachmentDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{envgroup_id}}/attachments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{envgroup_id}}/attachments/{{name}}"))
 	if err != nil {
 		return err
 	}

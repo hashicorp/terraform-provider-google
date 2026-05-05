@@ -407,7 +407,7 @@ func resourceBackupDRBackupPlanCreate(d *schema.ResourceData, meta interface{}) 
 		obj["diskBackupPlanProperties"] = diskBackupPlanPropertiesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/?backup_plan_id={{backup_plan_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlans/?backup_plan_id={{backup_plan_id}}"))
 	if err != nil {
 		return err
 	}
@@ -491,7 +491,7 @@ func resourceBackupDRBackupPlanRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/{{backup_plan_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlans/{{backup_plan_id}}"))
 	if err != nil {
 		return err
 	}
@@ -627,7 +627,7 @@ func resourceBackupDRBackupPlanUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["diskBackupPlanProperties"] = diskBackupPlanPropertiesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/{{backup_plan_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlans/{{backup_plan_id}}"))
 	if err != nil {
 		return err
 	}
@@ -712,8 +712,7 @@ func resourceBackupDRBackupPlanDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error fetching project for BackupPlan: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/{{backup_plan_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlans/{{backup_plan_id}}"))
 	if err != nil {
 		return err
 	}

@@ -311,7 +311,7 @@ func resourceVmwareengineExternalAccessRuleCreate(d *schema.ResourceData, meta i
 		obj["destinationPorts"] = destinationPortsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/externalAccessRules?externalAccessRuleId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/externalAccessRules?externalAccessRuleId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -384,7 +384,7 @@ func resourceVmwareengineExternalAccessRuleRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/externalAccessRules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/externalAccessRules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -512,7 +512,7 @@ func resourceVmwareengineExternalAccessRuleUpdate(d *schema.ResourceData, meta i
 		obj["destinationPorts"] = destinationPortsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/externalAccessRules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/externalAccessRules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -605,7 +605,7 @@ func resourceVmwareengineExternalAccessRuleDelete(d *schema.ResourceData, meta i
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/externalAccessRules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/externalAccessRules/{{name}}"))
 	if err != nil {
 		return err
 	}

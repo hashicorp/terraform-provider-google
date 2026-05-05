@@ -310,7 +310,7 @@ func resourceApihubApiHubInstanceCreate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}projects/{{project}}/locations/{{location}}/apiHubInstances?apiHubInstanceId={{api_hub_instance_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apiHubInstances?apiHubInstanceId={{api_hub_instance_id}}"))
 	if err != nil {
 		return err
 	}
@@ -408,7 +408,7 @@ func resourceApihubApiHubInstanceRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 	if err != nil {
 		return err
 	}

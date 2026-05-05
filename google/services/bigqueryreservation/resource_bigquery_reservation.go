@@ -338,7 +338,7 @@ func resourceBigqueryReservationReservationCreate(d *schema.ResourceData, meta i
 		obj["reservationGroup"] = reservationGroupProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations?reservationId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reservations?reservationId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -412,7 +412,7 @@ func resourceBigqueryReservationReservationRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reservations/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -554,7 +554,7 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 		obj["reservationGroup"] = reservationGroupProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reservations/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -636,8 +636,7 @@ func resourceBigqueryReservationReservationDelete(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error fetching project for Reservation: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reservations/{{name}}"))
 	if err != nil {
 		return err
 	}

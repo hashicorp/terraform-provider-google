@@ -311,7 +311,7 @@ func resourceNetworkSecurityMirroringDeploymentGroupCreate(d *schema.ResourceDat
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/mirroringDeploymentGroups?mirroringDeploymentGroupId={{mirroring_deployment_group_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringDeploymentGroups?mirroringDeploymentGroupId={{mirroring_deployment_group_id}}"))
 	if err != nil {
 		return err
 	}
@@ -395,7 +395,7 @@ func resourceNetworkSecurityMirroringDeploymentGroupRead(d *schema.ResourceData,
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/mirroringDeploymentGroups/{{mirroring_deployment_group_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringDeploymentGroups/{{mirroring_deployment_group_id}}"))
 	if err != nil {
 		return err
 	}
@@ -513,7 +513,7 @@ func resourceNetworkSecurityMirroringDeploymentGroupUpdate(d *schema.ResourceDat
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/mirroringDeploymentGroups/{{mirroring_deployment_group_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringDeploymentGroups/{{mirroring_deployment_group_id}}"))
 	if err != nil {
 		return err
 	}
@@ -586,8 +586,7 @@ func resourceNetworkSecurityMirroringDeploymentGroupDelete(d *schema.ResourceDat
 		return fmt.Errorf("Error fetching project for MirroringDeploymentGroup: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/mirroringDeploymentGroups/{{mirroring_deployment_group_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringDeploymentGroups/{{mirroring_deployment_group_id}}"))
 	if err != nil {
 		return err
 	}

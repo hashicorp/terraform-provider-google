@@ -185,7 +185,7 @@ func resourceComputeCrossSiteNetworkCreate(d *schema.ResourceData, meta interfac
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/crossSiteNetworks")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/crossSiteNetworks"))
 	if err != nil {
 		return err
 	}
@@ -264,7 +264,7 @@ func resourceComputeCrossSiteNetworkRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/crossSiteNetworks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/crossSiteNetworks/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -365,7 +365,7 @@ func resourceComputeCrossSiteNetworkUpdate(d *schema.ResourceData, meta interfac
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/crossSiteNetworks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/crossSiteNetworks/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -420,8 +420,7 @@ func resourceComputeCrossSiteNetworkDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error fetching project for CrossSiteNetwork: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/crossSiteNetworks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/crossSiteNetworks/{{name}}"))
 	if err != nil {
 		return err
 	}

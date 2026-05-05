@@ -237,7 +237,7 @@ func resourceNetappkmsconfigCreate(d *schema.ResourceData, meta interface{}) err
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/kmsConfigs?kmsConfigId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/kmsConfigs?kmsConfigId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -339,7 +339,7 @@ func resourceNetappkmsconfigRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/kmsConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/kmsConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -463,7 +463,7 @@ func resourceNetappkmsconfigUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/kmsConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/kmsConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -540,8 +540,7 @@ func resourceNetappkmsconfigDelete(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error fetching project for kmsconfig: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/kmsConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/kmsConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}

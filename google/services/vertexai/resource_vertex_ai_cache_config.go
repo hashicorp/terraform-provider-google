@@ -169,7 +169,7 @@ func resourceVertexAICacheConfigCreate(d *schema.ResourceData, meta interface{})
 		obj["disableCache"] = disableCacheProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/cacheConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/cacheConfig"))
 	if err != nil {
 		return err
 	}
@@ -243,7 +243,7 @@ func resourceVertexAICacheConfigRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/cacheConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/cacheConfig"))
 	if err != nil {
 		return err
 	}
@@ -333,7 +333,7 @@ func resourceVertexAICacheConfigUpdate(d *schema.ResourceData, meta interface{})
 		obj["disableCache"] = disableCacheProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/cacheConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/cacheConfig"))
 	if err != nil {
 		return err
 	}

@@ -239,7 +239,7 @@ func resourceGeminiReleaseChannelSettingCreate(d *schema.ResourceData, meta inte
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GeminiBasePath}}projects/{{project}}/locations/{{location}}/releaseChannelSettings?releaseChannelSettingId={{release_channel_setting_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/releaseChannelSettings?releaseChannelSettingId={{release_channel_setting_id}}"))
 	if err != nil {
 		return err
 	}
@@ -313,7 +313,7 @@ func resourceGeminiReleaseChannelSettingRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GeminiBasePath}}projects/{{project}}/locations/{{location}}/releaseChannelSettings/{{release_channel_setting_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/releaseChannelSettings/{{release_channel_setting_id}}"))
 	if err != nil {
 		return err
 	}
@@ -438,7 +438,7 @@ func resourceGeminiReleaseChannelSettingUpdate(d *schema.ResourceData, meta inte
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GeminiBasePath}}projects/{{project}}/locations/{{location}}/releaseChannelSettings/{{release_channel_setting_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/releaseChannelSettings/{{release_channel_setting_id}}"))
 	if err != nil {
 		return err
 	}
@@ -511,8 +511,7 @@ func resourceGeminiReleaseChannelSettingDelete(d *schema.ResourceData, meta inte
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{GeminiBasePath}}projects/{{project}}/locations/{{location}}/releaseChannelSettings/{{release_channel_setting_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/releaseChannelSettings/{{release_channel_setting_id}}"))
 	if err != nil {
 		return err
 	}

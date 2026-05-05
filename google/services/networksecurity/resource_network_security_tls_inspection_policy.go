@@ -266,7 +266,7 @@ func resourceNetworkSecurityTlsInspectionPolicyCreate(d *schema.ResourceData, me
 		obj["excludePublicCaSet"] = excludePublicCaSetProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/tlsInspectionPolicies?tlsInspectionPolicyId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/tlsInspectionPolicies?tlsInspectionPolicyId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -350,7 +350,7 @@ func resourceNetworkSecurityTlsInspectionPolicyRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/tlsInspectionPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/tlsInspectionPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -498,7 +498,7 @@ func resourceNetworkSecurityTlsInspectionPolicyUpdate(d *schema.ResourceData, me
 		obj["excludePublicCaSet"] = excludePublicCaSetProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/tlsInspectionPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/tlsInspectionPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -591,8 +591,7 @@ func resourceNetworkSecurityTlsInspectionPolicyDelete(d *schema.ResourceData, me
 		return fmt.Errorf("Error fetching project for TlsInspectionPolicy: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/tlsInspectionPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/tlsInspectionPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}

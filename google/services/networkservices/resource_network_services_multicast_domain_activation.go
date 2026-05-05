@@ -351,7 +351,7 @@ func resourceNetworkServicesMulticastDomainActivationCreate(d *schema.ResourceDa
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastDomainActivations?multicastDomainActivationId={{multicast_domain_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastDomainActivations?multicastDomainActivationId={{multicast_domain_activation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -435,7 +435,7 @@ func resourceNetworkServicesMulticastDomainActivationRead(d *schema.ResourceData
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastDomainActivations/{{multicast_domain_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastDomainActivations/{{multicast_domain_activation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -559,7 +559,7 @@ func resourceNetworkServicesMulticastDomainActivationUpdate(d *schema.ResourceDa
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastDomainActivations/{{multicast_domain_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastDomainActivations/{{multicast_domain_activation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -636,8 +636,7 @@ func resourceNetworkServicesMulticastDomainActivationDelete(d *schema.ResourceDa
 		return fmt.Errorf("Error fetching project for MulticastDomainActivation: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastDomainActivations/{{multicast_domain_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastDomainActivations/{{multicast_domain_activation_id}}"))
 	if err != nil {
 		return err
 	}

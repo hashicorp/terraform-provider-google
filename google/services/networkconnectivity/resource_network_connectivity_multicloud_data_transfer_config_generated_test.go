@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/networkconnectivity"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = networkconnectivity.Product
 )
 
 func TestAccNetworkConnectivityMulticloudDataTransferConfig_networkConnectivityMulticloudDataTransferConfigBasicExample(t *testing.T) {
@@ -114,8 +116,7 @@ func testAccCheckNetworkConnectivityMulticloudDataTransferConfigDestroyProducer(
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/{{location}}/multicloudDataTransferConfigs/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(networkconnectivity.Product, config), "projects/{{project}}/locations/{{location}}/multicloudDataTransferConfigs/{{name}}"))
 			if err != nil {
 				return err
 			}

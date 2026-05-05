@@ -3313,7 +3313,7 @@ func resourceCESAppVersionCreate(d *schema.ResourceData, meta interface{}) error
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/versions?appVersionId={{app_version_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/versions?appVersionId={{app_version_id}}"))
 	if err != nil {
 		return err
 	}
@@ -3398,7 +3398,7 @@ func resourceCESAppVersionRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/versions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/versions/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -3487,8 +3487,7 @@ func resourceCESAppVersionDelete(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error fetching project for AppVersion: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/versions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/versions/{{name}}"))
 	if err != nil {
 		return err
 	}

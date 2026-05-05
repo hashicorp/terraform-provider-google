@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudsecuritycompliance"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = cloudsecuritycompliance.Product
 )
 
 func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkBasicExample(t *testing.T) {
@@ -161,8 +163,7 @@ func testAccCheckCloudSecurityComplianceFrameworkDestroyProducer(t *testing.T) f
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{CloudSecurityComplianceBasePath}}organizations/{{organization}}/locations/{{location}}/frameworks/{{framework_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(cloudsecuritycompliance.Product, config), "organizations/{{organization}}/locations/{{location}}/frameworks/{{framework_id}}"))
 			if err != nil {
 				return err
 			}

@@ -370,7 +370,7 @@ func resourceStorageInsightsReportConfigCreate(d *schema.ResourceData, meta inte
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageInsightsBasePath}}projects/{{project}}/locations/{{location}}/reportConfigs")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reportConfigs"))
 	if err != nil {
 		return err
 	}
@@ -450,7 +450,7 @@ func resourceStorageInsightsReportConfigRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageInsightsBasePath}}projects/{{project}}/locations/{{location}}/reportConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reportConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -592,7 +592,7 @@ func resourceStorageInsightsReportConfigUpdate(d *schema.ResourceData, meta inte
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageInsightsBasePath}}projects/{{project}}/locations/{{location}}/reportConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reportConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -672,8 +672,7 @@ func resourceStorageInsightsReportConfigDelete(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error fetching project for ReportConfig: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageInsightsBasePath}}projects/{{project}}/locations/{{location}}/reportConfigs/{{name}}?force={{force_destroy}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reportConfigs/{{name}}?force={{force_destroy}}"))
 	if err != nil {
 		return err
 	}

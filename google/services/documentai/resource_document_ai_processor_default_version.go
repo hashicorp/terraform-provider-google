@@ -167,7 +167,7 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 		obj["processor"] = processorProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DocumentAIBasePath}}{{processor}}:setDefaultProcessorVersion")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{processor}}:setDefaultProcessorVersion"))
 	if err != nil {
 		return err
 	}
@@ -230,7 +230,7 @@ func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DocumentAIBasePath}}{{processor}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{processor}}"))
 	if err != nil {
 		return err
 	}

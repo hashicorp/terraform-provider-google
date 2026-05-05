@@ -316,7 +316,7 @@ func resourceNetworkServicesMulticastGroupConsumerActivationCreate(d *schema.Res
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastGroupConsumerActivations?multicastGroupConsumerActivationId={{multicast_group_consumer_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastGroupConsumerActivations?multicastGroupConsumerActivationId={{multicast_group_consumer_activation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -400,7 +400,7 @@ func resourceNetworkServicesMulticastGroupConsumerActivationRead(d *schema.Resou
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastGroupConsumerActivations/{{multicast_group_consumer_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastGroupConsumerActivations/{{multicast_group_consumer_activation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -524,7 +524,7 @@ func resourceNetworkServicesMulticastGroupConsumerActivationUpdate(d *schema.Res
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastGroupConsumerActivations/{{multicast_group_consumer_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastGroupConsumerActivations/{{multicast_group_consumer_activation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -601,8 +601,7 @@ func resourceNetworkServicesMulticastGroupConsumerActivationDelete(d *schema.Res
 		return fmt.Errorf("Error fetching project for MulticastGroupConsumerActivation: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastGroupConsumerActivations/{{multicast_group_consumer_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastGroupConsumerActivations/{{multicast_group_consumer_activation_id}}"))
 	if err != nil {
 		return err
 	}

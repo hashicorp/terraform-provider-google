@@ -407,7 +407,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.AppEngineBasePath = transport_tpg.BaseUrl(registry.GetProduct("appengine"), &config)
 	config.ApphubBasePath = transport_tpg.BaseUrl(registry.GetProduct("apphub"), &config)
 	config.ArtifactRegistryBasePath = transport_tpg.BaseUrl(registry.GetProduct("artifactregistry"), &config)
-	config.ArtifactRegistryRepBasePath = registry.GetProduct("artifactregistry").RepUrl
 	config.AssuredWorkloadsBasePath = transport_tpg.BaseUrl(registry.GetProduct("assuredworkloads"), &config)
 	config.BackupDRBasePath = transport_tpg.BaseUrl(registry.GetProduct("backupdr"), &config)
 	config.BeyondcorpBasePath = transport_tpg.BaseUrl(registry.GetProduct("beyondcorp"), &config)

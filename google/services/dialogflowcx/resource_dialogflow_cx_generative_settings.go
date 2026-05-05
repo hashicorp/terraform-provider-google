@@ -311,7 +311,7 @@ func resourceDialogflowCXGenerativeSettingsCreate(d *schema.ResourceData, meta i
 		obj["llmModelSettings"] = llmModelSettingsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/generativeSettings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/generativeSettings"))
 	if err != nil {
 		return err
 	}
@@ -403,7 +403,7 @@ func resourceDialogflowCXGenerativeSettingsRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/generativeSettings?languageCode={{language_code}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/generativeSettings?languageCode={{language_code}}"))
 	if err != nil {
 		return err
 	}
@@ -499,7 +499,7 @@ func resourceDialogflowCXGenerativeSettingsUpdate(d *schema.ResourceData, meta i
 		obj["llmModelSettings"] = llmModelSettingsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/generativeSettings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/generativeSettings"))
 	if err != nil {
 		return err
 	}

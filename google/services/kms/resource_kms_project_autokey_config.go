@@ -170,7 +170,7 @@ func resourceKMSProjectAutokeyConfigCreate(d *schema.ResourceData, meta interfac
 		obj["keyProjectResolutionMode"] = keyProjectResolutionModeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/autokeyConfig?updateMask=keyProjectResolutionMode")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/autokeyConfig?updateMask=keyProjectResolutionMode"))
 	if err != nil {
 		return err
 	}
@@ -237,7 +237,7 @@ func resourceKMSProjectAutokeyConfigRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/autokeyConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/autokeyConfig"))
 	if err != nil {
 		return err
 	}
@@ -327,7 +327,7 @@ func resourceKMSProjectAutokeyConfigUpdate(d *schema.ResourceData, meta interfac
 		obj["keyProjectResolutionMode"] = keyProjectResolutionModeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/autokeyConfig?updateMask=keyProjectResolutionMode")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/autokeyConfig?updateMask=keyProjectResolutionMode"))
 	if err != nil {
 		return err
 	}
@@ -376,8 +376,7 @@ func resourceKMSProjectAutokeyConfigDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error fetching project for ProjectAutokeyConfig: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/autokeyConfig?updateMask=keyProjectResolutionMode")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/autokeyConfig?updateMask=keyProjectResolutionMode"))
 	if err != nil {
 		return err
 	}

@@ -1128,7 +1128,7 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/jobs"))
 	if err != nil {
 		return err
 	}
@@ -1183,8 +1183,7 @@ func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) trans
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
-
+		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/jobs/{{job_id}}?location={{location}}"))
 		if err != nil {
 			return nil, err
 		}
@@ -1228,7 +1227,7 @@ func resourceBigQueryJobRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/jobs/{{job_id}}?location={{location}}"))
 	if err != nil {
 		return err
 	}

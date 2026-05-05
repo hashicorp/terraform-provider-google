@@ -239,7 +239,7 @@ func resourceBackupDRManagementServerCreate(d *schema.ResourceData, meta interfa
 		obj["networks"] = networksProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/managementServers/?management_server_id={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/managementServers/?management_server_id={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func resourceBackupDRManagementServerRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/managementServers/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/managementServers/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -406,8 +406,7 @@ func resourceBackupDRManagementServerDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for ManagementServer: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/managementServers/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/managementServers/{{name}}"))
 	if err != nil {
 		return err
 	}

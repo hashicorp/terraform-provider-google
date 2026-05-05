@@ -601,7 +601,7 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 		obj["httpTarget"] = httpTargetProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/queues"))
 	if err != nil {
 		return err
 	}
@@ -692,7 +692,7 @@ func resourceCloudTasksQueueRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/queues/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -834,7 +834,7 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["httpTarget"] = httpTargetProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/queues/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -947,8 +947,7 @@ func resourceCloudTasksQueueDelete(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error fetching project for Queue: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/queues/{{name}}"))
 	if err != nil {
 		return err
 	}

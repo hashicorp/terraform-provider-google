@@ -184,7 +184,7 @@ func resourceComputeInstanceSettingsCreate(d *schema.ResourceData, meta interfac
 		obj["zone"] = zoneProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceSettings?update_mask=*")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instanceSettings?update_mask=*"))
 	if err != nil {
 		return err
 	}
@@ -268,7 +268,7 @@ func resourceComputeInstanceSettingsRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceSettings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instanceSettings"))
 	if err != nil {
 		return err
 	}
@@ -348,7 +348,7 @@ func resourceComputeInstanceSettingsUpdate(d *schema.ResourceData, meta interfac
 		obj["zone"] = zoneProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceSettings?update_mask=*")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instanceSettings?update_mask=*"))
 	if err != nil {
 		return err
 	}

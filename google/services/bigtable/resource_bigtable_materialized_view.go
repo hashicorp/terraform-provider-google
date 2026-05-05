@@ -202,7 +202,7 @@ func resourceBigtableMaterializedViewCreate(d *schema.ResourceData, meta interfa
 		obj["deletionProtection"] = deletionProtectionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/materializedViews?materializedViewId={{materialized_view_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/materializedViews?materializedViewId={{materialized_view_id}}"))
 	if err != nil {
 		return err
 	}
@@ -276,7 +276,7 @@ func resourceBigtableMaterializedViewRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/materializedViews/{{materialized_view_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/materializedViews/{{materialized_view_id}}"))
 	if err != nil {
 		return err
 	}
@@ -388,7 +388,7 @@ func resourceBigtableMaterializedViewUpdate(d *schema.ResourceData, meta interfa
 		obj["deletionProtection"] = deletionProtectionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/materializedViews/{{materialized_view_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/materializedViews/{{materialized_view_id}}"))
 	if err != nil {
 		return err
 	}
@@ -450,8 +450,7 @@ func resourceBigtableMaterializedViewDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for MaterializedView: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/materializedViews/{{materialized_view_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/materializedViews/{{materialized_view_id}}"))
 	if err != nil {
 		return err
 	}

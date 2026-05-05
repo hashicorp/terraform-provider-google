@@ -275,7 +275,7 @@ func resourceNetappBackupPolicyCreate(d *schema.ResourceData, meta interface{}) 
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/backupPolicies?backupPolicyId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPolicies?backupPolicyId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func resourceNetappBackupPolicyRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/backupPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -501,7 +501,7 @@ func resourceNetappBackupPolicyUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/backupPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -590,8 +590,7 @@ func resourceNetappBackupPolicyDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error fetching project for BackupPolicy: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/backupPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}

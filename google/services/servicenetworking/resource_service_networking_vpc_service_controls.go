@@ -257,7 +257,7 @@ func resourceServiceNetworkingVPCServiceControlsRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ServiceNetworkingBasePath}}/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "/{{name}}"))
 	if err != nil {
 		return err
 	}

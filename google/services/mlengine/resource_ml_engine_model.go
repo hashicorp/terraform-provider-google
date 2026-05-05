@@ -287,7 +287,7 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/models"))
 	if err != nil {
 		return err
 	}
@@ -356,7 +356,7 @@ func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/models/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -438,8 +438,7 @@ func resourceMLEngineModelDelete(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error fetching project for Model: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/models/{{name}}"))
 	if err != nil {
 		return err
 	}

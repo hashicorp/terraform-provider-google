@@ -630,7 +630,7 @@ func resourceIdentityPlatformConfigRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/config"))
 	if err != nil {
 		return err
 	}
@@ -774,7 +774,7 @@ func resourceIdentityPlatformConfigUpdate(d *schema.ResourceData, meta interface
 		obj["monitoring"] = monitoringProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/config"))
 	if err != nil {
 		return err
 	}

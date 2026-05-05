@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/parametermanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = parametermanager.Product
 )
 
 func TestAccParameterManagerParameter_parameterConfigBasicExample(t *testing.T) {
@@ -248,8 +250,7 @@ func testAccCheckParameterManagerParameterDestroyProducer(t *testing.T) func(s *
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ParameterManagerBasePath}}projects/{{project}}/locations/global/parameters/{{parameter_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(parametermanager.Product, config), "projects/{{project}}/locations/global/parameters/{{parameter_id}}"))
 			if err != nil {
 				return err
 			}

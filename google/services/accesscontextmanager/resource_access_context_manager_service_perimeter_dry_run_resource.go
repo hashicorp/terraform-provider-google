@@ -188,7 +188,7 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceCreate(d *schema.
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{perimeter_name}}"))
 	if err != nil {
 		return err
 	}
@@ -287,7 +287,7 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceRead(d *schema.Re
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{perimeter_name}}"))
 	if err != nil {
 		return err
 	}
@@ -370,8 +370,7 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceDelete(d *schema.
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{perimeter_name}}"))
 	if err != nil {
 		return err
 	}

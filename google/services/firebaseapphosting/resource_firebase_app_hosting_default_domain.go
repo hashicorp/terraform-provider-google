@@ -222,7 +222,7 @@ func resourceFirebaseAppHostingDefaultDomainCreate(d *schema.ResourceData, meta 
 		obj["disabled"] = disabledProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppHostingBasePath}}projects/{{project}}/locations/{{location}}/backends/{{backend}}/domains/{{domain_id}}?update_mask=disabled")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backends/{{backend}}/domains/{{domain_id}}?update_mask=disabled"))
 	if err != nil {
 		return err
 	}
@@ -311,7 +311,7 @@ func resourceFirebaseAppHostingDefaultDomainRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppHostingBasePath}}projects/{{project}}/locations/{{location}}/backends/{{backend}}/domains/{{domain_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backends/{{backend}}/domains/{{domain_id}}"))
 	if err != nil {
 		return err
 	}
@@ -434,7 +434,7 @@ func resourceFirebaseAppHostingDefaultDomainUpdate(d *schema.ResourceData, meta 
 		obj["disabled"] = disabledProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppHostingBasePath}}projects/{{project}}/locations/{{location}}/backends/{{backend}}/domains/{{domain_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backends/{{backend}}/domains/{{domain_id}}"))
 	if err != nil {
 		return err
 	}

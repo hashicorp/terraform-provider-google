@@ -173,7 +173,7 @@ func resourcePublicCAExternalAccountKeyCreate(d *schema.ResourceData, meta inter
 
 	obj := make(map[string]interface{})
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{PublicCABasePath}}projects/{{project}}/locations/{{location}}/externalAccountKeys")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/externalAccountKeys"))
 	if err != nil {
 		return err
 	}

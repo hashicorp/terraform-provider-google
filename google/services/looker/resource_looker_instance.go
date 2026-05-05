@@ -822,7 +822,7 @@ func resourceLookerInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["customDomain"] = customDomainProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LookerBasePath}}projects/{{project}}/locations/{{region}}/instances?instanceId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/instances?instanceId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -907,7 +907,7 @@ func resourceLookerInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LookerBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/instances/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1128,7 +1128,7 @@ func resourceLookerInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["customDomain"] = customDomainProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LookerBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/instances/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1268,8 +1268,7 @@ func resourceLookerInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{LookerBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/instances/{{name}}"))
 	if err != nil {
 		return err
 	}

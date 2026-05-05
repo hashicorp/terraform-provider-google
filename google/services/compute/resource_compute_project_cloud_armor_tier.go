@@ -165,7 +165,7 @@ func resourceComputeProjectCloudArmorTierCreate(d *schema.ResourceData, meta int
 		obj["cloudArmorTier"] = cloudArmorTierProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/setCloudArmorTier")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/setCloudArmorTier"))
 	if err != nil {
 		return err
 	}
@@ -239,7 +239,7 @@ func resourceComputeProjectCloudArmorTierRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/{{name}}?fields=cloudArmorTier")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/{{name}}?fields=cloudArmorTier"))
 	if err != nil {
 		return err
 	}
@@ -329,7 +329,7 @@ func resourceComputeProjectCloudArmorTierUpdate(d *schema.ResourceData, meta int
 		obj["cloudArmorTier"] = cloudArmorTierProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/setCloudArmorTier")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/setCloudArmorTier"))
 	if err != nil {
 		return err
 	}

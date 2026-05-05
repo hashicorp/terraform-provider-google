@@ -414,7 +414,7 @@ func resourceChronicleRuleCreate(d *schema.ResourceData, meta interface{}) error
 		obj["etag"] = etagProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules"))
 	if err != nil {
 		return err
 	}
@@ -499,7 +499,7 @@ func resourceChronicleRuleRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule_id}}"))
 	if err != nil {
 		return err
 	}
@@ -640,7 +640,7 @@ func resourceChronicleRuleUpdate(d *schema.ResourceData, meta interface{}) error
 		obj["etag"] = etagProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule_id}}"))
 	if err != nil {
 		return err
 	}
@@ -710,8 +710,7 @@ func resourceChronicleRuleDelete(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error fetching project for Rule: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule_id}}"))
 	if err != nil {
 		return err
 	}

@@ -187,7 +187,7 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 		obj["expirationTimeUsec"] = expirationTimeUsecProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}:importSshPublicKey")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "users/{{user}}:importSshPublicKey"))
 	if err != nil {
 		return err
 	}
@@ -290,7 +290,7 @@ func resourceOSLoginSSHPublicKeyRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -375,7 +375,7 @@ func resourceOSLoginSSHPublicKeyUpdate(d *schema.ResourceData, meta interface{})
 		obj["expirationTimeUsec"] = expirationTimeUsecProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -432,7 +432,7 @@ func resourceOSLoginSSHPublicKeyDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}"))
 	if err != nil {
 		return err
 	}

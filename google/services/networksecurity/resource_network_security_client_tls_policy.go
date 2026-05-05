@@ -330,7 +330,7 @@ func resourceNetworkSecurityClientTlsPolicyCreate(d *schema.ResourceData, meta i
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/clientTlsPolicies?clientTlsPolicyId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clientTlsPolicies?clientTlsPolicyId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -414,7 +414,7 @@ func resourceNetworkSecurityClientTlsPolicyRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/clientTlsPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clientTlsPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -550,7 +550,7 @@ func resourceNetworkSecurityClientTlsPolicyUpdate(d *schema.ResourceData, meta i
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/clientTlsPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clientTlsPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -635,8 +635,7 @@ func resourceNetworkSecurityClientTlsPolicyDelete(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error fetching project for ClientTlsPolicy: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/clientTlsPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clientTlsPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}

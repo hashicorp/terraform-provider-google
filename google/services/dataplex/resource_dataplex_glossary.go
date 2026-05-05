@@ -255,7 +255,7 @@ func resourceDataplexGlossaryCreate(d *schema.ResourceData, meta interface{}) er
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/glossaries?glossary_id={{glossary_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries?glossary_id={{glossary_id}}"))
 	if err != nil {
 		return err
 	}
@@ -339,7 +339,7 @@ func resourceDataplexGlossaryRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}"))
 	if err != nil {
 		return err
 	}
@@ -463,7 +463,7 @@ func resourceDataplexGlossaryUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}"))
 	if err != nil {
 		return err
 	}
@@ -540,8 +540,7 @@ func resourceDataplexGlossaryDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error fetching project for Glossary: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}"))
 	if err != nil {
 		return err
 	}

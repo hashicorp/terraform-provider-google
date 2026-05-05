@@ -236,7 +236,7 @@ func resourceSecurityCenterV2FolderMuteConfigCreate(d *schema.ResourceData, meta
 		obj["type"] = typeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}folders/{{folder}}/locations/{{location}}/muteConfigs?muteConfigId={{mute_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/muteConfigs?muteConfigId={{mute_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -304,7 +304,7 @@ func resourceSecurityCenterV2FolderMuteConfigRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}folders/{{folder}}/locations/{{location}}/muteConfigs/{{mute_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/muteConfigs/{{mute_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -412,7 +412,7 @@ func resourceSecurityCenterV2FolderMuteConfigUpdate(d *schema.ResourceData, meta
 		obj["type"] = typeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}folders/{{folder}}/locations/{{location}}/muteConfigs/{{mute_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/muteConfigs/{{mute_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -477,7 +477,7 @@ func resourceSecurityCenterV2FolderMuteConfigDelete(d *schema.ResourceData, meta
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}folders/{{folder}}/locations/{{location}}/muteConfigs/{{mute_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/muteConfigs/{{mute_config_id}}"))
 	if err != nil {
 		return err
 	}

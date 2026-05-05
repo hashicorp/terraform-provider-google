@@ -683,7 +683,7 @@ func resourceGKEBackupRestorePlanCreate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/restorePlans?restorePlanId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/restorePlans?restorePlanId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -767,7 +767,7 @@ func resourceGKEBackupRestorePlanRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/restorePlans/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/restorePlans/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -891,7 +891,7 @@ func resourceGKEBackupRestorePlanUpdate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/restorePlans/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/restorePlans/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -968,8 +968,7 @@ func resourceGKEBackupRestorePlanDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for RestorePlan: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/restorePlans/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/restorePlans/{{name}}"))
 	if err != nil {
 		return err
 	}
