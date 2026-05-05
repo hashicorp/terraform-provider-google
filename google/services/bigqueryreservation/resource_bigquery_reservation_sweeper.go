@@ -46,7 +46,7 @@ func testSweepBigqueryReservation(region string) error {
 		log.Printf("[INFO][SWEEPER_LOG] error loading: %s", err)
 		return err
 	}
-	servicesUrl := config.BigqueryReservationBasePath + "projects/" + config.Project + "/locations/" + region + "/reservations"
+	servicesUrl := transport_tpg.BaseUrl(Product, config) + "projects/" + config.Project + "/locations/" + region + "/reservations"
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -112,7 +112,7 @@ func testSweepBigqueryReservation(region string) error {
 }
 
 func deleteAllAssignments(config *transport_tpg.Config, reservationName string) {
-	assignmentListUrl := config.BigqueryReservationBasePath + reservationName + "/assignments"
+	assignmentListUrl := transport_tpg.BaseUrl(Product, config) + reservationName + "/assignments"
 
 	assignmentRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -138,7 +138,7 @@ func deleteAllAssignments(config *transport_tpg.Config, reservationName string) 
 		obj := ri.(map[string]interface{})
 		name := obj["name"].(string)
 
-		deleteUrl := config.BigqueryReservationBasePath + name
+		deleteUrl := transport_tpg.BaseUrl(Product, config) + name
 		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "DELETE",

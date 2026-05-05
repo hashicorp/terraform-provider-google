@@ -268,7 +268,7 @@ func testAccCheckComputeImageExists(t *testing.T, n string, image *compute.Image
 
 		config := acctest.GoogleProviderConfig(t)
 
-		url := fmt.Sprintf("%sprojects/%s/global/images/%s", config.ComputeBasePath, config.Project, rs.Primary.Attributes["name"])
+		url := fmt.Sprintf("%sprojects/%s/global/images/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["name"])
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "GET",
@@ -441,7 +441,7 @@ func testAccCheckComputeImageResolution(t *testing.T, n string) resource.TestChe
 		family := rs.Primary.Attributes["family"]
 		link := rs.Primary.Attributes["self_link"]
 
-		url := fmt.Sprintf("%sprojects/%s/global/images/family/%s", config.ComputeBasePath, "debian-cloud", "debian-11")
+		url := fmt.Sprintf("%sprojects/%s/global/images/family/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), "debian-cloud", "debian-11")
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "GET",

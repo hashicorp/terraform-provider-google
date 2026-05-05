@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *storagetransfer.Service {
-	storageTransferClientBasePath := transport_tpg.RemoveBasePathVersion(c.StorageTransferBasePath)
+	storageTransferClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud Storage Transfer client for path %s", storageTransferClientBasePath)
 	clientStorageTransfer, err := storagetransfer.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

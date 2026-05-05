@@ -101,14 +101,14 @@ func (w *ComputeOperationWaiter) QueryOp() (interface{}, error) {
 	var url string
 	if zone, ok := w.Op["zone"].(string); ok && zone != "" {
 		zoneName := tpgresource.GetResourceNameFromSelfLink(zone)
-		url = fmt.Sprintf("%sprojects/%s/zones/%s/operations/%s", w.Config.ComputeBasePath, w.Project, zoneName, opName)
+		url = fmt.Sprintf("%sprojects/%s/zones/%s/operations/%s", transport_tpg.BaseUrl(Product, w.Config), w.Project, zoneName, opName)
 	} else if region, ok := w.Op["region"].(string); ok && region != "" {
 		regionName := tpgresource.GetResourceNameFromSelfLink(region)
-		url = fmt.Sprintf("%sprojects/%s/regions/%s/operations/%s", w.Config.ComputeBasePath, w.Project, regionName, opName)
+		url = fmt.Sprintf("%sprojects/%s/regions/%s/operations/%s", transport_tpg.BaseUrl(Product, w.Config), w.Project, regionName, opName)
 	} else if w.Parent != "" {
-		url = fmt.Sprintf("%slocations/global/operations/%s?parentId=%s", w.Config.ComputeBasePath, opName, w.Parent)
+		url = fmt.Sprintf("%slocations/global/operations/%s?parentId=%s", transport_tpg.BaseUrl(Product, w.Config), opName, w.Parent)
 	} else {
-		url = fmt.Sprintf("%sprojects/%s/global/operations/%s", w.Config.ComputeBasePath, w.Project, opName)
+		url = fmt.Sprintf("%sprojects/%s/global/operations/%s", transport_tpg.BaseUrl(Product, w.Config), w.Project, opName)
 	}
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    w.Config,

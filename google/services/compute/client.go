@@ -25,14 +25,14 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *compute.Service {
-	log.Printf("[INFO] Instantiating GCE client for path %s", c.ComputeBasePath)
+	log.Printf("[INFO] Instantiating GCE client for path %s", transport_tpg.BaseUrl(Product, c))
 	clientCompute, err := compute.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client compute: %s", err)
 		return nil
 	}
 	clientCompute.UserAgent = userAgent
-	clientCompute.BasePath = c.ComputeBasePath
+	clientCompute.BasePath = transport_tpg.BaseUrl(Product, c)
 
 	return clientCompute
 }

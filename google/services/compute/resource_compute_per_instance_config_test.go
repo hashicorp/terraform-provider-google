@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -702,7 +703,7 @@ func testAccCheckComputePerInstanceConfigInstanceDestroyed(t *testing.T, igmId, 
 func testAccComputePerInstanceConfigListInstances(t *testing.T, igmId string) (map[string]struct{}, error) {
 	config := acctest.GoogleProviderConfig(t)
 
-	url := fmt.Sprintf("%s%s/listManagedInstances", config.ComputeBasePath, igmId)
+	url := fmt.Sprintf("%s%s/listManagedInstances", transport_tpg.BaseUrl(compute.Product, config), igmId)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -729,7 +730,7 @@ func testAccComputePerInstanceConfigListInstances(t *testing.T, igmId string) (m
 func testAccComputePerInstanceConfigListNames(t *testing.T, igmId string) (map[string]struct{}, error) {
 	config := acctest.GoogleProviderConfig(t)
 
-	url := fmt.Sprintf("%s%s/listPerInstanceConfigs", config.ComputeBasePath, igmId)
+	url := fmt.Sprintf("%s%s/listPerInstanceConfigs", transport_tpg.BaseUrl(compute.Product, config), igmId)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",

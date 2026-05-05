@@ -107,7 +107,7 @@ func dataSourceGoogleComputeInstanceGuestAttributesRead(d *schema.ResourceData, 
 
 	//Check if instance exists
 	id := fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, name)
-	instanceUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", config.ComputeBasePath, project, zone, name)
+	instanceUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(Product, config), project, zone, name)
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -120,7 +120,7 @@ func dataSourceGoogleComputeInstanceGuestAttributesRead(d *schema.ResourceData, 
 	}
 
 	// You can either query based on variable_key, query_path or just get the first value
-	guestAttrsUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/getGuestAttributes", config.ComputeBasePath, project, zone, name)
+	guestAttrsUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/getGuestAttributes", transport_tpg.BaseUrl(Product, config), project, zone, name)
 	if d.Get("query_path").(string) != "" {
 		guestAttrsUrl = fmt.Sprintf("%s?queryPath=%s", guestAttrsUrl, neturl.QueryEscape(d.Get("query_path").(string)))
 	} else if d.Get("variable_key").(string) != "" {

@@ -27,7 +27,7 @@ import (
 )
 
 func NewClientWithCtx(ctx context.Context, c *transport_tpg.Config, userAgent string) *cloudkms.Service {
-	kmsClientBasePath := transport_tpg.RemoveBasePathVersion(c.KMSBasePath)
+	kmsClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud KMS client for path %s", kmsClientBasePath)
 	clientKms, err := cloudkms.NewService(ctx, option.WithHTTPClient(c.Client))
 	if err != nil {

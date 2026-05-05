@@ -40,7 +40,7 @@ func (w *TagsLocationOperationWaiter) QueryOp() (interface{}, error) {
 	location := GetLocationFromOpName(w.CommonOperationWaiter.Op.Name)
 	if location != w.CommonOperationWaiter.Op.Name {
 		// Found location in Op.Name, fill it in TagsLocationBasePath and rewrite URL
-		url := fmt.Sprintf("%s%s", strings.Replace(w.Config.TagsLocationBasePath, "{{location}}", location, 1), w.CommonOperationWaiter.Op.Name)
+		url := fmt.Sprintf("%s%s", strings.Replace(transport_tpg.BaseUrl(Product, w.Config), "{{location}}", location, 1), w.CommonOperationWaiter.Op.Name)
 		return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    w.Config,
 			Method:    "GET",
@@ -48,7 +48,7 @@ func (w *TagsLocationOperationWaiter) QueryOp() (interface{}, error) {
 			UserAgent: w.UserAgent,
 		})
 	} else {
-		url := fmt.Sprintf("%s%s", w.Config.TagsBasePath, w.CommonOperationWaiter.Op.Name)
+		url := fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, w.Config), w.CommonOperationWaiter.Op.Name)
 		return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    w.Config,
 			Method:    "GET",

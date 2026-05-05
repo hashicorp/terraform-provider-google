@@ -1085,7 +1085,7 @@ resource "google_pubsub_subscription" "foo" {
 func testAccCheckPubsubSubscriptionCache404(t *testing.T, subName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-		url := fmt.Sprintf("%sprojects/%s/subscriptions/%s", config.PubsubBasePath, envvar.GetTestProjectFromEnv(), subName)
+		url := fmt.Sprintf("%sprojects/%s/subscriptions/%s", transport_tpg.BaseUrl(pubsub.Product, config), envvar.GetTestProjectFromEnv(), subName)
 		resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "GET",

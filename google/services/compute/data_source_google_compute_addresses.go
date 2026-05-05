@@ -139,7 +139,7 @@ func dataSourceGoogleComputeAddressesRead(context context.Context, d *schema.Res
 	filter, hasFilter := d.GetOk("filter")
 
 	if region, hasRegion := d.GetOk("region"); hasRegion {
-		baseURL := fmt.Sprintf("%sprojects/%s/regions/%s/addresses", config.ComputeBasePath, project, region.(string))
+		baseURL := fmt.Sprintf("%sprojects/%s/regions/%s/addresses", transport_tpg.BaseUrl(Product, config), project, region.(string))
 		pageToken := ""
 		for {
 			params := map[string]string{}
@@ -178,7 +178,7 @@ func dataSourceGoogleComputeAddressesRead(context context.Context, d *schema.Res
 			}
 		}
 	} else {
-		baseURL := fmt.Sprintf("%sprojects/%s/aggregated/addresses", config.ComputeBasePath, project)
+		baseURL := fmt.Sprintf("%sprojects/%s/aggregated/addresses", transport_tpg.BaseUrl(Product, config), project)
 		pageToken := ""
 		for {
 			params := map[string]string{}

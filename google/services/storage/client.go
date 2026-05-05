@@ -28,7 +28,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *storage.Service {
-	storageClientBasePath := c.StorageBasePath
+	storageClientBasePath := transport_tpg.BaseUrl(Product, c)
 	log.Printf("[INFO] Instantiating Google Storage client for path %s", storageClientBasePath)
 	clientStorage, err := storage.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {
@@ -43,7 +43,7 @@ func NewClient(c *transport_tpg.Config, userAgent string) *storage.Service {
 
 // For object uploads, we need to override the specific timeout because they are long, synchronous operations.
 func NewClientWithTimeoutOverride(c *transport_tpg.Config, userAgent string, timeout time.Duration) *storage.Service {
-	storageClientBasePath := c.StorageBasePath
+	storageClientBasePath := transport_tpg.BaseUrl(Product, c)
 	log.Printf("[INFO] Instantiating Google Storage client for path %s", storageClientBasePath)
 	// Copy the existing HTTP client (which has no unexported fields [as of Oct 2021 at least], so this is safe).
 	// We have to do this because otherwise we will accidentally change the timeout for all other

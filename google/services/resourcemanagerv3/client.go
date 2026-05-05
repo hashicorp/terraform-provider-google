@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *resourceManagerV3.Service {
-	resourceManagerV3BasePath := transport_tpg.RemoveBasePathVersion(c.ResourceManagerV3BasePath)
+	resourceManagerV3BasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud ResourceManager V3 client for path %s", resourceManagerV3BasePath)
 	clientResourceManagerV3, err := resourceManagerV3.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

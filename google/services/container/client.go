@@ -25,7 +25,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *container.Service {
-	containerClientBasePath := transport_tpg.RemoveBasePathVersion(c.ContainerBasePath)
+	containerClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating GKE client for path %s", containerClientBasePath)
 	clientContainer, err := container.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

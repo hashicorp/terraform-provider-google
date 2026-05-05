@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *spanner.Service {
-	spannerClientBasePath := transport_tpg.RemoveBasePathVersion(c.SpannerBasePath)
+	spannerClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud Spanner client for path %s", spannerClientBasePath)
 	clientSpanner, err := spanner.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

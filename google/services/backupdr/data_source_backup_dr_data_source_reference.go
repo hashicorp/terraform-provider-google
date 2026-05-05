@@ -114,7 +114,7 @@ func dataSourceGoogleCloudBackupDRDataSourceReferencesRead(d *schema.ResourceDat
 
 	location := d.Get("location").(string)
 
-	url := fmt.Sprintf("%sprojects/%s/locations/%s/dataSourceReferences", config.BackupDRBasePath, project, location)
+	url := fmt.Sprintf("%sprojects/%s/locations/%s/dataSourceReferences", transport_tpg.BaseUrl(Product, config), project, location)
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -257,7 +257,7 @@ func dataSourceGoogleCloudBackupDRDataSourceReferenceRead(d *schema.ResourceData
 	}
 	location := d.Get("location").(string)
 	dataSourceReferenceId := d.Get("data_source_reference_id").(string)
-	url := fmt.Sprintf("%sprojects/%s/locations/%s/dataSourceReferences/%s", config.BackupDRBasePath, project, location, dataSourceReferenceId)
+	url := fmt.Sprintf("%sprojects/%s/locations/%s/dataSourceReferences/%s", transport_tpg.BaseUrl(Product, config), project, location, dataSourceReferenceId)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",

@@ -124,7 +124,7 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 	}
 	id := fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", project, region, name)
 
-	url := fmt.Sprintf("%sprojects/%s/regions/%s/subnetworks/%s", config.ComputeBasePath, project, region, name)
+	url := fmt.Sprintf("%sprojects/%s/regions/%s/subnetworks/%s", transport_tpg.BaseUrl(Product, config), project, region, name)
 	subnetwork, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",

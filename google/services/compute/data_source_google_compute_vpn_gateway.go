@@ -85,7 +85,7 @@ func dataSourceGoogleComputeVpnGatewayRead(d *schema.ResourceData, meta interfac
 	name := d.Get("name").(string)
 	id := fmt.Sprintf("projects/%s/regions/%s/targetVpnGateways/%s", project, region, name)
 
-	url := fmt.Sprintf("%sprojects/%s/regions/%s/targetVpnGateways/%s", config.ComputeBasePath, project, region, name)
+	url := fmt.Sprintf("%sprojects/%s/regions/%s/targetVpnGateways/%s", transport_tpg.BaseUrl(Product, config), project, region, name)
 	gateway, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
