@@ -189,7 +189,7 @@ func resourceDocumentAIWarehouseLocationCreate(d *schema.ResourceData, meta inte
 		obj["documentCreatorDefaultRole"] = documentCreatorDefaultRoleProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DocumentAIWarehouseBasePath}}projects/{{project_number}}/locations/{{location}}:initialize")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project_number}}/locations/{{location}}:initialize"))
 	if err != nil {
 		return err
 	}

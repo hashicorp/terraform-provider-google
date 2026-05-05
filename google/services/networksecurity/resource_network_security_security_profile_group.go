@@ -278,7 +278,7 @@ func resourceNetworkSecuritySecurityProfileGroupCreate(d *schema.ResourceData, m
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/securityProfileGroups?securityProfileGroupId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/securityProfileGroups?securityProfileGroupId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -356,7 +356,7 @@ func resourceNetworkSecuritySecurityProfileGroupRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/securityProfileGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/securityProfileGroups/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -483,7 +483,7 @@ func resourceNetworkSecuritySecurityProfileGroupUpdate(d *schema.ResourceData, m
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/securityProfileGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/securityProfileGroups/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -568,7 +568,7 @@ func resourceNetworkSecuritySecurityProfileGroupDelete(d *schema.ResourceData, m
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/securityProfileGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/securityProfileGroups/{{name}}"))
 	if err != nil {
 		return err
 	}

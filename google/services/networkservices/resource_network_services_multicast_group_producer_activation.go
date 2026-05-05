@@ -294,7 +294,7 @@ func resourceNetworkServicesMulticastGroupProducerActivationCreate(d *schema.Res
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastGroupProducerActivations?multicastGroupProducerActivationId={{multicast_group_producer_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastGroupProducerActivations?multicastGroupProducerActivationId={{multicast_group_producer_activation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -378,7 +378,7 @@ func resourceNetworkServicesMulticastGroupProducerActivationRead(d *schema.Resou
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastGroupProducerActivations/{{multicast_group_producer_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastGroupProducerActivations/{{multicast_group_producer_activation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -496,7 +496,7 @@ func resourceNetworkServicesMulticastGroupProducerActivationUpdate(d *schema.Res
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastGroupProducerActivations/{{multicast_group_producer_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastGroupProducerActivations/{{multicast_group_producer_activation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -569,8 +569,7 @@ func resourceNetworkServicesMulticastGroupProducerActivationDelete(d *schema.Res
 		return fmt.Errorf("Error fetching project for MulticastGroupProducerActivation: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastGroupProducerActivations/{{multicast_group_producer_activation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastGroupProducerActivations/{{multicast_group_producer_activation_id}}"))
 	if err != nil {
 		return err
 	}

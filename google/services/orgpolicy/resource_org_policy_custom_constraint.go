@@ -246,7 +246,7 @@ func resourceOrgPolicyCustomConstraintCreate(d *schema.ResourceData, meta interf
 		obj["resourceTypes"] = resourceTypesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OrgPolicyBasePath}}{{parent}}/customConstraints")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/customConstraints"))
 	if err != nil {
 		return err
 	}
@@ -309,7 +309,7 @@ func resourceOrgPolicyCustomConstraintRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OrgPolicyBasePath}}{{parent}}/customConstraints/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/customConstraints/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -423,7 +423,7 @@ func resourceOrgPolicyCustomConstraintUpdate(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OrgPolicyBasePath}}{{parent}}/customConstraints/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/customConstraints/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -465,7 +465,7 @@ func resourceOrgPolicyCustomConstraintDelete(d *schema.ResourceData, meta interf
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OrgPolicyBasePath}}{{parent}}/customConstraints/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/customConstraints/{{name}}"))
 	if err != nil {
 		return err
 	}

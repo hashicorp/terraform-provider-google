@@ -266,7 +266,7 @@ func resourceDataplexGlossaryTermCreate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/terms?term_id={{term_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/terms?term_id={{term_id}}"))
 	if err != nil {
 		return err
 	}
@@ -345,7 +345,7 @@ func resourceDataplexGlossaryTermRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/terms/{{term_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/terms/{{term_id}}"))
 	if err != nil {
 		return err
 	}
@@ -486,7 +486,7 @@ func resourceDataplexGlossaryTermUpdate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/terms/{{term_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/terms/{{term_id}}"))
 	if err != nil {
 		return err
 	}
@@ -560,8 +560,7 @@ func resourceDataplexGlossaryTermDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for GlossaryTerm: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/terms/{{term_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/terms/{{term_id}}"))
 	if err != nil {
 		return err
 	}

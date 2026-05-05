@@ -213,7 +213,7 @@ func resourceBigqueryReservationReservationAssignmentCreate(d *schema.ResourceDa
 		obj["jobType"] = jobTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{reservation}}/assignments")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reservations/{{reservation}}/assignments"))
 	if err != nil {
 		return err
 	}
@@ -318,7 +318,7 @@ func resourceBigqueryReservationReservationAssignmentRead(d *schema.ResourceData
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{reservation}}/assignments")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reservations/{{reservation}}/assignments"))
 	if err != nil {
 		return err
 	}
@@ -419,8 +419,7 @@ func resourceBigqueryReservationReservationAssignmentDelete(d *schema.ResourceDa
 		return fmt.Errorf("Error fetching project for ReservationAssignment: %s", err)
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
-
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{reservation}}/assignments/{{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/reservations/{{reservation}}/assignments/{{name}}"))
 	if err != nil {
 		return err
 	}

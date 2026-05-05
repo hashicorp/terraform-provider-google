@@ -469,7 +469,7 @@ func resourceModelArmorGlobalFloorsettingCreate(d *schema.ResourceData, meta int
 		obj["floorSettingMetadata"] = floorSettingMetadataProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ModelArmorGlobalBasePath}}{{parent}}/locations/{{location}}/floorSetting")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/floorSetting"))
 	if err != nil {
 		return err
 	}
@@ -537,7 +537,7 @@ func resourceModelArmorGlobalFloorsettingRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ModelArmorGlobalBasePath}}{{parent}}/locations/{{location}}/floorSetting")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/floorSetting"))
 	if err != nil {
 		return err
 	}
@@ -652,7 +652,7 @@ func resourceModelArmorGlobalFloorsettingUpdate(d *schema.ResourceData, meta int
 		obj["floorSettingMetadata"] = floorSettingMetadataProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ModelArmorGlobalBasePath}}{{parent}}/locations/{{location}}/floorSetting")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/floorSetting"))
 	if err != nil {
 		return err
 	}

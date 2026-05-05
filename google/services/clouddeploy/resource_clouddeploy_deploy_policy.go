@@ -587,7 +587,7 @@ func resourceClouddeployDeployPolicyCreate(d *schema.ResourceData, meta interfac
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ClouddeployBasePath}}projects/{{project}}/locations/{{location}}/deployPolicies?deployPolicyId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/deployPolicies?deployPolicyId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -671,7 +671,7 @@ func resourceClouddeployDeployPolicyRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ClouddeployBasePath}}projects/{{project}}/locations/{{location}}/deployPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/deployPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -813,7 +813,7 @@ func resourceClouddeployDeployPolicyUpdate(d *schema.ResourceData, meta interfac
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ClouddeployBasePath}}projects/{{project}}/locations/{{location}}/deployPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/deployPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -902,8 +902,7 @@ func resourceClouddeployDeployPolicyDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error fetching project for DeployPolicy: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ClouddeployBasePath}}projects/{{project}}/locations/{{location}}/deployPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/deployPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}

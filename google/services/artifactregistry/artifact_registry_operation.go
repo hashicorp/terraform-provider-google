@@ -55,12 +55,16 @@ func (w *ArtifactRegistryOperationWaiter) QueryOp() (interface{}, error) {
 	if w == nil {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
-	basePath, err := transport_tpg.ResourceBasePath(w.Config.ArtifactRegistryBasePath, w.Config.ArtifactRegistryRepBasePath, "ArtifactRegistry", w.Config, w.Location)
-	if err != nil {
-		return nil, err
+	// Returns the proper get.
+	url := fmt.Sprintf(
+		"%s%s",
+		transport_tpg.BaseUrl(Product, w.Config),
+		fmt.Sprintf("%s", w.CommonOperationWaiter.Op.Name),
+	)
+	if strings.Contains(url, "{{location}}") && w.Location == "" {
+		return nil, fmt.Errorf("failed to find location for a resource with a regionalized endpoint %s", url)
 	}
-	url := fmt.Sprintf("%s%s", basePath, w.CommonOperationWaiter.Op.Name)
-
+	url = strings.ReplaceAll(url, "{{location}}", w.Location)
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    w.Config,
 		Method:    "GET",

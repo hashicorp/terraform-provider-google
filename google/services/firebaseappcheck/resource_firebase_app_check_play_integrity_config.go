@@ -184,7 +184,7 @@ func resourceFirebaseAppCheckPlayIntegrityConfigCreate(d *schema.ResourceData, m
 		obj["tokenTtl"] = tokenTtlProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/playIntegrityConfig?updateMask=tokenTtl")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/playIntegrityConfig?updateMask=tokenTtl"))
 	if err != nil {
 		return err
 	}
@@ -253,7 +253,7 @@ func resourceFirebaseAppCheckPlayIntegrityConfigRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/playIntegrityConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/playIntegrityConfig"))
 	if err != nil {
 		return err
 	}
@@ -354,7 +354,7 @@ func resourceFirebaseAppCheckPlayIntegrityConfigUpdate(d *schema.ResourceData, m
 		obj["tokenTtl"] = tokenTtlProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/playIntegrityConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/playIntegrityConfig"))
 	if err != nil {
 		return err
 	}

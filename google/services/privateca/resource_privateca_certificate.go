@@ -1429,7 +1429,7 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates?certificateId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates?certificateId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1515,7 +1515,7 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1638,7 +1638,7 @@ func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1700,8 +1700,7 @@ func resourcePrivatecaCertificateDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for Certificate: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}:revoke")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}:revoke"))
 	if err != nil {
 		return err
 	}

@@ -55,8 +55,11 @@ func (w *EdgecontainerOperationWaiter) QueryOp() (interface{}, error) {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
 	// Returns the proper get.
-	url := fmt.Sprintf("%s%s", w.Config.EdgecontainerBasePath, w.CommonOperationWaiter.Op.Name)
-
+	url := fmt.Sprintf(
+		"%s%s",
+		transport_tpg.BaseUrl(Product, w.Config),
+		fmt.Sprintf("%s", w.CommonOperationWaiter.Op.Name),
+	)
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    w.Config,
 		Method:    "GET",

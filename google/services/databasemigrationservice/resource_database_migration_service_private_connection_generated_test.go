@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/databasemigrationservice"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = databasemigrationservice.Product
 )
 
 func TestAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePrivateConnectionExample(t *testing.T) {
@@ -123,8 +125,7 @@ func testAccCheckDatabaseMigrationServicePrivateConnectionDestroyProducer(t *tes
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{DatabaseMigrationServiceBasePath}}projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(databasemigrationservice.Product, config), "projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}"))
 			if err != nil {
 				return err
 			}

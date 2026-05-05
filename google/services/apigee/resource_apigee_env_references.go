@@ -201,7 +201,7 @@ func resourceApigeeEnvReferencesCreate(d *schema.ResourceData, meta interface{})
 		obj["refers"] = refersProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/references/"))
 	if err != nil {
 		return err
 	}
@@ -264,7 +264,7 @@ func resourceApigeeEnvReferencesRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/references/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -367,7 +367,7 @@ func resourceApigeeEnvReferencesUpdate(d *schema.ResourceData, meta interface{})
 		obj["refers"] = refersProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/references/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -409,7 +409,7 @@ func resourceApigeeEnvReferencesDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/references/{{name}}"))
 	if err != nil {
 		return err
 	}

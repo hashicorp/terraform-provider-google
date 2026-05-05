@@ -298,7 +298,7 @@ func resourceComputeRouterRoutePolicyCreate(d *schema.ResourceData, meta interfa
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}/updateRoutePolicy")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/routers/{{router}}/updateRoutePolicy"))
 	if err != nil {
 		return err
 	}
@@ -387,7 +387,7 @@ func resourceComputeRouterRoutePolicyRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}/getRoutePolicy?policy={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/routers/{{router}}/getRoutePolicy?policy={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -540,7 +540,7 @@ func resourceComputeRouterRoutePolicyUpdate(d *schema.ResourceData, meta interfa
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}/updateRoutePolicy")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/routers/{{router}}/updateRoutePolicy"))
 	if err != nil {
 		return err
 	}
@@ -621,8 +621,7 @@ func resourceComputeRouterRoutePolicyDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for RouterRoutePolicy: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}/deleteRoutePolicy?policy={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/routers/{{router}}/deleteRoutePolicy?policy={{name}}"))
 	if err != nil {
 		return err
 	}

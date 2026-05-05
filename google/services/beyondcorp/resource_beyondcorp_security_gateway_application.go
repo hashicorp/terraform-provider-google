@@ -435,7 +435,7 @@ func resourceBeyondcorpSecurityGatewayApplicationCreate(d *schema.ResourceData, 
 		obj["schema"] = schemaProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/global/securityGateways/{{security_gateway_id}}/applications?applicationId={{application_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/securityGateways/{{security_gateway_id}}/applications?applicationId={{application_id}}"))
 	if err != nil {
 		return err
 	}
@@ -519,7 +519,7 @@ func resourceBeyondcorpSecurityGatewayApplicationRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/global/securityGateways/{{security_gateway_id}}/applications/{{application_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/securityGateways/{{security_gateway_id}}/applications/{{application_id}}"))
 	if err != nil {
 		return err
 	}
@@ -649,7 +649,7 @@ func resourceBeyondcorpSecurityGatewayApplicationUpdate(d *schema.ResourceData, 
 		obj["schema"] = schemaProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/global/securityGateways/{{security_gateway_id}}/applications/{{application_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/securityGateways/{{security_gateway_id}}/applications/{{application_id}}"))
 	if err != nil {
 		return err
 	}
@@ -730,8 +730,7 @@ func resourceBeyondcorpSecurityGatewayApplicationDelete(d *schema.ResourceData, 
 		return fmt.Errorf("Error fetching project for SecurityGatewayApplication: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/global/securityGateways/{{security_gateway_id}}/applications/{{application_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/securityGateways/{{security_gateway_id}}/applications/{{application_id}}"))
 	if err != nil {
 		return err
 	}

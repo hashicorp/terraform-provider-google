@@ -832,7 +832,7 @@ func resourceDataprocBatchCreate(d *schema.ResourceData, meta interface{}) error
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataprocBasePath}}projects/{{project}}/locations/{{location}}/batches?batchId={{batch_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/batches?batchId={{batch_id}}"))
 	if err != nil {
 		return err
 	}
@@ -916,7 +916,7 @@ func resourceDataprocBatchRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataprocBasePath}}projects/{{project}}/locations/{{location}}/batches/{{batch_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/batches/{{batch_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1016,8 +1016,7 @@ func resourceDataprocBatchDelete(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error fetching project for Batch: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataprocBasePath}}projects/{{project}}/locations/{{location}}/batches/{{batch_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/batches/{{batch_id}}"))
 	if err != nil {
 		return err
 	}

@@ -279,7 +279,7 @@ func resourceComputeRegionHealthSourceCreate(d *schema.ResourceData, meta interf
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/healthSources")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/healthSources"))
 	if err != nil {
 		return err
 	}
@@ -363,7 +363,7 @@ func resourceComputeRegionHealthSourceRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/healthSources/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/healthSources/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -493,7 +493,7 @@ func resourceComputeRegionHealthSourceUpdate(d *schema.ResourceData, meta interf
 		obj["fingerprint"] = fingerprintProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/healthSources/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/healthSources/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -574,8 +574,7 @@ func resourceComputeRegionHealthSourceDelete(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error fetching project for RegionHealthSource: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/healthSources/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/healthSources/{{name}}"))
 	if err != nil {
 		return err
 	}

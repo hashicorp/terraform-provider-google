@@ -340,7 +340,7 @@ func resourceMonitoringMetricDescriptorCreate(d *schema.ResourceData, meta inter
 		obj["launchStage"] = launchStageProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/metricDescriptors")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/projects/{{project}}/metricDescriptors"))
 	if err != nil {
 		return err
 	}
@@ -418,8 +418,7 @@ func resourceMonitoringMetricDescriptorPollRead(d *schema.ResourceData, meta int
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
-
+		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/{{name}}"))
 		if err != nil {
 			return nil, err
 		}
@@ -464,7 +463,7 @@ func resourceMonitoringMetricDescriptorRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -614,7 +613,7 @@ func resourceMonitoringMetricDescriptorUpdate(d *schema.ResourceData, meta inter
 		obj["launchStage"] = launchStageProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/metricDescriptors")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/projects/{{project}}/metricDescriptors"))
 	if err != nil {
 		return err
 	}
@@ -667,8 +666,7 @@ func resourceMonitoringMetricDescriptorDelete(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for MetricDescriptor: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/{{name}}"))
 	if err != nil {
 		return err
 	}

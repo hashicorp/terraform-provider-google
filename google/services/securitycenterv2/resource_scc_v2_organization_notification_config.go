@@ -244,7 +244,7 @@ func resourceSecurityCenterV2OrganizationNotificationConfigCreate(d *schema.Reso
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}organizations/{{organization}}/locations/{{location}}/notificationConfigs?configId={{config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/notificationConfigs?configId={{config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -308,7 +308,7 @@ func resourceSecurityCenterV2OrganizationNotificationConfigRead(d *schema.Resour
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -394,7 +394,7 @@ func resourceSecurityCenterV2OrganizationNotificationConfigUpdate(d *schema.Reso
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -459,7 +459,7 @@ func resourceSecurityCenterV2OrganizationNotificationConfigDelete(d *schema.Reso
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 	if err != nil {
 		return err
 	}

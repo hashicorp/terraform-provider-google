@@ -200,7 +200,7 @@ func resourceLoggingFolderSettingsCreate(d *schema.ResourceData, meta interface{
 		obj["disableDefaultSink"] = disableDefaultSinkProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LoggingBasePath}}folders/{{folder}}/settings?updateMask=disableDefaultSink,storageLocation,kmsKeyName")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/settings?updateMask=disableDefaultSink,storageLocation,kmsKeyName"))
 	if err != nil {
 		return err
 	}
@@ -258,7 +258,7 @@ func resourceLoggingFolderSettingsRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LoggingBasePath}}folders/{{folder}}/settings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/settings"))
 	if err != nil {
 		return err
 	}
@@ -344,7 +344,7 @@ func resourceLoggingFolderSettingsUpdate(d *schema.ResourceData, meta interface{
 		obj["disableDefaultSink"] = disableDefaultSinkProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LoggingBasePath}}folders/{{folder}}/settings?updateMask=disableDefaultSink,storageLocation,kmsKeyName")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/settings?updateMask=disableDefaultSink,storageLocation,kmsKeyName"))
 	if err != nil {
 		return err
 	}

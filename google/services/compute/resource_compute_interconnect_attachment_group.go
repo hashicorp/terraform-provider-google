@@ -443,7 +443,7 @@ func resourceComputeInterconnectAttachmentGroupCreate(d *schema.ResourceData, me
 		obj["intent"] = intentProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/interconnectAttachmentGroups")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/interconnectAttachmentGroups"))
 	if err != nil {
 		return err
 	}
@@ -522,7 +522,7 @@ func resourceComputeInterconnectAttachmentGroupRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/interconnectAttachmentGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/interconnectAttachmentGroups/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -641,7 +641,7 @@ func resourceComputeInterconnectAttachmentGroupUpdate(d *schema.ResourceData, me
 		obj["intent"] = intentProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/interconnectAttachmentGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/interconnectAttachmentGroups/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -696,8 +696,7 @@ func resourceComputeInterconnectAttachmentGroupDelete(d *schema.ResourceData, me
 		return fmt.Errorf("Error fetching project for InterconnectAttachmentGroup: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/interconnectAttachmentGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/interconnectAttachmentGroups/{{name}}"))
 	if err != nil {
 		return err
 	}

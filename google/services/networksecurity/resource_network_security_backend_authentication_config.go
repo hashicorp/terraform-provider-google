@@ -266,7 +266,7 @@ func resourceNetworkSecurityBackendAuthenticationConfigCreate(d *schema.Resource
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/backendAuthenticationConfigs?backendAuthenticationConfigId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backendAuthenticationConfigs?backendAuthenticationConfigId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -350,7 +350,7 @@ func resourceNetworkSecurityBackendAuthenticationConfigRead(d *schema.ResourceDa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/backendAuthenticationConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backendAuthenticationConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -474,7 +474,7 @@ func resourceNetworkSecurityBackendAuthenticationConfigUpdate(d *schema.Resource
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/backendAuthenticationConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backendAuthenticationConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -551,8 +551,7 @@ func resourceNetworkSecurityBackendAuthenticationConfigDelete(d *schema.Resource
 		return fmt.Errorf("Error fetching project for BackendAuthenticationConfig: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/backendAuthenticationConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backendAuthenticationConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}

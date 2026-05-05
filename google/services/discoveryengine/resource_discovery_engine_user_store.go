@@ -225,7 +225,7 @@ func resourceDiscoveryEngineUserStoreCreate(d *schema.ResourceData, meta interfa
 		obj["enableExpiredLicenseAutoUpdate"] = enableExpiredLicenseAutoUpdateProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/userStores/{{user_store_id}}?updateMask=defaultLicenseConfig,enableLicenseAutoRegister,enableExpiredLicenseAutoUpdate")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/userStores/{{user_store_id}}?updateMask=defaultLicenseConfig,enableLicenseAutoRegister,enableExpiredLicenseAutoUpdate"))
 	if err != nil {
 		return err
 	}
@@ -299,7 +299,7 @@ func resourceDiscoveryEngineUserStoreRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/userStores/{{user_store_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/userStores/{{user_store_id}}"))
 	if err != nil {
 		return err
 	}
@@ -423,7 +423,7 @@ func resourceDiscoveryEngineUserStoreUpdate(d *schema.ResourceData, meta interfa
 		obj["enableExpiredLicenseAutoUpdate"] = enableExpiredLicenseAutoUpdateProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/userStores/{{user_store_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/userStores/{{user_store_id}}"))
 	if err != nil {
 		return err
 	}

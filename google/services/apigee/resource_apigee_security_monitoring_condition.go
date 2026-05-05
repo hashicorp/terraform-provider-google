@@ -205,7 +205,7 @@ func resourceApigeeSecurityMonitoringConditionCreate(d *schema.ResourceData, met
 		obj["includeAllResources"] = includeAllResourcesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/securityMonitoringConditions?security_monitoring_condition_id={{condition_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityMonitoringConditions?security_monitoring_condition_id={{condition_id}}"))
 	if err != nil {
 		return err
 	}
@@ -252,7 +252,7 @@ func resourceApigeeSecurityMonitoringConditionRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/securityMonitoringConditions/{{condition_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityMonitoringConditions/{{condition_id}}"))
 	if err != nil {
 		return err
 	}
@@ -316,7 +316,7 @@ func resourceApigeeSecurityMonitoringConditionUpdate(d *schema.ResourceData, met
 		obj["includeAllResources"] = includeAllResourcesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/securityMonitoringConditions/{{condition_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityMonitoringConditions/{{condition_id}}"))
 	if err != nil {
 		return err
 	}
@@ -358,7 +358,7 @@ func resourceApigeeSecurityMonitoringConditionDelete(d *schema.ResourceData, met
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/securityMonitoringConditions/{{condition_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityMonitoringConditions/{{condition_id}}"))
 	if err != nil {
 		return err
 	}

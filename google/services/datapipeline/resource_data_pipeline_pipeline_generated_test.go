@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/datapipeline"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = datapipeline.Product
 )
 
 func TestAccDataPipelinePipeline_dataPipelinePipelineExample(t *testing.T) {
@@ -149,8 +151,7 @@ func testAccCheckDataPipelinePipelineDestroyProducer(t *testing.T) func(s *terra
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{DataPipelineBasePath}}projects/{{project}}/locations/{{region}}/pipelines/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(datapipeline.Product, config), "projects/{{project}}/locations/{{region}}/pipelines/{{name}}"))
 			if err != nil {
 				return err
 			}

@@ -276,7 +276,7 @@ func resourceNotebooksEnvironmentCreate(d *schema.ResourceData, meta interface{}
 		obj["containerImage"] = containerImageProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/environments?environmentId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/environments?environmentId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -360,7 +360,7 @@ func resourceNotebooksEnvironmentRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/environments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/environments/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -496,7 +496,7 @@ func resourceNotebooksEnvironmentUpdate(d *schema.ResourceData, meta interface{}
 		obj["containerImage"] = containerImageProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/environments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/environments/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -551,8 +551,7 @@ func resourceNotebooksEnvironmentDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for Environment: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/environments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/environments/{{name}}"))
 	if err != nil {
 		return err
 	}

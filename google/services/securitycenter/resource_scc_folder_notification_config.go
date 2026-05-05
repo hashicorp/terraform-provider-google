@@ -240,7 +240,7 @@ func resourceSecurityCenterFolderNotificationConfigCreate(d *schema.ResourceData
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/notificationConfigs?configId={{config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/notificationConfigs?configId={{config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -303,7 +303,7 @@ func resourceSecurityCenterFolderNotificationConfigRead(d *schema.ResourceData, 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/notificationConfigs/{{config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/notificationConfigs/{{config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -400,7 +400,7 @@ func resourceSecurityCenterFolderNotificationConfigUpdate(d *schema.ResourceData
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/notificationConfigs/{{config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/notificationConfigs/{{config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -465,7 +465,7 @@ func resourceSecurityCenterFolderNotificationConfigDelete(d *schema.ResourceData
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}folders/{{folder}}/notificationConfigs/{{config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/notificationConfigs/{{config_id}}"))
 	if err != nil {
 		return err
 	}

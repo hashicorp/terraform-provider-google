@@ -838,7 +838,7 @@ func resourceComputeFirewallPolicyWithRulesCreate(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies?parentId={{parent}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies?parentId={{parent}}"))
 	if err != nil {
 		return err
 	}
@@ -959,7 +959,7 @@ func resourceComputeFirewallPolicyWithRulesRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{policy_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{policy_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1062,7 +1062,7 @@ func resourceComputeFirewallPolicyWithRulesUpdate(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{policy_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{policy_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1114,7 +1114,7 @@ func resourceComputeFirewallPolicyWithRulesDelete(d *schema.ResourceData, meta i
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{policy_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{policy_id}}"))
 	if err != nil {
 		return err
 	}

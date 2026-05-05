@@ -231,7 +231,7 @@ func resourceBiglakeDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 		obj["hiveOptions"] = hiveOptionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}{{catalog}}/databases?databaseId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{catalog}}/databases?databaseId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -294,7 +294,7 @@ func resourceBiglakeDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}{{catalog}}/databases/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{catalog}}/databases/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -385,7 +385,7 @@ func resourceBiglakeDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["hiveOptions"] = hiveOptionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}{{catalog}}/databases/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{catalog}}/databases/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -446,7 +446,7 @@ func resourceBiglakeDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}{{catalog}}/databases/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{catalog}}/databases/{{name}}"))
 	if err != nil {
 		return err
 	}

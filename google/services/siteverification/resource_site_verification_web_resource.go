@@ -194,7 +194,7 @@ func resourceSiteVerificationWebResourceCreate(d *schema.ResourceData, meta inte
 		obj["site"] = siteProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SiteVerificationBasePath}}webResource?verificationMethod={{verification_method}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "webResource?verificationMethod={{verification_method}}"))
 	if err != nil {
 		return err
 	}
@@ -263,7 +263,7 @@ func resourceSiteVerificationWebResourceRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SiteVerificationBasePath}}webResource/{{web_resource_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "webResource/{{web_resource_id}}"))
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,7 @@ func resourceSiteVerificationWebResourceDelete(d *schema.ResourceData, meta inte
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SiteVerificationBasePath}}webResource/{{web_resource_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "webResource/{{web_resource_id}}"))
 	if err != nil {
 		return err
 	}

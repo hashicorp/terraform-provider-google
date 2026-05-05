@@ -435,7 +435,7 @@ func resourceLoggingMetricCreate(d *schema.ResourceData, meta interface{}) error
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/metrics"))
 	if err != nil {
 		return err
 	}
@@ -504,7 +504,7 @@ func resourceLoggingMetricRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/metrics/{{%name}}"))
 	if err != nil {
 		return err
 	}
@@ -660,7 +660,7 @@ func resourceLoggingMetricUpdate(d *schema.ResourceData, meta interface{}) error
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/metrics/{{%name}}"))
 	if err != nil {
 		return err
 	}
@@ -714,8 +714,7 @@ func resourceLoggingMetricDelete(d *schema.ResourceData, meta interface{}) error
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/metrics/{{%name}}"))
 	if err != nil {
 		return err
 	}

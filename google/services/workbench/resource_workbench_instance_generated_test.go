@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/workbench"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = workbench.Product
 )
 
 func TestAccWorkbenchInstance_workbenchInstanceBasicExample(t *testing.T) {
@@ -611,8 +613,7 @@ func testAccCheckWorkbenchInstanceDestroyProducer(t *testing.T) func(s *terrafor
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{WorkbenchBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(workbench.Product, config), "projects/{{project}}/locations/{{location}}/instances/{{name}}"))
 			if err != nil {
 				return err
 			}

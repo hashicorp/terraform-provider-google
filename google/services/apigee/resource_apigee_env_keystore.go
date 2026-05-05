@@ -172,7 +172,7 @@ func resourceApigeeEnvKeystoreCreate(d *schema.ResourceData, meta interface{}) e
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keystores")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/keystores"))
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func resourceApigeeEnvKeystoreRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keystores/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/keystores/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -297,7 +297,7 @@ func resourceApigeeEnvKeystoreDelete(d *schema.ResourceData, meta interface{}) e
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keystores/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/keystores/{{name}}"))
 	if err != nil {
 		return err
 	}

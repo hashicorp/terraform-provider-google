@@ -570,7 +570,7 @@ func resourceApihubPluginInstanceCreate(d *schema.ResourceData, meta interface{}
 		obj["actions"] = actionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}projects/{{project}}/locations/{{location}}/plugins/{{plugin}}/instances?pluginInstanceId={{plugin_instance_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/plugins/{{plugin}}/instances?pluginInstanceId={{plugin_instance_id}}"))
 	if err != nil {
 		return err
 	}
@@ -659,7 +659,7 @@ func resourceApihubPluginInstanceRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}projects/{{project}}/locations/{{location}}/plugins/{{plugin}}/instances/{{plugin_instance_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/plugins/{{plugin}}/instances/{{plugin_instance_id}}"))
 	if err != nil {
 		return err
 	}
@@ -786,7 +786,7 @@ func resourceApihubPluginInstanceUpdate(d *schema.ResourceData, meta interface{}
 			obj["disable"] = disableProp
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}projects/{{project}}/locations/{{location}}/plugins/{{plugin}}/instances/{{plugin_instance_id}}:enableAction")
+		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/plugins/{{plugin}}/instances/{{plugin_instance_id}}:enableAction"))
 		if err != nil {
 			return err
 		}
@@ -841,8 +841,7 @@ func resourceApihubPluginInstanceDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for PluginInstance: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}projects/{{project}}/locations/{{location}}/plugins/{{plugin}}/instances/{{plugin_instance_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/plugins/{{plugin}}/instances/{{plugin_instance_id}}"))
 	if err != nil {
 		return err
 	}

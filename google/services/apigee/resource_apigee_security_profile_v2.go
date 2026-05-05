@@ -193,7 +193,7 @@ func resourceApigeeSecurityProfileV2Create(d *schema.ResourceData, meta interfac
 		obj["profileAssessmentConfigs"] = profileAssessmentConfigsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/securityProfilesV2?security_profile_v2_id={{profile_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityProfilesV2?security_profile_v2_id={{profile_id}}"))
 	if err != nil {
 		return err
 	}
@@ -240,7 +240,7 @@ func resourceApigeeSecurityProfileV2Read(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/securityProfilesV2/{{profile_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityProfilesV2/{{profile_id}}"))
 	if err != nil {
 		return err
 	}
@@ -298,7 +298,7 @@ func resourceApigeeSecurityProfileV2Update(d *schema.ResourceData, meta interfac
 		obj["profileAssessmentConfigs"] = profileAssessmentConfigsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/securityProfilesV2/{{profile_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityProfilesV2/{{profile_id}}"))
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func resourceApigeeSecurityProfileV2Delete(d *schema.ResourceData, meta interfac
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/securityProfilesV2/{{profile_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityProfilesV2/{{profile_id}}"))
 	if err != nil {
 		return err
 	}

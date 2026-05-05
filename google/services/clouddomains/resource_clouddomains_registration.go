@@ -830,7 +830,7 @@ func resourceClouddomainsRegistrationCreate(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ClouddomainsBasePath}}projects/{{project}}/locations/{{location}}/registrations:register")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/registrations:register"))
 	if err != nil {
 		return err
 	}
@@ -918,7 +918,7 @@ func resourceClouddomainsRegistrationRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ClouddomainsBasePath}}projects/{{project}}/locations/{{location}}/registrations/{{domain_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/registrations/{{domain_name}}"))
 	if err != nil {
 		return err
 	}

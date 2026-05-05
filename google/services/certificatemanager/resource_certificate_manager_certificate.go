@@ -430,7 +430,7 @@ func resourceCertificateManagerCertificateCreate(d *schema.ResourceData, meta in
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/certificates?certificateId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/certificates?certificateId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -514,7 +514,7 @@ func resourceCertificateManagerCertificateRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/certificates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/certificates/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -632,7 +632,7 @@ func resourceCertificateManagerCertificateUpdate(d *schema.ResourceData, meta in
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/certificates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/certificates/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -705,8 +705,7 @@ func resourceCertificateManagerCertificateDelete(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error fetching project for Certificate: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/certificates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/certificates/{{name}}"))
 	if err != nil {
 		return err
 	}

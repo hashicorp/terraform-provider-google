@@ -201,7 +201,7 @@ func resourceApihubHostProjectRegistrationCreate(d *schema.ResourceData, meta in
 		obj["gcpProject"] = gcpProjectProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}projects/{{project}}/locations/{{location}}/hostProjectRegistrations?hostProjectRegistrationId={{host_project_registration_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/hostProjectRegistrations?hostProjectRegistrationId={{host_project_registration_id}}"))
 	if err != nil {
 		return err
 	}
@@ -275,7 +275,7 @@ func resourceApihubHostProjectRegistrationRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}projects/{{project}}/locations/{{location}}/hostProjectRegistrations/{{host_project_registration_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/hostProjectRegistrations/{{host_project_registration_id}}"))
 	if err != nil {
 		return err
 	}

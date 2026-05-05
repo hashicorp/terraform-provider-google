@@ -569,7 +569,7 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 		obj["region"] = regionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/resourcePolicies")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/resourcePolicies"))
 	if err != nil {
 		return err
 	}
@@ -653,7 +653,7 @@ func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -809,7 +809,7 @@ func resourceComputeResourcePolicyUpdate(d *schema.ResourceData, meta interface{
 		obj["workloadPolicy"] = workloadPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -864,8 +864,7 @@ func resourceComputeResourcePolicyDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for ResourcePolicy: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}"))
 	if err != nil {
 		return err
 	}

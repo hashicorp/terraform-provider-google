@@ -272,7 +272,7 @@ func resourceDiscoveryEngineServingConfigCreate(d *schema.ResourceData, meta int
 		obj["promoteControlIds"] = promoteControlIdsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/servingConfigs/{{serving_config_id}}?updateMask=filterControlIds,boostControlIds,synonymsControlIds,redirectControlIds,promoteControlIds")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/servingConfigs/{{serving_config_id}}?updateMask=filterControlIds,boostControlIds,synonymsControlIds,redirectControlIds,promoteControlIds"))
 	if err != nil {
 		return err
 	}
@@ -356,7 +356,7 @@ func resourceDiscoveryEngineServingConfigRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/servingConfigs/{{serving_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/servingConfigs/{{serving_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -514,7 +514,7 @@ func resourceDiscoveryEngineServingConfigUpdate(d *schema.ResourceData, meta int
 		obj["promoteControlIds"] = promoteControlIdsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/servingConfigs/{{serving_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/servingConfigs/{{serving_config_id}}"))
 	if err != nil {
 		return err
 	}

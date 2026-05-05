@@ -270,7 +270,7 @@ func resourceOracleDatabaseOdbSubnetCreate(d *schema.ResourceData, meta interfac
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/odbNetworks/{{odbnetwork}}/odbSubnets?odbSubnetId={{odb_subnet_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/odbNetworks/{{odbnetwork}}/odbSubnets?odbSubnetId={{odb_subnet_id}}"))
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func resourceOracleDatabaseOdbSubnetRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/odbNetworks/{{odbnetwork}}/odbSubnets/{{odb_subnet_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/odbNetworks/{{odbnetwork}}/odbSubnets/{{odb_subnet_id}}"))
 	if err != nil {
 		return err
 	}
@@ -459,8 +459,7 @@ func resourceOracleDatabaseOdbSubnetDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error fetching project for OdbSubnet: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/odbNetworks/{{odbnetwork}}/odbSubnets/{{odb_subnet_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/odbNetworks/{{odbnetwork}}/odbSubnets/{{odb_subnet_id}}"))
 	if err != nil {
 		return err
 	}

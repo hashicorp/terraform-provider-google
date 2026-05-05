@@ -256,7 +256,7 @@ func resourceApigeeAppGroupCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["attributes"] = attributesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/appgroups")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/appgroups"))
 	if err != nil {
 		return err
 	}
@@ -319,7 +319,7 @@ func resourceApigeeAppGroupRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/appgroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/appgroups/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -434,7 +434,7 @@ func resourceApigeeAppGroupUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["attributes"] = attributesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/appgroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/appgroups/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -476,7 +476,7 @@ func resourceApigeeAppGroupDelete(d *schema.ResourceData, meta interface{}) erro
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/appgroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/appgroups/{{name}}"))
 	if err != nil {
 		return err
 	}

@@ -240,7 +240,7 @@ func resourceChronicleDataAccessLabelCreate(d *schema.ResourceData, meta interfa
 		obj["udmQuery"] = udmQueryProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataAccessLabels?dataAccessLabelId={{data_access_label_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataAccessLabels?dataAccessLabelId={{data_access_label_id}}"))
 	if err != nil {
 		return err
 	}
@@ -319,7 +319,7 @@ func resourceChronicleDataAccessLabelRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataAccessLabels/{{data_access_label_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataAccessLabels/{{data_access_label_id}}"))
 	if err != nil {
 		return err
 	}
@@ -448,7 +448,7 @@ func resourceChronicleDataAccessLabelUpdate(d *schema.ResourceData, meta interfa
 		obj["udmQuery"] = udmQueryProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataAccessLabels/{{data_access_label_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataAccessLabels/{{data_access_label_id}}"))
 	if err != nil {
 		return err
 	}
@@ -514,8 +514,7 @@ func resourceChronicleDataAccessLabelDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for DataAccessLabel: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataAccessLabels/{{data_access_label_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataAccessLabels/{{data_access_label_id}}"))
 	if err != nil {
 		return err
 	}

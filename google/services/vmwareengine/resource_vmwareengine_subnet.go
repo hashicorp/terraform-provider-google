@@ -243,7 +243,7 @@ func resourceVmwareengineSubnetCreate(d *schema.ResourceData, meta interface{}) 
 		obj["ipCidrRange"] = ipCidrRangeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/subnets/{{name}}?update_mask=ip_cidr_range")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/subnets/{{name}}?update_mask=ip_cidr_range"))
 	if err != nil {
 		return err
 	}
@@ -316,7 +316,7 @@ func resourceVmwareengineSubnetRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/subnets/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/subnets/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -402,7 +402,7 @@ func resourceVmwareengineSubnetUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["ipCidrRange"] = ipCidrRangeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/subnets/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/subnets/{{name}}"))
 	if err != nil {
 		return err
 	}

@@ -878,7 +878,7 @@ func resourceTranscoderJobTemplateCreate(d *schema.ResourceData, meta interface{
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{TranscoderBasePath}}projects/{{project}}/locations/{{location}}/jobTemplates?jobTemplateId={{job_template_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/jobTemplates?jobTemplateId={{job_template_id}}"))
 	if err != nil {
 		return err
 	}
@@ -952,7 +952,7 @@ func resourceTranscoderJobTemplateRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{TranscoderBasePath}}projects/{{project}}/locations/{{location}}/jobTemplates/{{job_template_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/jobTemplates/{{job_template_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1040,8 +1040,7 @@ func resourceTranscoderJobTemplateDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for JobTemplate: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{TranscoderBasePath}}projects/{{project}}/locations/{{location}}/jobTemplates/{{job_template_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/jobTemplates/{{job_template_id}}"))
 	if err != nil {
 		return err
 	}

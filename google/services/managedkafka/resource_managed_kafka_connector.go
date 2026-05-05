@@ -233,7 +233,7 @@ func resourceManagedKafkaConnectorCreate(d *schema.ResourceData, meta interface{
 		obj["taskRestartPolicy"] = taskRestartPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster}}/connectors?connectorId={{connector_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster}}/connectors?connectorId={{connector_id}}"))
 	if err != nil {
 		return err
 	}
@@ -312,7 +312,7 @@ func resourceManagedKafkaConnectorRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster}}/connectors/{{connector_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster}}/connectors/{{connector_id}}"))
 	if err != nil {
 		return err
 	}
@@ -441,7 +441,7 @@ func resourceManagedKafkaConnectorUpdate(d *schema.ResourceData, meta interface{
 		obj["taskRestartPolicy"] = taskRestartPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster}}/connectors/{{connector_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster}}/connectors/{{connector_id}}"))
 	if err != nil {
 		return err
 	}
@@ -507,8 +507,7 @@ func resourceManagedKafkaConnectorDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for Connector: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ManagedKafkaBasePath}}projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster}}/connectors/{{connector_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster}}/connectors/{{connector_id}}"))
 	if err != nil {
 		return err
 	}

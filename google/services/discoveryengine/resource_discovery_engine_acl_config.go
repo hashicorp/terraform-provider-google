@@ -207,7 +207,7 @@ func resourceDiscoveryEngineAclConfigCreate(d *schema.ResourceData, meta interfa
 		obj["idpConfig"] = idpConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/aclConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/aclConfig"))
 	if err != nil {
 		return err
 	}
@@ -276,7 +276,7 @@ func resourceDiscoveryEngineAclConfigRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/aclConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/aclConfig"))
 	if err != nil {
 		return err
 	}
@@ -377,7 +377,7 @@ func resourceDiscoveryEngineAclConfigUpdate(d *schema.ResourceData, meta interfa
 		obj["idpConfig"] = idpConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/aclConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/aclConfig"))
 	if err != nil {
 		return err
 	}

@@ -222,7 +222,7 @@ func resourceComputeTargetInstanceCreate(d *schema.ResourceData, meta interface{
 		obj["zone"] = zoneProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/targetInstances")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/targetInstances"))
 	if err != nil {
 		return err
 	}
@@ -285,7 +285,7 @@ func resourceComputeTargetInstanceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/targetInstances/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/targetInstances/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -344,8 +344,7 @@ func resourceComputeTargetInstanceDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for TargetInstance: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/targetInstances/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/targetInstances/{{name}}"))
 	if err != nil {
 		return err
 	}

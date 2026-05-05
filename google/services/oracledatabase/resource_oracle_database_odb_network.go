@@ -266,7 +266,7 @@ func resourceOracleDatabaseOdbNetworkCreate(d *schema.ResourceData, meta interfa
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/odbNetworks?odbNetworkId={{odb_network_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/odbNetworks?odbNetworkId={{odb_network_id}}"))
 	if err != nil {
 		return err
 	}
@@ -350,7 +350,7 @@ func resourceOracleDatabaseOdbNetworkRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/odbNetworks/{{odb_network_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/odbNetworks/{{odb_network_id}}"))
 	if err != nil {
 		return err
 	}
@@ -444,8 +444,7 @@ func resourceOracleDatabaseOdbNetworkDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for OdbNetwork: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/odbNetworks/{{odb_network_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/odbNetworks/{{odb_network_id}}"))
 	if err != nil {
 		return err
 	}

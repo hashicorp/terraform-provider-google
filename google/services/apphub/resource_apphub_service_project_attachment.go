@@ -201,7 +201,7 @@ func resourceApphubServiceProjectAttachmentCreate(d *schema.ResourceData, meta i
 		obj["serviceProject"] = serviceProjectProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/global/serviceProjectAttachments?serviceProjectAttachmentId={{service_project_attachment_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/serviceProjectAttachments?serviceProjectAttachmentId={{service_project_attachment_id}}"))
 	if err != nil {
 		return err
 	}
@@ -280,7 +280,7 @@ func resourceApphubServiceProjectAttachmentRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/global/serviceProjectAttachments/{{service_project_attachment_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/serviceProjectAttachments/{{service_project_attachment_id}}"))
 	if err != nil {
 		return err
 	}
@@ -357,8 +357,7 @@ func resourceApphubServiceProjectAttachmentDelete(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error fetching project for ServiceProjectAttachment: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/global/serviceProjectAttachments/{{service_project_attachment_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/serviceProjectAttachments/{{service_project_attachment_id}}"))
 	if err != nil {
 		return err
 	}

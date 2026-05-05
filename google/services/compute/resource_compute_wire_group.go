@@ -378,7 +378,7 @@ func resourceComputeWireGroupCreate(d *schema.ResourceData, meta interface{}) er
 		obj["wireProperties"] = wirePropertiesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/crossSiteNetworks/{{cross_site_network}}/wireGroups")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/crossSiteNetworks/{{cross_site_network}}/wireGroups"))
 	if err != nil {
 		return err
 	}
@@ -462,7 +462,7 @@ func resourceComputeWireGroupRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/crossSiteNetworks/{{cross_site_network}}/wireGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/crossSiteNetworks/{{cross_site_network}}/wireGroups/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -598,7 +598,7 @@ func resourceComputeWireGroupUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["wireProperties"] = wirePropertiesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/crossSiteNetworks/{{cross_site_network}}/wireGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/crossSiteNetworks/{{cross_site_network}}/wireGroups/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -683,8 +683,7 @@ func resourceComputeWireGroupDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error fetching project for WireGroup: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/crossSiteNetworks/{{cross_site_network}}/wireGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/crossSiteNetworks/{{cross_site_network}}/wireGroups/{{name}}"))
 	if err != nil {
 		return err
 	}

@@ -170,7 +170,7 @@ func resourceDialogflowEncryptionSpecCreate(d *schema.ResourceData, meta interfa
 		obj["location"] = locationProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/locations/{{location}}/encryptionSpec:initialize")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/encryptionSpec:initialize"))
 	if err != nil {
 		return err
 	}

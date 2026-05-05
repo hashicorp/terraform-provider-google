@@ -322,7 +322,7 @@ func resourceApihubCurationCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}projects/{{project}}/locations/{{location}}/curations?curationId={{curation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/curations?curationId={{curation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -396,7 +396,7 @@ func resourceApihubCurationRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}projects/{{project}}/locations/{{location}}/curations/{{curation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/curations/{{curation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -514,7 +514,7 @@ func resourceApihubCurationUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}projects/{{project}}/locations/{{location}}/curations/{{curation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/curations/{{curation_id}}"))
 	if err != nil {
 		return err
 	}
@@ -580,8 +580,7 @@ func resourceApihubCurationDelete(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error fetching project for Curation: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApihubBasePath}}projects/{{project}}/locations/{{location}}/curations/{{curation_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/curations/{{curation_id}}"))
 	if err != nil {
 		return err
 	}

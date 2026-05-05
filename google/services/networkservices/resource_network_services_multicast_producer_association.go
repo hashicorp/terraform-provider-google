@@ -294,7 +294,7 @@ func resourceNetworkServicesMulticastProducerAssociationCreate(d *schema.Resourc
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastProducerAssociations?multicastProducerAssociationId={{multicast_producer_association_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastProducerAssociations?multicastProducerAssociationId={{multicast_producer_association_id}}"))
 	if err != nil {
 		return err
 	}
@@ -378,7 +378,7 @@ func resourceNetworkServicesMulticastProducerAssociationRead(d *schema.ResourceD
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastProducerAssociations/{{multicast_producer_association_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastProducerAssociations/{{multicast_producer_association_id}}"))
 	if err != nil {
 		return err
 	}
@@ -496,7 +496,7 @@ func resourceNetworkServicesMulticastProducerAssociationUpdate(d *schema.Resourc
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastProducerAssociations/{{multicast_producer_association_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastProducerAssociations/{{multicast_producer_association_id}}"))
 	if err != nil {
 		return err
 	}
@@ -569,8 +569,7 @@ func resourceNetworkServicesMulticastProducerAssociationDelete(d *schema.Resourc
 		return fmt.Errorf("Error fetching project for MulticastProducerAssociation: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastProducerAssociations/{{multicast_producer_association_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastProducerAssociations/{{multicast_producer_association_id}}"))
 	if err != nil {
 		return err
 	}

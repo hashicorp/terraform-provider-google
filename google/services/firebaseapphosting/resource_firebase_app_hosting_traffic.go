@@ -315,7 +315,7 @@ func resourceFirebaseAppHostingTrafficCreate(d *schema.ResourceData, meta interf
 		obj["rolloutPolicy"] = rolloutPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppHostingBasePath}}projects/{{project}}/locations/{{location}}/backends/{{backend}}/traffic?update_mask=*")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backends/{{backend}}/traffic?update_mask=*"))
 	if err != nil {
 		return err
 	}
@@ -399,7 +399,7 @@ func resourceFirebaseAppHostingTrafficRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppHostingBasePath}}projects/{{project}}/locations/{{location}}/backends/{{backend}}/traffic")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backends/{{backend}}/traffic"))
 	if err != nil {
 		return err
 	}
@@ -523,7 +523,7 @@ func resourceFirebaseAppHostingTrafficUpdate(d *schema.ResourceData, meta interf
 		obj["rolloutPolicy"] = rolloutPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppHostingBasePath}}projects/{{project}}/locations/{{location}}/backends/{{backend}}/traffic")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backends/{{backend}}/traffic"))
 	if err != nil {
 		return err
 	}

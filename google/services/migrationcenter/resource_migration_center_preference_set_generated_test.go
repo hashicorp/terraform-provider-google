@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/migrationcenter"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = migrationcenter.Product
 )
 
 func TestAccMigrationCenterPreferenceSet_preferenceSetBasicExample(t *testing.T) {
@@ -245,8 +247,7 @@ func testAccCheckMigrationCenterPreferenceSetDestroyProducer(t *testing.T) func(
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{MigrationCenterBasePath}}projects/{{project}}/locations/{{location}}/preferenceSets/{{preference_set_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(migrationcenter.Product, config), "projects/{{project}}/locations/{{location}}/preferenceSets/{{preference_set_id}}"))
 			if err != nil {
 				return err
 			}

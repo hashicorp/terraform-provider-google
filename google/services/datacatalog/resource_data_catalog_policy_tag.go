@@ -188,7 +188,7 @@ func resourceDataCatalogPolicyTagCreate(d *schema.ResourceData, meta interface{}
 		obj["parentPolicyTag"] = parentPolicyTagProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{taxonomy}}/policyTags")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{taxonomy}}/policyTags"))
 	if err != nil {
 		return err
 	}
@@ -241,7 +241,7 @@ func resourceDataCatalogPolicyTagRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -305,7 +305,7 @@ func resourceDataCatalogPolicyTagUpdate(d *schema.ResourceData, meta interface{}
 		obj["parentPolicyTag"] = parentPolicyTagProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -370,7 +370,7 @@ func resourceDataCatalogPolicyTagDelete(d *schema.ResourceData, meta interface{}
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 	if err != nil {
 		return err
 	}

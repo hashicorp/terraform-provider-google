@@ -327,7 +327,7 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationCreate(d *schema.Re
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations?mirroringEndpointGroupAssociationId={{mirroring_endpoint_group_association_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations?mirroringEndpointGroupAssociationId={{mirroring_endpoint_group_association_id}}"))
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationRead(d *schema.Reso
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations/{{mirroring_endpoint_group_association_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations/{{mirroring_endpoint_group_association_id}}"))
 	if err != nil {
 		return err
 	}
@@ -523,7 +523,7 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationUpdate(d *schema.Re
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations/{{mirroring_endpoint_group_association_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations/{{mirroring_endpoint_group_association_id}}"))
 	if err != nil {
 		return err
 	}
@@ -592,8 +592,7 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationDelete(d *schema.Re
 		return fmt.Errorf("Error fetching project for MirroringEndpointGroupAssociation: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations/{{mirroring_endpoint_group_association_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations/{{mirroring_endpoint_group_association_id}}"))
 	if err != nil {
 		return err
 	}

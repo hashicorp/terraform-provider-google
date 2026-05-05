@@ -421,7 +421,7 @@ func resourceNetworkConnectivityv1ServiceConnectionPolicyCreate(d *schema.Resour
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityv1BasePath}}projects/{{project}}/locations/{{location}}/serviceConnectionPolicies?serviceConnectionPolicyId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/serviceConnectionPolicies?serviceConnectionPolicyId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -505,7 +505,7 @@ func resourceNetworkConnectivityv1ServiceConnectionPolicyRead(d *schema.Resource
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityv1BasePath}}projects/{{project}}/locations/{{location}}/serviceConnectionPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/serviceConnectionPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -640,7 +640,7 @@ func resourceNetworkConnectivityv1ServiceConnectionPolicyUpdate(d *schema.Resour
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityv1BasePath}}projects/{{project}}/locations/{{location}}/serviceConnectionPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/serviceConnectionPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -721,8 +721,7 @@ func resourceNetworkConnectivityv1ServiceConnectionPolicyDelete(d *schema.Resour
 		return fmt.Errorf("Error fetching project for ServiceConnectionPolicy: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityv1BasePath}}projects/{{project}}/locations/{{location}}/serviceConnectionPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/serviceConnectionPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}

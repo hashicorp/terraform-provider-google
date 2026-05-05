@@ -161,7 +161,7 @@ func resourceApigeeEnvironmentAddonsConfigCreate(d *schema.ResourceData, meta in
 		obj["analyticsEnabled"] = analyticsEnabledProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/addonsConfig:setAddonEnablement")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/addonsConfig:setAddonEnablement"))
 	if err != nil {
 		return err
 	}
@@ -229,7 +229,7 @@ func resourceApigeeEnvironmentAddonsConfigRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/addonsConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/addonsConfig"))
 	if err != nil {
 		return err
 	}
@@ -315,7 +315,7 @@ func resourceApigeeEnvironmentAddonsConfigUpdate(d *schema.ResourceData, meta in
 		obj["analyticsEnabled"] = analyticsEnabledProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/addonsConfig:setAddonEnablement")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_id}}/addonsConfig:setAddonEnablement"))
 	if err != nil {
 		return err
 	}

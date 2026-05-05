@@ -293,7 +293,7 @@ func resourceVmwareengineNetworkPolicyCreate(d *schema.ResourceData, meta interf
 		obj["externalIp"] = externalIpProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/networkPolicies?networkPolicyId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/networkPolicies?networkPolicyId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -377,7 +377,7 @@ func resourceVmwareengineNetworkPolicyRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/networkPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/networkPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -507,7 +507,7 @@ func resourceVmwareengineNetworkPolicyUpdate(d *schema.ResourceData, meta interf
 		obj["externalIp"] = externalIpProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/networkPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/networkPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -562,8 +562,7 @@ func resourceVmwareengineNetworkPolicyDelete(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error fetching project for NetworkPolicy: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/networkPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/networkPolicies/{{name}}"))
 	if err != nil {
 		return err
 	}

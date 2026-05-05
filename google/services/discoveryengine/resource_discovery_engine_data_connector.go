@@ -697,7 +697,7 @@ func resourceDiscoveryEngineDataConnectorCreate(d *schema.ResourceData, meta int
 		obj["incrementalSyncDisabled"] = incrementalSyncDisabledProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}:setUpDataConnectorV2?collectionId={{collection_id}}&collectionDisplayName={{collection_display_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}:setUpDataConnectorV2?collectionId={{collection_id}}&collectionDisplayName={{collection_display_name}}"))
 	if err != nil {
 		return err
 	}
@@ -781,7 +781,7 @@ func resourceDiscoveryEngineDataConnectorRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/dataConnector")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/dataConnector"))
 	if err != nil {
 		return err
 	}
@@ -965,7 +965,7 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 		obj["incrementalSyncDisabled"] = incrementalSyncDisabledProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/dataConnector")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/dataConnector"))
 	if err != nil {
 		return err
 	}
@@ -1076,8 +1076,7 @@ func resourceDiscoveryEngineDataConnectorDelete(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error fetching project for DataConnector: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/{{collection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}"))
 	if err != nil {
 		return err
 	}

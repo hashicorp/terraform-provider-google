@@ -188,7 +188,7 @@ func resourceParameterManagerParameterVersionCreate(d *schema.ResourceData, meta
 		obj["payload"] = payloadProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ParameterManagerBasePath}}{{parameter}}/versions?parameter_version_id={{parameter_version_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parameter}}/versions?parameter_version_id={{parameter_version_id}}"))
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func resourceParameterManagerParameterVersionRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ParameterManagerBasePath}}{{parameter}}/versions/{{parameter_version_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parameter}}/versions/{{parameter_version_id}}"))
 	if err != nil {
 		return err
 	}
@@ -287,7 +287,7 @@ func resourceParameterManagerParameterVersionUpdate(d *schema.ResourceData, meta
 		obj["disabled"] = disabledProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ParameterManagerBasePath}}{{parameter}}/versions/{{parameter_version_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parameter}}/versions/{{parameter_version_id}}"))
 	if err != nil {
 		return err
 	}
@@ -344,7 +344,7 @@ func resourceParameterManagerParameterVersionDelete(d *schema.ResourceData, meta
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ParameterManagerBasePath}}{{parameter}}/versions/{{parameter_version_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parameter}}/versions/{{parameter_version_id}}"))
 	if err != nil {
 		return err
 	}

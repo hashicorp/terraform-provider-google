@@ -919,7 +919,7 @@ func resourceDeveloperConnectConnectionCreate(d *schema.ResourceData, meta inter
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DeveloperConnectBasePath}}projects/{{project}}/locations/{{location}}/connections?connectionId={{connection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections?connectionId={{connection_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1003,7 +1003,7 @@ func resourceDeveloperConnectConnectionRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DeveloperConnectBasePath}}projects/{{project}}/locations/{{location}}/connections/{{connection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1181,7 +1181,7 @@ func resourceDeveloperConnectConnectionUpdate(d *schema.ResourceData, meta inter
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DeveloperConnectBasePath}}projects/{{project}}/locations/{{location}}/connections/{{connection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1294,8 +1294,7 @@ func resourceDeveloperConnectConnectionDelete(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for Connection: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{DeveloperConnectBasePath}}projects/{{project}}/locations/{{location}}/connections/{{connection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}"))
 	if err != nil {
 		return err
 	}

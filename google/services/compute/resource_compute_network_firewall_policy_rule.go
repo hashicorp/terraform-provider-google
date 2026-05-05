@@ -511,7 +511,7 @@ func resourceComputeNetworkFirewallPolicyRuleCreate(d *schema.ResourceData, meta
 		obj["disabled"] = disabledProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/addRule")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/addRule"))
 	if err != nil {
 		return err
 	}
@@ -596,7 +596,7 @@ func resourceComputeNetworkFirewallPolicyRuleRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/getRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/getRule?priority={{priority}}"))
 	if err != nil {
 		return err
 	}
@@ -780,7 +780,7 @@ func resourceComputeNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/patchRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/patchRule?priority={{priority}}"))
 	if err != nil {
 		return err
 	}
@@ -835,8 +835,7 @@ func resourceComputeNetworkFirewallPolicyRuleDelete(d *schema.ResourceData, meta
 		return fmt.Errorf("Error fetching project for NetworkFirewallPolicyRule: %s", err)
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
-
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/removeRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/removeRule?priority={{priority}}"))
 	if err != nil {
 		return err
 	}

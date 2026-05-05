@@ -319,7 +319,7 @@ func resourceEventarcGoogleApiSourceCreate(d *schema.ResourceData, meta interfac
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/googleApiSources?googleApiSourceId={{google_api_source_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/googleApiSources?googleApiSourceId={{google_api_source_id}}"))
 	if err != nil {
 		return err
 	}
@@ -403,7 +403,7 @@ func resourceEventarcGoogleApiSourceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/googleApiSources/{{google_api_source_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/googleApiSources/{{google_api_source_id}}"))
 	if err != nil {
 		return err
 	}
@@ -545,7 +545,7 @@ func resourceEventarcGoogleApiSourceUpdate(d *schema.ResourceData, meta interfac
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/googleApiSources/{{google_api_source_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/googleApiSources/{{google_api_source_id}}"))
 	if err != nil {
 		return err
 	}
@@ -634,8 +634,7 @@ func resourceEventarcGoogleApiSourceDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error fetching project for GoogleApiSource: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/googleApiSources/{{google_api_source_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/googleApiSources/{{google_api_source_id}}"))
 	if err != nil {
 		return err
 	}

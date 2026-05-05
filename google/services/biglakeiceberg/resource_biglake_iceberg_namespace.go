@@ -206,7 +206,7 @@ func resourceBiglakeIcebergIcebergNamespaceCreate(d *schema.ResourceData, meta i
 		obj["properties"] = propertiesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/v1/projects/{{project}}/catalogs/{{catalog}}/namespaces")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "iceberg/v1/restcatalog/v1/projects/{{project}}/catalogs/{{catalog}}/namespaces"))
 	if err != nil {
 		return err
 	}
@@ -284,7 +284,7 @@ func resourceBiglakeIcebergIcebergNamespaceRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/v1/projects/{{project}}/catalogs/{{catalog}}/namespaces/{{namespace_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "iceberg/v1/restcatalog/v1/projects/{{project}}/catalogs/{{catalog}}/namespaces/{{namespace_id}}"))
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func resourceBiglakeIcebergIcebergNamespaceUpdate(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/v1/projects/{{project}}/catalogs/{{catalog}}/namespaces/{{namespace_id}}/properties")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "iceberg/v1/restcatalog/v1/projects/{{project}}/catalogs/{{catalog}}/namespaces/{{namespace_id}}/properties"))
 	if err != nil {
 		return err
 	}
@@ -461,8 +461,7 @@ func resourceBiglakeIcebergIcebergNamespaceDelete(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error fetching project for IcebergNamespace: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/v1/projects/{{project}}/catalogs/{{catalog}}/namespaces/{{namespace_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "iceberg/v1/restcatalog/v1/projects/{{project}}/catalogs/{{catalog}}/namespaces/{{namespace_id}}"))
 	if err != nil {
 		return err
 	}

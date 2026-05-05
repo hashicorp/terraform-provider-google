@@ -478,7 +478,7 @@ func resourceFirebaseRemoteConfigRemoteConfigCreate(d *schema.ResourceData, meta
 		obj["parameters"] = parametersProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseRemoteConfigBasePath}}projects/{{project}}/remoteConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/remoteConfig"))
 	if err != nil {
 		return err
 	}
@@ -543,7 +543,7 @@ func resourceFirebaseRemoteConfigRemoteConfigRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseRemoteConfigBasePath}}projects/{{project}}/remoteConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/remoteConfig"))
 	if err != nil {
 		return err
 	}
@@ -645,7 +645,7 @@ func resourceFirebaseRemoteConfigRemoteConfigUpdate(d *schema.ResourceData, meta
 		obj["parameters"] = parametersProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseRemoteConfigBasePath}}projects/{{project}}/remoteConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/remoteConfig"))
 	if err != nil {
 		return err
 	}

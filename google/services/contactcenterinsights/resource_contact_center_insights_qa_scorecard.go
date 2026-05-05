@@ -243,7 +243,7 @@ func resourceContactCenterInsightsQaScorecardCreate(d *schema.ResourceData, meta
 		obj["source"] = sourceProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/qaScorecards?qaScorecardId={{qa_scorecard_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/qaScorecards?qaScorecardId={{qa_scorecard_id}}"))
 	if err != nil {
 		return err
 	}
@@ -317,7 +317,7 @@ func resourceContactCenterInsightsQaScorecardRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard_id}}"))
 	if err != nil {
 		return err
 	}
@@ -447,7 +447,7 @@ func resourceContactCenterInsightsQaScorecardUpdate(d *schema.ResourceData, meta
 		obj["source"] = sourceProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard_id}}"))
 	if err != nil {
 		return err
 	}
@@ -521,8 +521,7 @@ func resourceContactCenterInsightsQaScorecardDelete(d *schema.ResourceData, meta
 		return fmt.Errorf("Error fetching project for QaScorecard: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard_id}}"))
 	if err != nil {
 		return err
 	}

@@ -326,7 +326,7 @@ func resourceSpannerInstanceConfigCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instanceConfigs")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instanceConfigs"))
 	if err != nil {
 		return err
 	}
@@ -430,7 +430,7 @@ func resourceSpannerInstanceConfigRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instanceConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instanceConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -554,7 +554,7 @@ func resourceSpannerInstanceConfigUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instanceConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instanceConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -627,8 +627,7 @@ func resourceSpannerInstanceConfigDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for InstanceConfig: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instanceConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instanceConfigs/{{name}}"))
 	if err != nil {
 		return err
 	}

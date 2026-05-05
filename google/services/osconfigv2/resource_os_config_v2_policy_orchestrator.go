@@ -1814,7 +1814,7 @@ func resourceOSConfigV2PolicyOrchestratorCreate(d *schema.ResourceData, meta int
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSConfigV2BasePath}}projects/{{project}}/locations/global/policyOrchestrators?policyOrchestratorId={{policy_orchestrator_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/policyOrchestrators?policyOrchestratorId={{policy_orchestrator_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1893,7 +1893,7 @@ func resourceOSConfigV2PolicyOrchestratorRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSConfigV2BasePath}}projects/{{project}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}"))
 	if err != nil {
 		return err
 	}
@@ -2024,7 +2024,7 @@ func resourceOSConfigV2PolicyOrchestratorUpdate(d *schema.ResourceData, meta int
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSConfigV2BasePath}}projects/{{project}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}"))
 	if err != nil {
 		return err
 	}
@@ -2113,8 +2113,7 @@ func resourceOSConfigV2PolicyOrchestratorDelete(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error fetching project for PolicyOrchestrator: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSConfigV2BasePath}}projects/{{project}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}"))
 	if err != nil {
 		return err
 	}

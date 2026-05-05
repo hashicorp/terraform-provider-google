@@ -394,7 +394,7 @@ func resourceNetworkConnectivityPolicyBasedRouteCreate(d *schema.ResourceData, m
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/global/policyBasedRoutes?policyBasedRouteId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/policyBasedRoutes?policyBasedRouteId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -473,7 +473,7 @@ func resourceNetworkConnectivityPolicyBasedRouteRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/global/policyBasedRoutes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/policyBasedRoutes/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -555,8 +555,7 @@ func resourceNetworkConnectivityPolicyBasedRouteDelete(d *schema.ResourceData, m
 		return fmt.Errorf("Error fetching project for PolicyBasedRoute: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/global/policyBasedRoutes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/policyBasedRoutes/{{name}}"))
 	if err != nil {
 		return err
 	}

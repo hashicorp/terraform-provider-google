@@ -248,7 +248,7 @@ func resourceVmwareengineNetworkCreate(d *schema.ResourceData, meta interface{})
 		obj["type"] = typeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/vmwareEngineNetworks?vmwareEngineNetworkId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vmwareEngineNetworks?vmwareEngineNetworkId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -332,7 +332,7 @@ func resourceVmwareengineNetworkRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/vmwareEngineNetworks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vmwareEngineNetworks/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -444,7 +444,7 @@ func resourceVmwareengineNetworkUpdate(d *schema.ResourceData, meta interface{})
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/vmwareEngineNetworks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vmwareEngineNetworks/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -513,8 +513,7 @@ func resourceVmwareengineNetworkDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error fetching project for Network: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/vmwareEngineNetworks/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vmwareEngineNetworks/{{name}}"))
 	if err != nil {
 		return err
 	}

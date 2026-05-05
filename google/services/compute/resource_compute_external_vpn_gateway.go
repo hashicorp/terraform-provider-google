@@ -317,7 +317,7 @@ func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interf
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/externalVpnGateways"))
 	if err != nil {
 		return err
 	}
@@ -396,7 +396,7 @@ func resourceComputeExternalVpnGatewayRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/externalVpnGateways/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -507,7 +507,7 @@ func resourceComputeExternalVpnGatewayUpdate(d *schema.ResourceData, meta interf
 			obj["labels"] = labelsProp
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}/setLabels")
+		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/externalVpnGateways/{{name}}/setLabels"))
 		if err != nil {
 			return err
 		}
@@ -562,8 +562,7 @@ func resourceComputeExternalVpnGatewayDelete(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error fetching project for ExternalVpnGateway: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/externalVpnGateways/{{name}}"))
 	if err != nil {
 		return err
 	}

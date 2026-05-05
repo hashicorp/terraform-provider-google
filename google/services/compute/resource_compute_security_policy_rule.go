@@ -683,7 +683,7 @@ func resourceComputeSecurityPolicyRuleCreate(d *schema.ResourceData, meta interf
 		obj["preview"] = previewProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/securityPolicies/{{security_policy}}/addRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/securityPolicies/{{security_policy}}/addRule?priority={{priority}}"))
 	if err != nil {
 		return err
 	}
@@ -779,7 +779,7 @@ func resourceComputeSecurityPolicyRuleRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/securityPolicies/{{security_policy}}/getRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/securityPolicies/{{security_policy}}/getRule?priority={{priority}}"))
 	if err != nil {
 		return err
 	}
@@ -940,7 +940,7 @@ func resourceComputeSecurityPolicyRuleUpdate(d *schema.ResourceData, meta interf
 		obj["preview"] = previewProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/securityPolicies/{{security_policy}}/patchRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/securityPolicies/{{security_policy}}/patchRule?priority={{priority}}"))
 	if err != nil {
 		return err
 	}
@@ -1050,8 +1050,7 @@ func resourceComputeSecurityPolicyRuleDelete(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error fetching project for SecurityPolicyRule: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/securityPolicies/{{security_policy}}/removeRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/securityPolicies/{{security_policy}}/removeRule?priority={{priority}}"))
 	if err != nil {
 		return err
 	}

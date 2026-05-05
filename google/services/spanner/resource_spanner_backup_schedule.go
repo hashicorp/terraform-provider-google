@@ -328,7 +328,7 @@ func resourceSpannerBackupScheduleCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{database}}/backupSchedules?backup_schedule_id={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/databases/{{database}}/backupSchedules?backup_schedule_id={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -407,7 +407,7 @@ func resourceSpannerBackupScheduleRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{database}}/backupSchedules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/databases/{{database}}/backupSchedules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -559,7 +559,7 @@ func resourceSpannerBackupScheduleUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{database}}/backupSchedules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/databases/{{database}}/backupSchedules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -646,8 +646,7 @@ func resourceSpannerBackupScheduleDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for BackupSchedule: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{database}}/backupSchedules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/databases/{{database}}/backupSchedules/{{name}}"))
 	if err != nil {
 		return err
 	}

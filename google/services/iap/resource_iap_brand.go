@@ -179,7 +179,7 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["applicationTitle"] = applicationTitleProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}projects/{{project}}/brands")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/brands"))
 	if err != nil {
 		return err
 	}
@@ -240,8 +240,7 @@ func resourceIapBrandPollRead(d *schema.ResourceData, meta interface{}) transpor
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}{{name}}")
-
+		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 		if err != nil {
 			return nil, err
 		}
@@ -285,7 +284,7 @@ func resourceIapBrandRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
 	if err != nil {
 		return err
 	}

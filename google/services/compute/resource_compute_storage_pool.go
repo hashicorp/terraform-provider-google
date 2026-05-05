@@ -508,7 +508,7 @@ func resourceComputeStoragePoolCreate(d *schema.ResourceData, meta interface{}) 
 		obj["zone"] = zoneProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/storagePools")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/storagePools"))
 	if err != nil {
 		return err
 	}
@@ -592,7 +592,7 @@ func resourceComputeStoragePoolRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/storagePools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/storagePools/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -740,7 +740,7 @@ func resourceComputeStoragePoolUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["zone"] = zoneProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/storagePools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/storagePools/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -795,8 +795,7 @@ func resourceComputeStoragePoolDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error fetching project for StoragePool: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/storagePools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/storagePools/{{name}}"))
 	if err != nil {
 		return err
 	}

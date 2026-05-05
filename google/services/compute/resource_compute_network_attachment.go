@@ -308,7 +308,7 @@ func resourceComputeNetworkAttachmentCreate(d *schema.ResourceData, meta interfa
 		obj["region"] = regionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/networkAttachments")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/networkAttachments"))
 	if err != nil {
 		return err
 	}
@@ -371,7 +371,7 @@ func resourceComputeNetworkAttachmentRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/networkAttachments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/networkAttachments/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -463,7 +463,7 @@ func resourceComputeNetworkAttachmentUpdate(d *schema.ResourceData, meta interfa
 		obj["fingerprint"] = fingerprintProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/networkAttachments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/networkAttachments/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -518,8 +518,7 @@ func resourceComputeNetworkAttachmentDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for NetworkAttachment: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/networkAttachments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/networkAttachments/{{name}}"))
 	if err != nil {
 		return err
 	}

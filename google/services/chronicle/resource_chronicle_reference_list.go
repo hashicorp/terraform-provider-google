@@ -306,7 +306,7 @@ func resourceChronicleReferenceListCreate(d *schema.ResourceData, meta interface
 		obj["syntaxType"] = syntaxTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/referenceLists?referenceListId={{reference_list_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/referenceLists?referenceListId={{reference_list_id}}"))
 	if err != nil {
 		return err
 	}
@@ -385,7 +385,7 @@ func resourceChronicleReferenceListRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/referenceLists/{{reference_list_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/referenceLists/{{reference_list_id}}"))
 	if err != nil {
 		return err
 	}
@@ -526,7 +526,7 @@ func resourceChronicleReferenceListUpdate(d *schema.ResourceData, meta interface
 		obj["syntaxType"] = syntaxTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/referenceLists/{{reference_list_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/referenceLists/{{reference_list_id}}"))
 	if err != nil {
 		return err
 	}

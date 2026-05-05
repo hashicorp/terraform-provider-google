@@ -601,7 +601,7 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters?attached_cluster_id={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/attachedClusters?attached_cluster_id={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -685,7 +685,7 @@ func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -863,7 +863,7 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1008,8 +1008,7 @@ func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for Cluster: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}"))
 	if err != nil {
 		return err
 	}

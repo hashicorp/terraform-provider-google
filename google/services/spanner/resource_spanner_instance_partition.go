@@ -359,7 +359,7 @@ func resourceSpannerInstancePartitionCreate(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/instancePartitions?instancePartitionId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/instancePartitions?instancePartitionId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -443,7 +443,7 @@ func resourceSpannerInstancePartitionRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/instancePartitions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/instancePartitions/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -578,7 +578,7 @@ func resourceSpannerInstancePartitionUpdate(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/instancePartitions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/instancePartitions/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -691,8 +691,7 @@ func resourceSpannerInstancePartitionDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for InstancePartition: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/instancePartitions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/instancePartitions/{{name}}"))
 	if err != nil {
 		return err
 	}

@@ -372,7 +372,7 @@ func resourceVectorSearchCollectionCreate(d *schema.ResourceData, meta interface
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VectorSearchBasePath}}projects/{{project}}/locations/{{location}}/collections?collectionId={{collection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections?collectionId={{collection_id}}"))
 	if err != nil {
 		return err
 	}
@@ -456,7 +456,7 @@ func resourceVectorSearchCollectionRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VectorSearchBasePath}}projects/{{project}}/locations/{{location}}/collections/{{collection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}"))
 	if err != nil {
 		return err
 	}
@@ -592,7 +592,7 @@ func resourceVectorSearchCollectionUpdate(d *schema.ResourceData, meta interface
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VectorSearchBasePath}}projects/{{project}}/locations/{{location}}/collections/{{collection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}"))
 	if err != nil {
 		return err
 	}
@@ -677,8 +677,7 @@ func resourceVectorSearchCollectionDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error fetching project for Collection: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{VectorSearchBasePath}}projects/{{project}}/locations/{{location}}/collections/{{collection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}"))
 	if err != nil {
 		return err
 	}

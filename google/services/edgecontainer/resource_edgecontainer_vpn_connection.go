@@ -343,7 +343,7 @@ func resourceEdgecontainerVpnConnectionCreate(d *schema.ResourceData, meta inter
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/vpnConnections?vpnConnectionId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vpnConnections?vpnConnectionId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -427,7 +427,7 @@ func resourceEdgecontainerVpnConnectionRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/vpnConnections/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vpnConnections/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -575,7 +575,7 @@ func resourceEdgecontainerVpnConnectionUpdate(d *schema.ResourceData, meta inter
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/vpnConnections/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vpnConnections/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -630,8 +630,7 @@ func resourceEdgecontainerVpnConnectionDelete(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for VpnConnection: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/vpnConnections/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vpnConnections/{{name}}"))
 	if err != nil {
 		return err
 	}

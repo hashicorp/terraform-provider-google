@@ -184,7 +184,7 @@ func resourceFirebaseAppCheckAppAttestConfigCreate(d *schema.ResourceData, meta 
 		obj["tokenTtl"] = tokenTtlProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/appAttestConfig?updateMask=tokenTtl")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/appAttestConfig?updateMask=tokenTtl"))
 	if err != nil {
 		return err
 	}
@@ -253,7 +253,7 @@ func resourceFirebaseAppCheckAppAttestConfigRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/appAttestConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/appAttestConfig"))
 	if err != nil {
 		return err
 	}
@@ -354,7 +354,7 @@ func resourceFirebaseAppCheckAppAttestConfigUpdate(d *schema.ResourceData, meta 
 		obj["tokenTtl"] = tokenTtlProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppCheckBasePath}}projects/{{project}}/apps/{{app_id}}/appAttestConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/appAttestConfig"))
 	if err != nil {
 		return err
 	}

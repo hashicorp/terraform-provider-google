@@ -453,7 +453,7 @@ func resourceVertexAIIndexCreate(d *schema.ResourceData, meta interface{}) error
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/indexes"))
 	if err != nil {
 		return err
 	}
@@ -551,7 +551,7 @@ func resourceVertexAIIndexRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/indexes/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -781,8 +781,7 @@ func resourceVertexAIIndexDelete(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error fetching project for Index: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/indexes/{{name}}"))
 	if err != nil {
 		return err
 	}

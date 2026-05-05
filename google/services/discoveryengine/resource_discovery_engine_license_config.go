@@ -299,7 +299,7 @@ func resourceDiscoveryEngineLicenseConfigCreate(d *schema.ResourceData, meta int
 		obj["freeTrial"] = freeTrialProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/licenseConfigs?licenseConfigId={{license_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/licenseConfigs?licenseConfigId={{license_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -373,7 +373,7 @@ func resourceDiscoveryEngineLicenseConfigRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/licenseConfigs/{{license_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/licenseConfigs/{{license_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -521,7 +521,7 @@ func resourceDiscoveryEngineLicenseConfigUpdate(d *schema.ResourceData, meta int
 		obj["freeTrial"] = freeTrialProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/licenseConfigs/{{license_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/licenseConfigs/{{license_config_id}}"))
 	if err != nil {
 		return err
 	}

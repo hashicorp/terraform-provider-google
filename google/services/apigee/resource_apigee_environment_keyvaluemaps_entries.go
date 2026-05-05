@@ -176,7 +176,7 @@ func resourceApigeeEnvironmentKeyvaluemapsEntriesCreate(d *schema.ResourceData, 
 		obj["value"] = valueProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_keyvaluemap_id}}/entries")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_keyvaluemap_id}}/entries"))
 	if err != nil {
 		return err
 	}
@@ -239,7 +239,7 @@ func resourceApigeeEnvironmentKeyvaluemapsEntriesRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_keyvaluemap_id}}/entries/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_keyvaluemap_id}}/entries/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -301,7 +301,7 @@ func resourceApigeeEnvironmentKeyvaluemapsEntriesDelete(d *schema.ResourceData, 
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_keyvaluemap_id}}/entries/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{env_keyvaluemap_id}}/entries/{{name}}"))
 	if err != nil {
 		return err
 	}

@@ -199,7 +199,7 @@ func resourceMonitoringMonitoredProjectCreate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v1/locations/global/metricsScopes/{{metrics_scope}}/projects")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v1/locations/global/metricsScopes/{{metrics_scope}}/projects"))
 	if err != nil {
 		return err
 	}
@@ -257,7 +257,7 @@ func resourceMonitoringMonitoredProjectRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v1/locations/global/metricsScopes/{{metrics_scope}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v1/locations/global/metricsScopes/{{metrics_scope}}"))
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,7 @@ func resourceMonitoringMonitoredProjectDelete(d *schema.ResourceData, meta inter
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v1/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v1/{{name}}"))
 	if err != nil {
 		return err
 	}

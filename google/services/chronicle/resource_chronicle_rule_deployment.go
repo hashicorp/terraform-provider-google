@@ -449,7 +449,7 @@ func resourceChronicleRuleDeploymentRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule}}/deployment")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule}}/deployment"))
 	if err != nil {
 		return err
 	}
@@ -590,7 +590,7 @@ func resourceChronicleRuleDeploymentUpdate(d *schema.ResourceData, meta interfac
 		obj["runFrequency"] = runFrequencyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule}}/deployment")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule}}/deployment"))
 	if err != nil {
 		return err
 	}

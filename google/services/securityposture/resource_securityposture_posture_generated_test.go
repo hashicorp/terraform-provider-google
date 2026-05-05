@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/securityposture"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = securityposture.Product
 )
 
 func TestAccSecurityposturePosture_securityposturePostureBasicExample(t *testing.T) {
@@ -194,8 +196,7 @@ func testAccCheckSecurityposturePostureDestroyProducer(t *testing.T) func(s *ter
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{SecuritypostureBasePath}}{{parent}}/locations/{{location}}/postures/{{posture_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(securityposture.Product, config), "{{parent}}/locations/{{location}}/postures/{{posture_id}}"))
 			if err != nil {
 				return err
 			}

@@ -258,7 +258,7 @@ func resourceRedisClusterUserCreatedConnectionsCreate(d *schema.ResourceData, me
 		obj["clusterEndpoints"] = clusterEndpointsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/clusters/{{name}}?updateMask=cluster_endpoints")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/clusters/{{name}}?updateMask=cluster_endpoints"))
 	if err != nil {
 		return err
 	}
@@ -342,7 +342,7 @@ func resourceRedisClusterUserCreatedConnectionsRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/clusters/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/clusters/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -454,7 +454,7 @@ func resourceRedisClusterUserCreatedConnectionsUpdate(d *schema.ResourceData, me
 		obj["clusterEndpoints"] = clusterEndpointsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/clusters/{{name}}?updateMask=cluster_endpoints")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/clusters/{{name}}?updateMask=cluster_endpoints"))
 	if err != nil {
 		return err
 	}

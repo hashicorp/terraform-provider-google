@@ -30,6 +30,13 @@ func TestBaseUrl(t *testing.T) {
 		CustomEndpointField:  "compute_custom_endpoint",
 		CustomEndpointEnvVar: "GOOGLE_COMPUTE_CUSTOM_ENDPOINT",
 	}
+	artifactregistryProduct := registry.Product{
+		Name:                 "artifactregistry",
+		BaseUrl:              "https://artifactregistry.googleapis.com/v1/",
+		RepUrl:               "https://artifactregistry.{{location}}.rep.googleapis.com/v1/",
+		CustomEndpointField:  "artifact_registry_custom_endpoint",
+		CustomEndpointEnvVar: "GOOGLE_ARTIFACT_REGISTRY_CUSTOM_ENDPOINT",
+	}
 	cases := []struct {
 		name    string
 		product registry.Product
@@ -43,12 +50,83 @@ func TestBaseUrl(t *testing.T) {
 			want:    computeProduct.BaseUrl,
 		},
 		{
+			name:    "product RepUrl unused",
+			product: artifactregistryProduct,
+			config:  &transport_tpg.Config{},
+			want:    artifactregistryProduct.BaseUrl,
+		},
+		{
+			name:    "product RepUrl regional preferred",
+			product: artifactregistryProduct,
+			config: &transport_tpg.Config{
+				PreferRegionalEndpoints: true,
+			},
+			want: artifactregistryProduct.RepUrl,
+		},
+		{
+			name:    "product without RepUrl regional preferred",
+			product: computeProduct,
+			config: &transport_tpg.Config{
+				PreferRegionalEndpoints: true,
+			},
+			want: computeProduct.BaseUrl,
+		},
+		{
+			name: "product RepUrl rep by default",
+			product: registry.Product{
+				Name:                 artifactregistryProduct.Name,
+				BaseUrl:              artifactregistryProduct.BaseUrl,
+				RepUrl:               artifactregistryProduct.RepUrl,
+				RepByDefault:         true,
+				CustomEndpointField:  artifactregistryProduct.CustomEndpointField,
+				CustomEndpointEnvVar: artifactregistryProduct.CustomEndpointEnvVar,
+			},
+			config: &transport_tpg.Config{},
+			want:   artifactregistryProduct.RepUrl,
+		},
+		{
+			name: "product without RepUrl rep by default",
+			product: registry.Product{
+				Name:                 artifactregistryProduct.Name,
+				BaseUrl:              artifactregistryProduct.BaseUrl,
+				RepByDefault:         true,
+				CustomEndpointField:  artifactregistryProduct.CustomEndpointField,
+				CustomEndpointEnvVar: artifactregistryProduct.CustomEndpointEnvVar,
+			},
+			config: &transport_tpg.Config{},
+			want:   artifactregistryProduct.BaseUrl,
+		},
+		{
+			name: "product RepUrl global preferred",
+			product: registry.Product{
+				Name:                 artifactregistryProduct.Name,
+				BaseUrl:              artifactregistryProduct.BaseUrl,
+				RepUrl:               artifactregistryProduct.RepUrl,
+				RepByDefault:         true,
+				CustomEndpointField:  artifactregistryProduct.CustomEndpointField,
+				CustomEndpointEnvVar: artifactregistryProduct.CustomEndpointEnvVar,
+			},
+			config: &transport_tpg.Config{
+				PreferGlobalEndpoints: true,
+			},
+			want: artifactregistryProduct.BaseUrl,
+		},
+		{
 			name:    "IsMtls",
 			product: computeProduct,
 			config: &transport_tpg.Config{
 				IsMtls: true,
 			},
 			want: "https://compute.mtls.googleapis.com/compute/beta/",
+		},
+		{
+			name:    "IsMtls+REP",
+			product: artifactregistryProduct,
+			config: &transport_tpg.Config{
+				IsMtls:                  true,
+				PreferRegionalEndpoints: true,
+			},
+			want: "https://artifactregistry.{{location}}.rep.mtls.googleapis.com/v1/",
 		},
 		{
 			name:    "UniverseDomain",
@@ -59,13 +137,32 @@ func TestBaseUrl(t *testing.T) {
 			want: "https://compute.fakedomain.test/compute/beta/",
 		},
 		{
-			name:    "UniverseDomain and IsMtls",
+			name:    "UniverseDomain+REP",
+			product: artifactregistryProduct,
+			config: &transport_tpg.Config{
+				UniverseDomain:          "fakedomain.test",
+				PreferRegionalEndpoints: true,
+			},
+			want: "https://artifactregistry.{{location}}.rep.fakedomain.test/v1/",
+		},
+		{
+			name:    "UniverseDomain+IsMtls",
 			product: computeProduct,
 			config: &transport_tpg.Config{
 				UniverseDomain: "fakedomain.test",
 				IsMtls:         true,
 			},
 			want: "https://compute.mtls.fakedomain.test/compute/beta/",
+		},
+		{
+			name:    "UniverseDomain+IsMtls+REP",
+			product: artifactregistryProduct,
+			config: &transport_tpg.Config{
+				UniverseDomain:          "fakedomain.test",
+				IsMtls:                  true,
+				PreferRegionalEndpoints: true,
+			},
+			want: "https://artifactregistry.{{location}}.rep.mtls.fakedomain.test/v1/",
 		},
 		{
 			name:    "CustomEndpoint",
@@ -78,6 +175,19 @@ func TestBaseUrl(t *testing.T) {
 				IsMtls:         true,
 			},
 			want: "https://sandbox.compute.google.com/beta/",
+		},
+		{
+			name:    "CustomEndpoint+REP",
+			product: artifactregistryProduct,
+			config: &transport_tpg.Config{
+				CustomEndpoints: map[string]string{
+					artifactregistryProduct.CustomEndpointField: "https://sandbox.artifactregistry.google.com/beta/",
+				},
+				UniverseDomain:          "fakedomain.test",
+				IsMtls:                  true,
+				PreferRegionalEndpoints: true,
+			},
+			want: "https://sandbox.artifactregistry.google.com/beta/",
 		},
 	}
 

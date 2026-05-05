@@ -752,7 +752,7 @@ func resourceNetworkServicesHttpRouteCreate(d *schema.ResourceData, meta interfa
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/httpRoutes?httpRouteId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/httpRoutes?httpRouteId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -831,7 +831,7 @@ func resourceNetworkServicesHttpRouteRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/httpRoutes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/httpRoutes/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -962,7 +962,7 @@ func resourceNetworkServicesHttpRouteUpdate(d *schema.ResourceData, meta interfa
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/httpRoutes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/httpRoutes/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1051,8 +1051,7 @@ func resourceNetworkServicesHttpRouteDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for HttpRoute: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/httpRoutes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/httpRoutes/{{name}}"))
 	if err != nil {
 		return err
 	}

@@ -325,7 +325,7 @@ func resourceCESDeploymentCreate(d *schema.ResourceData, meta interface{}) error
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/deployments")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/deployments"))
 	if err != nil {
 		return err
 	}
@@ -410,7 +410,7 @@ func resourceCESDeploymentRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/deployments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/deployments/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -545,7 +545,7 @@ func resourceCESDeploymentUpdate(d *schema.ResourceData, meta interface{}) error
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/deployments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/deployments/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -615,8 +615,7 @@ func resourceCESDeploymentDelete(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error fetching project for Deployment: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/deployments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/deployments/{{name}}"))
 	if err != nil {
 		return err
 	}

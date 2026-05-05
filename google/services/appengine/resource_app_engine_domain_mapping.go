@@ -259,7 +259,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "apps/{{project}}/domainMappings"))
 	if err != nil {
 		return err
 	}
@@ -338,7 +338,7 @@ func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "apps/{{project}}/domainMappings/{{domain_name}}"))
 	if err != nil {
 		return err
 	}
@@ -458,7 +458,7 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "apps/{{project}}/domainMappings/{{domain_name}}"))
 	if err != nil {
 		return err
 	}
@@ -535,8 +535,7 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "apps/{{project}}/domainMappings/{{domain_name}}"))
 	if err != nil {
 		return err
 	}

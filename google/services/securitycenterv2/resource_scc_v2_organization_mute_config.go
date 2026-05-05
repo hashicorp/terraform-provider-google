@@ -236,7 +236,7 @@ func resourceSecurityCenterV2OrganizationMuteConfigCreate(d *schema.ResourceData
 		obj["type"] = typeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}organizations/{{organization}}/locations/{{location}}/muteConfigs?muteConfigId={{mute_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/muteConfigs?muteConfigId={{mute_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -304,7 +304,7 @@ func resourceSecurityCenterV2OrganizationMuteConfigRead(d *schema.ResourceData, 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}organizations/{{organization}}/locations/{{location}}/muteConfigs/{{mute_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/muteConfigs/{{mute_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -412,7 +412,7 @@ func resourceSecurityCenterV2OrganizationMuteConfigUpdate(d *schema.ResourceData
 		obj["type"] = typeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}organizations/{{organization}}/locations/{{location}}/muteConfigs/{{mute_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/muteConfigs/{{mute_config_id}}"))
 	if err != nil {
 		return err
 	}
@@ -477,7 +477,7 @@ func resourceSecurityCenterV2OrganizationMuteConfigDelete(d *schema.ResourceData
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterV2BasePath}}organizations/{{organization}}/locations/{{location}}/muteConfigs/{{mute_config_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/muteConfigs/{{mute_config_id}}"))
 	if err != nil {
 		return err
 	}

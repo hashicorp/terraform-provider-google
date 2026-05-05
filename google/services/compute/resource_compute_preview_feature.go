@@ -207,7 +207,7 @@ func resourceComputePreviewFeatureCreate(d *schema.ResourceData, meta interface{
 		obj["rolloutOperation"] = rolloutOperationProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/previewFeatures/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/previewFeatures/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -286,7 +286,7 @@ func resourceComputePreviewFeatureRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/previewFeatures/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/previewFeatures/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -393,7 +393,7 @@ func resourceComputePreviewFeatureUpdate(d *schema.ResourceData, meta interface{
 		obj["rolloutOperation"] = rolloutOperationProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/previewFeatures/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/previewFeatures/{{name}}"))
 	if err != nil {
 		return err
 	}

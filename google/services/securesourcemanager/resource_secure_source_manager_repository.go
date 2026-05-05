@@ -301,7 +301,7 @@ func resourceSecureSourceManagerRepositoryCreate(d *schema.ResourceData, meta in
 		obj["initialConfig"] = initialConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecureSourceManagerBasePath}}projects/{{project}}/locations/{{location}}/repositories?repository_id={{repository_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories?repository_id={{repository_id}}"))
 	if err != nil {
 		return err
 	}
@@ -385,7 +385,7 @@ func resourceSecureSourceManagerRepositoryRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecureSourceManagerBasePath}}projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}"))
 	if err != nil {
 		return err
 	}
@@ -503,7 +503,7 @@ func resourceSecureSourceManagerRepositoryUpdate(d *schema.ResourceData, meta in
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecureSourceManagerBasePath}}projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}"))
 	if err != nil {
 		return err
 	}
@@ -572,8 +572,7 @@ func resourceSecureSourceManagerRepositoryDelete(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecureSourceManagerBasePath}}projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}"))
 	if err != nil {
 		return err
 	}

@@ -230,7 +230,7 @@ func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interfa
 		obj["bandwidthLimit"] = bandwidthLimitProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools?agentPoolId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/agentPools?agentPoolId={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -303,7 +303,7 @@ func resourceStorageTransferAgentPoolRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/agentPools/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -410,7 +410,7 @@ func resourceStorageTransferAgentPoolUpdate(d *schema.ResourceData, meta interfa
 		obj["bandwidthLimit"] = bandwidthLimitProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/agentPools/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -479,8 +479,7 @@ func resourceStorageTransferAgentPoolDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for AgentPool: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/agentPools/{{name}}"))
 	if err != nil {
 		return err
 	}

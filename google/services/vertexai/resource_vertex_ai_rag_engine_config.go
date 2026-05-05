@@ -217,7 +217,7 @@ func resourceVertexAIRagEngineConfigCreate(d *schema.ResourceData, meta interfac
 		obj["ragManagedDbConfig"] = ragManagedDbConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/ragEngineConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/ragEngineConfig"))
 	if err != nil {
 		return err
 	}
@@ -296,7 +296,7 @@ func resourceVertexAIRagEngineConfigRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/ragEngineConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/ragEngineConfig"))
 	if err != nil {
 		return err
 	}
@@ -397,7 +397,7 @@ func resourceVertexAIRagEngineConfigUpdate(d *schema.ResourceData, meta interfac
 		obj["ragManagedDbConfig"] = ragManagedDbConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/ragEngineConfig")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/ragEngineConfig"))
 	if err != nil {
 		return err
 	}

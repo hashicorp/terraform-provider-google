@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/iap"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -48,6 +49,7 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
+	_ = iap.Product
 )
 
 func TestAccIapTunnelDestGroup_iapDestgroupExample(t *testing.T) {
@@ -111,8 +113,7 @@ func testAccCheckIapTunnelDestGroupDestroyProducer(t *testing.T) func(s *terrafo
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{IapBasePath}}projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups/{{group_name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(iap.Product, config), "projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups/{{group_name}}"))
 			if err != nil {
 				return err
 			}

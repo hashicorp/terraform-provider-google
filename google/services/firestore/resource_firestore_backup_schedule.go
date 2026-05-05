@@ -229,7 +229,7 @@ func resourceFirestoreBackupScheduleCreate(d *schema.ResourceData, meta interfac
 		obj["weeklyRecurrence"] = weeklyRecurrenceProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/backupSchedules")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/databases/{{database}}/backupSchedules"))
 	if err != nil {
 		return err
 	}
@@ -309,7 +309,7 @@ func resourceFirestoreBackupScheduleRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/backupSchedules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/databases/{{database}}/backupSchedules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -421,7 +421,7 @@ func resourceFirestoreBackupScheduleUpdate(d *schema.ResourceData, meta interfac
 		obj["retention"] = retentionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/backupSchedules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/databases/{{database}}/backupSchedules/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -483,8 +483,7 @@ func resourceFirestoreBackupScheduleDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error fetching project for BackupSchedule: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/backupSchedules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/databases/{{database}}/backupSchedules/{{name}}"))
 	if err != nil {
 		return err
 	}

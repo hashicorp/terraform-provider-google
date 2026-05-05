@@ -1329,7 +1329,7 @@ func resourceCESToolCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["pythonFunction"] = pythonFunctionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/tools?toolId={{tool_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/tools?toolId={{tool_id}}"))
 	if err != nil {
 		return err
 	}
@@ -1414,7 +1414,7 @@ func resourceCESToolRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/tools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/tools/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1561,7 +1561,7 @@ func resourceCESToolUpdate(d *schema.ResourceData, meta interface{}) error {
 		obj["pythonFunction"] = pythonFunctionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/tools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/tools/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -1639,8 +1639,7 @@ func resourceCESToolDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error fetching project for Tool: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{app}}/tools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/tools/{{name}}"))
 	if err != nil {
 		return err
 	}

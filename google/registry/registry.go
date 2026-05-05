@@ -39,6 +39,8 @@ type Product struct {
 	BaseUrl string
 	// RepUrl is the base URL for regional API requests. It may contain Magic Modules templating directives.
 	RepUrl string
+	// RepByDefault is if this product should default to REP endpoints if available.
+	RepByDefault bool
 	// CustomEndpointField is the name of the product's custom endpoint field in the provider schema.
 	CustomEndpointField string
 	// CustomEndpointEnvVar is the name of the product's custom endpoint environment variable.

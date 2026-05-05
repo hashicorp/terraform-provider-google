@@ -207,7 +207,7 @@ func resourceIapTunnelDestGroupCreate(d *schema.ResourceData, meta interface{}) 
 		obj["fqdns"] = fqdnsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups?tunnelDestGroupId={{group_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups?tunnelDestGroupId={{group_name}}"))
 	if err != nil {
 		return err
 	}
@@ -281,7 +281,7 @@ func resourceIapTunnelDestGroupRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups/{{group_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups/{{group_name}}"))
 	if err != nil {
 		return err
 	}
@@ -399,7 +399,7 @@ func resourceIapTunnelDestGroupUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["fqdns"] = fqdnsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups/{{group_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups/{{group_name}}"))
 	if err != nil {
 		return err
 	}
@@ -446,8 +446,7 @@ func resourceIapTunnelDestGroupDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error fetching project for TunnelDestGroup: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups/{{group_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups/{{group_name}}"))
 	if err != nil {
 		return err
 	}

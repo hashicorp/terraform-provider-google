@@ -297,7 +297,7 @@ func resourceNetworkConnectivityRegionalEndpointCreate(d *schema.ResourceData, m
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/{{location}}/regionalEndpoints?regional_endpoint_id={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/regionalEndpoints?regional_endpoint_id={{name}}"))
 	if err != nil {
 		return err
 	}
@@ -381,7 +381,7 @@ func resourceNetworkConnectivityRegionalEndpointRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/{{location}}/regionalEndpoints/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/regionalEndpoints/{{name}}"))
 	if err != nil {
 		return err
 	}
@@ -469,8 +469,7 @@ func resourceNetworkConnectivityRegionalEndpointDelete(d *schema.ResourceData, m
 		return fmt.Errorf("Error fetching project for RegionalEndpoint: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/{{location}}/regionalEndpoints/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/regionalEndpoints/{{name}}"))
 	if err != nil {
 		return err
 	}

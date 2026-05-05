@@ -314,7 +314,7 @@ func resourceIAMWorkforcePoolOauthClientCreate(d *schema.ResourceData, meta inte
 		obj["allowedRedirectUris"] = allowedRedirectUrisProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}projects/{{project}}/locations/{{location}}/oauthClients?oauthClientId={{oauth_client_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/oauthClients?oauthClientId={{oauth_client_id}}"))
 	if err != nil {
 		return err
 	}
@@ -393,7 +393,7 @@ func resourceIAMWorkforcePoolOauthClientRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}projects/{{project}}/locations/{{location}}/oauthClients/{{oauth_client_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/oauthClients/{{oauth_client_id}}"))
 	if err != nil {
 		return err
 	}
@@ -547,7 +547,7 @@ func resourceIAMWorkforcePoolOauthClientUpdate(d *schema.ResourceData, meta inte
 		obj["allowedRedirectUris"] = allowedRedirectUrisProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}projects/{{project}}/locations/{{location}}/oauthClients/{{oauth_client_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/oauthClients/{{oauth_client_id}}"))
 	if err != nil {
 		return err
 	}
@@ -633,8 +633,7 @@ func resourceIAMWorkforcePoolOauthClientDelete(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error fetching project for OauthClient: %s", err)
 	}
 	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}projects/{{project}}/locations/{{location}}/oauthClients/{{oauth_client_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/oauthClients/{{oauth_client_id}}"))
 	if err != nil {
 		return err
 	}
