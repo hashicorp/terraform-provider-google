@@ -61,7 +61,7 @@ fun googleCloudRootProject(allConfig: AllContextParameters): Project {
         // Projects required for nightly testing, testing MM upstreams, and sweepers
         subProject(googleSubProjectGa(allConfig))
         subProject(googleSubProjectBeta(allConfig))
-        subProject(projectSweeperSubProject(allConfig))
+        subProject(globalSweepersSubProject(allConfig))
         subProject(featureBranchResourceIdentitySubProject(allConfig))
 
         // Feature branch-testing projects - these will be added and removed as needed

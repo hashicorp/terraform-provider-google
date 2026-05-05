@@ -17,7 +17,7 @@ const val betaProjectName = "Google Beta"
 const val nightlyTestsProjectName = "Nightly Tests"
 const val weeklyDiffTestsProjectName = "Weekly Diff Tests"
 const val mmUpstreamProjectName = "Upstream MM Testing"
-const val projectSweeperProjectName = "Project Sweeper"
+const val globalSweepersProjectName = "Global Sweepers"
 
 fun testContextParameters(): AllContextParameters {
     return AllContextParameters(
