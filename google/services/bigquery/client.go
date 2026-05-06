@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *bigquery.Service {
-	bigQueryClientBasePath := c.BigQueryBasePath
+	bigQueryClientBasePath := transport_tpg.BaseUrl(Product, c)
 	log.Printf("[INFO] Instantiating Google Cloud BigQuery client for path %s", bigQueryClientBasePath)
 	wrappedBigQueryClient := transport_tpg.ClientWithAdditionalRetries(c.Client, transport_tpg.IamMemberMissing)
 	clientBigQuery, err := bigquery.NewService(c.Context, option.WithHTTPClient(wrappedBigQueryClient))

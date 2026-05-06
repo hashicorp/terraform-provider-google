@@ -123,7 +123,7 @@ func DataSourceArtifactRegistryFileRead(d *schema.ResourceData, meta interface{}
 	fileID := d.Get("file_id").(string)
 	outputPath := d.Get("output_path").(string)
 
-	resourceURL := buildFileResourceURL(config.ArtifactRegistryBasePath, project, location, repoID, fileID)
+	resourceURL := buildFileResourceURL(transport_tpg.BaseUrl(Product, config), project, location, repoID, fileID)
 	timeout := d.Timeout(schema.TimeoutRead)
 
 	metaResp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

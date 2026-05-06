@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *iam.Service {
-	iamClientBasePath := transport_tpg.RemoveBasePathVersion(c.IAMBetaBasePath)
+	iamClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud IAM client for path %s", iamClientBasePath)
 	clientIAM, err := iam.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

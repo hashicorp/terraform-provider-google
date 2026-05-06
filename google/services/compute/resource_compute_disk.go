@@ -1558,7 +1558,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 			snapshotObj["snapshotEncryptionKey"] = snapshotEncryptionKey
 		}
 
-		snapshotUrl := fmt.Sprintf("%sprojects/%s/global/snapshots", config.ComputeBasePath, project)
+		snapshotUrl := fmt.Sprintf("%sprojects/%s/global/snapshots", transport_tpg.BaseUrl(Product, config), project)
 
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
@@ -1594,7 +1594,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 			}
 
 			// Get instance details using REST API
-			instanceUrl, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", config.ComputeBasePath, instanceProject, instanceZone, instanceName))
+			instanceUrl, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(Product, config), instanceProject, instanceZone, instanceName))
 			if err != nil {
 				return err
 			}
@@ -1632,7 +1632,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 
 		for _, call := range detachCalls {
 			detachUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/detachDisk?deviceName=%s",
-				config.ComputeBasePath, call.project, call.zone, call.instance, call.deviceName)
+				transport_tpg.BaseUrl(Product, config), call.project, call.zone, call.instance, call.deviceName)
 
 			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 				Config:    config,

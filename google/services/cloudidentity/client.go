@@ -25,7 +25,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *cloudidentity.Service {
-	cloudidentityClientBasePath := transport_tpg.RemoveBasePathVersion(c.CloudIdentityBasePath)
+	cloudidentityClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud CloudIdentity client for path %s", cloudidentityClientBasePath)
 	clientCloudIdentity, err := cloudidentity.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

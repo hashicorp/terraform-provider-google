@@ -36,6 +36,8 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/artifactregistry"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 const testFileContents = "hello-artifact-registry\n"
@@ -117,7 +119,7 @@ func uploadGenericArtifact(t *testing.T, project, location, repoID, pkg, version
 		// inserts "upload/" before the version segment, e.g.:
 		//   https://artifactregistry.googleapis.com/v1/  →
 		//   https://artifactregistry.googleapis.com/upload/v1/
-		uploadBase := strings.Replace(config.ArtifactRegistryBasePath, "v1/", "upload/v1/", 1)
+		uploadBase := strings.Replace(transport_tpg.BaseUrl(artifactregistry.Product, config), "v1/", "upload/v1/", 1)
 		uploadURL := fmt.Sprintf(
 			"%sprojects/%s/locations/%s/repositories/%s/genericArtifacts:create?alt=json&uploadType=multipart",
 			uploadBase, project, location, repoID,
