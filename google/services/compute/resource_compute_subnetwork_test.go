@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -676,6 +677,71 @@ func TestAccComputeSubnetwork_resourceManagerTags(t *testing.T) {
 	})
 }
 
+func TestAccComputeSubnetwork_ipv6UpdateWithPdp(t *testing.T) {
+	t.Parallel()
+
+	randSuffix := acctest.RandString(t, 10)
+	networkName := fmt.Sprintf("tf-test-net-%s", randSuffix)
+	subnetName := fmt.Sprintf("tf-test-sub-%s", randSuffix)
+	papName := fmt.Sprintf("tf-test-pap-%s", randSuffix)
+	pdpName := fmt.Sprintf("tf-test-pdp-%s", randSuffix)
+	subPdpName := fmt.Sprintf("tf-test-spdp-%s", randSuffix)
+
+	subnetResName := "google_compute_subnetwork.test_subnet"
+	papResName := "google_compute_public_advertised_prefix.test_pap"
+	pdpResName := "google_compute_public_delegated_prefix.test_root_pdp"
+	subPdpResName := "google_compute_public_delegated_prefix.test_sub_pdp"
+
+	context := map[string]interface{}{
+		"description":  envvar.GetTestPublicAdvertisedPrefixDescriptionFromEnv(t),
+		"network_name": networkName,
+		"subnet_name":  subnetName,
+		"pap_name":     papName,
+		"pdp_name":     pdpName,
+		"sub_pdp_name": subPdpName,
+		"rand_suffix":  randSuffix,
+		"region":       "us-central1",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckComputeSubnetworkDestroyProducer(t),
+		),
+		Steps: []resource.TestStep{
+			// Step 1: Create PAP, root PDP, Sub PDP, IPv4 Network and Subnetwork
+			{
+				Config: testAccComputeSubnetwork_ipv6PdpSetup(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, subnetResName, new(compute.Subnetwork)),
+					resource.TestCheckResourceAttr(subnetResName, "name", subnetName),
+					resource.TestCheckResourceAttr(subnetResName, "stack_type", "IPV4_ONLY"),
+					resource.TestCheckResourceAttrSet(papResName, "self_link"),
+					resource.TestCheckResourceAttrSet(pdpResName, "self_link"),
+					resource.TestCheckResourceAttrSet(subPdpResName, "self_link"),
+				),
+			},
+			// Step 2: Update Subnetwork to Dual Stack with IP Collection
+			{
+				Config: testAccComputeSubnetwork_ipv6PdpUpdate(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, subnetResName, new(compute.Subnetwork)),
+					resource.TestCheckResourceAttr(subnetResName, "stack_type", "IPV4_IPV6"),
+					resource.TestCheckResourceAttr(subnetResName, "ipv6_access_type", "INTERNAL"),
+					testAccCheckSubnetIpCollectionMatchesPdp(t, subnetResName, subPdpResName),
+				),
+			},
+			// Import Check
+			{
+				ResourceName:      subnetResName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeSubnetwork_resourceManagerTags(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "custom-test" {
@@ -1273,4 +1339,118 @@ resource "google_compute_subnetwork" "subnetwork" {
   ipv6_access_type = "INTERNAL"
 }
 `, cnName, subnetworkName)
+}
+
+func testAccCheckSubnetIpCollectionMatchesPdp(t *testing.T, subnetResourceName, pdpResourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		subnetRes, ok := s.RootModule().Resources[subnetResourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", subnetResourceName)
+		}
+		pdpRes, ok := s.RootModule().Resources[pdpResourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", pdpResourceName)
+		}
+
+		ipCollection := subnetRes.Primary.Attributes["ip_collection"]
+		expectedPdpSelfLink := pdpRes.Primary.Attributes["self_link"]
+
+		if ipCollection == "" {
+			return fmt.Errorf("ip_collection is empty, expected it to be set on %s", subnetResourceName)
+		}
+
+		normalizedIpCollection := tpgresource.GetResourceNameFromSelfLink(ipCollection)
+		normalizedPdpSelfLink := tpgresource.GetResourceNameFromSelfLink(expectedPdpSelfLink)
+
+		if normalizedIpCollection != normalizedPdpSelfLink {
+			return fmt.Errorf("mismatch: ip_collection (%s) and PDP self_link (%s) don't match after normalization. Expected %s, got %s",
+				ipCollection, expectedPdpSelfLink, normalizedPdpSelfLink, normalizedIpCollection)
+		}
+
+		return nil
+	}
+}
+
+func testAccComputeSubnetwork_ipv6PdpSetup(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "test_network" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_public_advertised_prefix" "test_pap" {
+  name             = "%{pap_name}"
+  ip_cidr_range    = "2001:db8::/32"
+  description      = "%{description}"
+  pdp_scope        = "REGIONAL"
+  ipv6_access_type = "INTERNAL"
+}
+
+resource "google_compute_public_delegated_prefix" "test_root_pdp" {
+  name          = "%{pdp_name}"
+  region        = "%{region}"
+  parent_prefix = google_compute_public_advertised_prefix.test_pap.id
+  ip_cidr_range = "2001:db8::/40"
+  mode          = "DELEGATION"
+}
+
+resource "google_compute_public_delegated_prefix" "test_sub_pdp" {
+  name          = "%{sub_pdp_name}"
+  region        = "%{region}"
+  ip_cidr_range = "2001:db8::/48"
+  parent_prefix = google_compute_public_delegated_prefix.test_root_pdp.id
+  mode          = "INTERNAL_IPV6_SUBNETWORK_CREATION"
+}
+
+resource "google_compute_subnetwork" "test_subnet" {
+  name          = "%{subnet_name}"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "%{region}"
+  network       = google_compute_network.test_network.id
+  stack_type    = "IPV4_ONLY"
+}
+`, context)
+}
+
+func testAccComputeSubnetwork_ipv6PdpUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "test_network" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_public_advertised_prefix" "test_pap" {
+  name             = "%{pap_name}"
+  ip_cidr_range    = "2001:db8::/32"
+  description      = "%{description}"
+  pdp_scope        = "REGIONAL"
+  ipv6_access_type = "INTERNAL"
+}
+
+resource "google_compute_public_delegated_prefix" "test_root_pdp" {
+  name          = "%{pdp_name}"
+  region        = "%{region}"
+  parent_prefix = google_compute_public_advertised_prefix.test_pap.id
+  ip_cidr_range = "2001:db8::/40"
+  mode          = "DELEGATION"
+}
+
+resource "google_compute_public_delegated_prefix" "test_sub_pdp" {
+  name          = "%{sub_pdp_name}"
+  region        = "%{region}"
+  ip_cidr_range = "2001:db8::/48"
+  parent_prefix = google_compute_public_delegated_prefix.test_root_pdp.id
+  mode          = "INTERNAL_IPV6_SUBNETWORK_CREATION"
+}
+
+resource "google_compute_subnetwork" "test_subnet" {
+  name             = "%{subnet_name}"
+  ip_cidr_range    = "10.2.0.0/16"
+  region           = "%{region}"
+  network          = google_compute_network.test_network.id
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "INTERNAL"
+  ip_collection    = google_compute_public_delegated_prefix.test_sub_pdp.id
+}
+`, context)
 }
