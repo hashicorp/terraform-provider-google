@@ -371,6 +371,8 @@ is desired, you will need to modify your state file manually using
     * /zones/{zone}/storagePools/{storagePool}
     * /{storagePool}
 
+* `replica_zones` - (Optional) A list of short names or self_links of zones in which to create the disk. Setting this field converts the disk to a regional disk. You must provide exactly two replica zones, and one zone must be the same as the instance zone.
+
 <a name="nested_scratch_disk"></a>The `scratch_disk` block supports:
 
 * `interface` - (Required) The disk interface to use for attaching this disk; either SCSI or NVME.
