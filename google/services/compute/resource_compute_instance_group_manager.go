@@ -652,6 +652,29 @@ func getNamedPortsBeta(nps []interface{}) []*compute.NamedPort {
 	return namedPorts
 }
 
+func getNamedPortsBetaV2(nps []interface{}) []interface{} {
+	namedPorts := make([]interface{}, 0, len(nps))
+	for _, v := range nps {
+		np := v.(map[string]interface{})
+		namedPorts = append(namedPorts, map[string]interface{}{
+			"name": np["name"].(string),
+			"port": int64(np["port"].(int)),
+		})
+	}
+
+	return namedPorts
+}
+
+func mapFromInterface(v interface{}) map[string]interface{} {
+	if v == nil {
+		return nil
+	}
+	if m, ok := v.(map[string]interface{}); ok {
+		return m
+	}
+	return nil
+}
+
 func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -664,39 +687,57 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	zone, err := tpgresource.GetZone(d, config)
+	insertBody := map[string]interface{}{
+		"name":                        d.Get("name").(string),
+		"description":                 d.Get("description").(string),
+		"baseInstanceName":            d.Get("base_instance_name").(string),
+		"targetSize":                  int64(d.Get("target_size").(int)),
+		"listManagedInstancesResults": d.Get("list_managed_instances_results").(string),
+		"versions":                    expandVersionsV2(d.Get("version").([]interface{})),
+		"standbyPolicy":               expandStandbyPolicyV2(d),
+		"updatePolicy":                expandUpdatePolicyV2(d.Get("update_policy").([]interface{})),
+		"instanceLifecyclePolicy":     expandInstanceLifecyclePolicyV2(d.Get("instance_lifecycle_policy").([]interface{})),
+		"statefulPolicy":              expandStatefulPolicyV2(d),
+		"resourcePolicies":            expandResourcePoliciesV2(d.Get("resource_policies").([]interface{})),
+	}
+
+	if namedPorts := getNamedPortsBetaV2(d.Get("named_port").(*schema.Set).List()); len(namedPorts) > 0 {
+		insertBody["namedPorts"] = namedPorts
+	}
+	if targetPools := tpgresource.ConvertStringSet(d.Get("target_pools").(*schema.Set)); len(targetPools) > 0 {
+		insertBody["targetPools"] = targetPools
+	}
+	if targetSuspendedSize := d.Get("target_suspended_size").(int); targetSuspendedSize > 0 {
+		insertBody["targetSuspendedSize"] = int64(targetSuspendedSize)
+	}
+	if targetStoppedSize := d.Get("target_stopped_size").(int); targetStoppedSize > 0 {
+		insertBody["targetStoppedSize"] = int64(targetStoppedSize)
+	}
+	if autoHealingPolicies := expandAutoHealingPoliciesV2(d.Get("auto_healing_policies").([]interface{})); len(autoHealingPolicies) > 0 {
+		insertBody["autoHealingPolicies"] = autoHealingPolicies
+	}
+	if allInstancesConfig := expandAllInstancesConfigV2(nil, d.Get("all_instances_config").([]interface{})); allInstancesConfig != nil {
+		insertBody["allInstancesConfig"] = allInstancesConfig
+	}
+	if targetSizePolicy := expandTargetSizePolicyV2(d.Get("target_size_policy").([]interface{})); targetSizePolicy != nil {
+		insertBody["targetSizePolicy"] = targetSizePolicy
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers")
 	if err != nil {
 		return err
 	}
 
-	// Build the parameter
-	manager := &compute.InstanceGroupManager{
-		Name:                        d.Get("name").(string),
-		Description:                 d.Get("description").(string),
-		BaseInstanceName:            d.Get("base_instance_name").(string),
-		TargetSize:                  int64(d.Get("target_size").(int)),
-		ListManagedInstancesResults: d.Get("list_managed_instances_results").(string),
-		NamedPorts:                  getNamedPortsBeta(d.Get("named_port").(*schema.Set).List()),
-		TargetPools:                 tpgresource.ConvertStringSet(d.Get("target_pools").(*schema.Set)),
-		AutoHealingPolicies:         expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
-		Versions:                    expandVersions(d.Get("version").([]interface{})),
-		StandbyPolicy:               expandStandbyPolicy(d),
-		TargetSuspendedSize:         int64(d.Get("target_suspended_size").(int)),
-		TargetStoppedSize:           int64(d.Get("target_stopped_size").(int)),
-		UpdatePolicy:                expandUpdatePolicy(d.Get("update_policy").([]interface{})),
-		InstanceLifecyclePolicy:     expandInstanceLifecyclePolicy(d.Get("instance_lifecycle_policy").([]interface{})),
-		AllInstancesConfig:          expandAllInstancesConfig(nil, d.Get("all_instances_config").([]interface{})),
-		StatefulPolicy:              expandStatefulPolicy(d),
-		ResourcePolicies:            expandResourcePolicies(d.Get("resource_policies").([]interface{})),
-		TargetSizePolicy:            expandTargetSizePolicy(d.Get("target_size_policy").([]interface{})),
-
-		// Force send TargetSize to allow a value of 0.
-		ForceSendFields: []string{"TargetSize"},
-	}
-
-	log.Printf("[DEBUG] InstanceGroupManager insert request: %#v", manager)
-	op, err := NewClient(config, userAgent).InstanceGroupManagers.Insert(
-		project, zone, manager).Do()
+	log.Printf("[DEBUG] InstanceGroupManager insert request: %#v", insertBody)
+	op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      insertBody,
+		Timeout:   d.Timeout(schema.TimeoutCreate),
+	})
 
 	if err != nil {
 		return fmt.Errorf("Error creating InstanceGroupManager: %s", err)
@@ -718,8 +759,9 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		// by the upstream Terraform process exiting early such as a sigterm.
 		select {
 		case <-config.Context.Done():
-			log.Printf("[DEBUG] Persisting %s so this operation can be resumed \n", op.Name)
-			if err := d.Set("operation", op.Name); err != nil {
+			opName, _ := op["name"].(string)
+			log.Printf("[DEBUG] Persisting %s so this operation can be resumed \n", opName)
+			if err := d.Set("operation", opName); err != nil {
 				return fmt.Errorf("Error setting operation: %s", err)
 			}
 			return nil
@@ -804,7 +846,6 @@ func getManager(d *schema.ResourceData, meta interface{}) (*compute.InstanceGrou
 		d.SetId("")
 		return nil, nil
 	}
-
 	return manager, nil
 }
 
@@ -1213,6 +1254,18 @@ func expandAutoHealingPolicies(configured []interface{}) []*compute.InstanceGrou
 	return autoHealingPolicies
 }
 
+func expandAutoHealingPoliciesV2(configured []interface{}) []interface{} {
+	autoHealingPolicies := make([]interface{}, 0, len(configured))
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+		autoHealingPolicies = append(autoHealingPolicies, map[string]interface{}{
+			"healthCheck":     data["health_check"].(string),
+			"initialDelaySec": int64(data["initial_delay_sec"].(int)),
+		})
+	}
+	return autoHealingPolicies
+}
+
 func expandStatefulPolicy(d *schema.ResourceData) *compute.StatefulPolicy {
 
 	preservedState := &compute.StatefulPolicyPreservedState{}
@@ -1280,6 +1333,51 @@ func expandStatefulPolicy(d *schema.ResourceData) *compute.StatefulPolicy {
 	return statefulPolicy
 }
 
+func expandStatefulPolicyV2(d *schema.ResourceData) map[string]interface{} {
+	preservedState := map[string]interface{}{}
+
+	if d.HasChange("stateful_disk") {
+		oldDisks, newDisks := d.GetChange("stateful_disk")
+		disks := expandStatefulDisksV2(newDisks.(*schema.Set).List())
+		for _, raw := range oldDisks.(*schema.Set).List() {
+			data := raw.(map[string]interface{})
+			deviceName := data["device_name"].(string)
+			if _, exist := disks[deviceName]; !exist {
+				disks[deviceName] = nil
+			}
+		}
+		preservedState["disks"] = disks
+	}
+
+	if d.HasChange("stateful_internal_ip") {
+		oldInternalIps, newInternalIps := d.GetChange("stateful_internal_ip")
+		internalIPs := expandStatefulIpsV2(newInternalIps.([]interface{}))
+		for _, raw := range oldInternalIps.([]interface{}) {
+			data := raw.(map[string]interface{})
+			interfaceName := data["interface_name"].(string)
+			if _, exist := internalIPs[interfaceName]; !exist {
+				internalIPs[interfaceName] = nil
+			}
+		}
+		preservedState["internalIPs"] = internalIPs
+	}
+
+	if d.HasChange("stateful_external_ip") {
+		oldExternalIps, newExternalIps := d.GetChange("stateful_external_ip")
+		externalIPs := expandStatefulIpsV2(newExternalIps.([]interface{}))
+		for _, raw := range oldExternalIps.([]interface{}) {
+			data := raw.(map[string]interface{})
+			interfaceName := data["interface_name"].(string)
+			if _, exist := externalIPs[interfaceName]; !exist {
+				externalIPs[interfaceName] = nil
+			}
+		}
+		preservedState["externalIPs"] = externalIPs
+	}
+
+	return map[string]interface{}{"preservedState": preservedState}
+}
+
 func expandStatefulDisks(statefulDisk []interface{}) map[string]compute.StatefulPolicyPreservedStateDiskDevice {
 	statefulDisksMap := make(map[string]compute.StatefulPolicyPreservedStateDiskDevice)
 
@@ -1293,6 +1391,17 @@ func expandStatefulDisks(statefulDisk []interface{}) map[string]compute.Stateful
 	return statefulDisksMap
 }
 
+func expandStatefulDisksV2(statefulDisk []interface{}) map[string]interface{} {
+	statefulDisksMap := make(map[string]interface{})
+	for _, raw := range statefulDisk {
+		data := raw.(map[string]interface{})
+		statefulDisksMap[data["device_name"].(string)] = map[string]interface{}{
+			"autoDelete": data["delete_rule"].(string),
+		}
+	}
+	return statefulDisksMap
+}
+
 func expandStatefulIps(statefulIP []interface{}) map[string]compute.StatefulPolicyPreservedStateNetworkIp {
 	statefulIpsMap := make(map[string]compute.StatefulPolicyPreservedStateNetworkIp)
 
@@ -1302,6 +1411,17 @@ func expandStatefulIps(statefulIP []interface{}) map[string]compute.StatefulPoli
 			AutoDelete: data["delete_rule"].(string),
 		}
 		statefulIpsMap[data["interface_name"].(string)] = networkIp
+	}
+	return statefulIpsMap
+}
+
+func expandStatefulIpsV2(statefulIP []interface{}) map[string]interface{} {
+	statefulIpsMap := make(map[string]interface{})
+	for _, raw := range statefulIP {
+		data := raw.(map[string]interface{})
+		statefulIpsMap[data["interface_name"].(string)] = map[string]interface{}{
+			"autoDelete": data["delete_rule"].(string),
+		}
 	}
 	return statefulIpsMap
 }
@@ -1322,6 +1442,19 @@ func expandVersions(configured []interface{}) []*compute.InstanceGroupManagerVer
 	return versions
 }
 
+func expandVersionsV2(configured []interface{}) []interface{} {
+	versions := make([]interface{}, 0, len(configured))
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+		versions = append(versions, map[string]interface{}{
+			"name":             data["name"].(string),
+			"instanceTemplate": ConvertToUniqueIdWhenPresent(data["instance_template"].(string)),
+			"targetSize":       expandFixedOrPercentV2(data["target_size"].([]interface{})),
+		})
+	}
+	return versions
+}
+
 func expandTargetSizePolicy(configured []interface{}) *compute.InstanceGroupManagerTargetSizePolicy {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
@@ -1329,6 +1462,16 @@ func expandTargetSizePolicy(configured []interface{}) *compute.InstanceGroupMana
 	data := configured[0].(map[string]interface{})
 	return &compute.InstanceGroupManagerTargetSizePolicy{
 		Mode: data["mode"].(string),
+	}
+}
+
+func expandTargetSizePolicyV2(configured []interface{}) map[string]interface{} {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+	data := configured[0].(map[string]interface{})
+	return map[string]interface{}{
+		"mode": data["mode"].(string),
 	}
 }
 
@@ -1344,6 +1487,16 @@ func expandResourcePolicies(configured []interface{}) *compute.InstanceGroupMana
 	}
 
 	return resourcePolicies
+}
+
+func expandResourcePoliciesV2(configured []interface{}) map[string]interface{} {
+	if len(configured) == 0 {
+		return map[string]interface{}{"workloadPolicy": nil}
+	}
+	data := configured[0].(map[string]interface{})
+	return map[string]interface{}{
+		"workloadPolicy": data["workload_policy"].(string),
+	}
 }
 
 func expandFixedOrPercent(configured []interface{}) *compute.FixedOrPercent {
@@ -1363,6 +1516,22 @@ func expandFixedOrPercent(configured []interface{}) *compute.FixedOrPercent {
 	return fixedOrPercent
 }
 
+func expandFixedOrPercentV2(configured []interface{}) map[string]interface{} {
+	fixedOrPercent := map[string]interface{}{}
+	for _, raw := range configured {
+		if raw == nil {
+			continue
+		}
+		data := raw.(map[string]interface{})
+		if percent := data["percent"]; percent.(int) > 0 {
+			fixedOrPercent["percent"] = int64(percent.(int))
+		} else {
+			fixedOrPercent["fixed"] = int64(data["fixed"].(int))
+		}
+	}
+	return fixedOrPercent
+}
+
 func expandInstanceLifecyclePolicy(configured []interface{}) *compute.InstanceGroupManagerInstanceLifecyclePolicy {
 	instanceLifecyclePolicy := &compute.InstanceGroupManagerInstanceLifecyclePolicy{}
 
@@ -1370,6 +1539,17 @@ func expandInstanceLifecyclePolicy(configured []interface{}) *compute.InstanceGr
 		data := raw.(map[string]interface{})
 		instanceLifecyclePolicy.ForceUpdateOnRepair = data["force_update_on_repair"].(string)
 		instanceLifecyclePolicy.DefaultActionOnFailure = data["default_action_on_failure"].(string)
+
+	}
+	return instanceLifecyclePolicy
+}
+
+func expandInstanceLifecyclePolicyV2(configured []interface{}) map[string]interface{} {
+	instanceLifecyclePolicy := map[string]interface{}{}
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+		instanceLifecyclePolicy["forceUpdateOnRepair"] = data["force_update_on_repair"].(string)
+		instanceLifecyclePolicy["defaultActionOnFailure"] = data["default_action_on_failure"].(string)
 
 	}
 	return instanceLifecyclePolicy
@@ -1386,9 +1566,18 @@ func expandStandbyPolicy(d *schema.ResourceData) *compute.InstanceGroupManagerSt
 	return standbyPolicy
 }
 
+func expandStandbyPolicyV2(d *schema.ResourceData) map[string]interface{} {
+	standbyPolicy := map[string]interface{}{}
+	for _, sp := range d.Get("standby_policy").([]any) {
+		spData := sp.(map[string]any)
+		standbyPolicy["initialDelaySec"] = int64(spData["initial_delay_sec"].(int))
+		standbyPolicy["mode"] = spData["mode"].(string)
+	}
+	return standbyPolicy
+}
+
 func expandUpdatePolicy(configured []interface{}) *compute.InstanceGroupManagerUpdatePolicy {
 	updatePolicy := &compute.InstanceGroupManagerUpdatePolicy{}
-
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
 
@@ -1429,6 +1618,47 @@ func expandUpdatePolicy(configured []interface{}) *compute.InstanceGroupManagerU
 				// allow setting this value to 0
 				ForceSendFields: []string{"Fixed"},
 				NullFields:      []string{"Percent"},
+			}
+		}
+	}
+	return updatePolicy
+}
+
+func expandUpdatePolicyV2(configured []interface{}) map[string]interface{} {
+	updatePolicy := map[string]interface{}{}
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+
+		updatePolicy["minimalAction"] = data["minimal_action"].(string)
+		if mostDisruptiveAllowedAction := data["most_disruptive_allowed_action"].(string); mostDisruptiveAllowedAction != "" {
+			updatePolicy["mostDisruptiveAllowedAction"] = mostDisruptiveAllowedAction
+		} else {
+			updatePolicy["mostDisruptiveAllowedAction"] = nil
+		}
+		updatePolicy["type"] = data["type"].(string)
+		updatePolicy["replacementMethod"] = data["replacement_method"].(string)
+
+		if v := data["max_surge_percent"]; v.(int) > 0 {
+			updatePolicy["maxSurge"] = map[string]interface{}{
+				"percent": int64(v.(int)),
+				"fixed":   nil,
+			}
+		} else {
+			updatePolicy["maxSurge"] = map[string]interface{}{
+				"fixed":   int64(data["max_surge_fixed"].(int)),
+				"percent": nil,
+			}
+		}
+
+		if v := data["max_unavailable_percent"]; v.(int) > 0 {
+			updatePolicy["maxUnavailable"] = map[string]interface{}{
+				"percent": int64(v.(int)),
+				"fixed":   nil,
+			}
+		} else {
+			updatePolicy["maxUnavailable"] = map[string]interface{}{
+				"fixed":   int64(data["max_unavailable_fixed"].(int)),
+				"percent": nil,
 			}
 		}
 	}
@@ -1543,7 +1773,6 @@ func flattenStandbyPolicy(standbyPolicy *compute.InstanceGroupManagerStandbyPoli
 	}
 	return results
 }
-
 func flattenUpdatePolicy(updatePolicy *compute.InstanceGroupManagerUpdatePolicy) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	if updatePolicy != nil {
@@ -1626,6 +1855,73 @@ func expandAllInstancesConfig(old []interface{}, new []interface{}) *compute.Ins
 	}
 }
 
+func expandAllInstancesConfigV2(old []interface{}, new []interface{}) map[string]interface{} {
+	var properties map[string]interface{}
+	for _, raw := range new {
+		properties = map[string]interface{}{}
+		if raw != nil {
+			data := raw.(map[string]interface{})
+			metadata := map[string]interface{}{}
+			for k, v := range data["metadata"].(map[string]interface{}) {
+				metadata[k] = v
+			}
+			if len(metadata) == 0 {
+				properties["metadata"] = nil
+			} else {
+				properties["metadata"] = metadata
+			}
+
+			labels := map[string]interface{}{}
+			for k, v := range data["labels"].(map[string]interface{}) {
+				labels[k] = v
+			}
+			if len(labels) == 0 {
+				properties["labels"] = nil
+			} else {
+				properties["labels"] = labels
+			}
+		}
+	}
+
+	if properties != nil {
+		metadata := mapFromInterface(properties["metadata"])
+		labels := mapFromInterface(properties["labels"])
+		for _, raw := range old {
+			if raw != nil {
+				data := raw.(map[string]interface{})
+				for k := range data["metadata"].(map[string]interface{}) {
+					if _, exist := metadata[k]; !exist {
+						if metadata == nil {
+							metadata = map[string]interface{}{}
+						}
+						metadata[k] = nil
+					}
+				}
+				for k := range data["labels"].(map[string]interface{}) {
+					if _, exist := labels[k]; !exist {
+						if labels == nil {
+							labels = map[string]interface{}{}
+						}
+						labels[k] = nil
+					}
+				}
+			}
+		}
+		if metadata != nil {
+			properties["metadata"] = metadata
+		}
+		if labels != nil {
+			properties["labels"] = labels
+		}
+	}
+	if properties != nil {
+		return map[string]interface{}{
+			"properties": properties,
+		}
+	}
+	return nil
+}
+
 func flattenAllInstancesConfig(allInstancesConfig *compute.InstanceGroupManagerAllInstancesConfig) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	props := map[string]interface{}{}
@@ -1701,7 +1997,6 @@ func flattenTargetSizePolicy(targetSizePolicy *compute.InstanceGroupManagerTarge
 		},
 	}
 }
-
 func flattenResourcePolicies(resourcePolicies *compute.InstanceGroupManagerResourcePolicies) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	if resourcePolicies != nil {
