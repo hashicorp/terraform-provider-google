@@ -253,6 +253,81 @@ resource "google_compute_security_policy_rule" "policy_rule_two" {
 `, context)
 }
 
+func TestAccComputeSecurityPolicyRule_securityPolicyRuleAdvancedFeaturesExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"sec_policy_name": "policyruletest" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicyRule_securityPolicyRuleAdvancedFeaturesExample(context),
+			},
+			{
+				ResourceName:            "google_compute_security_policy_rule.policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"security_policy"},
+			},
+			{
+				ResourceName:       "google_compute_security_policy_rule.policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeSecurityPolicyRule_securityPolicyRuleAdvancedFeaturesExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%{sec_policy_name}"
+  description = "Security policy with WAF exclusions, Headers, and Redirect"
+}
+
+resource "google_compute_security_policy_rule" "policy" {
+  security_policy = google_compute_security_policy.policy.name
+  description     = "Complex rule using advanced features: WAF config, header actions, and redirect options"
+  priority        = 100
+  action          = "allow"
+
+  match {
+    expr {
+      expression = "request.path.matches('/api/v1/.*')"
+    }
+  }
+
+  preconfigured_waf_config {
+    exclusion {
+      target_rule_set = "sqli-v33-stable"
+      target_rule_ids = ["owasp-crs-v030301-id942100-sqli"]
+
+      request_header {
+        operator = "EQUALS"
+        value    = "internal-scan"
+      }
+    }
+  }
+
+  header_action {
+    request_headers_to_adds {
+      header_name  = "X-Added-By-Armor"
+      header_value = "Verified-Traffic"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeSecurityPolicyRuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

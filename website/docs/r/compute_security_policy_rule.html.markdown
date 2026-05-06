@@ -145,6 +145,52 @@ resource "google_compute_security_policy_rule" "policy_rule_two" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=security_policy_rule_advanced_features&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Security Policy Rule Advanced Features
+
+
+```hcl
+resource "google_compute_security_policy" "policy" {
+  name        = "policyruletest"
+  description = "Security policy with WAF exclusions, Headers, and Redirect"
+}
+
+resource "google_compute_security_policy_rule" "policy" {
+  security_policy = google_compute_security_policy.policy.name
+  description     = "Complex rule using advanced features: WAF config, header actions, and redirect options"
+  priority        = 100
+  action          = "allow"
+
+  match {
+    expr {
+      expression = "request.path.matches('/api/v1/.*')"
+    }
+  }
+
+  preconfigured_waf_config {
+    exclusion {
+      target_rule_set = "sqli-v33-stable"
+      target_rule_ids = ["owasp-crs-v030301-id942100-sqli"]
+
+      request_header {
+        operator = "EQUALS"
+        value    = "internal-scan"
+      }
+    }
+  }
+
+  header_action {
+    request_headers_to_adds {
+      header_name  = "X-Added-By-Armor"
+      header_value = "Verified-Traffic"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=security_policy_rule_with_body_exclude&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
