@@ -98,7 +98,7 @@ func TestAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyWithAdva
 
 	context := map[string]interface{}{
 		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"sec_policy_name": "policy" + randomSuffix,
+		"sec_policy_name": "tf-test-security-policy" + randomSuffix,
 		"random_suffix":   randomSuffix,
 	}
 

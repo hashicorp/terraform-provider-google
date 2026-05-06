@@ -45,7 +45,7 @@ resource "google_compute_organization_security_policy" "policy" {
 
 ```hcl
 resource "google_compute_organization_security_policy" "policy" {
-  short_name = "policy"
+  short_name = "security-policy"
   parent       = "organizations/123456789"
   type         = "CLOUD_ARMOR"
 

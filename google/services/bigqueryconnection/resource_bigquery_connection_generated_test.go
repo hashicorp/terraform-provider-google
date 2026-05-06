@@ -665,7 +665,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionConnectorConfiguratio
 
 	context := map[string]interface{}{
 		"connection_id": "tf-test-my-connection" + randomSuffix,
-		"password":      "password" + randomSuffix,
+		"password":      "password",
 		"username":      "user" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
