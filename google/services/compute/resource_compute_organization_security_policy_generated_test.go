@@ -91,6 +91,57 @@ resource "google_compute_organization_security_policy" "policy" {
 `, context)
 }
 
+func TestAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyWithAdvancedOptionsExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"sec_policy_name": "policy" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeOrganizationSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyWithAdvancedOptionsExample(context),
+			},
+			{
+				ResourceName:            "google_compute_organization_security_policy.policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"display_name"},
+			},
+		},
+	})
+}
+
+func testAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyWithAdvancedOptionsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "%{sec_policy_name}"
+  parent       = "organizations/%{org_id}"
+  type         = "CLOUD_ARMOR"
+
+  advanced_options_config {
+    json_parsing = "STANDARD_WITH_GRAPHQL"
+    log_level    = "VERBOSE"
+    
+    json_custom_config {
+      content_types = ["application/vnd.api+json"]
+    }
+
+    user_ip_request_headers     = ["X-Forwarded-For"]
+    request_body_inspection_size = "64KB"
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeOrganizationSecurityPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

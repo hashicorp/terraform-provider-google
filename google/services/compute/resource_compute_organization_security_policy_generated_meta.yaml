@@ -7,6 +7,11 @@ api_service_name: compute.googleapis.com
 api_version: v1
 api_resource_type_kind: SecurityPolicy
 fields:
+    - api_field: advancedOptionsConfig.jsonCustomConfig.contentTypes
+    - api_field: advancedOptionsConfig.jsonParsing
+    - api_field: advancedOptionsConfig.logLevel
+    - api_field: advancedOptionsConfig.requestBodyInspectionSize
+    - api_field: advancedOptionsConfig.userIpRequestHeaders
     - api_field: description
     - api_field: displayName
     - api_field: fingerprint

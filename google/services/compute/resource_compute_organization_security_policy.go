@@ -121,6 +121,63 @@ func ResourceComputeOrganizationSecurityPolicy() *schema.Resource {
 				Description: `The parent of this OrganizationSecurityPolicy in the Cloud Resource Hierarchy.
 Format: organizations/{organization_id} or folders/{folder_id}`,
 			},
+			"advanced_options_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Additional options for this security policy.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"json_custom_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Custom JSON parsing configurations.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"content_types": {
+										Type:        schema.TypeSet,
+										Required:    true,
+										Description: `A list of content types to be parsed as JSON.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set: schema.HashString,
+									},
+								},
+							},
+						},
+						"json_parsing": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "STANDARD", "STANDARD_WITH_GRAPHQL", ""}),
+							Description:  `JSON body parsing. Supported values include: "DISABLED", "STANDARD", "STANDARD_WITH_GRAPHQL". Possible values: ["DISABLED", "STANDARD", "STANDARD_WITH_GRAPHQL"]`,
+						},
+						"log_level": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"NORMAL", "VERBOSE", ""}),
+							Description:  `Logging level. Supported values include: "NORMAL", "VERBOSE". Possible values: ["NORMAL", "VERBOSE"]`,
+						},
+						"request_body_inspection_size": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"8KB", "16KB", "32KB", "48KB", "64KB", ""}),
+							Description: `The maximum request size chosen by the customer with Waf enabled. Values supported are "8KB", "16KB", "32KB", "48KB" and "64KB".
+Values are case insensitive. Possible values: ["8KB", "16KB", "32KB", "48KB", "64KB"]`,
+						},
+						"user_ip_request_headers": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: `An optional list of case-insensitive request header names to use for resolving the client source IP address.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Set: schema.HashString,
+						},
+					},
+				},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -201,6 +258,12 @@ func resourceComputeOrganizationSecurityPolicyCreate(d *schema.ResourceData, met
 		return err
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
+	}
+	advancedOptionsConfigProp, err := expandComputeOrganizationSecurityPolicyAdvancedOptionsConfig(d.Get("advanced_options_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("advanced_options_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(advancedOptionsConfigProp)) && (ok || !reflect.DeepEqual(v, advancedOptionsConfigProp)) {
+		obj["advancedOptionsConfig"] = advancedOptionsConfigProp
 	}
 	parentProp, err := expandComputeOrganizationSecurityPolicyParent(d.Get("parent"), d, config)
 	if err != nil {
@@ -346,6 +409,12 @@ func resourceComputeOrganizationSecurityPolicyUpdate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
 		obj["fingerprint"] = fingerprintProp
 	}
+	advancedOptionsConfigProp, err := expandComputeOrganizationSecurityPolicyAdvancedOptionsConfig(d.Get("advanced_options_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("advanced_options_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, advancedOptionsConfigProp)) {
+		obj["advancedOptionsConfig"] = advancedOptionsConfigProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/securityPolicies/{{policy_id}}"))
 	if err != nil {
@@ -482,6 +551,66 @@ func flattenComputeOrganizationSecurityPolicyType(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["json_parsing"] =
+		flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonParsing(original["jsonParsing"], d, config)
+	transformed["json_custom_config"] =
+		flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(original["jsonCustomConfig"], d, config)
+	transformed["log_level"] =
+		flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigLogLevel(original["logLevel"], d, config)
+	transformed["user_ip_request_headers"] =
+		flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigUserIpRequestHeaders(original["userIpRequestHeaders"], d, config)
+	transformed["request_body_inspection_size"] =
+		flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigRequestBodyInspectionSize(original["requestBodyInspectionSize"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonParsing(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["content_types"] =
+		flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonCustomConfigContentTypes(original["contentTypes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonCustomConfigContentTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigLogLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigUserIpRequestHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfigRequestBodyInspectionSize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeOrganizationSecurityPolicyParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -503,6 +632,100 @@ func expandComputeOrganizationSecurityPolicyFingerprint(v interface{}, d tpgreso
 }
 
 func expandComputeOrganizationSecurityPolicyType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeOrganizationSecurityPolicyAdvancedOptionsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedJsonParsing, err := expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonParsing(original["json_parsing"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonParsing); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["jsonParsing"] = transformedJsonParsing
+	}
+
+	transformedJsonCustomConfig, err := expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(original["json_custom_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonCustomConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["jsonCustomConfig"] = transformedJsonCustomConfig
+	}
+
+	transformedLogLevel, err := expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigLogLevel(original["log_level"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLogLevel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["logLevel"] = transformedLogLevel
+	}
+
+	transformedUserIpRequestHeaders, err := expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigUserIpRequestHeaders(original["user_ip_request_headers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUserIpRequestHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["userIpRequestHeaders"] = transformedUserIpRequestHeaders
+	}
+
+	transformedRequestBodyInspectionSize, err := expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigRequestBodyInspectionSize(original["request_body_inspection_size"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestBodyInspectionSize); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["requestBodyInspectionSize"] = transformedRequestBodyInspectionSize
+	}
+
+	return transformed, nil
+}
+
+func expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonParsing(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedContentTypes, err := expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonCustomConfigContentTypes(original["content_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContentTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["contentTypes"] = transformedContentTypes
+	}
+
+	return transformed, nil
+}
+
+func expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigJsonCustomConfigContentTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigLogLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigUserIpRequestHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeOrganizationSecurityPolicyAdvancedOptionsConfigRequestBodyInspectionSize(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -534,6 +757,9 @@ func ResourceComputeOrganizationSecurityPolicyFlatten(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
 	}
 	if err = d.Set("type", flattenComputeOrganizationSecurityPolicyType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
+	}
+	if err = d.Set("advanced_options_config", flattenComputeOrganizationSecurityPolicyAdvancedOptionsConfig(res["advancedOptionsConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationSecurityPolicy: %s", err)
 	}
 	if err = d.Set("parent", flattenComputeOrganizationSecurityPolicyParent(res["parent"], d, config)); err != nil {
