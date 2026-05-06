@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *runadminv2.Service {
-	runAdminV2ClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.RemoveBasePathVersion(c.CloudRunV2BasePath))
+	runAdminV2ClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c)))
 	log.Printf("[INFO] Instantiating Google Cloud Run Admin v2 client for path %s", runAdminV2ClientBasePath)
 	clientRunAdminV2, err := runadminv2.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

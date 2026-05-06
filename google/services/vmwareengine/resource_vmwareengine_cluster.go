@@ -145,9 +145,7 @@ func mountDatastores(mountsToAdd []interface{}, d *schema.ResourceData, config *
 			req["ignoreColocation"] = v.(bool)
 		}
 
-		// Construct the URL directly using d.Id() for the resource name
-		//mountUrl := fmt.Sprintf("%s%s:mountDatastore", config.VmwareengineBasePath, d.Id())
-		mountUrl, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/clusters/{{name}}:mountDatastore")
+		mountUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/clusters/{{name}}:mountDatastore")
 		if err != nil {
 			return err
 		}
@@ -188,8 +186,7 @@ func unmountDatastores(mountsToRemove []interface{}, d *schema.ResourceData, con
 			return fmt.Errorf("no datastore found in the unmount request : %#v", mountMap)
 		}
 
-		//unmountUrl := fmt.Sprintf("%s%s:unmountDatastore", config.VmwareengineBasePath, d.Id())
-		unmountUrl, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/clusters/{{name}}:unmountDatastore")
+		unmountUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/clusters/{{name}}:unmountDatastore")
 		if err != nil {
 			return err
 		}

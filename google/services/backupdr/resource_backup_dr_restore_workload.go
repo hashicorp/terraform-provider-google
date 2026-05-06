@@ -2308,7 +2308,7 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 	// ==================== Build Restore URL & Execute Request ====================
 	// Construct the restore URL using base path and url params
 	url := fmt.Sprintf("%sprojects/%s/locations/%s/backupVaults/%s/dataSources/%s/backups/%s:restore",
-		config.BackupDRBasePath,
+		transport_tpg.BaseUrl(Product, config),
 		project,
 		d.Get("location").(string),
 		d.Get("backup_vault_id").(string),

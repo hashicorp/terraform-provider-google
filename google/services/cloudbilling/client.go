@@ -26,7 +26,7 @@ import (
 )
 
 func NewClient(c *transport_tpg.Config, userAgent string) *cloudbilling.APIService {
-	cloudBillingClientBasePath := transport_tpg.RemoveBasePathVersion(c.CloudBillingBasePath)
+	cloudBillingClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud Billing client for path %s", cloudBillingClientBasePath)
 	clientBilling, err := cloudbilling.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {

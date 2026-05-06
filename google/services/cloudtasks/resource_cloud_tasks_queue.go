@@ -644,7 +644,7 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 
 	// Handle desired state after queue creation
 	if v, ok := d.GetOk("desired_state"); ok && v.(string) == "PAUSED" {
-		pauseUrl := fmt.Sprintf("%s%s:pause", config.CloudTasksBasePath, id)
+		pauseUrl := fmt.Sprintf("%s%s:pause", transport_tpg.BaseUrl(Product, config), id)
 
 		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
