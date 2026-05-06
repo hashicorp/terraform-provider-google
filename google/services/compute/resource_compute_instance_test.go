@@ -1023,6 +1023,37 @@ func TestAccComputeInstance_snapshot(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_repdBootFromSnapshot(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+
+	context := map[string]interface{}{
+		"network_name":    fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"subnetwork_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"disk_name":       fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"snapshot_name":   fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"instance_name":   fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_repdBootFromSnapshot(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.instance", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.instance", "boot_disk.0.initialize_params.0.replica_zones.#", "2"),
+					resource.TestCheckResourceAttr("google_compute_instance.instance", "boot_disk.0.initialize_params.0.replica_zones.0", "us-central1-a"),
+					resource.TestCheckResourceAttr("google_compute_instance.instance", "boot_disk.0.initialize_params.0.replica_zones.1", "us-central1-b"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_snapshotEncryption(t *testing.T) {
 	t.Parallel()
 
@@ -11096,6 +11127,55 @@ resource "google_compute_instance" "foobar2" {
 	network_interface {
 		network = "default"
 	}
+}
+`, context)
+}
+
+func testAccComputeInstance_repdBootFromSnapshot(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "net" {
+  name = "%{network_name}"
+}
+
+resource "google_compute_subnetwork" "sub" {
+  name          = "%{subnetwork_name}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.net.id
+}
+
+resource "google_compute_disk" "zonal" {
+  name    = "%{disk_name}"
+  type    = "pd-ssd"
+  zone    = "us-central1-a"
+  image   = "debian-cloud/debian-11"
+  size    = 50
+}
+
+resource "google_compute_snapshot" "snapshot" {
+  name              = "%{snapshot_name}"
+  source_disk       = google_compute_disk.zonal.self_link
+  zone              = "us-central1-a"
+  storage_locations = ["us-central1"]
+}
+
+resource "google_compute_instance" "instance" {
+  name         = "%{instance_name}"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      snapshot      = google_compute_snapshot.snapshot.id
+      replica_zones = ["us-central1-a", "us-central1-b"]
+      size          = "200"
+      type          = "pd-ssd"
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.sub.id
+  }
 }
 `, context)
 }

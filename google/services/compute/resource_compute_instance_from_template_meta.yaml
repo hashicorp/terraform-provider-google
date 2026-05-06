@@ -70,6 +70,8 @@ fields:
     api_field: 'disks.initializeParams.resourceManagerTags'
   - field: 'boot_disk.initialize_params.resource_policies'
     api_field: 'disks.initializeParams.resourcePolicies'
+  - field: 'boot_disk.initialize_params.replica_zones'
+    api_field: 'disks.initializeParams.replicaZones'
   - field: 'boot_disk.initialize_params.snapshot'
     api_field: 'disks.initializeParams.sourceSnapshot'
   - field: 'boot_disk.initialize_params.source_snapshot_encryption_key.kms_key_self_link'
