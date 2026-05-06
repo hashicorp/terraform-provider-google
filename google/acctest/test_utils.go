@@ -35,6 +35,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
 	"github.com/hashicorp/terraform-plugin-testing/echoprovider"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -98,6 +100,48 @@ func CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 
 		return nil
 	}
+}
+
+// List test utils
+
+// ListDisplayName captures a resource's display-name attribute during a
+// create step and exposes a knownvalue.Check that asserts list-query results
+// match the captured value.
+type ListDisplayName struct {
+	value string
+}
+
+// Capture returns a TestCheckFunc that copies the first non-empty value
+// among attrCandidates from resourceAddr's state into the captured value.
+// attrCandidates are checked in order from first index to last.
+func (c *ListDisplayName) Capture(resourceAddr string, attrCandidates []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceAddr]
+		if !ok {
+			return fmt.Errorf("resource not found in state: %s", resourceAddr)
+		}
+		for _, k := range attrCandidates {
+			if v, ok := rs.Primary.Attributes[k]; ok && v != "" {
+				c.value = v
+				return nil
+			}
+		}
+		return fmt.Errorf("no display name attribute found in state for resource %s; tried %v", resourceAddr, attrCandidates)
+	}
+}
+
+// CheckValue returns a knownvalue.Check that compares against the
+// captured value. Fails if Capture has not run yet.
+func (c *ListDisplayName) CheckValue() knownvalue.Check {
+	return knownvalue.StringFunc(func(v string) error {
+		if c.value == "" {
+			return fmt.Errorf("display name was not captured from create step")
+		}
+		if v != c.value {
+			return fmt.Errorf("expected display name %q, got %q", c.value, v)
+		}
+		return nil
+	})
 }
 
 // General test utils

@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/querycheck"
+	"github.com/hashicorp/terraform-plugin-testing/querycheck/queryfilter"
 	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -38,7 +39,7 @@ func TestAccServiceAccountListResource_queryIdentity(t *testing.T) {
 	accountId := "a" + acctest.RandString(t, 10)
 	project := envvar.GetTestProjectFromEnv()
 	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
-
+	listDisplayName := acctest.ListDisplayName{}
 	acctest.VcrTest(t, resource.TestCase{
 		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
 			tfversion.SkipBelow(tfversion.Version1_14_0),
@@ -51,6 +52,7 @@ func TestAccServiceAccountListResource_queryIdentity(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_service_account.acceptance", "email", expectedEmail),
 					resource.TestCheckResourceAttr("google_service_account.acceptance", "project", project),
+					listDisplayName.Capture("google_service_account.acceptance", []string{"display_name", "email"}),
 				),
 			},
 			{
@@ -62,6 +64,11 @@ func TestAccServiceAccountListResource_queryIdentity(t *testing.T) {
 						"project": knownvalue.StringExact(project),
 					}),
 					querycheck.ExpectLengthAtLeast("google_service_account.all_in_project", 1),
+					querycheck.ExpectResourceDisplayName(
+						"google_service_account.all_in_project",
+						queryfilter.ByDisplayName(listDisplayName.CheckValue()),
+						listDisplayName.CheckValue(),
+					),
 				},
 			},
 		},
