@@ -1,0 +1,3 @@
+```release-note:bug
+cloudfunctions2: fixed bug where `all_traffic_on_latest_revision = false` was ignored in `google_cloudfunctions2_function`
+```

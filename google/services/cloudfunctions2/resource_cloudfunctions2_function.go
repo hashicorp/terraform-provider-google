@@ -434,7 +434,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						"all_traffic_on_latest_revision": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: `Whether 100% of traffic is routed to the latest revision. Defaults to true.`,
+							Description: `Whether 100% of traffic is routed to the latest revision. Defaults to true. When false, GCF honors the existing traffic configuration of the underlying Cloud Run service. If that configuration is set to route to LATEST (the default), the new deployment will become LATEST and intercept the traffic. To prevent traffic from shifting, you must manually pin the existing service to a specific revision name in Cloud Run before deploying.`,
 							Default:     true,
 						},
 						"available_cpu": {
@@ -2298,7 +2298,7 @@ func expandCloudfunctions2functionServiceConfig(v interface{}, d tpgresource.Ter
 	transformedAllTrafficOnLatestRevision, err := expandCloudfunctions2functionServiceConfigAllTrafficOnLatestRevision(original["all_traffic_on_latest_revision"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllTrafficOnLatestRevision); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["allTrafficOnLatestRevision"] = transformedAllTrafficOnLatestRevision
 	}
 
