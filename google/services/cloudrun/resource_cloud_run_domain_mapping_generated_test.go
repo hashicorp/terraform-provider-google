@@ -132,6 +132,9 @@ func testAccCheckCloudRunDomainMappingDestroyProducer(t *testing.T) func(s *terr
 				continue
 			}
 
+			// Delete is eventually-consistent; wait for a moment.
+			time.Sleep(10 * time.Second)
+
 			config := acctest.GoogleProviderConfig(t)
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(cloudrun.Product, config), "apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}"))
 			if err != nil {
