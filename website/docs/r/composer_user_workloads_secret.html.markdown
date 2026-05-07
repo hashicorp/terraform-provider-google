@@ -13,15 +13,15 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Composer"
+subcategory: "Managed Service for Apache Airflow"
 description: |-
   User workloads Secret used by Airflow tasks that run with Kubernetes Executor or KubernetesPodOperator.
 ---
 
 # google_composer_user_workloads_secret
 
-User workloads Secret used by Airflow tasks that run with Kubernetes Executor or KubernetesPodOperator. 
-Intended for Composer 3 Environments.
+User workloads Secret used by Airflow tasks that run with Kubernetes Executor
+or KubernetesPodOperator. Intended for Managed Airflow (Gen 3) Environments.
 
 ## Example Usage
 

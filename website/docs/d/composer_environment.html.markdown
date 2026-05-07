@@ -13,20 +13,21 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Composer"
+subcategory: "Managed Service for Apache Airflow"
 description: |-
-  Provides Cloud Composer environment configuration data.
+  Provides Managed Airflow environment configuration data.
 ---
 
 # google_composer_environment
 
-Provides access to Cloud Composer environment configuration in a region for a given project.
+Provides access to Managed Airflow environment configuration in a region for a
+given project.
 
-To get more information about Composer Environment, see:
+To get more information about Managed Airflow Environment, see:
 
 * [API documentation](https://cloud.google.com/composer/docs/reference/rest/v1/projects.locations.environments)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/composer/docs/concepts/overview)
+    * [Official Documentation](https://docs.cloud.google.com/composer/docs/latest/composer-overview)
 
 ## Example Usage
 

@@ -13,20 +13,20 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Composer"
+subcategory: "Managed Service for Apache Airflow"
 description: |-
   User workloads ConfigMap used by Airflow tasks that run with Kubernetes Executor or KubernetesPodOperator.
 ---
 
 # google_composer_user_workloads_config_map
 
-Provides access to Kubernetes ConfigMap configuration for a given project, region and Composer Environment.
+Provides access to Kubernetes ConfigMap configuration for a given project, region and Managed Airflow Environment.
 
-To get more information about Composer User Workloads Config Map, see:
+To get more information about Managed Airflow User Workloads Config Map, see:
 
 * [API documentation](https://cloud.google.com/composer/docs/reference/rest/v1/projects.locations.environments.userWorkloadsConfigMaps)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/composer/docs/concepts/overview)
+    * [Official Documentation](https://clouddocs.devsite.corp.google.com/composer/docs/composer-3/use-kubernetes-pod-operator#secret-config)
 
 ## Example Usage
 
