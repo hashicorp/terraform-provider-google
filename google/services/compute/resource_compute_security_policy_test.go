@@ -174,10 +174,9 @@ func TestAccComputeSecurityPolicy_withPreconfiguredWafConfig(t *testing.T) {
 				Config: testAccComputeSecurityPolicy_withPreconfiguredWafConfig_removed(spName),
 			},
 			{
-				ResourceName:            "google_compute_security_policy.policy",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"rule.1.preconfigured_waf_config.#", "rule.1.preconfigured_waf_config.0.%"}, // API will still return a empty object
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
