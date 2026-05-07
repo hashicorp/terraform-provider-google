@@ -185,7 +185,7 @@ The default value is 'global'.`,
 				Optional: true,
 				ForceNew: true,
 				Description: `The name of the parent this security profile group belongs to.
-Format: organizations/{organization_id}.`,
+Format: 'organizations/{organization_id}' or 'projects/{project_id}'.`,
 			},
 			"threat_prevention_profile": {
 				Type:        schema.TypeString,

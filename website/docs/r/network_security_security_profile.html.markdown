@@ -265,7 +265,7 @@ The following arguments are supported:
 * `parent` -
   (Optional)
   The name of the parent this security profile belongs to.
-  Format: organizations/{organization_id}.
+  Format: `organizations/{organization_id}` or `projects/{project_id}`.
 
 
 
