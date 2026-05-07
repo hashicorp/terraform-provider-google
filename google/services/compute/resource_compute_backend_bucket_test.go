@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccComputeBackendBucket_basicModified(t *testing.T) {
@@ -229,9 +230,9 @@ func TestAccComputeBackendBucket_withTags(t *testing.T) {
 
 	backendName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	storageName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-bb-tagkey", "organizations/"+org, make(map[string]interface{}))
+	tagKeyResult := tags.BootstrapSharedTestTagKeyDetails(t, "crm-bb-tagkey", "organizations/"+org, make(map[string]interface{}))
 	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
-	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-bb-tagvalue", sharedTagkey, org)
+	tagValueResult := tags.BootstrapSharedTestTagValueDetails(t, "crm-bb-tagvalue", sharedTagkey, org)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

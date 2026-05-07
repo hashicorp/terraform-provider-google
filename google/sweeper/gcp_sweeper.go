@@ -51,7 +51,7 @@ func SharedConfigForRegion(region string) (*transport_tpg.Config, error) {
 		return nil, fmt.Errorf("set project using any of these env variables %v", envvar.ProjectEnvVars)
 	}
 
-	if v := transport_tpg.MultiEnvSearch(envvar.CredsEnvVars); v == "" {
+	if v := envvar.MultiEnvSearch(envvar.CredsEnvVars); v == "" {
 		return nil, fmt.Errorf("set credentials using any of these env variables %v", envvar.CredsEnvVars)
 	}
 

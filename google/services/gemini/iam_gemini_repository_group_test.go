@@ -14,26 +14,172 @@
 //	overwritten during the next generation cycle.
 //
 // ----------------------------------------------------------------------------
+// To run tests locally please replace the `oauth_token_secret_version` with your secret manager version.
+// More details: https://cloud.google.com/developer-connect/docs/connect-github-repo#before_you_begin
 package gemini_test
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/developerconnect"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-// To run tests locally please replace the `oauth_token_secret_version` with your secret manager version.
-// More details: https://cloud.google.com/developer-connect/docs/connect-github-repo#before_you_begin
+// For bootstrapping Developer Connect git repository link
+const SharedGitRepositoryLinkIdPrefix = "tf-bootstrap-git-repository-"
+
+func BootstrapGitRepository(t *testing.T, gitRepositoryLinkId, location, cloneUri, parentConnectionId string) string {
+	gitRepositoryLinkId = SharedGitRepositoryLinkIdPrefix + gitRepositoryLinkId
+
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		t.Fatal("Could not bootstrap config.")
+	}
+
+	log.Printf("[DEBUG] Getting shared git repository link %q", gitRepositoryLinkId)
+
+	getURL := fmt.Sprintf("%sprojects/%s/locations/%s/connections/%s/gitRepositoryLinks/%s",
+		transport_tpg.BaseUrl(developerconnect.Product, config), config.Project, location, parentConnectionId, gitRepositoryLinkId)
+
+	headers := make(http.Header)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Headers:   headers,
+	})
+
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] Git repository link %q not found, bootstrapping", gitRepositoryLinkId)
+		obj := map[string]interface{}{
+			"clone_uri":   cloneUri,
+			"annotations": map[string]string{},
+		}
+
+		postURL := fmt.Sprintf("%sprojects/%s/locations/%s/connections/%s/gitRepositoryLinks?gitRepositoryLinkId=%s",
+			transport_tpg.BaseUrl(developerconnect.Product, config), config.Project, location, parentConnectionId, gitRepositoryLinkId)
+		headers := make(http.Header)
+		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    postURL,
+			UserAgent: config.UserAgent,
+			Body:      obj,
+			Timeout:   20 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error bootstrapping git repository link %q: %s", gitRepositoryLinkId, err)
+		}
+
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    getURL,
+			UserAgent: config.UserAgent,
+			Timeout:   20 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error getting git repository link %q: %s", gitRepositoryLinkId, err)
+		}
+	}
+
+	return gitRepositoryLinkId
+}
+
+const SharedConnectionIdPrefix = "tf-bootstrap-developer-connect-connection-"
+
+// For bootstrapping Developer Connect connection resources
+func BootstrapDeveloperConnection(t *testing.T, connectionId, location, tokenResource string, appInstallationId int) string {
+	connectionId = SharedConnectionIdPrefix + connectionId
+
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		t.Fatal("Could not bootstrap config.")
+	}
+
+	log.Printf("[DEBUG] Getting shared developer connection %q", connectionId)
+
+	getURL := fmt.Sprintf("%sprojects/%s/locations/%s/connections/%s",
+		transport_tpg.BaseUrl(developerconnect.Product, config), config.Project, location, connectionId)
+
+	headers := make(http.Header)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Headers:   headers,
+	})
+
+	if err != nil {
+		log.Printf("[DEBUG] Developer connection %q not found, bootstrapping", connectionId)
+		authorizerCredential := map[string]string{
+			"oauth_token_secret_version": tokenResource,
+		}
+		githubConfig := map[string]interface{}{
+			"github_app":            "DEVELOPER_CONNECT",
+			"app_installation_id":   appInstallationId,
+			"authorizer_credential": authorizerCredential,
+		}
+		obj := map[string]interface{}{
+			"disabled":      false,
+			"github_config": githubConfig,
+		}
+
+		postURL := fmt.Sprintf("%sprojects/%s/locations/%s/connections?connectionId=%s",
+			transport_tpg.BaseUrl(developerconnect.Product, config), config.Project, location, connectionId)
+		headers := make(http.Header)
+		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    postURL,
+			UserAgent: config.UserAgent,
+			Body:      obj,
+			Timeout:   20 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error bootstrapping developer connection %q: %s", connectionId, err)
+		}
+
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    getURL,
+			UserAgent: config.UserAgent,
+			Timeout:   20 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error getting developer connection %q: %s", connectionId, err)
+		}
+	}
+
+	return connectionId
+}
 
 func TestAccGeminiRepositoryGroupIamBinding(t *testing.T) {
 	location := "us-central1"
-	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
-	developerConnectionId := acctest.BootstrapDeveloperConnection(t, "basic", location, "projects/502367051001/secrets/tf-test-cloudaicompanion-github-oauthtoken-c42e5c/versions/1", 54180648)
-	gitRepositoryLinkId := acctest.BootstrapGitRepository(t, "basic", location, "https://github.com/CC-R-github-robot/tf-test.git", developerConnectionId)
+	codeRepositoryIndexId := BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
+	developerConnectionId := BootstrapDeveloperConnection(t, "basic", location, "projects/502367051001/secrets/tf-test-cloudaicompanion-github-oauthtoken-c42e5c/versions/1", 54180648)
+	gitRepositoryLinkId := BootstrapGitRepository(t, "basic", location, "https://github.com/CC-R-github-robot/tf-test.git", developerConnectionId)
 	repositoryGroupId := "tf-test-iam-repository-group-id-" + acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
@@ -75,9 +221,9 @@ func TestAccGeminiRepositoryGroupIamBinding(t *testing.T) {
 
 func TestAccGeminiRepositoryGroupIamMember(t *testing.T) {
 	location := "us-central1"
-	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
-	developerConnectionId := acctest.BootstrapDeveloperConnection(t, "basic", location, "projects/502367051001/secrets/tf-test-cloudaicompanion-github-oauthtoken-c42e5c/versions/1", 54180648)
-	gitRepositoryLinkId := acctest.BootstrapGitRepository(t, "basic", location, "https://github.com/CC-R-github-robot/tf-test.git", developerConnectionId)
+	codeRepositoryIndexId := BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
+	developerConnectionId := BootstrapDeveloperConnection(t, "basic", location, "projects/502367051001/secrets/tf-test-cloudaicompanion-github-oauthtoken-c42e5c/versions/1", 54180648)
+	gitRepositoryLinkId := BootstrapGitRepository(t, "basic", location, "https://github.com/CC-R-github-robot/tf-test.git", developerConnectionId)
 	repositoryGroupId := "tf-test-iam-repository-group-id-" + acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
@@ -110,9 +256,9 @@ func TestAccGeminiRepositoryGroupIamMember(t *testing.T) {
 
 func TestAccGeminiRepositoryGroupIamPolicy(t *testing.T) {
 	location := "us-central1"
-	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
-	developerConnectionId := acctest.BootstrapDeveloperConnection(t, "basic", location, "projects/502367051001/secrets/tf-test-cloudaicompanion-github-oauthtoken-c42e5c/versions/1", 54180648)
-	gitRepositoryLinkId := acctest.BootstrapGitRepository(t, "basic", location, "https://github.com/CC-R-github-robot/tf-test.git", developerConnectionId)
+	codeRepositoryIndexId := BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
+	developerConnectionId := BootstrapDeveloperConnection(t, "basic", location, "projects/502367051001/secrets/tf-test-cloudaicompanion-github-oauthtoken-c42e5c/versions/1", 54180648)
+	gitRepositoryLinkId := BootstrapGitRepository(t, "basic", location, "https://github.com/CC-R-github-robot/tf-test.git", developerConnectionId)
 	repositoryGroupId := "tf-test-iam-repository-group-id-" + acctest.RandString(t, 10)
 
 	context := map[string]interface{}{

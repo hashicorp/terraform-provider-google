@@ -16,6 +16,14 @@
 // ----------------------------------------------------------------------------
 package transport
 
+import (
+	"context"
+	"os"
+	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
+)
+
 type TimeoutError struct {
 	timeout bool
 }
@@ -29,3 +37,26 @@ func (e *TimeoutError) Error() string {
 }
 
 var TimeoutErr = &TimeoutError{timeout: true}
+
+// BootstrapConfig returns a Config pulled from the environment.
+func BootstrapConfig(t *testing.T) *Config {
+	if v := os.Getenv("TF_ACC"); v == "" {
+		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		return nil
+	}
+
+	config := &Config{
+		Credentials:               envvar.GetTestCredsFromEnv(),
+		ImpersonateServiceAccount: envvar.GetTestImpersonateServiceAccountFromEnv(),
+		Project:                   envvar.GetTestProjectFromEnv(),
+		Region:                    envvar.GetTestRegionFromEnv(),
+		Zone:                      envvar.GetTestZoneFromEnv(),
+	}
+
+	ConfigureBasePaths(config)
+
+	if err := config.LoadAndValidate(context.Background()); err != nil {
+		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
+	}
+	return config
+}

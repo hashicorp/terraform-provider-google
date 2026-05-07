@@ -118,7 +118,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigUsernameAndPasswordExam
 
 	context := map[string]interface{}{
 		"auth_config_name": "tf-test-test-authconfig-username-and-password" + randomSuffix,
-		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"client":           BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix":    randomSuffix,
 	}
 
@@ -170,7 +170,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2AuthorizationCode
 
 	context := map[string]interface{}{
 		"auth_config_name": "tf-test-test-authconfig-oauth2-authorization-code" + randomSuffix,
-		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"client":           BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix":    randomSuffix,
 	}
 
@@ -225,7 +225,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2ClientCredentials
 
 	context := map[string]interface{}{
 		"auth_config_name": "tf-test-test-authconfig-oauth2-client-credentials" + randomSuffix,
-		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"client":           BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix":    randomSuffix,
 	}
 
@@ -294,7 +294,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigJwtExample(t *testing.T
 
 	context := map[string]interface{}{
 		"auth_config_name": "tf-test-test-authconfig-jwt" + randomSuffix,
-		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"client":           BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix":    randomSuffix,
 	}
 
@@ -347,7 +347,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigAuthTokenExample(t *tes
 
 	context := map[string]interface{}{
 		"auth_config_name": "tf-test-test-authconfig-auth-token" + randomSuffix,
-		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"client":           BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix":    randomSuffix,
 	}
 
@@ -399,7 +399,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigServiceAccountExample(t
 
 	context := map[string]interface{}{
 		"auth_config_name":   "tf-test-test-authconfig-service-account" + randomSuffix,
-		"client":             acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"client":             BootstrapIntegrationsClient(t, "us-east4"),
 		"service_account_id": "sa" + randomSuffix,
 		"random_suffix":      randomSuffix,
 	}
@@ -457,7 +457,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOidcTokenExample(t *tes
 
 	context := map[string]interface{}{
 		"auth_config_name":   "tf-test-test-authconfig-oidc-token" + randomSuffix,
-		"client":             acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"client":             BootstrapIntegrationsClient(t, "us-east4"),
 		"service_account_id": "sa" + randomSuffix,
 		"random_suffix":      randomSuffix,
 	}
@@ -515,7 +515,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigClientCertificateOnlyEx
 
 	context := map[string]interface{}{
 		"auth_config_name": "tf-test-test-authconfig-client-certificate" + randomSuffix,
-		"client":           acctest.BootstrapIntegrationsClient(t, "us-east4"),
+		"client":           BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix":    randomSuffix,
 	}
 

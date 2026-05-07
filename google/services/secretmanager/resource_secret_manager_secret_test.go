@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
@@ -510,12 +511,12 @@ func TestAccSecretManagerSecret_DeletionProtection(t *testing.T) {
 func TestAccSecretManagerSecret_tags(t *testing.T) {
 	t.Parallel()
 
-	tagKey := acctest.BootstrapSharedTestOrganizationTagKey(t, "secret_manager_secret-tagkey", map[string]interface{}{})
+	tagKey := tags.BootstrapSharedTestOrganizationTagKey(t, "secret_manager_secret-tagkey", map[string]interface{}{})
 
 	context := map[string]interface{}{
 		"org":           envvar.GetTestOrgFromEnv(t),
 		"tagKey":        tagKey,
-		"tagValue":      acctest.BootstrapSharedTestOrganizationTagValue(t, "secret_manager_secret-tagvalue", tagKey),
+		"tagValue":      tags.BootstrapSharedTestOrganizationTagValue(t, "secret_manager_secret-tagvalue", tagKey),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

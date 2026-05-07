@@ -39,7 +39,7 @@ type IamMember struct {
 // default project due to parallel tests managing the same member/role pairings. Members
 // will have `{project_number}` replaced with the default test project's project number.
 func BootstrapIamMembers(t *testing.T, members []IamMember) {
-	config := BootstrapConfig(t)
+	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
 		t.Fatal("Could not bootstrap a config for BootstrapIamMembers.")
 	}
