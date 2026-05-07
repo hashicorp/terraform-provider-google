@@ -502,6 +502,11 @@ Default to no result if unspecified. Possible values: ["SNIPPET", "EXTRACTIVE_AN
 				Description: `The unique ID to use for the WidgetConfig. Currently only accepts "default_search_widget_config".`,
 				Default:     "default_search_widget_config",
 			},
+			"config_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. Unique obfuscated identifier of a WidgetConfig.`,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -901,6 +906,10 @@ func resourceDiscoveryEngineWidgetConfigImport(d *schema.ResourceData, meta inte
 }
 
 func flattenDiscoveryEngineWidgetConfigName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineWidgetConfigConfigId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1917,6 +1926,9 @@ func ResourceDiscoveryEngineWidgetConfigFlatten(d *schema.ResourceData, meta int
 	var err error
 
 	if err = d.Set("name", flattenDiscoveryEngineWidgetConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WidgetConfig: %s", err)
+	}
+	if err = d.Set("config_id", flattenDiscoveryEngineWidgetConfigConfigId(res["configId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WidgetConfig: %s", err)
 	}
 	if err = d.Set("access_settings", flattenDiscoveryEngineWidgetConfigAccessSettings(res["accessSettings"], d, config)); err != nil {
