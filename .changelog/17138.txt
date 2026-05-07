@@ -1,0 +1,3 @@
+```release-note:enhancement
+resourcemanager: add `private_key` and `private_key_type` fields to ephemeral `google_service_account_key` resource
+```
