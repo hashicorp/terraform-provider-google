@@ -1,0 +1,31 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_compute_region_instant_snapshot
+generation_type: mmv1
+source_file: products/compute/RegionInstantSnapshot.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: RegionInstantSnapshot
+api_variant_patterns:
+    - projects/{project}/regions/{region}/instantSnapshots/{regionInstantSnapshot}
+fields:
+    - api_field: architecture
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: diskSizeGb
+    - field: effective_labels
+      provider_only: true
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: name
+    - api_field: params.resourceManagerTags
+    - api_field: region
+    - api_field: resourceStatus.storageSizeBytes
+    - api_field: sourceDisk
+    - api_field: sourceDiskId
+    - api_field: sourceInstantSnapshotGroup
+    - api_field: sourceInstantSnapshotGroupId
+    - api_field: status
+    - field: terraform_labels
+      provider_only: true
+    - api_field: selfLink
