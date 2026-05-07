@@ -14,6 +14,7 @@ fields:
     - api_field: accessSettings.workforceIdentityPoolProvider
     - field: collection_id
       provider_only: true
+    - api_field: configId
     - field: engine_id
       provider_only: true
     - api_field: homepageSetting.shortcuts.destinationUri

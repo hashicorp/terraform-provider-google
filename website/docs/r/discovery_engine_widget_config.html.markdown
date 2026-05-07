@@ -75,6 +75,10 @@ resource "google_discovery_engine_widget_config" "basic" {
     }
   }
 }
+
+output "widget_config_id" {
+  value = google_discovery_engine_widget_config.basic.config_id
+}
 ```
 
 ## Argument Reference
@@ -366,6 +370,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `name` -
   The full resource name of the widget config. Format:
   `projects/{project}/locations/{location}/collections/{collection_id}/engines/{engine_id}/widgetConfigs/{widget_config_id}`.
+
+* `config_id` -
+  Output only. Unique obfuscated identifier of a WidgetConfig.
 
 
 ## Timeouts
