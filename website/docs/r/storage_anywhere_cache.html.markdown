@@ -80,6 +80,10 @@ The following arguments are supported:
   (Optional)
   The TTL of all cache entries in whole seconds. e.g., "7200s". It defaults to `86400s`
 
+* `ingest_on_write` -
+  (Optional)
+  Whether or not the cache ingests data as the data is written to the bucket.
+
 
 
 ## Attributes Reference

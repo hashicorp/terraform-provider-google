@@ -153,6 +153,11 @@ func ResourceStorageAnywhereCache() *schema.Resource {
 				Description:  `The cache admission policy dictates whether a block should be inserted upon a cache miss. Default value: "admit-on-first-miss" Possible values: ["admit-on-first-miss", "admit-on-second-miss"]`,
 				Default:      "admit-on-first-miss",
 			},
+			"ingest_on_write": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether or not the cache ingests data as the data is written to the bucket.`,
+			},
 			"ttl": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -214,6 +219,14 @@ func resourceStorageAnywhereCacheCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("ttl"); !tpgresource.IsEmptyValue(reflect.ValueOf(ttlProp)) && (ok || !reflect.DeepEqual(v, ttlProp)) {
 		obj["ttl"] = ttlProp
+	}
+
+	if v, ok := d.GetOkExists("ingest_on_write"); ok {
+		ingestOnWriteProp, err := expandStorageAnywhereCacheIngestOnWrite(v, d, config)
+		if err != nil {
+			return err
+		}
+		obj["ingestOnWrite"] = ingestOnWriteProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/anywhereCaches/")
@@ -391,6 +404,14 @@ func resourceStorageAnywhereCacheUpdate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("ttl"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ttlProp)) {
 		obj["ttl"] = ttlProp
 	}
+	if d.HasChange("ingest_on_write") { // use haschange
+		v := d.Get("ingest_on_write")
+		ingestOnWriteProp, err := expandStorageAnywhereCacheIngestOnWrite(v, d, config)
+		if err != nil {
+			return err
+		}
+		obj["ingestOnWrite"] = ingestOnWriteProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/anywhereCaches/{{anywhere_cache_id}}")
 	if err != nil {
@@ -542,6 +563,10 @@ func flattenStorageAnywhereCacheState(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
+func flattenStorageAnywhereCacheIngestOnWrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandStorageAnywhereCacheZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -551,6 +576,10 @@ func expandStorageAnywhereCacheAdmissionPolicy(v interface{}, d tpgresource.Terr
 }
 
 func expandStorageAnywhereCacheTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandStorageAnywhereCacheIngestOnWrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -579,6 +608,9 @@ func ResourceStorageAnywhereCacheFlatten(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading AnywhereCache: %s", err)
 	}
 	if err = d.Set("state", flattenStorageAnywhereCacheState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnywhereCache: %s", err)
+	}
+	if err = d.Set("ingest_on_write", flattenStorageAnywhereCacheIngestOnWrite(res["ingestOnWrite"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AnywhereCache: %s", err)
 	}
 

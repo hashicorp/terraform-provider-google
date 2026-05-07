@@ -74,9 +74,10 @@ resource "google_storage_bucket" "bucket" {
 }
 
 resource "google_storage_anywhere_cache" "cache" {
-  bucket = google_storage_bucket.bucket.name
-  zone = "us-central1-f"
-  ttl = "3601s"
+  bucket          = google_storage_bucket.bucket.name
+  zone            = "us-central1-f"
+  ttl             = "3601s"
+  ingest_on_write = false
 }
 `, context)
 }
@@ -90,10 +91,11 @@ resource "google_storage_bucket" "bucket" {
 }
 
 resource "google_storage_anywhere_cache" "cache" {
-  bucket = google_storage_bucket.bucket.name
-  zone = "us-central1-f"
+  bucket           = google_storage_bucket.bucket.name
+  zone             = "us-central1-f"
   admission_policy = "admit-on-second-miss"
-  ttl = "3620s"
+  ttl              = "3620s"
+  ingest_on_write  = true
 }
 `, context)
 }
