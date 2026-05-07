@@ -1082,6 +1082,14 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 					updateMask = append(updateMask, "rate_limit_options.enforce_on_key_name")
 				}
 
+				// Detect changes to preconfigured_waf_config so that removing or clearing
+				// the block is propagated to the API. Without listing the field in the
+				// updateMask, the PatchRule call will not clear the existing value because
+				// the request body omits nil pointers.
+				if fmt.Sprintf("%v", oRules[priority]["preconfigured_waf_config"]) != fmt.Sprintf("%v", nRules[priority]["preconfigured_waf_config"]) {
+					updateMask = append(updateMask, "preconfigured_waf_config")
+				}
+
 				client := NewClient(config, userAgent)
 
 				// If the rule is in new, and its priority is in old, but its hash is different than the one in old, update it.
