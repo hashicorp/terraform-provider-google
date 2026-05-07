@@ -17,12 +17,94 @@
 package integrations_test
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/integrations"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
+
+type BootstrapClient struct {
+	ProjectID string
+	Region    string
+	IsGMEK    bool
+}
+
+func BootstrapIntegrationsClient(t *testing.T, locationID string) BootstrapClient {
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		return BootstrapClient{}
+	}
+
+	projectID := envvar.GetTestProjectFromEnv()
+	parent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
+
+	baseURL := fmt.Sprintf("%s%s", transport_tpg.BaseUrl(integrations.Product, config), parent)
+
+	resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   projectID,
+		RawURL:    fmt.Sprintf("%s/clients", baseURL),
+		UserAgent: config.UserAgent,
+		Timeout:   2 * time.Minute,
+	})
+	if err != nil && !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+		t.Fatalf("Error getting client: %s", err)
+	}
+	if clientVal, ok := resp["client"]; ok {
+		// examine client and deprovision if needed
+		client, ok := clientVal.(map[string]any)
+		if !ok {
+			t.Fatalf("Error reading client from response")
+		}
+
+		shouldDeprovision := true
+		if isGmekVal, ok := client["isGmek"]; ok {
+			if isGmek, ok := isGmekVal.(bool); ok {
+				shouldDeprovision = !isGmek
+			}
+		}
+
+		if shouldDeprovision {
+			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				Project:   projectID,
+				RawURL:    fmt.Sprintf("%s/clients:deprovision", baseURL),
+				UserAgent: config.UserAgent,
+				Timeout:   2 * time.Minute,
+			})
+			if err != nil {
+				t.Fatalf("Unable to deprovision client: %s", err)
+			}
+		}
+	}
+
+	// Provision client
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   projectID,
+		RawURL:    fmt.Sprintf("%s/clients:provision", baseURL),
+		UserAgent: config.UserAgent,
+		Timeout:   2 * time.Minute,
+	})
+	if err != nil {
+		t.Fatalf("Unable to provision client: %s", err)
+	}
+
+	return BootstrapClient{
+		ProjectID: projectID,
+		Region:    locationID,
+		IsGMEK:    true,
+	}
+}
 
 func TestAccIntegrationsAuthConfig_update(t *testing.T) {
 	t.Parallel()

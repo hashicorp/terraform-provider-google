@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -45,6 +44,7 @@ import (
 	"google.golang.org/api/option"
 	"google.golang.org/api/option/internaloption"
 
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"golang.org/x/oauth2"
@@ -763,13 +763,13 @@ const ProactiveAttributionStrategy = "PROACTIVE"
 
 func HandleSDKDefaults(d *schema.ResourceData) error {
 	if d.Get("impersonate_service_account") == "" {
-		d.Set("impersonate_service_account", MultiEnvDefault([]string{
+		d.Set("impersonate_service_account", envvar.MultiEnvDefault([]string{
 			"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT",
 		}, nil))
 	}
 
 	if d.Get("project") == "" {
-		d.Set("project", MultiEnvDefault([]string{
+		d.Set("project", envvar.MultiEnvDefault([]string{
 			"GOOGLE_PROJECT",
 			"GOOGLE_CLOUD_PROJECT",
 			"GCLOUD_PROJECT",
@@ -778,13 +778,13 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 	}
 
 	if d.Get("billing_project") == "" {
-		d.Set("billing_project", MultiEnvDefault([]string{
+		d.Set("billing_project", envvar.MultiEnvDefault([]string{
 			"GOOGLE_BILLING_PROJECT",
 		}, nil))
 	}
 
 	if d.Get("region") == "" {
-		d.Set("region", MultiEnvDefault([]string{
+		d.Set("region", envvar.MultiEnvDefault([]string{
 			"GOOGLE_REGION",
 			"GCLOUD_REGION",
 			"CLOUDSDK_COMPUTE_REGION",
@@ -792,7 +792,7 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 	}
 
 	if d.Get("zone") == "" {
-		d.Set("zone", MultiEnvDefault([]string{
+		d.Set("zone", envvar.MultiEnvDefault([]string{
 			"GOOGLE_ZONE",
 			"GCLOUD_ZONE",
 			"CLOUDSDK_COMPUTE_ZONE",
@@ -800,7 +800,7 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 	}
 
 	if _, ok := d.GetOkExists("user_project_override"); !ok {
-		override := MultiEnvDefault([]string{
+		override := envvar.MultiEnvDefault([]string{
 			"USER_PROJECT_OVERRIDE",
 		}, nil)
 
@@ -814,7 +814,7 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 	}
 
 	if d.Get("request_reason") == "" {
-		d.Set("request_reason", MultiEnvDefault([]string{
+		d.Set("request_reason", envvar.MultiEnvDefault([]string{
 			"CLOUDSDK_CORE_REQUEST_REASON",
 		}, nil))
 	}
@@ -1230,7 +1230,7 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 
 // parse application default credentials to determine if they are X.509 certs
 func AreADCCredentialsX509() bool {
-	adcCreds := MultiEnvSearch([]string{
+	adcCreds := envvar.MultiEnvSearch([]string{
 		"GOOGLE_APPLICATION_CREDENTIALS",
 	})
 	if adcCreds != "" {
@@ -1471,28 +1471,6 @@ func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {
 		return "", fmt.Errorf("error retrieving email from userinfo. email was nil in the response.")
 	}
 	return res["email"].(string), nil
-}
-
-func MultiEnvSearch(ks []string) string {
-	for _, k := range ks {
-		if v := os.Getenv(k); v != "" {
-			return v
-		}
-	}
-	return ""
-}
-
-// MultiEnvDefault is a helper function that returns the value of the first
-// environment variable in the given list that returns a non-empty value. If
-// none of the environment variables return a value, the default value is
-// returned.
-func MultiEnvDefault(ks []string, dv interface{}) interface{} {
-	for _, k := range ks {
-		if v := os.Getenv(k); v != "" {
-			return v
-		}
-	}
-	return dv
 }
 
 func CustomEndpointValidator() validator.String {

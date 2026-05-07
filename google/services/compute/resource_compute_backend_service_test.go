@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccComputeBackendService_basic(t *testing.T) {
@@ -1084,9 +1085,9 @@ func TestAccComputeBackendService_resourceManagerTags(t *testing.T) {
 
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-bs-tagkey", "organizations/"+org, make(map[string]interface{}))
+	tagKeyResult := tags.BootstrapSharedTestTagKeyDetails(t, "crm-bs-tagkey", "organizations/"+org, make(map[string]interface{}))
 	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
-	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-bs-tagvalue", sharedTagkey, org)
+	tagValueResult := tags.BootstrapSharedTestTagValueDetails(t, "crm-bs-tagvalue", sharedTagkey, org)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

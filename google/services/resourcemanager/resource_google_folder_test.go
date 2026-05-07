@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 
 	cloudresourcemanagerv3 "google.golang.org/api/cloudresourcemanager/v3"
 )
@@ -110,11 +111,11 @@ func TestAccFolder_moveParent(t *testing.T) {
 func TestAccFolder_tags(t *testing.T) {
 	t.Parallel()
 
-	tagKey := acctest.BootstrapSharedTestOrganizationTagKey(t, "crm-folder-tagkey", nil)
+	tagKey := tags.BootstrapSharedTestOrganizationTagKey(t, "crm-folder-tagkey", nil)
 	context := map[string]interface{}{
 		"org":           envvar.GetTestOrgFromEnv(t),
 		"tagKey":        tagKey,
-		"tagValue":      acctest.BootstrapSharedTestOrganizationTagValue(t, "crm-folder-tagvalue", tagKey),
+		"tagValue":      tags.BootstrapSharedTestOrganizationTagValue(t, "crm-folder-tagvalue", tagKey),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

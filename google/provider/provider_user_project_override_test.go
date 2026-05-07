@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // TestAccSdkProvider_user_project_override is a series of acc tests asserting how the plugin-framework provider handles credentials arguments
@@ -267,7 +268,7 @@ func testAccProviderUserProjectOverride(t *testing.T) {
 	pid := "tf-test-" + acctest.RandString(t, 10)
 	topicName := "tf-test-topic-" + acctest.RandString(t, 10)
 
-	config := acctest.BootstrapConfig(t)
+	config := transport_tpg.BootstrapConfig(t)
 	accessToken, err := acctest.SetupProjectsAndGetAccessToken(org, billing, pid, "pubsub", config)
 	if err != nil || accessToken == "" {
 		if err == nil {
@@ -314,7 +315,7 @@ func testAccProviderIndirectUserProjectOverride(t *testing.T) {
 	billing := envvar.GetTestBillingAccountFromEnv(t)
 	pid := "tf-test-" + acctest.RandString(t, 10)
 
-	config := acctest.BootstrapConfig(t)
+	config := transport_tpg.BootstrapConfig(t)
 	accessToken, err := acctest.SetupProjectsAndGetAccessToken(org, billing, pid, "cloudkms", config)
 	if err != nil || accessToken == "" {
 		if err == nil {

@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccDataFusionInstance_update(t *testing.T) {
@@ -173,11 +174,11 @@ resource "google_data_fusion_instance" "foobar" {
 func TestAccDatafusionInstance_tags(t *testing.T) {
 	t.Parallel()
 
-	tagKey := acctest.BootstrapSharedTestOrganizationTagKey(t, "datafusion-instances-tagkey", nil)
+	tagKey := tags.BootstrapSharedTestOrganizationTagKey(t, "datafusion-instances-tagkey", nil)
 	context := map[string]interface{}{
 		"org":           envvar.GetTestOrgFromEnv(t),
 		"tagKey":        tagKey,
-		"tagValue":      acctest.BootstrapSharedTestOrganizationTagValue(t, "datafusion-instances-tagvalue", tagKey),
+		"tagValue":      tags.BootstrapSharedTestOrganizationTagValue(t, "datafusion-instances-tagvalue", tagKey),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

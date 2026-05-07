@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccComputeRoute_defaultInternetGateway(t *testing.T) {
@@ -71,9 +72,9 @@ func TestAccComputeRoute_resourceManagerTags(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
 
 	routeName := fmt.Sprintf("tf-test-route-resource-manager-tags-%s", acctest.RandString(t, 10))
-	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-nroute-tagkey", "organizations/"+org, make(map[string]interface{}))
+	tagKeyResult := tags.BootstrapSharedTestTagKeyDetails(t, "crm-nroute-tagkey", "organizations/"+org, make(map[string]interface{}))
 	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
-	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-route-tagvalue", sharedTagkey, org)
+	tagValueResult := tags.BootstrapSharedTestTagValueDetails(t, "crm-route-tagvalue", sharedTagkey, org)
 	context := map[string]interface{}{
 		"route_name":   routeName,
 		"tag_key_id":   tagKeyResult["name"],

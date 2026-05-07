@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	"google.golang.org/api/compute/v1"
@@ -648,9 +649,9 @@ func TestAccComputeSubnetwork_resourceManagerTags(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
 
 	suffixName := acctest.RandString(t, 10)
-	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-subnetworks-tagkey", "organizations/"+org, make(map[string]interface{}))
+	tagKeyResult := tags.BootstrapSharedTestTagKeyDetails(t, "crm-subnetworks-tagkey", "organizations/"+org, make(map[string]interface{}))
 	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
-	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-subnetworks-tagvalue", sharedTagkey, org)
+	tagValueResult := tags.BootstrapSharedTestTagValueDetails(t, "crm-subnetworks-tagvalue", sharedTagkey, org)
 
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	subnetworkName := fmt.Sprintf("tf-test-subnetwork-resource-manager-tags-%s", suffixName)

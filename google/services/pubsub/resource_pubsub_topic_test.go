@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccPubsubTopic_update(t *testing.T) {
@@ -361,12 +362,12 @@ func TestAccPubsubTopic_tags(t *testing.T) {
 	t.Parallel()
 
 	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
-	tagKey := acctest.BootstrapSharedTestOrganizationTagKey(t, "pubsub-topic-tagkey", nil)
+	tagKey := tags.BootstrapSharedTestOrganizationTagKey(t, "pubsub-topic-tagkey", nil)
 	context := map[string]interface{}{
 		"topic":    topic,
 		"org":      envvar.GetTestOrgFromEnv(t),
 		"tagKey":   tagKey,
-		"tagValue": acctest.BootstrapSharedTestOrganizationTagValue(t, "pubsub-topic-tagvalue", tagKey),
+		"tagValue": tags.BootstrapSharedTestOrganizationTagValue(t, "pubsub-topic-tagvalue", tagKey),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

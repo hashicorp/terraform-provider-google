@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccFilestoreBackup_update(t *testing.T) {
@@ -134,11 +135,11 @@ resource "google_filestore_backup" "backup" {
 func TestAccFilestoreBackup_tags(t *testing.T) {
 	t.Parallel()
 
-	tagKey := acctest.BootstrapSharedTestOrganizationTagKey(t, "filestore-backups-tagkey", nil)
+	tagKey := tags.BootstrapSharedTestOrganizationTagKey(t, "filestore-backups-tagkey", nil)
 	context := map[string]interface{}{
 		"org":           envvar.GetTestOrgFromEnv(t),
 		"tagKey":        tagKey,
-		"tagValue":      acctest.BootstrapSharedTestOrganizationTagValue(t, "filestore-backups-tagvalue", tagKey),
+		"tagValue":      tags.BootstrapSharedTestOrganizationTagValue(t, "filestore-backups-tagvalue", tagKey),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

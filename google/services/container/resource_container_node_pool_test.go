@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/container"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccContainerNodePool_basic(t *testing.T) {
@@ -65,8 +66,8 @@ func TestAccContainerNodePool_resourceManagerTags(t *testing.T) {
 			"network": pid + "/" + networkName,
 		},
 	}
-	tagKey1 := acctest.BootstrapSharedTestProjectTagKey(t, "resourceManagerTags1", tagData)
-	tagKey2 := acctest.BootstrapSharedTestProjectTagKey(t, "resourceManagerTags2", tagData)
+	tagKey1 := tags.BootstrapSharedTestProjectTagKey(t, "resourceManagerTags1", tagData)
+	tagKey2 := tags.BootstrapSharedTestProjectTagKey(t, "resourceManagerTags2", tagData)
 
 	context := map[string]interface{}{
 		"pid":           pid,
@@ -74,9 +75,9 @@ func TestAccContainerNodePool_resourceManagerTags(t *testing.T) {
 		"network":       networkName,
 		"subnet":        acctest.BootstrapSubnet(t, "gke-cluster", networkName),
 		"tagKey1":       tagKey1,
-		"tagValue1":     acctest.BootstrapSharedTestProjectTagValue(t, "resourceManagerTags1", tagKey1),
+		"tagValue1":     tags.BootstrapSharedTestProjectTagValue(t, "resourceManagerTags1", tagKey1),
 		"tagKey2":       tagKey2,
-		"tagValue2":     acctest.BootstrapSharedTestProjectTagValue(t, "resourceManagerTags2", tagKey2),
+		"tagValue2":     tags.BootstrapSharedTestProjectTagValue(t, "resourceManagerTags2", tagKey2),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

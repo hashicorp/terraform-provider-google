@@ -14,22 +14,107 @@
 //	overwritten during the next generation cycle.
 //
 // ----------------------------------------------------------------------------
+// To run tests locally please replace the `oauth_token_secret_version` with your secret manager version.
+// More details: https://cloud.google.com/developer-connect/docs/connect-github-repo#before_you_begin
 package gemini_test
 
 import (
+	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/gemini"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-// To run tests locally please replace the `oauth_token_secret_version` with your secret manager version.
-// More details: https://cloud.google.com/developer-connect/docs/connect-github-repo#before_you_begin
+// BootstrapSharedCodeRepositoryIndex will create a code repository index
+// if it hasn't been created in the test project.
+//
+// BootstrapSharedCodeRepositoryIndex returns a persistent code repository index
+// for a test or set of tests.
+//
+// Deletion of code repository index takes a few minutes, and creation of it
+// currently takes about half an hour.
+// That is the reason to use the shared code repository indexes for test resources.
+const SharedCodeRepositoryIndexPrefix = "tf-bootstrap-cri-"
+
+func BootstrapSharedCodeRepositoryIndex(t *testing.T, codeRepositoryIndexId, location, kmsKey string, labels map[string]string) string {
+	codeRepositoryIndexId = SharedCodeRepositoryIndexPrefix + codeRepositoryIndexId
+
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		t.Fatal("Could not bootstrap config.")
+	}
+
+	log.Printf("[DEBUG] Getting shared code repository index %q", codeRepositoryIndexId)
+
+	getURL := fmt.Sprintf("%sprojects/%s/locations/%s/codeRepositoryIndexes/%s", transport_tpg.BaseUrl(gemini.Product, config), config.Project, location, codeRepositoryIndexId)
+
+	headers := make(http.Header)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Timeout:   90 * time.Minute,
+		Headers:   headers,
+	})
+
+	// CRI not found responds with 404 not found
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] Code repository index %q not found, bootstrapping", codeRepositoryIndexId)
+		postURL := fmt.Sprintf("%sprojects/%s/locations/%s/codeRepositoryIndexes?codeRepositoryIndexId=%s", transport_tpg.BaseUrl(gemini.Product, config), config.Project, location, codeRepositoryIndexId)
+		obj := make(map[string]interface{})
+		if labels != nil {
+			obj["labels"] = labels
+		}
+		if kmsKey != "" {
+			obj["kmsKey"] = kmsKey
+		}
+
+		headers := make(http.Header)
+		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    postURL,
+			UserAgent: config.UserAgent,
+			Body:      obj,
+			Timeout:   90 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error creating code repository index %q: %s", codeRepositoryIndexId, err)
+		}
+
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    getURL,
+			UserAgent: config.UserAgent,
+			Timeout:   90 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error getting code repository index %q: %s", codeRepositoryIndexId, err)
+		}
+	} else if err != nil {
+		t.Fatalf("Error getting code repository index %q: %s", codeRepositoryIndexId, err)
+	}
+
+	return codeRepositoryIndexId
+}
 
 func TestAccGeminiRepositoryGroup_update(t *testing.T) {
-	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic", "us-central1", "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
+	codeRepositoryIndexId := BootstrapSharedCodeRepositoryIndex(t, "basic", "us-central1", "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
 	context := map[string]interface{}{
 		"random_suffix":         acctest.RandString(t, 10),
 		"project_id":            os.Getenv("GOOGLE_PROJECT"),

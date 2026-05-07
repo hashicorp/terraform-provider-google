@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccComputeHaVpnGateway_updateLabels(t *testing.T) {
@@ -93,9 +94,9 @@ func TestAccComputeHaVpnGateway_resourceManagerTags(t *testing.T) {
 
 	org := envvar.GetTestOrgFromEnv(t)
 	suffix := acctest.RandString(t, 10)
-	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-ha-vpn-tagkey", "organizations/"+org, make(map[string]interface{}))
+	tagKeyResult := tags.BootstrapSharedTestTagKeyDetails(t, "crm-ha-vpn-tagkey", "organizations/"+org, make(map[string]interface{}))
 	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
-	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-ha-vpn-tagvalue", sharedTagkey, org)
+	tagValueResult := tags.BootstrapSharedTestTagValueDetails(t, "crm-ha-vpn-tagvalue", sharedTagkey, org)
 
 	context := map[string]interface{}{
 		"suffix":       suffix,

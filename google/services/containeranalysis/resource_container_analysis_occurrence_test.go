@@ -74,7 +74,7 @@ func TestAccContainerAnalysisOccurrence_basic(t *testing.T) {
 	t.Parallel()
 	randSuffix := acctest.RandString(t, 10)
 
-	config := acctest.BootstrapConfig(t)
+	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
 		return
 	}
@@ -112,7 +112,7 @@ func TestAccContainerAnalysisOccurrence_multipleSignatures(t *testing.T) {
 	t.Parallel()
 	randSuffix := acctest.RandString(t, 10)
 
-	config := acctest.BootstrapConfig(t)
+	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
 		return
 	}

@@ -17,14 +17,22 @@
 package bigqueryanalyticshub_test
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"os"
+	"strings"
 	"testing"
 
+	"cloud.google.com/go/bigquery"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"google.golang.org/api/googleapi"
+	"google.golang.org/api/option"
+
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Always include dummy usages
@@ -32,6 +40,127 @@ var _ = fmt.Sprintf
 var _ = terraform.State{}
 var _ = envvar.GetTestProjectFromEnv
 var _ = os.Getenv
+
+func AddBigQueryDatasetReplica(t *testing.T, projectID string, datasetID string, primaryLocation string, replicaLocation string) (string, error) {
+	ctx := context.Background()
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		return "", fmt.Errorf("failed to bootstrap config")
+	}
+
+	client, err := bigquery.NewClient(ctx, projectID, option.WithTokenSource(config.TokenSource), option.WithUserAgent(config.UserAgent))
+	if err != nil {
+		return "", fmt.Errorf("failed to create BigQuery client: %w", err)
+	}
+	defer client.Close()
+
+	log.Printf("INFO: Attempting to create dataset '%s' in project '%s' at location '%s'", datasetID, projectID, primaryLocation)
+	datasetRef := client.Dataset(datasetID)
+	datasetMetadata := &bigquery.DatasetMetadata{
+		Location: primaryLocation,
+	}
+
+	err = datasetRef.Create(ctx, datasetMetadata)
+	if err != nil {
+		if ge, ok := err.(*googleapi.Error); ok && ge.Code == 409 {
+			log.Printf("INFO: BigQuery dataset '%s' already exists in project '%s' at location '%s'. Continuing.", datasetID, projectID, primaryLocation)
+		} else {
+			return "", fmt.Errorf("failed to create BigQuery dataset '%s': %w", datasetID, err)
+		}
+	} else {
+		log.Printf("INFO: Successfully created BigQuery dataset '%s' at location '%s'.", datasetID, primaryLocation)
+	}
+
+	sqlQuery := fmt.Sprintf(
+		"ALTER SCHEMA `%s` ADD REPLICA `%s` OPTIONS(location=`%s`)",
+		datasetID,
+		replicaLocation,
+		replicaLocation,
+	)
+
+	log.Printf("INFO: Executing BigQuery DDL query: %s", sqlQuery)
+
+	query := client.Query(sqlQuery)
+
+	job, err := query.Run(ctx)
+	if err != nil {
+		// Check if the error is an "Already Exists" error on submission
+		if ge, ok := err.(*googleapi.Error); ok && ge.Code == 409 && (strings.Contains(ge.Message, "Duplicate") || strings.Contains(ge.Message, "Already Exists")) {
+			log.Printf("INFO: Replica '%s' already exists for dataset '%s' (error on job submission). Continuing.", replicaLocation, datasetID)
+		} else {
+			return "", fmt.Errorf("failed to submit BigQuery DDL job for adding replica: %w", err)
+		}
+	} else {
+		status, waitErr := job.Wait(ctx)
+		if waitErr != nil {
+			// Check if the error is an "Already Exists" error after waiting
+			if ge, ok := waitErr.(*googleapi.Error); ok && ge.Code == 409 && (strings.Contains(ge.Message, "Duplicate") || strings.Contains(ge.Message, "Already Exists")) {
+				log.Printf("INFO: Replica '%s' already exists for dataset '%s' (error on job wait). Continuing.", replicaLocation, datasetID)
+			} else {
+				return "", fmt.Errorf("failed to wait for BigQuery job completion for adding replica: %w", waitErr)
+			}
+		} else if status != nil && status.Err() != nil {
+			// Check if the status error is an "Already Exists" error
+			if ge, ok := status.Err().(*googleapi.Error); ok && ge.Code == 409 && (strings.Contains(ge.Message, "Duplicate") || strings.Contains(ge.Message, "Already Exists")) {
+				log.Printf("INFO: Replica '%s' already exists for dataset '%s' (error in job status). Continuing.", replicaLocation, datasetID)
+			} else {
+				return "", fmt.Errorf("BigQuery job for adding replica completed with an error: %w", status.Err())
+			}
+		} else {
+			log.Printf("INFO: Successfully added BigQuery dataset replica '%s' for dataset '%s'.", replicaLocation, datasetID)
+		}
+	}
+
+	fullDatasetLocation := fmt.Sprintf("projects/%s/datasets/%s", projectID, datasetID)
+	return fullDatasetLocation, nil
+}
+
+func CleanupBigQueryDatasetAndReplica(t *testing.T, projectID, datasetID, replicaLocation string) {
+	log.Printf("[DEBUG] Cleanup: Starting cleanup for BigQuery dataset: projects/%s/datasets/%s", projectID, datasetID)
+	cleanupCtx := context.Background()
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		return
+	}
+
+	client, cerr := bigquery.NewClient(cleanupCtx, projectID, option.WithTokenSource(config.TokenSource), option.WithUserAgent(config.UserAgent))
+	if cerr != nil {
+		log.Printf("[ERROR] Cleanup: Failed to create BigQuery client for dataset %s: %v", datasetID, cerr)
+		return
+	}
+	defer client.Close()
+
+	// Attempt to remove the replica first
+	dropReplicaSQL := fmt.Sprintf(
+		"ALTER SCHEMA `%s` DROP REPLICA `%s`",
+		datasetID,
+		replicaLocation,
+	)
+	log.Printf("[DEBUG] Cleanup: Dropping replica with SQL: %s", dropReplicaSQL)
+	dropQuery := client.Query(dropReplicaSQL)
+	dropJob, dropErr := dropQuery.Run(cleanupCtx)
+	if dropErr != nil {
+		log.Printf("[ERROR] Cleanup: Failed to submit BigQuery DDL job for dropping replica %s of dataset %s: %v", replicaLocation, datasetID, dropErr)
+	} else {
+		dropStatus, dropWaitErr := dropJob.Wait(cleanupCtx)
+		if dropWaitErr != nil {
+			log.Printf("[ERROR] Cleanup: Failed to wait for BigQuery job completion for dropping replica %s of dataset %s: %v", replicaLocation, datasetID, dropWaitErr)
+		} else if dropStatus.Err() != nil {
+			log.Printf("[ERROR] Cleanup: BigQuery job for dropping replica %s of dataset %s completed with an error: %v", replicaLocation, datasetID, dropStatus.Err())
+		} else {
+			log.Printf("[INFO] Cleanup: Successfully dropped BigQuery dataset replica: %s for dataset %s", replicaLocation, datasetID)
+		}
+	}
+
+	// Delete the main dataset (including any remaining contents)
+	log.Printf("[DEBUG] Cleanup: Deleting main BigQuery dataset: %s", datasetID)
+	err := client.Dataset(datasetID).DeleteWithContents(cleanupCtx)
+	if err != nil {
+		log.Printf("[ERROR] Cleanup: Failed to delete BigQuery dataset %s: %v", datasetID, err)
+	} else {
+		log.Printf("[INFO] Cleanup: Successfully deleted BigQuery dataset: %s", datasetID)
+	}
+}
 
 func TestAccBigqueryAnalyticsHubListingSubscription_differentProject(t *testing.T) {
 	t.Parallel()
@@ -68,7 +197,7 @@ func TestAccBigqueryAnalyticsHubListingSubscription_multiregion(t *testing.T) {
 	randomDatasetSuffix := acctest.RandString(t, 10)
 	datasetID := fmt.Sprintf("tf_test_sub_replica_%s", randomDatasetSuffix)
 
-	bqdataset, err := acctest.AddBigQueryDatasetReplica(t, envvar.GetTestProjectFromEnv(), datasetID, "us", "eu")
+	bqdataset, err := AddBigQueryDatasetReplica(t, envvar.GetTestProjectFromEnv(), datasetID, "us", "eu")
 	if err != nil {
 		t.Fatalf("Failed to create BigQuery dataset and add replica: %v", err)
 	}
@@ -79,7 +208,7 @@ func TestAccBigqueryAnalyticsHubListingSubscription_multiregion(t *testing.T) {
 	}
 
 	t.Cleanup(func() {
-		acctest.CleanupBigQueryDatasetAndReplica(t, envvar.GetTestProjectFromEnv(), datasetID, "eu")
+		CleanupBigQueryDatasetAndReplica(t, envvar.GetTestProjectFromEnv(), datasetID, "eu")
 	})
 
 	acctest.VcrTest(t, resource.TestCase{
