@@ -452,8 +452,8 @@ E.g. 'networkconnectivity.googleapis.com/projects/{project}/locations/global/int
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"ARP_ALL_RANGES", "ARP_PRIMARY_RANGE", ""}),
-				Description:  `'Configures subnet mask resolution for this subnetwork.' Possible values: ["ARP_ALL_RANGES", "ARP_PRIMARY_RANGE"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"ARP_ALL_RANGES", "ARP_PRIMARY_RANGE", "ARP_BROADCAST_PRIMARY_RANGE", "ARP_BROADCAST_PRIMARY_RANGE_WITH_LEARNING", ""}),
+				Description:  `'Configures subnet mask resolution for this subnetwork.' Possible values: ["ARP_ALL_RANGES", "ARP_PRIMARY_RANGE", "ARP_BROADCAST_PRIMARY_RANGE", "ARP_BROADCAST_PRIMARY_RANGE_WITH_LEARNING"]`,
 			},
 			"role": {
 				Type:         schema.TypeString,
