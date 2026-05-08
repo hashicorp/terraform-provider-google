@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added support for "ARP_BROADCAST_PRIMARY_RANGE" values to the `resolve_subnet_mask` field in `google_compute_subnetwork` resource
+```
+```release-note:enhancement
+compute: added support for "GCE_VM_IP_DEDICATED_BACKEND" to the  `network_endpoint_type` field in `google_compute_network_endpoint_group` resource
+```

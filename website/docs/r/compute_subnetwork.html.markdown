@@ -488,7 +488,7 @@ The following arguments are supported:
 * `resolve_subnet_mask` -
   (Optional)
   'Configures subnet mask resolution for this subnetwork.'
-  Possible values are: `ARP_ALL_RANGES`, `ARP_PRIMARY_RANGE`.
+  Possible values are: `ARP_ALL_RANGES`, `ARP_PRIMARY_RANGE`, `ARP_BROADCAST_PRIMARY_RANGE`, `ARP_BROADCAST_PRIMARY_RANGE_WITH_LEARNING`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
