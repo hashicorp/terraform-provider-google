@@ -37,6 +37,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+)
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -147,7 +151,7 @@ func TestAccEventarcTrigger_eventarcTriggerWithHttpDestinationExample(t *testing
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"service_account":         envvar.GetTestServiceAccountFromEnv(t),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-trigger-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-trigger-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-trigger-network"))),
+		"network_attachment_name": tpgcompute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-trigger-na", tpgcompute.BootstrapSubnet(t, "tf-bootstrap-eventarc-trigger-subnet", tpgcompute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-trigger-network"))),
 		"trigger_name":            "tf-test-some-trigger" + randomSuffix,
 		"random_suffix":           randomSuffix,
 	}

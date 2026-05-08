@@ -31,6 +31,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	dataproc_tpg "github.com/hashicorp/terraform-provider-google/google/services/dataproc"
 	"github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -129,8 +130,8 @@ func TestAccDataprocVirtualCluster_basic(t *testing.T) {
 	rnd := acctest.RandString(t, 10)
 	pid := envvar.GetTestProjectFromEnv()
 	version := "3.5-dataproc-17"
-	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -170,9 +171,9 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 	project := envvar.GetTestProjectFromEnv()
 	acceleratorType := "nvidia-tesla-t4"
 	zone := "us-central1-c"
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -302,9 +303,9 @@ func TestAccDataprocCluster_withConfidentialCompute(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	imageUri := "https://www.googleapis.com/compute/v1/projects/cloud-dataproc/global/images/dataproc-2-1-ubu20-20241026-165100-rc01"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -347,9 +348,9 @@ func TestAccDataprocCluster_withMetadataAndTags(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -377,9 +378,9 @@ func TestAccDataprocCluster_withResourceManagerTags(t *testing.T) {
 	pid := envvar.GetTestProjectFromEnv()
 	projectNumber := envvar.GetTestProjectNumberFromEnv()
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	// TODO: remove this IAM binding once tagUser permissions are present in Dataproc Service Agent role.
 	acctest.BootstrapIamMembers(t, []acctest.IamMember{
 		{
@@ -410,9 +411,9 @@ func TestAccDataprocCluster_withMinNumInstances(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -436,9 +437,9 @@ func TestAccDataprocCluster_withReservationAffinity(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -464,9 +465,9 @@ func TestAccDataprocCluster_withDataprocMetricConfig(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -493,9 +494,9 @@ func TestAccDataprocCluster_withNodeGroupAffinity(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -518,9 +519,9 @@ func TestAccDataprocCluster_singleNodeCluster(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
@@ -586,9 +587,9 @@ func TestAccDataprocCluster_nonPreemptibleSecondary(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	var cluster dataproc.Cluster
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -611,9 +612,9 @@ func TestAccDataprocCluster_spotSecondary(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	var cluster dataproc.Cluster
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -819,9 +820,9 @@ func TestAccDataprocCluster_withStagingBucket(t *testing.T) {
 	var cluster dataproc.Cluster
 	clusterName := fmt.Sprintf("tf-test-dproc-%s", rnd)
 	bucketName := fmt.Sprintf("%s-bucket", clusterName)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -854,9 +855,9 @@ func TestAccDataprocCluster_withTempBucket(t *testing.T) {
 	var cluster dataproc.Cluster
 	clusterName := fmt.Sprintf("tf-test-dproc-%s", rnd)
 	bucketName := fmt.Sprintf("%s-temp-bucket", clusterName)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -888,9 +889,9 @@ func TestAccDataprocCluster_withInitAction(t *testing.T) {
 	var cluster dataproc.Cluster
 	bucketName := fmt.Sprintf("tf-test-dproc-%s-init-bucket", rnd)
 	objectName := "msg.txt"
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -915,9 +916,9 @@ func TestAccDataprocCluster_withConfigOverrides(t *testing.T) {
 
 	rnd := acctest.RandString(t, 10)
 	var cluster dataproc.Cluster
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -941,9 +942,9 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 	sa := "a" + acctest.RandString(t, 10)
 	saEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sa, envvar.GetTestProjectFromEnv())
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 
@@ -978,9 +979,9 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 
 	rnd := acctest.RandString(t, 10)
 	version := "2.0.35-debian10"
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
@@ -1003,9 +1004,9 @@ func TestAccDataprocCluster_withOptionalComponents(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	var cluster dataproc.Cluster
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1028,9 +1029,9 @@ func TestAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	var cluster dataproc.Cluster
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1062,9 +1063,9 @@ func TestAccDataprocCluster_withLifecycleConfigAutoDeletion(t *testing.T) {
 	rnd := acctest.RandString(t, 10)
 	now := time.Now()
 	fmtString := "2006-01-02T15:04:05.072Z"
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
@@ -1092,9 +1093,9 @@ func TestAccDataprocCluster_withLifecycleConfigIdleStopTtl(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	var cluster dataproc.Cluster
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1126,9 +1127,9 @@ func TestAccDataprocCluster_withLifecycleConfigAutoStop(t *testing.T) {
 	rnd := acctest.RandString(t, 10)
 	now := time.Now()
 	fmtString := "2006-01-02T15:04:05.072Z"
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
@@ -1155,9 +1156,9 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	var cluster dataproc.Cluster
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1235,9 +1236,9 @@ func TestAccDataprocCluster_withEndpointConfig(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1260,9 +1261,9 @@ func TestAccDataprocCluster_KMS(t *testing.T) {
 
 	rnd := acctest.RandString(t, 10)
 	kms := acctest.BootstrapKMSKey(t)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.BootstrapIamMembers(t, []acctest.IamMember{
 		{
@@ -1292,9 +1293,9 @@ func TestAccDataprocCluster_withKerberos(t *testing.T) {
 
 	rnd := acctest.RandString(t, 10)
 	kms := acctest.BootstrapKMSKey(t)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
@@ -1316,9 +1317,9 @@ func TestAccDataprocCluster_withIdentityConfig(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
@@ -1341,9 +1342,9 @@ func TestAccDataprocCluster_updateIdentityConfigUserMapping(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 
@@ -1374,9 +1375,9 @@ func TestAccDataprocCluster_withAutoscalingPolicy(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
@@ -1441,9 +1442,9 @@ func TestAccDataprocCluster_withClusterTier(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1511,9 +1512,9 @@ func TestAccDataprocCluster_withEngine(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1589,9 +1590,9 @@ func TestAccDataprocCluster_withClusterTypeSingleNode(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1615,9 +1616,9 @@ func TestAccDataprocCluster_withClusterTypeZeroScale(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

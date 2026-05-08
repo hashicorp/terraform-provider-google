@@ -37,6 +37,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+)
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -58,7 +62,7 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"address_name":       acctest.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", acctest.AddressWithPrefixLength(8)),
+		"address_name":       tpgcompute.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", tpgcompute.AddressWithPrefixLength(8)),
 		"bucket_name":        "tf-test-bucket-name" + randomSuffix,
 		"deployed_index_id":  "tf_test_deployed_index_id" + randomSuffix,
 		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,
@@ -181,7 +185,7 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"address_name":       acctest.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", acctest.AddressWithPrefixLength(8)),
+		"address_name":       tpgcompute.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", tpgcompute.AddressWithPrefixLength(8)),
 		"bucket_name":        "tf-test-bucket-name" + randomSuffix,
 		"deployed_index_id":  "tf_test_deployed_index_id" + randomSuffix,
 		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,

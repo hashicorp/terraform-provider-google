@@ -1726,7 +1726,7 @@ resource "google_compute_disk" "foobar" {
 func TestAccComputeDisk_storagePoolSpecified(t *testing.T) {
 	t.Parallel()
 
-	storagePoolNameLong := acctest.BootstrapComputeStoragePool(t, "basic-1", "hyperdisk-throughput")
+	storagePoolNameLong := tpgcompute.BootstrapComputeStoragePool(t, "basic-1", "hyperdisk-throughput")
 	diskName := fmt.Sprintf("tf-test-disk-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1748,7 +1748,7 @@ func TestAccComputeDisk_storagePoolSpecified(t *testing.T) {
 func TestAccComputeDisk_storagePoolSpecified_nameOnly(t *testing.T) {
 	t.Parallel()
 
-	acctest.BootstrapComputeStoragePool(t, "basic-2", "hyperdisk-throughput")
+	tpgcompute.BootstrapComputeStoragePool(t, "basic-2", "hyperdisk-throughput")
 	diskName := fmt.Sprintf("tf-test-disk-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{

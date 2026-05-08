@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 func TestAccAlloydbInstance_update(t *testing.T) {
@@ -535,7 +536,7 @@ func TestAccAlloydbInstance_createInstanceWithNetworkConfigAndAllocatedIPRange(t
 	t.Parallel()
 
 	testId := "alloydb-1"
-	addressName := acctest.BootstrapSharedTestGlobalAddress(t, testId)
+	addressName := tpgcompute.BootstrapSharedTestGlobalAddress(t, testId)
 	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, testId)
 
 	context := map[string]interface{}{
@@ -1030,13 +1031,13 @@ data "google_project" "project" {}
 func TestAccAlloydbInstance_createInstanceWithPscInterfaceConfigs(t *testing.T) {
 	t.Parallel()
 
-	networkName := acctest.BootstrapSharedTestNetwork(t, "tf-test-alloydb-network")
-	subnetworkName := acctest.BootstrapSubnet(t, "tf-test-alloydb-subnetwork", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "tf-test-alloydb-network")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "tf-test-alloydb-subnetwork", networkName)
 
 	random_suffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"random_suffix":         random_suffix,
-		"networkAttachmentName": acctest.BootstrapNetworkAttachment(t, "tf-test-alloydb-create-na", subnetworkName),
+		"networkAttachmentName": tpgcompute.BootstrapNetworkAttachment(t, "tf-test-alloydb-create-na", subnetworkName),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1087,13 +1088,13 @@ data "google_project" "project" {}
 func TestAccAlloydbInstance_updateInstanceWithPscInterfaceConfigs(t *testing.T) {
 	t.Parallel()
 
-	networkName := acctest.BootstrapSharedTestNetwork(t, "tf-test-alloydb-network")
-	subnetworkName := acctest.BootstrapSubnet(t, "tf-test-alloydb-subnetwork", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "tf-test-alloydb-network")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "tf-test-alloydb-subnetwork", networkName)
 
 	random_suffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"random_suffix":         random_suffix,
-		"networkAttachmentName": acctest.BootstrapNetworkAttachment(t, "tf-test-alloydb-update-na", subnetworkName),
+		"networkAttachmentName": tpgcompute.BootstrapNetworkAttachment(t, "tf-test-alloydb-update-na", subnetworkName),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1114,7 +1115,7 @@ func TestAccAlloydbInstance_updateInstanceWithPscInterfaceConfigs(t *testing.T) 
 func TestAccAlloydbInstance_updatePscAutoConnections(t *testing.T) {
 	t.Parallel()
 
-	networkName := acctest.BootstrapSharedTestNetwork(t, "tf-test-alloydb-network-psc")
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "tf-test-alloydb-network-psc")
 	random_suffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"network_name":  networkName,
@@ -1200,7 +1201,7 @@ func TestAccAlloydbInstance_createPrimaryAndReadPoolInstanceWithAllocatedIpRange
 	testId := "alloydb-1"
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, testId),
+		"address_name":  tpgcompute.BootstrapSharedTestGlobalAddress(t, testId),
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, testId),
 	}
 

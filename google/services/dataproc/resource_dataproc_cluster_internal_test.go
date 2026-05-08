@@ -14,16 +14,18 @@
 //	overwritten during the next generation cycle.
 //
 // ----------------------------------------------------------------------------
-package dataproc
+package dataproc_test
 
 import (
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/services/dataproc"
 )
 
 func TestDataprocExtractInitTimeout(t *testing.T) {
 	t.Parallel()
 
-	actual, err := extractInitTimeout("500s")
+	actual, err := dataproc.ExtractInitTimeout("500s")
 	expected := 500
 	if err != nil {
 		t.Fatalf("Expected %d, but got error %v", expected, err)
@@ -36,7 +38,7 @@ func TestDataprocExtractInitTimeout(t *testing.T) {
 func TestDataprocExtractInitTimeout_nonSeconds(t *testing.T) {
 	t.Parallel()
 
-	actual, err := extractInitTimeout("5m")
+	actual, err := dataproc.ExtractInitTimeout("5m")
 	expected := 300
 	if err != nil {
 		t.Fatalf("Expected %d, but got error %v", expected, err)
@@ -49,7 +51,7 @@ func TestDataprocExtractInitTimeout_nonSeconds(t *testing.T) {
 func TestDataprocExtractInitTimeout_empty(t *testing.T) {
 	t.Parallel()
 
-	_, err := extractInitTimeout("")
+	_, err := dataproc.ExtractInitTimeout("")
 	expected := "time: invalid duration"
 	if err != nil && err.Error() != expected {
 		return
@@ -60,7 +62,7 @@ func TestDataprocExtractInitTimeout_empty(t *testing.T) {
 func TestDataprocParseImageVersion(t *testing.T) {
 	t.Parallel()
 
-	testCases := map[string]dataprocImageVersion{
+	testCases := map[string]dataproc.DataprocImageVersion{
 		"1.2":             {"1", "2", "", ""},
 		"1.2.3":           {"1", "2", "3", ""},
 		"1.2.3rc":         {"1", "2", "3rc", ""},
@@ -70,20 +72,20 @@ func TestDataprocParseImageVersion(t *testing.T) {
 	}
 
 	for v, expected := range testCases {
-		actual, err := parseDataprocImageVersion(v)
-		if actual.major != expected.major {
+		actual, err := dataproc.ParseDataprocImageVersion(v)
+		if actual.Major != expected.Major {
 			t.Errorf("parsing version %q returned error: %v", v, err)
 		}
 		if err != nil {
 			t.Errorf("parsing version %q returned error: %v", v, err)
 		}
-		if actual.minor != expected.minor {
+		if actual.Minor != expected.Minor {
 			t.Errorf("parsing version %q returned error: %v", v, err)
 		}
-		if actual.subminor != expected.subminor {
+		if actual.Subminor != expected.Subminor {
 			t.Errorf("parsing version %q returned error: %v", v, err)
 		}
-		if actual.osName != expected.osName {
+		if actual.OsName != expected.OsName {
 			t.Errorf("parsing version %q returned error: %v", v, err)
 		}
 	}
@@ -95,7 +97,7 @@ func TestDataprocParseImageVersion(t *testing.T) {
 		"1-debian",
 	}
 	for _, v := range errorTestCases {
-		if _, err := parseDataprocImageVersion(v); err == nil {
+		if _, err := dataproc.ParseDataprocImageVersion(v); err == nil {
 			t.Errorf("expected parsing invalid version %q to return error", v)
 		}
 	}
@@ -130,12 +132,12 @@ func TestDataprocDiffSuppress(t *testing.T) {
 	}
 
 	for _, tup := range doSuppress {
-		if !dataprocImageVersionDiffSuppress("", tup[0], tup[1], nil) {
+		if !dataproc.DataprocImageVersionDiffSuppress("", tup[0], tup[1], nil) {
 			t.Errorf("expected (old: %q, new: %q) to be suppressed", tup[0], tup[1])
 		}
 	}
 	for _, tup := range noSuppress {
-		if dataprocImageVersionDiffSuppress("", tup[0], tup[1], nil) {
+		if dataproc.DataprocImageVersionDiffSuppress("", tup[0], tup[1], nil) {
 			t.Errorf("expected (old: %q, new: %q) to not be suppressed", tup[0], tup[1])
 		}
 	}

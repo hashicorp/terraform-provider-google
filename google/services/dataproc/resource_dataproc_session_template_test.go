@@ -40,7 +40,7 @@ func TestAccDataprocSessionTemplate_update(t *testing.T) {
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"kms_key_name":    acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-dataproc-session-template-key1").CryptoKey.Name,
 		"prevent_destroy": false,
-		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "jupyer-session-test-network", "jupyter-session-test-subnetwork"),
+		"subnetwork_name": BootstrapSubnetWithFirewallForDataprocBatches(t, "jupyer-session-test-network", "jupyter-session-test-subnetwork"),
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 

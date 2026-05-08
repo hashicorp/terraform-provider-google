@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -73,9 +74,9 @@ func TestAccCloudbuildWorkerPool_withComputedAnnotations(t *testing.T) {
 func TestAccCloudbuildWorkerPool_basic(t *testing.T) {
 	t.Parallel()
 
-	testNetworkName := acctest.BootstrapSharedTestNetwork(t, "attachment-network")
-	subnetName := acctest.BootstrapSubnet(t, "tf-test-subnet", testNetworkName)
-	networkAttachmentName := acctest.BootstrapNetworkAttachment(t, "tf-test-attachment", subnetName)
+	testNetworkName := tpgcompute.BootstrapSharedTestNetwork(t, "attachment-network")
+	subnetName := tpgcompute.BootstrapSubnet(t, "tf-test-subnet", testNetworkName)
+	networkAttachmentName := tpgcompute.BootstrapNetworkAttachment(t, "tf-test-attachment", subnetName)
 
 	// Need to have the full network attachment name in the format project/{project_id}/regions/{region_id}/networkAttachments/{networkAttachmentName}
 	fullFormNetworkAttachmentName := fmt.Sprintf("projects/%s/regions/%s/networkAttachments/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), networkAttachmentName)

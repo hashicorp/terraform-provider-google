@@ -37,6 +37,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+)
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -108,7 +112,7 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"instance_name":   "tf-test-ha-memory-cache" + randomSuffix,
-		"network_name":    acctest.BootstrapSharedTestNetwork(t, "redis-full"),
+		"network_name":    tpgcompute.BootstrapSharedTestNetwork(t, "redis-full"),
 		"prevent_destroy": false,
 		"random_suffix":   randomSuffix,
 	}
@@ -196,7 +200,7 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 
 	context := map[string]interface{}{
 		"instance_name":   "tf-test-ha-memory-cache-persis" + randomSuffix,
-		"network_name":    acctest.BootstrapSharedTestNetwork(t, "redis-full-persis"),
+		"network_name":    tpgcompute.BootstrapSharedTestNetwork(t, "redis-full-persis"),
 		"prevent_destroy": false,
 		"random_suffix":   randomSuffix,
 	}
@@ -324,7 +328,7 @@ func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"instance_name":   "tf-test-mrr-memory-cache" + randomSuffix,
-		"network_name":    acctest.BootstrapSharedTestNetwork(t, "redis-mrr"),
+		"network_name":    tpgcompute.BootstrapSharedTestNetwork(t, "redis-mrr"),
 		"prevent_destroy": false,
 		"random_suffix":   randomSuffix,
 	}

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample_update(t *testing.T) {
@@ -34,8 +35,8 @@ func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample_update(
 		"project":         envvar.GetTestProjectFromEnv(),
 		"location":        envvar.GetTestRegionFromEnv(),
 		"random_suffix":   acctest.RandString(t, 10),
-		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":    tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name": tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
