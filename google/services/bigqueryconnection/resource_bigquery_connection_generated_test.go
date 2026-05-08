@@ -686,7 +686,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionConnectorConfiguratio
 				ResourceName:            "google_bigquery_connection.connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"configuration.0.authentication.0.username_password.0.password", "configuration.0.authentication.0.username_password.0.username", "location"},
+				ImportStateVerifyIgnore: []string{"configuration.0.authentication.0.username_password.0.password", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
