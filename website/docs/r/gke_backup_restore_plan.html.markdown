@@ -567,7 +567,7 @@ The following arguments are supported:
 
 * `cluster` -
   (Required)
-  The source cluster from which Restores will be created via this RestorePlan.
+  The name of the target cluster to which you want to Restore via this RestorePlan.
 
 * `restore_config` -
   (Required)

@@ -153,7 +153,7 @@ as the source for Restores created via this RestorePlan.`,
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The source cluster from which Restores will be created via this RestorePlan.`,
+				Description: `The name of the target cluster to which you want to Restore via this RestorePlan.`,
 			},
 			"location": {
 				Type:        schema.TypeString,
