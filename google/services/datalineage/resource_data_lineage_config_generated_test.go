@@ -58,14 +58,17 @@ func TestAccDataLineageConfig_dataLineageConfigProjectExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDataLineageConfigDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckDataLineageConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataLineageConfig_dataLineageConfigProjectExample(context),
@@ -88,8 +91,26 @@ func TestAccDataLineageConfig_dataLineageConfigProjectExample(t *testing.T) {
 
 func testAccDataLineageConfig_dataLineageConfigProjectExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_project" "project" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "%{org_id}"
+  deletion_policy = "DELETE"
+}
+
+resource "time_sleep" "wait_for_project" {
+  create_duration = "60s"
+  depends_on      = [google_project.project]
+}
+
+resource "google_project_service" "datalineage_api" {
+  project            = google_project.project.project_id
+  service            = "datalineage.googleapis.com"
+  depends_on         = [time_sleep.wait_for_project]
+}
+
 resource "google_data_lineage_config" "default" {
-  parent = "projects/%{project}"
+  parent = "projects/${google_project.project.project_id}"
   location = "global"
 
   ingestion {
@@ -102,6 +123,7 @@ resource "google_data_lineage_config" "default" {
       }
     }
   }
+  depends_on = [google_project_service.datalineage_api]
 }
 `, context)
 }
