@@ -32,6 +32,10 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
+import (
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+)
+
 var (
 	_ = fmt.Sprintf
 	_ = strings.Trim
@@ -52,8 +56,8 @@ func TestAccGKEHubMembershipIamBindingGenerated(t *testing.T) {
 
 		"cluster_name":    "tf-test-basic-cluster" + randomSuffix,
 		"name":            "basic" + randomSuffix,
-		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":    tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name": tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -96,8 +100,8 @@ func TestAccGKEHubMembershipIamMemberGenerated(t *testing.T) {
 
 		"cluster_name":    "tf-test-basic-cluster" + randomSuffix,
 		"name":            "basic" + randomSuffix,
-		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":    tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name": tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -131,8 +135,8 @@ func TestAccGKEHubMembershipIamPolicyGenerated(t *testing.T) {
 
 		"cluster_name":    "tf-test-basic-cluster" + randomSuffix,
 		"name":            "basic" + randomSuffix,
-		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":    tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name": tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

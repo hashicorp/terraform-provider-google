@@ -1163,7 +1163,7 @@ by Dataproc`,
 										Computed:         true,
 										AtLeastOneOf:     clusterSoftwareConfigKeys,
 										ForceNew:         true,
-										DiffSuppressFunc: dataprocImageVersionDiffSuppress,
+										DiffSuppressFunc: DataprocImageVersionDiffSuppress,
 										Description:      `The Cloud Dataproc image version to use for the cluster - this controls the sets of software versions installed onto the nodes when you create clusters. If not specified, defaults to the latest version.`,
 									},
 									"override_properties": {

@@ -1576,9 +1576,9 @@ func TestAccComputeInstanceTemplate_sourceImageEncryptionKey(t *testing.T) {
 func TestAccComputeInstanceTemplate_NetworkAttachment(t *testing.T) {
 	t.Parallel()
 
-	testNetworkName := acctest.BootstrapSharedTestNetwork(t, "attachment-network")
-	subnetName := acctest.BootstrapSubnet(t, "tf-test-subnet", testNetworkName)
-	networkAttachmentName := acctest.BootstrapNetworkAttachment(t, "tf-test-attachment", subnetName)
+	testNetworkName := tpgcompute.BootstrapSharedTestNetwork(t, "attachment-network")
+	subnetName := tpgcompute.BootstrapSubnet(t, "tf-test-subnet", testNetworkName)
+	networkAttachmentName := tpgcompute.BootstrapNetworkAttachment(t, "tf-test-attachment", subnetName)
 
 	// Need to have the full network attachment name in the format project/{project_id}/regions/{region_id}/networkAttachments/{networkAttachmentName}
 	fullFormNetworkAttachmentName := fmt.Sprintf("projects/%s/regions/%s/networkAttachments/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), networkAttachmentName)

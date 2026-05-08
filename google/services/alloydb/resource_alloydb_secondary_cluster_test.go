@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 // The cluster creation should succeed with minimal number of arguments
@@ -616,7 +617,7 @@ func TestAccAlloydbCluster_secondaryClusterWithNetworkConfigAndAllocatedIPRange(
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, "alloydb-1"),
+		"address_name":  tpgcompute.BootstrapSharedTestGlobalAddress(t, "alloydb-1"),
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -1184,7 +1185,7 @@ func TestAccAlloydbCluster_secondaryClusterPromoteWithNetworkConfigAndAllocatedI
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
-		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, "alloydb-1"),
+		"address_name":  tpgcompute.BootstrapSharedTestGlobalAddress(t, "alloydb-1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

@@ -1677,7 +1677,7 @@ by Dataproc`,
 										Computed:         true,
 										AtLeastOneOf:     clusterSoftwareConfigKeys,
 										ForceNew:         true,
-										DiffSuppressFunc: dataprocImageVersionDiffSuppress,
+										DiffSuppressFunc: DataprocImageVersionDiffSuppress,
 										Description:      `The Cloud Dataproc image version to use for the cluster - this controls the sets of software versions installed onto the nodes when you create clusters. If not specified, defaults to the latest version.`,
 									},
 									"override_properties": {
@@ -3550,7 +3550,7 @@ func flattenInitializationActions(nia []*dataproc.NodeInitializationAction) ([]m
 			"script": v.ExecutableFile,
 		}
 		if len(v.ExecutionTimeout) > 0 {
-			tsec, err := extractInitTimeout(v.ExecutionTimeout)
+			tsec, err := ExtractInitTimeout(v.ExecutionTimeout)
 			if err != nil {
 				return nil, err
 			}
@@ -3849,7 +3849,7 @@ func flattenWorkerInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.Inst
 	return []map[string]interface{}{data}
 }
 
-func extractInitTimeout(t string) (int, error) {
+func ExtractInitTimeout(t string) (int, error) {
 	d, err := time.ParseDuration(t)
 	if err != nil {
 		return 0, err
@@ -3905,53 +3905,53 @@ func configOptions(d *schema.ResourceData, option string) (map[string]interface{
 	return nil, false
 }
 
-func dataprocImageVersionDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
-	oldV, err := parseDataprocImageVersion(old)
+func DataprocImageVersionDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	oldV, err := ParseDataprocImageVersion(old)
 	if err != nil {
 		return false
 	}
-	newV, err := parseDataprocImageVersion(new)
+	newV, err := ParseDataprocImageVersion(new)
 	if err != nil {
 		return false
 	}
 
-	if newV.major != oldV.major {
+	if newV.Major != oldV.Major {
 		return false
 	}
-	if newV.minor != oldV.minor {
+	if newV.Minor != oldV.Minor {
 		return false
 	}
 
 	ignoreSubminor := []string{"", "prodcurrent", "prodprevious"}
 	// Only compare subminor version if set to a numeric value in config version.
-	if !slices.Contains(ignoreSubminor, newV.subminor) && newV.subminor != oldV.subminor {
+	if !slices.Contains(ignoreSubminor, newV.Subminor) && newV.Subminor != oldV.Subminor {
 		return false
 	}
 	// Only compare os if it is set in config version.
-	if newV.osName != "" && newV.osName != oldV.osName {
+	if newV.OsName != "" && newV.OsName != oldV.OsName {
 		return false
 	}
 	return true
 }
 
-type dataprocImageVersion struct {
-	major    string
-	minor    string
-	subminor string
-	osName   string
+type DataprocImageVersion struct {
+	Major    string
+	Minor    string
+	Subminor string
+	OsName   string
 }
 
-func parseDataprocImageVersion(version string) (*dataprocImageVersion, error) {
+func ParseDataprocImageVersion(version string) (*DataprocImageVersion, error) {
 	matches := resolveDataprocImageVersion.FindStringSubmatch(version)
 	if len(matches) != 5 {
 		return nil, fmt.Errorf("invalid image version %q", version)
 	}
 
-	return &dataprocImageVersion{
-		major:    matches[1],
-		minor:    matches[2],
-		subminor: matches[3],
-		osName:   matches[4],
+	return &DataprocImageVersion{
+		Major:    matches[1],
+		Minor:    matches[2],
+		Subminor: matches[3],
+		OsName:   matches[4],
 	}, nil
 }
 

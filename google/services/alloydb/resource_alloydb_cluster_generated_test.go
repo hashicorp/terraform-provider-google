@@ -37,6 +37,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+)
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -114,7 +118,7 @@ func TestAccAlloydbCluster_alloydbClusterBeforeUpgradeExample(t *testing.T) {
 	context := map[string]interface{}{
 		"alloydb_cluster_name":  "tf-test-alloydb-cluster" + randomSuffix,
 		"alloydb_instance_name": "tf-test-alloydb-instance" + randomSuffix,
-		"network_name":          acctest.BootstrapSharedTestNetwork(t, "alloydb-1"),
+		"network_name":          tpgcompute.BootstrapSharedTestNetwork(t, "alloydb-1"),
 		"random_suffix":         randomSuffix,
 	}
 
@@ -184,7 +188,7 @@ func TestAccAlloydbCluster_alloydbClusterAfterUpgradeExample(t *testing.T) {
 	context := map[string]interface{}{
 		"alloydb_cluster_name":  "tf-test-alloydb-cluster" + randomSuffix,
 		"alloydb_instance_name": "tf-test-alloydb-instance" + randomSuffix,
-		"network_name":          acctest.BootstrapSharedTestNetwork(t, "alloydb-1"),
+		"network_name":          tpgcompute.BootstrapSharedTestNetwork(t, "alloydb-1"),
 		"random_suffix":         randomSuffix,
 	}
 

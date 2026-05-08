@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 // This test passes if secondary instance's machine config can be updated
@@ -304,7 +305,7 @@ func TestAccAlloydbCluster_secondaryInstanceWithNetworkConfigAndAllocatedIPRange
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
-		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, "alloydb-1"),
+		"address_name":  tpgcompute.BootstrapSharedTestGlobalAddress(t, "alloydb-1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -493,7 +494,7 @@ resource "google_alloydb_instance" "secondary" {
   }
 
   database_flags = {
-	  "alloydb.enable_auto_explain" = "true"
+    "alloydb.enable_auto_explain" = "true"
   }
 }
 

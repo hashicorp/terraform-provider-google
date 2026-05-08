@@ -24,6 +24,7 @@ import (
 	"google.golang.org/api/dataproc/v1"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 // Tests schema version migration by creating a cluster with an old version of the provider (4.65.0)
@@ -34,9 +35,9 @@ func TestAccDataprocClusterLabelsMigration_withoutLabels_withoutChanges(t *testi
 
 	rnd := acctest.RandString(t, 10)
 	var cluster dataproc.Cluster
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	oldVersion := map[string]resource.ExternalProvider{
 		"google": {
@@ -83,9 +84,9 @@ func TestAccDataprocClusterLabelsMigration_withLabels_withoutChanges(t *testing.
 
 	rnd := acctest.RandString(t, 10)
 	var cluster dataproc.Cluster
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	oldVersion := map[string]resource.ExternalProvider{
 		"google": {
@@ -135,9 +136,9 @@ func TestAccDataprocClusterLabelsMigration_withUpdate(t *testing.T) {
 
 	rnd := acctest.RandString(t, 10)
 	var cluster dataproc.Cluster
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	oldVersion := map[string]resource.ExternalProvider{
 		"google": {

@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 func TestAccGKEBackupRestorePlan_update(t *testing.T) {
@@ -30,8 +31,8 @@ func TestAccGKEBackupRestorePlan_update(t *testing.T) {
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
 		"deletion_protection": false,
-		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 

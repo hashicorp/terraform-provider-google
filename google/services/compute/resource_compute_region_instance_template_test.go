@@ -1544,11 +1544,11 @@ func TestAccComputeRegionInstanceTemplate_GuestOsFeatures(t *testing.T) {
 func TestAccComputeRegionInstanceTemplate_networkAttachment(t *testing.T) {
 	t.Parallel()
 
-	network := acctest.BootstrapSharedTestNetwork(t, "attachment-network")
-	subnet := acctest.BootstrapSubnet(t, "tf-test-subnet", network)
+	network := tpgcompute.BootstrapSharedTestNetwork(t, "attachment-network")
+	subnet := tpgcompute.BootstrapSubnet(t, "tf-test-subnet", network)
 	region := envvar.GetTestRegionFromEnv()
 
-	networkAttachmentShortname := acctest.BootstrapNetworkAttachment(t, "tf-test-attachment", subnet)
+	networkAttachmentShortname := tpgcompute.BootstrapNetworkAttachment(t, "tf-test-attachment", subnet)
 	networkAttachment := fmt.Sprintf("projects/%s/regions/%s/networkAttachments/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), networkAttachmentShortname)
 
 	context := map[string]interface{}{
