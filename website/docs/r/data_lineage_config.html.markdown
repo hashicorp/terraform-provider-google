@@ -37,8 +37,26 @@ To get more information about Config, see:
 
 
 ```hcl
+resource "google_project" "project" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "123456789"
+  deletion_policy = "DELETE"
+}
+
+resource "time_sleep" "wait_for_project" {
+  create_duration = "60s"
+  depends_on      = [google_project.project]
+}
+
+resource "google_project_service" "datalineage_api" {
+  project            = google_project.project.project_id
+  service            = "datalineage.googleapis.com"
+  depends_on         = [time_sleep.wait_for_project]
+}
+
 resource "google_data_lineage_config" "default" {
-  parent = "projects/my-project-name"
+  parent = "projects/${google_project.project.project_id}"
   location = "global"
 
   ingestion {
@@ -51,6 +69,7 @@ resource "google_data_lineage_config" "default" {
       }
     }
   }
+  depends_on = [google_project_service.datalineage_api]
 }
 ```
 ## Example Usage - Data Lineage Config Folder
