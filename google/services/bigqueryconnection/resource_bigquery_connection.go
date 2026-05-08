@@ -1403,14 +1403,29 @@ func flattenBigqueryConnectionConnectionConfigurationAuthentication(v interface{
 	return []interface{}{transformed}
 }
 func flattenBigqueryConnectionConnectionConfigurationAuthenticationUsernamePassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+
+	password := map[string]interface{}{
+		// The API redacts the plaintext on read, so we keep the value from
+		// state to avoid a permadiff.
+		"plaintext": d.Get("configuration.0.authentication.0.username_password.0.password.0.plaintext"),
+	}
+	if originalPassword, ok := original["password"].(map[string]interface{}); ok {
+		if secretType, ok := originalPassword["secretType"]; ok {
+			password["secret_type"] = secretType
+		}
+	}
+
 	return []interface{}{
 		map[string]interface{}{
-			"username": d.Get("configuration.0.authentication.0.username_password.0.username"),
-			"password": []interface{}{
-				map[string]interface{}{
-					"plaintext": d.Get("configuration.0.authentication.0.username_password.0.password.0.plaintext"),
-				},
-			},
+			"username": original["username"],
+			"password": []interface{}{password},
 		},
 	}
 }
