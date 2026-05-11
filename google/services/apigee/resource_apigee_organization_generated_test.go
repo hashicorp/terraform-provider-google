@@ -150,6 +150,10 @@ resource "google_service_networking_connection" "apigee_vpc_connection" {
   depends_on              = [google_project_service.servicenetworking]
 }
 
+resource "time_sleep" "wait_after_destroy" {
+  destroy_duration = "150s"
+}
+
 resource "google_apigee_organization" "org" {
   analytics_region   = "us-central1"
   project_id         = google_project.project.project_id
@@ -157,12 +161,8 @@ resource "google_apigee_organization" "org" {
   depends_on         = [
     google_service_networking_connection.apigee_vpc_connection,
     google_project_service.apigee,
+    time_sleep.wait_after_destroy,
   ]
-}
-
-resource "time_sleep" "wait_after_destroy" {
-  destroy_duration = "150s"
-  depends_on = [google_apigee_organization.org]
 }
 `, context)
 }
@@ -225,6 +225,9 @@ resource "time_sleep" "wait_300_seconds" {
   depends_on = [google_project_service.apigee]
 }
 
+resource "time_sleep" "wait_after_destroy" {
+  destroy_duration = "150s"
+}
 
 resource "google_apigee_organization" "org" {
   description         = "Terraform-provisioned basic Apigee Org without VPC Peering."
@@ -233,12 +236,8 @@ resource "google_apigee_organization" "org" {
   disable_vpc_peering = true
   depends_on          = [
     time_sleep.wait_300_seconds,
+    time_sleep.wait_after_destroy,
   ]
-}
-
-resource "time_sleep" "wait_after_destroy" {
-  destroy_duration = "150s"
-  depends_on = [google_apigee_organization.org]
 }
 `, context)
 }
@@ -307,6 +306,10 @@ resource "time_sleep" "wait_300_seconds" {
   depends_on = [google_project_service.apigee]
 }
 
+resource "time_sleep" "wait_after_destroy" {
+  destroy_duration = "150s"
+}
+
 resource "google_apigee_organization" "org" {
   description                = "Terraform-provisioned basic Apigee Org under European Union hosting jurisdiction."
   project_id                 = google_project.project.project_id
@@ -315,12 +318,8 @@ resource "google_apigee_organization" "org" {
   disable_vpc_peering        = true
   depends_on                 = [
     time_sleep.wait_300_seconds,
+    time_sleep.wait_after_destroy,
   ]
-}
-
-resource "time_sleep" "wait_after_destroy" {
-  destroy_duration = "150s"
-  depends_on = [google_apigee_organization.org]
 }
 `, context)
 }
