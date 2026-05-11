@@ -183,12 +183,11 @@ func deleteResourceVertexAIIndexEndpoint(config *transport_tpg.Config, d *tpgres
 	var deletionerror error
 	resourceName := "VertexAIIndexEndpoint"
 	var name string
-	if obj["name"] == nil {
-		log.Printf("[INFO][SWEEPER_LOG] %s resource name was nil", resourceName)
-		return fmt.Errorf("%s resource name was nil", resourceName)
+	if obj["displayName"] == nil {
+		log.Printf("[INFO][SWEEPER_LOG] %s resource displayName was nil", resourceName)
+		return fmt.Errorf("%s resource displayName was nil", resourceName)
 	}
-
-	name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
+	name = obj["displayName"].(string)
 
 	// Skip resources that shouldn't be sweeped
 	if !sweeper.IsSweepableTestResource(name) {
