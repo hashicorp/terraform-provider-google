@@ -111,7 +111,7 @@ func testAccCheckCloudBillingProjectInfoDestroyProducer(t *testing.T) func(s *te
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{CoreBillingBasePath}}projects/{{project}}/billingInfo")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(cloudbilling.Product, config)+"projects/{{project}}/billingInfo")
 			if err != nil {
 				return err
 			}
