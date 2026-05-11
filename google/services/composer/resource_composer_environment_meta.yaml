@@ -93,3 +93,5 @@ fields:
   - api_field: 'storageConfig.bucket'
   - field: 'terraform_labels'
     provider_only: true
+  - field: 'deletion_policy'
+    provider_only: true

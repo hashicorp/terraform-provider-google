@@ -44,6 +44,7 @@ func ResourceGoogleProjectIamCustomRole() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -96,6 +97,9 @@ func ResourceGoogleProjectIamCustomRole() *schema.Resource {
 				Computed:    true,
 				Description: `The name of the role in the format projects/{{project}}/roles/{{role_id}}. Like id, this field can be used as a reference in other resources such as IAM role bindings.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -196,10 +200,19 @@ func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error setting project: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceGoogleProjectIamCustomRole) {
+		return ResourceGoogleProjectIamCustomRole().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -239,6 +252,13 @@ func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceGoogleProjectIamCustomRoleDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

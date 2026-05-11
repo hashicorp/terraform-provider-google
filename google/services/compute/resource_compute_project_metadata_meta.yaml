@@ -9,3 +9,5 @@ fields:
   - api_field: 'commonInstanceMetadata.items'
     field: 'metadata'
   - field: 'project'
+  - field: 'deletion_policy'
+    provider_only: true

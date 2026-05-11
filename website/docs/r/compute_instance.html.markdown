@@ -270,6 +270,13 @@ is desired, you will need to modify your state file manually using
 
 * `erase_windows_vss_signature` - (optional) [Beta](../guides/provider_versions.html.markdown) Specifies whether the disks restored from source snapshots or source machine image should erase Windows specific VSS signature.
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "ABANDON", the command will remove the resource from Terraform
+    management without updating or deleting the resource in the API.
+    When set to "DELETE", deleting the resource is allowed.
+
 ---
 
 <a name="nested_boot_disk"></a>The `boot_disk` block supports:

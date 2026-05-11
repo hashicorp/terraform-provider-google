@@ -20,3 +20,5 @@ fields:
     - api_field: supportedLanguageCodes
     - api_field: tier
     - api_field: timeZone
+    - field: deletion_policy
+      provider_only: true

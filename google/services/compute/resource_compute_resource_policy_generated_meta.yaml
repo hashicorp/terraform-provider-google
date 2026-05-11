@@ -36,3 +36,5 @@ fields:
     - api_field: workloadPolicy.maxTopologyDistance
     - api_field: workloadPolicy.type
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

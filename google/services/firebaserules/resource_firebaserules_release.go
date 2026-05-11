@@ -36,6 +36,7 @@ func ResourceFirebaserulesRelease() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceFirebaserulesReleaseCreate,
 		Read:   resourceFirebaserulesReleaseRead,
+		Update: resourceFirebaserulesReleaseUpdate,
 		Delete: resourceFirebaserulesReleaseDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -48,6 +49,7 @@ func ResourceFirebaserulesRelease() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -92,6 +94,9 @@ func ResourceFirebaserulesRelease() *schema.Resource {
 				Computed:    true,
 				Description: "Output only. Time the release was updated.",
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 	}
 }
@@ -200,10 +205,29 @@ func resourceFirebaserulesReleaseRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("error setting update_time in state: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
+// UDP update start
+func resourceFirebaserulesReleaseUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceFirebaserulesReleaseRead(d, meta)
+}
+
+//UDP update end
+
 func resourceFirebaserulesReleaseDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {

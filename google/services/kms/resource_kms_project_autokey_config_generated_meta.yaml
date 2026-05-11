@@ -9,3 +9,5 @@ api_resource_type_kind: ProjectAutokeyConfig
 fields:
     - api_field: etag
     - api_field: keyProjectResolutionMode
+    - field: deletion_policy
+      provider_only: true

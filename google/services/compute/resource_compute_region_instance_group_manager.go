@@ -50,6 +50,7 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderRegion,
 			customdiff.ForceNewIfChange("resource_policies.0.workload_policy", ForceNewResourcePoliciesWorkloadPolicyIfNewIsEmpty),
@@ -657,6 +658,9 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -948,10 +952,19 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 		}
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceComputeRegionInstanceGroupManager) {
+		return ResourceComputeRegionInstanceGroupManager().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -1130,6 +1143,13 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 }
 
 func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)

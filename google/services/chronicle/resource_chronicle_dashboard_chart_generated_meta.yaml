@@ -147,3 +147,5 @@ fields:
     - api_field: name
     - field: native_dashboard
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

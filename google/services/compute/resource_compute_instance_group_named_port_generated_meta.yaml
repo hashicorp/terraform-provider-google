@@ -17,3 +17,5 @@ fields:
       field: port
     - field: zone
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

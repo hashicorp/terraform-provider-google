@@ -362,6 +362,12 @@ The following arguments are supported:
   The name of the parent this tag is attached to. This can be the name of an entry or an entry group. If an entry group, the tag will be attached to
   all entries in that group.
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
+	When a 'terraform destroy' or 'terraform apply' would delete the resource,
+	the command will fail if this field is set to "PREVENT" in Terraform state.
+	When set to "ABANDON", the command will remove the resource from Terraform
+	management without updating or deleting the resource in the API.
+	When set to "DELETE", deleting the resource is allowed.
 
 
 <a name="nested_fields"></a>The `fields` block supports:

@@ -39,3 +39,5 @@ fields:
       field: text_to_speech_settings.synthesize_speech_configs.voice.ssml_gender
     - api_field: textToSpeechSettings.synthesizeSpeechConfigs.value.volumeGainDb
       field: text_to_speech_settings.synthesize_speech_configs.volume_gain_db
+    - field: deletion_policy
+      provider_only: true

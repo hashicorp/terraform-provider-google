@@ -27,3 +27,5 @@ fields:
     - api_field: schema.identifier-field-ids
     - api_field: schema.schema-id
     - api_field: schema.type
+    - field: deletion_policy
+      provider_only: true

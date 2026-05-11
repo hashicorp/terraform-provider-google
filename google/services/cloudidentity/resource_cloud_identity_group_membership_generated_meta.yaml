@@ -19,3 +19,5 @@ fields:
     - api_field: roles.name
     - api_field: type
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

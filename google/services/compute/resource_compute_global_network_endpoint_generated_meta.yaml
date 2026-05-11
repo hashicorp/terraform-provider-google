@@ -12,3 +12,5 @@ fields:
       provider_only: true
     - api_field: ipAddress
     - api_field: port
+    - field: deletion_policy
+      provider_only: true

@@ -70,6 +70,7 @@ func ResourceBigtableInstance() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 			resourceBigtableInstanceClusterReorderTypeList,
 			resourceBigtableInstanceUniqueClusterID,
@@ -240,7 +241,9 @@ func ResourceBigtableInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
-
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 			"tags": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -409,10 +412,19 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceBigtableInstance) {
+		return ResourceBigtableInstance().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -480,6 +492,13 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Deleting BigTable instance %q", d.Id())
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("cannot destroy instance without setting deletion_protection=false and running `terraform apply`")
 	}

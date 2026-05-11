@@ -21,3 +21,6 @@ fields:
   - field: 'location'
   - api_field: 'name'
   - api_field: 'retentionDays'
+  - field: 'deletion_policy'
+    provider_only: true
+    

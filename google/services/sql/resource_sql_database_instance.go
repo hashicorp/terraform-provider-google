@@ -249,6 +249,7 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 			pitrSupportDbCustomizeDiff,
 			nodeCountCustomDiff,
 			autoUpgradeEnabledCustomizeDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -1492,6 +1493,9 @@ API (for read pools, effective_availability_type may differ from availability_ty
 					},
 				},
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -2413,6 +2417,10 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(instance.Name)
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -2425,6 +2433,11 @@ const (
 )
 
 func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceSqlDatabaseInstance) {
+		return ResourceSqlDatabaseInstance().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -2918,6 +2931,13 @@ func serverCertificateRotationModeDiffSuppress(_, oldMode, newMode string, _ *sc
 }
 
 func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

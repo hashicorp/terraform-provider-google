@@ -20,8 +20,6 @@ fields:
     - api_field: compilationState
     - api_field: createTime
     - api_field: dataTables
-    - field: deletion_policy
-      provider_only: true
     - api_field: displayName
     - api_field: etag
     - field: instance
@@ -39,3 +37,5 @@ fields:
     - api_field: severity.displayName
     - api_field: text
     - api_field: type
+    - field: deletion_policy
+      provider_only: true

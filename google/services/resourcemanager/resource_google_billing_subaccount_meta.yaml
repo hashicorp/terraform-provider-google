@@ -8,7 +8,9 @@ api_resource_type_kind: 'BillingAccount'
 fields:
   - field: 'billing_account_id'
   - field: 'deletion_policy'
+    provider_only: true
   - api_field: 'displayName'
   - api_field: 'masterBillingAccount'
   - api_field: 'name'
   - api_field: 'open'
+  

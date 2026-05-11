@@ -107,6 +107,9 @@ func ResourceGkeHubFeatureMembership() *schema.Resource {
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      "The project of the feature",
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 	}
 }
@@ -903,9 +906,18 @@ func resourceGkeHubFeatureMembershipRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("error setting project in state: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 func resourceGkeHubFeatureMembershipUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceGkeHubFeatureMembership) {
+		return ResourceGkeHubFeatureMembership().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
@@ -963,6 +975,13 @@ func resourceGkeHubFeatureMembershipUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceGkeHubFeatureMembershipDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {

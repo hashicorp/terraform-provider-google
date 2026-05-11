@@ -155,3 +155,5 @@ fields:
     - api_field: targetResource.gcpResource.gcpResourcename
     - api_field: targetResource.gcpResource.location
     - api_field: targetResource.gcpResource.type
+    - field: deletion_policy
+      provider_only: true

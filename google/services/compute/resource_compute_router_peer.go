@@ -66,6 +66,7 @@ func ResourceComputeRouterBgpPeer() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -388,6 +389,9 @@ Must be unique within a router. Must be referenced by exactly one bgpPeer. Must 
 					},
 				},
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -785,10 +789,19 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceComputeRouterBgpPeer) {
+		return ResourceComputeRouterBgpPeer().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -1019,6 +1032,13 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeRouterBgpPeerDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

@@ -157,6 +157,7 @@ func ResourceDatastreamPrivateConnection() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderDeletionPolicy("FORCE"),
 		),
 
 		Identity: &schema.ResourceIdentity{
@@ -312,20 +313,17 @@ Format: projects/{project}/global/{networks}/{name}`,
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
-			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `The deletion policy for the private connection. Setting 'FORCE' will also delete any child
-routes that belong to this private connection. Setting 'DEFAULT' will fail the delete if
-child routes exist. Defaults to 'FORCE' for backwards compatibility.
-Possible values: 'DEFAULT', 'FORCE'.`,
-				Default: "FORCE",
-			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"deletion_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `This field uses a custom implementation please refer to documentation under /hashicorp/terraform-provider-google-beta/website/docs/r/datastream_private_connection.html.markdown for specifics`,
 			},
 		},
 		UseJSONNumber: true,
@@ -488,8 +486,15 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
-		if err := d.Set("deletion_policy", "FORCE"); err != nil {
-			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		//prioritize config's value if present
+		if config.DeletionPolicy != "" {
+			if err := d.Set("deletion_policy", config.DeletionPolicy); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		} else {
+			if err := d.Set("deletion_policy", "FORCE"); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
 		}
 	}
 	if err := d.Set("project", project); err != nil {
@@ -529,11 +534,18 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 }
 
 func resourceDatastreamPrivateConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "labels", "terraform_labels", and virtual fields are mutable
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
 	return resourceDatastreamPrivateConnectionRead(d, meta)
 }
 
 func resourceDatastreamPrivateConnectionDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy DatastreamPrivateConnection without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing PrivateConnection %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -613,9 +625,6 @@ func resourceDatastreamPrivateConnectionImport(d *schema.ResourceData, meta inte
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	if err := d.Set("deletion_policy", "FORCE"); err != nil {
-		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
-	}
 	if err := waitForPrivateConnectionReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
 		return nil, fmt.Errorf("Error waiting for PrivateConnection %q to be CREATED during importing: %q", d.Get("name").(string), err)
 	}

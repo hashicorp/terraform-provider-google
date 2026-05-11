@@ -89,6 +89,12 @@ The following arguments are supported:
   It must be unique within a KeyRing and match the regular expression [a-zA-Z0-9_-]{1,63}
 
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
+	When a 'terraform destroy' or 'terraform apply' would delete the resource,
+	the command will fail if this field is set to "PREVENT" in Terraform state.
+	When set to "ABANDON", the command will remove the resource from Terraform
+	management without updating or deleting the resource in the API.
+	When set to "DELETE", deleting the resource is allowed.
 
 
 ## Attributes Reference

@@ -37,3 +37,5 @@ fields:
       field: vector_schema.dense_vector.vertex_embedding_config.text_template
     - api_field: vectorSchema.value.sparseVector
       field: vector_schema.sparse_vector
+    - field: deletion_policy
+      provider_only: true

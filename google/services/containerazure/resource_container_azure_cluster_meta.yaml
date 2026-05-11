@@ -47,3 +47,5 @@ fields:
   - api_field: 'workloadIdentityConfig.identityProvider'
   - api_field: 'workloadIdentityConfig.issuerUri'
   - api_field: 'workloadIdentityConfig.workloadPool'
+  - field: 'deletion_policy'
+    provider_only: true

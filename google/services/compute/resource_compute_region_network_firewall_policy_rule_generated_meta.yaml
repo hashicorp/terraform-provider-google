@@ -79,3 +79,5 @@ fields:
       field: target_type
     - api_field: rules.tlsInspect
       field: tls_inspect
+    - field: deletion_policy
+      provider_only: true

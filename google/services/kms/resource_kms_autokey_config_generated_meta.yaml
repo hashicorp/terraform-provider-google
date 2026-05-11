@@ -12,3 +12,5 @@ fields:
       provider_only: true
     - api_field: keyProject
     - api_field: keyProjectResolutionMode
+    - field: deletion_policy
+      provider_only: true

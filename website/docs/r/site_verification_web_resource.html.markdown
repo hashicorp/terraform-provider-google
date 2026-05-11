@@ -84,6 +84,12 @@ The following arguments are supported:
   Possible values are: `ANALYTICS`, `DNS_CNAME`, `DNS_TXT`, `FILE`, `META`, `TAG_MANAGER`.
 
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
+	When a 'terraform destroy' or 'terraform apply' would delete the resource,
+	the command will fail if this field is set to "PREVENT" in Terraform state.
+	When set to "ABANDON", the command will remove the resource from Terraform
+	management without updating or deleting the resource in the API.
+	When set to "DELETE", deleting the resource is allowed.
 
 
 <a name="nested_site"></a>The `site` block supports:

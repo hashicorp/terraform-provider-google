@@ -53,6 +53,7 @@ func ResourceClouddeployTarget() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 			tpgresource.SetLabelsDiff,
 			tpgresource.SetAnnotationsDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -220,6 +221,9 @@ func ResourceClouddeployTarget() *schema.Resource {
 				Computed:    true,
 				Description: "Output only. Most recent time at which the `Target` was updated.",
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 	}
 }
@@ -661,9 +665,18 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("error setting update_time in state: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 func resourceClouddeployTargetUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceClouddeployTarget) {
+		return ResourceClouddeployTarget().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
@@ -721,6 +734,13 @@ func resourceClouddeployTargetUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceClouddeployTargetDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {

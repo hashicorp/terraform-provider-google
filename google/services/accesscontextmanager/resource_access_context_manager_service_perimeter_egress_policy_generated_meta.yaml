@@ -37,3 +37,5 @@ fields:
       provider_only: true
     - api_field: status.egressPolicies.title
       field: title
+    - field: deletion_policy
+      provider_only: true

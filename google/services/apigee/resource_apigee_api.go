@@ -50,6 +50,7 @@ func ResourceApigeeApi() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			/*
 				If any of the config_bundle, detect_md5hash or md5hash is changed,
 				then an update is expected, so we tell Terraform core to expect update on meta_data,
@@ -149,6 +150,9 @@ func ResourceApigeeApi() *schema.Resource {
 					return true
 				},
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -222,6 +226,11 @@ func resourceApigeeApiCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceApigeeApiUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceApigeeApi) {
+		return ResourceApigeeApi().Read(d, meta)
+	}
+
 	//For how API proxy api is implemented, just treat an update as create, when the name is same, it will create a new revision
 	return resourceApigeeApiCreate(d, meta)
 }
@@ -278,6 +287,11 @@ func resourceApigeeApiRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("md5hash", "UNKNOWN")
 		d.Set("detect_md5hash", "UNKNOWN")
 	}
+
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -300,6 +314,13 @@ func getApigeeApiLastModifiedAt(d *schema.ResourceData) string {
 }
 
 func resourceApigeeApiDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

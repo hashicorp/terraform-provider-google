@@ -18,3 +18,5 @@ fields:
     - api_field: selfLinkWithId
     - api_field: sourceType
     - api_field: sources
+    - field: deletion_policy
+      provider_only: true

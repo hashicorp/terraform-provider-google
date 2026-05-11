@@ -19,3 +19,5 @@ fields:
     - api_field: name
     - api_field: principal
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

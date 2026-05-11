@@ -115,6 +115,7 @@ func ResourceComputeFirewallPolicy() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -172,6 +173,19 @@ Specifically, the name must be 1-63 characters long and match the regular expres
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Server-defined URL for this resource with the resource id.`,
+			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
 			},
 		},
 		UseJSONNumber: true,
@@ -317,6 +331,20 @@ func resourceComputeFirewallPolicyRead(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Finished reading ComputeFirewallPolicy %q: %#v", d.Id(), res)
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		//prioritize config's value if present
+		if config.DeletionPolicy != "" {
+			if err := d.Set("deletion_policy", config.DeletionPolicy); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		} else {
+			if err := d.Set("deletion_policy", "DELETE"); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		}
+	}
+
 	err = ResourceComputeFirewallPolicyFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
 	if err != nil {
 		return err
@@ -326,6 +354,19 @@ func resourceComputeFirewallPolicyRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeFirewallPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceComputeFirewallPolicy().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceComputeFirewallPolicyRead(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -391,6 +432,13 @@ func resourceComputeFirewallPolicyUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeFirewallPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy ComputeFirewallPolicy without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing FirewallPolicy %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

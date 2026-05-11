@@ -124,9 +124,16 @@ The following arguments are supported:
 If deletion_policy = "FORCE", any retrohunts and any detections associated with the rule
 will also be deleted. If deletion_policy = "DEFAULT", the call will only succeed if the
 rule has no associated retrohunts, including completed retrohunts, and no
-associated detections. Regardless of this field's value, the rule
-deployment associated with this rule will also be deleted.
-Possible values: DEFAULT, FORCE
+associated detections. Regardless of being set to "FORCE" the rule
+deployment associated with this rule will also be deleted if deletion is successful.
+
+When a 'terraform destroy' or 'terraform apply' would delete the resource,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", the command will behave as if set to "DEFAULT".
+
+Possible values: DEFAULT, FORCE, PREVENT, ABANDON, DELETE
 
 
 

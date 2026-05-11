@@ -8,8 +8,6 @@ api_version: v1
 api_resource_type_kind: ReasoningEngine
 fields:
     - api_field: createTime
-    - field: deletion_policy
-      provider_only: true
     - api_field: description
     - api_field: displayName
     - field: effective_labels
@@ -55,3 +53,5 @@ fields:
     - field: terraform_labels
       provider_only: true
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

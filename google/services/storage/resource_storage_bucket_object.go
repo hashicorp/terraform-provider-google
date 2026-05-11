@@ -32,7 +32,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"crypto/sha256"
 	"encoding/base64"
@@ -52,6 +51,7 @@ func ResourceStorageBucketObject() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			resourceStorageBucketObjectCustomizeDiff,
 			validateContexts,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -368,12 +368,9 @@ func ResourceStorageBucketObject() *schema.Resource {
 				Description: `A url reference to download this object.`,
 			},
 
-			"deletion_policy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Description:  `The deletion policy for the object. Setting ABANDON allows the resource to be abandoned rather than deleted when removed from your Terraform configuration.`,
-				ValidateFunc: validation.StringInSlice([]string{"ABANDON"}, false),
-			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -481,6 +478,11 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceStorageBucketObjectUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceStorageBucketObject) {
+		return ResourceStorageBucketObject().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -638,12 +640,23 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Contexts: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	d.SetId(objectGetID(res))
 
 	return nil
 }
 
 func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

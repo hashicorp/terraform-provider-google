@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/logging/v2"
 )
@@ -116,6 +118,10 @@ func resourceLoggingSinkSchema() map[string]*schema.Schema {
 				},
 			},
 		},
+
+		//UDP schema start
+		"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+		//UDP schema end
 	}
 }
 

@@ -238,6 +238,7 @@ func ResourceContainerCluster() *schema.Resource {
 		Delete:        resourceContainerClusterDelete,
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			resourceNodeConfigEmptyGuestAccelerator,
 			customdiff.ForceNewIfChange("enable_l4_ilb_subsetting", isBeenEnabled),
 			customdiff.ForceNewIfChange("enable_fqdn_network_policy", isBeenEnabled),
@@ -2583,6 +2584,9 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 	}
 }
@@ -3509,10 +3513,19 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceContainerCluster) {
+		return ResourceContainerCluster().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -5154,6 +5167,13 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("Cannot destroy cluster because deletion_protection is set to true. Set it to false to proceed with cluster deletion.")
 	}

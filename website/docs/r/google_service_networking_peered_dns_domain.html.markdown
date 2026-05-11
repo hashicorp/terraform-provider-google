@@ -52,6 +52,13 @@ The following arguments are supported:
 
 * `service` - (Optional) Private service connection between service and consumer network, defaults to `servicenetworking.googleapis.com`
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "ABANDON", the command will remove the resource from Terraform
+    management without updating or deleting the resource in the API.
+    When set to "DELETE", deleting the resource is allowed.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

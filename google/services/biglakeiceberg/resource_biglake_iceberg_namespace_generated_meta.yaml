@@ -12,3 +12,5 @@ fields:
     - api_field: namespace
       field: namespace_id
     - api_field: properties
+    - field: deletion_policy
+      provider_only: true

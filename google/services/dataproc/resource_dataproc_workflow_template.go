@@ -48,6 +48,7 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{
@@ -163,6 +164,9 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 				Computed:    true,
 				Description: "Output only. The time template was last updated.",
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 	}
 }
@@ -2261,6 +2265,10 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("error setting update_time in state: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 func resourceDataprocWorkflowTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -2270,6 +2278,13 @@ func resourceDataprocWorkflowTemplateUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceDataprocWorkflowTemplateDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {

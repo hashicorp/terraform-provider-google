@@ -23,3 +23,6 @@ fields:
   - api_field: 'name'
   - field: 'project'
   - api_field: 'retentionDays'
+  - field: 'deletion_policy'
+    provider_only: true
+    

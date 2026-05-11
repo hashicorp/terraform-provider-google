@@ -81,3 +81,5 @@ fields:
       field: redirect_options.type
     - field: security_policy
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

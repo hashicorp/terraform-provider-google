@@ -49,6 +49,7 @@ func ResourceComputeProjectMetadataItem() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -71,6 +72,9 @@ func ResourceComputeProjectMetadataItem() *schema.Resource {
 				ForceNew:    true,
 				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -142,10 +146,19 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error setting value: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceComputeProjectMetadataItem) {
+		return ResourceComputeProjectMetadataItem().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -170,6 +183,13 @@ func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

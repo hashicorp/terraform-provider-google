@@ -49,3 +49,5 @@ fields:
     - api_field: status.lastAttempt.error.errors.location
     - api_field: status.lastAttempt.error.errors.message
     - api_field: zone
+    - field: deletion_policy
+      provider_only: true

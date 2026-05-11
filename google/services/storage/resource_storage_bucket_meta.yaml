@@ -100,3 +100,5 @@ fields:
   - api_field: 'versioning.enabled'
   - api_field: 'website.mainPageSuffix'
   - api_field: 'website.notFoundPage'
+  - field: 'deletion_policy'
+    provider_only: true

@@ -129,6 +129,12 @@ The following arguments are supported:
   EntityType.excluded_phrases.value
   If not specified, the agent's default language is used. Many languages are supported. Note: languages must be enabled in the agent before they can be used.
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
+	When a 'terraform destroy' or 'terraform apply' would delete the resource,
+	the command will fail if this field is set to "PREVENT" in Terraform state.
+	When set to "ABANDON", the command will remove the resource from Terraform
+	management without updating or deleting the resource in the API.
+	When set to "DELETE", deleting the resource is allowed.
 
 
 <a name="nested_entities"></a>The `entities` block supports:

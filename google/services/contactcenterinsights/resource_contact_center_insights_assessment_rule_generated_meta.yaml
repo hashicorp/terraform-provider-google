@@ -25,3 +25,5 @@ fields:
     - api_field: scheduleInfo.startTime
     - api_field: scheduleInfo.timeZone
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

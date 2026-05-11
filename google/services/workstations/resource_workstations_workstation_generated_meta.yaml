@@ -31,3 +31,5 @@ fields:
       provider_only: true
     - field: workstation_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

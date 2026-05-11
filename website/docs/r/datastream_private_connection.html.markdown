@@ -176,7 +176,12 @@ The following arguments are supported:
 * `deletion_policy` - (Optional) The deletion policy for the private connection. Setting `FORCE` will also delete any child
 routes that belong to this private connection. Setting `DEFAULT` will fail the delete if
 child routes exist. Defaults to `FORCE` for backwards compatibility.
-Possible values: `DEFAULT`, `FORCE`.
+
+When a 'terraform destroy' or 'terraform apply' would delete the resource,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", the command will behave as if set to "DEFAULT".
 
 
 

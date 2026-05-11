@@ -115,6 +115,7 @@ func ResourceLookerInstance() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderDeletionPolicy("DEFAULT"),
 		),
 
 		Identity: &schema.ResourceIdentity{
@@ -679,20 +680,17 @@ accurate to nanoseconds.`,
 				Description: `The time the instance was updated in RFC3339 UTC "Zulu" format,
 accurate to nanoseconds.`,
 			},
-			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `Policy to determine if the cluster should be deleted forcefully.
-If setting deletion_policy = "FORCE", the Looker instance will be deleted regardless
-of its nested resources. If set to "DEFAULT", Looker instances that still have
-nested resources will return an error. Possible values: DEFAULT, FORCE`,
-				Default: "DEFAULT",
-			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"deletion_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `This field uses a custom implementation please refer to documentation under /hashicorp/terraform-provider-google-beta/website/docs/r/looker_instance.html.markdown for specifics`,
 			},
 		},
 		UseJSONNumber: true,
@@ -943,8 +941,15 @@ func resourceLookerInstanceRead(d *schema.ResourceData, meta interface{}) error 
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
-		if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
-			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		//prioritize config's value if present
+		if config.DeletionPolicy != "" {
+			if err := d.Set("deletion_policy", config.DeletionPolicy); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		} else {
+			if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
 		}
 	}
 	if err := d.Set("project", project); err != nil {
@@ -984,6 +989,19 @@ func resourceLookerInstanceRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceLookerInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceLookerInstance().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceLookerInstanceRead(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -1255,6 +1273,13 @@ func resourceLookerInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceLookerInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy LookerInstance without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Instance %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -1333,9 +1358,6 @@ func resourceLookerInstanceImport(d *schema.ResourceData, meta interface{}) ([]*
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
-		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
-	}
 
 	return []*schema.ResourceData{d}, nil
 }

@@ -107,7 +107,7 @@ func flattenGoogleServiceAccountListItem(res map[string]interface{}, d *schema.R
 		return err
 	}
 	d.SetId(sa.Name)
-	return populateResourceData(d, &sa)
+	return populateResourceData(d, &sa, config)
 }
 
 func ListServiceAccounts(config *transport_tpg.Config, project string, callback func(rd *schema.ResourceData) error) error {

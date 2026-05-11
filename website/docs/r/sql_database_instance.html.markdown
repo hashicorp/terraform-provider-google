@@ -434,6 +434,13 @@ includes an up-to-date reference of supported versions.
     **NOTE:** Restoring from a backup is an imperative action and not recommended via Terraform. Adding or modifying this
     block during resource creation/update will trigger the restore action after the resource is created/updated.
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "ABANDON", the command will remove the resource from Terraform
+    management without updating or deleting the resource in the API.
+    When set to "DELETE", deleting the resource is allowed.
+    
 The `settings` block supports:
 
 * `tier` - (Required) The machine type to use. See [tiers](https://cloud.google.com/sql/docs/admin-api/v1beta4/tiers)

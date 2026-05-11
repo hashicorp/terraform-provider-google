@@ -40,7 +40,13 @@ resource "google_billing_subaccount" "subaccount" {
 
 * `deletion_policy` (Optional) - If set to "RENAME_ON_DESTROY" the billing account display_name
   will be changed to "Terraform Destroyed" along with a timestamp.  If set to "" this will not occur.
-  Default is "".
+  When a 'terraform destroy' or 'terraform apply' would delete the resource,
+  the command will fail if this field is set to "PREVENT" in Terraform state.
+  When set to "ABANDON", the command will remove the resource from Terraform
+  management without updating or deleting the resource in the API.
+  When set to "DELETE", the command will behave as if set to "".
+
+  Possible values: RENAME_ON_DESTROY, PREVENT, ABANDON, DELETE.
 
 ## Attributes Reference
 
