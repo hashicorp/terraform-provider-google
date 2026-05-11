@@ -1,0 +1,65 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_chronicle_native_dashboard
+generation_type: mmv1
+source_file: products/chronicle/NativeDashboard.yaml
+api_service_name: chronicle.googleapis.com
+api_version: v1
+api_resource_type_kind: NativeDashboard
+autogen_status: true
+fields:
+    - api_field: access
+    - api_field: definition.charts.chartLayout.spanX
+      field: charts.chart_layout.span_x
+    - api_field: definition.charts.chartLayout.spanY
+      field: charts.chart_layout.span_y
+    - api_field: definition.charts.chartLayout.startX
+      field: charts.chart_layout.start_x
+    - api_field: definition.charts.chartLayout.startY
+      field: charts.chart_layout.start_y
+    - api_field: definition.charts.dashboardChart
+      field: charts.dashboard_chart
+    - api_field: definition.charts.filtersIds
+      field: charts.filters_ids
+    - api_field: createTime
+    - api_field: createUserId
+    - api_field: dashboardId
+    - api_field: description
+    - api_field: displayName
+    - api_field: etag
+    - api_field: definition.filters.chartIds
+      field: filters.chart_ids
+    - api_field: definition.filters.dataSource
+      field: filters.data_source
+    - api_field: definition.filters.displayName
+      field: filters.display_name
+    - api_field: definition.filters.fieldPath
+      field: filters.field_path
+    - api_field: definition.filters.filterOperatorAndFieldValues.fieldValues
+      field: filters.filter_operator_and_field_values.field_values
+    - api_field: definition.filters.filterOperatorAndFieldValues.filterOperator
+      field: filters.filter_operator_and_field_values.filter_operator
+    - api_field: definition.filters.id
+      field: filters.id
+    - api_field: definition.filters.isMandatory
+      field: filters.is_mandatory
+    - api_field: definition.filters.isStandardTimeRangeFilter
+      field: filters.is_standard_time_range_filter
+    - api_field: definition.filters.isStandardTimeRangeFilterEnabled
+      field: filters.is_standard_time_range_filter_enabled
+    - api_field: definition.fingerprint
+      field: fingerprint
+    - field: instance
+      provider_only: true
+    - api_field: dashboardUserData.isPinned
+      field: is_pinned
+    - api_field: dashboardUserData.lastViewedTime
+      field: last_viewed_time
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: type
+    - api_field: updateTime
+    - api_field: updateUserId
+    - field: deletion_policy
+      provider_only: true
