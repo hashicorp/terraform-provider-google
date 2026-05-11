@@ -178,6 +178,9 @@ func testAccCheckChronicleRuleDestroyProducer(t *testing.T) func(s *terraform.St
 				continue
 			}
 
+			// Delete is eventually-consistent; wait for a moment.
+			time.Sleep(10 * time.Second)
+
 			config := acctest.GoogleProviderConfig(t)
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(chronicle.Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule_id}}"))
 			if err != nil {
