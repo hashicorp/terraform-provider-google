@@ -20,22 +20,22 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	compute_tpg "github.com/hashicorp/terraform-provider-google/google/services/compute"
-	"github.com/hashicorp/terraform-provider-google/google/services/tags"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
-	"google.golang.org/api/compute/v1"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccComputeNetwork_explicitAutoSubnet(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-test-network-basic-%s", suffixName)
 
@@ -65,7 +65,7 @@ func TestAccComputeNetwork_explicitAutoSubnet(t *testing.T) {
 func TestAccComputeNetwork_customSubnet(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-test-network-custom-sn-%s", suffixName)
 
@@ -95,7 +95,7 @@ func TestAccComputeNetwork_customSubnet(t *testing.T) {
 func TestAccComputeNetwork_mtuAndUpdate(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-test-network-routing-mode-%s", suffixName)
 
@@ -130,7 +130,7 @@ func TestAccComputeNetwork_mtuAndUpdate(t *testing.T) {
 func TestAccComputeNetwork_routingModeAndUpdate(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-test-network-routing-mode-%s", suffixName)
 
@@ -165,7 +165,7 @@ func TestAccComputeNetwork_routingModeAndUpdate(t *testing.T) {
 func TestAccComputeNetwork_bgpBestPathSelectionModeAndUpdate(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-best-bgp-path-selection-mode-%s", suffixName)
 
@@ -199,7 +199,7 @@ func TestAccComputeNetwork_bgpBestPathSelectionModeAndUpdate(t *testing.T) {
 func TestAccComputeNetwork_bgpAlwaysCompareMedAndUpdate(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-bgp-always-compare-med-%s", suffixName)
 
@@ -240,7 +240,7 @@ func TestAccComputeNetwork_bgpAlwaysCompareMedAndUpdate(t *testing.T) {
 func TestAccComputeNetwork_bgpInterRegionCostAndUpdate(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-bgp-inter-region-cost-%s", suffixName)
 
@@ -273,7 +273,7 @@ func TestAccComputeNetwork_bgpInterRegionCostAndUpdate(t *testing.T) {
 func TestAccComputeNetwork_networkProfile(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-test-network-profile-%s", suffixName)
 	projectId := envvar.GetTestProjectFromEnv()
@@ -373,7 +373,7 @@ func TestAccComputeNetwork_numericId(t *testing.T) {
 func TestAccComputeNetwork_default_routing_mode(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-test-network-network-default-routes-%s", suffixName)
 
@@ -400,7 +400,7 @@ func TestAccComputeNetwork_default_routing_mode(t *testing.T) {
 func TestAccComputeNetwork_default_bgp_best_path_selection_mode(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-test-bgp-best-path-selection-default-routes-%s", suffixName)
 
@@ -426,7 +426,7 @@ func TestAccComputeNetwork_default_bgp_best_path_selection_mode(t *testing.T) {
 func TestAccComputeNetwork_default_bgp_always_compare_med(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-test-bgp-always-compare-med-default-routes-%s", suffixName)
 
@@ -452,7 +452,7 @@ func TestAccComputeNetwork_default_bgp_always_compare_med(t *testing.T) {
 func TestAccComputeNetwork_networkDeleteDefaultRoute(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-test-network-network-default-routes-%s", suffixName)
 
@@ -477,8 +477,8 @@ func TestAccComputeNetwork_networkDeleteDefaultRoute(t *testing.T) {
 func TestAccComputeNetwork_networkFirewallPolicyEnforcementOrderAndUpdate(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
-	var updatedNetwork compute.Network
+	var network map[string]interface{}
+	var updatedNetwork map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-test-network-firewall-policy-enforcement-order-%s", suffixName)
 
@@ -530,7 +530,7 @@ func TestAccComputeNetwork_resourceManagerTags(t *testing.T) {
 
 	t.Parallel()
 
-	var network compute.Network
+	var network map[string]interface{}
 	org := envvar.GetTestOrgFromEnv(t)
 
 	suffixName := acctest.RandString(t, 10)
@@ -560,7 +560,7 @@ func TestAccComputeNetwork_resourceManagerTags(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeNetworkExists(t *testing.T, n string, network *compute.Network) resource.TestCheckFunc {
+func testAccCheckComputeNetworkExists(t *testing.T, n string, network *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -573,23 +573,30 @@ func testAccCheckComputeNetworkExists(t *testing.T, n string, network *compute.N
 
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
-			config.Project, rs.Primary.Attributes["name"]).Do()
+		url := fmt.Sprintf("%sprojects/%s/global/networks/%s",
+			transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["name"])
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.Attributes["name"] {
+		if found["name"].(string) != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("Network not found")
 		}
 
-		*network = *found
+		*network = found
 
 		return nil
 	}
 }
 
-func testAccCheckComputeNetworkDefaultRoutesDeleted(t *testing.T, n string, network *compute.Network) resource.TestCheckFunc {
+func testAccCheckComputeNetworkDefaultRoutesDeleted(t *testing.T, n string, network *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -602,12 +609,26 @@ func testAccCheckComputeNetworkDefaultRoutesDeleted(t *testing.T, n string, netw
 
 		config := acctest.GoogleProviderConfig(t)
 
-		routes, err := compute_tpg.NewClient(config, config.UserAgent).Routes.List(config.Project).Filter(fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", network.SelfLink)).Do()
+		selfLink, _ := (*network)["selfLink"].(string)
+		url := fmt.Sprintf("%sprojects/%s/global/routes", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project)
+		url, err := transport_tpg.AddQueryParams(url, map[string]string{
+			"filter": fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", selfLink),
+		})
+		if err != nil {
+			return err
+		}
+		routes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		if len(routes.Items) > 0 {
+		if items, ok := routes["items"].([]interface{}); ok && len(items) > 0 {
 			return fmt.Errorf("Default routes were not deleted")
 		}
 
@@ -615,21 +636,31 @@ func testAccCheckComputeNetworkDefaultRoutesDeleted(t *testing.T, n string, netw
 	}
 }
 
-func testAccCheckComputeNetworkIsAutoSubnet(t *testing.T, n string, network *compute.Network) resource.TestCheckFunc {
+func testAccCheckComputeNetworkIsAutoSubnet(t *testing.T, n string, network *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
-			config.Project, network.Name).Do()
+		networkName, _ := (*network)["name"].(string)
+		url := fmt.Sprintf("%sprojects/%s/global/networks/%s",
+			transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, networkName)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		if !found.AutoCreateSubnetworks {
+		autoCreate, _ := found["autoCreateSubnetworks"].(bool)
+		if !autoCreate {
 			return fmt.Errorf("should have AutoCreateSubnetworks = true")
 		}
 
-		if found.IPv4Range != "" {
+		ipv4Range, _ := found["ipv4Range"].(string)
+		if ipv4Range != "" {
 			return fmt.Errorf("should not have IPv4Range")
 		}
 
@@ -637,21 +668,31 @@ func testAccCheckComputeNetworkIsAutoSubnet(t *testing.T, n string, network *com
 	}
 }
 
-func testAccCheckComputeNetworkIsCustomSubnet(t *testing.T, n string, network *compute.Network) resource.TestCheckFunc {
+func testAccCheckComputeNetworkIsCustomSubnet(t *testing.T, n string, network *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
-			config.Project, network.Name).Do()
+		networkName, _ := (*network)["name"].(string)
+		url := fmt.Sprintf("%sprojects/%s/global/networks/%s",
+			transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, networkName)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		if found.AutoCreateSubnetworks {
+		autoCreate, _ := found["autoCreateSubnetworks"].(bool)
+		if autoCreate {
 			return fmt.Errorf("should have AutoCreateSubnetworks = false")
 		}
 
-		if found.IPv4Range != "" {
+		ipv4Range, _ := found["ipv4Range"].(string)
+		if ipv4Range != "" {
 			return fmt.Errorf("should not have IPv4Range")
 		}
 
@@ -659,21 +700,31 @@ func testAccCheckComputeNetworkIsCustomSubnet(t *testing.T, n string, network *c
 	}
 }
 
-func testAccCheckComputeNetworkIsUlaInternalIpv6Enabled(t *testing.T, n string, network *compute.Network, expectEnabled bool) resource.TestCheckFunc {
+func testAccCheckComputeNetworkIsUlaInternalIpv6Enabled(t *testing.T, n string, network *map[string]interface{}, expectEnabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
-			config.Project, network.Name).Do()
+		networkName, _ := (*network)["name"].(string)
+		url := fmt.Sprintf("%sprojects/%s/global/networks/%s",
+			transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, networkName)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		if found.EnableUlaInternalIpv6 != expectEnabled {
+		enableUla, _ := found["enableUlaInternalIpv6"].(bool)
+		if enableUla != expectEnabled {
 			return fmt.Errorf("does not match expected EnableUlaInternalIpv6 value")
 		}
 
-		if expectEnabled && found.InternalIpv6Range == "" {
+		internalIpv6Range, _ := found["internalIpv6Range"].(string)
+		if expectEnabled && internalIpv6Range == "" {
 			return fmt.Errorf("should have InternalIPv6Range")
 		}
 
@@ -681,7 +732,7 @@ func testAccCheckComputeNetworkIsUlaInternalIpv6Enabled(t *testing.T, n string, 
 	}
 }
 
-func testAccCheckComputeNetworkHasMtu(t *testing.T, n string, network *compute.Network, mtu int32) resource.TestCheckFunc {
+func testAccCheckComputeNetworkHasMtu(t *testing.T, n string, network *map[string]interface{}, mtu int32) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
@@ -694,23 +745,31 @@ func testAccCheckComputeNetworkHasMtu(t *testing.T, n string, network *compute.N
 			return fmt.Errorf("Routing mode not found on resource")
 		}
 
-		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
-			config.Project, network.Name).Do()
+		networkName, _ := (*network)["name"].(string)
+		url := fmt.Sprintf("%sprojects/%s/global/networks/%s",
+			transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, networkName)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		foundMtu := found.Mtu
+		foundMtu, _ := found["mtu"].(float64)
 
-		if int64(mtu) != foundMtu {
-			return fmt.Errorf("Expected mtu %d to match actual routing mode %d", mtu, foundMtu)
+		if float64(mtu) != foundMtu {
+			return fmt.Errorf("Expected mtu %d to match actual routing mode %d", mtu, int64(foundMtu))
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeNetworkHasRoutingMode(t *testing.T, n string, network *compute.Network, routingMode string) resource.TestCheckFunc {
+func testAccCheckComputeNetworkHasRoutingMode(t *testing.T, n string, network *map[string]interface{}, routingMode string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
@@ -723,13 +782,22 @@ func testAccCheckComputeNetworkHasRoutingMode(t *testing.T, n string, network *c
 			return fmt.Errorf("Routing mode not found on resource")
 		}
 
-		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
-			config.Project, network.Name).Do()
+		networkName, _ := (*network)["name"].(string)
+		url := fmt.Sprintf("%sprojects/%s/global/networks/%s",
+			transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, networkName)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		foundRoutingMode := found.RoutingConfig.RoutingMode
+		routingConfig, _ := found["routingConfig"].(map[string]interface{})
+		foundRoutingMode, _ := routingConfig["routingMode"].(string)
 
 		if routingMode != foundRoutingMode {
 			return fmt.Errorf("Expected routing mode %s to match actual routing mode %s", routingMode, foundRoutingMode)
@@ -739,7 +807,7 @@ func testAccCheckComputeNetworkHasRoutingMode(t *testing.T, n string, network *c
 	}
 }
 
-func testAccCheckComputeNetworkHasNetworkProfile(t *testing.T, n string, network *compute.Network, networkProfile string) resource.TestCheckFunc {
+func testAccCheckComputeNetworkHasNetworkProfile(t *testing.T, n string, network *map[string]interface{}, networkProfile string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
@@ -752,13 +820,21 @@ func testAccCheckComputeNetworkHasNetworkProfile(t *testing.T, n string, network
 			return fmt.Errorf("Network profile not found on resource")
 		}
 
-		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
-			config.Project, network.Name).Do()
+		networkName, _ := (*network)["name"].(string)
+		url := fmt.Sprintf("%sprojects/%s/global/networks/%s",
+			transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, networkName)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		foundNetworkProfile := found.NetworkProfile
+		foundNetworkProfile, _ := found["networkProfile"].(string)
 
 		if tpgresource.CompareSelfLinkOrResourceName("", foundNetworkProfile, networkProfile, nil) != true {
 			return fmt.Errorf("Expected Network Profile always compare med %s to match actual Network Profile always compare med %s", networkProfile, foundNetworkProfile)
@@ -768,7 +844,7 @@ func testAccCheckComputeNetworkHasNetworkProfile(t *testing.T, n string, network
 	}
 }
 
-func testAccCheckComputeNetworkHasNetworkFirewallPolicyEnforcementOrder(t *testing.T, n string, network *compute.Network, order string) resource.TestCheckFunc {
+func testAccCheckComputeNetworkHasNetworkFirewallPolicyEnforcementOrder(t *testing.T, n string, network *map[string]interface{}, order string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
@@ -781,13 +857,21 @@ func testAccCheckComputeNetworkHasNetworkFirewallPolicyEnforcementOrder(t *testi
 			return fmt.Errorf("Network firewall policy enforcement order not found on resource")
 		}
 
-		found, err := compute_tpg.NewClient(config, config.UserAgent).Networks.Get(
-			config.Project, network.Name).Do()
+		networkName, _ := (*network)["name"].(string)
+		url := fmt.Sprintf("%sprojects/%s/global/networks/%s",
+			transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, networkName)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		foundNetworkFirewallPolicyEnforcementOrder := found.NetworkFirewallPolicyEnforcementOrder
+		foundNetworkFirewallPolicyEnforcementOrder, _ := found["networkFirewallPolicyEnforcementOrder"].(string)
 
 		if order != foundNetworkFirewallPolicyEnforcementOrder {
 			return fmt.Errorf("Expected network firewall policy enforcement order %s to match %s", order, foundNetworkFirewallPolicyEnforcementOrder)
@@ -797,10 +881,12 @@ func testAccCheckComputeNetworkHasNetworkFirewallPolicyEnforcementOrder(t *testi
 	}
 }
 
-func testAccCheckComputeNetworkWasUpdated(newNetwork *compute.Network, oldNetwork *compute.Network) resource.TestCheckFunc {
+func testAccCheckComputeNetworkWasUpdated(newNetwork *map[string]interface{}, oldNetwork *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if oldNetwork.CreationTimestamp != newNetwork.CreationTimestamp {
-			return fmt.Errorf("expected compute network to have been updated (had same creation time), instead was recreated - old creation time %s, new creation time %s", oldNetwork.CreationTimestamp, newNetwork.CreationTimestamp)
+		oldTs, _ := (*oldNetwork)["creationTimestamp"].(string)
+		newTs, _ := (*newNetwork)["creationTimestamp"].(string)
+		if oldTs != newTs {
+			return fmt.Errorf("expected compute network to have been updated (had same creation time), instead was recreated - old creation time %s, new creation time %s", oldTs, newTs)
 		}
 		return nil
 	}
@@ -882,8 +968,8 @@ func TestAccComputeNetwork_networkBgpStandardModeDeleteMed(t *testing.T) {
 func TestAccComputeNetwork_updateEnableUlaInternalIpv6(t *testing.T) {
 	t.Parallel()
 
-	var network compute.Network
-	var updatedNetwork compute.Network
+	var network, updatedNetwork map[string]interface{}
+
 	suffixName := acctest.RandString(t, 10)
 	networkName := fmt.Sprintf("tf-test-network-enable-ula-%s", suffixName)
 
