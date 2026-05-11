@@ -23,8 +23,6 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
-
-	"bitbucket.org/creachadair/stringset"
 )
 
 // UpdateMask creates a Update Mask string according to https://google.aip.dev/161
@@ -34,11 +32,23 @@ func UpdateMask(ds []*FieldDiff) string {
 		ss = append(ss, convertUpdateMaskVal(v.FieldName))
 	}
 
-	dupesRemoved := stringset.New(ss...).Elements()
+	dupesRemoved := removeDuplicates(ss)
 
 	// Sorting the entries is optional, but makes it easier to read + test.
 	sort.Strings(dupesRemoved)
 	return strings.Join(dupesRemoved, ",")
+}
+
+func removeDuplicates(ss []string) []string {
+	m := make(map[string]struct{})
+	var out []string
+	for _, s := range ss {
+		if _, ok := m[s]; !ok {
+			m[s] = struct{}{}
+			out = append(out, s)
+		}
+	}
+	return out
 }
 
 func titleCaseToCamelCase(s string) string {
@@ -87,7 +97,7 @@ func TopLevelUpdateMask(ds []*FieldDiff) string {
 		ss = append(ss, convertUpdateMaskVal(part))
 	}
 
-	dupesRemoved := stringset.New(ss...).Elements()
+	dupesRemoved := removeDuplicates(ss)
 
 	// Sorting the entries is optional, but makes it easier to read + test.
 	sort.Strings(dupesRemoved)
@@ -100,7 +110,7 @@ func SnakeCaseUpdateMask(ds []*FieldDiff) string {
 	for _, v := range ds {
 		ss = append(ss, TitleToSnakeCase(convertUpdateMaskVal(v.FieldName)))
 	}
-	dupesRemoved := stringset.New(ss...).Elements()
+	dupesRemoved := removeDuplicates(ss)
 
 	// Sorting the entries is optional, but makes it easier to read + test.
 	sort.Strings(dupesRemoved)
