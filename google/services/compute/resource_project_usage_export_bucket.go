@@ -27,8 +27,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
-	"google.golang.org/api/compute/v1"
 )
 
 func ResourceProjectUsageBucket() *schema.Resource {
@@ -91,12 +89,24 @@ func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	p, err := NewClient(config, userAgent).Projects.Get(project).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
+	if err != nil {
+		return err
+	}
+	url = fmt.Sprintf("%sprojects/%s", url, project)
+	p, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project data for project %s", project))
 	}
 
-	if p.UsageExportLocation == nil {
+	usageExportLocation, ok := p["usageExportLocation"].(map[string]interface{})
+	if !ok || usageExportLocation == nil {
 		log.Printf("[WARN] Removing usage export location resource %s because it's not enabled server-side.", project)
 		d.SetId("")
 		return nil
@@ -105,10 +115,10 @@ func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("prefix", p.UsageExportLocation.ReportNamePrefix); err != nil {
+	if err := d.Set("prefix", usageExportLocation["reportNamePrefix"]); err != nil {
 		return fmt.Errorf("Error setting prefix: %s", err)
 	}
-	if err := d.Set("bucket_name", p.UsageExportLocation.BucketName); err != nil {
+	if err := d.Set("bucket_name", usageExportLocation["bucketName"]); err != nil {
 		return fmt.Errorf("Error setting bucket_name: %s", err)
 	}
 
@@ -131,10 +141,25 @@ func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	op, err := NewClient(config, userAgent).Projects.SetUsageExportBucket(project, &compute.UsageExportLocation{
-		ReportNamePrefix: d.Get("prefix").(string),
-		BucketName:       d.Get("bucket_name").(string),
-	}).Do()
+	body := map[string]interface{}{
+		"reportNamePrefix": d.Get("prefix").(string),
+		"bucketName":       d.Get("bucket_name").(string),
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
+	if err != nil {
+		return err
+	}
+	url = fmt.Sprintf("%sprojects/%s/setUsageExportBucket", url, project)
+	op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      body,
+		Timeout:   d.Timeout(schema.TimeoutCreate),
+	})
 	if err != nil {
 		return err
 	}
@@ -179,7 +204,19 @@ func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	op, err := NewClient(config, userAgent).Projects.SetUsageExportBucket(project, nil).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
+	if err != nil {
+		return err
+	}
+	url = fmt.Sprintf("%sprojects/%s/setUsageExportBucket", url, project)
+	op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Timeout:   d.Timeout(schema.TimeoutDelete),
+	})
 	if err != nil {
 		return err
 	}
