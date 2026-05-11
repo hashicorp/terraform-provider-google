@@ -155,31 +155,6 @@ func ResourceDatabaseMigrationServicePrivateConnection() *schema.Resource {
 				ForceNew:    true,
 				Description: `The private connectivity identifier.`,
 			},
-			"vpc_peering_config": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
-				Description: `The VPC Peering configuration is used to create VPC peering
-between databasemigrationservice and the consumer's VPC.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"subnet": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `A free subnet for peering. (CIDR of /29)`,
-						},
-						"vpc_name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-							Description: `Fully qualified name of the VPC that Database Migration Service will peer to.
-Format: projects/{project}/global/{networks}/{name}`,
-						},
-					},
-				},
-			},
 			"create_without_validation": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -202,6 +177,52 @@ Format: projects/{project}/global/{networks}/{name}`,
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"psc_interface_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `The PSC Interface configuration is used to create PSC Interface
+between DMS's internal VPC and the consumer's PSC.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"network_attachment": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Fully qualified name of the Network Attachment that DMS will connect to.
+Format: projects/{project}/regions/{region}/networkAttachments/{name}`,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"vpc_peering_config"},
+			},
+			"vpc_peering_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `The VPC Peering configuration is used to create VPC peering
+between databasemigrationservice and the consumer's VPC.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"subnet": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `A free subnet for peering. (CIDR of /29)`,
+						},
+						"vpc_name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Fully qualified name of the VPC that Database Migration Service will peer to.
+Format: projects/{project}/global/{networks}/{name}`,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"psc_interface_config"},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -289,6 +310,12 @@ func resourceDatabaseMigrationServicePrivateConnectionCreate(d *schema.ResourceD
 		return err
 	} else if v, ok := d.GetOkExists("vpc_peering_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(vpcPeeringConfigProp)) && (ok || !reflect.DeepEqual(v, vpcPeeringConfigProp)) {
 		obj["vpcPeeringConfig"] = vpcPeeringConfigProp
+	}
+	pscInterfaceConfigProp, err := expandDatabaseMigrationServicePrivateConnectionPscInterfaceConfig(d.Get("psc_interface_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("psc_interface_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(pscInterfaceConfigProp)) && (ok || !reflect.DeepEqual(v, pscInterfaceConfigProp)) {
+		obj["pscInterfaceConfig"] = pscInterfaceConfigProp
 	}
 	effectiveLabelsProp, err := expandDatabaseMigrationServicePrivateConnectionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -623,6 +650,23 @@ func flattenDatabaseMigrationServicePrivateConnectionVpcPeeringConfigSubnet(v in
 	return v
 }
 
+func flattenDatabaseMigrationServicePrivateConnectionPscInterfaceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["network_attachment"] =
+		flattenDatabaseMigrationServicePrivateConnectionPscInterfaceConfigNetworkAttachment(original["networkAttachment"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatabaseMigrationServicePrivateConnectionPscInterfaceConfigNetworkAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDatabaseMigrationServicePrivateConnectionTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -683,6 +727,32 @@ func expandDatabaseMigrationServicePrivateConnectionVpcPeeringConfigSubnet(v int
 	return v, nil
 }
 
+func expandDatabaseMigrationServicePrivateConnectionPscInterfaceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedNetworkAttachment, err := expandDatabaseMigrationServicePrivateConnectionPscInterfaceConfigNetworkAttachment(original["network_attachment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetworkAttachment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["networkAttachment"] = transformedNetworkAttachment
+	}
+
+	return transformed, nil
+}
+
+func expandDatabaseMigrationServicePrivateConnectionPscInterfaceConfigNetworkAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDatabaseMigrationServicePrivateConnectionEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -713,6 +783,9 @@ func ResourceDatabaseMigrationServicePrivateConnectionFlatten(d *schema.Resource
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
 	}
 	if err = d.Set("vpc_peering_config", flattenDatabaseMigrationServicePrivateConnectionVpcPeeringConfig(res["vpcPeeringConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateConnection: %s", err)
+	}
+	if err = d.Set("psc_interface_config", flattenDatabaseMigrationServicePrivateConnectionPscInterfaceConfig(res["pscInterfaceConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenDatabaseMigrationServicePrivateConnectionTerraformLabels(res["labels"], d, config)); err != nil {
