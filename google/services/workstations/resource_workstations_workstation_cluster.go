@@ -259,6 +259,19 @@ For example:
 "123/costCenter": "marketing"`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"workstation_authorization_url": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `Specifies the redirect URL for unauthorized requests received by workstation VMs in this cluster.
+Redirects to this endpoint will send a base64 encoded 'state' query param containing the target workstation name and original request hostname. The endpoint is responsible for retrieving a token using 'GenerateAccessToken' and redirecting back to the original hostname with the token.`,
+			},
+			"workstation_launch_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Specifies the launch URL for workstations in this cluster. Requests sent to unstarted workstations will be redirected to this URL.
+Requests redirected to the launch endpoint will be sent with a 'workstation' query parameter containing the full workstation resource. The launch endpoint is responsible for starting the workstation, polling it until it reaches 'STATE_RUNNING', and then issuing a redirect to the workstation's host URL.`,
+			},
 			"conditions": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -386,6 +399,18 @@ func resourceWorkstationsWorkstationClusterCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
+	}
+	workstationAuthorizationUrlProp, err := expandWorkstationsWorkstationClusterWorkstationAuthorizationUrl(d.Get("workstation_authorization_url"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("workstation_authorization_url"); !tpgresource.IsEmptyValue(reflect.ValueOf(workstationAuthorizationUrlProp)) && (ok || !reflect.DeepEqual(v, workstationAuthorizationUrlProp)) {
+		obj["workstationAuthorizationUrl"] = workstationAuthorizationUrlProp
+	}
+	workstationLaunchUrlProp, err := expandWorkstationsWorkstationClusterWorkstationLaunchUrl(d.Get("workstation_launch_url"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("workstation_launch_url"); !tpgresource.IsEmptyValue(reflect.ValueOf(workstationLaunchUrlProp)) && (ok || !reflect.DeepEqual(v, workstationLaunchUrlProp)) {
+		obj["workstationLaunchUrl"] = workstationLaunchUrlProp
 	}
 	etagProp, err := expandWorkstationsWorkstationClusterEtag(d.Get("etag"), d, config)
 	if err != nil {
@@ -645,6 +670,18 @@ func resourceWorkstationsWorkstationClusterUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	workstationAuthorizationUrlProp, err := expandWorkstationsWorkstationClusterWorkstationAuthorizationUrl(d.Get("workstation_authorization_url"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("workstation_authorization_url"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, workstationAuthorizationUrlProp)) {
+		obj["workstationAuthorizationUrl"] = workstationAuthorizationUrlProp
+	}
+	workstationLaunchUrlProp, err := expandWorkstationsWorkstationClusterWorkstationLaunchUrl(d.Get("workstation_launch_url"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("workstation_launch_url"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, workstationLaunchUrlProp)) {
+		obj["workstationLaunchUrl"] = workstationLaunchUrlProp
+	}
 	etagProp, err := expandWorkstationsWorkstationClusterEtag(d.Get("etag"), d, config)
 	if err != nil {
 		return err
@@ -687,6 +724,14 @@ func resourceWorkstationsWorkstationClusterUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("workstation_authorization_url") {
+		updateMask = append(updateMask, "workstationAuthorizationUrl")
+	}
+
+	if d.HasChange("workstation_launch_url") {
+		updateMask = append(updateMask, "workstationLaunchUrl")
 	}
 
 	if d.HasChange("etag") {
@@ -872,6 +917,14 @@ func flattenWorkstationsWorkstationClusterDisplayName(v interface{}, d *schema.R
 	return v
 }
 
+func flattenWorkstationsWorkstationClusterWorkstationAuthorizationUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkstationsWorkstationClusterWorkstationLaunchUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenWorkstationsWorkstationClusterDegraded(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1031,6 +1084,14 @@ func expandWorkstationsWorkstationClusterDisplayName(v interface{}, d tpgresourc
 	return v, nil
 }
 
+func expandWorkstationsWorkstationClusterWorkstationAuthorizationUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkstationsWorkstationClusterWorkstationLaunchUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandWorkstationsWorkstationClusterEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1175,6 +1236,12 @@ func ResourceWorkstationsWorkstationClusterFlatten(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading WorkstationCluster: %s", err)
 	}
 	if err = d.Set("display_name", flattenWorkstationsWorkstationClusterDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationCluster: %s", err)
+	}
+	if err = d.Set("workstation_authorization_url", flattenWorkstationsWorkstationClusterWorkstationAuthorizationUrl(res["workstationAuthorizationUrl"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkstationCluster: %s", err)
+	}
+	if err = d.Set("workstation_launch_url", flattenWorkstationsWorkstationClusterWorkstationLaunchUrl(res["workstationLaunchUrl"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WorkstationCluster: %s", err)
 	}
 	if err = d.Set("degraded", flattenWorkstationsWorkstationClusterDegraded(res["degraded"], d, config)); err != nil {
