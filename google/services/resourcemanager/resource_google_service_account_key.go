@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/iam/v1"
@@ -35,7 +36,13 @@ func ResourceGoogleServiceAccountKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleServiceAccountKeyCreate,
 		Read:   resourceGoogleServiceAccountKeyRead,
+		Update: resourceGoogleServiceAccountKeyUpdate,
 		Delete: resourceGoogleServiceAccountKeyDelete,
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
+
 		Schema: map[string]*schema.Schema{
 			// Required
 			"service_account_id": {
@@ -109,6 +116,9 @@ func ResourceGoogleServiceAccountKey() *schema.Resource {
 				Computed:    true,
 				Description: `The key can be used before this timestamp. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -207,10 +217,30 @@ func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("public_key", sak.PublicKeyData); err != nil {
 		return fmt.Errorf("Error setting public_key: %s", err)
 	}
+
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
+// UDP update start
+func resourceGoogleServiceAccountKeyUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceGoogleServiceAccountKeyRead(d, meta)
+}
+
+//UDP update end
+
 func resourceGoogleServiceAccountKeyDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

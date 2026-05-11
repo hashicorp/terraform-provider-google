@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -33,6 +34,9 @@ func ResourceLoggingOrganizationSink() *schema.Resource {
 		Delete: resourceLoggingOrganizationSinkDelete,
 		Update: resourceLoggingOrganizationSinkUpdate,
 		Schema: resourceLoggingSinkSchema(),
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
 		Importer: &schema.ResourceImporter{
 			State: resourceLoggingSinkImportState("org_id"),
 		},
@@ -109,10 +113,19 @@ func resourceLoggingOrganizationSinkRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error setting intercept_children: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func resourceLoggingOrganizationSinkUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceLoggingOrganizationSink) {
+		return ResourceLoggingOrganizationSink().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -132,6 +145,13 @@ func resourceLoggingOrganizationSinkUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceLoggingOrganizationSinkDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

@@ -16,3 +16,5 @@ fields:
   - field: 'project'
   - field: 'server_ca_cert'
   - api_field: 'sha1Fingerprint'
+  - field: 'deletion_policy'
+    provider_only: true

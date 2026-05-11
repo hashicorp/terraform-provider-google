@@ -80,6 +80,7 @@ func ResourceStorageBucket() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("retention_policy.0.is_locked", isPolicyLocked),
 			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -711,6 +712,9 @@ func ResourceStorageBucket() *schema.Resource {
 					return false
 				},
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -1023,6 +1027,11 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceStorageBucket) {
+		return ResourceStorageBucket().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -1224,6 +1233,13 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -2521,6 +2537,10 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 
 	if err := d.Set("ip_filter", flattenBucketIpFilter(res.IpFilter)); err != nil {
 		return fmt.Errorf("Error setting ip_filter: %s", err)
+	}
+
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
 	}
 
 	d.SetId(res.Id)

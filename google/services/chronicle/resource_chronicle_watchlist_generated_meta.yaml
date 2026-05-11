@@ -23,3 +23,5 @@ fields:
     - api_field: updateTime
     - api_field: watchlistId
     - api_field: watchlistUserPreferences.pinned
+    - field: deletion_policy
+      provider_only: true

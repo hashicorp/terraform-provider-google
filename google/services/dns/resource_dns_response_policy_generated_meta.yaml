@@ -11,3 +11,5 @@ fields:
     - api_field: gkeClusters.gkeClusterName
     - api_field: networks.networkUrl
     - api_field: responsePolicyName
+    - field: deletion_policy
+      provider_only: true

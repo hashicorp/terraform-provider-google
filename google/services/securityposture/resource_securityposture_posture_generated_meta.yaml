@@ -71,3 +71,5 @@ fields:
     - api_field: revisionId
     - api_field: state
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

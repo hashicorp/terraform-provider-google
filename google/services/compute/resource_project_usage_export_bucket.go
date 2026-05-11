@@ -35,6 +35,7 @@ func ResourceProjectUsageBucket() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceProjectUsageBucketCreate,
 		Read:   resourceProjectUsageBucketRead,
+		Update: resourceProjectUsageBucketUpdate,
 		Delete: resourceProjectUsageBucketDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceProjectUsageBucketImportState,
@@ -47,6 +48,7 @@ func ResourceProjectUsageBucket() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -69,6 +71,9 @@ func ResourceProjectUsageBucket() *schema.Resource {
 				ForceNew:    true,
 				Description: `The project to set the export bucket on. If it is not provided, the provider project is used.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -106,6 +111,11 @@ func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("bucket_name", p.UsageExportLocation.BucketName); err != nil {
 		return fmt.Errorf("Error setting bucket_name: %s", err)
 	}
+
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -142,7 +152,22 @@ func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) 
 	return resourceProjectUsageBucketRead(d, meta)
 }
 
+// UDP update start
+func resourceProjectUsageBucketUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceProjectUsageBucketRead(d, meta)
+}
+
+//UDP update end
+
 func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

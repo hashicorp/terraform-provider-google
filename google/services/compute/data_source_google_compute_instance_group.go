@@ -95,6 +95,11 @@ func DataSourceGoogleComputeInstanceGroup() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }

@@ -21,3 +21,5 @@ fields:
       field: trust_handshake_secret
     - api_field: trusts.trustType
       field: trust_type
+    - field: deletion_policy
+      provider_only: true

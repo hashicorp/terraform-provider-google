@@ -160,6 +160,7 @@ func ResourceCloudFunctionsFunction() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderRegion,
 			tpgresource.SetLabelsDiff,
@@ -550,6 +551,9 @@ func ResourceCloudFunctionsFunction() *schema.Resource {
 				Computed:    true,
 				Description: `The version identifier of the Cloud Function. Each deployment attempt results in a new version of a function being created.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -884,11 +888,20 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		d.Set("automatic_update_policy", nil)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Updating google_cloudfunctions_function")
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceCloudFunctionsFunction) {
+		return ResourceCloudFunctionsFunction().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -1081,6 +1094,13 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

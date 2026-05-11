@@ -32,6 +32,7 @@ func ResourceSiteVerificationOwner() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSiteVerificationOwnerCreate,
 		Read:   resourceSiteVerificationOwnerRead,
+		Update: resourceSiteVerificationOwnerUpdate,
 		Delete: resourceSiteVerificationOwnerDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -57,6 +58,9 @@ func ResourceSiteVerificationOwner() *schema.Resource {
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The id of the Web Resource to add this owner to, in the form "webResource/<web-resource-id>".`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -196,10 +200,29 @@ func resourceSiteVerificationOwnerRead(d *schema.ResourceData, meta interface{})
 		return nil
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
+// UDP update start
+func resourceSiteVerificationOwnerUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceSiteVerificationOwnerRead(d, meta)
+}
+
+//UDP update end
+
 func resourceSiteVerificationOwnerDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

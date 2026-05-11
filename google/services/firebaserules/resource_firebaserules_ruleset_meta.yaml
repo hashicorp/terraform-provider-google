@@ -14,3 +14,5 @@ fields:
   - api_field: 'source.files.fingerprint'
   - api_field: 'source.files.name'
   - api_field: 'source.language'
+  - field: 'deletion_policy'
+    provider_only: true

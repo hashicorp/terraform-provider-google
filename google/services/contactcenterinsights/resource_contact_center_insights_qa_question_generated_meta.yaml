@@ -35,3 +35,5 @@ fields:
     - api_field: tuningMetadata.totalValidLabelCount
     - api_field: tuningMetadata.tuningError
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

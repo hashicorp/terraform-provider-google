@@ -108,6 +108,7 @@ func ResourceGoogleProjectService() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -135,6 +136,9 @@ func ResourceGoogleProjectService() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -246,12 +250,23 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 		return nil
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	log.Printf("[DEBUG] service %s not in enabled services for project %s, removing from state", srv, project)
 	d.SetId("")
 	return nil
 }
 
 func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 
 	if disable := d.Get("disable_on_destroy"); !(disable.(bool)) {

@@ -19,8 +19,6 @@ fields:
     - field: data_table_id
       provider_only: true
     - api_field: dataTableUuid
-    - field: deletion_policy
-      provider_only: true
     - api_field: description
     - api_field: displayName
     - field: instance
@@ -35,3 +33,5 @@ fields:
     - api_field: scopeInfo.dataAccessScopes
     - api_field: updateSource
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

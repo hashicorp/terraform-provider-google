@@ -490,7 +490,14 @@ The following arguments are supported:
 * `deletion_policy` - (Optional) Policy to determine if the cluster should be deleted forcefully.
 Deleting a cluster forcefully, deletes the cluster and all its associated instances within the cluster.
 Deleting a Secondary cluster with a secondary instance REQUIRES setting deletion_policy = "FORCE" otherwise an error is returned. This is needed as there is no support to delete just the secondary instance, and the only way to delete secondary instance is to delete the associated secondary cluster forcefully which also deletes the secondary instance.
-Possible values: DEFAULT, FORCE
+
+When a 'terraform destroy' or 'terraform apply' would delete the resource,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", the command will behave as if set to "DEFAULT".
+
+Possible values: DEFAULT, FORCE, PREVENT, ABANDON, DELETE
 
 * `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the cluster.
 When the field is set to true or unset in Terraform state, a `terraform apply`

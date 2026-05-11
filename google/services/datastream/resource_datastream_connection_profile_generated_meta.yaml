@@ -78,3 +78,5 @@ fields:
     - api_field: sqlServerProfile.username
     - field: terraform_labels
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

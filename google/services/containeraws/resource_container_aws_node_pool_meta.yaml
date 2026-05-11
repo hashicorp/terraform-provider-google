@@ -50,3 +50,5 @@ fields:
   - api_field: 'updateSettings.surgeSettings.maxUnavailable'
   - api_field: 'updateTime'
   - api_field: 'version'
+  - field: 'deletion_policy'
+    provider_only: true

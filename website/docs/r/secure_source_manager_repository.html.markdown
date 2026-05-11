@@ -121,15 +121,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `deletion_policy` - (Optional) The deletion policy for the repository. Setting `ABANDON` allows the resource
-to be abandoned, rather than deleted. Setting `DELETE` deletes the resource
-and all its contents. Setting `PREVENT` prevents the resource from accidental deletion
-by erroring out during plan.
-Default is `PREVENT`.  Possible values are:
-  * DELETE
-  * PREVENT
-  * ABANDON
-
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to PREVENT.
+	When a 'terraform destroy' or 'terraform apply' would delete the resource,
+	the command will fail if this field is set to "PREVENT" in Terraform state.
+	When set to "ABANDON", the command will remove the resource from Terraform
+	management without updating or deleting the resource in the API.
+	When set to "DELETE", deleting the resource is allowed.
 
 
 <a name="nested_initial_config"></a>The `initial_config` block supports:

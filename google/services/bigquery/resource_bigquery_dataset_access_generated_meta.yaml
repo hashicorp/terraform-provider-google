@@ -47,3 +47,5 @@ fields:
       field: view.project_id
     - api_field: access.view.tableId
       field: view.table_id
+    - field: deletion_policy
+      provider_only: true

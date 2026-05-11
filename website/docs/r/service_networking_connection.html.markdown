@@ -73,7 +73,13 @@ The following arguments are supported:
   this service provider. Note that invoking this method with a different range when connection
   is already established will not reallocate already provisioned service producer subnetworks.
 
-* `deletion_policy` - (Optional) The deletion policy for the service networking connection. Setting to ABANDON allows the resource to be abandoned rather than deleted. This will enable a successful terraform destroy when destroying CloudSQL instances. Use with care as it can lead to dangling resources.
+
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+    When a 'terraform destroy' or 'terraform apply' would delete the resource,
+    the command will fail if this field is set to "PREVENT" in Terraform state.
+    When set to "ABANDON", the command will remove the resource from Terraform
+    management without updating or deleting the resource in the API.
+    When set to "DELETE" or any other value, deleting the resource is allowed.
 
 * `update_on_creation_fail` - (Optional) When set to true, enforce an update of the reserved peering ranges on the existing service networking connection in case of a new connection creation failure.
 

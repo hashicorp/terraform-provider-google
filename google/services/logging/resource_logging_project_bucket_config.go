@@ -145,6 +145,9 @@ For example: jsonPayload.request.status`,
 			},
 		},
 	},
+	//UDP schema start
+	"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+	//UDP schema end
 }
 
 func projectBucketConfigID(d *schema.ResourceData, config *transport_tpg.Config) (string, error) {

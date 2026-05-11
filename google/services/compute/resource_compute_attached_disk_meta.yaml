@@ -17,3 +17,5 @@ fields:
     field: 'mode'
   - field: 'project'
   - api_field: 'zone'
+  - field: 'deletion_policy'
+    provider_only: true

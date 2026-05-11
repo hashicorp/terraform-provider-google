@@ -52,6 +52,7 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -145,6 +146,9 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 				Computed:    true,
 				Description: "The combination of labels configured directly on the resource and default labels configured on the provider.",
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 	}
 }
@@ -471,9 +475,18 @@ func resourceRecaptchaEnterpriseKeyRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("error setting terraform_labels in state: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 func resourceRecaptchaEnterpriseKeyUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceRecaptchaEnterpriseKey) {
+		return ResourceRecaptchaEnterpriseKey().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
@@ -525,6 +538,13 @@ func resourceRecaptchaEnterpriseKeyUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceRecaptchaEnterpriseKeyDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {

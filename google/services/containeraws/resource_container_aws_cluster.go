@@ -49,6 +49,7 @@ func ResourceContainerAwsCluster() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 			tpgresource.SetAnnotationsDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -191,6 +192,9 @@ func ResourceContainerAwsCluster() *schema.Resource {
 				Description: "Output only. Workload Identity settings.",
 				Elem:        ContainerAwsClusterWorkloadIdentityConfigSchema(),
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 	}
 }
@@ -761,9 +765,18 @@ func resourceContainerAwsClusterRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("error setting workload_identity_config in state: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 func resourceContainerAwsClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceContainerAwsCluster) {
+		return ResourceContainerAwsCluster().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
@@ -817,6 +830,13 @@ func resourceContainerAwsClusterUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceContainerAwsClusterDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {

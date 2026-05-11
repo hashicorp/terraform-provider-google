@@ -115,6 +115,7 @@ func ResourceIAM3OrganizationsPolicyBinding() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.SetAnnotationsDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
 		Identity: &schema.ResourceIdentity{
@@ -297,6 +298,19 @@ to the policy kind) - The input policy kind   Possible values:  POLICY_KIND_UNSP
 				Computed:    true,
 				Description: `Output only. The time when the policy binding was most recently updated.`,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -453,6 +467,20 @@ func resourceIAM3OrganizationsPolicyBindingRead(d *schema.ResourceData, meta int
 
 	log.Printf("[DEBUG] Finished reading IAM3OrganizationsPolicyBinding %q: %#v", d.Id(), res)
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		//prioritize config's value if present
+		if config.DeletionPolicy != "" {
+			if err := d.Set("deletion_policy", config.DeletionPolicy); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		} else {
+			if err := d.Set("deletion_policy", "DELETE"); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		}
+	}
+
 	err = ResourceIAM3OrganizationsPolicyBindingFlatten(d, meta, res, config, userAgent, billingProject, url, headers)
 	if err != nil {
 		return err
@@ -486,6 +514,18 @@ func resourceIAM3OrganizationsPolicyBindingRead(d *schema.ResourceData, meta int
 }
 
 func resourceIAM3OrganizationsPolicyBindingUpdate(d *schema.ResourceData, meta interface{}) error {
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceIAM3OrganizationsPolicyBinding().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceIAM3OrganizationsPolicyBindingRead(d, meta)
+	}
 	var project string
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -609,6 +649,13 @@ func resourceIAM3OrganizationsPolicyBindingUpdate(d *schema.ResourceData, meta i
 }
 
 func resourceIAM3OrganizationsPolicyBindingDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy IAM3OrganizationsPolicyBinding without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing OrganizationsPolicyBinding %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 	var project string
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)

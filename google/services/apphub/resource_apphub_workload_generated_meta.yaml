@@ -41,3 +41,5 @@ fields:
     - api_field: workloadProperties.location
     - api_field: workloadProperties.zone
     - api_field: workloadReference.uri
+    - field: deletion_policy
+      provider_only: true

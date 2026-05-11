@@ -16,3 +16,5 @@ fields:
       provider_only: true
     - field: workload_identity_pool_namespace_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

@@ -51,6 +51,7 @@ func ResourceComputeInstanceGroup() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderZone,
 		),
@@ -139,6 +140,9 @@ func ResourceComputeInstanceGroup() *schema.Resource {
 				Computed:    true,
 				Description: `The number of instances in the group.`,
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -418,9 +422,18 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceComputeInstanceGroup) {
+		return ResourceComputeInstanceGroup().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -559,6 +572,13 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

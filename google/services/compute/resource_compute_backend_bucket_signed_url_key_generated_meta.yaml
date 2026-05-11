@@ -13,3 +13,5 @@ fields:
       field: key_value
     - api_field: cdnPolicy.signedUrlKeyNames.keyName
       field: name
+    - field: deletion_policy
+      provider_only: true

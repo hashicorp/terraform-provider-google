@@ -39,3 +39,5 @@ fields:
       field: vpc_network_sources.vpc_subnetwork.network
     - api_field: basic.conditions.vpcNetworkSources.vpcSubnetwork.vpcIpSubnetworks
       field: vpc_network_sources.vpc_subnetwork.vpc_ip_subnetworks
+    - field: deletion_policy
+      provider_only: true

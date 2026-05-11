@@ -10,3 +10,5 @@ fields:
   - field: 'default_acl'
   - field: 'predefined_acl'
   - field: 'role_entity'
+  - field: 'deletion_policy'
+    provider_only: true

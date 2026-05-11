@@ -73,3 +73,5 @@ fields:
       field: target_service_accounts
     - api_field: rules.tlsInspect
       field: tls_inspect
+    - field: deletion_policy
+      provider_only: true

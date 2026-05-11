@@ -53,3 +53,5 @@ fields:
       field: redirect_options.target
     - api_field: rules.redirectOptions.type
       field: redirect_options.type
+    - field: deletion_policy
+      provider_only: true

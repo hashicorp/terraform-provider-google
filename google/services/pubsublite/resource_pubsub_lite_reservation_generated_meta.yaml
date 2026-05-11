@@ -12,3 +12,5 @@ fields:
     - field: region
       provider_only: true
     - api_field: throughputCapacity
+    - field: deletion_policy
+      provider_only: true

@@ -16,3 +16,5 @@ fields:
     - field: trace_scope_id
       provider_only: true
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

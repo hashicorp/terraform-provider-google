@@ -32,8 +32,8 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/servicenetworking/v1"
 )
 
@@ -53,6 +53,9 @@ func ResourceServiceNetworkingConnection() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceServiceNetworkingConnectionImportState,
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -87,12 +90,9 @@ func ResourceServiceNetworkingConnection() *schema.Resource {
 				DiffSuppressFunc: stringListDiffSuppress,
 				Description:      `Named IP address range(s) of PEERING type reserved for this service provider. Note that invoking this method with a different range when connection is already established will not reallocate already provisioned service producer subnetworks.`,
 			},
-			"deletion_policy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ABANDON", ""}, false),
-				Description:  `When set to ABANDON, terraform will abandon management of the resource instead of deleting it. Prevents terraform apply failures with CloudSQL. Note: The resource will still exist.`,
-			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 			"peering": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -255,10 +255,19 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error setting reserved_peering_ranges: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceServiceNetworkingConnection) {
+		return ResourceServiceNetworkingConnection().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -316,8 +325,9 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 
-	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "ABANDON" {
-		log.Printf("[WARN] The service networking connection has been abandoned")
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
 		return nil
 	}
 

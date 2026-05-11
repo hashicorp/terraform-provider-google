@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 
@@ -52,6 +53,10 @@ func ResourceComputeNetworkPeering() *schema.Resource {
 			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -134,6 +139,9 @@ func ResourceComputeNetworkPeering() *schema.Resource {
 				Description:  `The update strategy determines the semantics for updates and deletes to the peering connection configuration. The default value is INDEPENDENT. Possible values: ["INDEPENDENT", "CONSENSUS"]`,
 				Default:      "INDEPENDENT",
 			},
+			//UDP schema start
+			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			//UDP schema end
 		},
 		UseJSONNumber: true,
 	}
@@ -238,10 +246,19 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error setting update_strategy: %s", err)
 	}
 
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func resourceComputeNetworkPeeringUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if tpgresource.DeletionPolicyPreUpdate(d, ResourceComputeNetworkPeering) {
+		return ResourceComputeNetworkPeering().Read(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -282,6 +299,13 @@ func resourceComputeNetworkPeeringUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{}) error {
+
+	if ok, err := tpgresource.DeletionPolicyPreDelete(d); err != nil {
+		return err
+	} else if ok {
+		return nil
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

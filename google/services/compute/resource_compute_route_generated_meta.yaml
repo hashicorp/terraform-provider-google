@@ -35,3 +35,5 @@ fields:
     - api_field: warnings.data.value
     - api_field: warnings.message
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true
