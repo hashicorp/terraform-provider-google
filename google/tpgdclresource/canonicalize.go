@@ -25,11 +25,25 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/creachadair/stringset"
 	glog "github.com/golang/glog"
 )
 
-var selfLinkIgnorableComponents = stringset.New("projects", "regions", "locations", "zones", "organizations", "compute", "v1", "v1beta1", "beta")
+var selfLinkIgnorableComponents = map[string]struct{}{
+	"projects":      {},
+	"regions":       {},
+	"locations":     {},
+	"zones":         {},
+	"organizations": {},
+	"compute":       {},
+	"v1":            {},
+	"v1beta1":       {},
+	"beta":          {},
+}
+
+func hasKey(m map[string]struct{}, k string) bool {
+	_, ok := m[k]
+	return ok
+}
 
 // SelfLinkToSelfLink returns true if left and right are equivalent for selflinks.
 // That means that they are piecewise equal, comparing components, allowing for
@@ -70,9 +84,9 @@ func SelfLinkToSelfLink(l, r *string) bool {
 		case lcomp[li] == rcomp[ri]:
 			li++
 			ri++
-		case selfLinkIgnorableComponents.Contains(lcomp[li]):
+		case hasKey(selfLinkIgnorableComponents, lcomp[li]):
 			li++
-		case selfLinkIgnorableComponents.Contains(rcomp[ri]):
+		case hasKey(selfLinkIgnorableComponents, rcomp[ri]):
 			ri++
 		// The second-to-last element in a long-form self-link contains the
 		// name of the resource.  The name of the resource might be anything,
@@ -208,9 +222,9 @@ func PartialSelfLinkToSelfLink(l, r *string) bool {
 		case lcomp[li] == rcomp[ri]:
 			li--
 			ri--
-		case selfLinkIgnorableComponents.Contains(lcomp[li]):
+		case hasKey(selfLinkIgnorableComponents, lcomp[li]):
 			li--
-		case selfLinkIgnorableComponents.Contains(rcomp[ri]):
+		case hasKey(selfLinkIgnorableComponents, rcomp[ri]):
 			ri--
 		// As in SelfLinkToSelfLink, we permit any value in the second-to-last field
 		// for the value which is longer.
