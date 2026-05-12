@@ -61,7 +61,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 		"certificate_authority_id": "tf-test-my-certificate-authority" + randomSuffix,
 		"deletion_protection":      false,
 		"pool_location":            "us-central1",
-		"pool_name":                acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"pool_name":                BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"random_suffix":            randomSuffix,
 	}
 
@@ -139,7 +139,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicNoOr
 		"certificate_authority_id": "tf-test-my-certificate-authority" + randomSuffix,
 		"deletion_protection":      false,
 		"pool_location":            "us-central1",
-		"pool_name":                acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"pool_name":                BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"random_suffix":            randomSuffix,
 	}
 
@@ -217,7 +217,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordina
 		"certificate_authority_id": "tf-test-my-certificate-authority" + randomSuffix,
 		"deletion_protection":      false,
 		"pool_location":            "us-central1",
-		"pool_name":                acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"pool_name":                BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"random_suffix":            randomSuffix,
 	}
 
@@ -339,7 +339,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicWith
 		"certificate_authority_id": "tf-test-my-certificate-authority" + randomSuffix,
 		"deletion_protection":      false,
 		"pool_location":            "us-central1",
-		"pool_name":                acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"pool_name":                BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"random_suffix":            randomSuffix,
 	}
 
