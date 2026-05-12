@@ -225,6 +225,11 @@ func ResourceStorageBatchOperationsJob() *schema.Resource {
 				},
 				ExactlyOneOf: []string{"delete_object", "put_metadata", "put_object_hold", "rewrite_object"},
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A description provided by the user for the job. Its max length is 1024 bytes when Unicode-encoded.`,
+			},
 			"job_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -429,6 +434,12 @@ func resourceStorageBatchOperationsJobCreate(d *schema.ResourceData, meta interf
 		return err
 	} else if v, ok := d.GetOkExists("put_object_hold"); !tpgresource.IsEmptyValue(reflect.ValueOf(putObjectHoldProp)) && (ok || !reflect.DeepEqual(v, putObjectHoldProp)) {
 		obj["putObjectHold"] = putObjectHoldProp
+	}
+	descriptionProp, err := expandStorageBatchOperationsJobDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/jobs?jobId={{job_id}}"))
@@ -902,6 +913,10 @@ func flattenStorageBatchOperationsJobPutObjectHoldTemporaryHold(v interface{}, d
 	return v
 }
 
+func flattenStorageBatchOperationsJobDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandStorageBatchOperationsJobBucketList(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1207,6 +1222,10 @@ func expandStorageBatchOperationsJobPutObjectHoldTemporaryHold(v interface{}, d 
 	return v, nil
 }
 
+func expandStorageBatchOperationsJobDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceStorageBatchOperationsJobFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -1238,6 +1257,9 @@ func ResourceStorageBatchOperationsJobFlatten(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 	if err = d.Set("put_object_hold", flattenStorageBatchOperationsJobPutObjectHold(res["putObjectHold"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("description", flattenStorageBatchOperationsJobDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 
