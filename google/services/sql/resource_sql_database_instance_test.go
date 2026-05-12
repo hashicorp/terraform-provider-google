@@ -18,6 +18,7 @@ package sql_test
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -26,8 +27,11 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/activedirectory"
+	"github.com/hashicorp/terraform-provider-google/google/services/backupdr"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/sql"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -51,6 +55,169 @@ var ignoredReplicaConfigurationFields = []string{
 	"replica_configuration.0.username",
 	"replica_configuration.0.verify_server_certificate",
 	"replica_configuration.0.failover_target",
+}
+
+// SQL Instance names are not reusable for a week after deletion
+const SharedTestSQLInstanceNamePrefix = "tf-bootstrap-"
+
+// BootstrapSharedSQLInstanceBackupRun will return a shared SQL db instance that
+// has a backup created for it.
+func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
+	project := envvar.GetTestProjectFromEnv()
+
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+
+	log.Printf("[DEBUG] Getting list of existing sql instances")
+
+	instances, err := sql.NewClient(config, config.UserAgent).Instances.List(project).Do()
+	if err != nil {
+		t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve instance list: %s", err)
+	}
+
+	var bootstrapInstance *sqladmin.DatabaseInstance
+
+	// Look for any existing bootstrap instances
+	for _, i := range instances.Items {
+		if strings.HasPrefix(i.Name, SharedTestSQLInstanceNamePrefix) {
+			bootstrapInstance = i
+			break
+		}
+	}
+
+	if bootstrapInstance == nil {
+		bootstrapInstanceName := SharedTestSQLInstanceNamePrefix + acctest.RandString(t, 10)
+		log.Printf("[DEBUG] Bootstrap SQL Instance not found, bootstrapping new instance %s", bootstrapInstanceName)
+
+		backupConfig := &sqladmin.BackupConfiguration{
+			Enabled:                    true,
+			PointInTimeRecoveryEnabled: true,
+		}
+		settings := &sqladmin.Settings{
+			Tier:                "db-custom-2-3840",
+			BackupConfiguration: backupConfig,
+		}
+		bootstrapInstance = &sqladmin.DatabaseInstance{
+			Name:            bootstrapInstanceName,
+			Region:          "us-central1",
+			Settings:        settings,
+			DatabaseVersion: "POSTGRES_11",
+		}
+
+		var op *sqladmin.Operation
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (operr error) {
+				op, operr = sql.NewClient(config, config.UserAgent).Instances.Insert(project, bootstrapInstance).Do()
+				return operr
+			},
+			Timeout:              20 * time.Minute,
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
+		if err != nil {
+			t.Fatalf("Error, failed to create instance %s: %s", bootstrapInstance.Name, err)
+		}
+		err = sql.SqlAdminOperationWaitTime(config, op, project, "Create Instance", config.UserAgent, 40*time.Minute)
+		if err != nil {
+			t.Fatalf("Error, failed to create instance %s: %s", bootstrapInstance.Name, err)
+		}
+	}
+
+	// Look for backups in bootstrap instance
+	res, err := sql.NewClient(config, config.UserAgent).BackupRuns.List(project, bootstrapInstance.Name).Do()
+	if err != nil {
+		t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve backup list: %s", err)
+	}
+	backupsList := res.Items
+	if len(backupsList) == 0 {
+		log.Printf("[DEBUG] No backups found for %s, creating backup", bootstrapInstance.Name)
+		backupRun := &sqladmin.BackupRun{
+			Instance: bootstrapInstance.Name,
+		}
+
+		var op *sqladmin.Operation
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (operr error) {
+				op, operr = sql.NewClient(config, config.UserAgent).BackupRuns.Insert(project, bootstrapInstance.Name, backupRun).Do()
+				return operr
+			},
+			Timeout:              20 * time.Minute,
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
+		if err != nil {
+			t.Fatalf("Error, failed to create instance backup: %s", err)
+		}
+		err = sql.SqlAdminOperationWaitTime(config, op, project, "Backup Instance", config.UserAgent, 20*time.Minute)
+		if err != nil {
+			t.Fatalf("Error, failed to create instance backup: %s", err)
+		}
+	}
+
+	return bootstrapInstance.Name
+}
+
+const SharedTestADDomainPrefix = "tf-bootstrap-ad"
+
+func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string) string {
+	project := envvar.GetTestProjectFromEnv()
+	sharedADDomain := fmt.Sprintf("%s.%s.com", SharedTestADDomainPrefix, testId)
+	adDomainName := fmt.Sprintf("projects/%s/locations/global/domains/%s", project, sharedADDomain)
+
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+
+	log.Printf("[DEBUG] Getting shared test active directory domain %q", adDomainName)
+	getURL := fmt.Sprintf("%s%s", transport_tpg.BaseUrl(activedirectory.Product, config), adDomainName)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Timeout:   4 * time.Minute,
+	})
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] AD domain %q not found, bootstrapping", sharedADDomain)
+		postURL := fmt.Sprintf("%sprojects/%s/locations/global/domains?domainName=%s", transport_tpg.BaseUrl(activedirectory.Product, config), project, sharedADDomain)
+		domainObj := map[string]interface{}{
+			"locations":          []string{"us-central1"},
+			"reservedIpRange":    "10.0.1.0/24",
+			"authorizedNetworks": []string{fmt.Sprintf("projects/%s/global/networks/%s", project, networkName)},
+		}
+
+		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    postURL,
+			UserAgent: config.UserAgent,
+			Body:      domainObj,
+			Timeout:   60 * time.Minute,
+		})
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared active directory domain %q: %s", adDomainName, err)
+		}
+
+		log.Printf("[DEBUG] Waiting for active directory domain creation to finish")
+	}
+
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Timeout:   4 * time.Minute,
+	})
+
+	if err != nil {
+		t.Fatalf("Error getting shared active directory domain %q: %s", adDomainName, err)
+	}
+
+	return sharedADDomain
 }
 
 func TestAccSqlDatabaseInstance_basicInferredName(t *testing.T) {
@@ -1492,7 +1659,7 @@ func TestAccSqlDatabaseInstance_createFromBackup(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix":    acctest.RandString(t, 10),
-		"original_db_name": acctest.BootstrapSharedSQLInstanceBackupRun(t),
+		"original_db_name": BootstrapSharedSQLInstanceBackupRun(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1522,7 +1689,7 @@ func TestAccSqlDatabaseInstance_createFromBackupDR(t *testing.T) {
 	backupVaultID := "bv-test"
 	vaultLocation := "us-central1"
 	project := envvar.GetTestProjectFromEnv()
-	backupvault := acctest.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
+	backupvault := backupdr.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
 
 	context := map[string]interface{}{
 		"random_suffix":          acctest.RandString(t, 10),
@@ -1562,7 +1729,7 @@ func TestAccSqlDatabaseInstance_backupUpdate(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":    acctest.RandString(t, 10),
 		"db_version":       "POSTGRES_11",
-		"original_db_name": acctest.BootstrapSharedSQLInstanceBackupRun(t),
+		"original_db_name": BootstrapSharedSQLInstanceBackupRun(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1601,7 +1768,7 @@ func TestAccSqlDatabaseInstance_BackupDRUpdate(t *testing.T) {
 	backupVaultID := "bv-test"
 	location := "us-central1"
 	project := envvar.GetTestProjectFromEnv()
-	backupvault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+	backupvault := backupdr.BootstrapBackupDRVault(t, backupVaultID, location)
 
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
@@ -1648,7 +1815,7 @@ func TestAccSqlDatabaseInstance_createFromCrossRegionBackupDrBackup(t *testing.T
 	backupVaultID := "bv-test"
 	vaultLocation := "us-central1"
 	project := envvar.GetTestProjectFromEnv()
-	backupvault := acctest.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
+	backupvault := backupdr.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
 
 	context := map[string]interface{}{
 		"random_suffix":          acctest.RandString(t, 10),
@@ -1687,7 +1854,7 @@ func TestAccSqlDatabaseInstance_createFromMultiRegionBackupDrBackup(t *testing.T
 	backupVaultID := "bv-test-mr"
 	vaultLocation := "us"
 	project := envvar.GetTestProjectFromEnv()
-	backupvault := acctest.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
+	backupvault := backupdr.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
 
 	context := map[string]interface{}{
 		"random_suffix":          acctest.RandString(t, 10),
@@ -1726,7 +1893,7 @@ func TestAccSqlDatabaseInstance_createFromMultiRegionBackupDrBackupCrossRegion(t
 	backupVaultID := "bv-test-mr"
 	vaultLocation := "us"
 	project := envvar.GetTestProjectFromEnv()
-	backupvault := acctest.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
+	backupvault := backupdr.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
 
 	context := map[string]interface{}{
 		"random_suffix":          acctest.RandString(t, 10),
@@ -1765,7 +1932,7 @@ func TestAccSqlDatabaseInstance_basicClone(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix":    acctest.RandString(t, 10),
-		"original_db_name": acctest.BootstrapSharedSQLInstanceBackupRun(t),
+		"original_db_name": BootstrapSharedSQLInstanceBackupRun(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1834,7 +2001,7 @@ func TestAccSqlDatabaseInstance_cloneWithSettings(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix":    acctest.RandString(t, 10),
-		"original_db_name": acctest.BootstrapSharedSQLInstanceBackupRun(t),
+		"original_db_name": BootstrapSharedSQLInstanceBackupRun(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1862,7 +2029,7 @@ func TestAccSqlDatabaseInstance_cloneWithDatabaseNames(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix":    acctest.RandString(t, 10),
-		"original_db_name": acctest.BootstrapSharedSQLInstanceBackupRun(t),
+		"original_db_name": BootstrapSharedSQLInstanceBackupRun(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1891,7 +2058,7 @@ func TestAccSqlDatabaseInstance_pointInTimeRestore(t *testing.T) {
 	backupVaultID := "bv-test"
 	location := "us-central1"
 	project := envvar.GetTestProjectFromEnv()
-	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+	backupVault := backupdr.BootstrapBackupDRVault(t, backupVaultID, location)
 
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
@@ -1930,7 +2097,7 @@ func TestAccSqlDatabaseInstance_pointInTimeRestoreInMultiRegion(t *testing.T) {
 	backupVaultID := "bv-test-mr"
 	location := "us"
 	project := envvar.GetTestProjectFromEnv()
-	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+	backupVault := backupdr.BootstrapBackupDRVault(t, backupVaultID, location)
 
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
@@ -1968,7 +2135,7 @@ func TestAccSqlDatabaseInstance_pointInTimeRestoreWithSettings(t *testing.T) {
 	backupVaultID := "bv-test"
 	location := "us-central1"
 	project := envvar.GetTestProjectFromEnv()
-	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+	backupVault := backupdr.BootstrapBackupDRVault(t, backupVaultID, location)
 
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
@@ -2441,7 +2608,7 @@ func TestAccSqlDatabaseInstance_ActiveDirectory(t *testing.T) {
 	databaseName := "tf-test-" + acctest.RandString(t, 10)
 	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "sql-instance-ad-1")
 	rootPassword := acctest.RandString(t, 15)
-	adDomainName := acctest.BootstrapSharedTestADDomain(t, "test-domain", networkName)
+	adDomainName := BootstrapSharedTestADDomain(t, "test-domain", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -4495,7 +4662,7 @@ func TestAccSqlDatabaseInstance_updateInstanceTierForEnhancedBackupTierInstance(
 	backupVaultID := "bv-test"
 	location := "us-central1"
 	project := envvar.GetTestProjectFromEnv()
-	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+	backupVault := backupdr.BootstrapBackupDRVault(t, backupVaultID, location)
 
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
@@ -4531,7 +4698,7 @@ func TestAccSqlDatabaseInstance_updateInstanceTierForEnhancedBackupTierInstance(
 func TestAccSqlDatabaseInstance_majorVersionUpgradeForEnhancedBackupTierInstance(t *testing.T) {
 	t.Parallel()
 
-	backupVault := acctest.BootstrapBackupDRVault(t, "bv-test", "us-central1")
+	backupVault := backupdr.BootstrapBackupDRVault(t, "bv-test", "us-central1")
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
@@ -4566,7 +4733,7 @@ func TestAccSqlDatabaseInstance_majorVersionUpgradeForEnhancedBackupTierInstance
 func TestAccSqlDatabaseInstance_editionUpdateForEnhancedBackupTierInstance(t *testing.T) {
 	t.Parallel()
 
-	backupVault := acctest.BootstrapBackupDRVault(t, "bv-test", "us-central1")
+	backupVault := backupdr.BootstrapBackupDRVault(t, "bv-test", "us-central1")
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
