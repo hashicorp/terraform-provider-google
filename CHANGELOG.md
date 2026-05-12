@@ -29,7 +29,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * cloudfunctions2: fixed bug where `all_traffic_on_latest_revision = false` was ignored in `google_cloudfunctions2_function` ([#27256](https://github.com/hashicorp/terraform-provider-google/pull/27256))
-* compute: fixed permadrift when removing `preconfigured_waf_config` from a `google_compute_security_policy` rule ([#27276](https://github.com/hashicorp/terraform-provider-google/pull/27276))
+* compute: fixed permadiff when removing `preconfigured_waf_config` from a `google_compute_security_policy` rule ([#27276](https://github.com/hashicorp/terraform-provider-google/pull/27276))
 
 ## 7.31.0 (May 5, 2026)
 
