@@ -52,6 +52,37 @@ resource "google_compute_organization_security_policy_association" "policy" {
   policy_id     = google_compute_organization_security_policy.policy.id
 }
 ```
+## Example Usage - Organization Security Policy Association Excluded
+
+
+```hcl
+resource "google_folder" "security_policy_target" {
+  display_name        = "tf-test-secpol-%{random_suffix}"
+  parent              = "organizations/123456789"
+  deletion_protection = false
+}
+
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = google_folder.security_policy_target.name
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_association" "policy" {
+  name          = "tf-test%{random_suffix}"
+  attachment_id = "organizations/123456789"
+  policy_id     = google_compute_organization_security_policy.policy.id
+
+  excluded_projects = [
+    "projects/2000000002",
+    "projects/3000000003"
+  ]
+  excluded_folders = [
+    "folders/4000000004",
+    "folders/5000000005"
+  ]
+}
+```
 
 ## Argument Reference
 

@@ -109,6 +109,72 @@ resource "google_compute_organization_security_policy_association" "policy" {
 `, context)
 }
 
+func TestAccComputeOrganizationSecurityPolicyAssociation_organizationSecurityPolicyAssociationExcludedExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
+		"short_name":    "tf-test-my-short-name-excluded" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeOrganizationSecurityPolicyAssociationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeOrganizationSecurityPolicyAssociation_organizationSecurityPolicyAssociationExcludedExample(context),
+			},
+			{
+				ResourceName:            "google_compute_organization_security_policy_association.policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"policy_id"},
+			},
+			{
+				ResourceName:       "google_compute_organization_security_policy_association.policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeOrganizationSecurityPolicyAssociation_organizationSecurityPolicyAssociationExcludedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "security_policy_target" {
+  display_name        = "tf-test-secpol-%{random_suffix}"
+  parent              = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = google_folder.security_policy_target.name
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_association" "policy" {
+  name          = "tf-test%{random_suffix}"
+  attachment_id = "organizations/%{org_id}"
+  policy_id     = google_compute_organization_security_policy.policy.id
+
+  excluded_projects = [
+    "projects/2000000002",
+    "projects/3000000003"
+  ]
+  excluded_folders = [
+    "folders/4000000004",
+    "folders/5000000005"
+  ]
+}
+`, context)
+}
+
 func testAccCheckComputeOrganizationSecurityPolicyAssociationDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
