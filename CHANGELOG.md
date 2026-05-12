@@ -1,11 +1,5 @@
 ## 7.32.0 (Unreleased)
 
-NOTES:
-* compute: migrated `google_compute_instance_from_machine` resource  to use direct HTTP rather than a client library ([#27260](https://github.com/hashicorp/terraform-provider-google/pull/27260))
-* compute: migrated `google_compute_instance_group_manager` resource to use direct HTTP rather than a client library ([#27259](https://github.com/hashicorp/terraform-provider-google/pull/27259))
-* compute: migrated `google_compute_zones` data source to use direct HTTP rather than a client library ([#27261](https://github.com/hashicorp/terraform-provider-google/pull/27261))
-* compute: migrated `google_compute_project_metadata_item` resource to use direct HTTP rather than a client library ([#27200](https://github.com/hashicorp/terraform-provider-google/pull/27200))
-
 FEATURES:
 * **New Data Source:** `google_compute_region_instant_snapshot_iam_policy` ([#27281](https://github.com/hashicorp/terraform-provider-google/pull/27281))
 * **New Resource:** `google_chronicle_dashboard_chart` ([#27275](https://github.com/hashicorp/terraform-provider-google/pull/27275))
