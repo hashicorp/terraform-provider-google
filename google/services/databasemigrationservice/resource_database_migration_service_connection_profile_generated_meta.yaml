@@ -88,16 +88,19 @@ fields:
     - api_field: oracle.username
     - api_field: postgresql.alloydbClusterId
     - api_field: postgresql.cloudSqlId
+    - api_field: postgresql.database
     - api_field: postgresql.host
     - api_field: postgresql.networkArchitecture
     - api_field: postgresql.password
     - api_field: postgresql.passwordSet
     - api_field: postgresql.port
+    - api_field: postgresql.privateConnectivity.privateConnection
     - api_field: postgresql.ssl.caCertificate
     - api_field: postgresql.ssl.clientCertificate
     - api_field: postgresql.ssl.clientKey
     - api_field: postgresql.ssl.type
     - api_field: postgresql.username
+    - api_field: role
     - api_field: state
     - field: terraform_labels
       provider_only: true

@@ -540,6 +540,11 @@ The following arguments are supported:
   Data dump parallelism settings used by the migration.
   Structure is [documented below](#nested_performance_config).
 
+* `postgres_homogeneous_config` -
+  (Optional)
+  PostgreSQL to PostgreSQL configuration.
+  Structure is [documented below](#nested_postgres_homogeneous_config).
+
 * `dump_path` -
   (Optional)
   The path to the dump file in Google Cloud Storage,
@@ -614,6 +619,16 @@ The following arguments are supported:
   (Optional)
   Initial dump parallelism level.
   Possible values are: `MIN`, `OPTIMAL`, `MAX`.
+
+<a name="nested_postgres_homogeneous_config"></a>The `postgres_homogeneous_config` block supports:
+
+* `is_native_logical` -
+  (Required)
+  Whether the migration uses native logical replication.
+
+* `max_additional_subscriptions` -
+  (Optional)
+  Maximum number of additional subscriptions to use for the migration job.
 
 <a name="nested_reverse_ssh_connectivity"></a>The `reverse_ssh_connectivity` block supports:
 

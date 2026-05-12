@@ -478,7 +478,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						"cloud_sql_id": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: `If the source is a Cloud SQL database, use this field to provide the Cloud SQL instance ID of the source.`,
+							Description: `If the connection profile is a Cloud SQL database, use this field to provide the Cloud SQL instance ID.`,
 						},
 						"host": {
 							Type:         schema.TypeString,
@@ -720,18 +720,24 @@ Static IP address connectivity configured on service project.`,
 						"alloydb_cluster_id": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: `If the connected database is an AlloyDB instance, use this field to provide the AlloyDB cluster ID.`,
+							Description: `If the connection profile is an AlloyDB instance, use this field to provide the AlloyDB cluster ID.`,
 						},
 						"cloud_sql_id": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: `If the source is a Cloud SQL database, use this field to provide the Cloud SQL instance ID of the source.`,
+							Description: `If the connection profile is a Cloud SQL database, use this field to provide the Cloud SQL instance ID.`,
+						},
+						"database": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							Description: `The name of the specific database within the host.`,
 						},
 						"host": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Description:  `The IP or hostname of the source MySQL database.`,
-							RequiredWith: []string{"postgresql.0.password", "postgresql.0.port", "postgresql.0.username"},
+							RequiredWith: []string{"postgresql.0.port"},
 						},
 						"password": {
 							Type:     schema.TypeString,
@@ -740,13 +746,28 @@ Static IP address connectivity configured on service project.`,
 							Description: `Input only. The password for the user that Database Migration Service will be using to connect to the database.
 This field is not returned on request, and the value is encrypted when stored in Database Migration Service.`,
 							Sensitive:    true,
-							RequiredWith: []string{"postgresql.0.host", "postgresql.0.port", "postgresql.0.username"},
+							RequiredWith: []string{"postgresql.0.username"},
 						},
 						"port": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							Description:  `The network port of the source MySQL database.`,
-							RequiredWith: []string{"postgresql.0.host", "postgresql.0.password", "postgresql.0.username"},
+							RequiredWith: []string{"postgresql.0.host"},
+						},
+						"private_connectivity": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Private connectivity.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"private_connection": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Required. The resource name (URI) of the private connection.`,
+									},
+								},
+							},
 						},
 						"ssl": {
 							Type:        schema.TypeList,
@@ -794,7 +815,7 @@ If this field is used then the 'clientCertificate' field is mandatory.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							Description:  `The username that Database Migration Service will use to connect to the database. The value is encrypted when stored in Database Migration Service.`,
-							RequiredWith: []string{"postgresql.0.host", "postgresql.0.password", "postgresql.0.port"},
+							RequiredWith: []string{"postgresql.0.password"},
 						},
 						"network_architecture": {
 							Type:        schema.TypeString,
@@ -809,6 +830,13 @@ If this field is used then the 'clientCertificate' field is mandatory.`,
 					},
 				},
 				ExactlyOneOf: []string{"alloydb", "cloudsql", "mysql", "oracle", "postgresql"},
+			},
+			"role": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"SOURCE", "DESTINATION", ""}),
+				Description:  `The connection profile role. Possible values: ["SOURCE", "DESTINATION"]`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -906,6 +934,12 @@ func resourceDatabaseMigrationServiceConnectionProfileCreate(d *schema.ResourceD
 		return err
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
+	}
+	roleProp, err := expandDatabaseMigrationServiceConnectionProfileRole(d.Get("role"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("role"); !tpgresource.IsEmptyValue(reflect.ValueOf(roleProp)) && (ok || !reflect.DeepEqual(v, roleProp)) {
+		obj["role"] = roleProp
 	}
 	mysqlProp, err := expandDatabaseMigrationServiceConnectionProfileMysql(d.Get("mysql"), d, config)
 	if err != nil {
@@ -1165,6 +1199,12 @@ func resourceDatabaseMigrationServiceConnectionProfileUpdate(d *schema.ResourceD
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	roleProp, err := expandDatabaseMigrationServiceConnectionProfileRole(d.Get("role"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("role"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, roleProp)) {
+		obj["role"] = roleProp
+	}
 	mysqlProp, err := expandDatabaseMigrationServiceConnectionProfileMysql(d.Get("mysql"), d, config)
 	if err != nil {
 		return err
@@ -1213,6 +1253,10 @@ func resourceDatabaseMigrationServiceConnectionProfileUpdate(d *schema.ResourceD
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("role") {
+		updateMask = append(updateMask, "role")
 	}
 
 	if d.HasChange("mysql") {
@@ -1440,6 +1484,10 @@ func flattenDatabaseMigrationServiceConnectionProfileDbprovider(v interface{}, d
 	return v
 }
 
+func flattenDatabaseMigrationServiceConnectionProfileRole(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDatabaseMigrationServiceConnectionProfileMysql(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1556,6 +1604,8 @@ func flattenDatabaseMigrationServiceConnectionProfilePostgresql(v interface{}, d
 		flattenDatabaseMigrationServiceConnectionProfilePostgresqlPassword(original["password"], d, config)
 	transformed["password_set"] =
 		flattenDatabaseMigrationServiceConnectionProfilePostgresqlPasswordSet(original["passwordSet"], d, config)
+	transformed["database"] =
+		flattenDatabaseMigrationServiceConnectionProfilePostgresqlDatabase(original["database"], d, config)
 	transformed["ssl"] =
 		flattenDatabaseMigrationServiceConnectionProfilePostgresqlSsl(original["ssl"], d, config)
 	transformed["cloud_sql_id"] =
@@ -1564,6 +1614,8 @@ func flattenDatabaseMigrationServiceConnectionProfilePostgresql(v interface{}, d
 		flattenDatabaseMigrationServiceConnectionProfilePostgresqlAlloydbClusterId(original["alloydbClusterId"], d, config)
 	transformed["network_architecture"] =
 		flattenDatabaseMigrationServiceConnectionProfilePostgresqlNetworkArchitecture(original["networkArchitecture"], d, config)
+	transformed["private_connectivity"] =
+		flattenDatabaseMigrationServiceConnectionProfilePostgresqlPrivateConnectivity(original["privateConnectivity"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDatabaseMigrationServiceConnectionProfilePostgresqlHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1596,6 +1648,10 @@ func flattenDatabaseMigrationServiceConnectionProfilePostgresqlPassword(v interf
 }
 
 func flattenDatabaseMigrationServiceConnectionProfilePostgresqlPasswordSet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDatabaseMigrationServiceConnectionProfilePostgresqlDatabase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1643,6 +1699,23 @@ func flattenDatabaseMigrationServiceConnectionProfilePostgresqlAlloydbClusterId(
 }
 
 func flattenDatabaseMigrationServiceConnectionProfilePostgresqlNetworkArchitecture(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDatabaseMigrationServiceConnectionProfilePostgresqlPrivateConnectivity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["private_connection"] =
+		flattenDatabaseMigrationServiceConnectionProfilePostgresqlPrivateConnectivityPrivateConnection(original["privateConnection"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatabaseMigrationServiceConnectionProfilePostgresqlPrivateConnectivityPrivateConnection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2201,6 +2274,10 @@ func expandDatabaseMigrationServiceConnectionProfileDisplayName(v interface{}, d
 	return v, nil
 }
 
+func expandDatabaseMigrationServiceConnectionProfileRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDatabaseMigrationServiceConnectionProfileMysql(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -2395,6 +2472,13 @@ func expandDatabaseMigrationServiceConnectionProfilePostgresql(v interface{}, d 
 		transformed["passwordSet"] = transformedPasswordSet
 	}
 
+	transformedDatabase, err := expandDatabaseMigrationServiceConnectionProfilePostgresqlDatabase(original["database"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDatabase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["database"] = transformedDatabase
+	}
+
 	transformedSsl, err := expandDatabaseMigrationServiceConnectionProfilePostgresqlSsl(original["ssl"], d, config)
 	if err != nil {
 		return nil, err
@@ -2423,6 +2507,13 @@ func expandDatabaseMigrationServiceConnectionProfilePostgresql(v interface{}, d 
 		transformed["networkArchitecture"] = transformedNetworkArchitecture
 	}
 
+	transformedPrivateConnectivity, err := expandDatabaseMigrationServiceConnectionProfilePostgresqlPrivateConnectivity(original["private_connectivity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrivateConnectivity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["privateConnectivity"] = transformedPrivateConnectivity
+	}
+
 	return transformed, nil
 }
 
@@ -2443,6 +2534,10 @@ func expandDatabaseMigrationServiceConnectionProfilePostgresqlPassword(v interfa
 }
 
 func expandDatabaseMigrationServiceConnectionProfilePostgresqlPasswordSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatabaseMigrationServiceConnectionProfilePostgresqlDatabase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2514,6 +2609,32 @@ func expandDatabaseMigrationServiceConnectionProfilePostgresqlAlloydbClusterId(v
 }
 
 func expandDatabaseMigrationServiceConnectionProfilePostgresqlNetworkArchitecture(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatabaseMigrationServiceConnectionProfilePostgresqlPrivateConnectivity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPrivateConnection, err := expandDatabaseMigrationServiceConnectionProfilePostgresqlPrivateConnectivityPrivateConnection(original["private_connection"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrivateConnection); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["privateConnection"] = transformedPrivateConnection
+	}
+
+	return transformed, nil
+}
+
+func expandDatabaseMigrationServiceConnectionProfilePostgresqlPrivateConnectivityPrivateConnection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3461,6 +3582,9 @@ func ResourceDatabaseMigrationServiceConnectionProfileFlatten(d *schema.Resource
 		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
 	}
 	if err = d.Set("dbprovider", flattenDatabaseMigrationServiceConnectionProfileDbprovider(res["provider"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err = d.Set("role", flattenDatabaseMigrationServiceConnectionProfileRole(res["role"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
 	}
 	if err = d.Set("mysql", flattenDatabaseMigrationServiceConnectionProfileMysql(res["mysql"], d, config)); err != nil {
