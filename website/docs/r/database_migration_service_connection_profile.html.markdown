@@ -536,6 +536,11 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `role` -
+  (Optional)
+  The connection profile role.
+  Possible values are: `SOURCE`, `DESTINATION`.
+
 * `mysql` -
   (Optional)
   Specifies connection parameters required specifically for MySQL databases.
@@ -607,7 +612,7 @@ The following arguments are supported:
 
 * `cloud_sql_id` -
   (Optional)
-  If the source is a Cloud SQL database, use this field to provide the Cloud SQL instance ID of the source.
+  If the connection profile is a Cloud SQL database, use this field to provide the Cloud SQL instance ID.
 
 
 <a name="nested_mysql_ssl"></a>The `ssl` block supports:
@@ -659,6 +664,10 @@ The following arguments are supported:
   (Output)
   Output only. Indicates If this connection profile password is stored.
 
+* `database` -
+  (Optional)
+  The name of the specific database within the host.
+
 * `ssl` -
   (Optional)
   SSL configuration for the destination to connect to the source database.
@@ -666,15 +675,20 @@ The following arguments are supported:
 
 * `cloud_sql_id` -
   (Optional)
-  If the source is a Cloud SQL database, use this field to provide the Cloud SQL instance ID of the source.
+  If the connection profile is a Cloud SQL database, use this field to provide the Cloud SQL instance ID.
 
 * `alloydb_cluster_id` -
   (Optional)
-  If the connected database is an AlloyDB instance, use this field to provide the AlloyDB cluster ID.
+  If the connection profile is an AlloyDB instance, use this field to provide the AlloyDB cluster ID.
 
 * `network_architecture` -
   (Output)
   Output only. If the source is a Cloud SQL database, this field indicates the network architecture it's associated with.
+
+* `private_connectivity` -
+  (Optional)
+  Private connectivity.
+  Structure is [documented below](#nested_postgresql_private_connectivity).
 
 
 <a name="nested_postgresql_ssl"></a>The `ssl` block supports:
@@ -701,6 +715,12 @@ The following arguments are supported:
   Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
   The replica will use this certificate to verify it's connecting to the right host.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_postgresql_private_connectivity"></a>The `private_connectivity` block supports:
+
+* `private_connection` -
+  (Required)
+  Required. The resource name (URI) of the private connection.
 
 <a name="nested_oracle"></a>The `oracle` block supports:
 

@@ -1,0 +1,7 @@
+```release-note:enhancement
+databasemigrationservice: added `postgres_homogeneous_config` field to `google_database_migration_service_migration_job` resource
+```
+
+```release-note:enhancement
+databasemigrationservice: added `database` and `private_connectivity` fields to `google_database_migration_service_connection_profile` resource
+```

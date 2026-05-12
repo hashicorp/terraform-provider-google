@@ -272,3 +272,177 @@ resource "google_database_migration_service_migration_job" "mysqltomysql" {
 }
 `, context)
 }
+
+func TestAccDatabaseMigrationServiceMigrationJob_postgresQuickstart(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+	t.Logf("Running test with random suffix: %s", context["random_suffix"])
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatabaseMigrationServiceMigrationJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatabaseMigrationServiceMigrationJob_postgresQuickstart(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_database_migration_service_migration_job.psql_to_psql", "type", "CONTINUOUS"),
+					resource.TestCheckResourceAttr("google_database_migration_service_migration_job.psql_to_psql", "postgres_homogeneous_config.0.is_native_logical", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_database_migration_service_migration_job.psql_to_psql",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels", "state"},
+			},
+		},
+	})
+}
+
+func testAccDatabaseMigrationServiceMigrationJob_postgresQuickstart(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "default" {
+  name = "tf-test-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "tf-test-subnet%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-east1"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          =  "tf-test-network-ip%{random_suffix}"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = google_compute_network.default.id
+}
+
+resource "google_service_networking_connection" "vpc_connection" {
+  network                 = google_compute_network.default.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+  deletion_policy         = "ABANDON"
+}
+
+resource "google_compute_network_attachment" "default" {
+  name                  = "tf-test-attachment%{random_suffix}"
+  region                = "us-east1"
+  connection_preference = "ACCEPT_AUTOMATIC"
+  subnetworks           = [google_compute_subnetwork.default.id]
+}
+
+resource "google_database_migration_service_private_connection" "default" {
+	display_name          = "tf-test-pc%{random_suffix}"
+	location              = "us-east1"
+	private_connection_id = "tf-test-pc%{random_suffix}"
+
+	psc_interface_config {
+		network_attachment = google_compute_network_attachment.default.id
+	}
+
+	# Ensures the VPC peering for Cloud SQL exists before we try to use the network
+	# and is the last to be deleted.
+	depends_on = [google_service_networking_connection.vpc_connection]
+}
+
+resource "google_sql_database_instance" "source" {
+  name             = "tf-test-src-psql%{random_suffix}"
+  database_version = "POSTGRES_12"
+  region           = "us-east1"
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      ipv4_enabled    = false
+      private_network = google_compute_network.default.id
+    }
+  }
+  deletion_protection = false
+  depends_on = [google_service_networking_connection.vpc_connection]
+}
+
+resource "google_sql_user" "source_postgres" {
+  name     = "postgres"
+  instance = google_sql_database_instance.source.name
+  password = "P@ssw0rd!"
+}
+
+resource "google_database_migration_service_connection_profile" "source" {
+  location              = "us-east1"
+  connection_profile_id = "tf-test-src-cp%{random_suffix}"
+  display_name          = "Source Connection Profile"
+  role                  = "SOURCE"
+  postgresql {
+    host     = google_sql_database_instance.source.private_ip_address
+    port     = 5432
+    username = "postgres"
+    password = "P@ssw0rd!"
+    database = "template1"
+    ssl {
+      type = "REQUIRED"
+    }
+    private_connectivity {
+      private_connection = google_database_migration_service_private_connection.default.id
+    }
+  }
+  depends_on = [google_sql_user.source_postgres]
+}
+
+resource "google_sql_database_instance" "dest" {
+  name             = "tf-test-dest-psql%{random_suffix}"
+  database_version = "POSTGRES_12"
+  region           = "us-east1"
+  settings {
+    tier = "db-f1-micro"
+  }
+  deletion_protection = false
+}
+
+resource "google_sql_user" "dest_postgres" {
+  name     = "postgres"
+  instance = google_sql_database_instance.dest.name
+  password = "P@ssw0rd!"
+}
+
+resource "google_database_migration_service_connection_profile" "dest" {
+  location              = "us-east1"
+  connection_profile_id = "tf-test-dest-cp%{random_suffix}"
+  display_name          = "Destination Connection Profile"
+  role                  = "DESTINATION"
+  postgresql {
+    username     = "postgres"
+    password     = "P@ssw0rd!"
+    cloud_sql_id = google_sql_database_instance.dest.name
+  }
+  depends_on = [google_sql_user.dest_postgres]
+}
+
+resource "google_database_migration_service_migration_job" "psql_to_psql" {
+  location              = "us-east1"
+  migration_job_id      = "tf-test-mj-psql%{random_suffix}"
+  display_name          = "Postgres Quickstart Migration Job"
+  
+  source          = google_database_migration_service_connection_profile.source.name
+  destination     = google_database_migration_service_connection_profile.dest.name
+  type            = "CONTINUOUS"
+
+  postgres_homogeneous_config {
+    is_native_logical = true
+    max_additional_subscriptions = 10
+  }
+
+  objects_config {
+    source_objects_config {
+      objects_selection_type = "ALL_OBJECTS"
+    }
+  }
+}
+`, context)
+}

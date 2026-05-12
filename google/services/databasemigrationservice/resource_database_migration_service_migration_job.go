@@ -335,6 +335,26 @@ source are migrated. Possible values: ["ALL_OBJECTS", "SPECIFIED_OBJECTS"]`,
 					},
 				},
 			},
+			"postgres_homogeneous_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `PostgreSQL to PostgreSQL configuration.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"is_native_logical": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `Whether the migration uses native logical replication.`,
+						},
+						"max_additional_subscriptions": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Maximum number of additional subscriptions to use for the migration job.`,
+						},
+					},
+				},
+			},
 			"reverse_ssh_connectivity": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -367,7 +387,7 @@ bastion server for the SSH tunnel.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"static_ip_connectivity", "vpc_peering_connectivity"},
+				ConflictsWith: []string{"static_ip_connectivity", "vpc_peering_connectivity"},
 			},
 			"static_ip_connectivity": {
 				Type:     schema.TypeList,
@@ -380,7 +400,7 @@ Cloud SQL console or using Cloud SQL APIs.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{},
 				},
-				ExactlyOneOf: []string{"reverse_ssh_connectivity", "vpc_peering_connectivity"},
+				ConflictsWith: []string{"reverse_ssh_connectivity", "vpc_peering_connectivity"},
 			},
 			"vpc_peering_connectivity": {
 				Type:        schema.TypeList,
@@ -396,7 +416,7 @@ Cloud SQL console or using Cloud SQL APIs.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"reverse_ssh_connectivity", "static_ip_connectivity"},
+				ConflictsWith: []string{"reverse_ssh_connectivity", "static_ip_connectivity"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -524,6 +544,12 @@ func resourceDatabaseMigrationServiceMigrationJobCreate(d *schema.ResourceData, 
 		return err
 	} else if v, ok := d.GetOkExists("performance_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(performanceConfigProp)) && (ok || !reflect.DeepEqual(v, performanceConfigProp)) {
 		obj["performanceConfig"] = performanceConfigProp
+	}
+	postgresHomogeneousConfigProp, err := expandDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfig(d.Get("postgres_homogeneous_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("postgres_homogeneous_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(postgresHomogeneousConfigProp)) && (ok || !reflect.DeepEqual(v, postgresHomogeneousConfigProp)) {
+		obj["postgresHomogeneousConfig"] = postgresHomogeneousConfigProp
 	}
 	dumpPathProp, err := expandDatabaseMigrationServiceMigrationJobDumpPath(d.Get("dump_path"), d, config)
 	if err != nil {
@@ -801,6 +827,12 @@ func resourceDatabaseMigrationServiceMigrationJobUpdate(d *schema.ResourceData, 
 	} else if v, ok := d.GetOkExists("performance_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, performanceConfigProp)) {
 		obj["performanceConfig"] = performanceConfigProp
 	}
+	postgresHomogeneousConfigProp, err := expandDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfig(d.Get("postgres_homogeneous_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("postgres_homogeneous_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, postgresHomogeneousConfigProp)) {
+		obj["postgresHomogeneousConfig"] = postgresHomogeneousConfigProp
+	}
 	dumpPathProp, err := expandDatabaseMigrationServiceMigrationJobDumpPath(d.Get("dump_path"), d, config)
 	if err != nil {
 		return err
@@ -857,6 +889,10 @@ func resourceDatabaseMigrationServiceMigrationJobUpdate(d *schema.ResourceData, 
 
 	if d.HasChange("performance_config") {
 		updateMask = append(updateMask, "performanceConfig")
+	}
+
+	if d.HasChange("postgres_homogeneous_config") {
+		updateMask = append(updateMask, "postgresHomogeneousConfig")
 	}
 
 	if d.HasChange("dump_path") {
@@ -1174,6 +1210,42 @@ func flattenDatabaseMigrationServiceMigrationJobPerformanceConfigDumpParallelLev
 	return v
 }
 
+func flattenDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["is_native_logical"] =
+		flattenDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfigIsNativeLogical(original["isNativeLogical"], d, config)
+	transformed["max_additional_subscriptions"] =
+		flattenDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfigMaxAdditionalSubscriptions(original["maxAdditionalSubscriptions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfigIsNativeLogical(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfigMaxAdditionalSubscriptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenDatabaseMigrationServiceMigrationJobDumpPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1460,6 +1532,43 @@ func expandDatabaseMigrationServiceMigrationJobPerformanceConfig(v interface{}, 
 }
 
 func expandDatabaseMigrationServiceMigrationJobPerformanceConfigDumpParallelLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIsNativeLogical, err := expandDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfigIsNativeLogical(original["is_native_logical"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIsNativeLogical); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["isNativeLogical"] = transformedIsNativeLogical
+	}
+
+	transformedMaxAdditionalSubscriptions, err := expandDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfigMaxAdditionalSubscriptions(original["max_additional_subscriptions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxAdditionalSubscriptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxAdditionalSubscriptions"] = transformedMaxAdditionalSubscriptions
+	}
+
+	return transformed, nil
+}
+
+func expandDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfigIsNativeLogical(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfigMaxAdditionalSubscriptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1761,6 +1870,9 @@ func ResourceDatabaseMigrationServiceMigrationJobFlatten(d *schema.ResourceData,
 		return fmt.Errorf("Error reading MigrationJob: %s", err)
 	}
 	if err = d.Set("performance_config", flattenDatabaseMigrationServiceMigrationJobPerformanceConfig(res["performanceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MigrationJob: %s", err)
+	}
+	if err = d.Set("postgres_homogeneous_config", flattenDatabaseMigrationServiceMigrationJobPostgresHomogeneousConfig(res["postgresHomogeneousConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MigrationJob: %s", err)
 	}
 	if err = d.Set("dump_path", flattenDatabaseMigrationServiceMigrationJobDumpPath(res["dumpPath"], d, config)); err != nil {

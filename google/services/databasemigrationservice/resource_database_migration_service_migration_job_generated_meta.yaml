@@ -32,6 +32,8 @@ fields:
     - api_field: objectsConfig.sourceObjectsConfig.objectsSelectionType
     - api_field: performanceConfig.dumpParallelLevel
     - api_field: phase
+    - api_field: postgresHomogeneousConfig.isNativeLogical
+    - api_field: postgresHomogeneousConfig.maxAdditionalSubscriptions
     - api_field: reverseSshConnectivity.vm
     - api_field: reverseSshConnectivity.vmIp
     - api_field: reverseSshConnectivity.vmPort
