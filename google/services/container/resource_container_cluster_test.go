@@ -7476,6 +7476,9 @@ resource "google_container_cluster" "primary" {
     lustre_csi_driver_config {
       enabled = false
     }
+    pod_snapshot_config {
+      enabled = false
+    }
   }
   network    = "%s"
   subnetwork = "%s"
@@ -7552,6 +7555,9 @@ resource "google_container_cluster" "primary" {
       enabled = true
       enable_legacy_lustre_port=true
 	  disable_multi_nic=false
+    }
+    pod_snapshot_config {
+      enabled = true
     }
 	}
   network    = "%s"

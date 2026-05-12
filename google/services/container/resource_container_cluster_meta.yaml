@@ -23,6 +23,7 @@ fields:
   - api_field: 'addonsConfig.gkeBackupAgentConfig.enabled'
   - api_field: 'addonsConfig.horizontalPodAutoscaling.disabled'
   - api_field: 'addonsConfig.httpLoadBalancing.disabled'
+  - api_field: 'addonsConfig.podSnapshotConfig.enabled'
   - api_field: 'addonsConfig.lustreCsiDriverConfig.enableLegacyLustrePort'
   - api_field: 'addonsConfig.lustreCsiDriverConfig.disableMultiNic'
   - api_field: 'addonsConfig.lustreCsiDriverConfig.enabled'
