@@ -15,6 +15,7 @@ fields:
     - api_field: deleteObject.permanentObjectDeletionEnabled
     - field: delete_protection
       provider_only: true
+    - api_field: description
     - field: job_id
       provider_only: true
     - api_field: putMetadata.cacheControl
