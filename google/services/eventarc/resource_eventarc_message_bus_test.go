@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -106,7 +107,7 @@ func testAccEventarcMessageBus_cryptoKey(t *testing.T) {
 	context := map[string]interface{}{
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
 		"region":         region,
-		"key":            acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-messagebus-key").CryptoKey.Name,
+		"key":            kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-messagebus-key").CryptoKey.Name,
 		"random_suffix":  acctest.RandString(t, 10),
 	}
 	acctest.BootstrapIamMembers(t, []acctest.IamMember{
@@ -152,8 +153,8 @@ func testAccEventarcMessageBus_update(t *testing.T) {
 	context := map[string]interface{}{
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
 		"region":         region,
-		"key1":           acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-messagebus-key1").CryptoKey.Name,
-		"key2":           acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-messagebus-key2").CryptoKey.Name,
+		"key1":           kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-messagebus-key1").CryptoKey.Name,
+		"key2":           kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-messagebus-key2").CryptoKey.Name,
 		"random_suffix":  acctest.RandString(t, 10),
 	}
 	acctest.BootstrapIamMembers(t, []acctest.IamMember{
@@ -257,7 +258,7 @@ func testAccEventarcMessageBus_googleApiSource(t *testing.T) {
 	region := envvar.GetTestRegionFromEnv()
 	context := map[string]interface{}{
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"key1":           acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-googleapisource-key1").CryptoKey.Name,
+		"key1":           kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-googleapisource-key1").CryptoKey.Name,
 		"region":         region,
 		"random_suffix":  acctest.RandString(t, 10),
 	}
@@ -323,8 +324,8 @@ func testAccEventarcMessageBus_updateGoogleApiSource(t *testing.T) {
 	region := envvar.GetTestRegionFromEnv()
 	context := map[string]interface{}{
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"key1":           acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-googleapisource-key1").CryptoKey.Name,
-		"key2":           acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-googleapisource-key2").CryptoKey.Name,
+		"key1":           kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-googleapisource-key1").CryptoKey.Name,
+		"key2":           kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-googleapisource-key2").CryptoKey.Name,
 		"region":         region,
 		"random_suffix":  acctest.RandString(t, 10),
 	}

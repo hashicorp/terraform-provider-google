@@ -29,7 +29,7 @@ import (
 )
 
 func TestAccDataSourceGoogleKmsKeyHandles_basic(t *testing.T) {
-	kmsAutokey := acctest.BootstrapKMSAutokeyKeyHandle(t)
+	kmsAutokey := BootstrapKMSAutokeyKeyHandle(t)
 	keyParts := strings.Split(kmsAutokey.KeyHandle.Name, "/")
 	project := keyParts[1]
 	location := keyParts[3]

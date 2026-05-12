@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -108,7 +114,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreKmsKeyNameExample(t
 
 	context := map[string]interface{}{
 		"data_store_id": "tf-test-data-store-id" + randomSuffix,
-		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us").CryptoKey.Name,
+		"kms_key_name":  kms.BootstrapKMSKeyInLocation(t, "us").CryptoKey.Name,
 		"random_suffix": randomSuffix,
 	}
 

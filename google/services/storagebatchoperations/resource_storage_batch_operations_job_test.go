@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccStorageBatchOperationsJobs_createJobWithPrefix(t *testing.T) {
@@ -143,7 +144,7 @@ func TestAccStorageBatchOperationsJobs_batchOperationJobKmsKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"kms_key":     acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"kms_key":     kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"job_id":      fmt.Sprintf("tf-test-job-%d", acctest.RandInt(t)),
 		"object_name": fmt.Sprintf("tf-test-object-%d", acctest.RandInt(t)),
 		"bucket_name": acctest.TestBucketName(t),

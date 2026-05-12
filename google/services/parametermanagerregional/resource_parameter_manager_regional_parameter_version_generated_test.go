@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -204,7 +210,7 @@ func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVe
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"kms_key":              acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"kms_key":              kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"parameter_id":         "tf_test_regional_parameter" + randomSuffix,
 		"parameter_version_id": "tf_test_regional_parameter_version" + randomSuffix,
 		"random_suffix":        randomSuffix,

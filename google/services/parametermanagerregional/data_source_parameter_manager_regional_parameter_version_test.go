@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccDataSourceParameterManagerRegionalRegionalParameterVersion_basicWithResourceReference(t *testing.T) {
@@ -220,7 +221,7 @@ func TestAccDataSourceParameterManagerRegionalRegionalParameterVersion_withKmsKe
 	})
 
 	context := map[string]interface{}{
-		"kms_key":       acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-parameter-manager-managed-central-key1").CryptoKey.Name,
+		"kms_key":       kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-parameter-manager-managed-central-key1").CryptoKey.Name,
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

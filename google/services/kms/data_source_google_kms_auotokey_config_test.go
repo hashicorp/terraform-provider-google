@@ -17,17 +17,268 @@
 package kms_test
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
+	tpgserviceusage "github.com/hashicorp/terraform-provider-google/google/services/serviceusage"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
+
+	cloudkms "google.golang.org/api/cloudkms/v1"
+	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 )
 
+var DefaultKeyHandleName = "eed58b7b-20ad-4da8-ad85-ba78a0d5ab87"
+var DefaultKeyHandleResourceType = "compute.googleapis.com/Disk"
+var CloudKmsSrviceName = "cloudkms.googleapis.com"
+
+type BootstrappedKMSAutokey struct {
+	*cloudkms.AutokeyConfig
+	*cloudkms.KeyHandle
+}
+
+func BootstrapKMSAutokeyKeyHandle(t *testing.T) BootstrappedKMSAutokey {
+	return BootstrapKMSAutokeyKeyHandleWithLocation(t, "global")
+}
+
+func BootstrapKMSAutokeyKeyHandleWithLocation(t *testing.T, locationID string) BootstrappedKMSAutokey {
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		return BootstrappedKMSAutokey{
+			&cloudkms.AutokeyConfig{},
+			&cloudkms.KeyHandle{},
+		}
+	}
+
+	autokeyFolder, kmsProject, resourceProject := setupAutokeyTestResources(t, config)
+
+	// Enable autokey on autokey test folder
+	kmsClient := kms.NewClient(config, config.UserAgent)
+	autokeyConfigID := fmt.Sprintf("%s/autokeyConfig", autokeyFolder.Name)
+	autokeyConfig, err := kmsClient.Folders.UpdateAutokeyConfig(autokeyConfigID, &cloudkms.AutokeyConfig{
+		KeyProject: fmt.Sprintf("projects/%s", kmsProject.ProjectId),
+	}).UpdateMask("keyProject").Do()
+	if err != nil {
+		t.Errorf("unable to bootstrap KMS keyHandle. Cannot enable autokey on autokey test folder: %s", err)
+	}
+
+	keyHandleParent := fmt.Sprintf("projects/%s/locations/%s", resourceProject.ProjectId, locationID)
+	keyHandleName := fmt.Sprintf("%s/keyHandles/%s", keyHandleParent, DefaultKeyHandleName)
+
+	// Get or Create the hard coded keyHandle for testing
+	keyHandle, err := kmsClient.Projects.Locations.KeyHandles.Get(keyHandleName).Do()
+
+	if err != nil {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+			newKeyHandle := cloudkms.KeyHandle{
+				ResourceTypeSelector: DefaultKeyHandleResourceType,
+			}
+
+			keyHandleOp, err := kmsClient.Projects.Locations.KeyHandles.Create(keyHandleParent, &newKeyHandle).KeyHandleId(DefaultKeyHandleName).Do()
+			if err != nil {
+				t.Errorf("unable to bootstrap KMS keyHandle. Cannot create new KeyHandle: %s", err)
+			}
+
+			opAsMap, err := tpgresource.ConvertToMap(keyHandleOp)
+			if err != nil {
+				t.Errorf("unable to bootstrap KMS keyHandle. Cannot get operation map: %s", err)
+			}
+
+			var response map[string]interface{}
+			err = kms.KMSOperationWaitTimeWithResponse(config, opAsMap, &response, resourceProject.ProjectId, "creating keyHandle", config.UserAgent, time.Duration(5)*time.Minute)
+			if err != nil {
+				t.Errorf("unable to bootstrap KMS keyHandle. Cannot wait for create keyhandle operation: %s", err)
+			}
+			keyHandle = &cloudkms.KeyHandle{
+				Name:                 response["name"].(string),
+				KmsKey:               response["kmsKey"].(string),
+				ResourceTypeSelector: response["resourceTypeSelector"].(string),
+			}
+		} else {
+			t.Errorf("unable to bootstrap KMS keyHandle. Cannot call KeyHandle service: %s", err)
+		}
+	}
+
+	if keyHandle == nil {
+		t.Fatalf("unable to bootstrap KMS keyHandle. KeyHandle is nil!")
+	}
+
+	return BootstrappedKMSAutokey{
+		autokeyConfig,
+		keyHandle,
+	}
+}
+
+func setupAutokeyTestResources(t *testing.T, config *transport_tpg.Config) (*resourceManagerV3.Folder, *cloudresourcemanager.Project, *cloudresourcemanager.Project) {
+	projectIDSuffix := strings.Replace(envvar.GetTestProjectFromEnv(), "ci-test-project-", "", 1)
+	defaultAutokeyTestFolderName := fmt.Sprintf("autokeytest-%s-fd", projectIDSuffix)
+	defaultAutokeyTestKmsProject := fmt.Sprintf("test-kms-%s-prj", projectIDSuffix)
+	defaultAutokeyTestResourceProject := fmt.Sprintf("test-res-%s-prj", projectIDSuffix)
+
+	curUserEmail, err := transport_tpg.GetCurrentUserEmail(config, config.UserAgent)
+	if err != nil {
+		t.Errorf("unable to bootstrap KMS keyHandle. Cannot get current usr: %s", err)
+	}
+	// create a folder to configure autokey config and resource folder
+	autokeyFolder := acctest.BootstrapFolder(t, defaultAutokeyTestFolderName)
+	parent := &cloudresourcemanager.ResourceId{
+		Type: "folder",
+		Id:   strings.Split(autokeyFolder.Name, "/")[1],
+	}
+	// create and setup kms project for hosting keyring and keys for autokey
+	kmsProject := acctest.BootstrapProjectWithParent(t, defaultAutokeyTestKmsProject, envvar.GetTestBillingAccountFromEnv(t), parent, []string{CloudKmsSrviceName})
+	kmsProjectID := fmt.Sprintf("projects/%s", kmsProject.ProjectId)
+	kmsSAEmail, err := GenerateCloudKmsServiceIdentity(config, fmt.Sprintf("%v", kmsProject.ProjectNumber))
+	if err != nil {
+		t.Errorf("unable to bootstrap KMS keyHandle. Cannot create cloudkms service identity: %s", err)
+	}
+	err = addFolderBinding2(resourcemanagerv3.NewClient(config, config.UserAgent), autokeyFolder.Name, fmt.Sprintf("user:%s", curUserEmail), []string{"roles/cloudkms.admin"})
+	if err != nil {
+		t.Errorf("unable to bootstrap KMS keyHandle. Cannot assign cloudkms.admin role to current user on autokey test folder: %s", err)
+	}
+	err = addProjectBinding(resourcemanagerv3.NewClient(config, config.UserAgent), kmsProjectID, fmt.Sprintf("user:%s", curUserEmail), []string{"roles/resourcemanager.projectIamAdmin", "roles/cloudkms.admin"})
+	if err != nil {
+		t.Errorf("unable to bootstrap KMS keyHandle. Cannot assign cloudkms.admin and projectIamAdmin role to current user on kms project: %s", err)
+	}
+	err = addProjectBinding(resourcemanagerv3.NewClient(config, config.UserAgent), kmsProjectID, fmt.Sprintf("serviceAccount:%s", kmsSAEmail), []string{"roles/cloudkms.admin"})
+	if err != nil {
+		t.Errorf("unable to bootstrap KMS keyHandle. Cannot assign cloudkms.admin role to cloudkms service identity on kms project: %s", err)
+	}
+
+	// create and setup resource folder to host keyhandle
+	resourceProject := acctest.BootstrapProjectWithParent(t, defaultAutokeyTestResourceProject, envvar.GetTestBillingAccountFromEnv(t), parent, []string{})
+	return autokeyFolder, kmsProject, resourceProject
+}
+
+// GenerateCloudKmsServiceIdentity generates cloud kms service identity within a project
+func GenerateCloudKmsServiceIdentity(config *transport_tpg.Config, projectNum string) (string, error) {
+	url := fmt.Sprintf("https://serviceusage.googleapis.com/v1beta1/projects/%s/services/%s:generateServiceIdentity", projectNum, CloudKmsSrviceName)
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   projectNum,
+		RawURL:    url,
+		UserAgent: config.UserAgent,
+		Timeout:   time.Minute * 4,
+	})
+	if err != nil {
+		return "", fmt.Errorf("error creating cloudkms service identity: %s", err)
+	}
+
+	var opRes map[string]interface{}
+	err = tpgserviceusage.ServiceUsageOperationWaitTimeWithResponse(
+		config, res, &opRes, projectNum, "Creating cloudkms service identity", config.UserAgent,
+		time.Minute*4)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("service-%s@gcp-sa-cloudkms.iam.gserviceaccount.com", projectNum), nil
+}
+
+func addProjectBinding(crmService *resourceManagerV3.Service, projectID string, member string, roles []string) error {
+	return addBinding(crmService, "project", projectID, member, roles)
+}
+
+func addFolderBinding2(crmService *resourceManagerV3.Service, folderID string, member string, roles []string) error {
+	return addBinding(crmService, "folder", folderID, member, roles)
+}
+
+// addBinding adds the member to the project's IAM policy
+func addBinding(crmService *resourceManagerV3.Service, resourceType string, resourceID string, member string, roles []string) error {
+
+	policy, err := getPolicy(crmService, resourceType, resourceID)
+	if err != nil {
+		return err
+	}
+
+	// Find the policy binding for role. Only one binding can have the role.
+	var binding *resourceManagerV3.Binding
+	for _, role := range roles {
+		for _, b := range policy.Bindings {
+			if b.Role == role {
+				binding = b
+				break
+			}
+		}
+
+		if binding != nil {
+			// If the binding exists, adds the member to the binding
+			binding.Members = append(binding.Members, member)
+		} else {
+			// If the binding does not exist, adds a new binding to the policy
+			binding = &resourceManagerV3.Binding{
+				Role:    role,
+				Members: []string{member},
+			}
+			policy.Bindings = append(policy.Bindings, binding)
+		}
+	}
+	setPolicy(crmService, resourceType, resourceID, policy)
+	return nil
+}
+
+// getPolicy gets the IAM policy on input resourceID
+// resourceType can be "project" or "folder"
+func getPolicy(crmService *resourceManagerV3.Service, resourceType string, resourceID string) (*resourceManagerV3.Policy, error) {
+
+	ctx := context.Background()
+
+	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
+	defer cancel()
+	request := new(resourceManagerV3.GetIamPolicyRequest)
+	var policy *resourceManagerV3.Policy
+	var err error
+	if resourceType == "project" {
+		policy, err = crmService.Projects.GetIamPolicy(resourceID, request).Do()
+	} else if resourceType == "folder" {
+		policy, err = crmService.Folders.GetIamPolicy(resourceID, request).Do()
+	} else {
+		return nil, fmt.Errorf("invalid resourceType, supported values: project or folder")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("error getting iam policy: %s", err)
+	}
+	return policy, nil
+}
+
+// setPolicy sets the IAM policy on input resourceID
+// resourceType can be "project" or "folder"
+func setPolicy(crmService *resourceManagerV3.Service, resourceType string, resourceID string, policy *resourceManagerV3.Policy) error {
+
+	ctx := context.Background()
+
+	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
+	defer cancel()
+	request := new(resourceManagerV3.SetIamPolicyRequest)
+	request.Policy = policy
+	var err error
+	if resourceType == "project" {
+		_, err = crmService.Projects.SetIamPolicy(resourceID, request).Do()
+	} else if resourceType == "folder" {
+		_, err = crmService.Folders.SetIamPolicy(resourceID, request).Do()
+	} else {
+		return fmt.Errorf("invalid resourceType, supported values: project or folder")
+	}
+	if err != nil {
+		return fmt.Errorf("error setting iam policy: %s", err)
+	}
+	return nil
+}
+
 func TestAccDataSourceGoogleKmsAutokeyConfig_basic(t *testing.T) {
-	kmsAutokey := acctest.BootstrapKMSAutokeyKeyHandle(t)
+	kmsAutokey := BootstrapKMSAutokeyKeyHandle(t)
 	folder := fmt.Sprintf("folders/%s", strings.Split(kmsAutokey.AutokeyConfig.Name, "/")[1])
 
 	acctest.VcrTest(t, resource.TestCase{

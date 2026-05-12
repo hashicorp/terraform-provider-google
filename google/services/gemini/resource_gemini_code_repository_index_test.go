@@ -24,10 +24,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccGeminiCodeRepositoryIndex_update(t *testing.T) {
-	bootstrappedKMS := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	bootstrappedKMS := kms.BootstrapKMSKeyInLocation(t, "us-central1")
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"project_id":    os.Getenv("GOOGLE_PROJECT"),
@@ -65,7 +66,7 @@ func TestAccGeminiCodeRepositoryIndex_update(t *testing.T) {
 // will be force-removed upon CRI deletion, because the CRI provider uses --force option by default
 // The plan after the _delete function should not be empty due to the child resource in plan
 func TestAccGeminiCodeRepositoryIndex_delete(t *testing.T) {
-	bootstrappedKMS := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	bootstrappedKMS := kms.BootstrapKMSKeyInLocation(t, "us-central1")
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,

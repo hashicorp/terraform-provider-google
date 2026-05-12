@@ -23,10 +23,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(t *testing.T) {
-	asymSignKey := acctest.BootstrapKMSKeyWithPurpose(t, "ASYMMETRIC_SIGN")
+	asymSignKey := kms.BootstrapKMSKeyWithPurpose(t, "ASYMMETRIC_SIGN")
 
 	id := asymSignKey.CryptoKey.Name + "/latestCryptoKeyVersion"
 

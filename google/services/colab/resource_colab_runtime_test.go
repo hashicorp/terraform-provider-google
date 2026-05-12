@@ -23,13 +23,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccColabRuntime_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"key_name":      acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"key_name":      kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

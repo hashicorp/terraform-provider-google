@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	bigquery_tpg "github.com/hashicorp/terraform-provider-google/google/services/bigquery"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"google.golang.org/api/bigquery/v2"
 	"regexp"
 	"strings"
@@ -405,7 +406,7 @@ func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 func TestAccBigQueryDataset_cmek(t *testing.T) {
 	t.Parallel()
 
-	kms := acctest.BootstrapKMSKeyInLocation(t, "us")
+	bootstrapped := kms.BootstrapKMSKeyInLocation(t, "us")
 	pid := envvar.GetTestProjectFromEnv()
 	datasetID1 := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
 
@@ -414,7 +415,7 @@ func TestAccBigQueryDataset_cmek(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigQueryDataset_cmek(pid, datasetID1, kms.CryptoKey.Name),
+				Config: testAccBigQueryDataset_cmek(pid, datasetID1, bootstrapped.CryptoKey.Name),
 			},
 			{
 				ResourceName:      "google_bigquery_dataset.test",

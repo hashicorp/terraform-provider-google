@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -136,8 +137,8 @@ func testAccEventarcGoogleChannelConfig_cryptoKeyUpdate(t *testing.T) {
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
 		"region":         region,
 		"random_suffix":  acctest.RandString(t, 10),
-		"key1":           acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-google-channel-config-key1").CryptoKey.Name,
-		"key2":           acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-google-channel-config-key2").CryptoKey.Name,
+		"key1":           kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-google-channel-config-key1").CryptoKey.Name,
+		"key2":           kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-google-channel-config-key2").CryptoKey.Name,
 	}
 	acctest.BootstrapIamMembers(t, []acctest.IamMember{
 		{

@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -58,7 +64,7 @@ func TestAccNetappkmsconfig_kmsConfigCreateExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"kms_key_name":  acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-netapp-kmsconfig-key1").CryptoKey.Name,
+		"kms_key_name":  kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-netapp-kmsconfig-key1").CryptoKey.Name,
 		"kms_name":      "tf-test-kms-test" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}

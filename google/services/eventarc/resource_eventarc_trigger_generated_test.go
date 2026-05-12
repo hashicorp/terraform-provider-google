@@ -39,7 +39,10 @@ import (
 
 import (
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
+
+var _ = kms.Product
 
 var (
 	_ = fmt.Sprintf
@@ -211,7 +214,7 @@ func TestAccEventarcTrigger_eventarcTriggerWithChannelCmekExample(t *testing.T) 
 		"project_id":      envvar.GetTestProjectFromEnv(),
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
 		"channel_name":    "tf-test-some-channel" + randomSuffix,
-		"key_name":        acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-trigger-key").CryptoKey.Name,
+		"key_name":        kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-trigger-key").CryptoKey.Name,
 		"service_name":    "tf-test-some-service" + randomSuffix,
 		"trigger_name":    "tf-test-some-trigger" + randomSuffix,
 		"random_suffix":   randomSuffix,

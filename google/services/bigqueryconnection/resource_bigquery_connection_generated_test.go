@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -585,7 +591,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(t 
 	context := map[string]interface{}{
 		"database_instance_name": "tf-test-my-database-instance" + randomSuffix,
 		"deletion_protection":    false,
-		"kms_key_name":           acctest.BootstrapKMSKey(t).CryptoKey.Name,
+		"kms_key_name":           kms.BootstrapKMSKey(t).CryptoKey.Name,
 		"username":               "user" + randomSuffix,
 		"random_suffix":          randomSuffix,
 	}

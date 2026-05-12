@@ -23,12 +23,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccDataSourceGoogleKmsCryptoKeys_basic(t *testing.T) {
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 
-	id := kms.KeyRing.Name + "/cryptoKeys"
+	id := bootstrapped.KeyRing.Name + "/cryptoKeys"
 
 	randomString := acctest.RandString(t, 10)
 	filterNameFindSharedKeys := "name:tftest-shared-"
@@ -38,7 +39,7 @@ func TestAccDataSourceGoogleKmsCryptoKeys_basic(t *testing.T) {
 	findsNoKeysId := fmt.Sprintf("%s/filter=%s", id, filterNameFindsNoKeys)
 
 	context := map[string]interface{}{
-		"key_ring": kms.KeyRing.Name,
+		"key_ring": bootstrapped.KeyRing.Name,
 		"filter":   "", // Can be overridden using 2nd argument to config funcs
 	}
 
@@ -50,7 +51,7 @@ func TestAccDataSourceGoogleKmsCryptoKeys_basic(t *testing.T) {
 				Config: testAccDataSourceGoogleKmsCryptoKeys_basic(context, ""),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "id", id),
-					resource.TestCheckResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "key_ring", kms.KeyRing.Name),
+					resource.TestCheckResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "key_ring", bootstrapped.KeyRing.Name),
 					resource.TestMatchResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "keys.#", regexp.MustCompile("[1-9]+[0-9]*")),
 				),
 			},
@@ -59,7 +60,7 @@ func TestAccDataSourceGoogleKmsCryptoKeys_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					// This filter should retrieve keys in the bootstrapped KMS key ring used by the test
 					resource.TestCheckResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "id", findSharedKeysId),
-					resource.TestCheckResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "key_ring", kms.KeyRing.Name),
+					resource.TestCheckResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "key_ring", bootstrapped.KeyRing.Name),
 					resource.TestMatchResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "keys.#", regexp.MustCompile("[1-9]+[0-9]*")),
 				),
 			},
@@ -68,7 +69,7 @@ func TestAccDataSourceGoogleKmsCryptoKeys_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					// This filter should retrieve no keys
 					resource.TestCheckResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "id", findsNoKeysId),
-					resource.TestCheckResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "key_ring", kms.KeyRing.Name),
+					resource.TestCheckResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "key_ring", bootstrapped.KeyRing.Name),
 					resource.TestCheckResourceAttr("data.google_kms_crypto_keys.all_keys_in_ring", "keys.#", "0"),
 				),
 			},

@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -107,7 +113,7 @@ func TestAccVertexAITensorboard_vertexAiTensorboardFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"display_name":  "terraform" + randomSuffix,
-		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"kms_key_name":  kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix": randomSuffix,
 	}
 

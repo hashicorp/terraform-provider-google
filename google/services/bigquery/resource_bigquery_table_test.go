@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigquery"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccBigQueryTable_Basic(t *testing.T) {
@@ -278,8 +279,8 @@ func TestAccBigQueryTable_Kms(t *testing.T) {
 	resourceName := "google_bigquery_table.test"
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
 	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
-	kms := acctest.BootstrapKMSKey(t)
-	cryptoKeyName := kms.CryptoKey.Name
+	boostrapped := kms.BootstrapKMSKey(t)
+	cryptoKeyName := boostrapped.CryptoKey.Name
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

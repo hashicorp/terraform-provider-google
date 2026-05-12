@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineUpdate(t *testing.T) {
@@ -38,7 +39,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineUpdate(t *testing.T) 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"bucket_name":   acctest.TestBucketName(t),
-		"kms_key_name":  acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-re-key1").CryptoKey.Name,
+		"kms_key_name":  kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-re-key1").CryptoKey.Name,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

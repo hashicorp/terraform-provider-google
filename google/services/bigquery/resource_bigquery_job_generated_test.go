@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -519,7 +525,7 @@ func TestAccBigQueryJob_bigqueryJobCopyExample(t *testing.T) {
 		"project":       envvar.GetTestProjectFromEnv(),
 		"account_name":  "bqowner" + randomSuffix,
 		"job_id":        "tf_test_job_copy" + randomSuffix,
-		"kms_key_name":  acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "global", "tf-bootstrap-bigquery-job-key1").CryptoKey.Name,
+		"kms_key_name":  kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "global", "tf-bootstrap-bigquery-job-key1").CryptoKey.Name,
 		"random_suffix": randomSuffix,
 	}
 
@@ -674,7 +680,7 @@ func TestAccBigQueryJob_bigqueryJobCopyTableReferenceExample(t *testing.T) {
 		"project":       envvar.GetTestProjectFromEnv(),
 		"account_name":  "bqowner" + randomSuffix,
 		"job_id":        "tf_test_job_copy" + randomSuffix,
-		"kms_key_name":  acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "global", "tf-bootstrap-bigquery-job-key2").CryptoKey.Name,
+		"kms_key_name":  kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "global", "tf-bootstrap-bigquery-job-key2").CryptoKey.Name,
 		"random_suffix": randomSuffix,
 	}
 

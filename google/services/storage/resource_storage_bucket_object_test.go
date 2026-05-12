@@ -27,6 +27,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	storage_tpg "github.com/hashicorp/terraform-provider-google/google/services/storage"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -336,7 +337,7 @@ func TestAccStorageObject_metadata(t *testing.T) {
 func TestAccStorageObjectKms(t *testing.T) {
 	t.Parallel()
 
-	kms := acctest.BootstrapKMSKeyInLocation(t, "us")
+	bootstrapped := kms.BootstrapKMSKeyInLocation(t, "us")
 	bucketName := acctest.TestBucketName(t)
 	data := []byte("data data data")
 	dataCrc32c := calculateCrc32cHash(data)
@@ -351,7 +352,7 @@ func TestAccStorageObjectKms(t *testing.T) {
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleStorageBucketsObjectKms(bucketName, testFile.Name(), kms.CryptoKey.Name),
+				Config: testGoogleStorageBucketsObjectKms(bucketName, testFile.Name(), bootstrapped.CryptoKey.Name),
 				Check:  testAccCheckGoogleStorageObjectCrc32cHash(t, bucketName, objectName, dataCrc32c),
 			},
 		},

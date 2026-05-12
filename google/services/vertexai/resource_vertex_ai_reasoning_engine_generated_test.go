@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -428,7 +434,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineFullExample(t *testin
 
 	context := map[string]interface{}{
 		"bucket_name":        "tf-test-reasoning-engine" + randomSuffix,
-		"kms_key_name":       acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-re-key1").CryptoKey.Name,
+		"kms_key_name":       kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-re-key1").CryptoKey.Name,
 		"name":               "tf-test-reasoning-engine" + randomSuffix,
 		"secret_name":        "secret" + randomSuffix,
 		"service_account_id": "sa" + randomSuffix,

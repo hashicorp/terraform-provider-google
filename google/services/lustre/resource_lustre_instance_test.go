@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccLustreInstance_withMaintenancePolicy(t *testing.T) {
@@ -298,7 +299,7 @@ func TestAccLustreInstance_withKmsKey(t *testing.T) {
 	context := map[string]interface{}{
 		"network_name":  tpgcompute.BootstrapSharedTestNetwork(t, "default-vpc"),
 		"random_suffix": acctest.RandString(t, 10),
-		"kms":           acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"kms":           kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -196,7 +202,7 @@ func TestAccColabRuntime_colabRuntimeFullExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"key_name":      acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"key_name":      kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"runtime_name":  "tf-test-colab-runtime" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}

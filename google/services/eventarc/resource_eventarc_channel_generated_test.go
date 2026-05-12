@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -67,7 +73,7 @@ func TestAccEventarcChannel_eventarcChannelWithCmekExample(t *testing.T) {
 		"project":        envvar.GetTestProjectFromEnv(),
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
 		"channel_name":   "tf-test-some-channel" + randomSuffix,
-		"key_name":       acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-channel-key").CryptoKey.Name,
+		"key_name":       kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-channel-key").CryptoKey.Name,
 		"random_suffix":  randomSuffix,
 	}
 

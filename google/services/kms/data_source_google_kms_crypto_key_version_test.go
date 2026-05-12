@@ -22,12 +22,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccDataSourceGoogleKmsCryptoKeyVersion_basic(t *testing.T) {
-	asymSignKey := acctest.BootstrapKMSKeyWithPurpose(t, "ASYMMETRIC_SIGN")
-	asymDecrKey := acctest.BootstrapKMSKeyWithPurpose(t, "ASYMMETRIC_DECRYPT")
-	symKey := acctest.BootstrapKMSKey(t)
+	asymSignKey := kms.BootstrapKMSKeyWithPurpose(t, "ASYMMETRIC_SIGN")
+	asymDecrKey := kms.BootstrapKMSKeyWithPurpose(t, "ASYMMETRIC_DECRYPT")
+	symKey := kms.BootstrapKMSKey(t)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

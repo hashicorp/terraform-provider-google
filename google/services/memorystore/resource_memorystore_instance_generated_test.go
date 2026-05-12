@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -162,7 +168,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"instance_name":   "tf-test-full-instance" + randomSuffix,
-		"kms_key_name":    acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"kms_key_name":    kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"network_name":    "tf-test-my-network" + randomSuffix,
 		"policy_name":     "tf-test-my-policy" + randomSuffix,
 		"prevent_destroy": false,

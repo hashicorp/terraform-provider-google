@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	"github.com/stretchr/testify/assert"
 
@@ -870,18 +871,18 @@ func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
 
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 
-	bootKmsKeyName := kms.CryptoKey.Name
+	bootKmsKeyName := bootstrapped.CryptoKey.Name
 	diskNameToEncryptionKey := map[string]*compute.CustomerEncryptionKey{
 		fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10)): {
-			KmsKeyName: kms.CryptoKey.Name,
+			KmsKeyName: bootstrapped.CryptoKey.Name,
 		},
 		fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10)): {
-			KmsKeyName: kms.CryptoKey.Name,
+			KmsKeyName: bootstrapped.CryptoKey.Name,
 		},
 		fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10)): {
-			KmsKeyName: kms.CryptoKey.Name,
+			KmsKeyName: bootstrapped.CryptoKey.Name,
 		},
 	}
 
@@ -937,11 +938,11 @@ func TestAccComputeInstance_instanceEncryption(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 
 	context_1 := map[string]interface{}{
 		"instance_name":  fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
-		"encryption_key": kms.CryptoKey.Name,
+		"encryption_key": bootstrapped.CryptoKey.Name,
 		"desired_status": "RUNNING",
 	}
 
@@ -1058,12 +1059,12 @@ func TestAccComputeInstance_snapshotEncryption(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 	context := map[string]interface{}{
 		"instance_name1":    fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"instance_name2":    fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"snapshot_name":     fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
-		"kms_key":           kms.CryptoKey.Name,
+		"kms_key":           bootstrapped.CryptoKey.Name,
 		"raw_key":           "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
 		"rsa_encrypted_key": "ieCx/NcW06PcT7Ep1X6LUTc/hLvUDYyzSZPPVCVPTVEohpeHASqC8uw5TzyO9U+Fka9JFHz0mBibXUInrC/jEk014kCK/NPjYgEMOyssZ4ZINPKxlUh2zn1bV+MCaTICrdmuSBTWlUUiFoDD6PYznLwh8ZNdaheCeZ8ewEXgFQ8V+sDroLaN3Xs3MDTXQEMMoNUXMCZEIpg9Vtp9x2oeQ5lAbtt7bYAAHf5l+gJWw3sUfs0/Glw5fpdjT8Uggrr+RMZezGrltJEF293rvTIjWOEB3z5OHyHwQkvdrPDFcTqsLfh+8Hr8g+mf+7zVPEC8nEbqpdl3GPv3A7AwpFp7MA==",
 	}
@@ -1099,12 +1100,12 @@ func TestAccComputeInstance_imageEncryption(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 	context := map[string]interface{}{
 		"instance_name":     fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"image_name":        fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"disk_name":         fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
-		"kms_key":           kms.CryptoKey.Name,
+		"kms_key":           bootstrapped.CryptoKey.Name,
 		"raw_key":           "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
 		"rsa_encrypted_key": "ieCx/NcW06PcT7Ep1X6LUTc/hLvUDYyzSZPPVCVPTVEohpeHASqC8uw5TzyO9U+Fka9JFHz0mBibXUInrC/jEk014kCK/NPjYgEMOyssZ4ZINPKxlUh2zn1bV+MCaTICrdmuSBTWlUUiFoDD6PYznLwh8ZNdaheCeZ8ewEXgFQ8V+sDroLaN3Xs3MDTXQEMMoNUXMCZEIpg9Vtp9x2oeQ5lAbtt7bYAAHf5l+gJWw3sUfs0/Glw5fpdjT8Uggrr+RMZezGrltJEF293rvTIjWOEB3z5OHyHwQkvdrPDFcTqsLfh+8Hr8g+mf+7zVPEC8nEbqpdl3GPv3A7AwpFp7MA==",
 	}
@@ -2783,13 +2784,13 @@ func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 
 func TestAccComputeInstance_confidentialHyperDiskBootDisk(t *testing.T) {
 	t.Parallel()
-	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-hyperdisk-key1")
+	bootstrapped := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-hyperdisk-key1")
 
 	context_1 := map[string]interface{}{
 		"instance_name":                fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"confidential_compute":         true,
-		"key_ring":                     kms.KeyRing.Name,
-		"key_name":                     kms.CryptoKey.Name,
+		"key_ring":                     bootstrapped.KeyRing.Name,
+		"key_name":                     bootstrapped.CryptoKey.Name,
 		"zone":                         "us-central1-a",
 		"machine_type":                 "n2d-standard-16",
 		"confidential_instance_config": "confidential_instance_config { \n \t enable_confidential_compute = true \n }",

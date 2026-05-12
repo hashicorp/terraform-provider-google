@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
@@ -63,7 +64,7 @@ func TestAccPubsubTopic_update(t *testing.T) {
 func TestAccPubsubTopic_cmek(t *testing.T) {
 	t.Parallel()
 
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 	topicName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.BootstrapIamMembers(t, []acctest.IamMember{
@@ -79,7 +80,7 @@ func TestAccPubsubTopic_cmek(t *testing.T) {
 		CheckDestroy:             testAccCheckPubsubTopicDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPubsubTopic_cmek(topicName, kms.CryptoKey.Name),
+				Config: testAccPubsubTopic_cmek(topicName, bootstrapped.CryptoKey.Name),
 			},
 			{
 				ResourceName:      "google_pubsub_topic.topic",

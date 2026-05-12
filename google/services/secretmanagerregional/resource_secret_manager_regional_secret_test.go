@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -160,8 +161,8 @@ func TestAccSecretManagerRegionalRegionalSecret_cmekUpdate(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"kms_key_name":       acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-secret-manager-managed-central-key3").CryptoKey.Name,
-		"kms_key_name_other": acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-secret-manager-managed-central-key4").CryptoKey.Name,
+		"kms_key_name":       kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-secret-manager-managed-central-key3").CryptoKey.Name,
+		"kms_key_name_other": kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-secret-manager-managed-central-key4").CryptoKey.Name,
 		"random_suffix":      acctest.RandString(t, 10),
 	}
 

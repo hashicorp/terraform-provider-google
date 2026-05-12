@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccLoggingOrganizationSettings_datasource(t *testing.T) {
@@ -31,7 +32,7 @@ func TestAccLoggingOrganizationSettings_datasource(t *testing.T) {
 
 	context := map[string]interface{}{
 		"org_id":       envvar.GetTestOrgFromEnv(t),
-		"original_key": acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"original_key": kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 	}
 	resourceName := "data.google_logging_organization_settings.settings"
 

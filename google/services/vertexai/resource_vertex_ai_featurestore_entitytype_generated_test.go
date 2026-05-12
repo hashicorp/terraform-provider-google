@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -60,7 +66,7 @@ func TestAccVertexAIFeaturestoreEntitytype_vertexAiFeaturestoreEntitytypeExample
 	context := map[string]interface{}{
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"kms_key_name":    acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"kms_key_name":    kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"name":            "terraform" + randomSuffix,
 		"project":         "tf-test-vertex-ai" + randomSuffix,
 		"random_suffix":   randomSuffix,

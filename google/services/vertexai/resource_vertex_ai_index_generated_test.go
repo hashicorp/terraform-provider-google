@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -61,7 +67,7 @@ func TestAccVertexAIIndex_vertexAiIndexStreamingExample(t *testing.T) {
 		"project":       envvar.GetTestProjectFromEnv(),
 		"bucket_name":   "tf-test-vertex-ai-index-test" + randomSuffix,
 		"display_name":  "tf-test-test-index" + randomSuffix,
-		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"kms_key_name":  kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix": randomSuffix,
 	}
 
