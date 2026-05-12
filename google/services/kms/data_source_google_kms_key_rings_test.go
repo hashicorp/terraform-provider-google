@@ -24,11 +24,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccDataSourceGoogleKmsKeyRings_basic(t *testing.T) {
-	kms := acctest.BootstrapKMSKey(t)
-	idPath := strings.Split(kms.KeyRing.Name, "/")
+	bootstrapped := kms.BootstrapKMSKey(t)
+	idPath := strings.Split(bootstrapped.KeyRing.Name, "/")
 	location := idPath[3]
 	randomString := acctest.RandString(t, 10)
 	filterNameFindSharedKeys := "name:tftest-shared-"

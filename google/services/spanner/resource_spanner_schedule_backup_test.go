@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
@@ -61,11 +62,11 @@ func TestAccSpannerBackupSchedule_update(t *testing.T) {
 func TestAccSpannerBackupSchedule_CMEKIncrementalBackup(t *testing.T) {
 	t.Parallel()
 	suffix := acctest.RandString(t, 10)
-	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-spanner-key")
+	bootstrapped := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-spanner-key")
 
 	context := map[string]interface{}{
 		"random_suffix": suffix,
-		"key_name":      kms.CryptoKey.Name,
+		"key_name":      bootstrapped.CryptoKey.Name,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -88,11 +89,11 @@ func TestAccSpannerBackupSchedule_CMEKIncrementalBackup(t *testing.T) {
 func TestAccSpannerBackupSchedule_CMEKFullBackup(t *testing.T) {
 	t.Parallel()
 	suffix := acctest.RandString(t, 10)
-	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-spanner-key")
+	bootstrapped := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-spanner-key")
 
 	context := map[string]interface{}{
 		"random_suffix": suffix,
-		"key_name":      kms.CryptoKey.Name,
+		"key_name":      bootstrapped.CryptoKey.Name,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -124,9 +125,9 @@ func TestAccSpannerBackupSchedule_MRCMEKIncrementalBackup(t *testing.T) {
 	t.Parallel()
 	suffix := acctest.RandString(t, 10)
 
-	kms1 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-mr-cmek-test-key-us-central1")
-	kms2 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-mr-cmek-test-key-us-east1")
-	kms3 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east4", "tf-mr-cmek-test-key-us-east4")
+	kms1 := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-mr-cmek-test-key-us-central1")
+	kms2 := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-mr-cmek-test-key-us-east1")
+	kms3 := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east4", "tf-mr-cmek-test-key-us-east4")
 
 	context := map[string]interface{}{
 		"random_suffix": suffix,
@@ -159,9 +160,9 @@ func TestAccSpannerBackupSchedule_MRCMEKFullBackup(t *testing.T) {
 	t.Parallel()
 	suffix := acctest.RandString(t, 10)
 
-	kms1 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-mr-cmek-test-key-us-central1")
-	kms2 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-mr-cmek-test-key-us-east1")
-	kms3 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east4", "tf-mr-cmek-test-key-us-east4")
+	kms1 := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-mr-cmek-test-key-us-central1")
+	kms2 := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-mr-cmek-test-key-us-east1")
+	kms3 := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east4", "tf-mr-cmek-test-key-us-east4")
 
 	context := map[string]interface{}{
 		"random_suffix": suffix,

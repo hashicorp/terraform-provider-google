@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -110,7 +116,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceCmekExample(t
 	context := map[string]interface{}{
 		"deletion_policy": "DELETE",
 		"instance_id":     "tf-test-my-instance" + randomSuffix,
-		"kms_key_name":    acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-secure-source-manager-key1").CryptoKey.Name,
+		"kms_key_name":    kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-secure-source-manager-key1").CryptoKey.Name,
 		"random_suffix":   randomSuffix,
 	}
 

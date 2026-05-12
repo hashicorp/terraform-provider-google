@@ -39,7 +39,10 @@ import (
 
 import (
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
+
+var _ = kms.Product
 
 var (
 	_ = fmt.Sprintf
@@ -450,7 +453,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithCmekAndAvroFormatExample(t *tes
 
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
-		"key_name":                acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-pipeline-key").CryptoKey.Name,
+		"key_name":                kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-pipeline-key").CryptoKey.Name,
 		"network_attachment_name": tpgcompute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", tpgcompute.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", tpgcompute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
 		"pipeline_name":           "tf-test-some-pipeline" + randomSuffix,
 		"random_suffix":           randomSuffix,

@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -243,7 +249,7 @@ func TestAccDatastreamStream_datastreamStreamFullExample(t *testing.T) {
 		"network_name":                      "tf-test-my-network" + randomSuffix,
 		"private_connection_id":             "tf-test-my-connection" + randomSuffix,
 		"source_connection_profile_id":      "tf-test-source-profile" + randomSuffix,
-		"stream_cmek":                       acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"stream_cmek":                       kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"stream_id":                         "tf-test-my-stream" + randomSuffix,
 		"random_suffix":                     randomSuffix,
 	}
@@ -641,7 +647,7 @@ func TestAccDatastreamStream_datastreamStreamBigqueryExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"bigquery_destination_table_kms_key_name": acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"bigquery_destination_table_kms_key_name": kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"database_instance_name":                  "tf-test-my-instance" + randomSuffix,
 		"deletion_protection":                     false,
 		"destination_connection_profile_id":       "tf-test-destination-profile" + randomSuffix,

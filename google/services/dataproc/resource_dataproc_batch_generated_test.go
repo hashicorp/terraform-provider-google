@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -126,7 +132,7 @@ func TestAccDataprocBatch_dataprocBatchSparkFullExample(t *testing.T) {
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"bucket_name":     "tf-test-dataproc-bucket" + randomSuffix,
 		"dataproc_batch":  "tf-test-dataproc-batch" + randomSuffix,
-		"kms_key_name":    acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-dataproc-batch-key1").CryptoKey.Name,
+		"kms_key_name":    kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-dataproc-batch-key1").CryptoKey.Name,
 		"prevent_destroy": false,
 		"random_suffix":   randomSuffix,
 	}

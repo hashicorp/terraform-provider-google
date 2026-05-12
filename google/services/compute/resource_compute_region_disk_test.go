@@ -30,6 +30,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -380,7 +381,7 @@ func TestAccComputeRegionDisk_createSnapshotBeforeDestroy(t *testing.T) {
 		"disk_name2":        fmt.Sprintf("test-%s", acctest.RandString(t, 44)), //this is over the snapshot character creation limit of 48
 		"disk_name3":        fmt.Sprintf("tf-test-disk-%s", acctest.RandString(t, 10)),
 		"snapshot_prefix":   fmt.Sprintf("tf-test-snapshot-%s", acctest.RandString(t, 10)),
-		"kms_key_self_link": acctest.BootstrapKMSKey(t).CryptoKey.Name,
+		"kms_key_self_link": kms.BootstrapKMSKey(t).CryptoKey.Name,
 		"raw_key":           "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
 		"rsa_encrypted_key": "ieCx/NcW06PcT7Ep1X6LUTc/hLvUDYyzSZPPVCVPTVEohpeHASqC8uw5TzyO9U+Fka9JFHz0mBibXUInrC/jEk014kCK/NPjYgEMOyssZ4ZINPKxlUh2zn1bV+MCaTICrdmuSBTWlUUiFoDD6PYznLwh8ZNdaheCeZ8ewEXgFQ8V+sDroLaN3Xs3MDTXQEMMoNUXMCZEIpg9Vtp9x2oeQ5lAbtt7bYAAHf5l+gJWw3sUfs0/Glw5fpdjT8Uggrr+RMZezGrltJEF293rvTIjWOEB3z5OHyHwQkvdrPDFcTqsLfh+8Hr8g+mf+7zVPEC8nEbqpdl3GPv3A7AwpFp7MA==",
 	}
@@ -854,14 +855,14 @@ resource "google_compute_region_disk" "kms-encrypted-name" {
 func TestAccComputeRegionDisk_fromImageKMS(t *testing.T) {
 	t.Parallel()
 
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 	suffix := acctest.RandString(t, 10)
 	diskName := fmt.Sprintf("tf-test-kms-disk-%s", suffix)
 	imageName := fmt.Sprintf("tf-test-kms-image-%s", suffix)
 
 	context := map[string]interface{}{
 		"random_suffix":     suffix,
-		"kms_key_self_link": kms.CryptoKey.Name,
+		"kms_key_self_link": bootstrapped.CryptoKey.Name,
 		"image_name":        imageName,
 		"disk_name":         diskName,
 	}
@@ -1050,14 +1051,14 @@ resource "google_compute_region_disk" "disk_from_rsa_image" {
 func TestAccComputeRegionDisk_fromImageKMSWithServiceAccount(t *testing.T) {
 	t.Parallel()
 
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 	suffix := acctest.RandString(t, 10)
 	diskName := fmt.Sprintf("tf-test-kms-sa-disk-%s", suffix)
 	imageName := fmt.Sprintf("tf-test-kms-sa-image-%s", suffix)
 
 	context := map[string]interface{}{
 		"random_suffix":     suffix,
-		"kms_key_self_link": kms.CryptoKey.Name,
+		"kms_key_self_link": bootstrapped.CryptoKey.Name,
 		"image_name":        imageName,
 		"disk_name":         diskName,
 	}

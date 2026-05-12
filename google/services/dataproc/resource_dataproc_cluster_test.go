@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	dataproc_tpg "github.com/hashicorp/terraform-provider-google/google/services/dataproc"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -1260,7 +1261,7 @@ func TestAccDataprocCluster_KMS(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
 	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
@@ -1279,7 +1280,7 @@ func TestAccDataprocCluster_KMS(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_KMS(rnd, kms.CryptoKey.Name, subnetworkName),
+				Config: testAccDataprocCluster_KMS(rnd, bootstrapped.CryptoKey.Name, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.kms", &cluster),
 				),
@@ -1292,7 +1293,7 @@ func TestAccDataprocCluster_withKerberos(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
 	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
@@ -1304,7 +1305,7 @@ func TestAccDataprocCluster_withKerberos(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withKerberos(rnd, kms.CryptoKey.Name, subnetworkName),
+				Config: testAccDataprocCluster_withKerberos(rnd, bootstrapped.CryptoKey.Name, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.kerb", &cluster),
 				),

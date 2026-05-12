@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -127,7 +133,7 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterFullExample(t
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"bucket_name":     "tf-test-dataproc-bucket" + randomSuffix,
-		"kms_key_name":    acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-dataproc-session-template-key1").CryptoKey.Name,
+		"kms_key_name":    kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-dataproc-session-template-key1").CryptoKey.Name,
 		"name":            "tf-test-jupyter-session-template" + randomSuffix,
 		"prevent_destroy": false,
 		"subnetwork_name": BootstrapSubnetWithFirewallForDataprocBatches(t, "jupyer-session-test-network", "jupyter-session-test-subnetwork"),

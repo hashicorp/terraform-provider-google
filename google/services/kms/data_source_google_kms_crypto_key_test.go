@@ -24,13 +24,14 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccDataSourceGoogleKmsCryptoKey_basic(t *testing.T) {
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 
 	// Name in the KMS client is in the format projects/<project>/locations/<location>/keyRings/<keyRingName>/cryptoKeys/<keyId>
-	keyParts := strings.Split(kms.CryptoKey.Name, "/")
+	keyParts := strings.Split(bootstrapped.CryptoKey.Name, "/")
 	cryptoKeyId := keyParts[len(keyParts)-1]
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -38,8 +39,8 @@ func TestAccDataSourceGoogleKmsCryptoKey_basic(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGoogleKmsCryptoKey_basic(kms.KeyRing.Name, cryptoKeyId),
-				Check:  resource.TestMatchResourceAttr("data.google_kms_crypto_key.kms_crypto_key", "id", regexp.MustCompile(kms.CryptoKey.Name)),
+				Config: testAccDataSourceGoogleKmsCryptoKey_basic(bootstrapped.KeyRing.Name, cryptoKeyId),
+				Check:  resource.TestMatchResourceAttr("data.google_kms_crypto_key.kms_crypto_key", "id", regexp.MustCompile(bootstrapped.CryptoKey.Name)),
 			},
 		},
 	})

@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccVertexAIFeatureOnlineStore_updated(t *testing.T) {
@@ -103,11 +104,11 @@ resource google_vertex_ai_feature_online_store "feature_online_store" {
 func TestAccVertexAIFeatureOnlineStore_bigtable_full(t *testing.T) {
 	t.Parallel()
 
-	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	bootstrapped := kms.BootstrapKMSKeyInLocation(t, "us-central1")
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"kms_key_name":  kms.CryptoKey.Name,
+		"kms_key_name":  bootstrapped.CryptoKey.Name,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

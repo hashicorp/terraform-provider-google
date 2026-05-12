@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccSpannerDatabase_basic(t *testing.T) {
@@ -651,7 +652,7 @@ func TestAccSpannerDatabase_cmek(t *testing.T) {
 
 	// Make the keys outside of Terraform so that a) the project isn't littered with a key from each run and b) so that VCR
 	// can work.
-	kmsKey := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "europe-west1", "tf-test-cmek-test-key-europe-west1")
+	kmsKey := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "europe-west1", "tf-test-cmek-test-key-europe-west1")
 
 	context := map[string]interface{}{
 		"key_name":      kmsKey.CryptoKey.Name,
@@ -707,9 +708,9 @@ resource "google_spanner_database" "database" {
 func TestAccSpannerDatabase_mrcmek(t *testing.T) {
 	t.Parallel()
 
-	kms1 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-mr-cmek-test-key-us-central1")
-	kms2 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-mr-cmek-test-key-us-east1")
-	kms3 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east4", "tf-mr-cmek-test-key-us-east4")
+	kms1 := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-mr-cmek-test-key-us-central1")
+	kms2 := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-mr-cmek-test-key-us-east1")
+	kms3 := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east4", "tf-mr-cmek-test-key-us-east4")
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"key_ring1":     kms1.KeyRing.Name,

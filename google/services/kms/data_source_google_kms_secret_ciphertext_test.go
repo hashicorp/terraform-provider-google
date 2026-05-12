@@ -23,12 +23,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccDataKmsSecretCiphertext_basic(t *testing.T) {
 	t.Parallel()
 
-	kms := acctest.BootstrapKMSKey(t)
+	bootstrapped := kms.BootstrapKMSKey(t)
 
 	plaintext := fmt.Sprintf("secret-%s", acctest.RandString(t, 10))
 
@@ -37,9 +38,9 @@ func TestAccDataKmsSecretCiphertext_basic(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleKmsSecretCiphertext_datasource(kms.CryptoKey.Name, plaintext),
+				Config: testGoogleKmsSecretCiphertext_datasource(bootstrapped.CryptoKey.Name, plaintext),
 				Check: func(s *terraform.State) error {
-					plaintext, err := testAccDecryptSecretDataWithCryptoKey(t, s, kms.CryptoKey.Name, "data.google_kms_secret_ciphertext.acceptance", "")
+					plaintext, err := testAccDecryptSecretDataWithCryptoKey(t, s, bootstrapped.CryptoKey.Name, "data.google_kms_secret_ciphertext.acceptance", "")
 
 					if err != nil {
 						return err

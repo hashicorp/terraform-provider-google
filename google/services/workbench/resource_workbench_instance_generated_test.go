@@ -37,6 +37,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+)
+
+var _ = kms.Product
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -308,7 +314,7 @@ func TestAccWorkbenchInstance_workbenchInstanceFullExample(t *testing.T) {
 		"project_id":       envvar.GetTestProjectFromEnv(),
 		"service_account":  envvar.GetTestServiceAccountFromEnv(t),
 		"instance_name":    "tf-test-workbench-instance" + randomSuffix,
-		"key_name":         acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"key_name":         kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"network_name":     "tf-test-wbi-test-default" + randomSuffix,
 		"reservation_name": "tf-test-wbi-reservation" + randomSuffix,
 		"random_suffix":    randomSuffix,
