@@ -303,7 +303,7 @@ resource "google_sql_database_instance" "instance" {
 ```
 
 ### Cloud SQL Instance created using point_in_time_restore
-~> **NOTE:** Replace `backupdr_datasource` with the full datasource path, `time_stamp` should be in the format of `YYYY-MM-DDTHH:MM:SSZ`.
+~> **NOTE:** Replace `backupdr_datasource` with the full datasource path, `time_stamp` should be in the format of `YYYY-MM-DDTHH:MM:SSZ`. The `target_instance` is required field and must match the name of the resource.
 
 ```hcl
 resource "google_sql_database_instance" "instance" {
@@ -318,14 +318,14 @@ resource "google_sql_database_instance" "instance" {
   }
   point_in_time_restore_context {
    datasource      = "backupdr_datasource"
-   target_instance = "target_instance_name"
+   target_instance = "main-instance"
    point_in_time   = "time_stamp"
  }
 }
 ```
 
 ### Cloud SQL Instance created using point_in_time_restore using multiregion datasource
-~> **NOTE:** Replace `backupdr_datasource` with the full datasource path, `time_stamp` should be in the format of `YYYY-MM-DDTHH:MM:SSZ` and `region` with the target instance region.
+~> **NOTE:** Replace `backupdr_datasource` with the full datasource path, `time_stamp` should be in the format of `YYYY-MM-DDTHH:MM:SSZ` and `region` with the target instance region. The `target_instance` is required field and must match the name of the resource.
 
 ```hcl
 resource "google_sql_database_instance" "instance" {
@@ -340,7 +340,7 @@ resource "google_sql_database_instance" "instance" {
   }
   point_in_time_restore_context {
    datasource      = "backupdr_datasource"
-   target_instance = "target_instance_name"
+   target_instance = "main-instance"
    point_in_time   = "time_stamp"
    region          = "region"
  }
