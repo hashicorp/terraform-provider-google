@@ -4851,6 +4851,76 @@ func TestAccContainerCluster_withSecretManagerConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withSecretSyncConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+	pid := envvar.GetTestProjectFromEnv()
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_forSecretSyncConfig(pid, clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withSecretSyncConfigEnabled(pid, clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withSecretSyncRotationPeriodUpdated(pid, clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withSecretSyncConfigRotationDisabled(pid, clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withSecretSyncConfigDisabled(pid, clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_forSecretSyncConfig(pid, clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withLoggingConfig(t *testing.T) {
 	t.Parallel()
 
@@ -12119,6 +12189,127 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 1
 
   secret_manager_config {
+    enabled = false
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  workload_identity_config {
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+}
+`, projectID, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_forSecretSyncConfig(projectID, name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  network            = "%s"
+  subnetwork         = "%s"
+
+  deletion_protection = false
+  workload_identity_config {
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+}
+`, projectID, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withSecretSyncConfigEnabled(projectID, name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  secret_sync_config {
+    enabled = true
+	rotation_config {
+		enabled = true
+		rotation_interval = "300s"
+	}
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  workload_identity_config {
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+}
+`, projectID, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withSecretSyncRotationPeriodUpdated(projectID, name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  secret_sync_config {
+    enabled = true
+	rotation_config {
+		enabled = true
+		rotation_interval = "120s"
+	}
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  workload_identity_config {
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+}
+`, projectID, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withSecretSyncConfigRotationDisabled(projectID, name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  secret_sync_config {
+    enabled = true
+	rotation_config {
+		enabled = false
+		rotation_interval = "120s"
+    }
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  workload_identity_config {
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+}
+`, projectID, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withSecretSyncConfigDisabled(projectID, name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  secret_sync_config {
     enabled = false
   }
   deletion_protection = false

@@ -1649,7 +1649,44 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
-
+			"secret_sync_config": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Description:      `Configuration for the Sync as k8s secrets feature.`,
+				MaxItems:         1,
+				DiffSuppressFunc: SecretSyncCfgSuppress,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `Enable the Sync as k8s secret add-on.`,
+						},
+						"rotation_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							MaxItems:    1,
+							Description: `Configuration for Secret Sync auto rotation.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Enable the Secret sync auto rotation.`,
+									},
+									"rotation_interval": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: `The interval between two consecutive rotations. Default rotation interval is 2 minutes`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"project": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -2758,6 +2795,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		IpAllocationPolicy:    ipAllocationBlock,
 		PodAutoscaling:        expandPodAutoscaling(d.Get("pod_autoscaling")),
 		SecretManagerConfig:   expandSecretManagerConfig(d.Get("secret_manager_config")),
+		SecretSyncConfig:      expandSecretSyncConfig(d.Get("secret_sync_config")),
 		Autoscaling:           expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
 		BinaryAuthorization:   expandBinaryAuthorization(d.Get("binary_authorization")),
 		Autopilot: &container.Autopilot{
@@ -3464,7 +3502,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("secret_manager_config", flattenSecretManagerConfig(cluster.SecretManagerConfig)); err != nil {
 		return err
 	}
-
+	if err := d.Set("secret_sync_config", flattenSecretSyncConfig(cluster.SecretSyncConfig)); err != nil {
+		return err
+	}
 	if err := tpgresource.SetLabels(cluster.ResourceLabels, d, "resource_labels"); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
 	}
@@ -4672,6 +4712,26 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		log.Printf("[INFO] GKE cluster %s secret manager csi add-on has been updated", d.Id())
+	}
+
+	if d.HasChange("secret_sync_config") {
+		req := &container.UpdateClusterRequest{}
+		if c, ok := d.GetOk("secret_sync_config"); !ok {
+			req.Update = &container.ClusterUpdate{
+				DesiredSecretSyncConfig: &container.SecretSyncConfig{
+					Enabled: false,
+				},
+			}
+		} else {
+			req.Update = &container.ClusterUpdate{
+				DesiredSecretSyncConfig: expandSecretSyncConfig(c),
+			}
+		}
+		updateF := updateFunc(req, "updating GKE secret sync add-on")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
 	}
 
 	if d.HasChange("workload_identity_config") {
@@ -6415,6 +6475,37 @@ func expandSecretManagerConfig(configured interface{}) *container.SecretManagerC
 	return sc
 }
 
+func expandSecretSyncConfig(configured interface{}) *container.SecretSyncConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	sc := &container.SecretSyncConfig{
+		Enabled:         config["enabled"].(bool),
+		ForceSendFields: []string{"Enabled"},
+	}
+	if autoRotation, ok := config["rotation_config"]; ok {
+		if autoRotationList, ok := autoRotation.([]interface{}); ok {
+			if len(autoRotationList) > 0 {
+				autoRotationConfig := autoRotationList[0].(map[string]interface{})
+				if rotationInterval, ok := autoRotationConfig["rotation_interval"].(string); ok && rotationInterval != "" {
+					sc.RotationConfig = &container.SyncRotationConfig{
+						Enabled:          autoRotationConfig["enabled"].(bool),
+						RotationInterval: rotationInterval,
+					}
+				} else {
+					sc.RotationConfig = &container.SyncRotationConfig{
+						Enabled: autoRotationConfig["enabled"].(bool),
+					}
+				}
+			}
+		}
+	}
+	return sc
+}
+
 func expandDefaultMaxPodsConstraint(v interface{}) *container.MaxPodsConstraint {
 	if v == nil {
 		return nil
@@ -7531,6 +7622,33 @@ func flattenSecretManagerConfig(c *container.SecretManagerConfig) []map[string]i
 	return []map[string]interface{}{result}
 }
 
+func flattenSecretSyncConfig(c *container.SecretSyncConfig) []map[string]interface{} {
+	if c == nil {
+		return []map[string]interface{}{
+			{
+				"enabled": false,
+			},
+		}
+	}
+
+	result := make(map[string]interface{})
+
+	result["enabled"] = c.Enabled
+
+	rotationList := []map[string]interface{}{}
+	if c.RotationConfig != nil {
+		rotationConfigMap := map[string]interface{}{
+			"enabled": c.RotationConfig.Enabled,
+		}
+		if c.RotationConfig.RotationInterval != "" {
+			rotationConfigMap["rotation_interval"] = c.RotationConfig.RotationInterval
+		}
+		rotationList = append(rotationList, rotationConfigMap)
+	}
+	result["rotation_config"] = rotationList
+	return []map[string]interface{}{result}
+}
+
 func flattenResourceUsageExportConfig(c *container.ResourceUsageExportConfig) []map[string]interface{} {
 	if c == nil {
 		return nil
@@ -8058,6 +8176,20 @@ func DatabaseEncryptionSuppress(k, old, new string, d *schema.ResourceData) bool
 	}
 	if old == "ENCRYPTED" && new == "ALL_OBJECTS_ENCRYPTION_ENABLED" {
 		return true
+	}
+	return false
+}
+
+func SecretSyncCfgSuppress(k, old, new string, r *schema.ResourceData) bool {
+	if k == "secret_sync_config.#" && old == "1" && new == "0" {
+		if v, ok := r.GetOk("secret_sync_config"); ok {
+			cfgList := v.([]interface{})
+			if len(cfgList) > 0 {
+				d := cfgList[0].(map[string]interface{})
+				// Suppress if old value was {enabled == false}
+				return !d["enabled"].(bool)
+			}
+		}
 	}
 	return false
 }
