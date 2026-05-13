@@ -14,8 +14,6 @@
 //	overwritten during the next generation cycle.
 //
 // ----------------------------------------------------------------------------
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
 package discoveryengine_test
 
 import (
