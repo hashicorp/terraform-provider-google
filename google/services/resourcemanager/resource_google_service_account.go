@@ -18,6 +18,7 @@ package resourcemanager
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -225,12 +226,21 @@ func resourceServiceAccountPollRead(d *schema.ResourceData, meta interface{}) tr
 		}
 
 		// Confirm the service account exists
-		_, err = iambeta.NewClient(config, userAgent).Projects.ServiceAccounts.Get(d.Id()).Do()
+		sa, err := iambeta.NewClient(config, userAgent).Projects.ServiceAccounts.Get(d.Id()).Do()
 
 		if err != nil {
 			return nil, err
 		}
-		return nil, nil
+		resp := map[string]interface{}{
+			"email":        sa.Email,
+			"unique_id":    sa.UniqueId,
+			"project":      sa.ProjectId,
+			"name":         sa.Name,
+			"display_name": sa.DisplayName,
+			"description":  sa.Description,
+			"disabled":     sa.Disabled,
+		}
+		return resp, nil
 	}
 }
 
@@ -331,30 +341,39 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error retrieving service account %q: %s", d.Id(), err)
 	}
 	updateMask := make([]string, 0)
+	updatedFields := make(map[string]interface{})
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+		updatedFields["description"] = d.Get("description")
 	}
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "display_name")
+		updatedFields["display_name"] = d.Get("display_name")
 	}
 
 	// We want to skip the Patch Call below if only the disabled field has been changed
-	if d.HasChange("disabled") && !d.Get("disabled").(bool) {
-		_, err = iambeta.NewClient(config, userAgent).Projects.ServiceAccounts.Enable(d.Id(),
-			&iam.EnableServiceAccountRequest{}).Do()
-		if err != nil {
-			return err
-		}
-	} else if d.HasChange("disabled") && d.Get("disabled").(bool) {
-		_, err = iambeta.NewClient(config, userAgent).Projects.ServiceAccounts.Disable(d.Id(),
-			&iam.DisableServiceAccountRequest{}).Do()
-		if err != nil {
-			return err
+	if d.HasChange("disabled") {
+		updatedFields["display_name"] = d.Get("disabled")
+		if !d.Get("disabled").(bool) {
+			_, err = iambeta.NewClient(config, userAgent).Projects.ServiceAccounts.Enable(d.Id(),
+				&iam.EnableServiceAccountRequest{}).Do()
+			if err != nil {
+				return err
+			}
+		} else {
+			_, err = iambeta.NewClient(config, userAgent).Projects.ServiceAccounts.Disable(d.Id(),
+				&iam.DisableServiceAccountRequest{}).Do()
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	if len(updateMask) == 0 {
-		return nil
+		return tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+			"email":   sa.Email,
+			"project": sa.ProjectId,
+		})
 	}
 
 	_, err = iambeta.NewClient(config, userAgent).Projects.ServiceAccounts.Patch(d.Id(),
@@ -369,6 +388,22 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+
+	// We poll until the updated resource is found due to eventual consistency issue
+	// on part of the api https://cloud.google.com/iam/docs/overview#consistency.
+	// Wait for at least 3 successful responses in a row to ensure result is consistent.
+	err = transport_tpg.PollingWaitTime(
+		resourceServiceAccountPollRead(d, meta),
+		pollCheckForUpdates(updatedFields),
+		"Updating Service Account",
+		1*time.Minute,
+		3, // Number of consecutive occurences.
+	)
+
+	if err != nil {
+		return err
+	}
+
 	// This API is meant to be synchronous, but in practice it shows the old value for
 	// a few milliseconds after the update goes through. 5 seconds is more than enough
 	// time to ensure following reads are correct.
@@ -378,6 +413,33 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 		"email":   sa.Email,
 		"project": sa.ProjectId,
 	})
+}
+
+func pollCheckForUpdates(updates map[string]interface{}) transport_tpg.PollCheckResponseFunc {
+	return func(resp map[string]interface{}, respErr error) transport_tpg.PollResult {
+		if respErr != nil {
+			return transport_tpg.ErrorPollResult(respErr)
+		}
+
+		if resp == nil {
+			return transport_tpg.ErrorPollResult(errors.New("Polling did not return a response"))
+		}
+
+		for key, updatedValue := range updates {
+			currentValue, exists := resp[key]
+			if !exists {
+				return transport_tpg.ErrorPollResult(fmt.Errorf("Field '%s' was not included in the response", key))
+			}
+
+			if currentValue != updatedValue {
+				return transport_tpg.PendingStatusPollResult(
+					fmt.Sprintf("Field '%s' is not updated. Expected '%s' but was '%s'",
+						key, updatedValue, currentValue))
+			}
+		}
+
+		return transport_tpg.SuccessPollResult()
+	}
 }
 
 func resourceGoogleServiceAccountImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
