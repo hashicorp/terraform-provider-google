@@ -20,6 +20,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -669,6 +671,16 @@ func getNamedPortsBetaV2(nps []interface{}) []interface{} {
 	return namedPorts
 }
 
+func stringFromMap(m map[string]interface{}, key string) string {
+	if m == nil {
+		return ""
+	}
+	if v, ok := m[key].(string); ok {
+		return v
+	}
+	return ""
+}
+
 func mapFromInterface(v interface{}) map[string]interface{} {
 	if v == nil {
 		return nil
@@ -677,6 +689,59 @@ func mapFromInterface(v interface{}) map[string]interface{} {
 		return m
 	}
 	return nil
+}
+
+func sliceFromInterface(v interface{}) []interface{} {
+	if v == nil {
+		return nil
+	}
+	if s, ok := v.([]interface{}); ok {
+		return s
+	}
+	return nil
+}
+
+func stringSliceFromInterface(v interface{}) []string {
+	raw := sliceFromInterface(v)
+	result := make([]string, 0, len(raw))
+	for _, item := range raw {
+		if s, ok := item.(string); ok {
+			result = append(result, s)
+		}
+	}
+	return result
+}
+
+func int64FromInterface(v interface{}) int64 {
+	switch value := v.(type) {
+	case int:
+		return int64(value)
+	case int64:
+		return value
+	case uint64:
+		if value <= math.MaxInt64 {
+			return int64(value)
+		}
+	case float64:
+		return int64(value)
+	case string:
+		parsed, err := strconv.ParseInt(value, 10, 64)
+		if err == nil {
+			return parsed
+		}
+		parsedUint, err := strconv.ParseUint(value, 10, 64)
+		if err == nil && parsedUint <= math.MaxInt64 {
+			return int64(parsedUint)
+		}
+	}
+	return 0
+}
+
+func boolFromInterface(v interface{}) bool {
+	if value, ok := v.(bool); ok {
+		return value
+	}
+	return false
 }
 
 func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
@@ -797,6 +862,19 @@ func flattenNamedPortsBeta(namedPorts []*compute.NamedPort) []map[string]interfa
 
 }
 
+func flattenNamedPortsBetaV2(raw interface{}) []map[string]interface{} {
+	namedPorts := sliceFromInterface(raw)
+	result := make([]map[string]interface{}, 0, len(namedPorts))
+	for _, namedPortRaw := range namedPorts {
+		namedPort := mapFromInterface(namedPortRaw)
+		result = append(result, map[string]interface{}{
+			"name": stringFromMap(namedPort, "name"),
+			"port": int64FromInterface(namedPort["port"]),
+		})
+	}
+	return result
+}
+
 func flattenVersions(versions []*compute.InstanceGroupManagerVersion) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(versions))
 	for _, version := range versions {
@@ -810,12 +888,39 @@ func flattenVersions(versions []*compute.InstanceGroupManagerVersion) []map[stri
 	return result
 }
 
+func flattenVersionsV2(raw interface{}) []map[string]interface{} {
+	versions := sliceFromInterface(raw)
+	result := make([]map[string]interface{}, 0, len(versions))
+	for _, versionRaw := range versions {
+		version := mapFromInterface(versionRaw)
+		result = append(result, map[string]interface{}{
+			"name":              stringFromMap(version, "name"),
+			"instance_template": tpgresource.ConvertSelfLinkToV1(stringFromMap(version, "instanceTemplate")),
+			"target_size":       flattenFixedOrPercentV2(version["targetSize"]),
+		})
+	}
+	return result
+}
+
 func flattenFixedOrPercent(fixedOrPercent *compute.FixedOrPercent) []map[string]interface{} {
 	result := make(map[string]interface{})
 	if value := fixedOrPercent.Percent; value > 0 {
 		result["percent"] = value
 	} else if value := fixedOrPercent.Fixed; value > 0 {
 		result["fixed"] = fixedOrPercent.Fixed
+	} else {
+		return []map[string]interface{}{}
+	}
+	return []map[string]interface{}{result}
+}
+
+func flattenFixedOrPercentV2(raw interface{}) []map[string]interface{} {
+	fixedOrPercent := mapFromInterface(raw)
+	result := make(map[string]interface{})
+	if value := int64FromInterface(fixedOrPercent["percent"]); value > 0 {
+		result["percent"] = value
+	} else if value := int64FromInterface(fixedOrPercent["fixed"]); value > 0 {
+		result["fixed"] = value
 	} else {
 		return []map[string]interface{}{}
 	}
@@ -853,6 +958,48 @@ func getManager(d *schema.ResourceData, meta interface{}) (*compute.InstanceGrou
 	return manager, nil
 }
 
+func readInstanceGroupManagerResponse(d *schema.ResourceData, meta interface{}) (map[string]interface{}, error) {
+	config := meta.(*transport_tpg.Config)
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	name := d.Get("name").(string)
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{name}}")
+	if err != nil {
+		return nil, err
+	}
+
+	manager, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Instance Group Manager %q", name))
+	}
+
+	if manager == nil {
+		log.Printf("[WARN] Removing Instance Group Manager %q because it's gone", d.Get("name").(string))
+
+		// The resource doesn't exist anymore
+		d.SetId("")
+		return nil, nil
+	}
+
+	return manager, nil
+}
+
 func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -869,9 +1016,9 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if operation != "" {
 		log.Printf("[DEBUG] in progress operation detected at %v, attempting to resume", operation)
 		zone, _ := tpgresource.GetZone(d, config)
-		op := &compute.Operation{
-			Name: operation,
-			Zone: zone,
+		op := map[string]interface{}{
+			"name": operation,
+			"zone": zone,
 		}
 		if err := d.Set("operation", ""); err != nil {
 			return fmt.Errorf("Error unsetting operation: %s", err)
@@ -885,7 +1032,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 		}
 	}
 
-	manager, err := getManager(d, meta)
+	manager, err := readInstanceGroupManagerResponse(d, meta)
 	if err != nil {
 		return err
 	}
@@ -895,49 +1042,42 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 		return nil
 	}
 
-	if err := d.Set("base_instance_name", manager.BaseInstanceName); err != nil {
+	if err := d.Set("base_instance_name", stringFromMap(manager, "baseInstanceName")); err != nil {
 		return fmt.Errorf("Error setting base_instance_name: %s", err)
 	}
-	if err := d.Set("name", manager.Name); err != nil {
+	if err := d.Set("name", stringFromMap(manager, "name")); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if err := d.Set("zone", tpgresource.GetResourceNameFromSelfLink(manager.Zone)); err != nil {
+	if err := d.Set("zone", tpgresource.GetResourceNameFromSelfLink(stringFromMap(manager, "zone"))); err != nil {
 		return fmt.Errorf("Error setting zone: %s", err)
 	}
-	if err := d.Set("creation_timestamp", manager.CreationTimestamp); err != nil {
+	if err := d.Set("creation_timestamp", stringFromMap(manager, "creationTimestamp")); err != nil {
 		return fmt.Errorf("Error reading creation_timestamp: %s", err)
 	}
-	if err := d.Set("description", manager.Description); err != nil {
+	if err := d.Set("description", stringFromMap(manager, "description")); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
 
-	if err := d.Set("instance_group_manager_id", manager.Id); err != nil {
+	if err := d.Set("instance_group_manager_id", int64FromInterface(manager["id"])); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("target_size", manager.TargetSize); err != nil {
+	if err := d.Set("target_size", int64FromInterface(manager["targetSize"])); err != nil {
 		return fmt.Errorf("Error setting target_size: %s", err)
 	}
-	if err := d.Set("list_managed_instances_results", manager.ListManagedInstancesResults); err != nil {
+	if err := d.Set("list_managed_instances_results", stringFromMap(manager, "listManagedInstancesResults")); err != nil {
 		return fmt.Errorf("Error setting list_managed_instances_results: %s", err)
 	}
-	if err = d.Set("target_pools", tpgresource.MapStringArr(manager.TargetPools, tpgresource.ConvertSelfLinkToV1)); err != nil {
+	if err = d.Set("target_pools", tpgresource.MapStringArr(stringSliceFromInterface(manager["targetPools"]), tpgresource.ConvertSelfLinkToV1)); err != nil {
 		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
 	}
-	if err = d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts)); err != nil {
+	if err = d.Set("named_port", flattenNamedPortsBetaV2(manager["namedPorts"])); err != nil {
 		return fmt.Errorf("Error setting named_port in state: %s", err.Error())
 	}
-	var statefulPolicyMap map[string]interface{}
-	if manager.StatefulPolicy != nil {
-		spMap, err := tpgresource.ConvertToMap(manager.StatefulPolicy)
-		if err != nil {
-			return fmt.Errorf("Error converting stateful policy: %s", err)
-		}
-		statefulPolicyMap = spMap
-	}
+	statefulPolicyMap := mapFromInterface(manager["statefulPolicy"])
 	if err = d.Set("stateful_disk", flattenStatefulPolicy(statefulPolicyMap)); err != nil {
 		return fmt.Errorf("Error setting stateful_disk in state: %s", err.Error())
 	}
@@ -947,49 +1087,49 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if err = d.Set("stateful_external_ip", flattenStatefulPolicyStatefulExternalIps(d, statefulPolicyMap)); err != nil {
 		return fmt.Errorf("Error setting stateful_external_ip in state: %s", err.Error())
 	}
-	if err := d.Set("fingerprint", manager.Fingerprint); err != nil {
+	if err := d.Set("fingerprint", stringFromMap(manager, "fingerprint")); err != nil {
 		return fmt.Errorf("Error setting fingerprint: %s", err)
 	}
-	if err := d.Set("instance_group", tpgresource.ConvertSelfLinkToV1(manager.InstanceGroup)); err != nil {
+	if err := d.Set("instance_group", tpgresource.ConvertSelfLinkToV1(stringFromMap(manager, "instanceGroup"))); err != nil {
 		return fmt.Errorf("Error setting instance_group: %s", err)
 	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(manager.SelfLink)); err != nil {
+	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(stringFromMap(manager, "selfLink"))); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
 
-	if err = d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies)); err != nil {
+	if err = d.Set("auto_healing_policies", flattenAutoHealingPoliciesV2(manager["autoHealingPolicies"])); err != nil {
 		return fmt.Errorf("Error setting auto_healing_policies in state: %s", err.Error())
 	}
-	if err := d.Set("version", flattenVersions(manager.Versions)); err != nil {
+	if err := d.Set("version", flattenVersionsV2(manager["versions"])); err != nil {
 		return err
 	}
-	if err = d.Set("standby_policy", flattenStandbyPolicy(manager.StandbyPolicy)); err != nil {
+	if err = d.Set("standby_policy", flattenStandbyPolicyV2(manager["standbyPolicy"])); err != nil {
 		return fmt.Errorf("Error setting standby_policy in state: %s", err.Error())
 	}
-	if err := d.Set("target_suspended_size", manager.TargetSuspendedSize); err != nil {
+	if err := d.Set("target_suspended_size", int64FromInterface(manager["targetSuspendedSize"])); err != nil {
 		return fmt.Errorf("Error setting target_suspended_size: %s", err)
 	}
-	if err := d.Set("target_stopped_size", manager.TargetStoppedSize); err != nil {
+	if err := d.Set("target_stopped_size", int64FromInterface(manager["targetStoppedSize"])); err != nil {
 		return fmt.Errorf("Error setting target_stopped_size: %s", err)
 	}
-	if err = d.Set("update_policy", flattenUpdatePolicy(manager.UpdatePolicy)); err != nil {
+	if err = d.Set("update_policy", flattenUpdatePolicyV2(manager["updatePolicy"])); err != nil {
 		return fmt.Errorf("Error setting update_policy in state: %s", err.Error())
 	}
-	if err = d.Set("instance_lifecycle_policy", flattenInstanceLifecyclePolicy(manager.InstanceLifecyclePolicy)); err != nil {
+	if err = d.Set("instance_lifecycle_policy", flattenInstanceLifecyclePolicyV2(manager["instanceLifecyclePolicy"])); err != nil {
 		return fmt.Errorf("Error setting instance lifecycle policy in state: %s", err.Error())
 	}
-	if manager.AllInstancesConfig != nil {
-		if err = d.Set("all_instances_config", flattenAllInstancesConfig(manager.AllInstancesConfig)); err != nil {
+	if manager["allInstancesConfig"] != nil {
+		if err = d.Set("all_instances_config", flattenAllInstancesConfigV2(manager["allInstancesConfig"])); err != nil {
 			return fmt.Errorf("Error setting all_instances_config in state: %s", err.Error())
 		}
 	}
-	if err = d.Set("status", flattenStatus(manager.Status)); err != nil {
+	if err = d.Set("status", flattenStatusV2(manager["status"])); err != nil {
 		return fmt.Errorf("Error setting status in state: %s", err.Error())
 	}
-	if err = d.Set("resource_policies", flattenResourcePolicies(manager.ResourcePolicies)); err != nil {
+	if err = d.Set("resource_policies", flattenResourcePoliciesV2(manager["resourcePolicies"])); err != nil {
 		return fmt.Errorf("Error setting resource_policies in state: %s", err.Error())
 	}
-	if err = d.Set("target_size_policy", flattenTargetSizePolicy(manager.TargetSizePolicy)); err != nil {
+	if err = d.Set("target_size_policy", flattenTargetSizePolicyV2(manager["targetSizePolicy"])); err != nil {
 		return fmt.Errorf("Error setting target_size_policy in state: %s", err.Error())
 	}
 
@@ -1686,6 +1826,19 @@ func flattenAutoHealingPolicies(autoHealingPolicies []*compute.InstanceGroupMana
 	return autoHealingPoliciesSchema
 }
 
+func flattenAutoHealingPoliciesV2(raw interface{}) []map[string]interface{} {
+	autoHealingPolicies := sliceFromInterface(raw)
+	result := make([]map[string]interface{}, 0, len(autoHealingPolicies))
+	for _, autoHealingPolicyRaw := range autoHealingPolicies {
+		autoHealingPolicy := mapFromInterface(autoHealingPolicyRaw)
+		result = append(result, map[string]interface{}{
+			"health_check":      stringFromMap(autoHealingPolicy, "healthCheck"),
+			"initial_delay_sec": int64FromInterface(autoHealingPolicy["initialDelaySec"]),
+		})
+	}
+	return result
+}
+
 func flattenStatefulPolicy(statefulPolicy map[string]interface{}) []map[string]interface{} {
 	if statefulPolicy == nil {
 		return make([]map[string]interface{}, 0, 0)
@@ -1781,6 +1934,19 @@ func flattenStandbyPolicy(standbyPolicy *compute.InstanceGroupManagerStandbyPoli
 	}
 	return results
 }
+
+func flattenStandbyPolicyV2(raw interface{}) []map[string]any {
+	standbyPolicy := mapFromInterface(raw)
+	results := []map[string]any{}
+	if standbyPolicy != nil {
+		results = append(results, map[string]any{
+			"initial_delay_sec": int64FromInterface(standbyPolicy["initialDelaySec"]),
+			"mode":              stringFromMap(standbyPolicy, "mode"),
+		})
+	}
+	return results
+}
+
 func flattenUpdatePolicy(updatePolicy *compute.InstanceGroupManagerUpdatePolicy) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	if updatePolicy != nil {
@@ -1808,12 +1974,55 @@ func flattenUpdatePolicy(updatePolicy *compute.InstanceGroupManagerUpdatePolicy)
 	return results
 }
 
+func flattenUpdatePolicyV2(raw interface{}) []map[string]interface{} {
+	updatePolicy := mapFromInterface(raw)
+	results := []map[string]interface{}{}
+	if updatePolicy != nil {
+		up := map[string]interface{}{}
+		maxSurge := mapFromInterface(updatePolicy["maxSurge"])
+		if maxSurge != nil {
+			up["max_surge_fixed"] = int64FromInterface(maxSurge["fixed"])
+			up["max_surge_percent"] = int64FromInterface(maxSurge["percent"])
+		} else {
+			up["max_surge_fixed"] = 0
+			up["max_surge_percent"] = 0
+		}
+		maxUnavailable := mapFromInterface(updatePolicy["maxUnavailable"])
+		if maxUnavailable != nil {
+			up["max_unavailable_fixed"] = int64FromInterface(maxUnavailable["fixed"])
+			up["max_unavailable_percent"] = int64FromInterface(maxUnavailable["percent"])
+		} else {
+			up["max_unavailable_fixed"] = 0
+			up["max_unavailable_percent"] = 0
+		}
+		up["minimal_action"] = stringFromMap(updatePolicy, "minimalAction")
+		up["most_disruptive_allowed_action"] = stringFromMap(updatePolicy, "mostDisruptiveAllowedAction")
+		up["type"] = stringFromMap(updatePolicy, "type")
+		up["replacement_method"] = stringFromMap(updatePolicy, "replacementMethod")
+		results = append(results, up)
+	}
+	return results
+}
+
 func flattenInstanceLifecyclePolicy(instanceLifecyclePolicy *compute.InstanceGroupManagerInstanceLifecyclePolicy) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	if instanceLifecyclePolicy != nil {
 		ilp := map[string]interface{}{}
 		ilp["force_update_on_repair"] = instanceLifecyclePolicy.ForceUpdateOnRepair
 		ilp["default_action_on_failure"] = instanceLifecyclePolicy.DefaultActionOnFailure
+
+		results = append(results, ilp)
+	}
+	return results
+}
+
+func flattenInstanceLifecyclePolicyV2(raw interface{}) []map[string]interface{} {
+	instanceLifecyclePolicy := mapFromInterface(raw)
+	results := []map[string]interface{}{}
+	if instanceLifecyclePolicy != nil {
+		ilp := map[string]interface{}{}
+		ilp["force_update_on_repair"] = stringFromMap(instanceLifecyclePolicy, "forceUpdateOnRepair")
+		ilp["default_action_on_failure"] = stringFromMap(instanceLifecyclePolicy, "defaultActionOnFailure")
 
 		results = append(results, ilp)
 	}
@@ -1864,9 +2073,8 @@ func expandAllInstancesConfig(old []interface{}, new []interface{}) *compute.Ins
 }
 
 func expandAllInstancesConfigV2(old []interface{}, new []interface{}) map[string]interface{} {
-	var properties map[string]interface{}
+	properties := map[string]interface{}{}
 	for _, raw := range new {
-		properties = map[string]interface{}{}
 		if raw != nil {
 			data := raw.(map[string]interface{})
 			metadata := map[string]interface{}{}
@@ -1891,43 +2099,42 @@ func expandAllInstancesConfigV2(old []interface{}, new []interface{}) map[string
 		}
 	}
 
-	if properties != nil {
-		metadata := mapFromInterface(properties["metadata"])
-		labels := mapFromInterface(properties["labels"])
-		for _, raw := range old {
-			if raw != nil {
-				data := raw.(map[string]interface{})
-				for k := range data["metadata"].(map[string]interface{}) {
-					if _, exist := metadata[k]; !exist {
-						if metadata == nil {
-							metadata = map[string]interface{}{}
-						}
-						metadata[k] = nil
+	if len(properties) == 0 {
+		return nil
+	}
+
+	metadata := mapFromInterface(properties["metadata"])
+	labels := mapFromInterface(properties["labels"])
+	for _, raw := range old {
+		if raw != nil {
+			data := raw.(map[string]interface{})
+			for k := range data["metadata"].(map[string]interface{}) {
+				if _, exist := metadata[k]; !exist {
+					if metadata == nil {
+						metadata = map[string]interface{}{}
 					}
+					metadata[k] = nil
 				}
-				for k := range data["labels"].(map[string]interface{}) {
-					if _, exist := labels[k]; !exist {
-						if labels == nil {
-							labels = map[string]interface{}{}
-						}
-						labels[k] = nil
+			}
+			for k := range data["labels"].(map[string]interface{}) {
+				if _, exist := labels[k]; !exist {
+					if labels == nil {
+						labels = map[string]interface{}{}
 					}
+					labels[k] = nil
 				}
 			}
 		}
-		if metadata != nil {
-			properties["metadata"] = metadata
-		}
-		if labels != nil {
-			properties["labels"] = labels
-		}
 	}
-	if properties != nil {
-		return map[string]interface{}{
-			"properties": properties,
-		}
+	if metadata != nil {
+		properties["metadata"] = metadata
 	}
-	return nil
+	if labels != nil {
+		properties["labels"] = labels
+	}
+	return map[string]interface{}{
+		"properties": properties,
+	}
 }
 
 func flattenAllInstancesConfig(allInstancesConfig *compute.InstanceGroupManagerAllInstancesConfig) []map[string]interface{} {
@@ -1938,6 +2145,23 @@ func flattenAllInstancesConfig(allInstancesConfig *compute.InstanceGroupManagerA
 	}
 	if len(allInstancesConfig.Properties.Labels) > 0 {
 		props["labels"] = allInstancesConfig.Properties.Labels
+	}
+	results = append(results, props)
+	return results
+}
+
+func flattenAllInstancesConfigV2(raw interface{}) []map[string]interface{} {
+	allInstancesConfig := mapFromInterface(raw)
+	results := []map[string]interface{}{}
+	props := map[string]interface{}{}
+	properties := mapFromInterface(allInstancesConfig["properties"])
+	metadata := mapFromInterface(properties["metadata"])
+	if len(metadata) > 0 {
+		props["metadata"] = metadata
+	}
+	labels := mapFromInterface(properties["labels"])
+	if len(labels) > 0 {
+		props["labels"] = labels
 	}
 	results = append(results, props)
 	return results
@@ -1957,11 +2181,37 @@ func flattenStatus(status *compute.InstanceGroupManagerStatus) []map[string]inte
 	return results
 }
 
+func flattenStatusV2(raw interface{}) []map[string]interface{} {
+	status := mapFromInterface(raw)
+	results := []map[string]interface{}{}
+	data := map[string]interface{}{
+		"is_stable":      boolFromInterface(status["isStable"]),
+		"stateful":       flattenStatusStatefulV2(status["stateful"]),
+		"version_target": flattenStatusVersionTargetV2(status["versionTarget"]),
+	}
+	if status["allInstancesConfig"] != nil {
+		data["all_instances_config"] = flattenStatusAllInstancesConfigV2(status["allInstancesConfig"])
+	}
+	results = append(results, data)
+	return results
+}
+
 func flattenStatusStateful(stateful *compute.InstanceGroupManagerStatusStateful) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	data := map[string]interface{}{
 		"has_stateful_config":  stateful.HasStatefulConfig,
 		"per_instance_configs": flattenStatusStatefulConfigs(stateful.PerInstanceConfigs),
+	}
+	results = append(results, data)
+	return results
+}
+
+func flattenStatusStatefulV2(raw interface{}) []map[string]interface{} {
+	stateful := mapFromInterface(raw)
+	results := []map[string]interface{}{}
+	data := map[string]interface{}{
+		"has_stateful_config":  boolFromInterface(stateful["hasStatefulConfig"]),
+		"per_instance_configs": flattenStatusStatefulConfigsV2(stateful["perInstanceConfigs"]),
 	}
 	results = append(results, data)
 	return results
@@ -1976,10 +2226,30 @@ func flattenStatusStatefulConfigs(statefulConfigs *compute.InstanceGroupManagerS
 	return results
 }
 
+func flattenStatusStatefulConfigsV2(raw interface{}) []map[string]interface{} {
+	statefulConfigs := mapFromInterface(raw)
+	results := []map[string]interface{}{}
+	data := map[string]interface{}{
+		"all_effective": boolFromInterface(statefulConfigs["allEffective"]),
+	}
+	results = append(results, data)
+	return results
+}
+
 func flattenStatusVersionTarget(versionTarget *compute.InstanceGroupManagerStatusVersionTarget) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	data := map[string]interface{}{
 		"is_reached": versionTarget.IsReached,
+	}
+	results = append(results, data)
+	return results
+}
+
+func flattenStatusVersionTargetV2(raw interface{}) []map[string]interface{} {
+	versionTarget := mapFromInterface(raw)
+	results := []map[string]interface{}{}
+	data := map[string]interface{}{
+		"is_reached": boolFromInterface(versionTarget["isReached"]),
 	}
 	results = append(results, data)
 	return results
@@ -1995,6 +2265,17 @@ func flattenStatusAllInstancesConfig(allInstancesConfig *compute.InstanceGroupMa
 	return results
 }
 
+func flattenStatusAllInstancesConfigV2(raw interface{}) []map[string]interface{} {
+	allInstancesConfig := mapFromInterface(raw)
+	results := []map[string]interface{}{}
+	data := map[string]interface{}{
+		"effective":        boolFromInterface(allInstancesConfig["effective"]),
+		"current_revision": stringFromMap(allInstancesConfig, "currentRevision"),
+	}
+	results = append(results, data)
+	return results
+}
+
 func flattenTargetSizePolicy(targetSizePolicy *compute.InstanceGroupManagerTargetSizePolicy) []map[string]interface{} {
 	if targetSizePolicy == nil {
 		return nil
@@ -2005,11 +2286,36 @@ func flattenTargetSizePolicy(targetSizePolicy *compute.InstanceGroupManagerTarge
 		},
 	}
 }
+
+func flattenTargetSizePolicyV2(raw interface{}) []map[string]interface{} {
+	targetSizePolicy := mapFromInterface(raw)
+	if targetSizePolicy == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"mode": stringFromMap(targetSizePolicy, "mode"),
+		},
+	}
+}
+
 func flattenResourcePolicies(resourcePolicies *compute.InstanceGroupManagerResourcePolicies) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	if resourcePolicies != nil {
 		data := map[string]interface{}{
 			"workload_policy": resourcePolicies.WorkloadPolicy,
+		}
+		results = append(results, data)
+	}
+	return results
+}
+
+func flattenResourcePoliciesV2(raw interface{}) []map[string]interface{} {
+	resourcePolicies := mapFromInterface(raw)
+	results := []map[string]interface{}{}
+	if resourcePolicies != nil {
+		data := map[string]interface{}{
+			"workload_policy": stringFromMap(resourcePolicies, "workloadPolicy"),
 		}
 		results = append(results, data)
 	}
