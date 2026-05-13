@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
@@ -108,7 +109,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
+		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

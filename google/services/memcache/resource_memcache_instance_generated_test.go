@@ -37,6 +37,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+)
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -60,7 +64,7 @@ func TestAccMemcacheInstance_memcacheInstanceBasicTestExample(t *testing.T) {
 	context := map[string]interface{}{
 		"address_name":  "address" + randomSuffix,
 		"instance_name": "tf-test-test-instance" + randomSuffix,
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
+		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"random_suffix": randomSuffix,
 	}
 

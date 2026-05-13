@@ -37,6 +37,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+)
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -60,7 +64,7 @@ func TestAccNetappVolumeReplication_netappVolumeReplicationCreateExample(t *test
 	context := map[string]interface{}{
 		"destination_pool_name": "tf-test-destination-pool" + randomSuffix,
 		"destination_volume":    "tf-test-destination-volume" + randomSuffix,
-		"network_name":          acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"network_name":          servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", servicenetworking.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
 		"replication_name":      "tf-test-test-replication" + randomSuffix,
 		"source_pool_name":      "tf-test-source-pool" + randomSuffix,
 		"volume_name":           "tf-test-source-volume" + randomSuffix,

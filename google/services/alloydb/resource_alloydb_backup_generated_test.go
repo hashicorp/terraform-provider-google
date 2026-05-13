@@ -37,6 +37,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+)
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -61,7 +65,7 @@ func TestAccAlloydbBackup_alloydbBackupBasicTestExample(t *testing.T) {
 		"alloydb_backup_id":     "tf-test-alloydb-backup" + randomSuffix,
 		"alloydb_cluster_name":  "tf-test-alloydb-cluster" + randomSuffix,
 		"alloydb_instance_name": "tf-test-alloydb-instance" + randomSuffix,
-		"network_name":          acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
+		"network_name":          servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
 		"random_suffix":         randomSuffix,
 	}
 
@@ -131,7 +135,7 @@ func TestAccAlloydbBackup_alloydbBackupFullTestExample(t *testing.T) {
 		"alloydb_backup_id":     "tf-test-alloydb-backup" + randomSuffix,
 		"alloydb_cluster_name":  "tf-test-alloydb-cluster" + randomSuffix,
 		"alloydb_instance_name": "tf-test-alloydb-instance" + randomSuffix,
-		"network_name":          acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
+		"network_name":          servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
 		"random_suffix":         randomSuffix,
 	}
 

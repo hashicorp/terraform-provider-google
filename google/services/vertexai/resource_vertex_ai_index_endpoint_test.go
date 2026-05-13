@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 )
 
 func TestAccVertexAIIndexEndpoint_updated(t *testing.T) {
@@ -29,7 +30,7 @@ func TestAccVertexAIIndexEndpoint_updated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
+		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
