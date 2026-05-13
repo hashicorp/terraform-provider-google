@@ -30,8 +30,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
-
-	"google.golang.org/api/compute/v1"
 )
 
 var instancesSelfLinkPattern = regexp.MustCompile(fmt.Sprintf(tpgresource.ZonalLinkBasePattern, "instances"))
@@ -218,11 +216,6 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	region, err := tpgresource.GetRegion(d, config)
-	if err != nil {
-		return err
-	}
-
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
@@ -239,20 +232,34 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Build the parameter
-	tpool := &compute.TargetPool{
-		BackupPool:      d.Get("backup_pool").(string),
-		Description:     d.Get("description").(string),
-		HealthChecks:    hchkUrls,
-		Instances:       instanceUrls,
-		Name:            d.Get("name").(string),
-		SessionAffinity: d.Get("session_affinity").(string),
+	tpool := map[string]interface{}{
+		"description":     d.Get("description").(string),
+		"healthChecks":    hchkUrls,
+		"name":            d.Get("name").(string),
+		"sessionAffinity": d.Get("session_affinity").(string),
 	}
-	if d.Get("failover_ratio") != nil {
-		tpool.FailoverRatio = d.Get("failover_ratio").(float64)
+	if len(instanceUrls) > 0 {
+		tpool["instances"] = instanceUrls
+	}
+	if v := d.Get("backup_pool").(string); v != "" {
+		tpool["backupPool"] = v
+	}
+	if v, ok := d.GetOk("failover_ratio"); ok {
+		tpool["failoverRatio"] = v.(float64)
 	}
 	log.Printf("[DEBUG] TargetPool insert request: %#v", tpool)
-	op, err := NewClient(config, userAgent).TargetPools.Insert(
-		project, region, tpool).Do()
+	insertUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetPools")
+	if err != nil {
+		return err
+	}
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    insertUrl,
+		UserAgent: userAgent,
+		Body:      tpool,
+	})
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 && strings.Contains(gerr.Message, "httpHealthChecks") {
 			return fmt.Errorf("Health check %s is not a valid HTTP health check", d.Get("health_checks").([]interface{})[0])
@@ -267,7 +274,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
-	err = ComputeOperationWaitTime(config, op, project, "Creating Target Pool", userAgent, d.Timeout(schema.TimeoutCreate))
+	err = ComputeOperationWaitTime(config, res, project, "Creating Target Pool", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -287,17 +294,10 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	region, err := tpgresource.GetRegion(d, config)
-	if err != nil {
-		return err
-	}
-
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
-
-	name := d.Get("name").(string)
 
 	d.Partial(true)
 
@@ -314,35 +314,57 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 		add, remove := tpgresource.CalcAddRemove(fromUrls, toUrls)
 
-		removeReq := &compute.TargetPoolsRemoveHealthCheckRequest{
-			HealthChecks: make([]*compute.HealthCheckReference, len(remove)),
-		}
+		removeHCs := make([]interface{}, len(remove))
 		for i, v := range remove {
-			removeReq.HealthChecks[i] = &compute.HealthCheckReference{HealthCheck: v}
+			removeHCs[i] = map[string]interface{}{"healthCheck": v}
 		}
-		op, err := NewClient(config, userAgent).TargetPools.RemoveHealthCheck(
-			project, region, name, removeReq).Do()
-		if err != nil {
-			return fmt.Errorf("Error updating health_check: %s", err)
+		removeReq := map[string]interface{}{
+			"healthChecks": removeHCs,
 		}
-
-		err = ComputeOperationWaitTime(config, op, project, "Updating Target Pool", userAgent, d.Timeout(schema.TimeoutUpdate))
+		removeHCUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetPools/{{name}}/removeHealthCheck")
 		if err != nil {
 			return err
 		}
-		addReq := &compute.TargetPoolsAddHealthCheckRequest{
-			HealthChecks: make([]*compute.HealthCheckReference, len(add)),
-		}
-		for i, v := range add {
-			addReq.HealthChecks[i] = &compute.HealthCheckReference{HealthCheck: v}
-		}
-		op, err = NewClient(config, userAgent).TargetPools.AddHealthCheck(
-			project, region, name, addReq).Do()
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    removeHCUrl,
+			UserAgent: userAgent,
+			Body:      removeReq,
+		})
 		if err != nil {
 			return fmt.Errorf("Error updating health_check: %s", err)
 		}
 
-		err = ComputeOperationWaitTime(config, op, project, "Updating Target Pool", userAgent, d.Timeout(schema.TimeoutUpdate))
+		err = ComputeOperationWaitTime(config, res, project, "Updating Target Pool", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+		addHCs := make([]interface{}, len(add))
+		for i, v := range add {
+			addHCs[i] = map[string]interface{}{"healthCheck": v}
+		}
+		addReq := map[string]interface{}{
+			"healthChecks": addHCs,
+		}
+		addHCUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetPools/{{name}}/addHealthCheck")
+		if err != nil {
+			return err
+		}
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    addHCUrl,
+			UserAgent: userAgent,
+			Body:      addReq,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating health_check: %s", err)
+		}
+
+		err = ComputeOperationWaitTime(config, res, project, "Updating Target Pool", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -363,34 +385,56 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 
-		addReq := &compute.TargetPoolsAddInstanceRequest{
-			Instances: make([]*compute.InstanceReference, len(addUrls)),
-		}
+		addInstanceRefs := make([]interface{}, len(addUrls))
 		for i, v := range addUrls {
-			addReq.Instances[i] = &compute.InstanceReference{Instance: v}
+			addInstanceRefs[i] = map[string]interface{}{"instance": v}
 		}
-		op, err := NewClient(config, userAgent).TargetPools.AddInstance(
-			project, region, name, addReq).Do()
+		addReq := map[string]interface{}{
+			"instances": addInstanceRefs,
+		}
+		addInstanceUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetPools/{{name}}/addInstance")
+		if err != nil {
+			return err
+		}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    addInstanceUrl,
+			UserAgent: userAgent,
+			Body:      addReq,
+		})
 		if err != nil {
 			return fmt.Errorf("Error updating instances: %s", err)
 		}
 
-		err = ComputeOperationWaitTime(config, op, project, "Updating Target Pool", userAgent, d.Timeout(schema.TimeoutUpdate))
+		err = ComputeOperationWaitTime(config, res, project, "Updating Target Pool", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-		removeReq := &compute.TargetPoolsRemoveInstanceRequest{
-			Instances: make([]*compute.InstanceReference, len(removeUrls)),
-		}
+		removeInstanceRefs := make([]interface{}, len(removeUrls))
 		for i, v := range removeUrls {
-			removeReq.Instances[i] = &compute.InstanceReference{Instance: v}
+			removeInstanceRefs[i] = map[string]interface{}{"instance": v}
 		}
-		op, err = NewClient(config, userAgent).TargetPools.RemoveInstance(
-			project, region, name, removeReq).Do()
+		removeReq := map[string]interface{}{
+			"instances": removeInstanceRefs,
+		}
+		removeInstanceUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetPools/{{name}}/removeInstance")
+		if err != nil {
+			return err
+		}
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    removeInstanceUrl,
+			UserAgent: userAgent,
+			Body:      removeReq,
+		})
 		if err != nil {
 			return fmt.Errorf("Error updating instances: %s", err)
 		}
-		err = ComputeOperationWaitTime(config, op, project, "Updating Target Pool", userAgent, d.Timeout(schema.TimeoutUpdate))
+		err = ComputeOperationWaitTime(config, res, project, "Updating Target Pool", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -398,16 +442,26 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("backup_pool") {
 		bpool_name := d.Get("backup_pool").(string)
-		tref := &compute.TargetReference{
-			Target: bpool_name,
+		tref := map[string]interface{}{
+			"target": bpool_name,
 		}
-		op, err := NewClient(config, userAgent).TargetPools.SetBackup(
-			project, region, name, tref).Do()
+		setBackupUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetPools/{{name}}/setBackup")
+		if err != nil {
+			return err
+		}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    setBackupUrl,
+			UserAgent: userAgent,
+			Body:      tref,
+		})
 		if err != nil {
 			return fmt.Errorf("Error updating backup_pool: %s", err)
 		}
 
-		err = ComputeOperationWaitTime(config, op, project, "Updating Target Pool", userAgent, d.Timeout(schema.TimeoutUpdate))
+		err = ComputeOperationWaitTime(config, res, project, "Updating Target Pool", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -435,39 +489,47 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	region, err := tpgresource.GetRegion(d, config)
-	if err != nil {
-		return err
-	}
-
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	tpool, err := NewClient(config, userAgent).TargetPools.Get(
-		project, region, d.Get("name").(string)).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
+	if err != nil {
+		return err
+	}
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Target Pool %q", d.Get("name").(string)))
 	}
 
-	if err := d.Set("self_link", tpool.SelfLink); err != nil {
+	if err := d.Set("self_link", res["selfLink"]); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
-	if err := d.Set("backup_pool", tpool.BackupPool); err != nil {
+	if err := d.Set("backup_pool", res["backupPool"]); err != nil {
 		return fmt.Errorf("Error setting backup_pool: %s", err)
 	}
-	if err := d.Set("description", tpool.Description); err != nil {
+	if err := d.Set("description", res["description"]); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
-	if err := d.Set("failover_ratio", tpool.FailoverRatio); err != nil {
+	if err := d.Set("failover_ratio", res["failoverRatio"]); err != nil {
 		return fmt.Errorf("Error setting failover_ratio: %s", err)
 	}
-	if err := d.Set("health_checks", tpool.HealthChecks); err != nil {
+	if err := d.Set("health_checks", res["healthChecks"]); err != nil {
 		return fmt.Errorf("Error setting health_checks: %s", err)
 	}
-	if tpool.Instances != nil {
-		if err := d.Set("instances", convertInstancesFromUrls(tpool.Instances)); err != nil {
+	if rawInstances, ok := res["instances"].([]interface{}); ok {
+		instanceUrls := make([]string, len(rawInstances))
+		for i, ri := range rawInstances {
+			instanceUrls[i] = ri.(string)
+		}
+		if err := d.Set("instances", convertInstancesFromUrls(instanceUrls)); err != nil {
 			return fmt.Errorf("Error setting instances: %s", err)
 		}
 	} else {
@@ -475,13 +537,15 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error setting instances: %s", err)
 		}
 	}
-	if err := d.Set("name", tpool.Name); err != nil {
+	if err := d.Set("name", res["name"]); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if err := d.Set("region", tpgresource.GetResourceNameFromSelfLink(tpool.Region)); err != nil {
-		return fmt.Errorf("Error setting region: %s", err)
+	if regionStr, ok := res["region"].(string); ok {
+		if err := d.Set("region", tpgresource.GetResourceNameFromSelfLink(regionStr)); err != nil {
+			return fmt.Errorf("Error setting region: %s", err)
+		}
 	}
-	if err := d.Set("session_affinity", tpool.SessionAffinity); err != nil {
+	if err := d.Set("session_affinity", res["sessionAffinity"]); err != nil {
 		return fmt.Errorf("Error setting session_affinity: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {
@@ -509,24 +573,28 @@ func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	region, err := tpgresource.GetRegion(d, config)
-	if err != nil {
-		return err
-	}
-
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
 	// Delete the TargetPool
-	op, err := NewClient(config, userAgent).TargetPools.Delete(
-		project, region, d.Get("name").(string)).Do()
+	deleteUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
+	if err != nil {
+		return err
+	}
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		Project:   project,
+		RawURL:    deleteUrl,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return fmt.Errorf("Error deleting TargetPool: %s", err)
 	}
 
-	err = ComputeOperationWaitTime(config, op, project, "Deleting Target Pool", userAgent, d.Timeout(schema.TimeoutDelete))
+	err = ComputeOperationWaitTime(config, res, project, "Deleting Target Pool", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}
