@@ -248,23 +248,25 @@ func resourceBigqueryReservationReservationAssignmentCreate(d *schema.ResourceDa
 
 	headers := make(http.Header)
 	if _, ok := d.GetOkExists("location"); !ok {
-		// Extract location from parent reservation.
 		reservation := d.Get("reservation").(string)
-
 		tableRef := regexp.MustCompile("projects/(.+)/locations/(.+)/reservations/(.+)")
 		if parts := tableRef.FindStringSubmatch(reservation); parts != nil {
-			err := d.Set("location", parts[2])
-			if err != nil {
+			if err := d.Set("location", parts[2]); err != nil {
 				return err
 			}
+		} else {
+			return fmt.Errorf(
+				"`location` is required on google_bigquery_reservation_assignment "+
+					"when `reservation` is given as a bare name (got %q). Either set "+
+					"`location` explicitly on the assignment, or pass `reservation` "+
+					"as the full path `projects/{project}/locations/{location}/"+
+					"reservations/{name}` (typically `google_bigquery_reservation.<x>.id`).",
+				reservation,
+			)
 		}
 
 		if strings.Contains(url, "locations//") {
-			// re-compute url now that location must be set
 			url = strings.ReplaceAll(url, "/locations//", "/locations/"+d.Get("location").(string)+"/")
-			if err != nil {
-				return err
-			}
 		}
 	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
