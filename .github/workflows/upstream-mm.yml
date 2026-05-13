@@ -3,6 +3,10 @@ on:
   pull_request_target:
     types: [opened, ready_for_review, reopened]
 
+# Only posts an issue comment on the PR; runs in pull_request_target context.
+permissions:
+  pull-requests: write
+
 jobs:
   pr-warning:
     if: ${{ github.actor != 'modular-magician' }}

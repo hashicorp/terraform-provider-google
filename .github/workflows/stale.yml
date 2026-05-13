@@ -3,6 +3,11 @@ on:
   schedule:
     - cron: '10 3 * * *'
 
+# actions/stale labels and closes inactive issues and PRs.
+permissions:
+  issues: write
+  pull-requests: write
+
 jobs:
   stale:
     runs-on: ubuntu-latest
