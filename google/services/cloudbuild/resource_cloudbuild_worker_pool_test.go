@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -198,7 +199,7 @@ func TestAccCloudbuildWorkerPool_withNetwork(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"project":       envvar.GetTestProjectFromEnv(),
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "cloudbuild-workerpool-1"),
+		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "cloudbuild-workerpool-1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

@@ -40,6 +40,7 @@ import (
 import (
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 )
 
 var _ = kms.Product
@@ -256,7 +257,7 @@ func TestAccLookerInstance_lookerInstanceEnterpriseFullTestExample(t *testing.T)
 		"instance_name":     "tf-test-my-instance" + randomSuffix,
 		"kms_key_name":      kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"kms_key_ring_name": "tf-test-looker-kms-ring" + randomSuffix,
-		"network_name":      acctest.BootstrapSharedServiceNetworkingConnection(t, "looker-vpc-network-3", acctest.ServiceNetworkWithPrefixLength(8)),
+		"network_name":      servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "looker-vpc-network-3", servicenetworking.ServiceNetworkWithPrefixLength(8)),
 		"random_suffix":     randomSuffix,
 	}
 

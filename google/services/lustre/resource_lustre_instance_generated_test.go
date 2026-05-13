@@ -37,6 +37,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+)
+
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
@@ -60,7 +64,7 @@ func TestAccLustreInstance_lustreInstanceBasicExample(t *testing.T) {
 	context := map[string]interface{}{
 		"address_name":    "tf-test-my-ip-address-name" + randomSuffix,
 		"name":            "tf-test-my-instance" + randomSuffix,
-		"network_name":    acctest.BootstrapSharedServiceNetworkingConnection(t, "default-vpc"),
+		"network_name":    servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "default-vpc"),
 		"subnetwork_name": "tf-test-my-subnetwork" + randomSuffix,
 		"random_suffix":   randomSuffix,
 	}

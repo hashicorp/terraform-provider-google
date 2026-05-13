@@ -39,6 +39,7 @@ import (
 
 import (
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 )
 
 var (
@@ -257,7 +258,7 @@ func TestAccRedisInstance_redisInstancePrivateServiceTestExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"instance_name":   "tf-test-private-cache" + randomSuffix,
-		"network_name":    acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
+		"network_name":    servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"prevent_destroy": false,
 		"random_suffix":   randomSuffix,
 	}

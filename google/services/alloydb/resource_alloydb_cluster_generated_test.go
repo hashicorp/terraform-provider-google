@@ -39,6 +39,7 @@ import (
 
 import (
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 )
 
 var (
@@ -353,7 +354,7 @@ func TestAccAlloydbCluster_alloydbSecondaryClusterBasicTestExample(t *testing.T)
 		"alloydb_primary_cluster_name":   "tf-test-alloydb-primary-cluster" + randomSuffix,
 		"alloydb_primary_instance_name":  "tf-test-alloydb-primary-instance" + randomSuffix,
 		"alloydb_secondary_cluster_name": "tf-test-alloydb-secondary-cluster" + randomSuffix,
-		"network_name":                   acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
+		"network_name":                   servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
 		"random_suffix":                  randomSuffix,
 	}
 

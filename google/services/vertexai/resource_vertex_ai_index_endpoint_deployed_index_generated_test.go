@@ -39,6 +39,7 @@ import (
 
 import (
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 )
 
 var (
@@ -68,7 +69,7 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,
 		"display_name_index": "tf-test-test-index" + randomSuffix,
 		"endpoint_name":      "tf-test-endpoint-name" + randomSuffix,
-		"network_name":       acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
+		"network_name":       servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"service_account_id": "tf-test-vertex-sa" + randomSuffix,
 		"random_suffix":      randomSuffix,
 	}
@@ -191,7 +192,7 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,
 		"display_name_index": "tf-test-test-index" + randomSuffix,
 		"endpoint_name":      "tf-test-endpoint-name" + randomSuffix,
-		"network_name":       acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
+		"network_name":       servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"service_account_id": "tf-test-vertex-sa" + randomSuffix,
 		"random_suffix":      randomSuffix,
 	}

@@ -25,12 +25,10 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcloudbilling "github.com/hashicorp/terraform-provider-google/google/services/cloudbilling"
-	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
-	tpgservicenetworking "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
@@ -38,7 +36,6 @@ import (
 	"google.golang.org/api/cloudbilling/v1"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 	iam "google.golang.org/api/iam/v1"
-	"google.golang.org/api/servicenetworking/v1"
 )
 
 var serviceAccountPrefix = "tf-bootstrap-sa-"
@@ -127,119 +124,6 @@ func BootstrapServiceAccount(t *testing.T, testId, testRunner string) string {
 	}
 
 	return sa.Email
-}
-
-type ServiceNetworkSettings struct {
-	PrefixLength  int
-	ParentService string
-}
-
-func ServiceNetworkWithPrefixLength(prefixLength int) func(*ServiceNetworkSettings) {
-	return func(settings *ServiceNetworkSettings) {
-		settings.PrefixLength = prefixLength
-	}
-}
-
-func ServiceNetworkWithParentService(parentService string) func(*ServiceNetworkSettings) {
-	return func(settings *ServiceNetworkSettings) {
-		settings.ParentService = parentService
-	}
-}
-
-func NewServiceNetworkSettings(options ...func(*ServiceNetworkSettings)) *ServiceNetworkSettings {
-	settings := &ServiceNetworkSettings{
-		PrefixLength:  16,                                 // default prefix length
-		ParentService: "servicenetworking.googleapis.com", // default parent service
-	}
-
-	for _, o := range options {
-		o(settings)
-	}
-	return settings
-}
-
-// BootstrapSharedServiceNetworkingConnection will create a shared network
-// if it hasn't been created in the test project, a global address
-// if it hasn't been created in the test project, and a service networking connection
-// if it hasn't been created in the test project.
-//
-// params are the functions to set compute global address
-//
-// BootstrapSharedServiceNetworkingConnection returns a persistent compute network name
-// for a test or set of tests.
-//
-// To delete a service networking connection, all of the service instances that use that connection
-// must be deleted first. After the service instances are deleted, some service producers delay the deletion
-// utnil a waiting period has passed. For example, after four days that you delete a SQL instance,
-// the service networking connection can be deleted.
-// That is the reason to use the shared service networking connection for test resources.
-// https://cloud.google.com/vpc/docs/configure-private-services-access#removing-connection
-//
-// testId specifies the test for which a shared network and a global address are used/initialized.
-func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string, params ...func(*ServiceNetworkSettings)) string {
-	settings := NewServiceNetworkSettings(params...)
-	parentService := "services/" + settings.ParentService
-	projectId := envvar.GetTestProjectFromEnv()
-
-	config := transport_tpg.BootstrapConfig(t)
-	if config == nil {
-		return ""
-	}
-
-	// Get project number by calling the API
-	crmClient := rmClient.NewClient(config, config.UserAgent)
-	project, err := crmClient.Projects.Get(projectId).Do()
-	if err != nil {
-		t.Fatalf("Error getting project: %s", err)
-	}
-
-	networkName := tpgcompute.SharedTestNetworkPrefix + testId
-	networkId := fmt.Sprintf("projects/%v/global/networks/%v", project.ProjectNumber, networkName)
-	globalAddressName := tpgcompute.BootstrapSharedTestGlobalAddress(t, testId, tpgcompute.AddressWithPrefixLength(settings.PrefixLength))
-
-	readCall := tpgservicenetworking.NewClient(config, config.UserAgent).Services.Connections.List(parentService).Network(networkId)
-	if config.UserProjectOverride {
-		readCall.Header().Add("X-Goog-User-Project", projectId)
-	}
-	response, err := readCall.Do()
-	if err != nil {
-		t.Errorf("Error getting shared test service networking connection: %s", err)
-	}
-
-	var connection *servicenetworking.Connection
-	for _, c := range response.Connections {
-		if c.Network == networkId {
-			connection = c
-			break
-		}
-	}
-
-	if connection == nil {
-		log.Printf("[DEBUG] Service networking connection not found, bootstrapping")
-
-		connection := &servicenetworking.Connection{
-			Network:               networkId,
-			ReservedPeeringRanges: []string{globalAddressName},
-		}
-
-		createCall := tpgservicenetworking.NewClient(config, config.UserAgent).Services.Connections.Create(parentService, connection)
-		if config.UserProjectOverride {
-			createCall.Header().Add("X-Goog-User-Project", projectId)
-		}
-		op, err := createCall.Do()
-		if err != nil {
-			t.Fatalf("Error bootstrapping shared test service networking connection: %s", err)
-		}
-
-		log.Printf("[DEBUG] Waiting for service networking connection creation to finish")
-		if err := tpgservicenetworking.ServiceNetworkingOperationWaitTimeHW(config, op, "Create Service Networking Connection", config.UserAgent, projectId, 4*time.Minute); err != nil {
-			t.Fatalf("Error bootstrapping shared test service networking connection: %s", err)
-		}
-	}
-
-	log.Printf("[DEBUG] Getting shared test service networking connection")
-
-	return networkName
 }
 
 var SharedServicePerimeterProjectPrefix = "tf-bootstrap-sp-"

@@ -39,9 +39,13 @@ import (
 
 import (
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 )
 
-var _ = kms.Product
+var (
+	_ = kms.Product
+	_ = servicenetworking.Product
+)
 
 var (
 	_ = fmt.Sprintf
