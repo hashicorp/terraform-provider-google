@@ -72,6 +72,21 @@ func forwardingRuleCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v
 		}
 	}
 
+	// Force recreation if PSC target is updated to a new PSC service attachment and
+	// the existing target was also a PSC service attachment.
+	if diff.Id() != "" && diff.HasChange("target") {
+		oldTarget, newTarget := diff.GetChange("target")
+		oldTargetStr, oldOk := oldTarget.(string)
+		newTargetStr, newOk := newTarget.(string)
+
+		// Check if there is an actual semantic change, ignoring v1 vs beta differences
+		if oldOk && newOk && !tpgresource.CompareSelfLinkRelativePathsIgnoreProjectId("target", oldTargetStr, newTargetStr, nil) {
+			if strings.Contains(newTargetStr, "/serviceAttachments/") && strings.Contains(oldTargetStr, "/serviceAttachments/") {
+				diff.ForceNew("target")
+			}
+		}
+	}
+
 	// Force recreation if allow_global_access changes for INTERNAL_MANAGED load balancing scheme
 	if diff.Id() != "" && diff.HasChange("allow_global_access") {
 		if loadBalancingScheme, ok := diff.Get("load_balancing_scheme").(string); ok && loadBalancingScheme == "INTERNAL_MANAGED" {
