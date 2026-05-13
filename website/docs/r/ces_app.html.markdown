@@ -16,14 +16,17 @@
 # ----------------------------------------------------------------------------
 subcategory: "Customer Engagement Suite"
 description: |-
-  Description
+  Customer Engagement Suite App
 ---
 
 # google_ces_app
 
-Description
+Customer Engagement Suite App
 
 
+To get more information about App, see:
+
+* [API documentation](https://docs.cloud.google.com/customer-engagement-ai/conversational-agents/ps/reference/rest/v1/projects.locations.apps)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_app_basic&open_in_editor=main.tf" target="_blank">
@@ -475,6 +478,11 @@ The following arguments are supported:
   (Optional)
   TimeZone settings of the app.
   Structure is [documented below](#nested_time_zone_settings).
+
+* `tool_execution_mode` -
+  (Optional)
+  The tool execution mode for the app.
+  See the [API reference](https://docs.cloud.google.com/customer-engagement-ai/conversational-agents/ps/reference/rpc/google.cloud.ces.v1#google.cloud.ces.v1.App.ToolExecutionMode) for more details.
 
 * `variable_declarations` -
   (Optional)

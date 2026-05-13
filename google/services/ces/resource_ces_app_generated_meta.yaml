@@ -67,6 +67,7 @@ fields:
     - api_field: pinned
     - api_field: rootAgent
     - api_field: timeZoneSettings.timeZone
+    - api_field: toolExecutionMode
     - api_field: updateTime
     - api_field: variableDeclarations.description
     - api_field: variableDeclarations.name
