@@ -28,6 +28,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -90,6 +91,7 @@ type SendRequestOptions struct {
 	Headers              http.Header
 	ErrorRetryPredicates []transport_tpg.RetryErrorPredicateFunc
 	ErrorAbortPredicates []transport_tpg.RetryErrorPredicateFunc
+	SendRequestId        bool
 }
 
 func SendRequest(opt SendRequestOptions, diags *diag.Diagnostics) (map[string]interface{}, error) {
@@ -116,6 +118,11 @@ func SendRequest(opt SendRequestOptions, diags *diag.Diagnostics) (map[string]in
 		opt.Timeout = DefaultRequestTimeout
 	}
 
+	var requestId string
+	if opt.SendRequestId {
+		requestId = uuid.New().String()
+	}
+
 	var res *http.Response
 	err := transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
@@ -127,7 +134,11 @@ func SendRequest(opt SendRequestOptions, diags *diag.Diagnostics) (map[string]in
 				}
 			}
 
-			u, err := transport_tpg.AddQueryParams(opt.RawURL, map[string]string{"alt": "json"})
+			queryParams := map[string]string{"alt": "json"}
+			if requestId != "" {
+				queryParams["requestId"] = requestId
+			}
+			u, err := transport_tpg.AddQueryParams(opt.RawURL, queryParams)
 			if err != nil {
 				return err
 			}
