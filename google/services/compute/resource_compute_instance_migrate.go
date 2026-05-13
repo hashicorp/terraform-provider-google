@@ -363,7 +363,7 @@ func getInstanceFromInstanceState(config *transport_tpg.Config, is *terraform.In
 		}
 	}
 
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", config.ComputeBasePath, project, zone, is.ID)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(Product, config), project, zone, is.ID)
 	instance, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -404,7 +404,7 @@ func getAllDisksFromInstanceState(config *transport_tpg.Config, is *terraform.In
 		if token != "" {
 			params.Set("pageToken", token)
 		}
-		url := fmt.Sprintf("%sprojects/%s/zones/%s/disks", config.ComputeBasePath, project, zone)
+		url := fmt.Sprintf("%sprojects/%s/zones/%s/disks", transport_tpg.BaseUrl(Product, config), project, zone)
 		if len(params) > 0 {
 			url = fmt.Sprintf("%s?%s", url, params.Encode())
 		}
