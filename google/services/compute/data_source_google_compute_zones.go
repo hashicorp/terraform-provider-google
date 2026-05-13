@@ -89,7 +89,7 @@ func dataSourceGoogleComputeZonesRead(d *schema.ResourceData, meta interface{}) 
 		if pageToken != "" {
 			params.Set("pageToken", pageToken)
 		}
-		listURL := fmt.Sprintf("%sprojects/%s/zones", config.ComputeBasePath, project)
+		listURL := fmt.Sprintf("%sprojects/%s/zones", transport_tpg.BaseUrl(Product, config), project)
 		listURL = fmt.Sprintf("%s?%s", listURL, params.Encode())
 		resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,

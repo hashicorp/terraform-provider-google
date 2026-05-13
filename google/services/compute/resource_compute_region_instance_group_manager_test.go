@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -524,7 +525,7 @@ func testAccCheckRegionInstanceGroupManagerDestroyProducer(t *testing.T) func(s 
 				continue
 			}
 			url := fmt.Sprintf("%sprojects/%s/regions/%s/instanceGroupManagers/%s",
-				config.ComputeBasePath,
+				transport_tpg.BaseUrl(tpgcompute.Product, config),
 				rs.Primary.Attributes["project"],
 				rs.Primary.Attributes["region"],
 				rs.Primary.Attributes["name"])

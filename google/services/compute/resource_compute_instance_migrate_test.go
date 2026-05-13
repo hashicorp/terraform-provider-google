@@ -123,7 +123,7 @@ func TestAccComputeInstanceMigrateState(t *testing.T) {
 			},
 		},
 	}
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", config.ComputeBasePath, config.Project, config.Zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, config.Zone)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -203,7 +203,7 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 			},
 		},
 	}
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", config.ComputeBasePath, config.Project, zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -279,7 +279,7 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 			},
 		},
 	}
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", config.ComputeBasePath, config.Project, zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -341,7 +341,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 		"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
 		"zone":        zone,
 	}
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/disks", config.ComputeBasePath, config.Project, zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/disks", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -381,7 +381,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 			},
 		},
 	}
-	url = fmt.Sprintf("%sprojects/%s/zones/%s/instances", config.ComputeBasePath, config.Project, zone)
+	url = fmt.Sprintf("%sprojects/%s/zones/%s/instances", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -438,7 +438,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 		"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
 		"zone":        zone,
 	}
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/disks", config.ComputeBasePath, config.Project, zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/disks", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -478,7 +478,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 			},
 		},
 	}
-	url = fmt.Sprintf("%sprojects/%s/zones/%s/instances", config.ComputeBasePath, config.Project, zone)
+	url = fmt.Sprintf("%sprojects/%s/zones/%s/instances", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -555,7 +555,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 			},
 		},
 	}
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", config.ComputeBasePath, config.Project, zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -632,7 +632,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 			},
 		},
 	}
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", config.ComputeBasePath, config.Project, zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -711,7 +711,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 			},
 		},
 	}
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", config.ComputeBasePath, config.Project, zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -792,7 +792,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 			},
 		},
 	}
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", config.ComputeBasePath, config.Project, zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -869,7 +869,7 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 			},
 		},
 	}
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", config.ComputeBasePath, config.Project, zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -942,7 +942,7 @@ func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
 			},
 		},
 	}
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", config.ComputeBasePath, config.Project, zone)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -1026,7 +1026,7 @@ func runInstanceMigrateTest(t *testing.T, id, testName string, version int, attr
 }
 
 func cleanUpInstance(config *transport_tpg.Config, instanceName, zone string) {
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", config.ComputeBasePath, config.Project, zone, instanceName)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone, instanceName)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
@@ -1047,7 +1047,7 @@ func cleanUpInstance(config *transport_tpg.Config, instanceName, zone string) {
 }
 
 func cleanUpDisk(config *transport_tpg.Config, diskName, zone string) {
-	url := fmt.Sprintf("%sprojects/%s/zones/%s/disks/%s", config.ComputeBasePath, config.Project, zone, diskName)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/disks/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone, diskName)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
@@ -1079,8 +1079,6 @@ func getInitializedConfig(t *testing.T) *transport_tpg.Config {
 		Region:      envvar.GetTestRegionFromEnv(),
 		Zone:        envvar.GetTestZoneFromEnv(),
 	}
-
-	transport_tpg.ConfigureBasePaths(config)
 
 	err := config.LoadAndValidate(context.Background())
 	if err != nil {

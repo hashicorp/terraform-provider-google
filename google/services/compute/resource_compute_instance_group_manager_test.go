@@ -604,7 +604,7 @@ func testAccCheckInstanceGroupManagerDestroyProducer(t *testing.T) func(s *terra
 				continue
 			}
 			url := fmt.Sprintf("%sprojects/%s/zones/%s/instanceGroupManagers/%s",
-				config.ComputeBasePath, config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
+				transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
 			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 				Config:    config,
 				Method:    "GET",

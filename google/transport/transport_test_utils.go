@@ -53,8 +53,6 @@ func BootstrapConfig(t *testing.T) *Config {
 		Zone:                      envvar.GetTestZoneFromEnv(),
 	}
 
-	ConfigureBasePaths(config)
-
 	if err := config.LoadAndValidate(context.Background()); err != nil {
 		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
 	}

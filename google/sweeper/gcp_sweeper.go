@@ -61,8 +61,6 @@ func SharedConfigForRegion(region string) (*transport_tpg.Config, error) {
 		Project:     project,
 	}
 
-	transport_tpg.ConfigureBasePaths(conf)
-
 	return conf, nil
 }
 
