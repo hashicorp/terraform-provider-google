@@ -59,10 +59,10 @@ resource "google_model_armor_template" "template-basic" {
   location    = "%{location}"
   template_id = "%{templateId}"
   filter_config {
-  
+
   }
   template_metadata {
-  
+
   }
 }`, context)
 }
@@ -153,6 +153,105 @@ func testAccModelArmorTemplate_initial(context map[string]interface{}) string {
         }
       }
     `, context)
+}
+
+// TestAccModelArmorTemplate_noTemplateMetadataNoDrift verifies that creating
+// a template without template_metadata does not cause a permadiff on the next
+// plan. Regression test for https://github.com/hashicorp/terraform-provider-google/issues/23565
+func TestAccModelArmorTemplate_noTemplateMetadataNoDrift(t *testing.T) {
+	t.Parallel()
+
+	templateId := fmt.Sprintf("modelarmor-test-nodrift-%s", acctest.RandString(t, 5))
+
+	context := map[string]interface{}{
+		"location":   "us-central1",
+		"templateId": templateId,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckModelArmorTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccModelArmorTemplate_noTemplateMetadata(context),
+			},
+			{
+				Config:             testAccModelArmorTemplate_noTemplateMetadata(context),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
+func testAccModelArmorTemplate_noTemplateMetadata(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_model_armor_template" "test-no-metadata" {
+  location    = "%{location}"
+  template_id = "%{templateId}"
+  filter_config {
+    rai_settings {
+      rai_filters {
+        filter_type      = "HATE_SPEECH"
+        confidence_level = "MEDIUM_AND_ABOVE"
+      }
+    }
+  }
+}`, context)
+}
+
+// TestAccModelArmorTemplate_removeTemplateMetadata verifies that updating a
+// template to remove template_metadata does not fail with REQUEST_FIELD_MISSING.
+// Regression test for https://github.com/hashicorp/terraform-provider-google/issues/23565
+func TestAccModelArmorTemplate_removeTemplateMetadata(t *testing.T) {
+	t.Parallel()
+
+	templateId := fmt.Sprintf("modelarmor-test-remove-%s", acctest.RandString(t, 5))
+
+	context := map[string]interface{}{
+		"location":   "us-central1",
+		"templateId": templateId,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckModelArmorTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccModelArmorTemplate_withTemplateMetadata(context),
+			},
+			{
+				Config: testAccModelArmorTemplate_noTemplateMetadata(context),
+			},
+			{
+				Config:             testAccModelArmorTemplate_noTemplateMetadata(context),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
+func testAccModelArmorTemplate_withTemplateMetadata(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_model_armor_template" "test-no-metadata" {
+  location    = "%{location}"
+  template_id = "%{templateId}"
+  filter_config {
+    rai_settings {
+      rai_filters {
+        filter_type      = "HATE_SPEECH"
+        confidence_level = "MEDIUM_AND_ABOVE"
+      }
+    }
+  }
+  template_metadata {
+    log_template_operations = true
+    log_sanitize_operations = true
+  }
+}`, context)
 }
 
 func testAccModelArmorTemplate_update(context map[string]interface{}) string {

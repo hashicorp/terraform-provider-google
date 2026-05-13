@@ -1,0 +1,3 @@
+```release-note:bug
+modelarmor: fixed permadiff and `REQUEST_FIELD_MISSING` error when `template_metadata` is omitted from `google_model_armor_template`
+```

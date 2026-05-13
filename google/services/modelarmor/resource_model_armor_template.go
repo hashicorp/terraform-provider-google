@@ -323,6 +323,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			},
 			"template_metadata": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Message describing TemplateMetadata`,
 				MaxItems:    1,
@@ -720,6 +721,17 @@ func resourceModelArmorTemplateUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+	// Ensure templateMetadata is in the request body when it's in the update mask.
+	// When template_metadata is not in the user's config, the expand function
+	// returns nil so templateMetadata is absent from obj. But if the API previously
+	// returned default values that were stored in state, HasChange detects drift
+	// and adds templateMetadata to the update mask. The API rejects a PATCH with
+	// templateMetadata in the mask but missing from the body (REQUEST_FIELD_MISSING).
+	if d.HasChange("template_metadata") {
+		if _, ok := obj["templateMetadata"]; !ok {
+			obj["templateMetadata"] = make(map[string]interface{})
+		}
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -1008,102 +1020,34 @@ func flattenModelArmorTemplateTemplateMetadata(v interface{}, d *schema.Resource
 	}
 	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
-	transformed["log_template_operations"] =
-		flattenModelArmorTemplateTemplateMetadataLogTemplateOperations(original["logTemplateOperations"], d, config)
-	transformed["log_sanitize_operations"] =
-		flattenModelArmorTemplateTemplateMetadataLogSanitizeOperations(original["logSanitizeOperations"], d, config)
+	transformed["log_template_operations"] = original["logTemplateOperations"]
+	transformed["log_sanitize_operations"] = original["logSanitizeOperations"]
 	transformed["multi_language_detection"] =
 		flattenModelArmorTemplateTemplateMetadataMultiLanguageDetection(original["multiLanguageDetection"], d, config)
-	transformed["ignore_partial_invocation_failures"] =
-		flattenModelArmorTemplateTemplateMetadataIgnorePartialInvocationFailures(original["ignorePartialInvocationFailures"], d, config)
-	transformed["custom_prompt_safety_error_code"] =
-		flattenModelArmorTemplateTemplateMetadataCustomPromptSafetyErrorCode(original["customPromptSafetyErrorCode"], d, config)
-	transformed["custom_prompt_safety_error_message"] =
-		flattenModelArmorTemplateTemplateMetadataCustomPromptSafetyErrorMessage(original["customPromptSafetyErrorMessage"], d, config)
-	transformed["custom_llm_response_safety_error_code"] =
-		flattenModelArmorTemplateTemplateMetadataCustomLlmResponseSafetyErrorCode(original["customLlmResponseSafetyErrorCode"], d, config)
-	transformed["custom_llm_response_safety_error_message"] =
-		flattenModelArmorTemplateTemplateMetadataCustomLlmResponseSafetyErrorMessage(original["customLlmResponseSafetyErrorMessage"], d, config)
-	transformed["enforcement_type"] =
-		flattenModelArmorTemplateTemplateMetadataEnforcementType(original["enforcementType"], d, config)
+	transformed["ignore_partial_invocation_failures"] = original["ignorePartialInvocationFailures"]
+	transformed["custom_prompt_safety_error_code"] = original["customPromptSafetyErrorCode"]
+	transformed["custom_prompt_safety_error_message"] = original["customPromptSafetyErrorMessage"]
+	transformed["custom_llm_response_safety_error_code"] = original["customLlmResponseSafetyErrorCode"]
+	transformed["custom_llm_response_safety_error_message"] = original["customLlmResponseSafetyErrorMessage"]
+	transformed["enforcement_type"] = original["enforcementType"]
 	return []interface{}{transformed}
-}
-func flattenModelArmorTemplateTemplateMetadataLogTemplateOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenModelArmorTemplateTemplateMetadataLogSanitizeOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenModelArmorTemplateTemplateMetadataMultiLanguageDetection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return nil // The whole multi_language_detection block is absent
+		return nil
 	}
 	original, ok := v.(map[string]interface{})
 	if !ok {
-		return nil // Should not happen if API is consistent
+		return nil
 	}
-	// Populating the field even if the returned block is empty.
 	transformed := make(map[string]interface{})
-
 	if val, ok := original["enableMultiLanguageDetection"]; ok {
 		transformed["enable_multi_language_detection"] = val
 	} else {
-		// Since the field is REQUIRED in the schema and the block exists, default to false if the key is missing from the API response.
 		transformed["enable_multi_language_detection"] = false
 	}
 	return []interface{}{transformed}
-}
-
-func flattenModelArmorTemplateTemplateMetadataIgnorePartialInvocationFailures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenModelArmorTemplateTemplateMetadataCustomPromptSafetyErrorCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenModelArmorTemplateTemplateMetadataCustomPromptSafetyErrorMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenModelArmorTemplateTemplateMetadataCustomLlmResponseSafetyErrorCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenModelArmorTemplateTemplateMetadataCustomLlmResponseSafetyErrorMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenModelArmorTemplateTemplateMetadataEnforcementType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenModelArmorTemplateTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
