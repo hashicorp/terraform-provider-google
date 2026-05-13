@@ -5753,6 +5753,9 @@ resource "google_container_node_pool" "np" {
 
 func TestAccContainerNodePool_writableCgroups(t *testing.T) {
 	t.Parallel()
+	// TODO(chrishenzie): Convert this to a negative test (expecting failure)
+	// once the API behavior change is fully rolled out.
+	t.Skip("Skipping due to API behavior change blocking writable cgroups modifications on node pools")
 
 	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	nodepool := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
