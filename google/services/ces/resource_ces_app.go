@@ -741,6 +741,12 @@ Format: 'projects/{project}/locations/{location}/apps/{app}/agents/{agent}'`,
 					},
 				},
 			},
+			"tool_execution_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The tool execution mode for the app.
+See the [API reference](https://docs.cloud.google.com/customer-engagement-ai/conversational-agents/ps/reference/rpc/google.cloud.ces.v1#google.cloud.ces.v1.App.ToolExecutionMode) for more details.`,
+			},
 			"variable_declarations": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -1048,6 +1054,12 @@ func resourceCESAppCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("time_zone_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(timeZoneSettingsProp)) && (ok || !reflect.DeepEqual(v, timeZoneSettingsProp)) {
 		obj["timeZoneSettings"] = timeZoneSettingsProp
+	}
+	toolExecutionModeProp, err := expandCESAppToolExecutionMode(d.Get("tool_execution_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tool_execution_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(toolExecutionModeProp)) && (ok || !reflect.DeepEqual(v, toolExecutionModeProp)) {
+		obj["toolExecutionMode"] = toolExecutionModeProp
 	}
 	variableDeclarationsProp, err := expandCESAppVariableDeclarations(d.Get("variable_declarations"), d, config)
 	if err != nil {
@@ -1388,6 +1400,12 @@ func resourceCESAppUpdate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("time_zone_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeZoneSettingsProp)) {
 		obj["timeZoneSettings"] = timeZoneSettingsProp
 	}
+	toolExecutionModeProp, err := expandCESAppToolExecutionMode(d.Get("tool_execution_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tool_execution_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, toolExecutionModeProp)) {
+		obj["toolExecutionMode"] = toolExecutionModeProp
+	}
 	variableDeclarationsProp, err := expandCESAppVariableDeclarations(d.Get("variable_declarations"), d, config)
 	if err != nil {
 		return err
@@ -1475,6 +1493,10 @@ func resourceCESAppUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("time_zone_settings") {
 		updateMask = append(updateMask, "timeZoneSettings")
+	}
+
+	if d.HasChange("tool_execution_mode") {
+		updateMask = append(updateMask, "toolExecutionMode")
 	}
 
 	if d.HasChange("variable_declarations") {
@@ -2176,6 +2198,10 @@ func flattenCESAppTimeZoneSettings(v interface{}, d *schema.ResourceData, config
 	return []interface{}{transformed}
 }
 func flattenCESAppTimeZoneSettingsTimeZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppToolExecutionMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3273,6 +3299,10 @@ func expandCESAppTimeZoneSettingsTimeZone(v interface{}, d tpgresource.Terraform
 	return v, nil
 }
 
+func expandCESAppToolExecutionMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandCESAppVariableDeclarations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -3662,6 +3692,9 @@ func ResourceCESAppFlatten(d *schema.ResourceData, meta interface{}, res map[str
 		return fmt.Errorf("Error reading App: %s", err)
 	}
 	if err = d.Set("time_zone_settings", flattenCESAppTimeZoneSettings(res["timeZoneSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading App: %s", err)
+	}
+	if err = d.Set("tool_execution_mode", flattenCESAppToolExecutionMode(res["toolExecutionMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading App: %s", err)
 	}
 	if err = d.Set("update_time", flattenCESAppUpdateTime(res["updateTime"], d, config)); err != nil {

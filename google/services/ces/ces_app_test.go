@@ -92,6 +92,7 @@ resource "google_ces_app" "ces_app_basic" {
   description = "Basic CES App example"
   display_name = "tf-test-my-app-%{random_suffix}"
   pinned = false
+  tool_execution_mode = "SEQUENTIAL"
 
   language_settings {
     default_language_code    = "en-US"
@@ -283,6 +284,7 @@ resource "google_ces_app" "ces_app_basic" {
   description = "Updated CES App example"
   display_name = "tf-test-my-app%{random_suffix}"
   pinned = true
+  tool_execution_mode = "PARALLEL"
 
   language_settings {
     default_language_code    = "en-ES"
