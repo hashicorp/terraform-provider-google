@@ -830,6 +830,14 @@ created.`,
 																Required:    true,
 																Description: `Enables Auto-class feature.`,
 															},
+															"terminal_storage_class": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `Terminal storage class of the autoclass bucket
+Possible values:
+NEARLINE
+ARCHIVE`,
+															},
 														},
 													},
 												},
@@ -961,6 +969,15 @@ only contain letters and numbers.`,
 													Type:        schema.TypeString,
 													Optional:    true,
 													Description: `Description of the Managed Lustre instance. Maximum of 2048 characters.`,
+												},
+												"per_unit_storage_throughput": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `Throughput of the instance in MB/s/TiB. Valid values are 125, 250,
+500, 1000. See [Performance tiers and maximum storage
+capacities](https://cloud.google.com/managed-lustre/docs/create-instance#performance-tiers)
+for more information.`,
 												},
 											},
 										},
@@ -2253,9 +2270,15 @@ func flattenHypercomputeclusterClusterStorageResourcesConfigNewBucketAutoclass(v
 	transformed := make(map[string]interface{})
 	transformed["enabled"] =
 		flattenHypercomputeclusterClusterStorageResourcesConfigNewBucketAutoclassEnabled(original["enabled"], d, config)
+	transformed["terminal_storage_class"] =
+		flattenHypercomputeclusterClusterStorageResourcesConfigNewBucketAutoclassTerminalStorageClass(original["terminalStorageClass"], d, config)
 	return []interface{}{transformed}
 }
 func flattenHypercomputeclusterClusterStorageResourcesConfigNewBucketAutoclassEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenHypercomputeclusterClusterStorageResourcesConfigNewBucketAutoclassTerminalStorageClass(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2365,6 +2388,8 @@ func flattenHypercomputeclusterClusterStorageResourcesConfigNewLustre(v interfac
 		flattenHypercomputeclusterClusterStorageResourcesConfigNewLustreFilesystem(original["filesystem"], d, config)
 	transformed["lustre"] =
 		flattenHypercomputeclusterClusterStorageResourcesConfigNewLustreLustre(original["lustre"], d, config)
+	transformed["per_unit_storage_throughput"] =
+		flattenHypercomputeclusterClusterStorageResourcesConfigNewLustrePerUnitStorageThroughput(original["perUnitStorageThroughput"], d, config)
 	return []interface{}{transformed}
 }
 func flattenHypercomputeclusterClusterStorageResourcesConfigNewLustreCapacityGb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2380,6 +2405,10 @@ func flattenHypercomputeclusterClusterStorageResourcesConfigNewLustreFilesystem(
 }
 
 func flattenHypercomputeclusterClusterStorageResourcesConfigNewLustreLustre(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenHypercomputeclusterClusterStorageResourcesConfigNewLustrePerUnitStorageThroughput(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3673,10 +3702,21 @@ func expandHypercomputeclusterClusterStorageResourcesConfigNewBucketAutoclass(v 
 		transformed["enabled"] = transformedEnabled
 	}
 
+	transformedTerminalStorageClass, err := expandHypercomputeclusterClusterStorageResourcesConfigNewBucketAutoclassTerminalStorageClass(original["terminal_storage_class"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTerminalStorageClass); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["terminalStorageClass"] = transformedTerminalStorageClass
+	}
+
 	return transformed, nil
 }
 
 func expandHypercomputeclusterClusterStorageResourcesConfigNewBucketAutoclassEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandHypercomputeclusterClusterStorageResourcesConfigNewBucketAutoclassTerminalStorageClass(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3860,6 +3900,13 @@ func expandHypercomputeclusterClusterStorageResourcesConfigNewLustre(v interface
 		transformed["lustre"] = transformedLustre
 	}
 
+	transformedPerUnitStorageThroughput, err := expandHypercomputeclusterClusterStorageResourcesConfigNewLustrePerUnitStorageThroughput(original["per_unit_storage_throughput"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPerUnitStorageThroughput); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["perUnitStorageThroughput"] = transformedPerUnitStorageThroughput
+	}
+
 	return transformed, nil
 }
 
@@ -3876,6 +3923,10 @@ func expandHypercomputeclusterClusterStorageResourcesConfigNewLustreFilesystem(v
 }
 
 func expandHypercomputeclusterClusterStorageResourcesConfigNewLustreLustre(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandHypercomputeclusterClusterStorageResourcesConfigNewLustrePerUnitStorageThroughput(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

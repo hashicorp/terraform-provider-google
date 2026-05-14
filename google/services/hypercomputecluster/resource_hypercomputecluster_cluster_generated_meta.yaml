@@ -92,6 +92,8 @@ fields:
       field: storage_resources.config.existing_lustre.lustre
     - api_field: storageResources.value.config.newBucket.autoclass.enabled
       field: storage_resources.config.new_bucket.autoclass.enabled
+    - api_field: storageResources.value.config.newBucket.autoclass.terminalStorageClass
+      field: storage_resources.config.new_bucket.autoclass.terminal_storage_class
     - api_field: storageResources.value.config.newBucket.bucket
       field: storage_resources.config.new_bucket.bucket
     - api_field: storageResources.value.config.newBucket.hierarchicalNamespace.enabled
@@ -118,6 +120,8 @@ fields:
       field: storage_resources.config.new_lustre.filesystem
     - api_field: storageResources.value.config.newLustre.lustre
       field: storage_resources.config.new_lustre.lustre
+    - api_field: storageResources.value.config.newLustre.perUnitStorageThroughput
+      field: storage_resources.config.new_lustre.per_unit_storage_throughput
     - api_field: storageResources.value.filestore.filestore
       field: storage_resources.filestore.filestore
     - api_field: storageResources.value.lustre.lustre
