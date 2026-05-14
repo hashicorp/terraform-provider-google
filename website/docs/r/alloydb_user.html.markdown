@@ -231,7 +231,6 @@ import {
   identity = {
     cluster = "<-required value->"
     userId = "<-required value->"
-    project = "<-optional value->"
   }
   to = google_alloydb_user.default
 }
