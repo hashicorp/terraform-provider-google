@@ -1,0 +1,3 @@
+```release-note:enhancement
+netapp: added `ontap_source` field to `google_netapp_backup` resource (beta)
+```
