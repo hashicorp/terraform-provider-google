@@ -151,11 +151,18 @@ resource "google_apigee_sharedflow" "test_apigee_sharedflow" {
   depends_on      = [google_apigee_organization.apigee_org]
 }
 
+resource "google_service_account" "sharedflow_sa" {
+  account_id   = "tf-test-sf-sa%{random_suffix}"
+  display_name = "TF Test Sharedflow SA"
+  project      = google_project.project.project_id
+}
+
 resource "google_apigee_sharedflow_deployment" "sharedflow_deployment_test" {
-  environment = google_apigee_environment.apigee_environment.name
-  org_id = google_apigee_sharedflow.test_apigee_sharedflow.org_id
-  revision = google_apigee_sharedflow.test_apigee_sharedflow.revision[length(google_apigee_sharedflow.test_apigee_sharedflow.revision)-1]
-  sharedflow_id = google_apigee_sharedflow.test_apigee_sharedflow.name
+  environment     = google_apigee_environment.apigee_environment.name
+  org_id          = google_apigee_sharedflow.test_apigee_sharedflow.org_id
+  revision        = google_apigee_sharedflow.test_apigee_sharedflow.revision[length(google_apigee_sharedflow.test_apigee_sharedflow.revision)-1]
+  sharedflow_id   = google_apigee_sharedflow.test_apigee_sharedflow.name
+  service_account = google_service_account.sharedflow_sa.email
 }
 `, context)
 }

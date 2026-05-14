@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: fixed forced replacement when importing `google_apigee_sharedflow_deployment` resource, where `service_account` read as null  
+```

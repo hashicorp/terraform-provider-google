@@ -19,6 +19,7 @@ package apigee
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -168,6 +169,23 @@ func resourceApigeeSharedflowDeploymentRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	// org_id is not returned by the API; it is derived from the resource ID
+	// (set by Create or by the import parser) and stays in state untouched.
+	if err := d.Set("environment", flattenApigeeSharedflowDeploymentEnvironment(res["environment"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SharedflowDeployment: %s", err)
+	}
+	// The API uses `apiProxy` for both API proxy and shared flow deployments
+	// to identify the deployed artifact.
+	if err := d.Set("sharedflow_id", flattenApigeeSharedflowDeploymentSharedflowId(res["apiProxy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SharedflowDeployment: %s", err)
+	}
+	if err := d.Set("revision", flattenApigeeSharedflowDeploymentRevision(res["revision"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SharedflowDeployment: %s", err)
+	}
+	if err := d.Set("service_account", flattenApigeeSharedflowDeploymentServiceAccount(res["serviceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SharedflowDeployment: %s", err)
+	}
+
 	return nil
 }
 
@@ -302,7 +320,19 @@ func flattenApigeeSharedflowDeploymentRevision(v interface{}, d *schema.Resource
 }
 
 func flattenApigeeSharedflowDeploymentServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	// The Apigee API may return service accounts as a full resource name
+	// (e.g. "projects/-/serviceAccounts/sa@project.iam.gserviceaccount.com")
+	// while the schema documents (and Create accepts) the bare email form.
+	// Strip the prefix when present so a Read after a Create using the bare
+	// email does not show drift.
+	if v == nil {
+		return v
+	}
+	s, ok := v.(string)
+	if !ok {
+		return v
+	}
+	return strings.TrimPrefix(s, "projects/-/serviceAccounts/")
 }
 
 func init() {
