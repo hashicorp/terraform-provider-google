@@ -88,47 +88,6 @@ resource "google_compute_region_backend_service" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_backend_service_cache&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Region Backend Service Cache
-
-
-```hcl
-resource "google_compute_region_backend_service" "default" {
-  provider = google-beta
-
-  name                            = "region-service"
-  region                          = "us-central1"
-  health_checks                   = [google_compute_region_health_check.default.id]
-  enable_cdn  = true
-  cdn_policy {
-    cache_mode = "CACHE_ALL_STATIC"
-    default_ttl = 3600
-    client_ttl  = 7200
-    max_ttl     = 10800
-    negative_caching = true
-    signed_url_cache_max_age_sec = 7200
-  }
-
-  load_balancing_scheme = "EXTERNAL"
-  protocol              = "HTTP"
-
-}
-
-resource "google_compute_region_health_check" "default" {
-  provider = google-beta
-
-  name               = "rbs-health-check"
-  region             = "us-central1"
-
-  http_health_check {
-    port = 80
-  }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_backend_service_ilb_round_robin&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
