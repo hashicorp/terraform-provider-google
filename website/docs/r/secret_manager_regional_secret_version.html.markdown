@@ -231,7 +231,6 @@ import {
   identity = {
     version = "<-optional value->"
     location = "<-optional value->"
-    project = "<-optional value->"
   }
   to = google_secret_manager_regional_secret_version.default
 }

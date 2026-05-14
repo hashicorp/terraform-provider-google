@@ -423,7 +423,6 @@ import {
     deployedIndexId = "<-required value->"
     indexEndpoint = "<-required value->"
     region = "<-optional value->"
-    project = "<-optional value->"
   }
   to = google_vertex_ai_index_endpoint_deployed_index.default
 }
