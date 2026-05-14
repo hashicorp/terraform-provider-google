@@ -54,6 +54,7 @@ resource "google_compute_autoscaler" "default" {
     max_replicas    = 5
     min_replicas    = 1
     cooldown_period = 60
+    stabilization_period = 300
 
     metric {
       name                       = "pubsub.googleapis.com/subscription/num_undelivered_messages"
@@ -141,6 +142,7 @@ resource "google_compute_autoscaler" "foobar" {
     max_replicas    = 5
     min_replicas    = 1
     cooldown_period = 60
+    stabilization_period = 300
 
     cpu_utilization {
       target = 0.5
@@ -268,6 +270,14 @@ The following arguments are supported:
   numerous factors. We recommend that you test how long an
   instance may take to initialize. To do this, create an instance
   and time the startup process.
+
+* `stabilization_period` -
+  (Optional)
+  The number of seconds that the autoscaler waits for load stabilization
+  before making scale-in decisions.
+  This might appear as a delay in scaling in but it is an important mechanism
+  for your application to not have fluctuating size due to short term load
+  fluctuations.
 
 * `mode` -
   (Optional)

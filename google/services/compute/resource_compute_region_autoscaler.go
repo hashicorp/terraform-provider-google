@@ -430,6 +430,16 @@ to include directives regarding slower scale down, as described above.`,
 								},
 							},
 						},
+						"stabilization_period": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The number of seconds that the autoscaler waits for load stabilization
+before making scale-in decisions.
+
+This might appear as a delay in scaling in but it is an important mechanism
+for your application to not have fluctuating size due to short term load
+fluctuations.`,
+						},
 					},
 				},
 			},
@@ -939,6 +949,8 @@ func flattenComputeRegionAutoscalerAutoscalingPolicy(v interface{}, d *schema.Re
 		flattenComputeRegionAutoscalerAutoscalingPolicyMaxReplicas(original["maxNumReplicas"], d, config)
 	transformed["cooldown_period"] =
 		flattenComputeRegionAutoscalerAutoscalingPolicyCooldownPeriod(original["coolDownPeriodSec"], d, config)
+	transformed["stabilization_period"] =
+		flattenComputeRegionAutoscalerAutoscalingPolicyStabilizationPeriod(original["stabilizationPeriodSec"], d, config)
 	transformed["mode"] =
 		flattenComputeRegionAutoscalerAutoscalingPolicyMode(original["mode"], d, config)
 	transformed["scale_in_control"] =
@@ -988,6 +1000,23 @@ func flattenComputeRegionAutoscalerAutoscalingPolicyMaxReplicas(v interface{}, d
 }
 
 func flattenComputeRegionAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionAutoscalerAutoscalingPolicyStabilizationPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
@@ -1290,6 +1319,13 @@ func expandComputeRegionAutoscalerAutoscalingPolicy(v interface{}, d tpgresource
 		transformed["coolDownPeriodSec"] = transformedCooldownPeriod
 	}
 
+	transformedStabilizationPeriod, err := expandComputeRegionAutoscalerAutoscalingPolicyStabilizationPeriod(original["stabilization_period"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStabilizationPeriod); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stabilizationPeriodSec"] = transformedStabilizationPeriod
+	}
+
 	transformedMode, err := expandComputeRegionAutoscalerAutoscalingPolicyMode(original["mode"], d, config)
 	if err != nil {
 		return nil, err
@@ -1344,6 +1380,10 @@ func expandComputeRegionAutoscalerAutoscalingPolicyMaxReplicas(v interface{}, d 
 }
 
 func expandComputeRegionAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionAutoscalerAutoscalingPolicyStabilizationPeriod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
