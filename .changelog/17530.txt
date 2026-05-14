@@ -1,0 +1,3 @@
+```release-note:enhancement
+hypercomputecluster: added `terminal_storage_class` and `per_unit_storage_throughput` fields to the `google_hypercomputecluster_cluster` resource
+```

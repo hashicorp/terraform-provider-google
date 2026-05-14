@@ -705,6 +705,13 @@ The following arguments are supported:
   (Required)
   Enables Auto-class feature.
 
+* `terminal_storage_class` -
+  (Optional)
+  Terminal storage class of the autoclass bucket
+  Possible values:
+  NEARLINE
+  ARCHIVE
+
 <a name="nested_storage_resources_config_new_bucket_hierarchical_namespace"></a>The `hierarchical_namespace` block supports:
 
 * `enabled` -
@@ -779,6 +786,13 @@ The following arguments are supported:
   (Required)
   Name of the Managed Lustre instance to create, in the format
   `projects/{project}/locations/{location}/instances/{instance}`
+
+* `per_unit_storage_throughput` -
+  (Optional)
+  Throughput of the instance in MB/s/TiB. Valid values are 125, 250,
+  500, 1000. See [Performance tiers and maximum storage
+  capacities](https://cloud.google.com/managed-lustre/docs/create-instance#performance-tiers)
+  for more information.
 
 <a name="nested_storage_resources_filestore"></a>The `filestore` block contains:
 
