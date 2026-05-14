@@ -201,7 +201,9 @@ resource "google_backup_dr_backup_plan" "bp" {
   resource_type  = "compute.googleapis.com/Instance"
   backup_vault   = google_backup_dr_backup_vault.my-backup-vault.name
   max_custom_on_demand_retention_days = 45
-
+  compute_instance_backup_plan_properties {
+    guest_flush = true
+  }
   backup_rules {
     rule_id                = "rule-1"
     backup_retention_days  = 366
@@ -231,6 +233,95 @@ resource "google_backup_dr_backup_plan" "bp" {
         end_hour_of_day   = 7
       }
     }
+  }
+}
+`, context)
+}
+
+func TestAccBackupDRBackupPlan_diskUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBackupDRBackupPlan_diskCreate(context),
+			},
+			{
+				Config: testAccBackupDRBackupPlan_diskUpdate(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_backup_dr_backup_plan.bp", "disk_backup_plan_properties.0.guest_flush", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccBackupDRBackupPlan_diskCreate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_backup_dr_backup_vault" "vault" {
+  location = "us-central1"
+  backup_vault_id = "tf-test-bv-%{random_suffix}"
+  backup_minimum_enforced_retention_duration = "100000s"
+}
+
+resource "google_backup_dr_backup_plan" "bp" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-%{random_suffix}"
+  resource_type  = "compute.googleapis.com/Disk"
+  backup_vault   = google_backup_dr_backup_vault.vault.id
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+    standard_schedule {
+      recurrence_type = "DAILY"
+      time_zone       = "UTC"
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 24
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccBackupDRBackupPlan_diskUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_backup_dr_backup_vault" "vault" {
+  location = "us-central1"
+  backup_vault_id = "tf-test-bv-%{random_suffix}"
+  backup_minimum_enforced_retention_duration = "100000s"
+}
+
+resource "google_backup_dr_backup_plan" "bp" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-%{random_suffix}"
+  resource_type  = "compute.googleapis.com/Disk"
+  backup_vault   = google_backup_dr_backup_vault.vault.id
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+    standard_schedule {
+      recurrence_type = "DAILY"
+      time_zone       = "UTC"
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 24
+      }
+    }
+  }
+
+  disk_backup_plan_properties {
+    guest_flush = true
   }
 }
 `, context)
