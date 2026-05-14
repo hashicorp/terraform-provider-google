@@ -48,6 +48,8 @@ fields:
       field: autoscaling_policy.scaling_schedules.schedule
     - api_field: autoscalingPolicy.scalingSchedules.value.timeZone
       field: autoscaling_policy.scaling_schedules.time_zone
+    - api_field: autoscalingPolicy.stabilizationPeriodSec
+      field: autoscaling_policy.stabilization_period
     - api_field: creationTimestamp
     - api_field: description
     - api_field: name
