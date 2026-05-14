@@ -323,6 +323,12 @@ func resourceNetworkConnectivityDestinationCreate(d *schema.ResourceData, meta i
 	}
 
 	obj := make(map[string]interface{})
+	nameProp, err := expandNetworkConnectivityDestinationName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
 	etagProp, err := expandNetworkConnectivityDestinationEtag(d.Get("etag"), d, config)
 	if err != nil {
 		return err
@@ -892,6 +898,10 @@ func flattenNetworkConnectivityDestinationTerraformLabels(v interface{}, d *sche
 
 func flattenNetworkConnectivityDestinationEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func expandNetworkConnectivityDestinationName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandNetworkConnectivityDestinationEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

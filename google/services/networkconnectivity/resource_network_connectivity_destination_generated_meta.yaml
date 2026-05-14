@@ -22,8 +22,7 @@ fields:
       provider_only: true
     - field: multicloud_data_transfer_config
       provider_only: true
-    - field: name
-      provider_only: true
+    - api_field: name
     - api_field: stateTimeline.states.effectiveTime
     - api_field: stateTimeline.states.state
     - field: terraform_labels

@@ -17,8 +17,7 @@ fields:
     - api_field: labels
     - field: location
       provider_only: true
-    - field: name
-      provider_only: true
+    - api_field: name
     - api_field: services.key
       field: services.service_name
     - api_field: services.value.states.effectiveTime
