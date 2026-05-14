@@ -1,0 +1,6 @@
+```release-note:bug
+networkconnectivity: fixed an issue where `google_network_connectivity_multicloud_data_transfer_config` was not recognizing the `name` field as mapping to an API value
+```
+```release-note:bug
+networkconnectivity: fixed an issue where `google_network_connectivity_destination` was not recognizing the `name` field as mapping to an API value
+```
