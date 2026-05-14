@@ -63,6 +63,50 @@ resource "google_ces_deployment" "my-deployment" {
     }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_deployment_full&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ces Deployment Full
+
+
+```hcl
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "my-app"
+    app_id       = "app-id"
+    time_zone_settings {   
+        time_zone = "America/Los_Angeles"
+    }
+}
+resource "google_ces_deployment" "my-deployment" {
+    location     = "us"
+    display_name = "my-deployment"
+    app          = google_ces_app.my-app.name
+    app_version  = "projects/example-project/locations/us/apps/example-app/versions/example-version"
+    channel_profile {
+        channel_type = "API"
+        disable_barge_in_control = true
+        disable_dtmf = true
+        persona_property {
+            persona = "CHATTY"
+        }
+        profile_id = "temp_profile_id"
+        web_widget_config {
+            modality = "CHAT_AND_VOICE"
+            theme = "DARK"
+            web_widget_title = "temp_webwidget_title"
+            security_settings {
+                enable_public_access = true
+                enable_origin_check = true
+                allowed_origins = ["https://example.com", "https://test.com"]
+                enable_recaptcha = true
+            }
+        }
+    }
+}
+```
 
 ## Argument Reference
 
@@ -117,6 +161,8 @@ The following arguments are supported:
   TWILIO
   GOOGLE_TELEPHONY_PLATFORM
   CONTACT_CENTER_AS_A_SERVICE
+  FIVE9
+  CONTACT_CENTER_INTEGRATION
 
 * `disable_barge_in_control` -
   (Optional)
@@ -160,22 +206,47 @@ The following arguments are supported:
   (Optional)
   The modality of the web widget.
   Possible values:
-  UNKNOWN_MODALITY
+  MODALITY_UNSPECIFIED
   CHAT_AND_VOICE
   VOICE_ONLY
   CHAT_ONLY
+  CHAT_VOICE_AND_VIDEO
 
 * `theme` -
   (Optional)
   The theme of the web widget.
   Possible values:
-  UNKNOWN_THEME
+  THEME_UNSPECIFIED
   LIGHT
   DARK
 
 * `web_widget_title` -
   (Optional)
   The title of the web widget.
+
+* `security_settings` -
+  (Optional)
+  The security settings of the web widget.
+  Structure is [documented below](#nested_channel_profile_web_widget_config_security_settings).
+
+
+<a name="nested_channel_profile_web_widget_config_security_settings"></a>The `security_settings` block supports:
+
+* `enable_public_access` -
+  (Optional)
+  Indicates whether public access to the web widget is enabled. If true, the web widget will be publicly accessible. If false, the web widget must be integrated with your own authentication and authorization system to return valid credentials for accessing the CES agent.
+
+* `enable_origin_check` -
+  (Optional)
+  Indicates whether origin check for the web widget is enabled. If true, the web widget will check the origin of the website that loads the web widget and only allow it to be loaded in the same origin or any of the allowed origins.
+
+* `allowed_origins` -
+  (Optional)
+  The origins that are allowed to host the web widget. An origin is defined by RFC 6454. If empty, all origins are allowed. A maximum of 100 origins is allowed. Example: "https://example.com"
+
+* `enable_recaptcha` -
+  (Optional)
+  Indicates whether reCAPTCHA verification for the web widget is enabled.
 
 ## Attributes Reference
 

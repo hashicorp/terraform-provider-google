@@ -17,6 +17,10 @@ fields:
     - api_field: channelProfile.personaProperty.persona
     - api_field: channelProfile.profileId
     - api_field: channelProfile.webWidgetConfig.modality
+    - api_field: channelProfile.webWidgetConfig.securitySettings.allowedOrigins
+    - api_field: channelProfile.webWidgetConfig.securitySettings.enableOriginCheck
+    - api_field: channelProfile.webWidgetConfig.securitySettings.enablePublicAccess
+    - api_field: channelProfile.webWidgetConfig.securitySettings.enableRecaptcha
     - api_field: channelProfile.webWidgetConfig.theme
     - api_field: channelProfile.webWidgetConfig.webWidgetTitle
     - api_field: createTime
