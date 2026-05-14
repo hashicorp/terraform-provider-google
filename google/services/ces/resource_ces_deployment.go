@@ -177,7 +177,9 @@ WEB_UI
 API
 TWILIO
 GOOGLE_TELEPHONY_PLATFORM
-CONTACT_CENTER_AS_A_SERVICE`,
+CONTACT_CENTER_AS_A_SERVICE
+FIVE9
+CONTACT_CENTER_INTEGRATION`,
 						},
 						"disable_barge_in_control": {
 							Type:     schema.TypeBool,
@@ -228,17 +230,51 @@ CHATTY`,
 										Optional: true,
 										Description: `The modality of the web widget.
 Possible values:
-UNKNOWN_MODALITY
+MODALITY_UNSPECIFIED
 CHAT_AND_VOICE
 VOICE_ONLY
-CHAT_ONLY`,
+CHAT_ONLY
+CHAT_VOICE_AND_VIDEO`,
+									},
+									"security_settings": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The security settings of the web widget.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"allowed_origins": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `The origins that are allowed to host the web widget. An origin is defined by RFC 6454. If empty, all origins are allowed. A maximum of 100 origins is allowed. Example: "https://example.com"`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"enable_origin_check": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Indicates whether origin check for the web widget is enabled. If true, the web widget will check the origin of the website that loads the web widget and only allow it to be loaded in the same origin or any of the allowed origins.`,
+												},
+												"enable_public_access": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Indicates whether public access to the web widget is enabled. If true, the web widget will be publicly accessible. If false, the web widget must be integrated with your own authentication and authorization system to return valid credentials for accessing the CES agent.`,
+												},
+												"enable_recaptcha": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Indicates whether reCAPTCHA verification for the web widget is enabled.`,
+												},
+											},
+										},
 									},
 									"theme": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Description: `The theme of the web widget.
 Possible values:
-UNKNOWN_THEME
+THEME_UNSPECIFIED
 LIGHT
 DARK`,
 									},
@@ -785,6 +821,8 @@ func flattenCESDeploymentChannelProfileWebWidgetConfig(v interface{}, d *schema.
 		flattenCESDeploymentChannelProfileWebWidgetConfigTheme(original["theme"], d, config)
 	transformed["web_widget_title"] =
 		flattenCESDeploymentChannelProfileWebWidgetConfigWebWidgetTitle(original["webWidgetTitle"], d, config)
+	transformed["security_settings"] =
+		flattenCESDeploymentChannelProfileWebWidgetConfigSecuritySettings(original["securitySettings"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESDeploymentChannelProfileWebWidgetConfigModality(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -796,6 +834,41 @@ func flattenCESDeploymentChannelProfileWebWidgetConfigTheme(v interface{}, d *sc
 }
 
 func flattenCESDeploymentChannelProfileWebWidgetConfigWebWidgetTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESDeploymentChannelProfileWebWidgetConfigSecuritySettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_public_access"] =
+		flattenCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnablePublicAccess(original["enablePublicAccess"], d, config)
+	transformed["enable_origin_check"] =
+		flattenCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnableOriginCheck(original["enableOriginCheck"], d, config)
+	transformed["allowed_origins"] =
+		flattenCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsAllowedOrigins(original["allowedOrigins"], d, config)
+	transformed["enable_recaptcha"] =
+		flattenCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnableRecaptcha(original["enableRecaptcha"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnablePublicAccess(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnableOriginCheck(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsAllowedOrigins(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnableRecaptcha(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -958,6 +1031,13 @@ func expandCESDeploymentChannelProfileWebWidgetConfig(v interface{}, d tpgresour
 		transformed["webWidgetTitle"] = transformedWebWidgetTitle
 	}
 
+	transformedSecuritySettings, err := expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettings(original["security_settings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecuritySettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["securitySettings"] = transformedSecuritySettings
+	}
+
 	return transformed, nil
 }
 
@@ -970,6 +1050,65 @@ func expandCESDeploymentChannelProfileWebWidgetConfigTheme(v interface{}, d tpgr
 }
 
 func expandCESDeploymentChannelProfileWebWidgetConfigWebWidgetTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnablePublicAccess, err := expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnablePublicAccess(original["enable_public_access"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["enablePublicAccess"] = transformedEnablePublicAccess
+	}
+
+	transformedEnableOriginCheck, err := expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnableOriginCheck(original["enable_origin_check"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["enableOriginCheck"] = transformedEnableOriginCheck
+	}
+
+	transformedAllowedOrigins, err := expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsAllowedOrigins(original["allowed_origins"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedOrigins); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowedOrigins"] = transformedAllowedOrigins
+	}
+
+	transformedEnableRecaptcha, err := expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnableRecaptcha(original["enable_recaptcha"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["enableRecaptcha"] = transformedEnableRecaptcha
+	}
+
+	return transformed, nil
+}
+
+func expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnablePublicAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnableOriginCheck(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsAllowedOrigins(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnableRecaptcha(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

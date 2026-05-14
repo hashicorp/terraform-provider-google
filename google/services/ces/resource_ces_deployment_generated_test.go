@@ -121,6 +121,81 @@ resource "google_ces_deployment" "my-deployment" {
 `, context)
 }
 
+func TestAccCESDeployment_cesDeploymentFullExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"app_display_name":        "tf-test-my-app" + randomSuffix,
+		"app_id":                  "tf-test-app-id" + randomSuffix,
+		"deployment_display_name": "tf-test-my-deployment" + randomSuffix,
+		"random_suffix":           randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESDeployment_cesDeploymentFullExample(context),
+			},
+			{
+				ResourceName:            "google_ces_deployment.my-deployment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "app_version", "location"},
+			},
+			{
+				ResourceName:       "google_ces_deployment.my-deployment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCESDeployment_cesDeploymentFullExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "%{app_display_name}"
+    app_id       = "%{app_id}"
+    time_zone_settings {   
+        time_zone = "America/Los_Angeles"
+    }
+}
+resource "google_ces_deployment" "my-deployment" {
+    location     = "us"
+    display_name = "%{deployment_display_name}"
+    app          = google_ces_app.my-app.name
+    app_version  = "projects/example-project/locations/us/apps/example-app/versions/example-version"
+    channel_profile {
+        channel_type = "API"
+        disable_barge_in_control = true
+        disable_dtmf = true
+        persona_property {
+            persona = "CHATTY"
+        }
+        profile_id = "temp_profile_id"
+        web_widget_config {
+            modality = "CHAT_AND_VOICE"
+            theme = "DARK"
+            web_widget_title = "temp_webwidget_title"
+            security_settings {
+                enable_public_access = true
+                enable_origin_check = true
+                allowed_origins = ["https://example.com", "https://test.com"]
+                enable_recaptcha = true
+            }
+        }
+    }
+}
+`, context)
+}
+
 func testAccCheckCESDeploymentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

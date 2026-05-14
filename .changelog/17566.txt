@@ -1,0 +1,6 @@
+```release-note:enhancement
+ces: added `security_settings` field to `google_ces_deployment` resource
+```
+```release-note:bug
+ces: updated supported values for `channel_type`, `modality`, and `theme` in `google_ces_deployment`
+```
