@@ -25,7 +25,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
@@ -44,7 +43,6 @@ type SendRequestOptions struct {
 	Headers              http.Header
 	ErrorRetryPredicates []RetryErrorPredicateFunc
 	ErrorAbortPredicates []RetryErrorPredicateFunc
-	SendRequestId        bool
 }
 
 func SendRequest(opt SendRequestOptions) (map[string]interface{}, error) {
@@ -75,11 +73,6 @@ func SendRequest(opt SendRequestOptions) (map[string]interface{}, error) {
 		opt.Timeout = DefaultRequestTimeout
 	}
 
-	var requestId string
-	if opt.SendRequestId {
-		requestId = uuid.New().String()
-	}
-
 	var res *http.Response
 	err := Retry(RetryOptions{
 		RetryFunc: func() error {
@@ -91,11 +84,7 @@ func SendRequest(opt SendRequestOptions) (map[string]interface{}, error) {
 				}
 			}
 
-			queryParams := map[string]string{"alt": "json"}
-			if requestId != "" {
-				queryParams["requestId"] = requestId
-			}
-			u, err := AddQueryParams(opt.RawURL, queryParams)
+			u, err := AddQueryParams(opt.RawURL, map[string]string{"alt": "json"})
 			if err != nil {
 				return err
 			}

@@ -1,0 +1,3 @@
+```release-note:note
+compute: added idempotency support to `google_compute_network` resource by sending `requestId` query parameter (revert)
+```
