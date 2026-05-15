@@ -38,6 +38,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	"github.com/stretchr/testify/assert"
 
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -267,7 +268,7 @@ func computeInstanceImportStep(zone, instanceName string, additionalImportIgnore
 func TestAccComputeInstance_basic1(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -303,7 +304,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 func TestAccComputeInstance_basic2(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -328,7 +329,7 @@ func TestAccComputeInstance_basic2(t *testing.T) {
 func TestAccComputeInstance_basic3(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -353,7 +354,7 @@ func TestAccComputeInstance_basic3(t *testing.T) {
 func TestAccComputeInstance_basic4(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -378,7 +379,7 @@ func TestAccComputeInstance_basic4(t *testing.T) {
 func TestAccComputeInstance_basic5(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -403,7 +404,7 @@ func TestAccComputeInstance_basic5(t *testing.T) {
 func TestAccComputeInstance_metadataGceContainerDeclaration(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -428,7 +429,7 @@ func TestAccComputeInstance_metadataGceContainerDeclaration(t *testing.T) {
 func TestAccComputeInstance_resourceManagerTags(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
@@ -461,7 +462,7 @@ func TestAccComputeInstance_resourceManagerTags(t *testing.T) {
 func TestAccComputeInstance_diskResourcePolicies(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
@@ -497,7 +498,7 @@ func TestAccComputeInstance_diskResourcePolicies(t *testing.T) {
 func TestAccComputeInstance_diskResourcePolicies_attachmentDiff(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	context_1 := map[string]interface{}{
 		"instance_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"random_suffix": acctest.RandString(t, 10),
@@ -554,7 +555,7 @@ func TestAccComputeInstance_diskResourcePolicies_attachmentDiff(t *testing.T) {
 func TestAccComputeInstance_machineTypeUrl(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var machineTypeUrl = "zones/us-central1-a/machineTypes/e2-medium"
 
@@ -578,7 +579,7 @@ func TestAccComputeInstance_machineTypeUrl(t *testing.T) {
 func TestAccComputeInstance_descriptionUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -609,7 +610,7 @@ func TestAccComputeInstance_descriptionUpdate(t *testing.T) {
 func TestAccComputeInstance_IP(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var ipName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
@@ -632,7 +633,7 @@ func TestAccComputeInstance_IP(t *testing.T) {
 func TestAccComputeInstance_IPv6(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var ipName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var ptrName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -662,7 +663,7 @@ func TestAccComputeInstance_IPv6(t *testing.T) {
 func TestAccComputeInstance_ipv6ExternalReservation(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -685,7 +686,7 @@ func TestAccComputeInstance_ipv6ExternalReservation(t *testing.T) {
 func TestAccComputeInstance_internalIPv6(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var ipName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
@@ -710,7 +711,7 @@ func TestAccComputeInstance_internalIPv6(t *testing.T) {
 func TestAccComputeInstance_internalIPv6PrefixLength(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -734,7 +735,7 @@ func TestAccComputeInstance_internalIPv6PrefixLength(t *testing.T) {
 func TestAccComputeInstance_PTRRecord(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var ptrName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var ipName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -767,7 +768,7 @@ func TestAccComputeInstance_PTRRecord(t *testing.T) {
 }
 
 func TestAccComputeInstance_networkTier(t *testing.T) {
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -792,22 +793,22 @@ func TestAccComputeInstance_networkTier(t *testing.T) {
 func TestAccComputeInstance_diskEncryption(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	bootEncryptionKey := "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
 	bootEncryptionKeyHash := "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E="
-	diskNameToEncryptionKey := map[string]*compute.CustomerEncryptionKey{
+	diskNameToEncryptionKey := map[string]map[string]interface{}{
 		fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10)): {
-			RawKey: "Ym9vdDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
-			Sha256: "awJ7p57H+uVZ9axhJjl1D3lfC2MgA/wnt/z88Ltfvss=",
+			"rawKey": "Ym9vdDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
+			"sha256": "awJ7p57H+uVZ9axhJjl1D3lfC2MgA/wnt/z88Ltfvss=",
 		},
 		fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10)): {
-			RawKey: "c2Vjb25kNzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
-			Sha256: "7TpIwUdtCOJpq2m+3nt8GFgppu6a2Xsj1t0Gexk13Yc=",
+			"rawKey": "c2Vjb25kNzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
+			"sha256": "7TpIwUdtCOJpq2m+3nt8GFgppu6a2Xsj1t0Gexk13Yc=",
 		},
 		fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10)): {
-			RawKey: "dGhpcmQ2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
-			Sha256: "b3pvaS7BjDbCKeLPPTx7yXBuQtxyMobCHN1QJR43xeM=",
+			"rawKey": "dGhpcmQ2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
+			"sha256": "b3pvaS7BjDbCKeLPPTx7yXBuQtxyMobCHN1QJR43xeM=",
 		},
 	}
 
@@ -831,14 +832,14 @@ func TestAccComputeInstance_diskEncryption(t *testing.T) {
 func TestAccComputeInstance_diskEncryptionRestart(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	bootEncryptionKey := "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
 	bootEncryptionKeyHash := "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E="
-	diskNameToEncryptionKey := map[string]*compute.CustomerEncryptionKey{
+	diskNameToEncryptionKey := map[string]map[string]interface{}{
 		fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10)): {
-			RawKey: "Ym9vdDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
-			Sha256: "awJ7p57H+uVZ9axhJjl1D3lfC2MgA/wnt/z88Ltfvss=",
+			"rawKey": "Ym9vdDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=",
+			"sha256": "awJ7p57H+uVZ9axhJjl1D3lfC2MgA/wnt/z88Ltfvss=",
 		},
 	}
 
@@ -870,20 +871,20 @@ func TestAccComputeInstance_diskEncryptionRestart(t *testing.T) {
 func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	bootstrapped := kms.BootstrapKMSKey(t)
 
 	bootKmsKeyName := bootstrapped.CryptoKey.Name
-	diskNameToEncryptionKey := map[string]*compute.CustomerEncryptionKey{
+	diskNameToEncryptionKey := map[string]map[string]interface{}{
 		fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10)): {
-			KmsKeyName: bootstrapped.CryptoKey.Name,
+			"kmsKeyName": bootstrapped.CryptoKey.Name,
 		},
 		fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10)): {
-			KmsKeyName: bootstrapped.CryptoKey.Name,
+			"kmsKeyName": bootstrapped.CryptoKey.Name,
 		},
 		fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10)): {
-			KmsKeyName: bootstrapped.CryptoKey.Name,
+			"kmsKeyName": bootstrapped.CryptoKey.Name,
 		},
 	}
 
@@ -914,7 +915,7 @@ func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
 func TestAccComputeInstance_rsaBootDiskEncryption(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	context := map[string]interface{}{
 		"instance_name":     fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"rsa_encrypted_key": "ieCx/NcW06PcT7Ep1X6LUTc/hLvUDYyzSZPPVCVPTVEohpeHASqC8uw5TzyO9U+Fka9JFHz0mBibXUInrC/jEk014kCK/NPjYgEMOyssZ4ZINPKxlUh2zn1bV+MCaTICrdmuSBTWlUUiFoDD6PYznLwh8ZNdaheCeZ8ewEXgFQ8V+sDroLaN3Xs3MDTXQEMMoNUXMCZEIpg9Vtp9x2oeQ5lAbtt7bYAAHf5l+gJWw3sUfs0/Glw5fpdjT8Uggrr+RMZezGrltJEF293rvTIjWOEB3z5OHyHwQkvdrPDFcTqsLfh+8Hr8g+mf+7zVPEC8nEbqpdl3GPv3A7AwpFp7MA==",
@@ -938,7 +939,7 @@ func TestAccComputeInstance_rsaBootDiskEncryption(t *testing.T) {
 func TestAccComputeInstance_instanceEncryption(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	bootstrapped := kms.BootstrapKMSKey(t)
 
 	context_1 := map[string]interface{}{
@@ -1000,7 +1001,7 @@ func TestAccComputeInstance_instanceEncryption(t *testing.T) {
 func TestAccComputeInstance_snapshot(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 
 	context := map[string]interface{}{
 		"instance_name1": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
@@ -1028,7 +1029,7 @@ func TestAccComputeInstance_snapshot(t *testing.T) {
 func TestAccComputeInstance_repdBootFromSnapshot(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 
 	context := map[string]interface{}{
 		"network_name":    fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
@@ -1059,7 +1060,7 @@ func TestAccComputeInstance_repdBootFromSnapshot(t *testing.T) {
 func TestAccComputeInstance_snapshotEncryption(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	bootstrapped := kms.BootstrapKMSKey(t)
 	context := map[string]interface{}{
 		"instance_name1":    fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
@@ -1100,7 +1101,7 @@ func TestAccComputeInstance_snapshotEncryption(t *testing.T) {
 func TestAccComputeInstance_imageEncryption(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	bootstrapped := kms.BootstrapKMSKey(t)
 	context := map[string]interface{}{
 		"instance_name":     fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
@@ -1141,7 +1142,7 @@ func TestAccComputeInstance_imageEncryption(t *testing.T) {
 func TestAccComputeInstance_attachedDisk_RSAencryption(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	context := map[string]interface{}{
 		"instance_name":     fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"disk_name":         fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
@@ -1166,7 +1167,7 @@ func TestAccComputeInstance_attachedDisk_RSAencryption(t *testing.T) {
 func TestAccComputeInstance_resourcePolicyUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var scheduleName1 = fmt.Sprintf("tf-tests-%s", acctest.RandString(t, 10))
 	var scheduleName2 = fmt.Sprintf("tf-tests-%s", acctest.RandString(t, 10))
@@ -1218,7 +1219,7 @@ func TestAccComputeInstance_resourcePolicyUpdate(t *testing.T) {
 func TestAccComputeInstance_attachedDisk(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskName = fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10))
 
@@ -1243,7 +1244,7 @@ func TestAccComputeInstance_attachedDisk(t *testing.T) {
 func TestAccComputeInstance_attachedDisk_sourceUrl(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskName = fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10))
 
@@ -1268,7 +1269,7 @@ func TestAccComputeInstance_attachedDisk_sourceUrl(t *testing.T) {
 func TestAccComputeInstance_attachedDisk_modeRo(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskName = fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10))
 
@@ -1293,7 +1294,7 @@ func TestAccComputeInstance_attachedDisk_modeRo(t *testing.T) {
 func TestAccComputeInstance_attachDisk_forceAttach(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskName = fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10))
 	var forceAttachSetToTrue = true
@@ -1339,7 +1340,7 @@ func TestAccComputeInstance_attachDisk_forceAttach(t *testing.T) {
 func TestAccComputeInstance_bootDiskUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	context1 := map[string]interface{}{
 		"instance_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"disk_size":     10,
@@ -1384,7 +1385,7 @@ func TestAccComputeInstance_bootDiskUpdate(t *testing.T) {
 func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskName = fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10))
 	var diskName2 = fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10))
@@ -1437,7 +1438,7 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
@@ -1462,7 +1463,7 @@ func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 func TestAccComputeInstance_bootDisk_sourceUrl(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
@@ -1487,7 +1488,7 @@ func TestAccComputeInstance_bootDisk_sourceUrl(t *testing.T) {
 func TestAccComputeInstance_bootDisk_type(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskType = "pd-ssd"
 
@@ -1530,7 +1531,7 @@ func TestAccComputeInstance_bootDisk_mode(t *testing.T) {
 func TestAccComputeInstance_bootDisk_forceAttach(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var forceAttachSetToTrue = true
@@ -1576,7 +1577,7 @@ func TestAccComputeInstance_bootDisk_forceAttach(t *testing.T) {
 func TestAccComputeInstance_with375GbScratchDisk(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1618,7 +1619,7 @@ func TestAccComputeInstance_with18TbScratchDisk(t *testing.T) {
 	t.Skip()
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1661,7 +1662,7 @@ func TestAccComputeInstance_with18TbScratchDisk(t *testing.T) {
 func TestAccComputeInstance_forceNewAndChangeMetadata(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1692,7 +1693,7 @@ func TestAccComputeInstance_forceNewAndChangeMetadata(t *testing.T) {
 func TestAccComputeInstance_update(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1726,7 +1727,7 @@ func TestAccComputeInstance_update(t *testing.T) {
 func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1768,7 +1769,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 func TestAccComputeInstance_serviceAccount(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1797,7 +1798,7 @@ func TestAccComputeInstance_serviceAccount(t *testing.T) {
 func TestAccComputeInstance_noServiceAccount(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1821,7 +1822,7 @@ func TestAccComputeInstance_noServiceAccount(t *testing.T) {
 func TestAccComputeInstance_serviceAccountEmail_0scopes(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1845,7 +1846,7 @@ func TestAccComputeInstance_serviceAccountEmail_0scopes(t *testing.T) {
 func TestAccComputeInstance_serviceAccount_updated(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1900,7 +1901,7 @@ func TestAccComputeInstance_serviceAccount_updated(t *testing.T) {
 func TestAccComputeInstance_serviceAccount_updated0to1to0scopes(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1945,7 +1946,7 @@ func TestAccComputeInstance_serviceAccount_updated0to1to0scopes(t *testing.T) {
 func TestAccComputeInstance_scheduling(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1978,7 +1979,7 @@ func TestAccComputeInstance_schedulingTerminationTime(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	now := time.Now().UTC()
 	terminationTimeNonFormatted := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 9999, now.Location())
@@ -2031,7 +2032,7 @@ func TestAccComputeInstance_schedulingTerminationTime(t *testing.T) {
 func TestAccComputeInstance_advancedMachineFeatures(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2062,7 +2063,7 @@ func TestAccComputeInstance_advancedMachineFeatures(t *testing.T) {
 func TestAccComputeInstance_performanceMonitoringUnit(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	context_1 := map[string]interface{}{
 		"instance_name":               fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"performance_monitoring_unit": "STANDARD",
@@ -2101,7 +2102,7 @@ func TestAccComputeInstance_performanceMonitoringUnit(t *testing.T) {
 func TestAccComputeInstance_enableUefiNetworking(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	context_1 := map[string]interface{}{
 		"instance_name":          fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"enable_uefi_networking": "true",
@@ -2160,7 +2161,7 @@ func TestAccComputeInstance_soleTenantNodeAffinities(t *testing.T) {
 func TestAccComputeInstance_reservationAffinities(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-resaffinity-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2199,7 +2200,7 @@ func TestAccComputeInstance_reservationAffinities(t *testing.T) {
 func TestAccComputeInstance_subnet_auto(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2223,7 +2224,7 @@ func TestAccComputeInstance_subnet_auto(t *testing.T) {
 func TestAccComputeInstance_subnet_custom(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2249,7 +2250,7 @@ func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	org := envvar.GetTestOrgFromEnv(t)
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
@@ -2279,7 +2280,7 @@ func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 func TestAccComputeInstance_networkIPAuto(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2302,7 +2303,7 @@ func TestAccComputeInstance_networkIPAuto(t *testing.T) {
 func TestAccComputeInstance_network_ip_custom(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var ipAddress = "10.0.200.200"
 	acctest.VcrTest(t, resource.TestCase{
@@ -2325,7 +2326,7 @@ func TestAccComputeInstance_network_ip_custom(t *testing.T) {
 func TestAccComputeInstance_private_image_family(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskName = fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10))
 	var familyName = fmt.Sprintf("tf-testf-%s", acctest.RandString(t, 10))
@@ -2349,7 +2350,7 @@ func TestAccComputeInstance_private_image_family(t *testing.T) {
 func TestAccComputeInstance_networkPerformanceConfig(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskName = fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10))
 	var imageName = fmt.Sprintf("tf-testf-%s", acctest.RandString(t, 10))
@@ -2374,7 +2375,7 @@ func TestAccComputeInstance_networkPerformanceConfig(t *testing.T) {
 func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2403,7 +2404,7 @@ func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 func TestAccComputeInstance_multiNic(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	networkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -2428,7 +2429,7 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 func TestAccComputeInstance_nictype_update(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2457,7 +2458,7 @@ func TestAccComputeInstance_nictype_update(t *testing.T) {
 func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2481,7 +2482,7 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 func TestAccComputeInstance_guestAcceleratorSkip(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2504,7 +2505,7 @@ func TestAccComputeInstance_guestAcceleratorSkip(t *testing.T) {
 func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2535,7 +2536,7 @@ func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 func TestAccComputeInstance_deletionProtectionExplicitFalse(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2558,7 +2559,7 @@ func TestAccComputeInstance_deletionProtectionExplicitFalse(t *testing.T) {
 func TestAccComputeInstance_deletionProtectionExplicitTrueAndUpdateFalse(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2591,7 +2592,7 @@ func TestAccComputeInstance_deletionProtectionExplicitTrueAndUpdateFalse(t *test
 func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2614,7 +2615,7 @@ func TestAccComputeInstance_primaryAliasIpRange(t *testing.T) {
 func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	networkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	subnetName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -2647,7 +2648,7 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 func TestAccComputeInstance_aliasIpRangeCommonAddresses(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	networkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	subnetName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -2691,7 +2692,7 @@ func TestAccComputeInstance_aliasIpRangeCommonAddresses(t *testing.T) {
 func TestAccComputeInstance_hostname(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2714,7 +2715,7 @@ func TestAccComputeInstance_hostname(t *testing.T) {
 func TestAccComputeInstance_shieldedVmConfig(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2745,8 +2746,8 @@ func TestAccComputeInstance_shieldedVmConfig(t *testing.T) {
 func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
-	var instance2 compute.Instance
+	var instance map[string]interface{}
+	var instance2 map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2878,7 +2879,7 @@ func TestAccComputeInstance_enableDisplay(t *testing.T) {
 func TestAccComputeInstance_desiredStatusTerminatedOnCreation(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 
 	context_1 := map[string]interface{}{
 		"instance_name":  fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
@@ -2918,7 +2919,7 @@ func TestAccComputeInstance_desiredStatusTerminatedOnCreation(t *testing.T) {
 func TestAccComputeInstance_desiredStatusSuspendedOnCreation(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 
 	context_1 := map[string]interface{}{
 		"instance_name":  fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
@@ -2958,7 +2959,7 @@ func TestAccComputeInstance_desiredStatusSuspendedOnCreation(t *testing.T) {
 func TestAccComputeInstance_desiredStatusUpdateBasic(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3012,7 +3013,7 @@ func TestAccComputeInstance_desiredStatusUpdateBasic(t *testing.T) {
 func TestAccComputeInstance_desiredStatusTerminatedUpdateFields(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3054,7 +3055,7 @@ func TestAccComputeInstance_desiredStatusTerminatedUpdateFields(t *testing.T) {
 func TestAccComputeInstance_updateRunning_desiredStatusRunning_allowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3088,7 +3089,7 @@ const errorAllowStoppingMsg = "please set allow_stopping_for_update"
 func TestAccComputeInstance_updateRunning_desiredStatusNotSet_notAllowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3115,7 +3116,7 @@ func TestAccComputeInstance_updateRunning_desiredStatusNotSet_notAllowStoppingFo
 func TestAccComputeInstance_updateRunning_desiredStatusRunning_notAllowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3142,7 +3143,7 @@ func TestAccComputeInstance_updateRunning_desiredStatusRunning_notAllowStoppingF
 func TestAccComputeInstance_updateRunning_desiredStatusTerminated_allowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3174,7 +3175,7 @@ func TestAccComputeInstance_updateRunning_desiredStatusTerminated_allowStoppingF
 func TestAccComputeInstance_updateRunning_desiredStatusTerminated_notAllowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3206,7 +3207,7 @@ func TestAccComputeInstance_updateRunning_desiredStatusTerminated_notAllowStoppi
 func TestAccComputeInstance_updateTerminated_desiredStatusNotSet_allowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3246,7 +3247,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusNotSet_allowStoppingFo
 func TestAccComputeInstance_updateTerminated_desiredStatusTerminated_allowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3286,7 +3287,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusTerminated_allowStoppi
 func TestAccComputeInstance_updateTerminated_desiredStatusNotSet_notAllowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3326,7 +3327,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusNotSet_notAllowStoppin
 func TestAccComputeInstance_updateTerminated_desiredStatusTerminated_notAllowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3366,7 +3367,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusTerminated_notAllowSto
 func TestAccComputeInstance_updateTerminated_desiredStatusRunning_allowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3406,7 +3407,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusRunning_allowStoppingF
 func TestAccComputeInstance_updateTerminated_desiredStatusRunning_notAllowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3446,7 +3447,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusRunning_notAllowStoppi
 func TestAccComputeInstance_desiredStatus_suspended(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	context_1 := map[string]interface{}{
 		"instance_name":  fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"desired_status": "RUNNING",
@@ -3511,7 +3512,7 @@ func TestAccComputeInstance_resourcePolicySpread(t *testing.T) {
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	var instance compute.Instance
+	var instance map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -3578,7 +3579,7 @@ func TestAccComputeInstance_subnetworkProjectMustMatchError(t *testing.T) {
 func TestAccComputeInstance_networkIpUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	suffix := fmt.Sprintf("%s", acctest.RandString(t, 10))
 
@@ -3635,7 +3636,7 @@ func TestAccComputeInstance_queueCount(t *testing.T) {
 func TestAccComputeInstance_spotVM(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -3657,7 +3658,7 @@ func TestAccComputeInstance_spotVM(t *testing.T) {
 func TestAccComputeInstance_spotVM_update(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -3687,12 +3688,13 @@ func TestAccComputeInstance_spotVM_update(t *testing.T) {
 func TestAccComputeInstance_maxRunDuration_update(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-mrd-%s", acctest.RandString(t, 10))
-	var expectedMaxRunDuration = compute.Duration{}
 	// Define in testAccComputeInstance_standardVM_maxRunDurationUpdated
-	expectedMaxRunDuration.Nanos = 456
-	expectedMaxRunDuration.Seconds = 60
+	expectedMaxRunDuration := map[string]interface{}{
+		"nanos":   float64(456),
+		"seconds": "60",
+	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -3720,12 +3722,13 @@ func TestAccComputeInstance_maxRunDuration_update(t *testing.T) {
 func TestAccComputeInstance_standardVM_maxRunDuration_stopTerminationAction(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	var expectedMaxRunDuration = compute.Duration{}
 	// Define in testAccComputeInstance_standardVM_maxRunDuration
-	expectedMaxRunDuration.Nanos = 123
-	expectedMaxRunDuration.Seconds = 60
+	expectedMaxRunDuration := map[string]interface{}{
+		"nanos":   float64(123),
+		"seconds": "60",
+	}
 	var instanceTerminationAction = "STOP"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3750,12 +3753,13 @@ func TestAccComputeInstance_standardVM_maxRunDuration_stopTerminationAction(t *t
 func TestAccComputeInstance_localSsdVM_maxRunDuration_stopTerminationAction(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	var expectedMaxRunDuration = compute.Duration{}
 	// Define in testAccComputeInstance_localSsdVM_maxRunDuration
-	expectedMaxRunDuration.Nanos = 123
-	expectedMaxRunDuration.Seconds = 180
+	expectedMaxRunDuration := map[string]interface{}{
+		"nanos":   float64(123),
+		"seconds": "180",
+	}
 	var instanceTerminationAction = "STOP"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3780,12 +3784,13 @@ func TestAccComputeInstance_localSsdVM_maxRunDuration_stopTerminationAction(t *t
 func TestAccComputeInstance_spotVM_maxRunDuration_deleteTerminationAction(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	var expectedMaxRunDuration = compute.Duration{}
 	// Define in testAccComputeInstance_spotVM_maxRunDuration
-	expectedMaxRunDuration.Nanos = 123
-	expectedMaxRunDuration.Seconds = 60
+	expectedMaxRunDuration := map[string]interface{}{
+		"nanos":   float64(123),
+		"seconds": "60",
+	}
 	var instanceTerminationAction = "DELETE"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3810,12 +3815,13 @@ func TestAccComputeInstance_spotVM_maxRunDuration_deleteTerminationAction(t *tes
 func TestAccComputeInstance_standardVM_maxRunDuration_deleteTerminationAction(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	var expectedMaxRunDuration = compute.Duration{}
 	// Define in testAccComputeInstance_standardVM_maxRunDuration
-	expectedMaxRunDuration.Nanos = 123
-	expectedMaxRunDuration.Seconds = 60
+	expectedMaxRunDuration := map[string]interface{}{
+		"nanos":   float64(123),
+		"seconds": "60",
+	}
 	var instanceTerminationAction = "DELETE"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3840,12 +3846,13 @@ func TestAccComputeInstance_standardVM_maxRunDuration_deleteTerminationAction(t 
 func TestAccComputeInstance_spotVM_maxRunDuration_update(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	// Define in testAccComputeInstance_spotVM_maxRunDuration
-	var expectedMaxRunDuration = compute.Duration{}
-	expectedMaxRunDuration.Nanos = 123
-	expectedMaxRunDuration.Seconds = 60
+	expectedMaxRunDuration := map[string]interface{}{
+		"nanos":   float64(123),
+		"seconds": "60",
+	}
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -3875,12 +3882,13 @@ func TestAccComputeInstance_spotVM_maxRunDuration_update(t *testing.T) {
 func TestAccComputeInstance_localSsdRecoveryTimeout(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	var expectedLocalSsdRecoveryTimeout = compute.Duration{}
 	// Define in testAccComputeInstance_localSsdRecoveryTimeout
-	expectedLocalSsdRecoveryTimeout.Nanos = 0
-	expectedLocalSsdRecoveryTimeout.Seconds = 3600
+	expectedLocalSsdRecoveryTimeout := map[string]interface{}{
+		"nanos":   float64(0),
+		"seconds": "3600",
+	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -3903,12 +3911,13 @@ func TestAccComputeInstance_localSsdRecoveryTimeout(t *testing.T) {
 func TestAccComputeInstance_localSsdRecoveryTimeout_update(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	// Define in testAccComputeInstance_localSsdRecoveryTimeout
-	var expectedLocalSsdRecoveryTimeout = compute.Duration{}
-	expectedLocalSsdRecoveryTimeout.Nanos = 0
-	expectedLocalSsdRecoveryTimeout.Seconds = 3600
+	expectedLocalSsdRecoveryTimeout := map[string]interface{}{
+		"nanos":   float64(0),
+		"seconds": "3600",
+	}
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -3938,7 +3947,7 @@ func TestAccComputeInstance_localSsdRecoveryTimeout_update(t *testing.T) {
 func TestAccComputeInstance_metadataStartupScript_update(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3967,7 +3976,7 @@ func TestAccComputeInstance_metadataStartupScript_update(t *testing.T) {
 func TestAccComputeInstance_metadataStartupScript_gracefulSwitch(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -4004,7 +4013,7 @@ func TestAccComputeInstance_metadataStartupScript_gracefulSwitch(t *testing.T) {
 func TestAccComputeInstance_regionBootDisk(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var diskName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var suffix = acctest.RandString(t, 10)
@@ -4029,7 +4038,7 @@ func TestAccComputeInstance_regionBootDisk(t *testing.T) {
 func TestAccComputeInstance_creationOnlyAttributionLabel(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -4064,7 +4073,7 @@ func TestAccComputeInstance_creationOnlyAttributionLabelConfiguredOnUpdate(t *te
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -4099,7 +4108,7 @@ func TestAccComputeInstance_proactiveAttributionLabel(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -4132,7 +4141,7 @@ func TestAccComputeInstance_proactiveAttributionLabel(t *testing.T) {
 func TestAccComputeInstance_autoDeleteUpdate(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	context_1 := map[string]interface{}{
 		"instance_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"auto_delete":   "true",
@@ -4175,7 +4184,7 @@ func TestAccComputeInstance_autoDeleteUpdate(t *testing.T) {
 func TestAccComputeInstance_keyRevocationActionType(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	context_1 := map[string]interface{}{
 		"instance_name":              fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"key_revocation_action_type": `"NONE"`,
@@ -4243,25 +4252,37 @@ func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resour
 
 		config := acctest.GoogleProviderConfig(t)
 
-		op, err := tpgcompute.NewClient(config, config.UserAgent).Instances.Stop(config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
+		stopUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/stop", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    stopUrl,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
-		err = tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "Waiting on stop", config.UserAgent, 20*time.Minute)
+		err = tpgcompute.ComputeOperationWaitTime(config, res, config.Project, "Waiting on stop", config.UserAgent, 20*time.Minute)
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
 
-		machineType := compute.InstancesSetMachineTypeRequest{
-			MachineType: "zones/us-central1-a/machineTypes/f1-micro",
-		}
-
-		op, err = tpgcompute.NewClient(config, config.UserAgent).Instances.SetMachineType(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"], &machineType).Do()
+		setMachineTypeUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/setMachineType", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    setMachineTypeUrl,
+			UserAgent: config.UserAgent,
+			Body: map[string]interface{}{
+				"machineType": "zones/us-central1-a/machineTypes/f1-micro",
+			},
+		})
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
 		}
-		err = tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "Waiting machine type change", config.UserAgent, 20*time.Minute)
+		err = tpgcompute.ComputeOperationWaitTime(config, res, config.Project, "Waiting machine type change", config.UserAgent, 20*time.Minute)
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
 		}
@@ -4273,7 +4294,7 @@ func TestAccComputeInstance_NetworkAttachment(t *testing.T) {
 	t.Parallel()
 	suffix := fmt.Sprintf("%s", acctest.RandString(t, 10))
 	envRegion := envvar.GetTestRegionFromEnv()
-	var instance compute.Instance
+	var instance map[string]interface{}
 
 	providerVersion := "v1"
 
@@ -4365,7 +4386,7 @@ func TestAccComputeInstance_NicStackTypeUpdate(t *testing.T) {
 func TestAccComputeInstance_IgmpQuery_v2(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	suffix := acctest.RandString(t, 10)
 	envRegion := envvar.GetTestRegionFromEnv()
@@ -4438,7 +4459,7 @@ func TestAccComputeInstance_NicStackType_IPV6(t *testing.T) {
 func TestAccComputeInstance_guestOsFeatures(t *testing.T) {
 	t.Parallel()
 
-	var instance compute.Instance
+	var instance map[string]interface{}
 	context_1 := map[string]interface{}{
 		"instance_name":     fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"guest_os_features": `["UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "GVNIC", "IDPF"]`,
@@ -4544,8 +4565,14 @@ func testAccCheckComputeInstanceDestroyProducer(t *testing.T) func(s *terraform.
 				continue
 			}
 
-			_, err := tpgcompute.NewClient(config, config.UserAgent).Instances.Get(
-				config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
+			url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
+			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   config.Project,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("Instance still exists")
 			}
@@ -4560,10 +4587,10 @@ func testAccCheckComputeInstanceExists(t *testing.T, n string, instance interfac
 		panic("Attempted to check existence of Instance that was nil.")
 	}
 
-	return testAccCheckComputeInstanceExistsInProject(t, n, envvar.GetTestProjectFromEnv(), instance.(*compute.Instance))
+	return testAccCheckComputeInstanceExistsInProject(t, n, envvar.GetTestProjectFromEnv(), instance.(*map[string]interface{}))
 }
 
-func testAccCheckComputeInstanceExistsInProject(t *testing.T, n, p string, instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceExistsInProject(t *testing.T, n, p string, instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -4575,50 +4602,69 @@ func testAccCheckComputeInstanceExistsInProject(t *testing.T, n, p string, insta
 		}
 
 		config := acctest.GoogleProviderConfig(t)
-		found, err := tpgcompute.NewClient(config, config.UserAgent).Instances.Get(
-			p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
+		url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   p,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.Attributes["name"] {
+		name, _ := found["name"].(string)
+		if name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("Instance not found")
 		}
 
-		*instance = *found
+		*instance = found
 
 		return nil
 	}
 }
 
 func testAccCheckComputeInstanceMetadata(
-	instance *compute.Instance,
+	instance *map[string]interface{},
 	k string, v string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.Metadata == nil {
+		metadata, ok := (*instance)["metadata"].(map[string]interface{})
+		if !ok {
 			return fmt.Errorf("no metadata")
 		}
 
-		for _, item := range instance.Metadata.Items {
-			if k != item.Key {
+		items, _ := metadata["items"].([]interface{})
+		for _, raw := range items {
+			item, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if k != item["key"].(string) {
 				continue
 			}
 
-			if item.Value != nil && v == *item.Value {
+			if val, ok := item["value"].(string); ok && v == val {
 				return nil
 			}
 
-			return fmt.Errorf("bad value for %s: %s", k, *item.Value)
+			return fmt.Errorf("bad value for %s: %v", k, item["value"])
 		}
 
 		return fmt.Errorf("metadata not found: %s", k)
 	}
 }
 
-func testAccCheckComputeInstanceAccessConfig(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceAccessConfig(instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, i := range instance.NetworkInterfaces {
-			if len(i.AccessConfigs) == 0 {
+		nics, _ := (*instance)["networkInterfaces"].([]interface{})
+		for _, raw := range nics {
+			i, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			ac, _ := i["accessConfigs"].([]interface{})
+			if len(ac) == 0 {
 				return fmt.Errorf("no access_config")
 			}
 		}
@@ -4627,11 +4673,21 @@ func testAccCheckComputeInstanceAccessConfig(instance *compute.Instance) resourc
 	}
 }
 
-func testAccCheckComputeInstanceAccessConfigHasNatIP(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceAccessConfigHasNatIP(instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, i := range instance.NetworkInterfaces {
-			for _, c := range i.AccessConfigs {
-				if c.NatIP == "" {
+		nics, _ := (*instance)["networkInterfaces"].([]interface{})
+		for _, rawNic := range nics {
+			i, ok := rawNic.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			acs, _ := i["accessConfigs"].([]interface{})
+			for _, rawAC := range acs {
+				c, ok := rawAC.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				if natIP, _ := c["natIP"].(string); natIP == "" {
 					return fmt.Errorf("no NAT IP")
 				}
 			}
@@ -4641,11 +4697,21 @@ func testAccCheckComputeInstanceAccessConfigHasNatIP(instance *compute.Instance)
 	}
 }
 
-func testAccCheckComputeInstanceIpv6AccessConfigHasExternalIPv6(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceIpv6AccessConfigHasExternalIPv6(instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, i := range instance.NetworkInterfaces {
-			for _, c := range i.Ipv6AccessConfigs {
-				if c.ExternalIpv6 == "" {
+		nics, _ := (*instance)["networkInterfaces"].([]interface{})
+		for _, rawNic := range nics {
+			i, ok := rawNic.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			acs, _ := i["ipv6AccessConfigs"].([]interface{})
+			for _, rawAC := range acs {
+				c, ok := rawAC.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				if extIPv6, _ := c["externalIpv6"].(string); extIPv6 == "" {
 					return fmt.Errorf("no External IPv6")
 				}
 			}
@@ -4655,10 +4721,15 @@ func testAccCheckComputeInstanceIpv6AccessConfigHasExternalIPv6(instance *comput
 	}
 }
 
-func testAccCheckComputeInstanceIpv6AccessConfigHasInternalIPv6(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceIpv6AccessConfigHasInternalIPv6(instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, i := range instance.NetworkInterfaces {
-			if i.Ipv6Address == "" {
+		nics, _ := (*instance)["networkInterfaces"].([]interface{})
+		for _, rawNic := range nics {
+			i, ok := rawNic.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if ipv6Addr, _ := i["ipv6Address"].(string); ipv6Addr == "" {
 				return fmt.Errorf("no internal IPv6 address")
 			}
 		}
@@ -4667,11 +4738,21 @@ func testAccCheckComputeInstanceIpv6AccessConfigHasInternalIPv6(instance *comput
 	}
 }
 
-func testAccCheckComputeInstanceAccessConfigHasPTR(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceAccessConfigHasPTR(instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, i := range instance.NetworkInterfaces {
-			for _, c := range i.AccessConfigs {
-				if c.PublicPtrDomainName == "" {
+		nics, _ := (*instance)["networkInterfaces"].([]interface{})
+		for _, rawNic := range nics {
+			i, ok := rawNic.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			acs, _ := i["accessConfigs"].([]interface{})
+			for _, rawAC := range acs {
+				c, ok := rawAC.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				if ptr, _ := c["publicPtrDomainName"].(string); ptr == "" {
 					return fmt.Errorf("no PTR Record")
 				}
 			}
@@ -4681,97 +4762,123 @@ func testAccCheckComputeInstanceAccessConfigHasPTR(instance *compute.Instance) r
 	}
 }
 
-func testAccCheckComputeResourcePolicy(instance *compute.Instance, scheduleName string, resourcePolicyCountWant int) resource.TestCheckFunc {
+func testAccCheckComputeResourcePolicy(instance *map[string]interface{}, scheduleName string, resourcePolicyCountWant int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		resourcePoliciesCountHave := len(instance.ResourcePolicies)
+		policies, _ := (*instance)["resourcePolicies"].([]interface{})
+		resourcePoliciesCountHave := len(policies)
 		if resourcePoliciesCountHave != resourcePolicyCountWant {
 			return fmt.Errorf("number of resource polices does not match: have: %d; want: %d", resourcePoliciesCountHave, resourcePolicyCountWant)
 		}
 
-		if resourcePoliciesCountHave == 1 && !strings.Contains(instance.ResourcePolicies[0], scheduleName) {
-			return fmt.Errorf("got the wrong schedule: have: %s; want: %s", instance.ResourcePolicies[0], scheduleName)
+		if resourcePoliciesCountHave == 1 {
+			first, _ := policies[0].(string)
+			if !strings.Contains(first, scheduleName) {
+				return fmt.Errorf("got the wrong schedule: have: %s; want: %s", first, scheduleName)
+			}
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceMaxRunDuration(instance *compute.Instance, instanceMaxRunDurationWant compute.Duration) resource.TestCheckFunc {
+func testAccCheckComputeInstanceMaxRunDuration(instance *map[string]interface{}, instanceMaxRunDurationWant map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance == nil {
+		if instance == nil || *instance == nil {
 			return fmt.Errorf("instance is nil")
 		}
-		if instance.Scheduling == nil {
+		scheduling, ok := (*instance)["scheduling"].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("no scheduling")
+		}
+		mrd, ok := scheduling["maxRunDuration"].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("no maxRunDuration")
+		}
+
+		if !reflect.DeepEqual(mrd, instanceMaxRunDurationWant) {
+			return fmt.Errorf("got the wrong instance max run duration action: have: %#v; want: %#v", mrd, instanceMaxRunDurationWant)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasAvailabilityDomain(instance *map[string]interface{}, availabilityDomain int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance == nil || *instance == nil {
+			return fmt.Errorf("instance is nil")
+		}
+		scheduling, ok := (*instance)["scheduling"].(map[string]interface{})
+		if !ok {
 			return fmt.Errorf("no scheduling")
 		}
 
-		if !reflect.DeepEqual(*instance.Scheduling.MaxRunDuration, instanceMaxRunDurationWant) {
-			return fmt.Errorf("got the wrong instance max run duration action: have: %#v; want: %#v", instance.Scheduling.MaxRunDuration, instanceMaxRunDurationWant)
+		got, _ := scheduling["availabilityDomain"].(float64)
+		if int64(got) != availabilityDomain {
+			return fmt.Errorf("got the wrong availability domain: have %d; want %d", int64(got), availabilityDomain)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceHasAvailabilityDomain(instance *compute.Instance, availabilityDomain int64) resource.TestCheckFunc {
+func testAccCheckComputeInstanceLocalSsdRecoveryTimeout(instance *map[string]interface{}, instanceLocalSsdRecoveryTiemoutWant map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance == nil {
+		if instance == nil || *instance == nil {
 			return fmt.Errorf("instance is nil")
 		}
-		if instance.Scheduling == nil {
+		scheduling, ok := (*instance)["scheduling"].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("no scheduling")
+		}
+		got, ok := scheduling["localSsdRecoveryTimeout"].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("no localSsdRecoveryTimeout")
+		}
+
+		if !reflect.DeepEqual(got, instanceLocalSsdRecoveryTiemoutWant) {
+			return fmt.Errorf("got the wrong instance local ssd recovery timeout action: have: %#v; want: %#v", got, instanceLocalSsdRecoveryTiemoutWant)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTerminationAction(instance *map[string]interface{}, instanceTerminationActionWant string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance == nil || *instance == nil {
+			return fmt.Errorf("instance is nil")
+		}
+		scheduling, ok := (*instance)["scheduling"].(map[string]interface{})
+		if !ok {
 			return fmt.Errorf("no scheduling")
 		}
 
-		if instance.Scheduling.AvailabilityDomain != availabilityDomain {
-			return fmt.Errorf("got the wrong availability domain: have %d; want %d", instance.Scheduling.AvailabilityDomain, availabilityDomain)
+		got, _ := scheduling["instanceTerminationAction"].(string)
+		if got != instanceTerminationActionWant {
+			return fmt.Errorf("got the wrong instance termniation action: have: %s; want: %s", got, instanceTerminationActionWant)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceLocalSsdRecoveryTimeout(instance *compute.Instance, instanceLocalSsdRecoveryTiemoutWant compute.Duration) resource.TestCheckFunc {
+func testAccCheckComputeInstanceDisk(instance *map[string]interface{}, source string, delete bool, boot bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance == nil {
-			return fmt.Errorf("instance is nil")
-		}
-		if instance.Scheduling == nil {
-			return fmt.Errorf("no scheduling")
-		}
-
-		if !reflect.DeepEqual(*instance.Scheduling.LocalSsdRecoveryTimeout, instanceLocalSsdRecoveryTiemoutWant) {
-			return fmt.Errorf("got the wrong instance local ssd recovery timeout action: have: %#v; want: %#v", instance.Scheduling.LocalSsdRecoveryTimeout, instanceLocalSsdRecoveryTiemoutWant)
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeInstanceTerminationAction(instance *compute.Instance, instanceTerminationActionWant string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if instance == nil {
-			return fmt.Errorf("instance is nil")
-		}
-		if instance.Scheduling == nil {
-			return fmt.Errorf("no scheduling")
-		}
-
-		if instance.Scheduling.InstanceTerminationAction != instanceTerminationActionWant {
-			return fmt.Errorf("got the wrong instance termniation action: have: %s; want: %s", instance.Scheduling.InstanceTerminationAction, instanceTerminationActionWant)
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeInstanceDisk(instance *compute.Instance, source string, delete bool, boot bool) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if instance.Disks == nil {
+		disks, ok := (*instance)["disks"].([]interface{})
+		if !ok {
 			return fmt.Errorf("no disks")
 		}
 
-		for _, disk := range instance.Disks {
-			if strings.HasSuffix(disk.Source, "/"+source) && disk.AutoDelete == delete && disk.Boot == boot {
+		for _, raw := range disks {
+			disk, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			diskSource, _ := disk["source"].(string)
+			autoDelete, _ := disk["autoDelete"].(bool)
+			diskBoot, _ := disk["boot"].(bool)
+			if strings.HasSuffix(diskSource, "/"+source) && autoDelete == delete && diskBoot == boot {
 				return nil
 			}
 		}
@@ -4780,14 +4887,15 @@ func testAccCheckComputeInstanceDisk(instance *compute.Instance, source string, 
 	}
 }
 
-func testAccCheckComputeInstanceHasInstanceId(instance *compute.Instance, n string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasInstanceId(instance *map[string]interface{}, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		remote := fmt.Sprintf("%d", instance.Id)
+		id, _ := (*instance)["id"].(string)
+		remote := id
 		local := rs.Primary.Attributes["instance_id"]
 
 		if remote != local {
@@ -4799,17 +4907,22 @@ func testAccCheckComputeInstanceHasInstanceId(instance *compute.Instance, n stri
 	}
 }
 
-func testAccCheckComputeInstanceBootDisk(instance *compute.Instance, source string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceBootDisk(instance *map[string]interface{}, source string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.Disks == nil {
+		disks, ok := (*instance)["disks"].([]interface{})
+		if !ok {
 			return fmt.Errorf("no disks")
 		}
 
-		for _, disk := range instance.Disks {
-			if disk.Boot == true {
-				if strings.HasSuffix(disk.Source, source) {
-					return nil
-				}
+		for _, raw := range disks {
+			disk, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			diskBoot, _ := disk["boot"].(bool)
+			diskSource, _ := disk["source"].(string)
+			if diskBoot && strings.HasSuffix(diskSource, source) {
+				return nil
 			}
 		}
 
@@ -4822,11 +4935,19 @@ func testAccCheckComputeInstanceBootDiskType(t *testing.T, instanceName string, 
 		config := acctest.GoogleProviderConfig(t)
 
 		// boot disk is named the same as the Instance
-		disk, err := tpgcompute.NewClient(config, config.UserAgent).Disks.Get(config.Project, "us-central1-a", instanceName).Do()
+		url := fmt.Sprintf("%sprojects/%s/zones/%s/disks/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, "us-central1-a", instanceName)
+		disk, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
-		if strings.Contains(disk.Type, diskType) {
+		diskTypeStr, _ := disk["type"].(string)
+		if strings.Contains(diskTypeStr, diskType) {
 			return nil
 		}
 
@@ -4834,26 +4955,34 @@ func testAccCheckComputeInstanceBootDiskType(t *testing.T, instanceName string, 
 	}
 }
 
-func testAccCheckComputeInstanceScratchDisk(instance *compute.Instance, interfaces []map[string]string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceScratchDisk(instance *map[string]interface{}, interfaces []map[string]string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.Disks == nil {
+		disks, ok := (*instance)["disks"].([]interface{})
+		if !ok {
 			return fmt.Errorf("no disks")
 		}
 
 		i := 0
-		for _, disk := range instance.Disks {
-			if disk.Type == "SCRATCH" {
+		for _, raw := range disks {
+			disk, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			diskType, _ := disk["type"].(string)
+			if diskType == "SCRATCH" {
 				if i >= len(interfaces) {
 					return fmt.Errorf("Expected %d scratch disks, found more", len(interfaces))
 				}
-				if disk.Interface != interfaces[i]["interface"] {
+				diskInterface, _ := disk["interface"].(string)
+				if diskInterface != interfaces[i]["interface"] {
 					return fmt.Errorf("Mismatched interface on scratch disk #%d, expected: %q, found: %q",
-						i, interfaces[i], disk.Interface)
+						i, interfaces[i], diskInterface)
 				}
 				if deviceName, ok := interfaces[i]["deviceName"]; ok {
-					if disk.DeviceName != deviceName {
+					diskDeviceName, _ := disk["deviceName"].(string)
+					if diskDeviceName != deviceName {
 						return fmt.Errorf("Mismatched device name on scratch disk #%d, expected: %q, found: %q",
-							i, deviceName, disk.DeviceName)
+							i, deviceName, diskDeviceName)
 					}
 				}
 
@@ -4869,31 +4998,43 @@ func testAccCheckComputeInstanceScratchDisk(instance *compute.Instance, interfac
 	}
 }
 
-func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.Instance, bootDiskEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey) resource.TestCheckFunc {
+func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *map[string]interface{}, bootDiskEncryptionKey string, diskNameToEncryptionKey map[string]map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		for i, disk := range instance.Disks {
-			if disk.Boot {
+		disks, _ := (*instance)["disks"].([]interface{})
+		for i, raw := range disks {
+			disk, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			boot, _ := disk["boot"].(bool)
+			source, _ := disk["source"].(string)
+			diskKey, _ := disk["diskEncryptionKey"].(map[string]interface{})
+			if boot {
 				attr := rs.Primary.Attributes["boot_disk.0.disk_encryption_key_sha256"]
 				if attr != bootDiskEncryptionKey {
 					return fmt.Errorf("Boot disk has wrong encryption key in state.\nExpected: %s\nActual: %s", bootDiskEncryptionKey, attr)
 				}
-				if disk.DiskEncryptionKey == nil && attr != "" {
+				if diskKey == nil && attr != "" {
 					return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", i, attr)
 				}
-				if disk.DiskEncryptionKey != nil && attr != disk.DiskEncryptionKey.Sha256 {
-					return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: %+v",
-						i, attr, disk.DiskEncryptionKey.Sha256)
+				if diskKey != nil {
+					sha256, _ := diskKey["sha256"].(string)
+					if attr != sha256 {
+						return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: %+v",
+							i, attr, sha256)
+					}
 				}
 			} else {
-				if disk.DiskEncryptionKey != nil {
-					expectedKey := diskNameToEncryptionKey[tpgresource.GetResourceNameFromSelfLink(disk.Source)].Sha256
-					if disk.DiskEncryptionKey.Sha256 != expectedKey {
-						return fmt.Errorf("Disk %d has unexpected encryption key in GCP.\nExpected: %s\nActual: %s", i, expectedKey, disk.DiskEncryptionKey.Sha256)
+				if diskKey != nil {
+					expectedKey, _ := diskNameToEncryptionKey[tpgresource.GetResourceNameFromSelfLink(source)]["sha256"].(string)
+					sha256, _ := diskKey["sha256"].(string)
+					if sha256 != expectedKey {
+						return fmt.Errorf("Disk %d has unexpected encryption key in GCP.\nExpected: %s\nActual: %s", i, expectedKey, sha256)
 					}
 				}
 			}
@@ -4907,7 +5048,7 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 			diskName := tpgresource.GetResourceNameFromSelfLink(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)])
 			encryptionKey := rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.disk_encryption_key_sha256", i)]
 			if key, ok := diskNameToEncryptionKey[diskName]; ok {
-				expectedEncryptionKey := key.Sha256
+				expectedEncryptionKey, _ := key["sha256"].(string)
 				if encryptionKey != expectedEncryptionKey {
 					return fmt.Errorf("Attached disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, encryptionKey)
 				}
@@ -4917,28 +5058,37 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 	}
 }
 
-func testAccCheckComputeInstanceDiskKmsEncryptionKey(n string, instance *compute.Instance, bootDiskEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey) resource.TestCheckFunc {
+func testAccCheckComputeInstanceDiskKmsEncryptionKey(n string, instance *map[string]interface{}, bootDiskEncryptionKey string, diskNameToEncryptionKey map[string]map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		for i, disk := range instance.Disks {
-			if disk.Boot {
+		disks, _ := (*instance)["disks"].([]interface{})
+		for i, raw := range disks {
+			disk, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			boot, _ := disk["boot"].(bool)
+			source, _ := disk["source"].(string)
+			diskKey, _ := disk["diskEncryptionKey"].(map[string]interface{})
+			if boot {
 				attr := rs.Primary.Attributes["boot_disk.0.kms_key_self_link"]
 				if attr != bootDiskEncryptionKey {
 					return fmt.Errorf("Boot disk has wrong encryption key in state.\nExpected: %s\nActual: %s", bootDiskEncryptionKey, attr)
 				}
-				if disk.DiskEncryptionKey == nil && attr != "" {
+				if diskKey == nil && attr != "" {
 					return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", i, attr)
 				}
 			} else {
-				if disk.DiskEncryptionKey != nil {
-					expectedKey := diskNameToEncryptionKey[tpgresource.GetResourceNameFromSelfLink(disk.Source)].KmsKeyName
+				if diskKey != nil {
+					expectedKey, _ := diskNameToEncryptionKey[tpgresource.GetResourceNameFromSelfLink(source)]["kmsKeyName"].(string)
+					kmsKeyName, _ := diskKey["kmsKeyName"].(string)
 					// The response for crypto keys often includes the version of the key which needs to be removed
 					// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
-					actualKey := strings.Split(disk.DiskEncryptionKey.KmsKeyName, "/cryptoKeyVersions")[0]
+					actualKey := strings.Split(kmsKeyName, "/cryptoKeyVersions")[0]
 					if actualKey != expectedKey {
 						return fmt.Errorf("Disk %d has unexpected encryption key in GCP.\nExpected: %s\nActual: %s", i, expectedKey, actualKey)
 					}
@@ -4954,7 +5104,7 @@ func testAccCheckComputeInstanceDiskKmsEncryptionKey(n string, instance *compute
 			diskName := tpgresource.GetResourceNameFromSelfLink(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)])
 			kmsKeyName := rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.kms_key_self_link", i)]
 			if key, ok := diskNameToEncryptionKey[diskName]; ok {
-				expectedEncryptionKey := key.KmsKeyName
+				expectedEncryptionKey, _ := key["kmsKeyName"].(string)
 				if kmsKeyName != expectedEncryptionKey {
 					return fmt.Errorf("Attached disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, kmsKeyName)
 				}
@@ -4964,13 +5114,16 @@ func testAccCheckComputeInstanceDiskKmsEncryptionKey(n string, instance *compute
 	}
 }
 
-func testAccCheckComputeInstanceTag(instance *compute.Instance, n string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTag(instance *map[string]interface{}, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.Tags == nil {
+		tags, ok := (*instance)["tags"].(map[string]interface{})
+		if !ok {
 			return fmt.Errorf("no tags")
 		}
 
-		for _, k := range instance.Tags.Items {
+		items, _ := tags["items"].([]interface{})
+		for _, raw := range items {
+			k, _ := raw.(string)
 			if k == n {
 				return nil
 			}
@@ -4980,37 +5133,42 @@ func testAccCheckComputeInstanceTag(instance *compute.Instance, n string) resour
 	}
 }
 
-func testAccCheckComputeInstanceLabel(instance *compute.Instance, key string, value string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceLabel(instance *map[string]interface{}, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.Labels == nil {
-			return fmt.Errorf("no labels found on instance %s", instance.Name)
+		name, _ := (*instance)["name"].(string)
+		labels, ok := (*instance)["labels"].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("no labels found on instance %s", name)
 		}
 
-		v, ok := instance.Labels[key]
+		v, ok := labels[key]
 		if !ok {
-			return fmt.Errorf("No label found with key %s on instance %s", key, instance.Name)
+			return fmt.Errorf("No label found with key %s on instance %s", key, name)
 		}
-		if v != value {
-			return fmt.Errorf("Expected value '%s' but found value '%s' for label '%s' on instance %s", value, v, key, instance.Name)
+		vStr, _ := v.(string)
+		if vStr != value {
+			return fmt.Errorf("Expected value '%s' but found value '%s' for label '%s' on instance %s", value, vStr, key, name)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceAttributionLabel(instance *compute.Instance, present bool) resource.TestCheckFunc {
+func testAccCheckComputeInstanceAttributionLabel(instance *map[string]interface{}, present bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.Labels == nil {
+		name, _ := (*instance)["name"].(string)
+		labels, ok := (*instance)["labels"].(map[string]interface{})
+		if !ok {
 			if present {
-				return fmt.Errorf("no labels found on instance %s", instance.Name)
+				return fmt.Errorf("no labels found on instance %s", name)
 			}
 			return nil
 		}
 
-		_, ok := instance.Labels["goog-terraform-provisioned"]
+		_, ok = labels["goog-terraform-provisioned"]
 		if ok {
 			if !present {
-				return fmt.Errorf("Attribution label found on instance %s", instance.Name)
+				return fmt.Errorf("Attribution label found on instance %s", name)
 			}
 		}
 
@@ -5018,14 +5176,18 @@ func testAccCheckComputeInstanceAttributionLabel(instance *compute.Instance, pre
 	}
 }
 
-func testAccCheckComputeInstanceServiceAccount(instance *compute.Instance, scope string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceServiceAccount(instance *map[string]interface{}, scope string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if count := len(instance.ServiceAccounts); count != 1 {
+		serviceAccounts, _ := (*instance)["serviceAccounts"].([]interface{})
+		if count := len(serviceAccounts); count != 1 {
 			return fmt.Errorf("Wrong number of ServiceAccounts: expected 1, got %d", count)
 		}
 
-		for _, val := range instance.ServiceAccounts[0].Scopes {
-			if val == scope {
+		sa, _ := serviceAccounts[0].(map[string]interface{})
+		scopes, _ := sa["scopes"].([]interface{})
+		for _, val := range scopes {
+			valStr, _ := val.(string)
+			if valStr == scope {
 				return nil
 			}
 		}
@@ -5034,22 +5196,25 @@ func testAccCheckComputeInstanceServiceAccount(instance *compute.Instance, scope
 	}
 }
 
-func testAccCheckComputeInstanceNoServiceAccount(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceNoServiceAccount(instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if count := len(instance.ServiceAccounts); count != 0 {
+		serviceAccounts, _ := (*instance)["serviceAccounts"].([]interface{})
+		if count := len(serviceAccounts); count != 0 {
 			return fmt.Errorf("Wrong number of ServiceAccounts: expected 0, got %d", count)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceMatchServiceAccount(instance *compute.Instance, serviceAcctRegexp string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceMatchServiceAccount(instance *map[string]interface{}, serviceAcctRegexp string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if count := len(instance.ServiceAccounts); count != 1 {
+		serviceAccounts, _ := (*instance)["serviceAccounts"].([]interface{})
+		if count := len(serviceAccounts); count != 1 {
 			return fmt.Errorf("Wrong number of ServiceAccounts: expected 1, got %d", count)
 		}
 
-		email := instance.ServiceAccounts[0].Email
+		sa, _ := serviceAccounts[0].(map[string]interface{})
+		email, _ := sa["email"].(string)
 		if !regexp.MustCompile(serviceAcctRegexp).MatchString(email) {
 			return fmt.Errorf("ServiceAccount email didn't match:\"%s\", got \"%s\"", serviceAcctRegexp, email)
 		}
@@ -5058,21 +5223,24 @@ func testAccCheckComputeInstanceMatchServiceAccount(instance *compute.Instance, 
 	}
 }
 
-func testAccCheckComputeInstanceScopes(instance *compute.Instance, scopeCount int) resource.TestCheckFunc {
+func testAccCheckComputeInstanceScopes(instance *map[string]interface{}, scopeCount int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		serviceAccounts, _ := (*instance)["serviceAccounts"].([]interface{})
 
-		if count := len(instance.ServiceAccounts); count == 0 {
+		if count := len(serviceAccounts); count == 0 {
 			if scopeCount == 0 {
 				return nil
 			} else {
 				return fmt.Errorf("Scope count expected: %s, but got %s", fmt.Sprint(scopeCount), fmt.Sprint(count))
 			}
 		} else {
-			if count := len(instance.ServiceAccounts); count != 1 {
+			if count := len(serviceAccounts); count != 1 {
 				return fmt.Errorf("Wrong number of ServiceAccounts: expected 1, got %d", count)
 			}
 
-			if scount := len(instance.ServiceAccounts[0].Scopes); scount == scopeCount {
+			sa, _ := serviceAccounts[0].(map[string]interface{})
+			scopes, _ := sa["scopes"].([]interface{})
+			if scount := len(scopes); scount == scopeCount {
 				return nil
 			} else {
 				return fmt.Errorf("Scope count expected: %s, but got %s", fmt.Sprint(scopeCount), fmt.Sprint(scount))
@@ -5081,10 +5249,15 @@ func testAccCheckComputeInstanceScopes(instance *compute.Instance, scopeCount in
 	}
 }
 
-func testAccCheckComputeInstanceHasSubnet(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasSubnet(instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, i := range instance.NetworkInterfaces {
-			if i.Subnetwork == "" {
+		nics, _ := (*instance)["networkInterfaces"].([]interface{})
+		for _, raw := range nics {
+			i, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if subnet, _ := i["subnetwork"].(string); subnet == "" {
 				return fmt.Errorf("no subnet")
 			}
 		}
@@ -5093,10 +5266,15 @@ func testAccCheckComputeInstanceHasSubnet(instance *compute.Instance) resource.T
 	}
 }
 
-func testAccCheckComputeInstanceHasAnyNetworkIP(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasAnyNetworkIP(instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, i := range instance.NetworkInterfaces {
-			if i.NetworkIP == "" {
+		nics, _ := (*instance)["networkInterfaces"].([]interface{})
+		for _, raw := range nics {
+			i, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if networkIP, _ := i["networkIP"].(string); networkIP == "" {
 				return fmt.Errorf("no network_ip")
 			}
 		}
@@ -5105,11 +5283,17 @@ func testAccCheckComputeInstanceHasAnyNetworkIP(instance *compute.Instance) reso
 	}
 }
 
-func testAccCheckComputeInstanceHasNetworkIP(instance *compute.Instance, networkIP string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasNetworkIP(instance *map[string]interface{}, networkIP string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, i := range instance.NetworkInterfaces {
-			if i.NetworkIP != networkIP {
-				return fmt.Errorf("Wrong network_ip found: expected %v, got %v", networkIP, i.NetworkIP)
+		nics, _ := (*instance)["networkInterfaces"].([]interface{})
+		for _, raw := range nics {
+			i, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			got, _ := i["networkIP"].(string)
+			if got != networkIP {
+				return fmt.Errorf("Wrong network_ip found: expected %v, got %v", networkIP, got)
 			}
 		}
 
@@ -5117,50 +5301,58 @@ func testAccCheckComputeInstanceHasNetworkIP(instance *compute.Instance, network
 	}
 }
 
-func testAccCheckComputeInstanceHasNetworkPerformanceConfig(instance *compute.Instance, bandwidthTier string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasNetworkPerformanceConfig(instance *map[string]interface{}, bandwidthTier string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.NetworkPerformanceConfig == nil {
+		npc, ok := (*instance)["networkPerformanceConfig"].(map[string]interface{})
+		if !ok {
 			return fmt.Errorf("Expected instance to have network performance config, but it was nil")
 		}
-		if instance.NetworkPerformanceConfig.TotalEgressBandwidthTier != bandwidthTier {
-			return fmt.Errorf("Incorrect network_performance_config.total_egress_bandwidth_tier found: expected %v, got %v", bandwidthTier, instance.NetworkPerformanceConfig.TotalEgressBandwidthTier)
+		got, _ := npc["totalEgressBandwidthTier"].(string)
+		if got != bandwidthTier {
+			return fmt.Errorf("Incorrect network_performance_config.total_egress_bandwidth_tier found: expected %v, got %v", bandwidthTier, got)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasMultiNic(instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if len(instance.NetworkInterfaces) < 2 {
-			return fmt.Errorf("only saw %d nics", len(instance.NetworkInterfaces))
+		nics, _ := (*instance)["networkInterfaces"].([]interface{})
+		if len(nics) < 2 {
+			return fmt.Errorf("only saw %d nics", len(nics))
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceHasGuestAccelerator(instance *compute.Instance, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasGuestAccelerator(instance *map[string]interface{}, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if len(instance.GuestAccelerators) != 1 {
+		accels, _ := (*instance)["guestAccelerators"].([]interface{})
+		if len(accels) != 1 {
 			return fmt.Errorf("Expected only one guest accelerator")
 		}
 
-		if !strings.HasSuffix(instance.GuestAccelerators[0].AcceleratorType, acceleratorType) {
-			return fmt.Errorf("Wrong accelerator type: expected %v, got %v", acceleratorType, instance.GuestAccelerators[0].AcceleratorType)
+		first, _ := accels[0].(map[string]interface{})
+		gotType, _ := first["acceleratorType"].(string)
+		if !strings.HasSuffix(gotType, acceleratorType) {
+			return fmt.Errorf("Wrong accelerator type: expected %v, got %v", acceleratorType, gotType)
 		}
 
-		if instance.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
-			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instance.GuestAccelerators[0].AcceleratorCount)
+		gotCount, _ := first["acceleratorCount"].(float64)
+		if int64(gotCount) != acceleratorCount {
+			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, int64(gotCount))
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceLacksGuestAccelerator(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceLacksGuestAccelerator(instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if len(instance.GuestAccelerators) > 0 {
+		accels, _ := (*instance)["guestAccelerators"].([]interface{})
+		if len(accels) > 0 {
 			return fmt.Errorf("Expected no guest accelerators")
 		}
 
@@ -5168,20 +5360,27 @@ func testAccCheckComputeInstanceLacksGuestAccelerator(instance *compute.Instance
 	}
 }
 
-func testAccCheckComputeInstanceHasMinCpuPlatform(instance *compute.Instance, minCpuPlatform string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasMinCpuPlatform(instance *map[string]interface{}, minCpuPlatform string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.MinCpuPlatform != minCpuPlatform {
-			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instance.MinCpuPlatform)
+		got, _ := (*instance)["minCpuPlatform"].(string)
+		if got != minCpuPlatform {
+			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, got)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceHasNetworkAttachment(instance *compute.Instance, networkAttachmentName string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasNetworkAttachment(instance *map[string]interface{}, networkAttachmentName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, networkInterface := range instance.NetworkInterfaces {
-			if networkInterface.NetworkAttachment != "" && networkInterface.NetworkAttachment == networkAttachmentName {
+		nics, _ := (*instance)["networkInterfaces"].([]interface{})
+		for _, raw := range nics {
+			ni, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			na, _ := ni["networkAttachment"].(string)
+			if na != "" && na == networkAttachmentName {
 				return nil
 			}
 		}
@@ -5189,9 +5388,10 @@ func testAccCheckComputeInstanceHasNetworkAttachment(instance *compute.Instance,
 	}
 }
 
-func testAccCheckComputeInstanceHasMachineType(instance *compute.Instance, machineType string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasMachineType(instance *map[string]interface{}, machineType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		instanceMachineType := tpgresource.GetResourceNameFromSelfLink(instance.MachineType)
+		mt, _ := (*instance)["machineType"].(string)
+		instanceMachineType := tpgresource.GetResourceNameFromSelfLink(mt)
 		if instanceMachineType != machineType {
 			return fmt.Errorf("Wrong machine type: expected %s, got %s", machineType, instanceMachineType)
 		}
@@ -5200,11 +5400,23 @@ func testAccCheckComputeInstanceHasMachineType(instance *compute.Instance, machi
 	}
 }
 
-func testAccCheckComputeInstanceHasAliasIpRange(instance *compute.Instance, subnetworkRangeName, iPCidrRange string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasAliasIpRange(instance *map[string]interface{}, subnetworkRangeName, iPCidrRange string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, networkInterface := range instance.NetworkInterfaces {
-			for _, aliasIpRange := range networkInterface.AliasIpRanges {
-				if aliasIpRange.SubnetworkRangeName == subnetworkRangeName && (aliasIpRange.IpCidrRange == iPCidrRange || tpgcompute.IpCidrRangeDiffSuppress("ip_cidr_range", aliasIpRange.IpCidrRange, iPCidrRange, nil)) {
+		nics, _ := (*instance)["networkInterfaces"].([]interface{})
+		for _, rawNi := range nics {
+			ni, ok := rawNi.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			ranges, _ := ni["aliasIpRanges"].([]interface{})
+			for _, rawRange := range ranges {
+				aliasIpRange, ok := rawRange.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				name, _ := aliasIpRange["subnetworkRangeName"].(string)
+				cidr, _ := aliasIpRange["ipCidrRange"].(string)
+				if name == subnetworkRangeName && (cidr == iPCidrRange || tpgcompute.IpCidrRangeDiffSuppress("ip_cidr_range", cidr, iPCidrRange, nil)) {
 					return nil
 				}
 			}
@@ -5227,37 +5439,46 @@ func testAccCheckComputeInstanceHasAssignedNatIP(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeInstanceHasConfiguredDeletionProtection(instance *compute.Instance, configuredDeletionProtection bool) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasConfiguredDeletionProtection(instance *map[string]interface{}, configuredDeletionProtection bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.DeletionProtection != configuredDeletionProtection {
-			return fmt.Errorf("Wrong deletion protection flag: expected %t, got %t", configuredDeletionProtection, instance.DeletionProtection)
+		got, _ := (*instance)["deletionProtection"].(bool)
+		if got != configuredDeletionProtection {
+			return fmt.Errorf("Wrong deletion protection flag: expected %t, got %t", configuredDeletionProtection, got)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceHasReservationAffinity(instance *compute.Instance, reservationType string, specificReservationNames ...string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasReservationAffinity(instance *map[string]interface{}, reservationType string, specificReservationNames ...string) resource.TestCheckFunc {
 	if len(specificReservationNames) > 1 {
 		panic("too many specificReservationNames provided in test")
 	}
 
 	return func(*terraform.State) error {
-		if instance.ReservationAffinity == nil {
+		ra, ok := (*instance)["reservationAffinity"].(map[string]interface{})
+		if !ok {
 			return fmt.Errorf("expected instance to have reservation affinity, but it was nil")
 		}
 
-		if instance.ReservationAffinity.ConsumeReservationType != reservationType {
-			return fmt.Errorf("Wrong reservationAffinity consumeReservationType: expected %s, got, %s", reservationType, instance.ReservationAffinity.ConsumeReservationType)
+		gotType, _ := ra["consumeReservationType"].(string)
+		if gotType != reservationType {
+			return fmt.Errorf("Wrong reservationAffinity consumeReservationType: expected %s, got, %s", reservationType, gotType)
 		}
 
 		if len(specificReservationNames) > 0 {
 			const reservationNameKey = "compute.googleapis.com/reservation-name"
-			if instance.ReservationAffinity.Key != reservationNameKey {
-				return fmt.Errorf("Wrong reservationAffinity key: expected %s, got, %s", reservationNameKey, instance.ReservationAffinity.Key)
+			gotKey, _ := ra["key"].(string)
+			if gotKey != reservationNameKey {
+				return fmt.Errorf("Wrong reservationAffinity key: expected %s, got, %s", reservationNameKey, gotKey)
 			}
-			if len(instance.ReservationAffinity.Values) != 1 || instance.ReservationAffinity.Values[0] != specificReservationNames[0] {
-				return fmt.Errorf("Wrong reservationAffinity values: expected %s, got, %s", specificReservationNames, instance.ReservationAffinity.Values)
+			values, _ := ra["values"].([]interface{})
+			if len(values) != 1 {
+				return fmt.Errorf("Wrong reservationAffinity values: expected %s, got, %v", specificReservationNames, values)
+			}
+			firstVal, _ := values[0].(string)
+			if firstVal != specificReservationNames[0] {
+				return fmt.Errorf("Wrong reservationAffinity values: expected %s, got, %v", specificReservationNames, values)
 			}
 		}
 
@@ -5265,41 +5486,48 @@ func testAccCheckComputeInstanceHasReservationAffinity(instance *compute.Instanc
 	}
 }
 
-func testAccCheckComputeInstanceHasShieldedVmConfig(instance *compute.Instance, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasShieldedVmConfig(instance *map[string]interface{}, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
-		if instance.ShieldedInstanceConfig.EnableSecureBoot != enableSecureBoot {
-			return fmt.Errorf("Wrong shieldedVmConfig enableSecureBoot: expected %t, got, %t", enableSecureBoot, instance.ShieldedInstanceConfig.EnableSecureBoot)
+		sic, _ := (*instance)["shieldedInstanceConfig"].(map[string]interface{})
+		gotSecureBoot, _ := sic["enableSecureBoot"].(bool)
+		if gotSecureBoot != enableSecureBoot {
+			return fmt.Errorf("Wrong shieldedVmConfig enableSecureBoot: expected %t, got, %t", enableSecureBoot, gotSecureBoot)
 		}
 
-		if instance.ShieldedInstanceConfig.EnableVtpm != enableVtpm {
-			return fmt.Errorf("Wrong shieldedVmConfig enableVtpm: expected %t, got, %t", enableVtpm, instance.ShieldedInstanceConfig.EnableVtpm)
+		gotVtpm, _ := sic["enableVtpm"].(bool)
+		if gotVtpm != enableVtpm {
+			return fmt.Errorf("Wrong shieldedVmConfig enableVtpm: expected %t, got, %t", enableVtpm, gotVtpm)
 		}
 
-		if instance.ShieldedInstanceConfig.EnableIntegrityMonitoring != enableIntegrityMonitoring {
-			return fmt.Errorf("Wrong shieldedVmConfig enableIntegrityMonitoring: expected %t, got, %t", enableIntegrityMonitoring, instance.ShieldedInstanceConfig.EnableIntegrityMonitoring)
+		gotIM, _ := sic["enableIntegrityMonitoring"].(bool)
+		if gotIM != enableIntegrityMonitoring {
+			return fmt.Errorf("Wrong shieldedVmConfig enableIntegrityMonitoring: expected %t, got, %t", enableIntegrityMonitoring, gotIM)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceHasConfidentialInstanceConfig(instance *compute.Instance, EnableConfidentialCompute bool, ConfidentialInstanceType string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasConfidentialInstanceConfig(instance *map[string]interface{}, EnableConfidentialCompute bool, ConfidentialInstanceType string) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
-		if instance.ConfidentialInstanceConfig.EnableConfidentialCompute != EnableConfidentialCompute {
-			return fmt.Errorf("Wrong ConfidentialInstanceConfig EnableConfidentialCompute: expected %t, got, %t", EnableConfidentialCompute, instance.ConfidentialInstanceConfig.EnableConfidentialCompute)
+		cic, _ := (*instance)["confidentialInstanceConfig"].(map[string]interface{})
+		gotEnable, _ := cic["enableConfidentialCompute"].(bool)
+		if gotEnable != EnableConfidentialCompute {
+			return fmt.Errorf("Wrong ConfidentialInstanceConfig EnableConfidentialCompute: expected %t, got, %t", EnableConfidentialCompute, gotEnable)
 		}
-		if instance.ConfidentialInstanceConfig.ConfidentialInstanceType != ConfidentialInstanceType {
-			return fmt.Errorf("Wrong ConfidentialInstanceConfig ConfidentialInstanceType: expected %s, got, %s", ConfidentialInstanceType, instance.ConfidentialInstanceConfig.ConfidentialInstanceType)
+		gotType, _ := cic["confidentialInstanceType"].(string)
+		if gotType != ConfidentialInstanceType {
+			return fmt.Errorf("Wrong ConfidentialInstanceConfig ConfidentialInstanceType: expected %s, got, %s", ConfidentialInstanceType, gotType)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceLacksShieldedVmConfig(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceLacksShieldedVmConfig(instance *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.ShieldedInstanceConfig != nil {
+		if _, ok := (*instance)["shieldedInstanceConfig"].(map[string]interface{}); ok {
 			return fmt.Errorf("Expected no shielded vm config")
 		}
 
@@ -5307,10 +5535,11 @@ func testAccCheckComputeInstanceLacksShieldedVmConfig(instance *compute.Instance
 	}
 }
 
-func testAccCheckComputeInstanceHasStatus(instance *compute.Instance, status string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasStatus(instance *map[string]interface{}, status string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.Status != status {
-			return fmt.Errorf("Instance has not status %s, status: %s", status, instance.Status)
+		got, _ := (*instance)["status"].(string)
+		if got != status {
+			return fmt.Errorf("Instance has not status %s, status: %s", status, got)
 		}
 		return nil
 	}
@@ -6336,7 +6565,7 @@ resource "google_compute_instance" "foobar" {
 `, instance)
 }
 
-func testAccComputeInstance_disks_encryption(bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance, suffix string) string {
+func testAccComputeInstance_disks_encryption(bootEncryptionKey string, diskNameToEncryptionKey map[string]map[string]interface{}, instance, suffix string) string {
 	diskNames := []string{}
 	for k := range diskNameToEncryptionKey {
 		diskNames = append(diskNames, k)
@@ -6429,15 +6658,15 @@ resource "google_compute_instance" "foobar" {
 
   allow_stopping_for_update = true
 }
-`, diskNames[0], diskNameToEncryptionKey[diskNames[0]].RawKey,
-		diskNames[1], diskNameToEncryptionKey[diskNames[1]].RawKey,
-		diskNames[2], diskNameToEncryptionKey[diskNames[2]].RawKey,
+`, diskNames[0], diskNameToEncryptionKey[diskNames[0]]["rawKey"],
+		diskNames[1], diskNameToEncryptionKey[diskNames[1]]["rawKey"],
+		diskNames[2], diskNameToEncryptionKey[diskNames[2]]["rawKey"],
 		"tf-testd-"+suffix,
 		instance, bootEncryptionKey,
-		diskNameToEncryptionKey[diskNames[0]].RawKey, diskNameToEncryptionKey[diskNames[1]].RawKey, diskNameToEncryptionKey[diskNames[2]].RawKey)
+		diskNameToEncryptionKey[diskNames[0]]["rawKey"], diskNameToEncryptionKey[diskNames[1]]["rawKey"], diskNameToEncryptionKey[diskNames[2]]["rawKey"])
 }
 
-func testAccComputeInstance_disks_encryption_restart(bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance string) string {
+func testAccComputeInstance_disks_encryption_restart(bootEncryptionKey string, diskNameToEncryptionKey map[string]map[string]interface{}, instance string) string {
 	diskNames := []string{}
 	for k := range diskNameToEncryptionKey {
 		diskNames = append(diskNames, k)
@@ -6486,12 +6715,12 @@ resource "google_compute_instance" "foobar" {
 
   allow_stopping_for_update = true
 }
-`, diskNames[0], diskNameToEncryptionKey[diskNames[0]].RawKey,
+`, diskNames[0], diskNameToEncryptionKey[diskNames[0]]["rawKey"],
 		instance, bootEncryptionKey,
-		diskNameToEncryptionKey[diskNames[0]].RawKey)
+		diskNameToEncryptionKey[diskNames[0]]["rawKey"])
 }
 
-func testAccComputeInstance_disks_encryption_restartUpdate(bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance string) string {
+func testAccComputeInstance_disks_encryption_restartUpdate(bootEncryptionKey string, diskNameToEncryptionKey map[string]map[string]interface{}, instance string) string {
 	diskNames := []string{}
 	for k := range diskNameToEncryptionKey {
 		diskNames = append(diskNames, k)
@@ -6540,12 +6769,12 @@ resource "google_compute_instance" "foobar" {
 
   allow_stopping_for_update = true
 }
-`, diskNames[0], diskNameToEncryptionKey[diskNames[0]].RawKey,
+`, diskNames[0], diskNameToEncryptionKey[diskNames[0]]["rawKey"],
 		instance, bootEncryptionKey,
-		diskNameToEncryptionKey[diskNames[0]].RawKey)
+		diskNameToEncryptionKey[diskNames[0]]["rawKey"])
 }
 
-func testAccComputeInstance_disks_kms(bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance, suffix string) string {
+func testAccComputeInstance_disks_kms(bootEncryptionKey string, diskNameToEncryptionKey map[string]map[string]interface{}, instance, suffix string) string {
 	diskNames := []string{}
 	for k := range diskNameToEncryptionKey {
 		diskNames = append(diskNames, k)
@@ -6635,12 +6864,12 @@ resource "google_compute_instance" "foobar" {
     foo = "bar"
   }
 }
-`, diskNames[0], diskNameToEncryptionKey[diskNames[0]].KmsKeyName,
-		diskNames[1], diskNameToEncryptionKey[diskNames[1]].KmsKeyName,
-		diskNames[2], diskNameToEncryptionKey[diskNames[2]].KmsKeyName,
+`, diskNames[0], diskNameToEncryptionKey[diskNames[0]]["kmsKeyName"],
+		diskNames[1], diskNameToEncryptionKey[diskNames[1]]["kmsKeyName"],
+		diskNames[2], diskNameToEncryptionKey[diskNames[2]]["kmsKeyName"],
 		"tf-testd-"+suffix,
 		instance, bootEncryptionKey,
-		diskNameToEncryptionKey[diskNames[0]].KmsKeyName, diskNameToEncryptionKey[diskNames[1]].KmsKeyName)
+		diskNameToEncryptionKey[diskNames[0]]["kmsKeyName"], diskNameToEncryptionKey[diskNames[1]]["kmsKeyName"])
 }
 
 func testAccComputeInstance_instanceSchedule(instance, schedule string) string {
