@@ -34,7 +34,7 @@ import (
 
 func testAccAccessContextManagerServicePerimeterDryRunResource_basicTest(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
-	projects := acctest.BootstrapServicePerimeterProjects(t, 2)
+	projects := BootstrapServicePerimeterProjects(t, 2)
 	policyTitle := "my policy"
 	perimeterTitle := "perimeter"
 

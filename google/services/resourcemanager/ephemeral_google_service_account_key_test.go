@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
 )
 
 func TestAccEphemeralServiceAccountKey_create(t *testing.T) {
@@ -143,7 +144,7 @@ func TestAccEphemeralServiceAccountKey_fetch(t *testing.T) {
 	t.Parallel()
 
 	serviceAccount := envvar.GetTestServiceAccountFromEnv(t)
-	targetServiceAccountEmail := acctest.BootstrapServiceAccount(t, "key-basic", serviceAccount)
+	targetServiceAccountEmail := iambeta.BootstrapServiceAccount(t, "key-basic", serviceAccount)
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),

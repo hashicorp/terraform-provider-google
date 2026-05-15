@@ -22,12 +22,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 func TestAccOSConfigV2PolicyOrchestrator_basic(t *testing.T) {
 	t.Parallel()
 
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@gcp-sa-osconfig.iam.gserviceaccount.com",
 			Role:   "roles/osconfig.serviceAgent",

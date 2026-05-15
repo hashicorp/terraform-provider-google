@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/privateca"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -530,7 +531,7 @@ resource "google_privateca_ca_pool" "default" {
 func TestAccPrivatecaCaPool_CmekKeyUpdate(t *testing.T) {
 	t.Parallel()
 
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@gcp-sa-privateca.iam.gserviceaccount.com",
 			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",

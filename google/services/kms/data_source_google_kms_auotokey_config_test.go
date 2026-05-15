@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
 	tpgserviceusage "github.com/hashicorp/terraform-provider-google/google/services/serviceusage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -131,13 +132,13 @@ func setupAutokeyTestResources(t *testing.T, config *transport_tpg.Config) (*res
 		t.Errorf("unable to bootstrap KMS keyHandle. Cannot get current usr: %s", err)
 	}
 	// create a folder to configure autokey config and resource folder
-	autokeyFolder := acctest.BootstrapFolder(t, defaultAutokeyTestFolderName)
+	autokeyFolder := BootstrapFolder(t, defaultAutokeyTestFolderName)
 	parent := &cloudresourcemanager.ResourceId{
 		Type: "folder",
 		Id:   strings.Split(autokeyFolder.Name, "/")[1],
 	}
 	// create and setup kms project for hosting keyring and keys for autokey
-	kmsProject := acctest.BootstrapProjectWithParent(t, defaultAutokeyTestKmsProject, envvar.GetTestBillingAccountFromEnv(t), parent, []string{CloudKmsSrviceName})
+	kmsProject := resourcemanager.BootstrapProjectWithParent(t, defaultAutokeyTestKmsProject, envvar.GetTestBillingAccountFromEnv(t), parent, []string{CloudKmsSrviceName})
 	kmsProjectID := fmt.Sprintf("projects/%s", kmsProject.ProjectId)
 	kmsSAEmail, err := GenerateCloudKmsServiceIdentity(config, fmt.Sprintf("%v", kmsProject.ProjectNumber))
 	if err != nil {
@@ -157,7 +158,7 @@ func setupAutokeyTestResources(t *testing.T, config *transport_tpg.Config) (*res
 	}
 
 	// create and setup resource folder to host keyhandle
-	resourceProject := acctest.BootstrapProjectWithParent(t, defaultAutokeyTestResourceProject, envvar.GetTestBillingAccountFromEnv(t), parent, []string{})
+	resourceProject := resourcemanager.BootstrapProjectWithParent(t, defaultAutokeyTestResourceProject, envvar.GetTestBillingAccountFromEnv(t), parent, []string{})
 	return autokeyFolder, kmsProject, resourceProject
 }
 
@@ -275,6 +276,55 @@ func setPolicy(crmService *resourceManagerV3.Service, resourceType string, resou
 		return fmt.Errorf("error setting iam policy: %s", err)
 	}
 	return nil
+}
+
+// BootstrapFolder creates or get a folder having a input folderDisplayName within a TestOrgEnv
+func BootstrapFolder(t *testing.T, folderDisplayName string) *resourceManagerV3.Folder {
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		return nil
+	}
+
+	crmClient := resourcemanagerv3.NewClient(config, config.UserAgent)
+	searchQuery := fmt.Sprintf("displayName=%s", folderDisplayName)
+	folderSearchResp, err := crmClient.Folders.Search().Query(searchQuery).Do()
+	if err != nil {
+		t.Fatalf("error searching for folder with displayName: %s", folderDisplayName)
+	}
+	var folder *resourceManagerV3.Folder
+	if len(folderSearchResp.Folders) == 0 {
+		op, err := crmClient.Folders.Create(&resourceManagerV3.Folder{
+			DisplayName: folderDisplayName,
+			Parent:      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
+		}).Do()
+		if err != nil {
+			t.Fatalf("error bootstrapping test folder: %s", err)
+		}
+
+		opAsMap, err := tpgresource.ConvertToMap(op)
+		if err != nil {
+			t.Fatalf("error converting folder operation map: %s", err)
+		}
+		var responseMap map[string]interface{}
+		err = resourcemanager.ResourceManagerOperationWaitTimeWithResponse(config, opAsMap, &responseMap, "creating folder", config.UserAgent, 4*time.Minute)
+		if err != nil {
+			t.Fatalf("error waiting for create folder operation: %s", err)
+		}
+		folder, err = crmClient.Folders.Get(responseMap["name"].(string)).Do()
+		if err != nil {
+			t.Fatalf("error getting folder: %s", err)
+		}
+	} else {
+		folder = folderSearchResp.Folders[0]
+	}
+
+	if folder.State == "DELETE_REQUESTED" {
+		_, err := crmClient.Folders.Undelete(folder.Name, &resourceManagerV3.UndeleteFolderRequest{}).Do()
+		if err != nil {
+			t.Fatalf("error undeleting folder: %s", err)
+		}
+	}
+	return folder
 }
 
 func TestAccDataSourceGoogleKmsAutokeyConfig_basic(t *testing.T) {

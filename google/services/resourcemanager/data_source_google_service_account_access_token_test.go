@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -50,7 +51,7 @@ func TestAccDataSourceGoogleServiceAccountAccessToken_basic(t *testing.T) {
 
 	resourceName := "data.google_service_account_access_token.default"
 	serviceAccount := envvar.GetTestServiceAccountFromEnv(t)
-	targetServiceAccountEmail := acctest.BootstrapServiceAccount(t, "acctoken", serviceAccount)
+	targetServiceAccountEmail := iambeta.BootstrapServiceAccount(t, "acctoken", serviceAccount)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

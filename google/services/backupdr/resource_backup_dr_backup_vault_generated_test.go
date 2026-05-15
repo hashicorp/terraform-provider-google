@@ -31,6 +31,9 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/backupdr"
+
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -120,7 +123,7 @@ resource "google_backup_dr_backup_vault" "backup-vault-test" {
 
 func TestAccBackupDRBackupVault_backupDrBackupVaultCmekExample(t *testing.T) {
 	t.Parallel()
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@gcp-sa-backupdr.iam.gserviceaccount.com",
 			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",

@@ -31,11 +31,12 @@ import (
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/container"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	cloudkms "google.golang.org/api/cloudkms/v1"
 )
 
 func bootstrapGkeTagManagerServiceAgents(t *testing.T) {
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
 			Role:   "roles/resourcemanager.tagAdmin",
@@ -2887,7 +2888,7 @@ func TestAccContainerCluster_withBootDiskKmsKey(t *testing.T) {
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
 	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
 
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@compute-system.iam.gserviceaccount.com",
 			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
@@ -5327,7 +5328,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsBootDiskKmsKey(t *testi
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
 	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
 
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@compute-system.iam.gserviceaccount.com",
 			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
@@ -6393,7 +6394,7 @@ func TestAccContainerCluster_WithCPAFeatures(t *testing.T) {
 	// *ALL* Cloud KMS keys in the project.  A more realistic usage would be to
 	// grant the service agent the necessary roles only on the individual keys
 	// we have created.
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
 			Role:   "roles/container.cloudKmsKeyUser",
@@ -12926,7 +12927,7 @@ func TestAccContainerCluster_withConfidentialBootDisk(t *testing.T) {
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
 	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
 
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@compute-system.iam.gserviceaccount.com",
 			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
@@ -12992,7 +12993,7 @@ func TestAccContainerCluster_withConfidentialBootDiskNodeConfig(t *testing.T) {
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
 	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
 
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@compute-system.iam.gserviceaccount.com",
 			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
@@ -15754,7 +15755,7 @@ func TestAccContainerCluster_WithCPAFeaturesUpdate(t *testing.T) {
 	// *ALL* Cloud KMS keys in the project.  A more realistic usage would be to
 	// grant the service agent the necessary roles only on the individual keys
 	// we have created.
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
 			Role:   "roles/container.cloudKmsKeyUser",

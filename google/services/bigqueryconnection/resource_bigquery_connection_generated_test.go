@@ -31,6 +31,9 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigqueryconnection"
+
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -579,7 +582,7 @@ resource "google_dataproc_cluster" "basic" {
 
 func TestAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(t *testing.T) {
 	t.Parallel()
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:bq-{project_number}@bigquery-encryption.iam.gserviceaccount.com",
 			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",

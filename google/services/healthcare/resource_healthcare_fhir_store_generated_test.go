@@ -31,6 +31,9 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/healthcare"
+
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -124,7 +127,7 @@ resource "google_healthcare_dataset" "dataset" {
 
 func TestAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(t *testing.T) {
 	t.Parallel()
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@gcp-sa-healthcare.iam.gserviceaccount.com",
 			Role:   "roles/bigquery.dataEditor",
