@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_bigquery_datapolicy_data_policy_iam_member",
 		ProductName: "BigqueryDatapolicy",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(BigqueryDatapolicyDataPolicyIamSchema, BigqueryDatapolicyDataPolicyIamUpdaterProducer, BigqueryDatapolicyDataPolicyIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(BigqueryDatapolicyDataPolicyIamSchema, BigqueryDatapolicyDataPolicyIamUpdaterProducer, BigqueryDatapolicyDataPolicyIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(BigqueryDatapolicyDataPolicyIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_bigquery_datapolicy_data_policy_iam_policy",
@@ -273,6 +273,17 @@ func (u *BigqueryDatapolicyDataPolicyIamUpdater) qualifyDataPolicyUrl(methodIden
 
 func (u *BigqueryDatapolicyDataPolicyIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/dataPolicies/%s", u.project, u.location, u.dataPolicyId)
+}
+
+func BigqueryDatapolicyDataPolicyIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "dataPolicyId", IdentityKey: "data_policy_id"},
+		},
+		UriFormat: "projects/%s/locations/%s/dataPolicies/%s",
+	})
 }
 
 func (u *BigqueryDatapolicyDataPolicyIamUpdater) GetMutexKey() string {

@@ -87,7 +87,6 @@ func TestAccServiceDirectoryNamespaceIamMemberGenerated(t *testing.T) {
 		},
 	})
 }
-
 func TestAccServiceDirectoryNamespaceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 

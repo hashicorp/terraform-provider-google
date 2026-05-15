@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_privateca_certificate_template_iam_member",
 		ProductName: "Privateca",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(PrivatecaCertificateTemplateIamSchema, PrivatecaCertificateTemplateIamUpdaterProducer, PrivatecaCertificateTemplateIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(PrivatecaCertificateTemplateIamSchema, PrivatecaCertificateTemplateIamUpdaterProducer, PrivatecaCertificateTemplateIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(PrivatecaCertificateTemplateIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_privateca_certificate_template_iam_policy",
@@ -277,6 +277,17 @@ func (u *PrivatecaCertificateTemplateIamUpdater) qualifyCertificateTemplateUrl(m
 
 func (u *PrivatecaCertificateTemplateIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", u.project, u.location, u.certificateTemplate)
+}
+
+func PrivatecaCertificateTemplateIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "certificateTemplate", IdentityKey: "certificate_template"},
+		},
+		UriFormat: "projects/%s/locations/%s/certificateTemplates/%s",
+	})
 }
 
 func (u *PrivatecaCertificateTemplateIamUpdater) GetMutexKey() string {

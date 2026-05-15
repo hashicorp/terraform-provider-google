@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_biglake_iceberg_catalog_iam_member",
 		ProductName: "BiglakeIceberg",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(BiglakeIcebergIcebergCatalogIamSchema, BiglakeIcebergIcebergCatalogIamUpdaterProducer, BiglakeIcebergIcebergCatalogIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(BiglakeIcebergIcebergCatalogIamSchema, BiglakeIcebergIcebergCatalogIamUpdaterProducer, BiglakeIcebergIcebergCatalogIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(BiglakeIcebergIcebergCatalogIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_biglake_iceberg_catalog_iam_policy",
@@ -249,6 +249,16 @@ func (u *BiglakeIcebergIcebergCatalogIamUpdater) qualifyIcebergCatalogUrl(method
 
 func (u *BiglakeIcebergIcebergCatalogIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("v1/projects/%s/catalogs/%s", u.project, u.name)
+}
+
+func BiglakeIcebergIcebergCatalogIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "v1/projects/%s/catalogs/%s",
+	})
 }
 
 func (u *BiglakeIcebergIcebergCatalogIamUpdater) GetMutexKey() string {

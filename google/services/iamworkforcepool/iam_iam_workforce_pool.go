@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iam_workforce_pool_iam_member",
 		ProductName: "IAMWorkforcePool",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IAMWorkforcePoolWorkforcePoolIamSchema, IAMWorkforcePoolWorkforcePoolIamUpdaterProducer, IAMWorkforcePoolWorkforcePoolIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(IAMWorkforcePoolWorkforcePoolIamSchema, IAMWorkforcePoolWorkforcePoolIamUpdaterProducer, IAMWorkforcePoolWorkforcePoolIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IAMWorkforcePoolWorkforcePoolIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iam_workforce_pool_iam_policy",
@@ -239,6 +239,16 @@ func (u *IAMWorkforcePoolWorkforcePoolIamUpdater) qualifyWorkforcePoolUrl(method
 
 func (u *IAMWorkforcePoolWorkforcePoolIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("locations/%s/workforcePools/%s", u.location, u.workforcePoolId)
+}
+
+func IAMWorkforcePoolWorkforcePoolIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "location", IdentityKey: "location"},
+			{Key: "workforcePoolId", IdentityKey: "workforce_pool_id"},
+		},
+		UriFormat: "locations/%s/workforcePools/%s",
+	})
 }
 
 func (u *IAMWorkforcePoolWorkforcePoolIamUpdater) GetMutexKey() string {

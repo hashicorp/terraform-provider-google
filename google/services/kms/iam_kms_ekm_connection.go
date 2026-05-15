@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_kms_ekm_connection_iam_member",
 		ProductName: "KMS",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(KMSEkmConnectionIamSchema, KMSEkmConnectionIamUpdaterProducer, KMSEkmConnectionIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(KMSEkmConnectionIamSchema, KMSEkmConnectionIamUpdaterProducer, KMSEkmConnectionIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(KMSEkmConnectionIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_kms_ekm_connection_iam_policy",
@@ -277,6 +277,17 @@ func (u *KMSEkmConnectionIamUpdater) qualifyEkmConnectionUrl(methodIdentifier st
 
 func (u *KMSEkmConnectionIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/ekmConnections/%s", u.project, u.location, u.name)
+}
+
+func KMSEkmConnectionIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "projects/%s/locations/%s/ekmConnections/%s",
+	})
 }
 
 func (u *KMSEkmConnectionIamUpdater) GetMutexKey() string {

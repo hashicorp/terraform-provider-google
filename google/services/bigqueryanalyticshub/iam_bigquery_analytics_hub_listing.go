@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_bigquery_analytics_hub_listing_iam_member",
 		ProductName: "BigqueryAnalyticsHub",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(BigqueryAnalyticsHubListingIamSchema, BigqueryAnalyticsHubListingIamUpdaterProducer, BigqueryAnalyticsHubListingIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(BigqueryAnalyticsHubListingIamSchema, BigqueryAnalyticsHubListingIamUpdaterProducer, BigqueryAnalyticsHubListingIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(BigqueryAnalyticsHubListingIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_bigquery_analytics_hub_listing_iam_policy",
@@ -288,6 +288,18 @@ func (u *BigqueryAnalyticsHubListingIamUpdater) qualifyListingUrl(methodIdentifi
 
 func (u *BigqueryAnalyticsHubListingIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", u.project, u.location, u.dataExchangeId, u.listingId)
+}
+
+func BigqueryAnalyticsHubListingIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "dataExchangeId", IdentityKey: "data_exchange_id"},
+			{Key: "listingId", IdentityKey: "listing_id"},
+		},
+		UriFormat: "projects/%s/locations/%s/dataExchanges/%s/listings/%s",
+	})
 }
 
 func (u *BigqueryAnalyticsHubListingIamUpdater) GetMutexKey() string {

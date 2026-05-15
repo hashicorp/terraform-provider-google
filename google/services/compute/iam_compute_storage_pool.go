@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_compute_storage_pool_iam_member",
 		ProductName: "Compute",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ComputeStoragePoolIamSchema, ComputeStoragePoolIamUpdaterProducer, ComputeStoragePoolIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(ComputeStoragePoolIamSchema, ComputeStoragePoolIamUpdaterProducer, ComputeStoragePoolIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ComputeStoragePoolIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_compute_storage_pool_iam_policy",
@@ -277,6 +277,17 @@ func (u *ComputeStoragePoolIamUpdater) qualifyStoragePoolUrl(methodIdentifier st
 
 func (u *ComputeStoragePoolIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/zones/%s/storagePools/%s", u.project, u.zone, u.name)
+}
+
+func ComputeStoragePoolIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "zone", IdentityKey: "zone"},
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "projects/%s/zones/%s/storagePools/%s",
+	})
 }
 
 func (u *ComputeStoragePoolIamUpdater) GetMutexKey() string {

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_cloudbuildv2_connection_iam_member",
 		ProductName: "Cloudbuildv2",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(Cloudbuildv2ConnectionIamSchema, Cloudbuildv2ConnectionIamUpdaterProducer, Cloudbuildv2ConnectionIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(Cloudbuildv2ConnectionIamSchema, Cloudbuildv2ConnectionIamUpdaterProducer, Cloudbuildv2ConnectionIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(Cloudbuildv2ConnectionIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_cloudbuildv2_connection_iam_policy",
@@ -273,6 +273,17 @@ func (u *Cloudbuildv2ConnectionIamUpdater) qualifyConnectionUrl(methodIdentifier
 
 func (u *Cloudbuildv2ConnectionIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/connections/%s", u.project, u.location, u.name)
+}
+
+func Cloudbuildv2ConnectionIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "projects/%s/locations/%s/connections/%s",
+	})
 }
 
 func (u *Cloudbuildv2ConnectionIamUpdater) GetMutexKey() string {

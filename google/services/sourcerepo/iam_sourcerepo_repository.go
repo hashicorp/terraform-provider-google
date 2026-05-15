@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_sourcerepo_repository_iam_member",
 		ProductName: "SourceRepo",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(SourceRepoRepositoryIamSchema, SourceRepoRepositoryIamUpdaterProducer, SourceRepoRepositoryIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(SourceRepoRepositoryIamSchema, SourceRepoRepositoryIamUpdaterProducer, SourceRepoRepositoryIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(SourceRepoRepositoryIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_sourcerepo_repository_iam_policy",
@@ -257,6 +257,16 @@ func (u *SourceRepoRepositoryIamUpdater) qualifyRepositoryUrl(methodIdentifier s
 
 func (u *SourceRepoRepositoryIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/repos/%s", u.project, u.repository)
+}
+
+func SourceRepoRepositoryIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "repository", IdentityKey: "repository"},
+		},
+		UriFormat: "projects/%s/repos/%s",
+	})
 }
 
 func (u *SourceRepoRepositoryIamUpdater) GetMutexKey() string {

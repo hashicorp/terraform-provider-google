@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_network_connectivity_hub_iam_member",
 		ProductName: "NetworkConnectivity",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(NetworkConnectivityHubIamSchema, NetworkConnectivityHubIamUpdaterProducer, NetworkConnectivityHubIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(NetworkConnectivityHubIamSchema, NetworkConnectivityHubIamUpdaterProducer, NetworkConnectivityHubIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(NetworkConnectivityHubIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_network_connectivity_hub_iam_policy",
@@ -249,6 +249,16 @@ func (u *NetworkConnectivityHubIamUpdater) qualifyHubUrl(methodIdentifier string
 
 func (u *NetworkConnectivityHubIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/global/hubs/%s", u.project, u.hub)
+}
+
+func NetworkConnectivityHubIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "hub", IdentityKey: "hub"},
+		},
+		UriFormat: "projects/%s/locations/global/hubs/%s",
+	})
 }
 
 func (u *NetworkConnectivityHubIamUpdater) GetMutexKey() string {

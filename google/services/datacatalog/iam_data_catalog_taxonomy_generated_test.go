@@ -87,7 +87,6 @@ func TestAccDataCatalogTaxonomyIamMemberGenerated(t *testing.T) {
 		},
 	})
 }
-
 func TestAccDataCatalogTaxonomyIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 

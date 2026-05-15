@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_cloud_tasks_queue_iam_member",
 		ProductName: "CloudTasks",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer, CloudTasksQueueIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer, CloudTasksQueueIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(CloudTasksQueueIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_cloud_tasks_queue_iam_policy",
@@ -273,6 +273,17 @@ func (u *CloudTasksQueueIamUpdater) qualifyQueueUrl(methodIdentifier string) (st
 
 func (u *CloudTasksQueueIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/queues/%s", u.project, u.location, u.name)
+}
+
+func CloudTasksQueueIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "projects/%s/locations/%s/queues/%s",
+	})
 }
 
 func (u *CloudTasksQueueIamUpdater) GetMutexKey() string {

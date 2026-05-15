@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_binary_authorization_attestor_iam_member",
 		ProductName: "BinaryAuthorization",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(BinaryAuthorizationAttestorIamSchema, BinaryAuthorizationAttestorIamUpdaterProducer, BinaryAuthorizationAttestorIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(BinaryAuthorizationAttestorIamSchema, BinaryAuthorizationAttestorIamUpdaterProducer, BinaryAuthorizationAttestorIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(BinaryAuthorizationAttestorIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_binary_authorization_attestor_iam_policy",
@@ -249,6 +249,16 @@ func (u *BinaryAuthorizationAttestorIamUpdater) qualifyAttestorUrl(methodIdentif
 
 func (u *BinaryAuthorizationAttestorIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/attestors/%s", u.project, u.attestor)
+}
+
+func BinaryAuthorizationAttestorIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "attestor", IdentityKey: "attestor"},
+		},
+		UriFormat: "projects/%s/attestors/%s",
+	})
 }
 
 func (u *BinaryAuthorizationAttestorIamUpdater) GetMutexKey() string {

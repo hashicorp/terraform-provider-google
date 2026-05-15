@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_compute_instant_snapshot_iam_member",
 		ProductName: "Compute",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ComputeInstantSnapshotIamSchema, ComputeInstantSnapshotIamUpdaterProducer, ComputeInstantSnapshotIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(ComputeInstantSnapshotIamSchema, ComputeInstantSnapshotIamUpdaterProducer, ComputeInstantSnapshotIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ComputeInstantSnapshotIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_compute_instant_snapshot_iam_policy",
@@ -277,6 +277,17 @@ func (u *ComputeInstantSnapshotIamUpdater) qualifyInstantSnapshotUrl(methodIdent
 
 func (u *ComputeInstantSnapshotIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s", u.project, u.zone, u.name)
+}
+
+func ComputeInstantSnapshotIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "zone", IdentityKey: "zone"},
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "projects/%s/zones/%s/instantSnapshots/%s",
+	})
 }
 
 func (u *ComputeInstantSnapshotIamUpdater) GetMutexKey() string {

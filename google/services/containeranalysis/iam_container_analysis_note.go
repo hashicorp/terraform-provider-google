@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_container_analysis_note_iam_member",
 		ProductName: "ContainerAnalysis",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer, ContainerAnalysisNoteIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer, ContainerAnalysisNoteIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ContainerAnalysisNoteIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_container_analysis_note_iam_policy",
@@ -249,6 +249,16 @@ func (u *ContainerAnalysisNoteIamUpdater) qualifyNoteUrl(methodIdentifier string
 
 func (u *ContainerAnalysisNoteIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/notes/%s", u.project, u.note)
+}
+
+func ContainerAnalysisNoteIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "note", IdentityKey: "note"},
+		},
+		UriFormat: "projects/%s/notes/%s",
+	})
 }
 
 func (u *ContainerAnalysisNoteIamUpdater) GetMutexKey() string {

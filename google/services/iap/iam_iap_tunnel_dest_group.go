@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iap_tunnel_dest_group_iam_member",
 		ProductName: "Iap",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IapTunnelDestGroupIamSchema, IapTunnelDestGroupIamUpdaterProducer, IapTunnelDestGroupIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(IapTunnelDestGroupIamSchema, IapTunnelDestGroupIamUpdaterProducer, IapTunnelDestGroupIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IapTunnelDestGroupIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iap_tunnel_dest_group_iam_policy",
@@ -278,6 +278,17 @@ func (u *IapTunnelDestGroupIamUpdater) qualifyTunnelDestGroupUrl(methodIdentifie
 
 func (u *IapTunnelDestGroupIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/iap_tunnel/locations/%s/destGroups/%s", u.project, u.region, u.destGroup)
+}
+
+func IapTunnelDestGroupIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "region", IdentityKey: "region"},
+			{Key: "destGroup", IdentityKey: "dest_group"},
+		},
+		UriFormat: "projects/%s/iap_tunnel/locations/%s/destGroups/%s",
+	})
 }
 
 func (u *IapTunnelDestGroupIamUpdater) GetMutexKey() string {

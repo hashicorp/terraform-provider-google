@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iap_web_region_backend_service_iam_member",
 		ProductName: "Iap",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IapWebRegionBackendServiceIamSchema, IapWebRegionBackendServiceIamUpdaterProducer, IapWebRegionBackendServiceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(IapWebRegionBackendServiceIamSchema, IapWebRegionBackendServiceIamUpdaterProducer, IapWebRegionBackendServiceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IapWebRegionBackendServiceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iap_web_region_backend_service_iam_policy",
@@ -278,6 +278,17 @@ func (u *IapWebRegionBackendServiceIamUpdater) qualifyWebRegionBackendServiceUrl
 
 func (u *IapWebRegionBackendServiceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/iap_web/compute-%s/services/%s", u.project, u.region, u.webRegionBackendService)
+}
+
+func IapWebRegionBackendServiceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "region", IdentityKey: "region"},
+			{Key: "webRegionBackendService", IdentityKey: "web_region_backend_service"},
+		},
+		UriFormat: "projects/%s/iap_web/compute-%s/services/%s",
+	})
 }
 
 func (u *IapWebRegionBackendServiceIamUpdater) GetMutexKey() string {

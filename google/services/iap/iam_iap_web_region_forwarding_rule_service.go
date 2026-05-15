@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iap_web_region_forwarding_rule_service_iam_member",
 		ProductName: "Iap",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IapWebRegionForwardingRuleServiceIamSchema, IapWebRegionForwardingRuleServiceIamUpdaterProducer, IapWebRegionForwardingRuleServiceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(IapWebRegionForwardingRuleServiceIamSchema, IapWebRegionForwardingRuleServiceIamUpdaterProducer, IapWebRegionForwardingRuleServiceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IapWebRegionForwardingRuleServiceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iap_web_region_forwarding_rule_service_iam_policy",
@@ -278,6 +278,17 @@ func (u *IapWebRegionForwardingRuleServiceIamUpdater) qualifyWebRegionForwarding
 
 func (u *IapWebRegionForwardingRuleServiceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/iap_web/forwarding_rule-%s/services/%s", u.project, u.region, u.forwardingRuleRegionServiceName)
+}
+
+func IapWebRegionForwardingRuleServiceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "region", IdentityKey: "region"},
+			{Key: "forwardingRuleRegionServiceName", IdentityKey: "forwarding_rule_region_service_name"},
+		},
+		UriFormat: "projects/%s/iap_web/forwarding_rule-%s/services/%s",
+	})
 }
 
 func (u *IapWebRegionForwardingRuleServiceIamUpdater) GetMutexKey() string {

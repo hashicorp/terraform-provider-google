@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_bigquery_table_iam_member",
 		ProductName: "BigQuery",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(BigQueryTableIamSchema, BigQueryTableIamUpdaterProducer, BigQueryTableIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(BigQueryTableIamSchema, BigQueryTableIamUpdaterProducer, BigQueryTableIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(BigQueryTableIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_bigquery_table_iam_policy",
@@ -266,6 +266,17 @@ func (u *BigQueryTableIamUpdater) qualifyTableUrl(methodIdentifier string) (stri
 
 func (u *BigQueryTableIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/datasets/%s/tables/%s", u.project, u.datasetId, u.tableId)
+}
+
+func BigQueryTableIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "datasetId", IdentityKey: "dataset_id"},
+			{Key: "tableId", IdentityKey: "table_id"},
+		},
+		UriFormat: "projects/%s/datasets/%s/tables/%s",
+	})
 }
 
 func (u *BigQueryTableIamUpdater) GetMutexKey() string {

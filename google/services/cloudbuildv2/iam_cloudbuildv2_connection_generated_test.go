@@ -87,7 +87,6 @@ func TestAccCloudbuildv2ConnectionIamMemberGenerated(t *testing.T) {
 		},
 	})
 }
-
 func TestAccCloudbuildv2ConnectionIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_network_security_address_group_iam_member",
 		ProductName: "NetworkSecurity",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(NetworkSecurityProjectAddressGroupIamSchema, NetworkSecurityProjectAddressGroupIamUpdaterProducer, NetworkSecurityProjectAddressGroupIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(NetworkSecurityProjectAddressGroupIamSchema, NetworkSecurityProjectAddressGroupIamUpdaterProducer, NetworkSecurityProjectAddressGroupIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(NetworkSecurityProjectAddressGroupIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_network_security_address_group_iam_policy",
@@ -273,6 +273,17 @@ func (u *NetworkSecurityProjectAddressGroupIamUpdater) qualifyProjectAddressGrou
 
 func (u *NetworkSecurityProjectAddressGroupIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/addressGroups/%s", u.project, u.location, u.name)
+}
+
+func NetworkSecurityProjectAddressGroupIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "projects/%s/locations/%s/addressGroups/%s",
+	})
 }
 
 func (u *NetworkSecurityProjectAddressGroupIamUpdater) GetMutexKey() string {

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_data_catalog_tag_template_iam_member",
 		ProductName: "DataCatalog",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataCatalogTagTemplateIamSchema, DataCatalogTagTemplateIamUpdaterProducer, DataCatalogTagTemplateIdParseFunc, tpgiamresource.IamWithDeprecationMessage("The parent resource has been deprecated: `google_data_catalog_tag_template` is deprecated and will be removed in a future major release. Use `google_dataplex_aspect_type` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.")),
+		Schema:      tpgiamresource.ResourceIamMember(DataCatalogTagTemplateIamSchema, DataCatalogTagTemplateIamUpdaterProducer, DataCatalogTagTemplateIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataCatalogTagTemplateIamParentParentResourceIdentityParser), tpgiamresource.IamWithDeprecationMessage("The parent resource has been deprecated: `google_data_catalog_tag_template` is deprecated and will be removed in a future major release. Use `google_dataplex_aspect_type` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.")),
 	}.Register()
 	registry.Schema{
 		Name:        "google_data_catalog_tag_template_iam_policy",
@@ -273,6 +273,17 @@ func (u *DataCatalogTagTemplateIamUpdater) qualifyTagTemplateUrl(methodIdentifie
 
 func (u *DataCatalogTagTemplateIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s", u.project, u.region, u.tagTemplate)
+}
+
+func DataCatalogTagTemplateIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "region", IdentityKey: "region"},
+			{Key: "tagTemplate", IdentityKey: "tag_template"},
+		},
+		UriFormat: "projects/%s/locations/%s/tagTemplates/%s",
+	})
 }
 
 func (u *DataCatalogTagTemplateIamUpdater) GetMutexKey() string {

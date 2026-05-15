@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_secure_source_manager_instance_iam_member",
 		ProductName: "SecureSourceManager",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(SecureSourceManagerInstanceIamSchema, SecureSourceManagerInstanceIamUpdaterProducer, SecureSourceManagerInstanceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(SecureSourceManagerInstanceIamSchema, SecureSourceManagerInstanceIamUpdaterProducer, SecureSourceManagerInstanceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(SecureSourceManagerInstanceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_secure_source_manager_instance_iam_policy",
@@ -273,6 +273,17 @@ func (u *SecureSourceManagerInstanceIamUpdater) qualifyInstanceUrl(methodIdentif
 
 func (u *SecureSourceManagerInstanceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/instances/%s", u.project, u.location, u.instanceId)
+}
+
+func SecureSourceManagerInstanceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "instanceId", IdentityKey: "instance_id"},
+		},
+		UriFormat: "projects/%s/locations/%s/instances/%s",
+	})
 }
 
 func (u *SecureSourceManagerInstanceIamUpdater) GetMutexKey() string {

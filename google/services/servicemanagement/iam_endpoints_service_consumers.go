@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_endpoints_service_consumers_iam_member",
 		ProductName: "ServiceManagement",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ServiceManagementServiceConsumersIamSchema, ServiceManagementServiceConsumersIamUpdaterProducer, ServiceManagementServiceConsumersIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(ServiceManagementServiceConsumersIamSchema, ServiceManagementServiceConsumersIamUpdaterProducer, ServiceManagementServiceConsumersIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ServiceManagementServiceConsumersIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_endpoints_service_consumers_iam_policy",
@@ -230,6 +230,16 @@ func (u *ServiceManagementServiceConsumersIamUpdater) qualifyServiceConsumersUrl
 
 func (u *ServiceManagementServiceConsumersIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("services/%s/consumers/%s", u.serviceName, u.consumerProject)
+}
+
+func ServiceManagementServiceConsumersIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "serviceName", IdentityKey: "service_name"},
+			{Key: "consumerProject", IdentityKey: "consumer_project"},
+		},
+		UriFormat: "services/%s/consumers/%s",
+	})
 }
 
 func (u *ServiceManagementServiceConsumersIamUpdater) GetMutexKey() string {

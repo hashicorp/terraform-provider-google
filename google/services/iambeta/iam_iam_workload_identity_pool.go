@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iam_workload_identity_pool_iam_member",
 		ProductName: "IAMBeta",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IAMBetaWorkloadIdentityPoolIamSchema, IAMBetaWorkloadIdentityPoolIamUpdaterProducer, IAMBetaWorkloadIdentityPoolIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(IAMBetaWorkloadIdentityPoolIamSchema, IAMBetaWorkloadIdentityPoolIamUpdaterProducer, IAMBetaWorkloadIdentityPoolIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IAMBetaWorkloadIdentityPoolIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iam_workload_identity_pool_iam_policy",
@@ -254,6 +254,16 @@ func (u *IAMBetaWorkloadIdentityPoolIamUpdater) qualifyWorkloadIdentityPoolUrl(m
 
 func (u *IAMBetaWorkloadIdentityPoolIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/global/workloadIdentityPools/%s", u.project, u.workloadIdentityPoolId)
+}
+
+func IAMBetaWorkloadIdentityPoolIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "workloadIdentityPoolId", IdentityKey: "workload_identity_pool_id"},
+		},
+		UriFormat: "projects/%s/locations/global/workloadIdentityPools/%s",
+	})
 }
 
 func (u *IAMBetaWorkloadIdentityPoolIamUpdater) GetMutexKey() string {

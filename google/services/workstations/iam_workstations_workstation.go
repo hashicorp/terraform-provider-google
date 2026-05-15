@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_workstations_workstation_iam_member",
 		ProductName: "Workstations",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(WorkstationsWorkstationIamSchema, WorkstationsWorkstationIamUpdaterProducer, WorkstationsWorkstationIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(WorkstationsWorkstationIamSchema, WorkstationsWorkstationIamUpdaterProducer, WorkstationsWorkstationIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(WorkstationsWorkstationIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_workstations_workstation_iam_policy",
@@ -303,6 +303,19 @@ func (u *WorkstationsWorkstationIamUpdater) qualifyWorkstationUrl(methodIdentifi
 
 func (u *WorkstationsWorkstationIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/workstationClusters/%s/workstationConfigs/%s/workstations/%s", u.project, u.location, u.workstationClusterId, u.workstationConfigId, u.workstationId)
+}
+
+func WorkstationsWorkstationIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "workstationClusterId", IdentityKey: "workstation_cluster_id"},
+			{Key: "workstationConfigId", IdentityKey: "workstation_config_id"},
+			{Key: "workstationId", IdentityKey: "workstation_id"},
+		},
+		UriFormat: "projects/%s/locations/%s/workstationClusters/%s/workstationConfigs/%s/workstations/%s",
+	})
 }
 
 func (u *WorkstationsWorkstationIamUpdater) GetMutexKey() string {

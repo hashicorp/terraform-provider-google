@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_colab_runtime_template_iam_member",
 		ProductName: "Colab",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ColabRuntimeTemplateIamSchema, ColabRuntimeTemplateIamUpdaterProducer, ColabRuntimeTemplateIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(ColabRuntimeTemplateIamSchema, ColabRuntimeTemplateIamUpdaterProducer, ColabRuntimeTemplateIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ColabRuntimeTemplateIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_colab_runtime_template_iam_policy",
@@ -273,6 +273,17 @@ func (u *ColabRuntimeTemplateIamUpdater) qualifyRuntimeTemplateUrl(methodIdentif
 
 func (u *ColabRuntimeTemplateIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/notebookRuntimeTemplates/%s", u.project, u.location, u.runtimeTemplate)
+}
+
+func ColabRuntimeTemplateIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "runtimeTemplate", IdentityKey: "runtime_template"},
+		},
+		UriFormat: "projects/%s/locations/%s/notebookRuntimeTemplates/%s",
+	})
 }
 
 func (u *ColabRuntimeTemplateIamUpdater) GetMutexKey() string {

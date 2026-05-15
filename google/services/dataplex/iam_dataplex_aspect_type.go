@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dataplex_aspect_type_iam_member",
 		ProductName: "Dataplex",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataplexAspectTypeIamSchema, DataplexAspectTypeIamUpdaterProducer, DataplexAspectTypeIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(DataplexAspectTypeIamSchema, DataplexAspectTypeIamUpdaterProducer, DataplexAspectTypeIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataplexAspectTypeIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dataplex_aspect_type_iam_policy",
@@ -273,6 +273,17 @@ func (u *DataplexAspectTypeIamUpdater) qualifyAspectTypeUrl(methodIdentifier str
 
 func (u *DataplexAspectTypeIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/aspectTypes/%s", u.project, u.location, u.aspectTypeId)
+}
+
+func DataplexAspectTypeIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "aspectTypeId", IdentityKey: "aspect_type_id"},
+		},
+		UriFormat: "projects/%s/locations/%s/aspectTypes/%s",
+	})
 }
 
 func (u *DataplexAspectTypeIamUpdater) GetMutexKey() string {

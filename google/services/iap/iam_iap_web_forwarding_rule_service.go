@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iap_web_forwarding_rule_service_iam_member",
 		ProductName: "Iap",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IapWebForwardingRuleServiceIamSchema, IapWebForwardingRuleServiceIamUpdaterProducer, IapWebForwardingRuleServiceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(IapWebForwardingRuleServiceIamSchema, IapWebForwardingRuleServiceIamUpdaterProducer, IapWebForwardingRuleServiceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IapWebForwardingRuleServiceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iap_web_forwarding_rule_service_iam_policy",
@@ -254,6 +254,16 @@ func (u *IapWebForwardingRuleServiceIamUpdater) qualifyWebForwardingRuleServiceU
 
 func (u *IapWebForwardingRuleServiceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s", u.project, u.forwardingRuleServiceName)
+}
+
+func IapWebForwardingRuleServiceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "forwardingRuleServiceName", IdentityKey: "forwarding_rule_service_name"},
+		},
+		UriFormat: "projects/%s/iap_web/forwarding_rule/services/%s",
+	})
 }
 
 func (u *IapWebForwardingRuleServiceIamUpdater) GetMutexKey() string {

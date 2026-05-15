@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dataplex_task_iam_member",
 		ProductName: "Dataplex",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataplexTaskIamSchema, DataplexTaskIamUpdaterProducer, DataplexTaskIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(DataplexTaskIamSchema, DataplexTaskIamUpdaterProducer, DataplexTaskIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataplexTaskIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dataplex_task_iam_policy",
@@ -288,6 +288,18 @@ func (u *DataplexTaskIamUpdater) qualifyTaskUrl(methodIdentifier string) (string
 
 func (u *DataplexTaskIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/lakes/%s/tasks/%s", u.project, u.location, u.lake, u.taskId)
+}
+
+func DataplexTaskIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "lake", IdentityKey: "lake"},
+			{Key: "taskId", IdentityKey: "task_id"},
+		},
+		UriFormat: "projects/%s/locations/%s/lakes/%s/tasks/%s",
+	})
 }
 
 func (u *DataplexTaskIamUpdater) GetMutexKey() string {

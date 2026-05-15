@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_cloud_run_v2_worker_pool_iam_member",
 		ProductName: "CloudRunV2",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(CloudRunV2WorkerPoolIamSchema, CloudRunV2WorkerPoolIamUpdaterProducer, CloudRunV2WorkerPoolIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(CloudRunV2WorkerPoolIamSchema, CloudRunV2WorkerPoolIamUpdaterProducer, CloudRunV2WorkerPoolIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(CloudRunV2WorkerPoolIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_cloud_run_v2_worker_pool_iam_policy",
@@ -273,6 +273,17 @@ func (u *CloudRunV2WorkerPoolIamUpdater) qualifyWorkerPoolUrl(methodIdentifier s
 
 func (u *CloudRunV2WorkerPoolIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", u.project, u.location, u.name)
+}
+
+func CloudRunV2WorkerPoolIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "projects/%s/locations/%s/workerPools/%s",
+	})
 }
 
 func (u *CloudRunV2WorkerPoolIamUpdater) GetMutexKey() string {

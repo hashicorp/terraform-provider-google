@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_compute_subnetwork_iam_member",
 		ProductName: "Compute",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ComputeSubnetworkIamSchema, ComputeSubnetworkIamUpdaterProducer, ComputeSubnetworkIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(ComputeSubnetworkIamSchema, ComputeSubnetworkIamUpdaterProducer, ComputeSubnetworkIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ComputeSubnetworkIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_compute_subnetwork_iam_policy",
@@ -277,6 +277,17 @@ func (u *ComputeSubnetworkIamUpdater) qualifySubnetworkUrl(methodIdentifier stri
 
 func (u *ComputeSubnetworkIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", u.project, u.region, u.subnetwork)
+}
+
+func ComputeSubnetworkIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "region", IdentityKey: "region"},
+			{Key: "subnetwork", IdentityKey: "subnetwork"},
+		},
+		UriFormat: "projects/%s/regions/%s/subnetworks/%s",
+	})
 }
 
 func (u *ComputeSubnetworkIamUpdater) GetMutexKey() string {

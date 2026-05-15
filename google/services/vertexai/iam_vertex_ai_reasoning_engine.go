@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_vertex_ai_reasoning_engine_iam_member",
 		ProductName: "VertexAI",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(VertexAIReasoningEngineIamSchema, VertexAIReasoningEngineIamUpdaterProducer, VertexAIReasoningEngineIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(VertexAIReasoningEngineIamSchema, VertexAIReasoningEngineIamUpdaterProducer, VertexAIReasoningEngineIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(VertexAIReasoningEngineIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_vertex_ai_reasoning_engine_iam_policy",
@@ -273,6 +273,17 @@ func (u *VertexAIReasoningEngineIamUpdater) qualifyReasoningEngineUrl(methodIden
 
 func (u *VertexAIReasoningEngineIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/reasoningEngines/%s", u.project, u.region, u.reasoningEngine)
+}
+
+func VertexAIReasoningEngineIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "region", IdentityKey: "region"},
+			{Key: "reasoningEngine", IdentityKey: "reasoning_engine"},
+		},
+		UriFormat: "projects/%s/locations/%s/reasoningEngines/%s",
+	})
 }
 
 func (u *VertexAIReasoningEngineIamUpdater) GetMutexKey() string {
