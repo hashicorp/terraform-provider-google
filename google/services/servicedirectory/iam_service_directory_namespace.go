@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_service_directory_namespace_iam_member",
 		ProductName: "ServiceDirectory",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ServiceDirectoryNamespaceIamSchema, ServiceDirectoryNamespaceIamUpdaterProducer, ServiceDirectoryNamespaceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(ServiceDirectoryNamespaceIamSchema, ServiceDirectoryNamespaceIamUpdaterProducer, ServiceDirectoryNamespaceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ServiceDirectoryNamespaceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_service_directory_namespace_iam_policy",
@@ -215,6 +215,15 @@ func (u *ServiceDirectoryNamespaceIamUpdater) qualifyNamespaceUrl(methodIdentifi
 
 func (u *ServiceDirectoryNamespaceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("%s", u.name)
+}
+
+func ServiceDirectoryNamespaceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "%s",
+	})
 }
 
 func (u *ServiceDirectoryNamespaceIamUpdater) GetMutexKey() string {

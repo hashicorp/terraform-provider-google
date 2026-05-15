@@ -101,7 +101,6 @@ func TestAccLoggingLogViewIamMemberGenerated(t *testing.T) {
 		},
 	})
 }
-
 func TestAccLoggingLogViewIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iap_web_type_app_engine_iam_member",
 		ProductName: "Iap",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IapWebTypeAppEngineIamSchema, IapWebTypeAppEngineIamUpdaterProducer, IapWebTypeAppEngineIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(IapWebTypeAppEngineIamSchema, IapWebTypeAppEngineIamUpdaterProducer, IapWebTypeAppEngineIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IapWebTypeAppEngineIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iap_web_type_app_engine_iam_policy",
@@ -267,6 +267,16 @@ func (u *IapWebTypeAppEngineIamUpdater) qualifyWebTypeAppEngineUrl(methodIdentif
 
 func (u *IapWebTypeAppEngineIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/iap_web/appengine-%s", u.project, u.appId)
+}
+
+func IapWebTypeAppEngineIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "appId", IdentityKey: "app_id"},
+		},
+		UriFormat: "projects/%s/iap_web/appengine-%s",
+	})
 }
 
 func (u *IapWebTypeAppEngineIamUpdater) GetMutexKey() string {

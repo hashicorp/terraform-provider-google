@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_tags_tag_value_iam_member",
 		ProductName: "Tags",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(TagsTagValueIamSchema, TagsTagValueIamUpdaterProducer, TagsTagValueIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(TagsTagValueIamSchema, TagsTagValueIamUpdaterProducer, TagsTagValueIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(TagsTagValueIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_tags_tag_value_iam_policy",
@@ -220,6 +220,15 @@ func (u *TagsTagValueIamUpdater) qualifyTagValueUrl(methodIdentifier string) (st
 
 func (u *TagsTagValueIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("tagValues/%s", u.tagValue)
+}
+
+func TagsTagValueIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "tagValue", IdentityKey: "tag_value"},
+		},
+		UriFormat: "tagValues/%s",
+	})
 }
 
 func (u *TagsTagValueIamUpdater) GetMutexKey() string {

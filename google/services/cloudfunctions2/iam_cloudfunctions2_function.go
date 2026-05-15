@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_cloudfunctions2_function_iam_member",
 		ProductName: "Cloudfunctions2",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(Cloudfunctions2functionIamSchema, Cloudfunctions2functionIamUpdaterProducer, Cloudfunctions2functionIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(Cloudfunctions2functionIamSchema, Cloudfunctions2functionIamUpdaterProducer, Cloudfunctions2functionIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(Cloudfunctions2functionIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_cloudfunctions2_function_iam_policy",
@@ -273,6 +273,17 @@ func (u *Cloudfunctions2functionIamUpdater) qualifyfunctionUrl(methodIdentifier 
 
 func (u *Cloudfunctions2functionIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/functions/%s", u.project, u.location, u.cloudFunction)
+}
+
+func Cloudfunctions2functionIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "cloudFunction", IdentityKey: "cloud_function"},
+		},
+		UriFormat: "projects/%s/locations/%s/functions/%s",
+	})
 }
 
 func (u *Cloudfunctions2functionIamUpdater) GetMutexKey() string {

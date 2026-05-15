@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dataplex_entry_type_iam_member",
 		ProductName: "Dataplex",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataplexEntryTypeIamSchema, DataplexEntryTypeIamUpdaterProducer, DataplexEntryTypeIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(DataplexEntryTypeIamSchema, DataplexEntryTypeIamUpdaterProducer, DataplexEntryTypeIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataplexEntryTypeIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dataplex_entry_type_iam_policy",
@@ -273,6 +273,17 @@ func (u *DataplexEntryTypeIamUpdater) qualifyEntryTypeUrl(methodIdentifier strin
 
 func (u *DataplexEntryTypeIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/entryTypes/%s", u.project, u.location, u.entryTypeId)
+}
+
+func DataplexEntryTypeIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "entryTypeId", IdentityKey: "entry_type_id"},
+		},
+		UriFormat: "projects/%s/locations/%s/entryTypes/%s",
+	})
 }
 
 func (u *DataplexEntryTypeIamUpdater) GetMutexKey() string {

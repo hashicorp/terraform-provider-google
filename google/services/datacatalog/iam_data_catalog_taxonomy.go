@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_data_catalog_taxonomy_iam_member",
 		ProductName: "DataCatalog",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataCatalogTaxonomyIamSchema, DataCatalogTaxonomyIamUpdaterProducer, DataCatalogTaxonomyIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(DataCatalogTaxonomyIamSchema, DataCatalogTaxonomyIamUpdaterProducer, DataCatalogTaxonomyIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataCatalogTaxonomyIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_data_catalog_taxonomy_iam_policy",
@@ -273,6 +273,17 @@ func (u *DataCatalogTaxonomyIamUpdater) qualifyTaxonomyUrl(methodIdentifier stri
 
 func (u *DataCatalogTaxonomyIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/taxonomies/%s", u.project, u.region, u.taxonomy)
+}
+
+func DataCatalogTaxonomyIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "region", IdentityKey: "region"},
+			{Key: "taxonomy", IdentityKey: "taxonomy"},
+		},
+		UriFormat: "projects/%s/locations/%s/taxonomies/%s",
+	})
 }
 
 func (u *DataCatalogTaxonomyIamUpdater) GetMutexKey() string {

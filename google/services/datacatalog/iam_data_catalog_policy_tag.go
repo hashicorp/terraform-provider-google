@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_data_catalog_policy_tag_iam_member",
 		ProductName: "DataCatalog",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataCatalogPolicyTagIamSchema, DataCatalogPolicyTagIamUpdaterProducer, DataCatalogPolicyTagIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(DataCatalogPolicyTagIamSchema, DataCatalogPolicyTagIamUpdaterProducer, DataCatalogPolicyTagIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataCatalogPolicyTagIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_data_catalog_policy_tag_iam_policy",
@@ -215,6 +215,15 @@ func (u *DataCatalogPolicyTagIamUpdater) qualifyPolicyTagUrl(methodIdentifier st
 
 func (u *DataCatalogPolicyTagIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("%s", u.policyTag)
+}
+
+func DataCatalogPolicyTagIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "policyTag", IdentityKey: "policy_tag"},
+		},
+		UriFormat: "%s",
+	})
 }
 
 func (u *DataCatalogPolicyTagIamUpdater) GetMutexKey() string {

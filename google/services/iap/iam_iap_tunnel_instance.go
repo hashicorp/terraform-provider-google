@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iap_tunnel_instance_iam_member",
 		ProductName: "Iap",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IapTunnelInstanceIamSchema, IapTunnelInstanceIamUpdaterProducer, IapTunnelInstanceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(IapTunnelInstanceIamSchema, IapTunnelInstanceIamUpdaterProducer, IapTunnelInstanceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IapTunnelInstanceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iap_tunnel_instance_iam_policy",
@@ -278,6 +278,17 @@ func (u *IapTunnelInstanceIamUpdater) qualifyTunnelInstanceUrl(methodIdentifier 
 
 func (u *IapTunnelInstanceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/iap_tunnel/zones/%s/instances/%s", u.project, u.zone, u.instance)
+}
+
+func IapTunnelInstanceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "zone", IdentityKey: "zone"},
+			{Key: "instance", IdentityKey: "instance"},
+		},
+		UriFormat: "projects/%s/iap_tunnel/zones/%s/instances/%s",
+	})
 }
 
 func (u *IapTunnelInstanceIamUpdater) GetMutexKey() string {

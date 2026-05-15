@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dns_managed_zone_iam_member",
 		ProductName: "DNS",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DNSManagedZoneIamSchema, DNSManagedZoneIamUpdaterProducer, DNSManagedZoneIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(DNSManagedZoneIamSchema, DNSManagedZoneIamUpdaterProducer, DNSManagedZoneIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DNSManagedZoneIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dns_managed_zone_iam_policy",
@@ -255,6 +255,16 @@ func (u *DNSManagedZoneIamUpdater) qualifyManagedZoneUrl(methodIdentifier string
 
 func (u *DNSManagedZoneIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/managedZones/%s", u.project, u.managedZone)
+}
+
+func DNSManagedZoneIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "managedZone", IdentityKey: "managed_zone"},
+		},
+		UriFormat: "projects/%s/managedZones/%s",
+	})
 }
 
 func (u *DNSManagedZoneIamUpdater) GetMutexKey() string {

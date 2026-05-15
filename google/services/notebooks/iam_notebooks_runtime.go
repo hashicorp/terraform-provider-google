@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_notebooks_runtime_iam_member",
 		ProductName: "Notebooks",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc, tpgiamresource.IamWithDeprecationMessage("The parent resource has been deprecated: `google_notebooks_runtime` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.")),
+		Schema:      tpgiamresource.ResourceIamMember(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(NotebooksRuntimeIamParentParentResourceIdentityParser), tpgiamresource.IamWithDeprecationMessage("The parent resource has been deprecated: `google_notebooks_runtime` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.")),
 	}.Register()
 	registry.Schema{
 		Name:        "google_notebooks_runtime_iam_policy",
@@ -273,6 +273,17 @@ func (u *NotebooksRuntimeIamUpdater) qualifyRuntimeUrl(methodIdentifier string) 
 
 func (u *NotebooksRuntimeIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/runtimes/%s", u.project, u.location, u.runtimeName)
+}
+
+func NotebooksRuntimeIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "runtimeName", IdentityKey: "runtime_name"},
+		},
+		UriFormat: "projects/%s/locations/%s/runtimes/%s",
+	})
 }
 
 func (u *NotebooksRuntimeIamUpdater) GetMutexKey() string {

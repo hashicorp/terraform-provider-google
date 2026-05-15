@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_privateca_ca_pool_iam_member",
 		ProductName: "Privateca",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(PrivatecaCaPoolIamSchema, PrivatecaCaPoolIamUpdaterProducer, PrivatecaCaPoolIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(PrivatecaCaPoolIamSchema, PrivatecaCaPoolIamUpdaterProducer, PrivatecaCaPoolIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(PrivatecaCaPoolIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_privateca_ca_pool_iam_policy",
@@ -277,6 +277,17 @@ func (u *PrivatecaCaPoolIamUpdater) qualifyCaPoolUrl(methodIdentifier string) (s
 
 func (u *PrivatecaCaPoolIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/caPools/%s", u.project, u.location, u.caPool)
+}
+
+func PrivatecaCaPoolIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "caPool", IdentityKey: "ca_pool"},
+		},
+		UriFormat: "projects/%s/locations/%s/caPools/%s",
+	})
 }
 
 func (u *PrivatecaCaPoolIamUpdater) GetMutexKey() string {

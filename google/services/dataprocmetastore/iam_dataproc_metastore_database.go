@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dataproc_metastore_database_iam_member",
 		ProductName: "DataprocMetastore",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataprocMetastoreDatabaseIamSchema, DataprocMetastoreDatabaseIamUpdaterProducer, DataprocMetastoreDatabaseIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(DataprocMetastoreDatabaseIamSchema, DataprocMetastoreDatabaseIamUpdaterProducer, DataprocMetastoreDatabaseIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataprocMetastoreDatabaseIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dataproc_metastore_database_iam_policy",
@@ -288,6 +288,18 @@ func (u *DataprocMetastoreDatabaseIamUpdater) qualifyDatabaseUrl(methodIdentifie
 
 func (u *DataprocMetastoreDatabaseIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/services/%s/databases/%s", u.project, u.location, u.serviceId, u.database)
+}
+
+func DataprocMetastoreDatabaseIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "serviceId", IdentityKey: "service_id"},
+			{Key: "database", IdentityKey: "database"},
+		},
+		UriFormat: "projects/%s/locations/%s/services/%s/databases/%s",
+	})
 }
 
 func (u *DataprocMetastoreDatabaseIamUpdater) GetMutexKey() string {

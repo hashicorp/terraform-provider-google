@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_gke_hub_feature_iam_member",
 		ProductName: "GKEHub2",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(GKEHub2FeatureIamSchema, GKEHub2FeatureIamUpdaterProducer, GKEHub2FeatureIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(GKEHub2FeatureIamSchema, GKEHub2FeatureIamUpdaterProducer, GKEHub2FeatureIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(GKEHub2FeatureIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_gke_hub_feature_iam_policy",
@@ -273,6 +273,17 @@ func (u *GKEHub2FeatureIamUpdater) qualifyFeatureUrl(methodIdentifier string) (s
 
 func (u *GKEHub2FeatureIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/features/%s", u.project, u.location, u.name)
+}
+
+func GKEHub2FeatureIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "projects/%s/locations/%s/features/%s",
+	})
 }
 
 func (u *GKEHub2FeatureIamUpdater) GetMutexKey() string {

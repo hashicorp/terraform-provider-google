@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_cloud_run_service_iam_member",
 		ProductName: "CloudRun",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(CloudRunServiceIamSchema, CloudRunServiceIamUpdaterProducer, CloudRunServiceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(CloudRunServiceIamSchema, CloudRunServiceIamUpdaterProducer, CloudRunServiceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(CloudRunServiceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_cloud_run_service_iam_policy",
@@ -275,6 +275,17 @@ func (u *CloudRunServiceIamUpdater) qualifyServiceUrl(methodIdentifier string) (
 
 func (u *CloudRunServiceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("v1/projects/%s/locations/%s/services/%s", u.project, u.location, u.service)
+}
+
+func CloudRunServiceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "service", IdentityKey: "service"},
+		},
+		UriFormat: "v1/projects/%s/locations/%s/services/%s",
+	})
 }
 
 func (u *CloudRunServiceIamUpdater) GetMutexKey() string {

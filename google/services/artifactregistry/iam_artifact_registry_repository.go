@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_artifact_registry_repository_iam_member",
 		ProductName: "ArtifactRegistry",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ArtifactRegistryRepositoryIamSchema, ArtifactRegistryRepositoryIamUpdaterProducer, ArtifactRegistryRepositoryIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(ArtifactRegistryRepositoryIamSchema, ArtifactRegistryRepositoryIamUpdaterProducer, ArtifactRegistryRepositoryIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ArtifactRegistryRepositoryIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_artifact_registry_repository_iam_policy",
@@ -273,6 +273,17 @@ func (u *ArtifactRegistryRepositoryIamUpdater) qualifyRepositoryUrl(methodIdenti
 
 func (u *ArtifactRegistryRepositoryIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/repositories/%s", u.project, u.location, u.repository)
+}
+
+func ArtifactRegistryRepositoryIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "repository", IdentityKey: "repository"},
+		},
+		UriFormat: "projects/%s/locations/%s/repositories/%s",
+	})
 }
 
 func (u *ArtifactRegistryRepositoryIamUpdater) GetMutexKey() string {

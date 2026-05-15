@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_healthcare_consent_store_iam_member",
 		ProductName: "Healthcare",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(HealthcareConsentStoreIamSchema, HealthcareConsentStoreIamUpdaterProducer, HealthcareConsentStoreIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(HealthcareConsentStoreIamSchema, HealthcareConsentStoreIamUpdaterProducer, HealthcareConsentStoreIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(HealthcareConsentStoreIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_healthcare_consent_store_iam_policy",
@@ -230,6 +230,16 @@ func (u *HealthcareConsentStoreIamUpdater) qualifyConsentStoreUrl(methodIdentifi
 
 func (u *HealthcareConsentStoreIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("%s/consentStores/%s", u.dataset, u.consentStoreId)
+}
+
+func HealthcareConsentStoreIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "dataset", IdentityKey: "dataset"},
+			{Key: "consentStoreId", IdentityKey: "consent_store_id"},
+		},
+		UriFormat: "%s/consentStores/%s",
+	})
 }
 
 func (u *HealthcareConsentStoreIamUpdater) GetMutexKey() string {

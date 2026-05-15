@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_endpoints_service_iam_member",
 		ProductName: "ServiceManagement",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ServiceManagementServiceIamSchema, ServiceManagementServiceIamUpdaterProducer, ServiceManagementServiceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(ServiceManagementServiceIamSchema, ServiceManagementServiceIamUpdaterProducer, ServiceManagementServiceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ServiceManagementServiceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_endpoints_service_iam_policy",
@@ -215,6 +215,15 @@ func (u *ServiceManagementServiceIamUpdater) qualifyServiceUrl(methodIdentifier 
 
 func (u *ServiceManagementServiceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("services/%s", u.serviceName)
+}
+
+func ServiceManagementServiceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "serviceName", IdentityKey: "service_name"},
+		},
+		UriFormat: "services/%s",
+	})
 }
 
 func (u *ServiceManagementServiceIamUpdater) GetMutexKey() string {

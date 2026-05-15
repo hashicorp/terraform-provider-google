@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_pubsub_schema_iam_member",
 		ProductName: "Pubsub",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(PubsubSchemaIamSchema, PubsubSchemaIamUpdaterProducer, PubsubSchemaIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(PubsubSchemaIamSchema, PubsubSchemaIamUpdaterProducer, PubsubSchemaIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(PubsubSchemaIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_pubsub_schema_iam_policy",
@@ -249,6 +249,16 @@ func (u *PubsubSchemaIamUpdater) qualifySchemaUrl(methodIdentifier string) (stri
 
 func (u *PubsubSchemaIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/schemas/%s", u.project, u.schema)
+}
+
+func PubsubSchemaIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "schema", IdentityKey: "schema"},
+		},
+		UriFormat: "projects/%s/schemas/%s",
+	})
 }
 
 func (u *PubsubSchemaIamUpdater) GetMutexKey() string {

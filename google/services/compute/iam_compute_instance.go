@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_compute_instance_iam_member",
 		ProductName: "Compute",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ComputeInstanceIamSchema, ComputeInstanceIamUpdaterProducer, ComputeInstanceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(ComputeInstanceIamSchema, ComputeInstanceIamUpdaterProducer, ComputeInstanceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ComputeInstanceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_compute_instance_iam_policy",
@@ -277,6 +277,17 @@ func (u *ComputeInstanceIamUpdater) qualifyInstanceUrl(methodIdentifier string) 
 
 func (u *ComputeInstanceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/zones/%s/instances/%s", u.project, u.zone, u.instanceName)
+}
+
+func ComputeInstanceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "zone", IdentityKey: "zone"},
+			{Key: "instanceName", IdentityKey: "instance_name"},
+		},
+		UriFormat: "projects/%s/zones/%s/instances/%s",
+	})
 }
 
 func (u *ComputeInstanceIamUpdater) GetMutexKey() string {

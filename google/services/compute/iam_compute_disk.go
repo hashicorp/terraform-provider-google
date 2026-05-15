@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_compute_disk_iam_member",
 		ProductName: "Compute",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ComputeDiskIamSchema, ComputeDiskIamUpdaterProducer, ComputeDiskIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(ComputeDiskIamSchema, ComputeDiskIamUpdaterProducer, ComputeDiskIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ComputeDiskIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_compute_disk_iam_policy",
@@ -273,6 +273,17 @@ func (u *ComputeDiskIamUpdater) qualifyDiskUrl(methodIdentifier string) (string,
 
 func (u *ComputeDiskIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/zones/%s/disks/%s", u.project, u.zone, u.name)
+}
+
+func ComputeDiskIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "zone", IdentityKey: "zone"},
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "projects/%s/zones/%s/disks/%s",
+	})
 }
 
 func (u *ComputeDiskIamUpdater) GetMutexKey() string {

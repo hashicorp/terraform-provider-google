@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iap_tunnel_iam_member",
 		ProductName: "Iap",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IapTunnelIamSchema, IapTunnelIamUpdaterProducer, IapTunnelIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(IapTunnelIamSchema, IapTunnelIamUpdaterProducer, IapTunnelIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IapTunnelIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iap_tunnel_iam_policy",
@@ -241,6 +241,15 @@ func (u *IapTunnelIamUpdater) qualifyTunnelUrl(methodIdentifier string) (string,
 
 func (u *IapTunnelIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/iap_tunnel", u.project)
+}
+
+func IapTunnelIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+		},
+		UriFormat: "projects/%s/iap_tunnel",
+	})
 }
 
 func (u *IapTunnelIamUpdater) GetMutexKey() string {

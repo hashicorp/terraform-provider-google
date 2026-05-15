@@ -87,7 +87,6 @@ func TestAccDataCatalogPolicyTagIamMemberGenerated(t *testing.T) {
 		},
 	})
 }
-
 func TestAccDataCatalogPolicyTagIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 

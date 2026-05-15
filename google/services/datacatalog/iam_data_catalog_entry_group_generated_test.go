@@ -26,6 +26,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -89,6 +90,9 @@ func TestAccDataCatalogEntryGroupIamMemberGenerated(t *testing.T) {
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.RequireAbove(tfversion.Version1_12_0), // resource identity min version
+		},
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
@@ -102,10 +106,14 @@ func TestAccDataCatalogEntryGroupIamMemberGenerated(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:    "google_data_catalog_entry_group_iam_member.foo",
+				ImportState:     true,
+				ImportStateKind: resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
-
 func TestAccDataCatalogEntryGroupIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 

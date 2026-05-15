@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_access_context_manager_access_policy_iam_member",
 		ProductName: "AccessContextManager",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(AccessContextManagerAccessPolicyIamSchema, AccessContextManagerAccessPolicyIamUpdaterProducer, AccessContextManagerAccessPolicyIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(AccessContextManagerAccessPolicyIamSchema, AccessContextManagerAccessPolicyIamUpdaterProducer, AccessContextManagerAccessPolicyIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(AccessContextManagerAccessPolicyIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_access_context_manager_access_policy_iam_policy",
@@ -215,6 +215,15 @@ func (u *AccessContextManagerAccessPolicyIamUpdater) qualifyAccessPolicyUrl(meth
 
 func (u *AccessContextManagerAccessPolicyIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("accessPolicies/%s", u.name)
+}
+
+func AccessContextManagerAccessPolicyIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "accessPolicies/%s",
+	})
 }
 
 func (u *AccessContextManagerAccessPolicyIamUpdater) GetMutexKey() string {

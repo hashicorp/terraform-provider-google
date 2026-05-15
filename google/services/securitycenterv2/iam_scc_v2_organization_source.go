@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_scc_v2_organization_source_iam_member",
 		ProductName: "SecurityCenterV2",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(SecurityCenterV2OrganizationSourceIamSchema, SecurityCenterV2OrganizationSourceIamUpdaterProducer, SecurityCenterV2OrganizationSourceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(SecurityCenterV2OrganizationSourceIamSchema, SecurityCenterV2OrganizationSourceIamUpdaterProducer, SecurityCenterV2OrganizationSourceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(SecurityCenterV2OrganizationSourceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_scc_v2_organization_source_iam_policy",
@@ -230,6 +230,16 @@ func (u *SecurityCenterV2OrganizationSourceIamUpdater) qualifyOrganizationSource
 
 func (u *SecurityCenterV2OrganizationSourceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("organizations/%s/sources/%s", u.organization, u.source)
+}
+
+func SecurityCenterV2OrganizationSourceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "organization", IdentityKey: "organization"},
+			{Key: "source", IdentityKey: "source"},
+		},
+		UriFormat: "organizations/%s/sources/%s",
+	})
 }
 
 func (u *SecurityCenterV2OrganizationSourceIamUpdater) GetMutexKey() string {

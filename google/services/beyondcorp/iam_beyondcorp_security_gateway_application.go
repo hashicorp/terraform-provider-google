@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_beyondcorp_security_gateway_application_iam_member",
 		ProductName: "Beyondcorp",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(BeyondcorpSecurityGatewayApplicationIamSchema, BeyondcorpSecurityGatewayApplicationIamUpdaterProducer, BeyondcorpSecurityGatewayApplicationIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(BeyondcorpSecurityGatewayApplicationIamSchema, BeyondcorpSecurityGatewayApplicationIamUpdaterProducer, BeyondcorpSecurityGatewayApplicationIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(BeyondcorpSecurityGatewayApplicationIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_beyondcorp_security_gateway_application_iam_policy",
@@ -268,6 +268,17 @@ func (u *BeyondcorpSecurityGatewayApplicationIamUpdater) qualifySecurityGatewayA
 
 func (u *BeyondcorpSecurityGatewayApplicationIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s", u.project, u.securityGatewayId, u.applicationId)
+}
+
+func BeyondcorpSecurityGatewayApplicationIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "securityGatewayId", IdentityKey: "security_gateway_id"},
+			{Key: "applicationId", IdentityKey: "application_id"},
+		},
+		UriFormat: "projects/%s/locations/global/securityGateways/%s/applications/%s",
+	})
 }
 
 func (u *BeyondcorpSecurityGatewayApplicationIamUpdater) GetMutexKey() string {

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_data_fusion_instance_iam_member",
 		ProductName: "DataFusion",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataFusionInstanceIamSchema, DataFusionInstanceIamUpdaterProducer, DataFusionInstanceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(DataFusionInstanceIamSchema, DataFusionInstanceIamUpdaterProducer, DataFusionInstanceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataFusionInstanceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_data_fusion_instance_iam_policy",
@@ -273,6 +273,17 @@ func (u *DataFusionInstanceIamUpdater) qualifyInstanceUrl(methodIdentifier strin
 
 func (u *DataFusionInstanceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/instances/%s", u.project, u.region, u.name)
+}
+
+func DataFusionInstanceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "region", IdentityKey: "region"},
+			{Key: "name", IdentityKey: "name"},
+		},
+		UriFormat: "projects/%s/locations/%s/instances/%s",
+	})
 }
 
 func (u *DataFusionInstanceIamUpdater) GetMutexKey() string {

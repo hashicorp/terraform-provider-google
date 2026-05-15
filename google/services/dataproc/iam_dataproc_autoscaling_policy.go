@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dataproc_autoscaling_policy_iam_member",
 		ProductName: "Dataproc",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataprocAutoscalingPolicyIamSchema, DataprocAutoscalingPolicyIamUpdaterProducer, DataprocAutoscalingPolicyIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(DataprocAutoscalingPolicyIamSchema, DataprocAutoscalingPolicyIamUpdaterProducer, DataprocAutoscalingPolicyIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataprocAutoscalingPolicyIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dataproc_autoscaling_policy_iam_policy",
@@ -273,6 +273,17 @@ func (u *DataprocAutoscalingPolicyIamUpdater) qualifyAutoscalingPolicyUrl(method
 
 func (u *DataprocAutoscalingPolicyIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s", u.project, u.location, u.policyId)
+}
+
+func DataprocAutoscalingPolicyIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "policyId", IdentityKey: "policy_id"},
+		},
+		UriFormat: "projects/%s/locations/%s/autoscalingPolicies/%s",
+	})
 }
 
 func (u *DataprocAutoscalingPolicyIamUpdater) GetMutexKey() string {

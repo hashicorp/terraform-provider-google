@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_scc_source_iam_member",
 		ProductName: "SecurityCenter",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(SecurityCenterSourceIamSchema, SecurityCenterSourceIamUpdaterProducer, SecurityCenterSourceIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(SecurityCenterSourceIamSchema, SecurityCenterSourceIamUpdaterProducer, SecurityCenterSourceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(SecurityCenterSourceIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_scc_source_iam_policy",
@@ -230,6 +230,16 @@ func (u *SecurityCenterSourceIamUpdater) qualifySourceUrl(methodIdentifier strin
 
 func (u *SecurityCenterSourceIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("organizations/%s/sources/%s", u.organization, u.source)
+}
+
+func SecurityCenterSourceIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "organization", IdentityKey: "organization"},
+			{Key: "source", IdentityKey: "source"},
+		},
+		UriFormat: "organizations/%s/sources/%s",
+	})
 }
 
 func (u *SecurityCenterSourceIamUpdater) GetMutexKey() string {

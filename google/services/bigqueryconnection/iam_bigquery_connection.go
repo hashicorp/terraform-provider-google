@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_bigquery_connection_iam_member",
 		ProductName: "BigqueryConnection",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(BigqueryConnectionConnectionIamSchema, BigqueryConnectionConnectionIamUpdaterProducer, BigqueryConnectionConnectionIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(BigqueryConnectionConnectionIamSchema, BigqueryConnectionConnectionIamUpdaterProducer, BigqueryConnectionConnectionIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(BigqueryConnectionConnectionIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_bigquery_connection_iam_policy",
@@ -273,6 +273,17 @@ func (u *BigqueryConnectionConnectionIamUpdater) qualifyConnectionUrl(methodIden
 
 func (u *BigqueryConnectionConnectionIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/connections/%s", u.project, u.location, u.connectionId)
+}
+
+func BigqueryConnectionConnectionIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "connectionId", IdentityKey: "connection_id"},
+		},
+		UriFormat: "projects/%s/locations/%s/connections/%s",
+	})
 }
 
 func (u *BigqueryConnectionConnectionIamUpdater) GetMutexKey() string {

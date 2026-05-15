@@ -59,6 +59,19 @@ func ProjectIdParseFunc(d *schema.ResourceData, _ *transport_tpg.Config) error {
 	return nil
 }
 
+// ProjectIamParentParentResourceIdentityParser returns the parent project's id
+func ProjectIamParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, _ *transport_tpg.Config) (string, error) {
+	v, ok := identity.GetOk("project")
+	if !ok {
+		return "", fmt.Errorf("import identity is missing attribute %q", "project")
+	}
+	s, ok := v.(string)
+	if !ok || s == "" {
+		return "", fmt.Errorf("import identity attribute %q must be a non-empty string", "project")
+	}
+	return s, nil
+}
+
 func (u *ProjectIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	projectId := tpgresource.GetResourceNameFromSelfLink(u.resourceId)
 
@@ -134,7 +147,7 @@ func init() {
 		Name:        "google_project_iam_member",
 		ProductName: "resourcemanager",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, tpgiamresource.IamWithBatching),
+		Schema:      tpgiamresource.ResourceIamMember(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, tpgiamresource.IamWithBatching, tpgiamresource.IamWithParentResourceIdentity(ProjectIamParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_project_iam_binding",

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dataproc_metastore_federation_iam_member",
 		ProductName: "DataprocMetastore",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataprocMetastoreFederationIamSchema, DataprocMetastoreFederationIamUpdaterProducer, DataprocMetastoreFederationIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(DataprocMetastoreFederationIamSchema, DataprocMetastoreFederationIamUpdaterProducer, DataprocMetastoreFederationIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataprocMetastoreFederationIamParentParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dataproc_metastore_federation_iam_policy",
@@ -273,6 +273,17 @@ func (u *DataprocMetastoreFederationIamUpdater) qualifyFederationUrl(methodIdent
 
 func (u *DataprocMetastoreFederationIamUpdater) GetResourceId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/federations/%s", u.project, u.location, u.federationId)
+}
+
+func DataprocMetastoreFederationIamParentParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, transportConfig *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, transportConfig, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "location", IdentityKey: "location"},
+			{Key: "federationId", IdentityKey: "federation_id"},
+		},
+		UriFormat: "projects/%s/locations/%s/federations/%s",
+	})
 }
 
 func (u *DataprocMetastoreFederationIamUpdater) GetMutexKey() string {
