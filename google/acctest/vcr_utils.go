@@ -40,9 +40,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/fwprovider"
 	tpgprovider "github.com/hashicorp/terraform-provider-google/google/provider"
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
-	"github.com/hashicorp/terraform-provider-google/google/services/pubsublite"
-	"github.com/hashicorp/terraform-provider-google/google/services/sql"
+
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -392,13 +390,13 @@ func (p *frameworkTestProvider) Configure(ctx context.Context, req provider.Conf
 func (p *frameworkTestProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	ds := p.FrameworkProvider.DataSources(ctx)
 	ds = append(ds, fwprovider.NewGoogleProviderConfigPluginFrameworkDataSource) // google_provider_config_plugin_framework
-	ds = append(ds, compute.NewComputeNetworkFWDataSource)                       // google_fw_compute_network
+
 	return ds
 }
 
 func (p *frameworkTestProvider) Resources(ctx context.Context) []func() fwResource.Resource {
 	r := p.FrameworkProvider.Resources(ctx)
-	r = append(r, pubsublite.NewGooglePubsubLiteReservationFWResource, sql.NewSQLUserFWResource) // google_fwprovider_pubsub_lite_reservation
+
 	return r
 }
 
