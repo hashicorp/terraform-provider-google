@@ -22,13 +22,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
 )
 
 func TestAccEphemeralServiceAccountJwt_basic(t *testing.T) {
 	t.Parallel()
 
 	serviceAccount := envvar.GetTestServiceAccountFromEnv(t)
-	targetServiceAccountEmail := acctest.BootstrapServiceAccount(t, "jwt-basic", serviceAccount)
+	targetServiceAccountEmail := iambeta.BootstrapServiceAccount(t, "jwt-basic", serviceAccount)
 
 	context := map[string]interface{}{
 		"ephemeral_resource_name": "jwt",
@@ -61,9 +62,9 @@ func TestAccEphemeralServiceAccountJwt_withDelegates(t *testing.T) {
 	t.Parallel()
 
 	initialServiceAccount := envvar.GetTestServiceAccountFromEnv(t)
-	delegateServiceAccountEmailOne := acctest.BootstrapServiceAccount(t, "jwt-delegate1", initialServiceAccount)          // SA_2
-	delegateServiceAccountEmailTwo := acctest.BootstrapServiceAccount(t, "jwt-delegate2", delegateServiceAccountEmailOne) // SA_3
-	targetServiceAccountEmail := acctest.BootstrapServiceAccount(t, "jwt-target", delegateServiceAccountEmailTwo)         // SA_4
+	delegateServiceAccountEmailOne := iambeta.BootstrapServiceAccount(t, "jwt-delegate1", initialServiceAccount)          // SA_2
+	delegateServiceAccountEmailTwo := iambeta.BootstrapServiceAccount(t, "jwt-delegate2", delegateServiceAccountEmailOne) // SA_3
+	targetServiceAccountEmail := iambeta.BootstrapServiceAccount(t, "jwt-target", delegateServiceAccountEmailTwo)         // SA_4
 
 	context := map[string]interface{}{
 		"ephemeral_resource_name": "jwt",
@@ -97,7 +98,7 @@ func TestAccEphemeralServiceAccountJwt_withExpiresIn(t *testing.T) {
 	t.Parallel()
 
 	serviceAccount := envvar.GetTestServiceAccountFromEnv(t)
-	targetServiceAccountEmail := acctest.BootstrapServiceAccount(t, "expiry", serviceAccount)
+	targetServiceAccountEmail := iambeta.BootstrapServiceAccount(t, "expiry", serviceAccount)
 
 	context := map[string]interface{}{
 		"ephemeral_resource_name": "jwt",

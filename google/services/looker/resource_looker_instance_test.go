@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 func TestAccLookerInstance_update(t *testing.T) {
@@ -163,7 +164,7 @@ func TestAccLookerInstance_updatePeriodicExport(t *testing.T) {
 		"random_suffix": suffix,
 	}
 
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			// For writing/managing the export files in GCS
 			Member: "serviceAccount:service-{project_number}@gcp-sa-looker.iam.gserviceaccount.com",

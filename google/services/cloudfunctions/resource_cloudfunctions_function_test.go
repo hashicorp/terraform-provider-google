@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcloudfunctions "github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions"
 
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"google.golang.org/api/cloudfunctions/v1"
 )
 
@@ -43,7 +44,7 @@ const testSecretEnvVarFunctionPath = "./test-fixtures/secret_environment_variabl
 const testSecretVolumesMountFunctionPath = "./test-fixtures/secret_volumes_mount.js"
 
 func bootstrapGcfAdminAgents(t *testing.T) {
-	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
 		{
 			Member: "serviceAccount:service-{project_number}@gcf-admin-robot.iam.gserviceaccount.com",
 			Role:   "roles/vpcaccess.admin",
