@@ -132,6 +132,8 @@ fields:
     field: 'settings.disk_autoresize_limit'
   - api_field: 'settings.dataDiskSizeGb'
     field: 'settings.disk_size'
+  - api_field: 'settings.dataDiskProvisionedIops'
+  - api_field: 'settings.dataDiskProvisionedThroughput'
   - api_field: 'settings.dataDiskType'
     field: 'settings.disk_type'
   - api_field: 'settings.edition'
