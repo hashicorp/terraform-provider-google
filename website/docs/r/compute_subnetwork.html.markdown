@@ -347,6 +347,77 @@ resource "google_network_connectivity_internal_range" "reserved_secondary" {
   ]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=subnetwork_with_secondary_ipv6_range&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Subnetwork With Secondary Ipv6 Range
+
+
+```hcl
+resource "google_compute_subnetwork" "subnetwork_with_secondary_ipv6_range" {
+  provider         = google-beta
+  name             = "subnet-with-secondary-ranges"
+  region           = "us-central1"
+  network          = google_compute_network.custom-test.id
+  stack_type       = "IPV6_ONLY"
+  ipv6_access_type = "INTERNAL"
+
+  secondary_ip_range {
+    range_name    = "v6-ula"
+    ip_version    = "IPV6"
+  }
+
+  secondary_ip_range {
+    range_name    = "v6-byogua-auto"
+    ip_version    = "IPV6"
+    ip_collection = google_compute_public_delegated_prefix.ipv6_sub_pdp.self_link
+  }
+
+  secondary_ip_range {
+    range_name    = "v6-byogua-manual"
+    ip_version    = "IPV6"
+    ip_collection = google_compute_public_delegated_prefix.ipv6_sub_pdp.self_link
+    ip_cidr_range = "2001:db8:0:2::/64"
+  }
+}
+
+resource "google_compute_network" "custom-test" {
+  provider                = google-beta
+  name                    = "network-with-secondary-ranges"
+  auto_create_subnetworks = false
+  enable_ula_internal_ipv6 = true
+}
+
+resource "google_compute_public_advertised_prefix" "ipv6_pap" {
+  provider         = google-beta
+  name             = "pap-for-secondary-ranges"
+  ip_cidr_range    = "2001:db8::/40"
+  pdp_scope        = "REGIONAL"
+  ipv6_access_type = "INTERNAL"
+  description      = "GOOGLE_INTERNAL_TEST_PREFIX"
+}
+
+resource "google_compute_public_delegated_prefix" "ipv6_pdp" {
+  provider         = google-beta
+  name             = "pdp-for-secondary-ranges"
+  region           = "us-central1"
+  description      = "PDP in internal subnet mode"
+  ip_cidr_range    = "2001:db8::/48"
+  parent_prefix    = google_compute_public_advertised_prefix.ipv6_pap.id
+  mode             = "DELEGATION"
+}
+
+resource "google_compute_public_delegated_prefix" "ipv6_sub_pdp" {
+  provider      = google-beta
+  name          = "sub-pdp-for-secondary-ranges"
+  region        = "us-central1"
+  ip_cidr_range = "2001:db8::/56"
+  parent_prefix = google_compute_public_delegated_prefix.ipv6_pdp.id
+  mode          = "INTERNAL_IPV6_SUBNETWORK_CREATION"
+}
+```
 
 ## Argument Reference
 
@@ -529,6 +600,18 @@ Defaults to false.
   (Optional)
   The ID of the reserved internal range. Must be prefixed with `networkconnectivity.googleapis.com`
   E.g. `networkconnectivity.googleapis.com/projects/{project}/locations/global/internalRanges/{rangeId}`
+
+* `ip_version` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  The IP version of the secondary range. If not specified, IPV4 is used.
+  Possible values are: `IPV4`, `IPV6`.
+
+* `ip_collection` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Reference to a Public Delegated Prefix (PDP) for BYOIP.
+  This field should be specified for configuring BYOGUA internal IPv6 secondary range.
+  When specified along with the ip_cidr_range, the ip_cidr_range must lie within the PDP referenced by the `ipCollection` field.
+  When specified without the ip_cidr_range, the range is auto-allocated from the PDP referenced by the `ipCollection` field.
 
 <a name="nested_log_config"></a>The `log_config` block supports:
 
