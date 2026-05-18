@@ -518,6 +518,32 @@ MAINTENANCE_IN_PROGRESS`,
 				Description: `GCP location where Oracle Exadata is hosted. It is same as GCP Oracle zone
 of Exadata infrastructure.`,
 			},
+			"identity_connector": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Description: `The identity connector details which will allow OCI to securely access
+the resources in the customer project.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"connection_state": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The connection state of the identity connector.
+Possible values:
+CONNECTION_STATE_UNSPECIFIED
+CONNECTED
+PARTIALLY_CONNECTED
+DISCONNECTED
+UNKNOWN`,
+						},
+						"service_agent_email": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `A google managed service account on which customers can grant roles to access resources in the customer project.`,
+						},
+					},
+				},
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -1292,6 +1318,29 @@ func flattenOracleDatabaseCloudVmClusterBackupOdbSubnet(v interface{}, d *schema
 	return v
 }
 
+func flattenOracleDatabaseCloudVmClusterIdentityConnector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_agent_email"] =
+		flattenOracleDatabaseCloudVmClusterIdentityConnectorServiceAgentEmail(original["serviceAgentEmail"], d, config)
+	transformed["connection_state"] =
+		flattenOracleDatabaseCloudVmClusterIdentityConnectorConnectionState(original["connectionState"], d, config)
+	return []interface{}{transformed}
+}
+func flattenOracleDatabaseCloudVmClusterIdentityConnectorServiceAgentEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseCloudVmClusterIdentityConnectorConnectionState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenOracleDatabaseCloudVmClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1838,6 +1887,9 @@ func ResourceOracleDatabaseCloudVmClusterFlatten(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
 	}
 	if err = d.Set("backup_odb_subnet", flattenOracleDatabaseCloudVmClusterBackupOdbSubnet(res["backupOdbSubnet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
+	}
+	if err = d.Set("identity_connector", flattenOracleDatabaseCloudVmClusterIdentityConnector(res["identityConnector"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenOracleDatabaseCloudVmClusterTerraformLabels(res["labels"], d, config)); err != nil {

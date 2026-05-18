@@ -35,9 +35,11 @@ func TestAccOracleDatabaseCloudVmCluster_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "display_name"),
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "exadata_infrastructure"),
-					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "cidr"),
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "properties.#"),
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "properties.0.cpu_core_count"),
+					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "identity_connector.#"),
+					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "identity_connector.0.service_agent_email"),
+					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "identity_connector.0.connection_state"),
 					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "gcp_oracle_zone", "us-east4-b-r1"),
 					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "properties.0.node_count", "2"),
 					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "properties.0.state", "AVAILABLE"),
