@@ -1,0 +1,31 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_network_connectivity_transport
+generation_type: mmv1
+source_file: products/networkconnectivity/Transport.yaml
+api_service_name: networkconnectivity.googleapis.com
+api_version: v1
+api_resource_type_kind: Transport
+fields:
+    - api_field: advertisedRoutes
+    - api_field: bandwidth
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: generatedActivationKey
+    - api_field: labels
+    - api_field: mtuLimit
+    - api_field: name
+    - api_field: network
+    - api_field: peeringNetwork
+    - api_field: providedActivationKey
+    - field: region
+      provider_only: true
+    - api_field: remoteAccountId
+    - api_field: remoteProfile
+    - api_field: stackType
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
