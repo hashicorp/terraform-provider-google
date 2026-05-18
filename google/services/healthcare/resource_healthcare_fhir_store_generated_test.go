@@ -33,7 +33,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/healthcare"
 
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
-
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 

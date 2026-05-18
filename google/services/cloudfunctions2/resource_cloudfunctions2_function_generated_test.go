@@ -33,18 +33,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions2"
 
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
-
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/googleapi"
 )
-
-import (
-	"github.com/hashicorp/terraform-provider-google/google/services/kms"
-)
-
-var _ = kms.Product
 
 var (
 	_ = fmt.Sprintf
