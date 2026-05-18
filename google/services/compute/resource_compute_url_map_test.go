@@ -18,9 +18,11 @@ package compute_test
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -180,13 +182,19 @@ func testAccCheckComputeUrlMapExists(t *testing.T, n string) resource.TestCheckF
 		config := acctest.GoogleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
-		found, err := compute.NewClient(config, config.UserAgent).UrlMaps.Get(
-			config.Project, name).Do()
+		url := fmt.Sprintf("%sprojects/%s/global/urlMaps/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, name)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		if found.Name != name {
+		if found["name"] != name {
 			return fmt.Errorf("Url map not found")
 		}
 		return nil
