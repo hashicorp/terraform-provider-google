@@ -1,0 +1,41 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_config_deployment
+generation_type: mmv1
+source_file: products/config/Deployment.yaml
+api_service_name: config.googleapis.com
+api_version: v1
+api_resource_type_kind: Deployment
+fields:
+    - api_field: annotations
+    - api_field: artifactsGcsBucket
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - field: force_destroy
+      provider_only: true
+    - api_field: importExistingResources
+    - api_field: labels
+    - api_field: latestRevision
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: quotaValidation
+    - api_field: serviceAccount
+    - api_field: state
+    - api_field: terraformBlueprint.gcsSource
+    - api_field: terraformBlueprint.gitSource.directory
+    - api_field: terraformBlueprint.gitSource.ref
+    - api_field: terraformBlueprint.gitSource.repo
+    - api_field: terraformBlueprint.inputValues.key
+      field: terraform_blueprint.input_values.variable_name
+    - api_field: terraformBlueprint.inputValues.value.inputValue
+      field: terraform_blueprint.input_values.input_value
+    - field: terraform_labels
+      provider_only: true
+    - api_field: tfVersionConstraint
+    - api_field: workerPool
+    - field: deletion_policy
+      provider_only: true
