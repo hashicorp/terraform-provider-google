@@ -75,6 +75,8 @@ type TerraformResourceDiff interface {
 	Clear(string) error
 	ForceNew(string) error
 	SetNew(string, interface{}) error
+	GetChangedKeysPrefix(string) []string
+	GetRawConfig() cty.Value
 }
 
 // Contains functions that don't really belong anywhere else.

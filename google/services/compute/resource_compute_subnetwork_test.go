@@ -1455,3 +1455,5 @@ resource "google_compute_subnetwork" "test_subnet" {
 }
 `, context)
 }
+
+// Shared base config for secondary IPv6 ranges (Network, PAP, PDP)

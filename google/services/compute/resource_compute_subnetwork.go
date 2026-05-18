@@ -143,6 +143,19 @@ func IpDiffSuppress(_, old, new string, d *schema.ResourceData) bool {
 	return addr_equality && netmask_equality
 }
 
+// CustomDiff function for secondary_ip_range.
+// Normalizes old state and new config sets before Set comparison to prevent false TypeSet diffs.
+// Specifically handles two Beta-only scenarios where state diverges from HCL config:
+// 1. Automatically inherits allocated ULA CIDRs from state when omitted in HCL config.
+// 2. Normalizes ip_collection self-links to relative paths to match user config short names.
+func resourceComputeSubnetworkSecondaryIpRangeCustomDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	return resourceComputeSubnetworkSecondaryIpRangeCustomDiffFunc(diff)
+}
+
+func resourceComputeSubnetworkSecondaryIpRangeCustomDiffFunc(diff tpgresource.TerraformResourceDiff) error {
+	return nil
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -205,6 +218,7 @@ func ResourceComputeSubnetwork() *schema.Resource {
 			resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff,
 			customdiff.ForceNewIfChange("ip_cidr_range", IsShrinkageIpCidr),
 			sendSecondaryIpRangeIfEmptyDiff,
+			resourceComputeSubnetworkSecondaryIpRangeCustomDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
@@ -937,18 +951,6 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) error {
-	clientSideFields := map[string]bool{"deletion_policy": true}
-	clientSideOnly := true
-	for field := range ResourceComputeSubnetwork().Schema {
-		if d.HasChange(field) && !clientSideFields[field] {
-			clientSideOnly = false
-			break
-		}
-	}
-	if clientSideOnly {
-		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
-		return resourceComputeSubnetworkRead(d, meta)
-	}
 
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -1377,10 +1379,11 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 
 	// Handle the "Send Empty" override logic
 	if v, ok := d.GetOk("send_secondary_ip_range_if_empty"); ok && v.(bool) {
-		if sv, ok := d.GetOk("secondary_ip_range"); ok {
+		oldRanges, _ := d.GetChange("secondary_ip_range")
+		if oldRanges != nil {
 			configValue := d.GetRawConfig().GetAttr("secondary_ip_range")
-			stateValue := sv.([]interface{})
-			if configValue.LengthInt() == 0 && len(stateValue) != 0 {
+			stateValue := oldRanges.([]interface{})
+			if (configValue.IsNull() || configValue.LengthInt() == 0) && len(stateValue) != 0 {
 				log.Printf("[DEBUG] Sending empty secondary_ip_range in update")
 				obj := make(map[string]interface{})
 				obj["secondaryIpRanges"] = make([]interface{}, 0)
