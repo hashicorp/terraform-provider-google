@@ -23,14 +23,12 @@ description: |-
 
 The Transport resource is a top-level resource used by customers to control Partner Cross-Cloud Interconnect (CCI) connections.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about Transport, see:
 
-* [API documentation](https://cloud.google.com/network-connectivity/docs/reference/networkconnectivity/rest/v1beta/projects.locations.transport)
+* [API documentation](https://docs.cloud.google.com/network-connectivity/docs/reference/networkconnectivity/rest/v1/projects.locations.transports)
 * How-to Guides
-    * [Official Documentation](https://docs.cloud.google.com/sdk/gcloud/reference/beta/network-connectivity/transports)
+    * [Official Documentation](https://docs.cloud.google.com/sdk/gcloud/reference/network-connectivity/transports)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_transport_basic&open_in_editor=main.tf" target="_blank">
@@ -41,22 +39,18 @@ To get more information about Transport, see:
 
 
 ```hcl
-data "google_project" "project" {
-  provider = google-beta
-}
+data "google_project" "project" {}
 
 resource "google_compute_network" "primary-network" {
-  provider                = google-beta
   name                    = "tf-test-my-vpc-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_connectivity_transport" "primary"  {
-  provider          = google-beta
   name              = "tf-test-basic-transport%{random_suffix}"
   region            = "us-east4"
   description       = "A sample transport"
-  remote_profile    = "https://networkconnectivity.googleapis.com/v1beta/${data.google_project.project.id}/locations/us-east4/remoteTransportProfiles/aws-us-east-1"
+  remote_profile    = "https://networkconnectivity.googleapis.com/v1/${data.google_project.project.id}/locations/us-east4/remoteTransportProfiles/aws-us-east-1"
   network           = google_compute_network.primary-network.name
   bandwidth         = "BPS_1G"
   remote_account_id = "123"
@@ -117,7 +111,7 @@ The following arguments are supported:
   [Output only] The maximum transmission unit (MTU) of a packet that can be sent over this transport.
 
 * `admin_enabled` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Administrative state of the underlying connectivity. If set to true (default), connectivity should be available between your environments. If set to false, the connectivity over these links is disabled. Disabling your Transport does not affect billing, and retains the underlying network bandwidth associated with the connectivity.
 
 * `advertised_routes` -
@@ -129,15 +123,15 @@ The following arguments are supported:
   The user supplied account id for the CSP associated with the remote profile.
 
 * `hub` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The NCC Hub that the Transport should attach to. The hub must be in the same project as the Transport.
 
 * `psc_routing_enabled` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Controls whether a Routing VPC Spoke should be created and attached to the NCC Hub.
 
 * `auto_accept` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Controls whether resources proposed by the Transport are automatically accepted on behalf of the user.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
