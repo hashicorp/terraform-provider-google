@@ -1,0 +1,21 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dialogflow_sip_trunk
+generation_type: mmv1
+source_file: products/dialogflow/SipTrunk.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v2
+api_resource_type_kind: SipTrunk
+fields:
+    - api_field: connections.connectionId
+    - api_field: connections.errorDetails.code
+    - api_field: connections.errorDetails.message
+    - api_field: connections.state
+    - api_field: connections.updateTime
+    - api_field: displayName
+    - api_field: expectedHostname
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: deletion_policy
+      provider_only: true
