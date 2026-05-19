@@ -184,6 +184,19 @@ func testAccCheckDialogflowConversationProfileDestroyProducer(t *testing.T) func
 				billingProject = config.BillingProject
 			}
 
+			location := rs.Primary.Attributes["location"]
+			universeDomain := config.UniverseDomain
+
+			if universeDomain != "" && universeDomain != "googleapis.com" {
+				url = strings.Replace(url, "googleapis.com", universeDomain, 1)
+			}
+
+			if strings.HasPrefix(url, "https://dialogflow") {
+				if location != "" && location != "global" {
+					url = strings.Replace(url, "https://dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
+				}
+			}
+
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 				Config:    config,
 				Method:    "GET",

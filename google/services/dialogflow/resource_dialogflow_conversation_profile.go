@@ -142,7 +142,7 @@ func ResourceDialogflowConversationProfile() *schema.Resource {
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `desc`,
+				Description: `The location of the conversation profile.`,
 			},
 			"automated_agent_config": {
 				Type:        schema.TypeList,
@@ -304,7 +304,7 @@ This feature is supported for types: DIALOGFLOW_ASSIST.`,
 																		"agent": {
 																			Type:        schema.TypeString,
 																			Required:    true,
-																			Description: `he name of a Dialogflow virtual agent used for end user side intent detection and suggestion. Format: projects/<Project ID>/locations/<Location ID>/agent.`,
+																			Description: `The name of a Dialogflow virtual agent used for end user side intent detection and suggestion. Format: projects/<Project ID>/locations/<Location ID>/agent.`,
 																		},
 																		"human_agent_side_config": {
 																			Type:        schema.TypeList,
@@ -371,7 +371,7 @@ This feature is only supported for types: ARTICLE_SUGGESTION, FAQ.`,
 															"sections": {
 																Type:        schema.TypeList,
 																Optional:    true,
-																Description: `he customized sections chosen to return when requesting a summary of a conversation.`,
+																Description: `The customized sections chosen to return when requesting a summary of a conversation.`,
 																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
@@ -580,7 +580,7 @@ This feature is supported for types: DIALOGFLOW_ASSIST.`,
 																		"agent": {
 																			Type:        schema.TypeString,
 																			Required:    true,
-																			Description: `he name of a Dialogflow virtual agent used for end user side intent detection and suggestion. Format: projects/<Project ID>/locations/<Location ID>/agent.`,
+																			Description: `The name of a Dialogflow virtual agent used for end user side intent detection and suggestion. Format: projects/<Project ID>/locations/<Location ID>/agent.`,
 																		},
 																		"human_agent_side_config": {
 																			Type:        schema.TypeList,
@@ -609,7 +609,7 @@ This feature is supported for types: DIALOGFLOW_ASSIST.`,
 															"sections": {
 																Type:        schema.TypeList,
 																Optional:    true,
-																Description: `he customized sections chosen to return when requesting a summary of a conversation.`,
+																Description: `The customized sections chosen to return when requesting a summary of a conversation.`,
 																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
@@ -689,7 +689,7 @@ If groupSuggestionResponses set to true. All the suggestions to the same partici
 						"message_analysis_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `desc`,
+							Description: `Configuration for analyzing conversation messages.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -862,8 +862,8 @@ Expects the format "projects/<Project ID>/locations/<Location ID>/topics/<Topic 
 						"audio_encoding": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"AUDIO_ENCODING_UNSPECIFIED", "AUDIO_ENCODING_LINEAR_16", "AUDIO_ENCODING_FLAC", "AUDIO_ENCODING_MULAW", "AUDIO_ENCODING_AMR", "AUDIO_ENCODING_AMR_WB", "AUDIO_ENCODING_OGG_OPUS", "AUDIOENCODING_SPEEX_WITH_HEADER_BYTE", ""}),
-							Description:  `Audio encoding of the audio content to process. Possible values: ["AUDIO_ENCODING_UNSPECIFIED", "AUDIO_ENCODING_LINEAR_16", "AUDIO_ENCODING_FLAC", "AUDIO_ENCODING_MULAW", "AUDIO_ENCODING_AMR", "AUDIO_ENCODING_AMR_WB", "AUDIO_ENCODING_OGG_OPUS", "AUDIOENCODING_SPEEX_WITH_HEADER_BYTE"]`,
+							ValidateFunc: verify.ValidateEnum([]string{"AUDIO_ENCODING_UNSPECIFIED", "AUDIO_ENCODING_LINEAR_16", "AUDIO_ENCODING_FLAC", "AUDIO_ENCODING_MULAW", "AUDIO_ENCODING_AMR", "AUDIO_ENCODING_AMR_WB", "AUDIO_ENCODING_OGG_OPUS", "AUDIO_ENCODING_SPEEX_WITH_HEADER_BYTE", ""}),
+							Description:  `Audio encoding of the audio content to process. Possible values: ["AUDIO_ENCODING_UNSPECIFIED", "AUDIO_ENCODING_LINEAR_16", "AUDIO_ENCODING_FLAC", "AUDIO_ENCODING_MULAW", "AUDIO_ENCODING_AMR", "AUDIO_ENCODING_AMR_WB", "AUDIO_ENCODING_OGG_OPUS", "AUDIO_ENCODING_SPEEX_WITH_HEADER_BYTE"]`,
 						},
 						"enable_word_info": {
 							Type:        schema.TypeBool,
@@ -896,7 +896,7 @@ Leave this field unspecified to use Agent Speech settings for model selection.`,
 						"use_timeout_based_endpointing": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: `Use timeout based endpointing, interpreting endpointer sensitivy as seconds of timeout value.`,
+							Description: `Use timeout based endpointing, interpreting endpointer sensitivity as seconds of timeout value.`,
 						},
 					},
 				},
@@ -963,7 +963,7 @@ Leave this field unspecified to use Agent Speech settings for model selection.`,
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `name`,
+				Description: `Identifier. The unique identifier of this conversation profile.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

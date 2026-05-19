@@ -1,0 +1,7 @@
+```release-note:enhancement
+dialogflow: added `sip_config` field to `google_dialogflow_conversation_profile` resource (beta)
+```
+
+```release-note:bug
+dialogflow: corrected `AUDIOENCODING_SPEEX_WITH_HEADER_BYTE` ENUM value to `AUDIO_ENCODING_SPEEX_WITH_HEADER_BYTE` for `audio_encoding` field in `google_dialogflow_conversation_profile` resource
+```
