@@ -512,3 +512,100 @@ func testAccDialogflowConversationProfile_dialogflowRegional(context map[string]
 	}
 `, context)
 }
+
+func TestAccDialogflowConversationProfile_sipConfig(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"profile_name":  "tf-test-dialogflow-profile-" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderBetaFactories(t),
+		CheckDestroy:             testAccCheckDialogflowConversationProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowConversationProfile_sipConfigStep1(context),
+			},
+			{
+				ResourceName:      "google_dialogflow_conversation_profile.profile",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDialogflowConversationProfile_sipConfigStep2(context),
+			},
+			{
+				ResourceName:      "google_dialogflow_conversation_profile.profile",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDialogflowConversationProfile_sipConfigStep3(context),
+			},
+			{
+				ResourceName:      "google_dialogflow_conversation_profile.profile",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDialogflowConversationProfile_sipConfigStep1(context),
+			},
+			{
+				ResourceName:      "google_dialogflow_conversation_profile.profile",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDialogflowConversationProfile_sipConfigStep1(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_conversation_profile" "profile" {
+  provider = google-beta
+  display_name = "%{profile_name}"
+  location = "europe-west1"
+  language_code = "en-US"
+}
+`, context)
+}
+
+func testAccDialogflowConversationProfile_sipConfigStep2(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_conversation_profile" "profile" {
+  provider = google-beta
+  display_name = "%{profile_name}"
+  location = "europe-west1"
+  language_code = "en-US"
+  sip_config {
+    create_conversation_on_the_fly = true
+    inactive_start = true
+    max_audio_recording_duration = "300s"
+    allow_virtual_agent_interaction = true
+    keep_conversation_running = true
+    copy_inbound_call_leg_headers = ["X-Header-1"]
+    ignore_reinvite_media_direction = true
+  }
+}
+`, context)
+}
+
+func testAccDialogflowConversationProfile_sipConfigStep3(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_conversation_profile" "profile" {
+  provider = google-beta
+  display_name = "%{profile_name}"
+  location = "europe-west1"
+  language_code = "en-US"
+  sip_config {
+    max_audio_recording_duration = "600s"
+    copy_inbound_call_leg_headers = ["X-Header-1", "X-Header-2"]
+  }
+}
+`, context)
+}
