@@ -141,6 +141,7 @@ func ListServiceAccounts(config *transport_tpg.Config, project string, callback 
 	return transport_tpg.ListPages(transport_tpg.ListPagesOptions{
 		Config:         config,
 		TempData:       d,
+		Resource:       ResourceGoogleServiceAccount(),
 		ListURL:        url,
 		BillingProject: billingProject,
 		UserAgent:      userAgent,
