@@ -30,9 +30,8 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/eventarc"
-
-	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -151,7 +150,7 @@ func TestAccEventarcTrigger_eventarcTriggerWithHttpDestinationExample(t *testing
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"service_account":         envvar.GetTestServiceAccountFromEnv(t),
-		"network_attachment_name": tpgcompute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-trigger-na", tpgcompute.BootstrapSubnet(t, "tf-bootstrap-eventarc-trigger-subnet", tpgcompute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-trigger-network"))),
+		"network_attachment_name": compute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-trigger-na", compute.BootstrapSubnet(t, "tf-bootstrap-eventarc-trigger-subnet", compute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-trigger-network"))),
 		"trigger_name":            "tf-test-some-trigger" + randomSuffix,
 		"random_suffix":           randomSuffix,
 	}

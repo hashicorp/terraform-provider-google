@@ -30,7 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
@@ -54,8 +54,8 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 		"cluster_name":        "tf-test-basic-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"name":                "tf-test-basic-plan" + randomSuffix,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -98,8 +98,8 @@ func TestAccGKEBackupBackupPlanIamMemberGenerated(t *testing.T) {
 		"cluster_name":        "tf-test-basic-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"name":                "tf-test-basic-plan" + randomSuffix,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -140,8 +140,8 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 		"cluster_name":        "tf-test-basic-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"name":                "tf-test-basic-plan" + randomSuffix,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

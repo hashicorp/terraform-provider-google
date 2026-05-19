@@ -30,10 +30,9 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/services/looker"
-
-	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	"github.com/hashicorp/terraform-provider-google/google/services/looker"
 	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -247,7 +246,7 @@ func TestAccLookerInstance_lookerInstanceEnterpriseFullTestExample(t *testing.T)
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"address_name":      tpgcompute.BootstrapSharedTestGlobalAddress(t, "looker-vpc-network-3", tpgcompute.AddressWithPrefixLength(8)),
+		"address_name":      compute.BootstrapSharedTestGlobalAddress(t, "looker-vpc-network-3", compute.AddressWithPrefixLength(8)),
 		"client_id":         "tf-test-my-client-id" + randomSuffix,
 		"client_secret":     "tf-test-my-client-secret" + randomSuffix,
 		"instance_name":     "tf-test-my-instance" + randomSuffix,

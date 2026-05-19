@@ -30,9 +30,8 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/redis"
-
-	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -111,7 +110,7 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"instance_name":   "tf-test-ha-memory-cache" + randomSuffix,
-		"network_name":    tpgcompute.BootstrapSharedTestNetwork(t, "redis-full"),
+		"network_name":    compute.BootstrapSharedTestNetwork(t, "redis-full"),
 		"prevent_destroy": false,
 		"random_suffix":   randomSuffix,
 	}
@@ -199,7 +198,7 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 
 	context := map[string]interface{}{
 		"instance_name":   "tf-test-ha-memory-cache-persis" + randomSuffix,
-		"network_name":    tpgcompute.BootstrapSharedTestNetwork(t, "redis-full-persis"),
+		"network_name":    compute.BootstrapSharedTestNetwork(t, "redis-full-persis"),
 		"prevent_destroy": false,
 		"random_suffix":   randomSuffix,
 	}
@@ -327,7 +326,7 @@ func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"instance_name":   "tf-test-mrr-memory-cache" + randomSuffix,
-		"network_name":    tpgcompute.BootstrapSharedTestNetwork(t, "redis-mrr"),
+		"network_name":    compute.BootstrapSharedTestNetwork(t, "redis-mrr"),
 		"prevent_destroy": false,
 		"random_suffix":   randomSuffix,
 	}
