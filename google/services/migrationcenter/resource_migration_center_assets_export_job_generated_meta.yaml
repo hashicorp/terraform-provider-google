@@ -1,0 +1,47 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_migration_center_assets_export_job
+generation_type: mmv1
+source_file: products/migrationcenter/AssetsExportJob.yaml
+api_service_name: migrationcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: AssetsExportJob
+autogen_status: true
+fields:
+    - field: assets_export_job_id
+      provider_only: true
+    - api_field: condition.filter
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: inventory
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: networkDependencies
+    - api_field: performanceData.maxDays
+    - api_field: recentExecutions.endTime
+    - api_field: recentExecutions.executionId
+    - api_field: recentExecutions.expireTime
+    - api_field: recentExecutions.requestedAssetCount
+    - api_field: recentExecutions.result.error.code
+    - api_field: recentExecutions.result.error.details
+    - api_field: recentExecutions.result.error.message
+    - api_field: recentExecutions.result.outputFiles.entries.csvOutputFile.columnsCount
+    - api_field: recentExecutions.result.outputFiles.entries.csvOutputFile.rowCount
+    - api_field: recentExecutions.result.outputFiles.entries.csvOutputFile.signedUri.file
+    - api_field: recentExecutions.result.outputFiles.entries.csvOutputFile.signedUri.uri
+    - api_field: recentExecutions.result.outputFiles.entries.fileSizeBytes
+    - api_field: recentExecutions.result.outputFiles.entries.xlsxOutputFile.signedUri.file
+    - api_field: recentExecutions.result.outputFiles.entries.xlsxOutputFile.signedUri.uri
+    - api_field: recentExecutions.result.signedUris.signedUris.file
+    - api_field: recentExecutions.result.signedUris.signedUris.uri
+    - api_field: recentExecutions.startTime
+    - api_field: showHidden
+    - api_field: signedUriDestination.fileFormat
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
