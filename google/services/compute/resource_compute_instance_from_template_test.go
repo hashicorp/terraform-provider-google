@@ -1821,6 +1821,14 @@ resource "google_compute_disk" "foobar" {
   zone  = "us-central1-a"
 }
 
+resource "google_compute_disk" "barbaz" {
+  name  = "%s-2"
+  image = data.google_compute_image.my_image.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_instance_template" "foobar" {
   name         = "%s"
   machine_type = "n1-standard-1"  // can't be e2 because of local-ssd
@@ -1858,11 +1866,11 @@ resource "google_compute_instance_from_template" "foobar" {
     force_attach = true
   }
   attached_disk {
-    source       = google_compute_disk.foobar.name
+    source       = google_compute_disk.barbaz.name
     force_attach = true
   }
 }
-`, template, template, instance)
+`, template, template, template, instance)
 }
 
 func testAccComputeInstanceFromTemplate_DiskForceAttach(instance, template string) string {
