@@ -325,6 +325,7 @@ func IsApiNotEnabledError(err error) bool {
 type ListPagesOptions struct {
 	Config         *Config
 	TempData       *schema.ResourceData
+	Resource       *schema.Resource
 	ListURL        string
 	BillingProject string
 	UserAgent      string
@@ -373,18 +374,20 @@ func ListPages(opt ListPagesOptions) error {
 			items, ok = res["items"].([]interface{})
 		}
 		if ok {
+			// Capture the seed state once per page. State() returns a snapshot, so reads
+			// here are unaffected by anything the flattener writes on prior iterations.
+			seedState := opt.TempData.State()
 			for _, item := range items {
 				itemMap, ok := item.(map[string]interface{})
 				if !ok {
 					return fmt.Errorf("expected item to be map[string]interface{}, got %T", item)
 				}
 
-				err = opt.Flattener(itemMap, opt.TempData, opt.Config)
-				if err != nil {
+				itemResourceData := opt.Resource.Data(seedState)
+				if err := opt.Flattener(itemMap, itemResourceData, opt.Config); err != nil {
 					return fmt.Errorf("Error flattening instance: %s", err)
 				}
-				err = opt.Callback(opt.TempData)
-				if err != nil {
+				if err := opt.Callback(itemResourceData); err != nil {
 					return err
 				}
 			}
