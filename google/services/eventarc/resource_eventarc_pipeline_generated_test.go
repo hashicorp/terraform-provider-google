@@ -30,9 +30,8 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/eventarc"
-
-	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -122,7 +121,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithHttpDestinationExample(t *testi
 
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
-		"network_attachment_name": tpgcompute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", tpgcompute.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", tpgcompute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
+		"network_attachment_name": compute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", compute.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", compute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
 		"pipeline_name":           "tf-test-some-pipeline" + randomSuffix,
 		"random_suffix":           randomSuffix,
 	}
@@ -257,7 +256,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithOidcAndJsonFormatExample(t *tes
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"service_account":         envvar.GetTestServiceAccountFromEnv(t),
-		"network_attachment_name": tpgcompute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", tpgcompute.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", tpgcompute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
+		"network_attachment_name": compute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", compute.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", compute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
 		"pipeline_name":           "tf-test-some-pipeline" + randomSuffix,
 		"random_suffix":           randomSuffix,
 	}
@@ -343,7 +342,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithOauthAndProtobufFormatExample(t
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"service_account":         envvar.GetTestServiceAccountFromEnv(t),
-		"network_attachment_name": tpgcompute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", tpgcompute.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", tpgcompute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
+		"network_attachment_name": compute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", compute.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", compute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
 		"pipeline_name":           "tf-test-some-pipeline" + randomSuffix,
 		"random_suffix":           randomSuffix,
 	}
@@ -451,7 +450,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithCmekAndAvroFormatExample(t *tes
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"key_name":                kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-pipeline-key").CryptoKey.Name,
-		"network_attachment_name": tpgcompute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", tpgcompute.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", tpgcompute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
+		"network_attachment_name": compute.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", compute.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", compute.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
 		"pipeline_name":           "tf-test-some-pipeline" + randomSuffix,
 		"random_suffix":           randomSuffix,
 	}

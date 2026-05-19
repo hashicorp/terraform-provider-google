@@ -30,9 +30,8 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
-
-	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -64,8 +63,8 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanBasicExample(t *testing.T) {
 		"cluster_name":        "tf-test-basic-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"name":                "tf-test-basic-plan" + randomSuffix,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -134,8 +133,8 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanAutopilotExample(t *testing.T
 		"cluster_name":        "tf-test-autopilot-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"name":                "tf-test-autopilot-plan" + randomSuffix,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -208,8 +207,8 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanCmekExample(t *testing.T) {
 		"deletion_protection": false,
 		"key_name":            "tf-test-backup-key" + randomSuffix,
 		"name":                "tf-test-cmek-plan" + randomSuffix,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -294,8 +293,8 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanNslabelsExample(t *testing.T)
 		"cluster_name":        "tf-test-nslabels-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"name":                "tf-test-nslabels-plan" + randomSuffix,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -370,8 +369,8 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanFullExample(t *testing.T) {
 		"cluster_name":        "tf-test-full-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"name":                "tf-test-full-plan" + randomSuffix,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -457,8 +456,8 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanPermissiveExample(t *testing.
 		"cluster_name":        "tf-test-permissive-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"name":                "tf-test-permissive-plan" + randomSuffix,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -545,8 +544,8 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoDailyWindowExample(t *test
 		"cluster_name":        "tf-test-rpo-daily-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"name":                "tf-test-rpo-daily-window" + randomSuffix,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -647,8 +646,8 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoWeeklyWindowExample(t *tes
 		"cluster_name":        "tf-test-rpo-weekly-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"name":                "tf-test-rpo-weekly-window" + randomSuffix,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       randomSuffix,
 	}
 

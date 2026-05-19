@@ -30,9 +30,8 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkehub2"
-
-	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -64,8 +63,8 @@ func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(t *test
 		"project":             envvar.GetTestProjectFromEnv(),
 		"cluster_name":        "tf-test-basic-cluster" + randomSuffix,
 		"deletion_protection": false,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnet(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       randomSuffix,
 	}
 
