@@ -1,0 +1,17 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_migration_center_settings
+generation_type: mmv1
+source_file: products/migrationcenter/Settings.yaml
+api_service_name: migrationcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: Settings
+autogen_status: true
+fields:
+    - api_field: disableCloudLogging
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: preferenceSet
+    - field: deletion_policy
+      provider_only: true
