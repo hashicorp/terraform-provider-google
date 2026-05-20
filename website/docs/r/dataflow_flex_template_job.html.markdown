@@ -103,6 +103,8 @@ The following arguments are supported:
 * `container_spec_gcs_path` - (Required) The GCS path to the Dataflow job Flex
 Template.
 
+* `create_ignore_already_exists` - (Optional) If true, if a 409 AlreadyExists error is returned on create, the provider will ignore it and adopt the existing resource.
+
 - - -
 
 * `additional_experiments` - (Optional) List of experiments that should be used by the job. An example value is `["enable_stackdriver_agent_metrics"]`.
