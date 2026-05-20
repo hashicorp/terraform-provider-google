@@ -1231,33 +1231,108 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 	}
 	resourcePolicies := expandInstanceTemplateResourcePolicies(d, "resource_policies")
 
-	instanceProperties := &compute.InstanceProperties{
-		CanIpForward:               d.Get("can_ip_forward").(bool),
-		Description:                d.Get("instance_description").(string),
-		GuestAccelerators:          expandInstanceTemplateGuestAccelerators(d, config),
-		MachineType:                d.Get("machine_type").(string),
-		MinCpuPlatform:             d.Get("min_cpu_platform").(string),
-		Disks:                      disks,
-		Metadata:                   metadata,
-		NetworkInterfaces:          networks,
-		NetworkPerformanceConfig:   networkPerformanceConfig,
-		Scheduling:                 scheduling,
-		ServiceAccounts:            expandServiceAccounts(d.Get("service_account").([]interface{})),
-		Tags:                       resourceInstanceTags(d),
-		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
-		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
-		AdvancedMachineFeatures:    expandAdvancedMachineFeatures(d),
-		ResourcePolicies:           resourcePolicies,
-		ReservationAffinity:        reservationAffinity,
-		KeyRevocationActionType:    d.Get("key_revocation_action_type").(string),
+	// Convert network interfaces (still typed) via JSON roundtrip
+	networksJSON, err := json.Marshal(networks)
+	if err != nil {
+		return fmt.Errorf("Error marshaling network interfaces: %s", err)
+	}
+	var networksIface interface{}
+	if err := json.Unmarshal(networksJSON, &networksIface); err != nil {
+		return fmt.Errorf("Error unmarshaling network interfaces: %s", err)
 	}
 
+	// Convert service accounts (still typed) via JSON roundtrip
+	saJSON, err := json.Marshal(expandServiceAccounts(d.Get("service_account").([]interface{})))
+	if err != nil {
+		return fmt.Errorf("Error marshaling service accounts: %s", err)
+	}
+	var serviceAccountsIface interface{}
+	if err := json.Unmarshal(saJSON, &serviceAccountsIface); err != nil {
+		return fmt.Errorf("Error unmarshaling service accounts: %s", err)
+	}
+
+	instanceProperties := map[string]interface{}{
+		"machineType":       d.Get("machine_type").(string),
+		"disks":             disks,
+		"networkInterfaces": networksIface,
+		"scheduling":        scheduling,
+	}
+	if d.Get("can_ip_forward").(bool) {
+		instanceProperties["canIpForward"] = true
+	}
+	if v := d.Get("instance_description").(string); v != "" {
+		instanceProperties["description"] = v
+	}
+	if ga := expandInstanceTemplateGuestAccelerators(d, config); len(ga) > 0 {
+		instanceProperties["guestAccelerators"] = ga
+	}
+	if sa, ok := serviceAccountsIface.([]interface{}); ok && len(sa) > 0 {
+		instanceProperties["serviceAccounts"] = serviceAccountsIface
+	}
+	if len(resourcePolicies) > 0 {
+		instanceProperties["resourcePolicies"] = resourcePolicies
+	}
+	if v := d.Get("min_cpu_platform").(string); v != "" {
+		instanceProperties["minCpuPlatform"] = v
+	}
+	if v := d.Get("key_revocation_action_type").(string); v != "" {
+		instanceProperties["keyRevocationActionType"] = v
+	}
+	if metadata != nil {
+		metadataMap, err := tpgresource.ConvertToMap(metadata)
+		if err != nil {
+			return fmt.Errorf("Error converting metadata: %s", err)
+		}
+		instanceProperties["metadata"] = metadataMap
+	}
+	if networkPerformanceConfig != nil {
+		npcMap, err := tpgresource.ConvertToMap(networkPerformanceConfig)
+		if err != nil {
+			return fmt.Errorf("Error converting networkPerformanceConfig: %s", err)
+		}
+		instanceProperties["networkPerformanceConfig"] = npcMap
+	}
+	if tags := resourceInstanceTags(d); tags != nil {
+		tagsMap, err := tpgresource.ConvertToMap(tags)
+		if err != nil {
+			return fmt.Errorf("Error converting tags: %s", err)
+		}
+		instanceProperties["tags"] = tagsMap
+	}
+	if cic := expandConfidentialInstanceConfig(d); cic != nil {
+		cicMap, err := tpgresource.ConvertToMap(cic)
+		if err != nil {
+			return fmt.Errorf("Error converting confidentialInstanceConfig: %s", err)
+		}
+		instanceProperties["confidentialInstanceConfig"] = cicMap
+	}
+	if sic := expandShieldedVmConfigs(d); sic != nil {
+		// Build manually to preserve false boolean values (ForceSendFields workaround)
+		instanceProperties["shieldedInstanceConfig"] = map[string]interface{}{
+			"enableSecureBoot":          sic.EnableSecureBoot,
+			"enableVtpm":                sic.EnableVtpm,
+			"enableIntegrityMonitoring": sic.EnableIntegrityMonitoring,
+		}
+	}
+	if amf := expandAdvancedMachineFeatures(d); amf != nil {
+		amfMap, err := tpgresource.ConvertToMap(amf)
+		if err != nil {
+			return fmt.Errorf("Error converting advancedMachineFeatures: %s", err)
+		}
+		instanceProperties["advancedMachineFeatures"] = amfMap
+	}
+	if reservationAffinity != nil {
+		raMap, err := tpgresource.ConvertToMap(reservationAffinity)
+		if err != nil {
+			return fmt.Errorf("Error converting reservationAffinity: %s", err)
+		}
+		instanceProperties["reservationAffinity"] = raMap
+	}
 	if _, ok := d.GetOk("effective_labels"); ok {
-		instanceProperties.Labels = tpgresource.ExpandEffectiveLabels(d)
+		instanceProperties["labels"] = tpgresource.ExpandEffectiveLabels(d)
 	}
-
 	if _, ok := d.GetOk("resource_manager_tags"); ok {
-		instanceProperties.ResourceManagerTags = tpgresource.ExpandStringMap(d, "resource_manager_tags")
+		instanceProperties["resourceManagerTags"] = tpgresource.ExpandStringMap(d, "resource_manager_tags")
 	}
 
 	var itName string
@@ -1274,10 +1349,13 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 		itName = id.UniqueId()
 	}
 
-	instanceTemplate := make(map[string]interface{})
-	instanceTemplate["description"] = d.Get("description").(string)
-	instanceTemplate["properties"] = instanceProperties
-	instanceTemplate["name"] = itName
+	instanceTemplate := map[string]interface{}{
+		"properties": instanceProperties,
+		"name":       itName,
+	}
+	if v := d.Get("description").(string); v != "" {
+		instanceTemplate["description"] = v
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceTemplates")
 	if err != nil {
@@ -1333,7 +1411,7 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	instanceTemplate, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   project,
@@ -1344,28 +1422,36 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRegionInstanceTemplate %q", d.Id()))
 	}
 
-	instancePropertiesMap := instanceTemplate["properties"]
+	// Extract id (uint64) and selfLink before JSON roundtrip.
+	var numericId string
+	switch v := res["id"].(type) {
+	case string:
+		numericId = v
+	case float64:
+		numericId = fmt.Sprintf("%.0f", v)
+	default:
+		numericId = fmt.Sprintf("%v", v)
+	}
+	selfLink, _ := res["selfLink"].(string)
+	delete(res, "id")
 
-	instancePropertiesObj, err := json.Marshal(instancePropertiesMap)
+	resBytes, err := json.Marshal(res)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return fmt.Errorf("Error marshaling instance template response: %s", err)
 	}
-
-	instanceProperties := compute.InstanceProperties{}
-
-	if err := json.Unmarshal(instancePropertiesObj, &instanceProperties); err != nil {
-		fmt.Println(err)
-		return err
+	var instanceTemplate compute.InstanceTemplate
+	if err := json.Unmarshal(resBytes, &instanceTemplate); err != nil {
+		return fmt.Errorf("Error parsing instance template response: %s", err)
 	}
+	instanceTemplate.SelfLink = selfLink
 
 	// Set the metadata fingerprint if there is one.
-	if instanceProperties.Metadata != nil {
-		if err = d.Set("metadata_fingerprint", instanceProperties.Metadata.Fingerprint); err != nil {
+	if instanceTemplate.Properties.Metadata != nil {
+		if err = d.Set("metadata_fingerprint", instanceTemplate.Properties.Metadata.Fingerprint); err != nil {
 			return fmt.Errorf("Error setting metadata_fingerprint: %s", err)
 		}
 
-		md := instanceProperties.Metadata
+		md := instanceTemplate.Properties.Metadata
 
 		_md := flattenMetadataBeta(md)
 
@@ -1382,13 +1468,13 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 		}
 	}
 
-	if err = d.Set("numeric_id", instanceTemplate["id"]); err != nil {
+	if err = d.Set("numeric_id", numericId); err != nil {
 		return fmt.Errorf("Error setting numeric_id: %s", err)
 	}
 
 	// Set the tags fingerprint if there is one.
-	if instanceProperties.Tags != nil {
-		if err = d.Set("tags_fingerprint", instanceProperties.Tags.Fingerprint); err != nil {
+	if instanceTemplate.Properties.Tags != nil {
+		if err = d.Set("tags_fingerprint", instanceTemplate.Properties.Tags.Fingerprint); err != nil {
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
 	} else {
@@ -1396,28 +1482,28 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
 	}
-	if instanceProperties.Labels != nil {
-		if err := tpgresource.SetLabels(instanceProperties.Labels, d, "labels"); err != nil {
+	if instanceTemplate.Properties.Labels != nil {
+		if err := tpgresource.SetLabels(instanceTemplate.Properties.Labels, d, "labels"); err != nil {
 			return fmt.Errorf("Error setting labels: %s", err)
 		}
 	}
-	if err := tpgresource.SetLabels(instanceProperties.Labels, d, "terraform_labels"); err != nil {
+	if err := tpgresource.SetLabels(instanceTemplate.Properties.Labels, d, "terraform_labels"); err != nil {
 		return fmt.Errorf("Error setting terraform_labels: %s", err)
 	}
-	if err := d.Set("effective_labels", instanceProperties.Labels); err != nil {
+	if err := d.Set("effective_labels", instanceTemplate.Properties.Labels); err != nil {
 		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
-	if err = d.Set("self_link", instanceTemplate["selfLink"]); err != nil {
+	if err = d.Set("self_link", instanceTemplate.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
-	if err := d.Set("creation_timestamp", instanceTemplate["creationTimestamp"]); err != nil {
+	if err := d.Set("creation_timestamp", instanceTemplate.CreationTimestamp); err != nil {
 		return fmt.Errorf("Error setting creation_timestamp: %s", err)
 	}
-	if err = d.Set("name", instanceTemplate["name"]); err != nil {
+	if err = d.Set("name", instanceTemplate.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if instanceProperties.Disks != nil {
-		disks, err := flattenDisks(instanceProperties.Disks, d, project)
+	if instanceTemplate.Properties.Disks != nil {
+		disks, err := flattenDisks(instanceTemplate.Properties.Disks, d, project)
 		if err != nil {
 			return fmt.Errorf("error flattening disks: %s", err)
 		}
@@ -1425,34 +1511,34 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 			return fmt.Errorf("Error setting disk: %s", err)
 		}
 	}
-	if err = d.Set("description", instanceTemplate["description"]); err != nil {
+	if err = d.Set("description", instanceTemplate.Description); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
-	if err = d.Set("machine_type", instanceProperties.MachineType); err != nil {
+	if err = d.Set("machine_type", instanceTemplate.Properties.MachineType); err != nil {
 		return fmt.Errorf("Error setting machine_type: %s", err)
 	}
-	if err = d.Set("min_cpu_platform", instanceProperties.MinCpuPlatform); err != nil {
+	if err = d.Set("min_cpu_platform", instanceTemplate.Properties.MinCpuPlatform); err != nil {
 		return fmt.Errorf("Error setting min_cpu_platform: %s", err)
 	}
 
-	if err = d.Set("can_ip_forward", instanceProperties.CanIpForward); err != nil {
+	if err = d.Set("can_ip_forward", instanceTemplate.Properties.CanIpForward); err != nil {
 		return fmt.Errorf("Error setting can_ip_forward: %s", err)
 	}
 
-	if err = d.Set("instance_description", instanceProperties.Description); err != nil {
+	if err = d.Set("instance_description", instanceTemplate.Properties.Description); err != nil {
 		return fmt.Errorf("Error setting instance_description: %s", err)
 	}
-	if err = d.Set("key_revocation_action_type", instanceProperties.KeyRevocationActionType); err != nil {
+	if err = d.Set("key_revocation_action_type", instanceTemplate.Properties.KeyRevocationActionType); err != nil {
 		return fmt.Errorf("Error setting key_revocation_action_type: %s", err)
 	}
 	if err = d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("network_performance_config", flattenNetworkPerformanceConfig(instanceProperties.NetworkPerformanceConfig)); err != nil {
+	if err := d.Set("network_performance_config", flattenNetworkPerformanceConfig(instanceTemplate.Properties.NetworkPerformanceConfig)); err != nil {
 		return err
 	}
-	if instanceProperties.NetworkInterfaces != nil {
-		networkInterfaces, region, _, _, err := flattenNetworkInterfaces(d, config, instanceProperties.NetworkInterfaces)
+	if instanceTemplate.Properties.NetworkInterfaces != nil {
+		networkInterfaces, region, _, _, err := flattenNetworkInterfaces(d, config, instanceTemplate.Properties.NetworkInterfaces)
 		if err != nil {
 			return err
 		}
@@ -1466,15 +1552,15 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 			}
 		}
 	}
-	if instanceProperties.Scheduling != nil {
-		scheduling := flattenScheduling(instanceProperties.Scheduling)
+	if instanceTemplate.Properties.Scheduling != nil {
+		scheduling := flattenScheduling(instanceTemplate.Properties.Scheduling)
 
 		if err = d.Set("scheduling", scheduling); err != nil {
 			return fmt.Errorf("Error setting scheduling: %s", err)
 		}
 	}
-	if instanceProperties.Tags != nil {
-		if err = d.Set("tags", instanceProperties.Tags.Items); err != nil {
+	if instanceTemplate.Properties.Tags != nil {
+		if err = d.Set("tags", instanceTemplate.Properties.Tags.Items); err != nil {
 			return fmt.Errorf("Error setting tags: %s", err)
 		}
 	} else {
@@ -1482,40 +1568,40 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 			return fmt.Errorf("Error setting empty tags: %s", err)
 		}
 	}
-	if instanceProperties.ServiceAccounts != nil {
-		if err = d.Set("service_account", flattenServiceAccounts(instanceProperties.ServiceAccounts)); err != nil {
+	if instanceTemplate.Properties.ServiceAccounts != nil {
+		if err = d.Set("service_account", flattenServiceAccounts(instanceTemplate.Properties.ServiceAccounts)); err != nil {
 			return fmt.Errorf("Error setting service_account: %s", err)
 		}
 	}
-	if instanceProperties.GuestAccelerators != nil {
-		if err = d.Set("guest_accelerator", flattenGuestAccelerators(instanceProperties.GuestAccelerators)); err != nil {
+	if instanceTemplate.Properties.GuestAccelerators != nil {
+		if err = d.Set("guest_accelerator", flattenGuestAccelerators(instanceTemplate.Properties.GuestAccelerators)); err != nil {
 			return fmt.Errorf("Error setting guest_accelerator: %s", err)
 		}
 	}
-	if instanceProperties.ShieldedInstanceConfig != nil {
-		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instanceProperties.ShieldedInstanceConfig)); err != nil {
+	if instanceTemplate.Properties.ShieldedInstanceConfig != nil {
+		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instanceTemplate.Properties.ShieldedInstanceConfig)); err != nil {
 			return fmt.Errorf("Error setting shielded_instance_config: %s", err)
 		}
 	}
 
-	if instanceProperties.ConfidentialInstanceConfig != nil {
-		if err = d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(instanceProperties.ConfidentialInstanceConfig)); err != nil {
+	if instanceTemplate.Properties.ConfidentialInstanceConfig != nil {
+		if err = d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(instanceTemplate.Properties.ConfidentialInstanceConfig)); err != nil {
 			return fmt.Errorf("Error setting confidential_instance_config: %s", err)
 		}
 	}
-	if instanceProperties.AdvancedMachineFeatures != nil {
-		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(instanceProperties.AdvancedMachineFeatures)); err != nil {
+	if instanceTemplate.Properties.AdvancedMachineFeatures != nil {
+		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(instanceTemplate.Properties.AdvancedMachineFeatures)); err != nil {
 			return fmt.Errorf("Error setting advanced_machine_features: %s", err)
 		}
 	}
 
-	if instanceProperties.ResourcePolicies != nil {
-		if err = d.Set("resource_policies", instanceProperties.ResourcePolicies); err != nil {
+	if instanceTemplate.Properties.ResourcePolicies != nil {
+		if err = d.Set("resource_policies", instanceTemplate.Properties.ResourcePolicies); err != nil {
 			return fmt.Errorf("Error setting resource_policies: %s", err)
 		}
 	}
 
-	if reservationAffinity := instanceProperties.ReservationAffinity; reservationAffinity != nil {
+	if reservationAffinity := instanceTemplate.Properties.ReservationAffinity; reservationAffinity != nil {
 		if err = d.Set("reservation_affinity", flattenReservationAffinity(reservationAffinity)); err != nil {
 			return fmt.Errorf("Error setting reservation_affinity: %s", err)
 		}
