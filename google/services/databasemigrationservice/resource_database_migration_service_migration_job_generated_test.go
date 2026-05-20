@@ -30,7 +30,11 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/alloydb"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/databasemigrationservice"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/sql"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 

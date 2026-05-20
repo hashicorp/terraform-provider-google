@@ -30,8 +30,12 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudbuild"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions2"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 

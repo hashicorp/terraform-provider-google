@@ -30,7 +30,11 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/appengine"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudrun"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 

@@ -30,7 +30,10 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/networkconnectivityv1"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/privateca"
 	"github.com/hashicorp/terraform-provider-google/google/services/redis"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
