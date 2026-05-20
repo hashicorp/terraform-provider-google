@@ -26,6 +26,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/composer"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 func TestAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicExample_update(t *testing.T) {

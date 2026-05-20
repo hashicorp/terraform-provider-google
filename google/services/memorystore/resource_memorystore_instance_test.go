@@ -26,7 +26,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/memorystore"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/networkconnectivityv1"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/privateca"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 

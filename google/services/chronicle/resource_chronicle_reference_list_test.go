@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/chronicle"
 )
 
 func TestAccChronicleReferenceList_chronicleReferencelistBasicExample_update(t *testing.T) {

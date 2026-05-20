@@ -23,6 +23,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/biglakeiceberg"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 )
 
 func TestAccBiglakeIcebergIcebergTable_update(t *testing.T) {

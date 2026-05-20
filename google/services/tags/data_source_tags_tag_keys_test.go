@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccDataSourceGoogleTagsTagKeys_default(t *testing.T) {

@@ -31,8 +31,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/backupdr"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/privateca"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/services/sql"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"

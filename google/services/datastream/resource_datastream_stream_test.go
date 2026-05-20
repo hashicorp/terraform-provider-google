@@ -23,6 +23,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/datastream"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/sql"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 )
 
 func TestAccDatastreamStream_update(t *testing.T) {

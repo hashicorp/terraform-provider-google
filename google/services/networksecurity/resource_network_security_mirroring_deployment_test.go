@@ -23,6 +23,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
 )
 
 func TestAccNetworkSecurityMirroringDeployment_update(t *testing.T) {

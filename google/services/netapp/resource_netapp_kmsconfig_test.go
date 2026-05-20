@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/netapp"
 )
 
 func TestAccNetappkmsconfig_kmsConfigCreateExample_Update(t *testing.T) {

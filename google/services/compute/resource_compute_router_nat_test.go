@@ -27,6 +27,8 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/dns"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/networkconnectivity"
 )
 
 func TestAccComputeRouterNat_basic(t *testing.T) {

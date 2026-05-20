@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 // Test that a service account key can be created and destroyed

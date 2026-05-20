@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 func TestAccComputeRegionNetworkFirewallPolicy_RegionalHandWritten(t *testing.T) {

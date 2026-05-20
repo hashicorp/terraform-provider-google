@@ -25,6 +25,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/bigquery"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/datacatalog"
 )
 
 func TestAccDataSourceGoogleBigqueryTable_basic(t *testing.T) {

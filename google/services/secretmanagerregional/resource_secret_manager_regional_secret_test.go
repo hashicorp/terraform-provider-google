@@ -23,6 +23,8 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/pubsub"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanagerregional"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"

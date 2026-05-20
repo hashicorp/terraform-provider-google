@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )

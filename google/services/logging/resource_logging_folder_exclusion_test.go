@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/logging"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 // Logging exclusions don't always work when making parallel requests, so run tests serially
