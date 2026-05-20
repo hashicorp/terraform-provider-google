@@ -24,7 +24,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeRouterPeer_basic(t *testing.T) {
@@ -491,8 +492,6 @@ func testAccCheckComputeRouterPeerDestroyProducer(t *testing.T) func(s *terrafor
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		routersService := compute.NewClient(config, config.UserAgent).Routers
-
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router" {
 				continue
@@ -508,9 +507,16 @@ func testAccCheckComputeRouterPeerDestroyProducer(t *testing.T) func(s *terrafor
 				return err
 			}
 
-			routerName := rs.Primary.Attributes["router"]
+			routerName := rs.Primary.Attributes["name"]
 
-			_, err = routersService.Get(project, region, routerName).Do()
+			url := fmt.Sprintf("%sprojects/%s/regions/%s/routers/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), project, region, routerName)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 
 			if err == nil {
 				return fmt.Errorf("Error, Router %s in region %s still exists",
@@ -525,8 +531,6 @@ func testAccCheckComputeRouterPeerDestroyProducer(t *testing.T) func(s *terrafor
 func testAccCheckComputeRouterPeerDelete(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-
-		routersService := compute.NewClient(config, config.UserAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router_peer" {
@@ -546,17 +550,30 @@ func testAccCheckComputeRouterPeerDelete(t *testing.T, n string) resource.TestCh
 			name := rs.Primary.Attributes["name"]
 			routerName := rs.Primary.Attributes["router"]
 
-			router, err := routersService.Get(project, region, routerName).Do()
+			url := fmt.Sprintf("%sprojects/%s/regions/%s/routers/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), project, region, routerName)
+			router, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 
 			if err != nil {
 				return fmt.Errorf("Error Reading Router %s: %s", routerName, err)
 			}
 
-			peers := router.BgpPeers
-			for _, peer := range peers {
-
-				if peer.Name == name {
-					return fmt.Errorf("Peer %s still exists on router %s/%s", name, region, router.Name)
+			routerResName, _ := router["name"].(string)
+			if rawPeers, ok := router["bgpPeers"].([]interface{}); ok {
+				for _, rawPeer := range rawPeers {
+					peer, ok := rawPeer.(map[string]interface{})
+					if !ok {
+						continue
+					}
+					peerName, _ := peer["name"].(string)
+					if peerName == name {
+						return fmt.Errorf("Peer %s still exists on router %s/%s", name, region, routerResName)
+					}
 				}
 			}
 		}
@@ -591,21 +608,34 @@ func testAccCheckComputeRouterPeerExists(t *testing.T, n string) resource.TestCh
 		name := rs.Primary.Attributes["name"]
 		routerName := rs.Primary.Attributes["router"]
 
-		routersService := compute.NewClient(config, config.UserAgent).Routers
-		router, err := routersService.Get(project, region, routerName).Do()
+		url := fmt.Sprintf("%sprojects/%s/regions/%s/routers/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), project, region, routerName)
+		router, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 
 		if err != nil {
 			return fmt.Errorf("Error Reading Router %s: %s", routerName, err)
 		}
 
-		for _, peer := range router.BgpPeers {
-
-			if peer.Name == name {
-				return nil
+		routerResName, _ := router["name"].(string)
+		if rawPeers, ok := router["bgpPeers"].([]interface{}); ok {
+			for _, rawPeer := range rawPeers {
+				peer, ok := rawPeer.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				peerName, _ := peer["name"].(string)
+				if peerName == name {
+					return nil
+				}
 			}
 		}
 
-		return fmt.Errorf("Peer %s not found for router %s", name, router.Name)
+		return fmt.Errorf("Peer %s not found for router %s", name, routerResName)
 	}
 }
 
