@@ -24,6 +24,12 @@ fields:
     - api_field: eventPublishConfig.topic
     - api_field: gcsBucket
     - api_field: labels
+    - api_field: maintenanceEvents.endTime
+    - api_field: maintenanceEvents.startTime
+    - api_field: maintenanceEvents.state
+    - api_field: maintenancePolicy.maintenanceWindow.recurringTimeWindow.recurrence
+    - api_field: maintenancePolicy.maintenanceWindow.recurringTimeWindow.window.endTime
+    - api_field: maintenancePolicy.maintenanceWindow.recurringTimeWindow.window.startTime
     - api_field: name
     - api_field: networkConfig.connectionType
     - api_field: networkConfig.ipAllocation
