@@ -22,6 +22,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck" // Add this import
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/ces"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/discoveryengine"
 )
 
 func TestAccCESTool_cesToolClientFunctionBasicExample_update(t *testing.T) {

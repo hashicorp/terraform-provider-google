@@ -22,6 +22,9 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudbuild"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/pubsub"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )

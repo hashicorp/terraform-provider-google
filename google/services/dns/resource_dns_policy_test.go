@@ -21,6 +21,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/dns"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )

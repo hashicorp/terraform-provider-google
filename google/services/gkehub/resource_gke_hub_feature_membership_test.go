@@ -27,7 +27,11 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/container"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkehub"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/gkehub2"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"

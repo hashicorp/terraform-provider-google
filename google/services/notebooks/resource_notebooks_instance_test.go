@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/notebooks"
 )
 
 func TestAccNotebooksInstance_create_vm_image(t *testing.T) {

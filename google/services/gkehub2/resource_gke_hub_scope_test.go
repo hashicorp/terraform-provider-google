@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/gkehub2"
 )
 
 func TestAccGKEHub2Scope_gkehubScopeBasicExample_update(t *testing.T) {

@@ -22,6 +22,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/developerconnect"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 )
 
 func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGithubUpdate(t *testing.T) {

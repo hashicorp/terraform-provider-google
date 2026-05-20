@@ -19,6 +19,8 @@ package compute_test
 import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"

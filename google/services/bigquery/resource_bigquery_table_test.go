@@ -27,7 +27,14 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigquery"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/bigqueryconnection"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/bigquerydatapolicy"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/bigtable"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/datacatalog"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccBigQueryTable_Basic(t *testing.T) {

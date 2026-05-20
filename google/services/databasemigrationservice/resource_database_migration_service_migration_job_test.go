@@ -22,6 +22,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/databasemigrationservice"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/sql"
 )
 
 func TestAccDatabaseMigrationServiceMigrationJob_update(t *testing.T) {
