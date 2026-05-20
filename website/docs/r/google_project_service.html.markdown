@@ -80,6 +80,8 @@ will be returned if the service to be disabled has usage in last 30 days.
     When set to "ABANDON", the command will remove the resource from Terraform
     management without updating or deleting the resource in the API.
     When set to "DELETE", deleting the resource is allowed.
+    If `disable_on_destroy` is set to `false`, the service will still be enabled when the 
+    Terraform resource is destroyed even if the `deletion_policy` field is set to "DELETE".
 
 ## Attributes Reference
 

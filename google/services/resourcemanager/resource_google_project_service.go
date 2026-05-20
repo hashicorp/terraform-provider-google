@@ -247,11 +247,10 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 		if err := d.Set("service", srv); err != nil {
 			return fmt.Errorf("Error setting service: %s", err)
 		}
+		if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+			return err
+		}
 		return nil
-	}
-
-	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
-		return err
 	}
 
 	log.Printf("[DEBUG] service %s not in enabled services for project %s, removing from state", srv, project)
