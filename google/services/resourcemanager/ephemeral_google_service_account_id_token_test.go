@@ -32,7 +32,7 @@ func TestAccEphemeralServiceAccountIdToken_basic(t *testing.T) {
 	serviceAccount := envvar.GetTestServiceAccountFromEnv(t)
 	targetServiceAccountEmail := iambeta.BootstrapServiceAccount(t, "idtoken", serviceAccount)
 
-	resource.Test(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
@@ -51,7 +51,7 @@ func TestAccEphemeralServiceAccountIdToken_withDelegates(t *testing.T) {
 	delegateServiceAccountEmailTwo := iambeta.BootstrapServiceAccount(t, "id-delegate2", delegateServiceAccountEmailOne) // SA_3
 	targetServiceAccountEmail := iambeta.BootstrapServiceAccount(t, "id-target", delegateServiceAccountEmailTwo)         // SA_4
 
-	resource.Test(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
@@ -68,7 +68,7 @@ func TestAccEphemeralServiceAccountIdToken_withEmptyDelegates(t *testing.T) {
 	initialServiceAccount := envvar.GetTestServiceAccountFromEnv(t)
 	targetServiceAccountEmail := iambeta.BootstrapServiceAccount(t, "no-del", initialServiceAccount) // SA_4
 
-	resource.Test(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
@@ -88,7 +88,7 @@ func TestAccEphemeralServiceAccountIdToken_withIncludeEmail(t *testing.T) {
 	serviceAccount := envvar.GetTestServiceAccountFromEnv(t)
 	targetServiceAccountEmail := iambeta.BootstrapServiceAccount(t, "idtoken-email", serviceAccount)
 
-	resource.Test(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
