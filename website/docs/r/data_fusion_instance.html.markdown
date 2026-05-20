@@ -370,6 +370,11 @@ The following arguments are supported:
   Users will need to either manually update their state file to include these diffed options, or include the field in a [lifecycle ignore changes block](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#ignore_changes).
   Structure is [documented below](#nested_accelerators).
 
+* `maintenance_policy` -
+  (Optional)
+  Configure the maintenance policy for this instance.
+  Structure is [documented below](#nested_maintenance_policy).
+
 * `tags` -
   (Optional)
   A map of resource manager tags.
@@ -467,6 +472,44 @@ The following arguments are supported:
   The type of an accelator for a CDF instance.
   Possible values are: `ENABLED`, `DISABLED`.
 
+<a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
+
+* `maintenance_window` -
+  (Optional)
+  The maintenance window of the instance.
+  Structure is [documented below](#nested_maintenance_policy_maintenance_window).
+
+
+<a name="nested_maintenance_policy_maintenance_window"></a>The `maintenance_window` block supports:
+
+* `recurring_time_window` -
+  (Required)
+  The recurring time window of the maintenance window.
+  Structure is [documented below](#nested_maintenance_policy_maintenance_window_recurring_time_window).
+
+
+<a name="nested_maintenance_policy_maintenance_window_recurring_time_window"></a>The `recurring_time_window` block supports:
+
+* `window` -
+  (Required)
+  The window representing the start and end time of recurrences. This field ignores the date components of the provided timestamps. Only the time of day and duration between start and end time are relevant.
+  Structure is [documented below](#nested_maintenance_policy_maintenance_window_recurring_time_window_window).
+
+* `recurrence` -
+  (Required)
+  An RRULE with format RFC-5545 for how this window reccurs. They go on for the span of time between the start and end time. The only supported FREQ value is "WEEKLY". To have something repeat every weekday, use: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR".
+
+
+<a name="nested_maintenance_policy_maintenance_window_recurring_time_window_window"></a>The `window` block supports:
+
+* `start_time` -
+  (Required)
+  The start time of the time window provided in RFC 3339 format.
+
+* `end_time` -
+  (Required)
+  The end time of the time window provided in RFC 3339 format.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -512,6 +555,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `p4_service_account` -
   P4 service account for the customer project.
 
+* `maintenance_events` -
+  The maintenance events for this instance.
+  Structure is [documented below](#nested_maintenance_events).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -519,6 +566,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+
+<a name="nested_maintenance_events"></a>The `maintenance_events` block contains:
+
+* `start_time` -
+  (Output)
+  The start time of the maintenance event provided in RFC 3339 format.
+
+* `end_time` -
+  (Output)
+  The end time of the maintenance event provided in RFC 3339 format.
+
+* `state` -
+  (Output)
+  The state of the maintenance event.
 
 ## Timeouts
 
