@@ -256,6 +256,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Compute",
         "path" to "./google/services/compute"
     ),
+    "config" to mapOf(
+        "name" to "config",
+        "displayName" to "Config",
+        "path" to "./google/services/config"
+    ),
     "contactcenterinsights" to mapOf(
         "name" to "contactcenterinsights",
         "displayName" to "Contact Center AI Insights",
