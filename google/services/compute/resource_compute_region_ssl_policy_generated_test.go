@@ -52,33 +52,32 @@ var (
 	_ = compute.Product
 )
 
-func TestAccComputeSslPolicy_sslPolicyBasicExample(t *testing.T) {
+func TestAccComputeRegionSslPolicy_regionSslPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"custom_ssl_policy_name":     "tf-test-custom-ssl-policy" + randomSuffix,
-		"nonprod_ssl_policy_name":    "tf-test-nonprod-ssl-policy" + randomSuffix,
-		"production_ssl_policy_name": "tf-test-production-ssl-policy" + randomSuffix,
-		"random_suffix":              randomSuffix,
+		"region_ssl_policy_name": "tf-test-region-ssl-policy" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeSslPolicyDestroyProducer(t),
+		CheckDestroy:             testAccCheckComputeRegionSslPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSslPolicy_sslPolicyBasicExample(context),
+				Config: testAccComputeRegionSslPolicy_regionSslPolicyBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_ssl_policy.prod-ssl-policy",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_ssl_policy.region-ssl-policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 			{
-				ResourceName:       "google_compute_ssl_policy.prod-ssl-policy",
+				ResourceName:       "google_compute_region_ssl_policy.region-ssl-policy",
 				RefreshState:       true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
@@ -87,53 +86,42 @@ func TestAccComputeSslPolicy_sslPolicyBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeSslPolicy_sslPolicyBasicExample(context map[string]interface{}) string {
+func testAccComputeRegionSslPolicy_regionSslPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_ssl_policy" "prod-ssl-policy" {
-  name    = "%{production_ssl_policy_name}"
+resource "google_compute_region_ssl_policy" "region-ssl-policy" {
+  name    = "%{region_ssl_policy_name}"
+  region  = "us-central1"
   profile = "MODERN"
-}
-
-resource "google_compute_ssl_policy" "nonprod-ssl-policy" {
-  name            = "%{nonprod_ssl_policy_name}"
-  profile         = "MODERN"
-  min_tls_version = "TLS_1_2"
-}
-
-resource "google_compute_ssl_policy" "custom-ssl-policy" {
-  name            = "%{custom_ssl_policy_name}"
-  min_tls_version = "TLS_1_2"
-  profile         = "CUSTOM"
-  custom_features = ["TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"]
 }
 `, context)
 }
 
-func TestAccComputeSslPolicy_sslPolicyPostQuantumExample(t *testing.T) {
+func TestAccComputeRegionSslPolicy_regionSslPolicyPostQuantumExample(t *testing.T) {
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"post_quantum_ssl_policy_name": "tf-test-post-quantum-ssl-policy" + randomSuffix,
-		"random_suffix":                randomSuffix,
+		"post_quantum_region_ssl_policy_name": "tf-test-post-quantum-region-ssl-policy" + randomSuffix,
+		"random_suffix":                       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeSslPolicyDestroyProducer(t),
+		CheckDestroy:             testAccCheckComputeRegionSslPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSslPolicy_sslPolicyPostQuantumExample(context),
+				Config: testAccComputeRegionSslPolicy_regionSslPolicyPostQuantumExample(context),
 			},
 			{
-				ResourceName:      "google_compute_ssl_policy.post-quantum-ssl-policy",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_ssl_policy.post-quantum-region-ssl-policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 			{
-				ResourceName:       "google_compute_ssl_policy.post-quantum-ssl-policy",
+				ResourceName:       "google_compute_region_ssl_policy.post-quantum-region-ssl-policy",
 				RefreshState:       true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
@@ -142,10 +130,11 @@ func TestAccComputeSslPolicy_sslPolicyPostQuantumExample(t *testing.T) {
 	})
 }
 
-func testAccComputeSslPolicy_sslPolicyPostQuantumExample(context map[string]interface{}) string {
+func testAccComputeRegionSslPolicy_regionSslPolicyPostQuantumExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_ssl_policy" "post-quantum-ssl-policy" {
-  name                         = "%{post_quantum_ssl_policy_name}"
+resource "google_compute_region_ssl_policy" "post-quantum-region-ssl-policy" {
+  name                         = "%{post_quantum_region_ssl_policy_name}"
+  region                       = "us-central1"
   profile                      = "MODERN"
   min_tls_version              = "TLS_1_2"
   post_quantum_key_exchange    = "ENABLED"
@@ -153,10 +142,10 @@ resource "google_compute_ssl_policy" "post-quantum-ssl-policy" {
 `, context)
 }
 
-func testAccCheckComputeSslPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckComputeRegionSslPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_compute_ssl_policy" {
+			if rs.Type != "google_compute_region_ssl_policy" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
@@ -164,7 +153,7 @@ func testAccCheckComputeSslPolicyDestroyProducer(t *testing.T) func(s *terraform
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(compute.Product, config), "projects/{{project}}/global/sslPolicies/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(compute.Product, config), "projects/{{project}}/regions/{{region}}/sslPolicies/{{name}}"))
 			if err != nil {
 				return err
 			}
@@ -183,7 +172,7 @@ func testAccCheckComputeSslPolicyDestroyProducer(t *testing.T) func(s *terraform
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("ComputeSslPolicy still exists at %s", url)
+				return fmt.Errorf("ComputeRegionSslPolicy still exists at %s", url)
 			}
 		}
 

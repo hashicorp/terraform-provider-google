@@ -58,6 +58,22 @@ resource "google_compute_ssl_policy" "custom-ssl-policy" {
   custom_features = ["TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ssl_policy_post_quantum&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ssl Policy Post Quantum
+
+
+```hcl
+resource "google_compute_ssl_policy" "post-quantum-ssl-policy" {
+  name                         = "post-quantum-ssl-policy"
+  profile                      = "MODERN"
+  min_tls_version              = "TLS_1_2"
+  post_quantum_key_exchange    = "ENABLED"
+}
+```
 
 ## Argument Reference
 
@@ -112,6 +128,19 @@ The following arguments are supported:
   for which ciphers are available to use. **Note**: this argument
   *must* be present when using the `CUSTOM` profile. This argument
   *must not* be present when using any other profile.
+
+* `post_quantum_key_exchange` -
+  (Optional)
+  One of `DEFAULT`, `ENABLED`, or `DEFERRED`. Controls whether the load balancer
+  negotiates X25519MLKEM768 key exchange when clients advertise support for it.
+  When set to `DEFAULT`, or if no SSL Policy is attached to
+  the target proxy, the load balancer disallows X25519MLKEM768 key
+  exchange before October 2026, and allows it afterward. When set to
+  `ENABLED`, the load balancer allows X25519MLKEM768 key
+  exchange. When set to `DEFERRED`, the load balancer
+  disallows X25519MLKEM768 key exchange until October 2027, and allows
+  it afterward.
+  Possible values are: `DEFAULT`, `ENABLED`, `DEFERRED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
