@@ -31,7 +31,7 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 	t.Parallel()
 
 	var sslPolicy map[string]interface{}
-	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(t, 10))
+	sslPolicyName := fmt.Sprintf("tf-test-ssl-policy-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -47,6 +47,8 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 						"google_compute_ssl_policy.update", "profile", "MODERN"),
 					resource.TestCheckResourceAttr(
 						"google_compute_ssl_policy.update", "min_tls_version", "TLS_1_0"),
+					resource.TestCheckResourceAttr(
+						"google_compute_ssl_policy.update", "post_quantum_key_exchange", ""),
 				),
 			},
 			{
@@ -63,6 +65,8 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 						"google_compute_ssl_policy.update", "profile", "RESTRICTED"),
 					resource.TestCheckResourceAttr(
 						"google_compute_ssl_policy.update", "min_tls_version", "TLS_1_2"),
+					resource.TestCheckResourceAttr(
+						"google_compute_ssl_policy.update", "post_quantum_key_exchange", ""),
 				),
 			},
 			{
@@ -79,6 +83,8 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 						"google_compute_ssl_policy.update", "profile", "FIPS_202205"),
 					resource.TestCheckResourceAttr(
 						"google_compute_ssl_policy.update", "min_tls_version", "TLS_1_2"),
+					resource.TestCheckResourceAttr(
+						"google_compute_ssl_policy.update", "post_quantum_key_exchange", ""),
 				),
 			},
 			{
@@ -95,6 +101,8 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 						"google_compute_ssl_policy.update", "profile", "RESTRICTED"),
 					resource.TestCheckResourceAttr(
 						"google_compute_ssl_policy.update", "min_tls_version", "TLS_1_3"),
+					resource.TestCheckResourceAttr(
+						"google_compute_ssl_policy.update", "post_quantum_key_exchange", ""),
 				),
 			},
 			{
@@ -110,7 +118,7 @@ func TestAccComputeSslPolicy_update_to_custom(t *testing.T) {
 	t.Parallel()
 
 	var sslPolicy map[string]interface{}
-	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(t, 10))
+	sslPolicyName := fmt.Sprintf("tf-test-ssl-policy-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -157,7 +165,7 @@ func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 	t.Parallel()
 
 	var sslPolicy map[string]interface{}
-	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(t, 10))
+	sslPolicyName := fmt.Sprintf("tf-test-ssl-policy-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -193,6 +201,81 @@ func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_ssl_policy.update",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeSslPolicy_postQuantumKeyExchange(t *testing.T) {
+	t.Parallel()
+
+	var sslPolicy map[string]interface{}
+	sslPolicyName := fmt.Sprintf("tf-test-ssl-policy-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSslPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSslPostQuantum(sslPolicyName, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSslPolicyExists(
+						t, "google_compute_ssl_policy.post_quantum_key_exchange", &sslPolicy),
+					resource.TestCheckResourceAttr(
+						"google_compute_ssl_policy.post_quantum_key_exchange", "profile", "MODERN"),
+					resource.TestCheckResourceAttr(
+						"google_compute_ssl_policy.post_quantum_key_exchange", "min_tls_version", "TLS_1_2"),
+					resource.TestCheckResourceAttr(
+						"google_compute_ssl_policy.post_quantum_key_exchange", "post_quantum_key_exchange", ""),
+				),
+			},
+			{
+				ResourceName:      "google_compute_ssl_policy.post_quantum_key_exchange",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSslPostQuantum(sslPolicyName, "DEFAULT"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSslPolicyExists(
+						t, "google_compute_ssl_policy.post_quantum_key_exchange", &sslPolicy),
+					resource.TestCheckResourceAttr(
+						"google_compute_ssl_policy.post_quantum_key_exchange", "post_quantum_key_exchange", "DEFAULT"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_ssl_policy.post_quantum_key_exchange",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSslPostQuantum(sslPolicyName, "ENABLED"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSslPolicyExists(
+						t, "google_compute_ssl_policy.post_quantum_key_exchange", &sslPolicy),
+					resource.TestCheckResourceAttr(
+						"google_compute_ssl_policy.post_quantum_key_exchange", "post_quantum_key_exchange", "ENABLED"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_ssl_policy.post_quantum_key_exchange",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSslPostQuantum(sslPolicyName, "DEFERRED"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSslPolicyExists(
+						t, "google_compute_ssl_policy.post_quantum_key_exchange", &sslPolicy),
+					resource.TestCheckResourceAttr(
+						"google_compute_ssl_policy.post_quantum_key_exchange", "post_quantum_key_exchange", "DEFERRED"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_ssl_policy.post_quantum_key_exchange",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -296,4 +379,15 @@ resource "google_compute_ssl_policy" "update" {
   profile         = "RESTRICTED"
 }
 `, resourceName)
+}
+
+func testAccComputeSslPostQuantum(resourceName, pqke string) string {
+	return fmt.Sprintf(`
+resource "google_compute_ssl_policy" "post_quantum_key_exchange" {
+  name                         = "%s"
+  profile                      = "MODERN"
+  min_tls_version              = "TLS_1_2"
+  post_quantum_key_exchange    = "%s"
+}
+`, resourceName, pqke)
 }
