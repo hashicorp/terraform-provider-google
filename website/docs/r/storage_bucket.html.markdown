@@ -467,6 +467,18 @@ import {
 }
 ```
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import Storage buckets using identity values. For example:
+
+```tf
+import {
+  identity = {
+    project = "{{project_id}}"
+    name    = "{{bucket}}"
+  }
+  to = google_storage_bucket.default
+}
+```
+
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Storage buckets can be imported using one of the formats above. For example:
 
 ```
