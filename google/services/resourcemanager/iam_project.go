@@ -159,7 +159,7 @@ func init() {
 		Name:        "google_project_iam_policy",
 		ProductName: "resourcemanager",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamPolicy(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamPolicy(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ProjectIamParentResourceIdentityParser)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_project_iam_policy",

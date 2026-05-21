@@ -42,12 +42,15 @@ var IamPolicyBaseSchema = map[string]*schema.Schema{
 	},
 }
 
-func iamPolicyImport(resourceIdParser ResourceIdParserFunc) schema.StateFunc {
+func iamPolicyImport(resourceIdParser ResourceIdParserFunc, parentResourceIdentityParser ParentResourceIdFromIdentityParserFunc) schema.StateFunc {
 	return func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 		if resourceIdParser == nil {
 			return nil, errors.New("Import not supported for this IAM resource.")
 		}
 		config := m.(*transport_tpg.Config)
+		if err := setIamPolicyIdFromParentResourceIdentity(d, config, parentResourceIdentityParser); err != nil {
+			return nil, err
+		}
 		err := resourceIdParser(d, config)
 		if err != nil {
 			return nil, err
@@ -56,14 +59,38 @@ func iamPolicyImport(resourceIdParser ResourceIdParserFunc) schema.StateFunc {
 	}
 }
 
+// setIamPolicyIdFromParentResourceIdentity converts a resource-identity import
+// into the resource id consumed by iamPolicyImport. No-op if there is no
+// identity parser or d already has an id.
+func setIamPolicyIdFromParentResourceIdentity(d *schema.ResourceData, config *transport_tpg.Config, parentResourceIdentityParser ParentResourceIdFromIdentityParserFunc) error {
+	if parentResourceIdentityParser == nil || d.Id() != "" {
+		return nil
+	}
+	identity, err := d.Identity()
+	if err != nil {
+		return err
+	}
+	resourceID, err := parentResourceIdentityParser(d, identity, config)
+	if err != nil {
+		return err
+	}
+	d.SetId(resourceID)
+	return nil
+}
+
+// setIamPolicyResourceIdentity sets parent attributes from state into identity.
+func setIamPolicyResourceIdentity(identity *schema.IdentityData, d *schema.ResourceData, parentSpecificSchema map[string]*schema.Schema) {
+	populateIamParentIdentity(identity, d, parentSpecificSchema)
+}
+
 func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc NewResourceIamUpdaterFunc, resourceIdParser ResourceIdParserFunc, options ...func(*IamSettings)) *schema.Resource {
 	settings := NewIamSettings(options...)
 	createTimeOut := time.Duration(settings.CreateTimeOut) * time.Minute
 
 	resourceSchema := &schema.Resource{
-		Create: ResourceIamPolicyCreate(newUpdaterFunc),
-		Read:   ResourceIamPolicyRead(newUpdaterFunc),
-		Update: ResourceIamPolicyUpdate(newUpdaterFunc),
+		Create: ResourceIamPolicyCreate(newUpdaterFunc, parentSpecificSchema, settings.ParentResourceIdentityParser),
+		Read:   ResourceIamPolicyRead(newUpdaterFunc, parentSpecificSchema, settings.ParentResourceIdentityParser),
+		Update: ResourceIamPolicyUpdate(newUpdaterFunc, parentSpecificSchema, settings.ParentResourceIdentityParser),
 		Delete: ResourceIamPolicyDelete(newUpdaterFunc),
 
 		// if non-empty, this will be used to send a deprecation message when the
@@ -74,10 +101,20 @@ func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdate
 		SchemaVersion:  settings.SchemaVersion,
 		StateUpgraders: settings.StateUpgraders,
 		Importer: &schema.ResourceImporter{
-			State: iamPolicyImport(resourceIdParser),
+			State: iamPolicyImport(resourceIdParser, settings.ParentResourceIdentityParser),
 		},
 		UseJSONNumber: true,
 	}
+
+	if settings.ParentResourceIdentityParser != nil {
+		resourceSchema.Identity = &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return ConvertToIdentitySchema(parentSpecificSchema)
+			},
+		}
+	}
+
 	if createTimeOut > 0 {
 		resourceSchema.Timeouts = &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(createTimeOut),
@@ -86,7 +123,7 @@ func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdate
 	return resourceSchema
 }
 
-func ResourceIamPolicyCreate(newUpdaterFunc NewResourceIamUpdaterFunc) schema.CreateFunc {
+func ResourceIamPolicyCreate(newUpdaterFunc NewResourceIamUpdaterFunc, parentSpecificSchema map[string]*schema.Schema, parentResourceIdentityParser ParentResourceIdFromIdentityParserFunc) schema.CreateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*transport_tpg.Config)
 
@@ -100,11 +137,20 @@ func ResourceIamPolicyCreate(newUpdaterFunc NewResourceIamUpdaterFunc) schema.Cr
 		}
 
 		d.SetId(updater.GetResourceId())
-		return ResourceIamPolicyRead(newUpdaterFunc)(d, meta)
+
+		if parentResourceIdentityParser != nil {
+			identity, err := d.Identity()
+			if err != nil {
+				return err
+			}
+			setIamPolicyResourceIdentity(identity, d, parentSpecificSchema)
+		}
+
+		return ResourceIamPolicyRead(newUpdaterFunc, parentSpecificSchema, parentResourceIdentityParser)(d, meta)
 	}
 }
 
-func ResourceIamPolicyRead(newUpdaterFunc NewResourceIamUpdaterFunc) schema.ReadFunc {
+func ResourceIamPolicyRead(newUpdaterFunc NewResourceIamUpdaterFunc, parentSpecificSchema map[string]*schema.Schema, parentResourceIdentityParser ParentResourceIdFromIdentityParserFunc) schema.ReadFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*transport_tpg.Config)
 
@@ -125,11 +171,19 @@ func ResourceIamPolicyRead(newUpdaterFunc NewResourceIamUpdaterFunc) schema.Read
 			return fmt.Errorf("Error setting policy_data: %s", err)
 		}
 
+		if parentResourceIdentityParser != nil {
+			identity, err := d.Identity()
+			if err != nil {
+				return err
+			}
+			setIamPolicyResourceIdentity(identity, d, parentSpecificSchema)
+		}
+
 		return nil
 	}
 }
 
-func ResourceIamPolicyUpdate(newUpdaterFunc NewResourceIamUpdaterFunc) schema.UpdateFunc {
+func ResourceIamPolicyUpdate(newUpdaterFunc NewResourceIamUpdaterFunc, parentSpecificSchema map[string]*schema.Schema, parentResourceIdentityParser ParentResourceIdFromIdentityParserFunc) schema.UpdateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*transport_tpg.Config)
 
@@ -144,7 +198,7 @@ func ResourceIamPolicyUpdate(newUpdaterFunc NewResourceIamUpdaterFunc) schema.Up
 			}
 		}
 
-		return ResourceIamPolicyRead(newUpdaterFunc)(d, meta)
+		return ResourceIamPolicyRead(newUpdaterFunc, parentSpecificSchema, parentResourceIdentityParser)(d, meta)
 	}
 }
 

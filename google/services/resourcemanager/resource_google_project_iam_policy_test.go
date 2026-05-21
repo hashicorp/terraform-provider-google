@@ -29,6 +29,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -40,6 +41,9 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 	pid := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	member := "user:evanbrown@google.com"
 	acctest.VcrTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_12_0),
+		},
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
@@ -59,6 +63,11 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 			{
 				ResourceName: "google_project_iam_policy.acceptance",
 				ImportState:  true,
+			},
+			{
+				ResourceName:    "google_project_iam_policy.acceptance",
+				ImportState:     true,
+				ImportStateKind: resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
