@@ -93,7 +93,7 @@ resource "google_compute_network" "default" {
 ```hcl
 resource "google_datastream_private_connection" "default" {
     display_name          = "Connection profile"
-    location              = "us-central1"
+    location              = "us-west1"
     private_connection_id = "my-connection"
 
     labels = {
@@ -107,7 +107,7 @@ resource "google_datastream_private_connection" "default" {
 
 resource "google_compute_network_attachment" "default" {
     name                  = "my-network-attachment"
-    region                = "us-central1"
+    region                = "us-west1"
     description           = "basic network attachment description"
     connection_preference = "ACCEPT_AUTOMATIC"
 
@@ -123,7 +123,7 @@ resource "google_compute_network" "default" {
 
 resource "google_compute_subnetwork" "default" {
     name   = "my-subnetwork"
-    region = "us-central1"
+    region = "us-west1"
 
     network       = google_compute_network.default.id
     ip_cidr_range = "10.0.0.0/16"
