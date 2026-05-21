@@ -138,6 +138,8 @@ to default to the backend value. See [structure below](#nested_cluster).
 
 * `tags` - (Optional) A set of key/value label pairs to assign to the resource. Tags must follow the requirements at [create and manage tags](https://docs.cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing).
 
+* `edition` (Optional) The edition of the Bigtable instance. One of "ENTERPRISE" or "ENTERPRISE_PLUS". Defaults to "ENTERPRISE". Details can be found at the [Cloud Bigtable editions page](https://docs.cloud.google.com/bigtable/docs/editions-overview).
+
 -----
 
 <a name="nested_cluster"></a>The `cluster` block supports the following arguments:

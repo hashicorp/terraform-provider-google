@@ -24,6 +24,7 @@ fields:
   - field: 'effective_labels'
     provider_only: true
   - field: 'force_destroy'
+  - field: 'edition'
   - field: 'instance_type'
   - api_field: 'labels'
   - api_field: 'name'
