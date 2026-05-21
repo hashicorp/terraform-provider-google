@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue in `google_compute_subnetwork` where `secondary_ip_range` entries linked to an `internal_range` could not be removed and adding new ranges would sometimes fail due to positional shifts ([#27175](https://github.com/hashicorp/terraform-provider-google/issues/27175))
+```
