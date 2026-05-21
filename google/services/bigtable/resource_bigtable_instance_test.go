@@ -1342,3 +1342,91 @@ resource "google_bigtable_instance" "instance" {
 }
 `, pid, instanceName, instanceName, instanceName, instanceName)
 }
+
+func TestAccBigtableInstance_edition(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Create as ENTERPRISE
+			{
+				Config: testAccBigtableInstance_edition(instanceName, "ENTERPRISE"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigtable_instance.instance", "edition", "ENTERPRISE"),
+				),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "labels", "terraform_labels"},
+			},
+			// Upgrade to ENTERPRISE_PLUS
+			{
+				Config: testAccBigtableInstance_edition(instanceName, "ENTERPRISE_PLUS"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigtable_instance.instance", "edition", "ENTERPRISE_PLUS"),
+				),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func TestAccBigtableInstance_editionEnterprisePlus(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Create directly as ENTERPRISE_PLUS
+			{
+				Config: testAccBigtableInstance_edition(instanceName, "ENTERPRISE_PLUS"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigtable_instance.instance", "edition", "ENTERPRISE_PLUS"),
+				),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccBigtableInstance_edition(instanceName, edition string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name          = "%s"
+  instance_type = "PRODUCTION"
+  edition       = "%s"
+  cluster {
+    cluster_id   = "%s"
+    zone         = "us-central1-b"
+    num_nodes    = 1
+    storage_type = "SSD"
+  }
+  deletion_protection = false
+}
+`, instanceName, edition, instanceName)
+}
