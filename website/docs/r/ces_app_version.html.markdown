@@ -1515,6 +1515,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 <a name="nested_snapshot_guardrails_llm_prompt_security"></a>The `llm_prompt_security` block contains:
 
+* `fail_open` -
+  (Output)
+  Determines the behavior when the guardrail encounters an LLM error.
+
 * `custom_policy` -
   (Output)
   Guardrail that blocks the conversation if the LLM response is considered

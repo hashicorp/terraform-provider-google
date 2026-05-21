@@ -53,6 +53,7 @@ fields:
     - api_field: llmPromptSecurity.customPolicy.policyScope
     - api_field: llmPromptSecurity.customPolicy.prompt
     - api_field: llmPromptSecurity.defaultSettings.defaultPromptTemplate
+    - api_field: llmPromptSecurity.failOpen
     - field: location
       provider_only: true
     - api_field: modelSafety.safetySettings.category

@@ -592,6 +592,15 @@ the system uses by default. It is OUTPUT_ONLY.`,
 								},
 							},
 						},
+						"fail_open": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Determines the behavior when the guardrail encounters an LLM error.
+- If true: the guardrail is bypassed.
+- If false (default): the guardrail triggers/blocks.
+Note: If a custom policy is provided, this field is ignored in favor of
+the policy's 'failOpen' configuration.`,
+						},
 					},
 				},
 			},
@@ -1560,12 +1569,18 @@ func flattenCESGuardrailLlmPromptSecurity(v interface{}, d *schema.ResourceData,
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["fail_open"] =
+		flattenCESGuardrailLlmPromptSecurityFailOpen(original["failOpen"], d, config)
 	transformed["custom_policy"] =
 		flattenCESGuardrailLlmPromptSecurityCustomPolicy(original["customPolicy"], d, config)
 	transformed["default_settings"] =
 		flattenCESGuardrailLlmPromptSecurityDefaultSettings(original["defaultSettings"], d, config)
 	return []interface{}{transformed}
 }
+func flattenCESGuardrailLlmPromptSecurityFailOpen(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCESGuardrailLlmPromptSecurityCustomPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -2306,6 +2321,13 @@ func expandCESGuardrailLlmPromptSecurity(v interface{}, d tpgresource.TerraformR
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedFailOpen, err := expandCESGuardrailLlmPromptSecurityFailOpen(original["fail_open"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFailOpen); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["failOpen"] = transformedFailOpen
+	}
+
 	transformedCustomPolicy, err := expandCESGuardrailLlmPromptSecurityCustomPolicy(original["custom_policy"], d, config)
 	if err != nil {
 		return nil, err
@@ -2321,6 +2343,10 @@ func expandCESGuardrailLlmPromptSecurity(v interface{}, d tpgresource.TerraformR
 	}
 
 	return transformed, nil
+}
+
+func expandCESGuardrailLlmPromptSecurityFailOpen(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCESGuardrailLlmPromptSecurityCustomPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

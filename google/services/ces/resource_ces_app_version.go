@@ -1955,6 +1955,11 @@ the system uses by default. It is OUTPUT_ONLY.`,
 														},
 													},
 												},
+												"fail_open": {
+													Type:        schema.TypeBool,
+													Computed:    true,
+													Description: `Determines the behavior when the guardrail encounters an LLM error.`,
+												},
 											},
 										},
 									},
@@ -5533,12 +5538,18 @@ func flattenCESAppVersionSnapshotGuardrailsLlmPromptSecurity(v interface{}, d *s
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["fail_open"] =
+		flattenCESAppVersionSnapshotGuardrailsLlmPromptSecurityFailOpen(original["failOpen"], d, config)
 	transformed["custom_policy"] =
 		flattenCESAppVersionSnapshotGuardrailsLlmPromptSecurityCustomPolicy(original["customPolicy"], d, config)
 	transformed["default_settings"] =
 		flattenCESAppVersionSnapshotGuardrailsLlmPromptSecurityDefaultSettings(original["defaultSettings"], d, config)
 	return []interface{}{transformed}
 }
+func flattenCESAppVersionSnapshotGuardrailsLlmPromptSecurityFailOpen(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCESAppVersionSnapshotGuardrailsLlmPromptSecurityCustomPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
