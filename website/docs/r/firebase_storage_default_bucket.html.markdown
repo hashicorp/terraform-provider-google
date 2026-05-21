@@ -88,6 +88,10 @@ In addition to the arguments listed above, the following computed attributes are
   The resource name of the bucket in the format
   projects/PROJECT_IDENTIFIER/buckets/BUCKET_ID
 
+* `bucket_id` -
+  (Output)
+  The last segment of bucket.name.
+
 ## Timeouts
 
 This resource provides the following
