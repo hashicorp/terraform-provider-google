@@ -1342,6 +1342,80 @@ resource "google_compute_subnetwork" "subnetwork" {
 `, cnName, subnetworkName)
 }
 
+func TestAccComputeSubnetwork_secondaryIpRangeInternalRangeInUse(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_secondaryIpRangeInternalRangeBaseline(context),
+			},
+			{
+				Config: testAccComputeSubnetwork_secondaryIpRangeInternalRangeRemoved(context),
+			},
+			{
+				Config: testAccComputeSubnetwork_secondaryIpRangePositionalStability(context),
+			},
+		},
+	})
+}
+
+func testAccComputeSubnetwork_secondaryIpRangeInternalRangeBaseline(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "net" {
+  name                    = "tf-test-net-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_connectivity_internal_range" "secondary" {
+  name          = "tf-test-secondary-%{random_suffix}"
+  network       = google_compute_network.net.id
+  usage         = "FOR_VPC"
+  peering       = "FOR_SELF"
+  prefix_length = 24
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  name          = "tf-test-sub-%{random_suffix}"
+  network       = google_compute_network.net.id
+  region        = "us-central1"
+  ip_cidr_range = "10.0.0.0/16"
+
+  secondary_ip_range {
+    range_name              = "secondary-a"
+    reserved_internal_range = "networkconnectivity.googleapis.com/${google_network_connectivity_internal_range.secondary.id}"
+  }
+
+  depends_on = [google_network_connectivity_internal_range.secondary]
+}
+
+resource "google_compute_instance" "vm" {
+  name         = "tf-test-vm-%{random_suffix}"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnet.id
+    alias_ip_range {
+      subnetwork_range_name = "secondary-a"
+      ip_cidr_range         = "/32"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckSubnetIpCollectionMatchesPdp(t *testing.T, subnetResourceName, pdpResourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		subnetRes, ok := s.RootModule().Resources[subnetResourceName]
@@ -1413,6 +1487,56 @@ resource "google_compute_subnetwork" "test_subnet" {
 `, context)
 }
 
+func testAccComputeSubnetwork_secondaryIpRangeInternalRangeRemoved(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "net" {
+  name                    = "tf-test-net-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  name          = "tf-test-sub-%{random_suffix}"
+  network       = google_compute_network.net.id
+  region        = "us-central1"
+  ip_cidr_range = "10.0.0.0/16"
+}
+`, context)
+}
+
+func testAccComputeSubnetwork_secondaryIpRangePositionalStability(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "net" {
+  name                    = "tf-test-net-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  name          = "tf-test-sub-%{random_suffix}"
+  network       = google_compute_network.net.id
+  region        = "us-central1"
+  ip_cidr_range = "10.0.0.0/16"
+
+  secondary_ip_range {
+    range_name    = "new-range-a"
+    ip_cidr_range = "192.168.1.0/24"
+  }
+}
+
+resource "google_compute_instance" "vm" {
+  name         = "tf-test-vm-%{random_suffix}"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnet.id
+  }
+}
+`, context)
+}
 func testAccComputeSubnetwork_ipv6PdpUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "test_network" {
