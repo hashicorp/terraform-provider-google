@@ -4183,13 +4183,17 @@ func isEmptyServiceAccountBlock(d *schema.ResourceData) bool {
 // Alias ip ranges cannot be removed and created at the same time. This checks if there are any unchanged alias ip ranges
 // to be kept in between the PATCH operations on Network Interface
 func CheckForCommonAliasIp(old, new *compute.NetworkInterface) []*compute.AliasIpRange {
+	return checkForCommonAliasIpRanges(old.AliasIpRanges, new.AliasIpRanges)
+}
+
+func checkForCommonAliasIpRanges(old, new []*compute.AliasIpRange) []*compute.AliasIpRange {
 	newAliasIpMap := make(map[string]bool)
-	for _, ipRange := range new.AliasIpRanges {
+	for _, ipRange := range new {
 		newAliasIpMap[ipRange.IpCidrRange] = true
 	}
 
 	resultAliasIpRanges := make([]*compute.AliasIpRange, 0)
-	for _, val := range old.AliasIpRanges {
+	for _, val := range old {
 		if newAliasIpMap[val.IpCidrRange] {
 			resultAliasIpRanges = append(resultAliasIpRanges, val)
 		}

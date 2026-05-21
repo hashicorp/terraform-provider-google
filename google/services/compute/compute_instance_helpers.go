@@ -393,14 +393,15 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *transport_tpg.Conf
 		region = subnet.Region
 
 		flattened[i] = map[string]interface{}{
-			"network_ip":                  iface.NetworkIP,
-			"network":                     tpgresource.ConvertSelfLinkToV1(iface.Network),
-			"parent_nic_name":             iface.ParentNicName,
-			"vlan":                        iface.Vlan,
-			"subnetwork":                  tpgresource.ConvertSelfLinkToV1(iface.Subnetwork),
-			"subnetwork_project":          subnet.Project,
-			"access_config":               ac,
-			"alias_ip_range":              flattenAliasIpRange(d, iface.AliasIpRanges, i),
+			"network_ip":         iface.NetworkIP,
+			"network":            tpgresource.ConvertSelfLinkToV1(iface.Network),
+			"parent_nic_name":    iface.ParentNicName,
+			"vlan":               iface.Vlan,
+			"subnetwork":         tpgresource.ConvertSelfLinkToV1(iface.Subnetwork),
+			"subnetwork_project": subnet.Project,
+			"access_config":      ac,
+			"alias_ip_range":     flattenAliasIpRange(d, iface.AliasIpRanges, i),
+
 			"nic_type":                    iface.NicType,
 			"stack_type":                  iface.StackType,
 			"ipv6_access_config":          flattenIpv6AccessConfigs(iface.Ipv6AccessConfigs),
@@ -508,13 +509,14 @@ func expandNetworkInterfaces(d tpgresource.TerraformResourceData, config *transp
 		}
 
 		ifaces[i] = &compute.NetworkInterface{
-			NetworkIP:                data["network_ip"].(string),
-			Network:                  nf.RelativeLink(),
-			NetworkAttachment:        networkAttachment,
-			Vlan:                     int64(data["vlan"].(int)),
-			Subnetwork:               sf.RelativeLink(),
-			AccessConfigs:            expandAccessConfigs(data["access_config"].([]interface{})),
-			AliasIpRanges:            expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
+			NetworkIP:         data["network_ip"].(string),
+			Network:           nf.RelativeLink(),
+			NetworkAttachment: networkAttachment,
+			Vlan:              int64(data["vlan"].(int)),
+			Subnetwork:        sf.RelativeLink(),
+			AccessConfigs:     expandAccessConfigs(data["access_config"].([]interface{})),
+			AliasIpRanges:     expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
+
 			NicType:                  data["nic_type"].(string),
 			StackType:                data["stack_type"].(string),
 			QueueCount:               int64(data["queue_count"].(int)),

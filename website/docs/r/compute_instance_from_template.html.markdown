@@ -97,6 +97,7 @@ are marked [Attributes as Blocks](/docs/configuration/attr-as-blocks.html):
 * `service_account`
 * `scratch_disk`
 * `network_interface.alias_ip_range`
+* `network_interface.alias_ipv6_range` [Beta]
 * `network_interface.access_config`
 
 ## Attributes Reference
