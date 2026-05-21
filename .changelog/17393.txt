@@ -1,0 +1,3 @@
+```release-note:enhancement
+google_compute_network: added support in the datasource for looking up a network by `self_link` in addition to `name`
+```
