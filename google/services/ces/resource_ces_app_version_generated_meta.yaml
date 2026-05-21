@@ -205,6 +205,7 @@ fields:
     - api_field: snapshot.guardrails.llmPromptSecurity.customPolicy.policyScope
     - api_field: snapshot.guardrails.llmPromptSecurity.customPolicy.prompt
     - api_field: snapshot.guardrails.llmPromptSecurity.defaultSettings.defaultPromptTemplate
+    - api_field: snapshot.guardrails.llmPromptSecurity.failOpen
     - api_field: snapshot.guardrails.modelSafety.safetySettings.category
     - api_field: snapshot.guardrails.modelSafety.safetySettings.threshold
     - api_field: snapshot.guardrails.name

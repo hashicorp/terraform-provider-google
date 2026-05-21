@@ -297,6 +297,81 @@ resource "google_ces_guardrail" "ces_guardrail_generative_answer_llm_prompt_secu
 `, context)
 }
 
+func TestAccCESGuardrail_cesGuardrailLlmPromptSecurityFailOpenExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"app_display_name":       "tf-test-my-app" + randomSuffix,
+		"app_id":                 "tf-test-app-id" + randomSuffix,
+		"guardrail_display_name": "tf-test-my-guardrail" + randomSuffix,
+		"guardrail_id":           "tf-test-guardrail-id" + randomSuffix,
+		"random_suffix":          randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESGuardrailDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESGuardrail_cesGuardrailLlmPromptSecurityFailOpenExample(context),
+			},
+			{
+				ResourceName:            "google_ces_guardrail.ces_guardrail_llm_prompt_security_fail_open",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "guardrail_id", "location"},
+			},
+			{
+				ResourceName:       "google_ces_guardrail.ces_guardrail_llm_prompt_security_fail_open",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCESGuardrail_cesGuardrailLlmPromptSecurityFailOpenExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_guardrail" {
+  app_id = "%{app_id}"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "%{app_display_name}"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_guardrail" "ces_guardrail_llm_prompt_security_fail_open" {
+  guardrail_id = "%{guardrail_id}"
+  location     = google_ces_app.ces_app_for_guardrail.location
+  app          = google_ces_app.ces_app_for_guardrail.app_id
+  display_name = "%{guardrail_display_name}"
+  description  = "Guardrail description"
+  action {
+    generative_answer {
+        prompt = "example_prompt"
+    }
+  }
+  enabled = true
+  llm_prompt_security {
+    fail_open = true
+  }
+}
+`, context)
+}
+
 func TestAccCESGuardrail_cesGuardrailCodeCallbackExample(t *testing.T) {
 	t.Parallel()
 

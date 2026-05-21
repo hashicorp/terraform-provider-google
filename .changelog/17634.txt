@@ -1,0 +1,6 @@
+```release-note:enhancement
+ces: added `fail_open` field to `llm_prompt_security` block in `google_ces_guardrail` resource
+```
+```release-note:enhancement
+ces: added read-only `fail_open` field to `llm_prompt_security` block in `google_ces_app_version` resource
+```
