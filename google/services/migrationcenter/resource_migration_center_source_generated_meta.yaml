@@ -1,0 +1,27 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_migration_center_source
+generation_type: mmv1
+source_file: products/migrationcenter/Source.yaml
+api_service_name: migrationcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: Source
+autogen_status: true
+fields:
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: errorFrameCount
+    - field: location
+      provider_only: true
+    - api_field: managed
+    - api_field: name
+    - api_field: pendingFrameCount
+    - api_field: priority
+    - field: source_id
+      provider_only: true
+    - api_field: state
+    - api_field: type
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
