@@ -285,6 +285,14 @@ func schemaNodeConfig() *schema.Schema {
 
 				"boot_disk": schemaBootDiskConfig(),
 
+				"gpudirect_strategy": {
+					Type:             schema.TypeString,
+					Optional:         true,
+					Computed:         true,
+					DiffSuppressFunc: tpgresource.CaseDiffSuppress,
+					Description:      `The type of GPUDirect strategy to enable on the node.`,
+				},
+
 				"guest_accelerator": {
 					Type:        schema.TypeList,
 					Optional:    true,
@@ -1479,6 +1487,10 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 		nc.MachineType = v.(string)
 	}
 
+	if v, ok := nodeConfig["gpudirect_strategy"]; ok {
+		nc.GpuDirectConfig = expandGpuDirectConfig(v)
+	}
+
 	if v, ok := nodeConfig["guest_accelerator"]; ok {
 		accels := v.([]interface{})
 		guestAccelerators := make([]*container.AcceleratorConfig, 0, len(accels))
@@ -1809,6 +1821,17 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 	}
 
 	return nc
+}
+
+// GPUDirectConfig is currently directly stored as a GpuDirectStrategy string.
+func expandGpuDirectConfig(v interface{}) *container.GPUDirectConfig {
+	if v == nil || v.(string) == "" {
+		return nil
+	}
+
+	return &container.GPUDirectConfig{
+		GpuDirectStrategy: v.(string),
+	}
 }
 
 func expandBootDiskConfig(v interface{}) *container.BootDisk {
@@ -2678,6 +2701,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"disk_size_gb":                       c.DiskSizeGb,
 		"disk_type":                          c.DiskType,
 		"boot_disk":                          flattenBootDiskConfig(c.BootDisk),
+		"gpudirect_strategy":                 flattenGpuDirectConfig(c.GpuDirectConfig),
 		"guest_accelerator":                  flattenContainerGuestAccelerators(c.Accelerators),
 		"local_ssd_count":                    c.LocalSsdCount,
 		"logging_variant":                    flattenLoggingVariant(c.LoggingConfig),
@@ -2754,6 +2778,15 @@ func flattenResourceManagerTags(c *container.ResourceManagerTags) map[string]int
 	}
 
 	return rmt
+}
+
+// GPUDirectConfig currently only has one field, flatten directly to string.
+func flattenGpuDirectConfig(c *container.GPUDirectConfig) string {
+	if c == nil {
+		return ""
+	}
+
+	return c.GpuDirectStrategy
 }
 
 func flattenAdvancedMachineFeaturesConfig(c *container.AdvancedMachineFeatures) []map[string]interface{} {

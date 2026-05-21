@@ -993,6 +993,8 @@ The `master_authorized_networks_config.cidr_blocks` block supports:
 
 * `enable_confidential_storage` - (Optional) Enabling Confidential Storage will create boot disk with confidential mode. It is disabled by default.
 
+* `gpudirect_strategy` - (Optional) The type of GPUDirect strategy to enable on the node. See the [GKE network docs](https://docs.cloud.google.com/kubernetes-engine/docs/how-to/gpu-bandwidth-gpudirect-tcpx) for information on available modes.
+
 * `local_ssd_encryption_mode` - (Optional) Possible Local SSD encryption modes:
     Accepted values are:
     * `STANDARD_ENCRYPTION`: The given node will be encrypted using keys managed by Google infrastructure and the keys wll be deleted when the node is deleted.

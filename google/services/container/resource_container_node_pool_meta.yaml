@@ -244,6 +244,8 @@ fields:
     api_field: 'config.loggingConfig.variantConfig.variant'
   - field: 'node_config.machine_type'
     api_field: 'config.machineType'
+  - field: 'node_config.gpudirect_strategy'
+    api_field: 'config.gpuDirectConfig.gpuDirectStrategy'
   - field: 'node_config.max_run_duration'
     api_field: 'config.maxRunDuration'
   - field: 'node_config.metadata'
