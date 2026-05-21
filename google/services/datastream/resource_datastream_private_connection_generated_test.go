@@ -215,7 +215,7 @@ func testAccDatastreamPrivateConnection_datastreamPrivateConnectionPscInterfaceE
 	return acctest.Nprintf(`
 resource "google_datastream_private_connection" "default" {
     display_name          = "Connection profile"
-    location              = "us-central1"
+    location              = "us-west1"
     private_connection_id = "%{private_connection_id}"
 
     labels = {
@@ -229,7 +229,7 @@ resource "google_datastream_private_connection" "default" {
 
 resource "google_compute_network_attachment" "default" {
     name                  = "%{network_attachment_name}"
-    region                = "us-central1"
+    region                = "us-west1"
     description           = "basic network attachment description"
     connection_preference = "ACCEPT_AUTOMATIC"
 
@@ -245,7 +245,7 @@ resource "google_compute_network" "default" {
 
 resource "google_compute_subnetwork" "default" {
     name   = "%{subnetwork_name}"
-    region = "us-central1"
+    region = "us-west1"
 
     network       = google_compute_network.default.id
     ip_cidr_range = "10.0.0.0/16"
