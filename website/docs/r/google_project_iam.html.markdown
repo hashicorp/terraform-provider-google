@@ -337,6 +337,23 @@ The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/c
 $ terraform import google_project_iam_policy.default {{project_id}}
 ```
 
+#### Import via resource identity
+
+`google_project_iam_policy` also supports plannable import via [resource identity](https://developer.hashicorp.com/terraform/language/resources/identities) (Terraform 1.12+):
+
+```tf
+import {
+  to = google_project_iam_policy.default
+  identity = {
+    project = "your-project-id"
+  }
+}
+```
+
+Identity attributes:
+
+* `project` - (Optional) The project id. May be omitted if a default project is configured on the provider.
+
 ### Importing Audit Configs
 
 An audit config can be imported into a `google_project_iam_audit_config` resource using the resource's `project_id` and the `service`, e.g:
