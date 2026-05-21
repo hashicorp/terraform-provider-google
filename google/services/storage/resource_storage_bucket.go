@@ -83,6 +83,22 @@ func ResourceStorageBucket() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Update: schema.DefaultTimeout(4 * time.Minute),
@@ -1381,6 +1397,35 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceStorageBucketStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	if d.Id() == "" {
+		identity, err := d.Identity()
+		if err != nil {
+			return nil, fmt.Errorf("Error reading import identity: %s", err)
+		}
+		if identity == nil {
+			return nil, fmt.Errorf("import requires bucket name")
+		}
+
+		nameValue, ok := identity.GetOk("name")
+		if !ok || nameValue.(string) == "" {
+			return nil, fmt.Errorf("import requires bucket name")
+		}
+
+		name := nameValue.(string)
+		if err := d.Set("name", name); err != nil {
+			return nil, fmt.Errorf("Error setting name: %s", err)
+		}
+
+		if projectValue, ok := identity.GetOk("project"); ok && projectValue.(string) != "" {
+			if err := d.Set("project", projectValue.(string)); err != nil {
+				return nil, fmt.Errorf("Error setting project: %s", err)
+			}
+			d.SetId(fmt.Sprintf("%s/%s", projectValue.(string), name))
+		} else {
+			d.SetId(name)
+		}
+	}
+
 	// We need to support project/bucket_name and bucket_name formats. This will allow
 	// importing a bucket that is in a different project than the provider default.
 	// ParseImportID can't be used because having no project will cause an error but it
@@ -2475,11 +2520,11 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	if err := tpgresource.SetLabels(res.Labels, d, "labels"); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
 	}
-	if err := tpgresource.SetLabels(res.Labels, d, "terraform_labels"); err != nil {
-		return fmt.Errorf("Error setting terraform_labels: %s", err)
-	}
 	if err := d.Set("effective_labels", res.Labels); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(res.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
 	}
 	if err := d.Set("website", flattenBucketWebsite(res.Website)); err != nil {
 		return fmt.Errorf("Error setting website: %s", err)
@@ -2544,7 +2589,11 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	}
 
 	d.SetId(res.Id)
-	return nil
+
+	return tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"name":    res.Name,
+		"project": d.Get("project").(string),
+	})
 }
 
 func hierachicalNamespaceDiffSuppress(k, old, new string, r *schema.ResourceData) bool {
