@@ -296,6 +296,26 @@ The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/c
 terraform import google_project_iam_binding.default "{{project_id}} roles/viewer"
 ```
 
+#### Import via resource identity
+
+`google_project_iam_binding` also supports plannable import via [resource identity](https://developer.hashicorp.com/terraform/language/resources/identities) (Terraform 1.12+):
+
+```tf
+import {
+  to = google_project_iam_binding.default
+  identity = {
+    project = "your-project-id"
+    role    = "roles/viewer"
+  }
+}
+```
+
+Identity attributes:
+
+* `project` - (Optional) The project id. May be omitted if a default project is configured on the provider.
+* `role` - (Required) The IAM role being granted.
+* `condition_title` - (Optional) Title of the IAM condition, when importing a conditional binding.
+
 ### Importing IAM policies
 
 IAM policy imports use the identifier of the Project only. For example:

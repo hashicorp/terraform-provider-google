@@ -80,15 +80,26 @@ var iamBindingSchema = map[string]*schema.Schema{
 	},
 }
 
+var IamBindingBaseIdentitySchema = map[string]*schema.Schema{
+	"role": {
+		Type:              schema.TypeString,
+		RequiredForImport: true,
+	},
+	"condition_title": {
+		Type:              schema.TypeString,
+		OptionalForImport: true,
+	},
+}
+
 func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc NewResourceIamUpdaterFunc, resourceIdParser ResourceIdParserFunc, options ...func(*IamSettings)) *schema.Resource {
 	settings := NewIamSettings(options...)
 	createTimeOut := time.Duration(settings.CreateTimeOut) * time.Minute
 
 	resource := &schema.Resource{
-		Create: resourceIamBindingCreateUpdate(newUpdaterFunc, settings.EnableBatching),
-		Read:   resourceIamBindingRead(newUpdaterFunc),
-		Update: resourceIamBindingCreateUpdate(newUpdaterFunc, settings.EnableBatching),
-		Delete: resourceIamBindingDelete(newUpdaterFunc, settings.EnableBatching),
+		Create: resourceIamBindingCreateUpdate(newUpdaterFunc, settings.EnableBatching, parentSpecificSchema, settings.ParentResourceIdentityParser),
+		Read:   resourceIamBindingRead(newUpdaterFunc, parentSpecificSchema, settings.ParentResourceIdentityParser),
+		Update: resourceIamBindingCreateUpdate(newUpdaterFunc, settings.EnableBatching, parentSpecificSchema, settings.ParentResourceIdentityParser),
+		Delete: resourceIamBindingDelete(newUpdaterFunc, settings.EnableBatching, parentSpecificSchema, settings.ParentResourceIdentityParser),
 
 		// if non-empty, this will be used to send a deprecation message when the
 		// resource is used.
@@ -97,10 +108,20 @@ func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdat
 		SchemaVersion:      settings.SchemaVersion,
 		StateUpgraders:     settings.StateUpgraders,
 		Importer: &schema.ResourceImporter{
-			State: iamBindingImport(newUpdaterFunc, resourceIdParser),
+			State: iamBindingImport(newUpdaterFunc, resourceIdParser, settings.ParentResourceIdentityParser),
 		},
 		UseJSONNumber: true,
 	}
+
+	if settings.ParentResourceIdentityParser != nil {
+		resource.Identity = &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return tpgresource.MergeSchemas(IamBindingBaseIdentitySchema, ConvertToIdentitySchema(parentSpecificSchema))
+			},
+		}
+	}
+
 	if createTimeOut > 0 {
 		resource.Timeouts = &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(createTimeOut),
@@ -109,7 +130,58 @@ func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdat
 	return resource
 }
 
-func resourceIamBindingCreateUpdate(newUpdaterFunc NewResourceIamUpdaterFunc, enableBatching bool) func(*schema.ResourceData, interface{}) error {
+// setIamBindingIdFromParentResourceIdentity converts a resource-identity import
+// into the `id` (`{resource} {role} [condition_title]`) consumed by
+// iamBindingImport. No-op if there is no identity parser or d already has an id.
+func setIamBindingIdFromParentResourceIdentity(d *schema.ResourceData, config *transport_tpg.Config, parentResourceIdentityParser ParentResourceIdFromIdentityParserFunc) error {
+	if parentResourceIdentityParser == nil || d.Id() != "" {
+		return nil
+	}
+	identity, err := d.Identity()
+	if err != nil {
+		return err
+	}
+	resourceID, err := parentResourceIdentityParser(d, identity, config)
+	if err != nil {
+		return err
+	}
+	roleVal, ok := identity.GetOk("role")
+	if !ok {
+		return fmt.Errorf("import identity is missing attribute %q", "role")
+	}
+	role, ok := roleVal.(string)
+	if !ok || role == "" {
+		return fmt.Errorf("import identity attribute %q must be a non-empty string", "role")
+	}
+	conditionTitle := ""
+	if ctVal, ok := identity.GetOk("condition_title"); ok {
+		ct, ok := ctVal.(string)
+		if !ok {
+			return fmt.Errorf("import identity attribute %q must be a string", "condition_title")
+		}
+		conditionTitle = ct
+	}
+	idParts := []string{resourceID, role}
+	if conditionTitle != "" {
+		idParts = append(idParts, conditionTitle)
+	}
+	d.SetId(strings.Join(idParts, " "))
+	return nil
+}
+
+// setIamBindingResourceIdentity sets parent attributes from state plus role/condition_title.
+// ParentResourceIdentityParser is only identity→id (for import); it cannot derive parent
+// fields from updater.GetResourceId(). Those fields must come from the same state the updater
+// used, so they stay consistent with GetResourceId() and round-trip through ParentResourceIdentityParser.
+func setIamBindingResourceIdentity(identity *schema.IdentityData, d *schema.ResourceData, parentSpecificSchema map[string]*schema.Schema, role, conditionTitle string) {
+	populateIamParentIdentity(identity, d, parentSpecificSchema)
+	identity.Set("role", role)
+	if conditionTitle != "" {
+		identity.Set("condition_title", conditionTitle)
+	}
+}
+
+func resourceIamBindingCreateUpdate(newUpdaterFunc NewResourceIamUpdaterFunc, enableBatching bool, parentSpecificSchema map[string]*schema.Schema, parentResourceIdentityParser ParentResourceIdFromIdentityParserFunc) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*transport_tpg.Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -139,11 +211,24 @@ func resourceIamBindingCreateUpdate(newUpdaterFunc NewResourceIamUpdaterFunc, en
 		if k := conditionKeyFromCondition(binding.Condition); !k.Empty() {
 			d.SetId(d.Id() + "/" + k.String())
 		}
-		return resourceIamBindingRead(newUpdaterFunc)(d, meta)
+
+		if parentResourceIdentityParser != nil {
+			identity, err := d.Identity()
+			if err != nil {
+				return err
+			}
+			conditionTitle := ""
+			if binding.Condition != nil {
+				conditionTitle = binding.Condition.Title
+			}
+			setIamBindingResourceIdentity(identity, d, parentSpecificSchema, binding.Role, conditionTitle)
+		}
+
+		return resourceIamBindingRead(newUpdaterFunc, parentSpecificSchema, parentResourceIdentityParser)(d, meta)
 	}
 }
 
-func resourceIamBindingRead(newUpdaterFunc NewResourceIamUpdaterFunc) schema.ReadFunc {
+func resourceIamBindingRead(newUpdaterFunc NewResourceIamUpdaterFunc, parentSpecificSchema map[string]*schema.Schema, parentResourceIdentityParser ParentResourceIdFromIdentityParserFunc) schema.ReadFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*transport_tpg.Config)
 
@@ -193,16 +278,31 @@ func resourceIamBindingRead(newUpdaterFunc NewResourceIamUpdaterFunc) schema.Rea
 		if err := d.Set("etag", p.Etag); err != nil {
 			return fmt.Errorf("Error setting etag: %s", err)
 		}
+
+		if parentResourceIdentityParser != nil && binding != nil {
+			identity, err := d.Identity()
+			if err != nil {
+				return err
+			}
+			conditionTitle := ""
+			if binding.Condition != nil {
+				conditionTitle = binding.Condition.Title
+			}
+			setIamBindingResourceIdentity(identity, d, parentSpecificSchema, binding.Role, conditionTitle)
+		}
 		return nil
 	}
 }
 
-func iamBindingImport(newUpdaterFunc NewResourceIamUpdaterFunc, resourceIdParser ResourceIdParserFunc) schema.StateFunc {
+func iamBindingImport(newUpdaterFunc NewResourceIamUpdaterFunc, resourceIdParser ResourceIdParserFunc, parentResourceIdentityParser ParentResourceIdFromIdentityParserFunc) schema.StateFunc {
 	return func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 		if resourceIdParser == nil {
 			return nil, errors.New("Import not supported for this IAM resource.")
 		}
 		config := m.(*transport_tpg.Config)
+		if err := setIamBindingIdFromParentResourceIdentity(d, config, parentResourceIdentityParser); err != nil {
+			return nil, err
+		}
 		s := strings.Fields(d.Id())
 		var id, role string
 		if len(s) < 2 {
@@ -277,7 +377,7 @@ func iamBindingImport(newUpdaterFunc NewResourceIamUpdaterFunc, resourceIdParser
 	}
 }
 
-func resourceIamBindingDelete(newUpdaterFunc NewResourceIamUpdaterFunc, enableBatching bool) schema.DeleteFunc {
+func resourceIamBindingDelete(newUpdaterFunc NewResourceIamUpdaterFunc, enableBatching bool, parentSpecificSchema map[string]*schema.Schema, parentResourceIdentityParser ParentResourceIdFromIdentityParserFunc) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*transport_tpg.Config)
 
@@ -302,7 +402,7 @@ func resourceIamBindingDelete(newUpdaterFunc NewResourceIamUpdaterFunc, enableBa
 			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Resource %q for IAM binding with role %q", updater.DescribeResource(), binding.Role))
 		}
 
-		return resourceIamBindingRead(newUpdaterFunc)(d, meta)
+		return resourceIamBindingRead(newUpdaterFunc, parentSpecificSchema, parentResourceIdentityParser)(d, meta)
 	}
 }
 
