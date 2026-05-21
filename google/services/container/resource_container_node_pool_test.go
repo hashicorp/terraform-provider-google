@@ -1477,6 +1477,31 @@ func TestAccContainerNodePool_withGPU(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withRDMA(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withRDMA(cluster, np, networkName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np_with_gpudirect",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withManagement(t *testing.T) {
 	t.Parallel()
 
@@ -4431,6 +4456,51 @@ resource "google_container_node_pool" "with_upgrade_settings" {
   %s
 }
 `, clusterName, networkName, subnetworkName, nodePoolName, upgradeSettings)
+}
+
+func testAccContainerNodePool_withRDMA(cluster, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1b" {
+  location = "us-central1-b"
+}
+
+resource "google_container_cluster" "cluster" {
+  name                = "%s"
+  location            = "us-central1-b"
+  min_master_version  = data.google_container_engine_versions.central1b.latest_master_version
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+  enable_multi_networking = true
+  datapath_provider       = "ADVANCED_DATAPATH"
+
+  initial_node_count       = 1
+  remove_default_node_pool = true
+}
+
+resource "google_container_node_pool" "np_with_gpudirect" {
+  name     = "%s"
+  location = "us-central1-b"
+  cluster  = google_container_cluster.cluster.name
+  network_config { accelerator_network_profile = "auto" }
+
+  node_config {
+    machine_type = "a3-ultragpu-8g"
+
+    guest_accelerator {
+		type  = "nvidia-h200-141gb"
+		count = 8
+   }
+
+   gpudirect_strategy = "RDMA"
+
+   ephemeral_storage_local_ssd_config {
+     local_ssd_count = 32
+     data_cache_count = 0
+   }
+  }
+}
+`, cluster, networkName, subnetworkName, np)
 }
 
 func testAccContainerNodePool_withGPU(cluster, np, networkName, subnetworkName string) string {

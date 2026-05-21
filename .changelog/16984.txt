@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `node_config.gpudirect_strategy` and `node_pool.node_config.gpudirect_strategy` to `cluster` resource, added `node_config.gpudirect_strategy` to `node_pool` resource
+```
