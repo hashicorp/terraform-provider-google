@@ -1,0 +1,34 @@
+```release-note:new-datasource
+`google_compute_service_attachment`
+```
+
+### Acceptance Tests
+GA provider:
+```
+make testacc TEST=./google/services/compute TESTARGS='-run=TestAccDataSourceGoogleComputeServiceAttachment_basic'
+sh -c "'/Users/adhi/go/src/github.com/hashicorp/terraform-provider-google/scripts/gofmtcheck.sh'"
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC_REFRESH_AFTER_APPLY=1 TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/compute -v -run=TestAccDataSourceGoogleComputeServiceAttachment_basic -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+=== RUN   TestAccDataSourceGoogleComputeServiceAttachment_basic
+=== PAUSE TestAccDataSourceGoogleComputeServiceAttachment_basic
+=== CONT  TestAccDataSourceGoogleComputeServiceAttachment_basic
+--- PASS: TestAccDataSourceGoogleComputeServiceAttachment_basic (139.31s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/compute  141.036s
+```
+
+Beta provider:
+```
+make testacc TEST=./google-beta/services/compute TESTARGS='-run=TestAccDataSourceGoogleComputeServiceAttachment_basic'
+sh -c "'/Users/adhi/go/src/github.com/hashicorp/terraform-provider-google-beta/scripts/gofmtcheck.sh'"
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC_REFRESH_AFTER_APPLY=1 TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google-beta/services/compute -v -run=TestAccDataSourceGoogleComputeServiceAttachment_basic -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google-beta/version.ProviderVersion=acc"
+=== RUN   TestAccDataSourceGoogleComputeServiceAttachment_basic
+=== PAUSE TestAccDataSourceGoogleComputeServiceAttachment_basic
+=== CONT  TestAccDataSourceGoogleComputeServiceAttachment_basic
+--- PASS: TestAccDataSourceGoogleComputeServiceAttachment_basic (133.20s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google-beta/google-beta/services/compute        135.064s
+```
