@@ -26,8 +26,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/recaptchaenterprise"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeSecurityPolicy_basic(t *testing.T) {
@@ -949,7 +950,23 @@ func testAccCheckComputeSecurityPolicyDestroyProducer(t *testing.T) func(s *terr
 
 			pol := rs.Primary.Attributes["name"]
 
-			_, err := compute.NewClient(config, config.UserAgent).SecurityPolicies.Get(config.Project, pol).Do()
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/securityPolicies/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("Security policy %q still exists", pol)
 			}
