@@ -503,7 +503,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	if sourceDiskProp != "" {
 		url = regexp.MustCompile("PRE_CREATE_REPLACE_ME").ReplaceAllLiteralString(url, sourceDiskProp.(string))
 	} else if sourceInstantSnapshotProp != "" {
-		url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/snapshots")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/snapshots")
 		if err != nil {
 			return err
 		}

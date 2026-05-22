@@ -60,7 +60,7 @@ func dataSourceGoogleNetworkManagementConnectivityTests(d *schema.ResourceData, 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/connectivityTests")
 	if err != nil {
 		return err
 	}

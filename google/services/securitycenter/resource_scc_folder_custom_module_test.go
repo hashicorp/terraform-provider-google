@@ -27,7 +27,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/securitycenter"
+	"github.com/hashicorp/terraform-provider-google/google/services/securitycenter"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -219,7 +219,7 @@ func testAccCheckSecurityCenterFolderCustomModuleDestroyProducer(t *testing.T) f
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{SecurityCenterBasePath}}folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(securitycenter.Product, config)+"folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}")
 			if err != nil {
 				return err
 			}

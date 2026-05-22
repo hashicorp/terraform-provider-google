@@ -63,9 +63,9 @@ func dataSourceVmwareengineAnnouncementsRead(d *schema.ResourceData, meta interf
 
 	var resourceURL string
 	if fetchSingleAnnouncement {
-		resourceURL, err = tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/announcements/{{name}}")
+		resourceURL, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/announcements/{{name}}")
 	} else {
-		resourceURL, err = tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/announcements")
+		resourceURL, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/announcements")
 	}
 
 	if err != nil {

@@ -180,7 +180,7 @@ func (u *StorageManagedFolderIamUpdater) SetResourceIamPolicy(policy *cloudresou
 }
 
 func (u *StorageManagedFolderIamUpdater) qualifyManagedFolderUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{StorageBasePath}}b/%s/managedFolders/%s/%s", u.bucket, url.PathEscape(u.managedFolder), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"b/%s/managedFolders/%s/%s", u.bucket, url.PathEscape(u.managedFolder), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

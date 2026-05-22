@@ -64,9 +64,9 @@ func dataSourceVmwareengineUpgradesRead(d *schema.ResourceData, meta interface{}
 
 	var url string
 	if fetchSingleUpgrade {
-		url, err = tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/upgrades/{{name}}")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/upgrades/{{name}}")
 	} else {
-		url, err = tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/upgrades")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/upgrades")
 	}
 
 	if err != nil {

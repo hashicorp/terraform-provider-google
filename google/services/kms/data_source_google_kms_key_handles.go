@@ -94,7 +94,7 @@ func dataSourceGoogleKmsKeyHandlesRead(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/locations/{{location}}/keyHandles")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/keyHandles")
 	if err != nil {
 		return err
 	}

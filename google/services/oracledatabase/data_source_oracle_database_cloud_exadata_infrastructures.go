@@ -59,7 +59,7 @@ func dataSourceOracleDatabaseCloudExadataInfrastructuresRead(d *schema.ResourceD
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/cloudExadataInfrastructures")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/cloudExadataInfrastructures")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

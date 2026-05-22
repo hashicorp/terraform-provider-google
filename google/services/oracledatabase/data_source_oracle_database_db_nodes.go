@@ -116,7 +116,7 @@ func DataSourceOracleDatabaseDbNodesRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/cloudVmClusters/{{cloud_vm_cluster}}/dbNodes")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/cloudVmClusters/{{cloud_vm_cluster}}/dbNodes")
 	if err != nil {
 		return err
 	}

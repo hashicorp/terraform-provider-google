@@ -85,7 +85,7 @@ func datasourceGoogleStorageBucketObjectsRead(d *schema.ResourceData, meta inter
 
 	for {
 		bucket := d.Get("bucket").(string)
-		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("{{StorageBasePath}}b/%s/o", bucket))
+		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf(transport_tpg.BaseUrl(Product, config)+"b/%s/o", bucket))
 		if err != nil {
 			return err
 		}

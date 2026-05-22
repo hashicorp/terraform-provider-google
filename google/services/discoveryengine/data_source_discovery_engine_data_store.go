@@ -64,7 +64,7 @@ func dataSourceGoogleDiscoveryEngineDataStoreRead(d *schema.ResourceData, meta i
 	var res map[string]interface{}
 
 	if hasId {
-		url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores/{{data_store_id}}")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores/{{data_store_id}}")
 		if err != nil {
 			return err
 		}
@@ -81,7 +81,7 @@ func dataSourceGoogleDiscoveryEngineDataStoreRead(d *schema.ResourceData, meta i
 		}
 	} else {
 		// List all data stores and filter by display_name
-		listURL, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores")
+		listURL, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores")
 		if err != nil {
 			return err
 		}

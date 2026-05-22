@@ -161,7 +161,7 @@ func dataSourceGoogleCloudQuotasQuotaInfosRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CloudQuotasBasePath}}{{parent}}/locations/global/services/{{service}}/quotaInfos")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/global/services/{{service}}/quotaInfos")
 	if err != nil {
 		return fmt.Errorf("error setting api endpoint")
 	}
@@ -186,7 +186,7 @@ func dataSourceGoogleCloudQuotasQuotaInfosRead(d *schema.ResourceData, meta inte
 		if res["nextPageToken"] == nil || res["nextPageToken"].(string) == "" {
 			break
 		}
-		url, err = tpgresource.ReplaceVars(d, config, "{{CloudQuotasBasePath}}{{parent}}/locations/global/services/{{service}}/quotaInfos?pageToken="+res["nextPageToken"].(string))
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/global/services/{{service}}/quotaInfos?pageToken="+res["nextPageToken"].(string))
 		if err != nil {
 			return fmt.Errorf("error setting api endpoint")
 		}

@@ -56,7 +56,7 @@ func testSweepCertificateAuthority(region string) error {
 		},
 	}
 
-	caPoolsUrl, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools")
+	caPoolsUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/caPools")
 	if err != nil {
 		return err
 	}

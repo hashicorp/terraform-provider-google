@@ -88,7 +88,7 @@ func resourceComputeProjectDefaultNetworkTierCreateOrUpdate(d *schema.ResourceDa
 		"networkTier": d.Get("network_tier").(string),
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config))
 	if err != nil {
 		return fmt.Errorf("SetDefaultNetworkTier failed: %s", err)
 	}
@@ -124,7 +124,7 @@ func resourceComputeProjectDefaultNetworkTierRead(d *schema.ResourceData, meta i
 
 	projectId := d.Id()
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config))
 	if err != nil {
 		return err
 	}

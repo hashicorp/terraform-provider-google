@@ -70,7 +70,7 @@ func dataSourceMonitoringServiceTypeReadFromList(listFilter string, typeStateSet
 			return err
 		}
 
-		listUrlTmpl := "{{MonitoringBasePath}}v3/projects/{{project}}/services?filter=" + neturl.QueryEscape(filters)
+		listUrlTmpl := transport_tpg.BaseUrl(Product, config) + "v3/projects/{{project}}/services?filter=" + neturl.QueryEscape(filters)
 		url, err := tpgresource.ReplaceVars(d, config, listUrlTmpl)
 		if err != nil {
 			return err

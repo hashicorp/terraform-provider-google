@@ -62,7 +62,7 @@ func dataSourceGoogleDatastreamStaticIpsRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}:fetchStaticIps")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}:fetchStaticIps")
 	if err != nil {
 		return err
 	}

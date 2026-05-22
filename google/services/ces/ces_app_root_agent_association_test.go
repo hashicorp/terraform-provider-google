@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/ces"
+	"github.com/hashicorp/terraform-provider-google/google/services/ces"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -93,7 +93,7 @@ func testAccCheckCesAppRootAgentCleared(t *testing.T, appResourceName string) re
 
 		config := acctest.GoogleProviderConfig(t)
 
-		url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{name}}")
+		url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(ces.Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{name}}")
 		if err != nil {
 			return err
 		}
