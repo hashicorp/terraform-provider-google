@@ -382,7 +382,7 @@ func resourceDialogflowEnvironmentCreate(d *schema.ResourceData, meta interface{
 		obj["fulfillment"] = fulfillmentProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/agent/environments/?environmentId={{environmentid}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/agent/environments/?environmentId={{environmentid}}")
 	if err != nil {
 		return err
 	}
@@ -456,7 +456,7 @@ func resourceDialogflowEnvironmentRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/agent/environments/{{environmentid}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/agent/environments/{{environmentid}}")
 	if err != nil {
 		return err
 	}
@@ -612,7 +612,7 @@ func resourceDialogflowEnvironmentUpdate(d *schema.ResourceData, meta interface{
 		obj["fulfillment"] = fulfillmentProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/agent/environments/{{environmentid}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/agent/environments/{{environmentid}}")
 	if err != nil {
 		return err
 	}
@@ -693,7 +693,7 @@ func resourceDialogflowEnvironmentDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for Environment: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/agent/environments/{{environmentid}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/agent/environments/{{environmentid}}")
 	if err != nil {
 		return err
 	}

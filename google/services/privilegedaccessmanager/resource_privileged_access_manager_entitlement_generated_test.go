@@ -151,7 +151,7 @@ func testAccCheckPrivilegedAccessManagerEntitlementDestroyProducer(t *testing.T)
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(privilegedaccessmanager.Product, config), "{{parent}}/locations/{{location}}/entitlements/{{entitlement_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(privilegedaccessmanager.Product, config)+"{{parent}}/locations/{{location}}/entitlements/{{entitlement_id}}")
 			if err != nil {
 				return err
 			}

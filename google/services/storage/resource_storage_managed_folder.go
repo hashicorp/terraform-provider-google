@@ -215,7 +215,7 @@ func resourceStorageManagedFolderCreate(d *schema.ResourceData, meta interface{}
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/managedFolders"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/managedFolders")
 	if err != nil {
 		return err
 	}
@@ -278,7 +278,7 @@ func resourceStorageManagedFolderRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/managedFolders/{{%name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/managedFolders/{{%name}}")
 	if err != nil {
 		return err
 	}
@@ -412,7 +412,7 @@ func resourceStorageManagedFolderDelete(d *schema.ResourceData, meta interface{}
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/managedFolders/{{%name}}?allowNonEmpty={{force_destroy}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/managedFolders/{{%name}}?allowNonEmpty={{force_destroy}}")
 	if err != nil {
 		return err
 	}

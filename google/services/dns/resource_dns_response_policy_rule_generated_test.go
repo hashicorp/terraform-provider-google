@@ -143,7 +143,7 @@ func testAccCheckDNSResponsePolicyRuleDestroyProducer(t *testing.T) func(s *terr
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(dns.Product, config), "projects/{{project}}/responsePolicies/{{response_policy}}/rules/{{rule_name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(dns.Product, config)+"projects/{{project}}/responsePolicies/{{response_policy}}/rules/{{rule_name}}")
 			if err != nil {
 				return err
 			}

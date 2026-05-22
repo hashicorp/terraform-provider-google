@@ -134,7 +134,7 @@ func testAccCheckIAMWorkforcePoolWorkforcePoolProviderKeyDestroyProducer(t *test
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(iamworkforcepool.Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/keys/{{key_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(iamworkforcepool.Product, config)+"locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/keys/{{key_id}}")
 			if err != nil {
 				return err
 			}

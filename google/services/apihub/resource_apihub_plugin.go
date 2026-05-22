@@ -536,7 +536,7 @@ func resourceApihubPluginCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["hostingService"] = hostingServiceProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/plugins?pluginId={{plugin_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/plugins?pluginId={{plugin_id}}")
 	if err != nil {
 		return err
 	}
@@ -610,7 +610,7 @@ func resourceApihubPluginRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/plugins/{{plugin_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/plugins/{{plugin_id}}")
 	if err != nil {
 		return err
 	}
@@ -718,7 +718,7 @@ func resourceApihubPluginDelete(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error fetching project for Plugin: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/plugins/{{plugin_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/plugins/{{plugin_id}}")
 	if err != nil {
 		return err
 	}

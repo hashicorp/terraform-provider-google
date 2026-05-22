@@ -270,7 +270,7 @@ func resourceGKEBackupRestoreChannelCreate(d *schema.ResourceData, meta interfac
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/restoreChannels?restoreChannelId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/restoreChannels?restoreChannelId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -354,7 +354,7 @@ func resourceGKEBackupRestoreChannelRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/restoreChannels/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/restoreChannels/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -498,7 +498,7 @@ func resourceGKEBackupRestoreChannelUpdate(d *schema.ResourceData, meta interfac
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/restoreChannels/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/restoreChannels/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -578,7 +578,7 @@ func resourceGKEBackupRestoreChannelDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error fetching project for RestoreChannel: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/restoreChannels/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/restoreChannels/{{name}}")
 	if err != nil {
 		return err
 	}

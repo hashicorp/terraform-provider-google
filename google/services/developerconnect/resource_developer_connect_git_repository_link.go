@@ -310,7 +310,7 @@ func resourceDeveloperConnectGitRepositoryLinkCreate(d *schema.ResourceData, met
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/gitRepositoryLinks?gitRepositoryLinkId={{git_repository_link_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/gitRepositoryLinks?gitRepositoryLinkId={{git_repository_link_id}}")
 	if err != nil {
 		return err
 	}
@@ -399,7 +399,7 @@ func resourceDeveloperConnectGitRepositoryLinkRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/gitRepositoryLinks/{{git_repository_link_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/gitRepositoryLinks/{{git_repository_link_id}}")
 	if err != nil {
 		return err
 	}
@@ -513,7 +513,7 @@ func resourceDeveloperConnectGitRepositoryLinkDelete(d *schema.ResourceData, met
 		return fmt.Errorf("Error fetching project for GitRepositoryLink: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/gitRepositoryLinks/{{git_repository_link_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/gitRepositoryLinks/{{git_repository_link_id}}")
 	if err != nil {
 		return err
 	}

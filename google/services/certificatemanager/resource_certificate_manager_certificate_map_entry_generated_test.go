@@ -155,7 +155,7 @@ func testAccCheckCertificateManagerCertificateMapEntryDestroyProducer(t *testing
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(certificatemanager.Product, config), "projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(certificatemanager.Product, config)+"projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
 			if err != nil {
 				return err
 			}

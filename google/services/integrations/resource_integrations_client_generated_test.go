@@ -233,7 +233,7 @@ func testAccCheckIntegrationsClientDestroyProducer(t *testing.T) func(s *terrafo
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(integrations.Product, config), "projects/{{project}}/locations/{{location}}/clients"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(integrations.Product, config)+"projects/{{project}}/locations/{{location}}/clients")
 			if err != nil {
 				return err
 			}

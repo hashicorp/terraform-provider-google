@@ -340,7 +340,7 @@ func resourceNetworkSecurityInterceptEndpointGroupAssociationCreate(d *schema.Re
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/interceptEndpointGroupAssociations?interceptEndpointGroupAssociationId={{intercept_endpoint_group_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/interceptEndpointGroupAssociations?interceptEndpointGroupAssociationId={{intercept_endpoint_group_association_id}}")
 	if err != nil {
 		return err
 	}
@@ -424,7 +424,7 @@ func resourceNetworkSecurityInterceptEndpointGroupAssociationRead(d *schema.Reso
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/interceptEndpointGroupAssociations/{{intercept_endpoint_group_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/interceptEndpointGroupAssociations/{{intercept_endpoint_group_association_id}}")
 	if err != nil {
 		return err
 	}
@@ -562,7 +562,7 @@ func resourceNetworkSecurityInterceptEndpointGroupAssociationUpdate(d *schema.Re
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/interceptEndpointGroupAssociations/{{intercept_endpoint_group_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/interceptEndpointGroupAssociations/{{intercept_endpoint_group_association_id}}")
 	if err != nil {
 		return err
 	}
@@ -638,7 +638,7 @@ func resourceNetworkSecurityInterceptEndpointGroupAssociationDelete(d *schema.Re
 		return fmt.Errorf("Error fetching project for InterceptEndpointGroupAssociation: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/interceptEndpointGroupAssociations/{{intercept_endpoint_group_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/interceptEndpointGroupAssociations/{{intercept_endpoint_group_association_id}}")
 	if err != nil {
 		return err
 	}

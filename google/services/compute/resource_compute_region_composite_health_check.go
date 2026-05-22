@@ -280,7 +280,7 @@ func resourceComputeRegionCompositeHealthCheckCreate(d *schema.ResourceData, met
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/compositeHealthChecks"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/compositeHealthChecks")
 	if err != nil {
 		return err
 	}
@@ -364,7 +364,7 @@ func resourceComputeRegionCompositeHealthCheckRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/compositeHealthChecks/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/compositeHealthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -520,7 +520,7 @@ func resourceComputeRegionCompositeHealthCheckUpdate(d *schema.ResourceData, met
 		obj["fingerprint"] = fingerprintProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/compositeHealthChecks/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/compositeHealthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -608,7 +608,7 @@ func resourceComputeRegionCompositeHealthCheckDelete(d *schema.ResourceData, met
 		return fmt.Errorf("Error fetching project for RegionCompositeHealthCheck: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/compositeHealthChecks/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/compositeHealthChecks/{{name}}")
 	if err != nil {
 		return err
 	}

@@ -421,7 +421,7 @@ func testAccCheckDeveloperConnectAccountConnectorDestroyProducer(t *testing.T) f
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(developerconnect.Product, config), "projects/{{project}}/locations/{{location}}/accountConnectors/{{account_connector_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(developerconnect.Product, config)+"projects/{{project}}/locations/{{location}}/accountConnectors/{{account_connector_id}}")
 			if err != nil {
 				return err
 			}

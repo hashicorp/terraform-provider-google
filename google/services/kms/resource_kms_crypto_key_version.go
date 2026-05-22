@@ -298,7 +298,7 @@ func resourceKMSCryptoKeyVersionCreate(d *schema.ResourceData, meta interface{})
 		obj["externalProtectionLevelOptions"] = externalProtectionLevelOptionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{crypto_key}}/cryptoKeyVersions"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{crypto_key}}/cryptoKeyVersions")
 	if err != nil {
 		return err
 	}
@@ -362,7 +362,7 @@ func resourceKMSCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -469,7 +469,7 @@ func resourceKMSCryptoKeyVersionUpdate(d *schema.ResourceData, meta interface{})
 		obj["externalProtectionLevelOptions"] = externalProtectionLevelOptionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}

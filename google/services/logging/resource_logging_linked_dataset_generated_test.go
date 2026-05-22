@@ -173,7 +173,7 @@ func testAccCheckLoggingLinkedDatasetDestroyProducer(t *testing.T) func(s *terra
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(logging.Product, config), "{{parent}}/locations/{{location}}/buckets/{{bucket}}/links/{{link_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(logging.Product, config)+"{{parent}}/locations/{{location}}/buckets/{{bucket}}/links/{{link_id}}")
 			if err != nil {
 				return err
 			}

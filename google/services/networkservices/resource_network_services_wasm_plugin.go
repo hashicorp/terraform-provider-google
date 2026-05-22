@@ -379,7 +379,7 @@ func resourceNetworkServicesWasmPluginCreate(d *schema.ResourceData, meta interf
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/wasmPlugins?wasmPluginId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/wasmPlugins?wasmPluginId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -463,7 +463,7 @@ func resourceNetworkServicesWasmPluginRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/wasmPlugins/{{name}}?view=WASM_PLUGIN_VIEW_FULL"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/wasmPlugins/{{name}}?view=WASM_PLUGIN_VIEW_FULL")
 	if err != nil {
 		return err
 	}
@@ -625,7 +625,7 @@ func resourceNetworkServicesWasmPluginUpdate(d *schema.ResourceData, meta interf
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/wasmPlugins/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/wasmPlugins/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -717,7 +717,7 @@ func resourceNetworkServicesWasmPluginDelete(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error fetching project for WasmPlugin: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/wasmPlugins/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/wasmPlugins/{{name}}")
 	if err != nil {
 		return err
 	}

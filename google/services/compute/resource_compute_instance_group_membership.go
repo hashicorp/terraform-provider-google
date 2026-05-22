@@ -216,7 +216,7 @@ func resourceComputeInstanceGroupMembershipCreate(d *schema.ResourceData, meta i
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instanceGroups/{{instance_group}}/addInstances"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instanceGroups/{{instance_group}}/addInstances")
 	if err != nil {
 		return err
 	}
@@ -305,7 +305,7 @@ func resourceComputeInstanceGroupMembershipRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instanceGroups/{{instance_group}}/listInstances"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instanceGroups/{{instance_group}}/listInstances")
 	if err != nil {
 		return err
 	}
@@ -438,7 +438,7 @@ func resourceComputeInstanceGroupMembershipDelete(d *schema.ResourceData, meta i
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instanceGroups/{{instance_group}}/removeInstances"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instanceGroups/{{instance_group}}/removeInstances")
 	if err != nil {
 		return err
 	}

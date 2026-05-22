@@ -317,7 +317,7 @@ func testAccCheckNetworkManagementConnectivityTestDestroyProducer(t *testing.T) 
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(networkmanagement.Product, config), "projects/{{project}}/locations/global/connectivityTests/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(networkmanagement.Product, config)+"projects/{{project}}/locations/global/connectivityTests/{{name}}")
 			if err != nil {
 				return err
 			}

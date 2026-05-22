@@ -250,7 +250,7 @@ func resourceLoggingLinkedDatasetCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/buckets/{{bucket}}/links?linkId={{link_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/buckets/{{bucket}}/links?linkId={{link_id}}")
 	if err != nil {
 		return err
 	}
@@ -333,7 +333,7 @@ func resourceLoggingLinkedDatasetRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/buckets/{{bucket}}/links/{{link_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/buckets/{{bucket}}/links/{{link_id}}")
 	if err != nil {
 		return err
 	}
@@ -433,7 +433,7 @@ func resourceLoggingLinkedDatasetDelete(d *schema.ResourceData, meta interface{}
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/buckets/{{bucket}}/links/{{link_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/buckets/{{bucket}}/links/{{link_id}}")
 	if err != nil {
 		return err
 	}

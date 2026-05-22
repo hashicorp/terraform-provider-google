@@ -1066,7 +1066,7 @@ func resourceCloudSecurityComplianceCloudControlCreate(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/cloudControls?cloudControlId={{cloud_control_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/cloudControls?cloudControlId={{cloud_control_id}}")
 	if err != nil {
 		return err
 	}
@@ -1134,7 +1134,7 @@ func resourceCloudSecurityComplianceCloudControlRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}")
 	if err != nil {
 		return err
 	}
@@ -1292,7 +1292,7 @@ func resourceCloudSecurityComplianceCloudControlUpdate(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}")
 	if err != nil {
 		return err
 	}
@@ -1376,7 +1376,7 @@ func resourceCloudSecurityComplianceCloudControlDelete(d *schema.ResourceData, m
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}")
 	if err != nil {
 		return err
 	}

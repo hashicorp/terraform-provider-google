@@ -766,7 +766,7 @@ func resourceSecurityposturePostureCreate(d *schema.ResourceData, meta interface
 		obj["policySets"] = policySetsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/postures?postureId={{posture_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/postures?postureId={{posture_id}}")
 	if err != nil {
 		return err
 	}
@@ -844,7 +844,7 @@ func resourceSecurityposturePostureRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/postures/{{posture_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/postures/{{posture_id}}")
 	if err != nil {
 		return err
 	}
@@ -985,7 +985,7 @@ func resourceSecurityposturePostureUpdate(d *schema.ResourceData, meta interface
 		obj["policySets"] = policySetsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/postures/{{posture_id}}?revisionId={{revision_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/postures/{{posture_id}}?revisionId={{revision_id}}")
 	if err != nil {
 		return err
 	}
@@ -1068,7 +1068,7 @@ func resourceSecurityposturePostureDelete(d *schema.ResourceData, meta interface
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/postures/{{posture_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/postures/{{posture_id}}")
 	if err != nil {
 		return err
 	}

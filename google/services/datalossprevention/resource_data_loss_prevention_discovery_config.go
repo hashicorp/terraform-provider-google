@@ -1523,7 +1523,7 @@ func resourceDataLossPreventionDiscoveryConfigCreate(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/discoveryConfigs"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/discoveryConfigs")
 	if err != nil {
 		return err
 	}
@@ -1592,7 +1592,7 @@ func resourceDataLossPreventionDiscoveryConfigRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/discoveryConfigs/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/discoveryConfigs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1757,7 +1757,7 @@ func resourceDataLossPreventionDiscoveryConfigUpdate(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/discoveryConfigs/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/discoveryConfigs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1845,7 +1845,7 @@ func resourceDataLossPreventionDiscoveryConfigDelete(d *schema.ResourceData, met
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/discoveryConfigs/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/discoveryConfigs/{{name}}")
 	if err != nil {
 		return err
 	}

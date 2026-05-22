@@ -289,7 +289,7 @@ func testAccCheckSecretManagerSecretDestroyProducer(t *testing.T) func(s *terraf
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(secretmanager.Product, config), "projects/{{project}}/secrets/{{secret_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(secretmanager.Product, config)+"projects/{{project}}/secrets/{{secret_id}}")
 			if err != nil {
 				return err
 			}

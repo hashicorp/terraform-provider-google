@@ -238,7 +238,7 @@ func resourceHealthcareWorkspaceCreate(d *schema.ResourceData, meta interface{})
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{dataset}}/dataMapperWorkspaces?workspaceId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{dataset}}/dataMapperWorkspaces?workspaceId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -301,7 +301,7 @@ func resourceHealthcareWorkspaceRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{dataset}}/dataMapperWorkspaces/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{dataset}}/dataMapperWorkspaces/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -419,7 +419,7 @@ func resourceHealthcareWorkspaceUpdate(d *schema.ResourceData, meta interface{})
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{dataset}}/dataMapperWorkspaces/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{dataset}}/dataMapperWorkspaces/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -487,7 +487,7 @@ func resourceHealthcareWorkspaceDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{dataset}}/dataMapperWorkspaces/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{dataset}}/dataMapperWorkspaces/{{name}}")
 	if err != nil {
 		return err
 	}

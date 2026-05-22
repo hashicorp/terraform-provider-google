@@ -126,7 +126,7 @@ func testAccCheckHealthcareDicomStoreDestroyProducer(t *testing.T) func(s *terra
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(healthcare.Product, config), "{{dataset}}/dicomStores/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(healthcare.Product, config)+"{{dataset}}/dicomStores/{{name}}")
 			if err != nil {
 				return err
 			}

@@ -179,7 +179,7 @@ func resourceApigeeSpaceCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/spaces?spaceId={{space_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/spaces?spaceId={{space_id}}")
 	if err != nil {
 		return err
 	}
@@ -226,7 +226,7 @@ func resourceApigeeSpaceRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/spaces/{{space_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/spaces/{{space_id}}")
 	if err != nil {
 		return err
 	}
@@ -305,7 +305,7 @@ func resourceApigeeSpaceUpdate(d *schema.ResourceData, meta interface{}) error {
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/spaces/{{space_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/spaces/{{space_id}}")
 	if err != nil {
 		return err
 	}
@@ -369,7 +369,7 @@ func resourceApigeeSpaceDelete(d *schema.ResourceData, meta interface{}) error {
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/spaces/{{space_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/spaces/{{space_id}}")
 	if err != nil {
 		return err
 	}

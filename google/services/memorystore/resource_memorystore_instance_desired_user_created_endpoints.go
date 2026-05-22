@@ -271,7 +271,7 @@ func resourceMemorystoreInstanceDesiredUserCreatedEndpointsCreate(d *schema.Reso
 		obj["endpoints"] = desiredUserCreatedEndpointsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/instances/{{name}}?updateMask=endpoints"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/instances/{{name}}?updateMask=endpoints")
 	if err != nil {
 		return err
 	}
@@ -355,7 +355,7 @@ func resourceMemorystoreInstanceDesiredUserCreatedEndpointsRead(d *schema.Resour
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/instances/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -493,7 +493,7 @@ func resourceMemorystoreInstanceDesiredUserCreatedEndpointsUpdate(d *schema.Reso
 		obj["endpoints"] = desiredUserCreatedEndpointsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/instances/{{name}}?updateMask=endpoints"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/instances/{{name}}?updateMask=endpoints")
 	if err != nil {
 		return err
 	}

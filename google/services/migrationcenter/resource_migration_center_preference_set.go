@@ -386,7 +386,7 @@ func resourceMigrationCenterPreferenceSetCreate(d *schema.ResourceData, meta int
 		obj["virtualMachinePreferences"] = virtualMachinePreferencesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/preferenceSets?preferenceSetId={{preference_set_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/preferenceSets?preferenceSetId={{preference_set_id}}")
 	if err != nil {
 		return err
 	}
@@ -470,7 +470,7 @@ func resourceMigrationCenterPreferenceSetRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/preferenceSets/{{preference_set_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/preferenceSets/{{preference_set_id}}")
 	if err != nil {
 		return err
 	}
@@ -620,7 +620,7 @@ func resourceMigrationCenterPreferenceSetUpdate(d *schema.ResourceData, meta int
 		obj["virtualMachinePreferences"] = virtualMachinePreferencesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/preferenceSets/{{preference_set_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/preferenceSets/{{preference_set_id}}")
 	if err != nil {
 		return err
 	}
@@ -704,7 +704,7 @@ func resourceMigrationCenterPreferenceSetDelete(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error fetching project for PreferenceSet: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/preferenceSets/{{preference_set_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/preferenceSets/{{preference_set_id}}")
 	if err != nil {
 		return err
 	}

@@ -287,7 +287,7 @@ func resourceVertexAIFeatureGroupCreate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/featureGroups?featureGroupId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/featureGroups?featureGroupId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -371,7 +371,7 @@ func resourceVertexAIFeatureGroupRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/featureGroups/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/featureGroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -527,7 +527,7 @@ func resourceVertexAIFeatureGroupUpdate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/featureGroups/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/featureGroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -615,7 +615,7 @@ func resourceVertexAIFeatureGroupDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for FeatureGroup: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/featureGroups/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/featureGroups/{{name}}")
 	if err != nil {
 		return err
 	}

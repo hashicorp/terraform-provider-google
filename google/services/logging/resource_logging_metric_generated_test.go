@@ -330,7 +330,7 @@ func testAccCheckLoggingMetricDestroyProducer(t *testing.T) func(s *terraform.St
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(logging.Product, config), "projects/{{project}}/metrics/{{%name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(logging.Product, config)+"projects/{{project}}/metrics/{{%name}}")
 			if err != nil {
 				return err
 			}

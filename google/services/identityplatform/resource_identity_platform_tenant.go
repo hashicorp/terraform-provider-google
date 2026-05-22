@@ -257,7 +257,7 @@ func resourceIdentityPlatformTenantCreate(d *schema.ResourceData, meta interface
 		obj["client"] = clientProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/tenants"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/tenants")
 	if err != nil {
 		return err
 	}
@@ -332,7 +332,7 @@ func resourceIdentityPlatformTenantRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/tenants/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/tenants/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -483,7 +483,7 @@ func resourceIdentityPlatformTenantUpdate(d *schema.ResourceData, meta interface
 		obj["client"] = clientProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/tenants/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/tenants/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -568,7 +568,7 @@ func resourceIdentityPlatformTenantDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error fetching project for Tenant: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/tenants/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/tenants/{{name}}")
 	if err != nil {
 		return err
 	}

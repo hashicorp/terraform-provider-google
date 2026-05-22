@@ -310,7 +310,7 @@ func resourceEdgenetworkInterconnectAttachmentCreate(d *schema.ResourceData, met
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/zones/{{zone}}/interconnectAttachments?interconnectAttachmentId={{interconnect_attachment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/zones/{{zone}}/interconnectAttachments?interconnectAttachmentId={{interconnect_attachment_id}}")
 	if err != nil {
 		return err
 	}
@@ -399,7 +399,7 @@ func resourceEdgenetworkInterconnectAttachmentRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/zones/{{zone}}/interconnectAttachments/{{interconnect_attachment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/zones/{{zone}}/interconnectAttachments/{{interconnect_attachment_id}}")
 	if err != nil {
 		return err
 	}
@@ -513,7 +513,7 @@ func resourceEdgenetworkInterconnectAttachmentDelete(d *schema.ResourceData, met
 		return fmt.Errorf("Error fetching project for InterconnectAttachment: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/zones/{{zone}}/interconnectAttachments/{{interconnect_attachment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/zones/{{zone}}/interconnectAttachments/{{interconnect_attachment_id}}")
 	if err != nil {
 		return err
 	}

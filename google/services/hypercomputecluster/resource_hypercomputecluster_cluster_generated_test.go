@@ -162,7 +162,7 @@ func testAccCheckHypercomputeclusterClusterDestroyProducer(t *testing.T) func(s 
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(hypercomputecluster.Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(hypercomputecluster.Product, config)+"projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 			if err != nil {
 				return err
 			}

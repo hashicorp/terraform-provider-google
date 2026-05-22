@@ -291,7 +291,7 @@ func resourceNetworkSecurityFirewallEndpointAssociationCreate(d *schema.Resource
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/firewallEndpointAssociations?firewallEndpointAssociationId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/firewallEndpointAssociations?firewallEndpointAssociationId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -369,7 +369,7 @@ func resourceNetworkSecurityFirewallEndpointAssociationRead(d *schema.ResourceDa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/firewallEndpointAssociations/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/firewallEndpointAssociations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -516,7 +516,7 @@ func resourceNetworkSecurityFirewallEndpointAssociationUpdate(d *schema.Resource
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/firewallEndpointAssociations/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/firewallEndpointAssociations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -604,7 +604,7 @@ func resourceNetworkSecurityFirewallEndpointAssociationDelete(d *schema.Resource
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/firewallEndpointAssociations/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/firewallEndpointAssociations/{{name}}")
 	if err != nil {
 		return err
 	}

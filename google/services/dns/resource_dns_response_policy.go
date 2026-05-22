@@ -239,7 +239,7 @@ func resourceDNSResponsePolicyCreate(d *schema.ResourceData, meta interface{}) e
 		obj["gkeClusters"] = gkeClustersProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/responsePolicies"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/responsePolicies")
 	if err != nil {
 		return err
 	}
@@ -308,7 +308,7 @@ func resourceDNSResponsePolicyRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/responsePolicies/{{response_policy_name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/responsePolicies/{{response_policy_name}}")
 	if err != nil {
 		return err
 	}
@@ -447,7 +447,7 @@ func resourceDNSResponsePolicyUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["gkeClusters"] = gkeClustersProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/responsePolicies/{{response_policy_name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/responsePolicies/{{response_policy_name}}")
 	if err != nil {
 		return err
 	}
@@ -501,7 +501,7 @@ func resourceDNSResponsePolicyDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error fetching project for ResponsePolicy: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/responsePolicies/{{response_policy_name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/responsePolicies/{{response_policy_name}}")
 	if err != nil {
 		return err
 	}

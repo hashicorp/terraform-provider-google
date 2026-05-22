@@ -454,7 +454,7 @@ func testAccCheckHealthcarePipelineJobDestroyProducer(t *testing.T) func(s *terr
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(healthcare.Product, config), "{{dataset}}/pipelineJobs/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(healthcare.Product, config)+"{{dataset}}/pipelineJobs/{{name}}")
 			if err != nil {
 				return err
 			}

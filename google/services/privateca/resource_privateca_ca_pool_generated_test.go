@@ -114,7 +114,7 @@ func testAccCheckPrivatecaCaPoolDestroyProducer(t *testing.T) func(s *terraform.
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(privateca.Product, config), "projects/{{project}}/locations/{{location}}/caPools/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(privateca.Product, config)+"projects/{{project}}/locations/{{location}}/caPools/{{name}}")
 			if err != nil {
 				return err
 			}

@@ -149,7 +149,7 @@ func testAccCheckIAM2DenyPolicyDestroyProducer(t *testing.T) func(s *terraform.S
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(iam2.Product, config), "policies/{{parent}}/denypolicies/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(iam2.Product, config)+"policies/{{parent}}/denypolicies/{{name}}")
 			if err != nil {
 				return err
 			}

@@ -219,7 +219,7 @@ func resourceFirebaseAppCheckDebugTokenCreate(d *schema.ResourceData, meta inter
 		obj["token"] = tokenProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/debugTokens"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/apps/{{app_id}}/debugTokens")
 	if err != nil {
 		return err
 	}
@@ -299,7 +299,7 @@ func resourceFirebaseAppCheckDebugTokenRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/debugTokens/{{debug_token_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/apps/{{app_id}}/debugTokens/{{debug_token_id}}")
 	if err != nil {
 		return err
 	}
@@ -437,7 +437,7 @@ func resourceFirebaseAppCheckDebugTokenUpdate(d *schema.ResourceData, meta inter
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/debugTokens/{{debug_token_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/apps/{{app_id}}/debugTokens/{{debug_token_id}}")
 	if err != nil {
 		return err
 	}
@@ -506,7 +506,7 @@ func resourceFirebaseAppCheckDebugTokenDelete(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for DebugToken: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/apps/{{app_id}}/debugTokens/{{debug_token_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/apps/{{app_id}}/debugTokens/{{debug_token_id}}")
 	if err != nil {
 		return err
 	}

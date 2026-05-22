@@ -254,7 +254,7 @@ func resourceFirebaseAppCheckResourcePolicyCreate(d *schema.ResourceData, meta i
 		obj["enforcementMode"] = enforcementModeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/services/{{service_id}}/resourcePolicies/"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/services/{{service_id}}/resourcePolicies/")
 	if err != nil {
 		return err
 	}
@@ -334,7 +334,7 @@ func resourceFirebaseAppCheckResourcePolicyRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/services/{{service_id}}/resourcePolicies/{{resource_policy_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/services/{{service_id}}/resourcePolicies/{{resource_policy_id}}")
 	if err != nil {
 		return err
 	}
@@ -478,7 +478,7 @@ func resourceFirebaseAppCheckResourcePolicyUpdate(d *schema.ResourceData, meta i
 		obj["enforcementMode"] = enforcementModeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/services/{{service_id}}/resourcePolicies/{{resource_policy_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/services/{{service_id}}/resourcePolicies/{{resource_policy_id}}")
 	if err != nil {
 		return err
 	}
@@ -551,7 +551,7 @@ func resourceFirebaseAppCheckResourcePolicyDelete(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error fetching project for ResourcePolicy: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/services/{{service_id}}/resourcePolicies/{{resource_policy_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/services/{{service_id}}/resourcePolicies/{{resource_policy_id}}")
 	if err != nil {
 		return err
 	}

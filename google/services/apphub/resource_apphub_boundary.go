@@ -197,7 +197,7 @@ func resourceApphubBoundaryCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["crmNode"] = crmNodeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/boundary"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/boundary")
 	if err != nil {
 		return err
 	}
@@ -276,7 +276,7 @@ func resourceApphubBoundaryRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/boundary"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/boundary")
 	if err != nil {
 		return err
 	}
@@ -378,7 +378,7 @@ func resourceApphubBoundaryUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["crmNode"] = crmNodeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/boundary"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/boundary")
 	if err != nil {
 		return err
 	}

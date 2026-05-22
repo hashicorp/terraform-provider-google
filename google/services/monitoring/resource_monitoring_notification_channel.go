@@ -377,7 +377,7 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/projects/{{project}}/notificationChannels"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/projects/{{project}}/notificationChannels")
 	if err != nil {
 		return err
 	}
@@ -448,7 +448,7 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -630,7 +630,7 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -692,7 +692,7 @@ func resourceMonitoringNotificationChannelDelete(d *schema.ResourceData, meta in
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/{{name}}?force={{force_delete}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/{{name}}?force={{force_delete}}")
 	if err != nil {
 		return err
 	}

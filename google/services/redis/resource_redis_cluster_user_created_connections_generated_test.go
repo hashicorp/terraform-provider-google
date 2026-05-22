@@ -421,7 +421,7 @@ func testAccCheckRedisClusterUserCreatedConnectionsDestroyProducer(t *testing.T)
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(redis.Product, config), "projects/{{project}}/locations/{{region}}/clusters/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(redis.Product, config)+"projects/{{project}}/locations/{{region}}/clusters/{{name}}")
 			if err != nil {
 				return err
 			}

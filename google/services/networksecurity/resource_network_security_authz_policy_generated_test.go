@@ -425,7 +425,7 @@ func testAccCheckNetworkSecurityAuthzPolicyDestroyProducer(t *testing.T) func(s 
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(networksecurity.Product, config), "projects/{{project}}/locations/{{location}}/authzPolicies/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(networksecurity.Product, config)+"projects/{{project}}/locations/{{location}}/authzPolicies/{{name}}")
 			if err != nil {
 				return err
 			}

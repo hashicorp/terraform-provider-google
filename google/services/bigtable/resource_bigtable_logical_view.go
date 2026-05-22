@@ -214,7 +214,7 @@ func resourceBigtableLogicalViewCreate(d *schema.ResourceData, meta interface{})
 		obj["deletionProtection"] = deletionProtectionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/logicalViews?logicalViewId={{logical_view_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/logicalViews?logicalViewId={{logical_view_id}}")
 	if err != nil {
 		return err
 	}
@@ -288,7 +288,7 @@ func resourceBigtableLogicalViewRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/logicalViews/{{logical_view_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/logicalViews/{{logical_view_id}}")
 	if err != nil {
 		return err
 	}
@@ -432,7 +432,7 @@ func resourceBigtableLogicalViewUpdate(d *schema.ResourceData, meta interface{})
 		obj["deletionProtection"] = deletionProtectionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/logicalViews/{{logical_view_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/logicalViews/{{logical_view_id}}")
 	if err != nil {
 		return err
 	}
@@ -505,7 +505,7 @@ func resourceBigtableLogicalViewDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error fetching project for LogicalView: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/logicalViews/{{logical_view_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/logicalViews/{{logical_view_id}}")
 	if err != nil {
 		return err
 	}

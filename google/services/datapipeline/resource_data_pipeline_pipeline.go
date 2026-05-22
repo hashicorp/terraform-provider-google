@@ -667,7 +667,7 @@ func resourceDataPipelinePipelineCreate(d *schema.ResourceData, meta interface{}
 		obj["pipelineSources"] = pipelineSourcesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/pipelines"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/pipelines")
 	if err != nil {
 		return err
 	}
@@ -741,7 +741,7 @@ func resourceDataPipelinePipelineRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/pipelines/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/pipelines/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -897,7 +897,7 @@ func resourceDataPipelinePipelineUpdate(d *schema.ResourceData, meta interface{}
 		obj["scheduleInfo"] = scheduleInfoProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/pipelines/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/pipelines/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -978,7 +978,7 @@ func resourceDataPipelinePipelineDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for Pipeline: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/pipelines/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/pipelines/{{name}}")
 	if err != nil {
 		return err
 	}

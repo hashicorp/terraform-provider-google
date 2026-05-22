@@ -325,7 +325,7 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 		obj["tier"] = tierProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/agent"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}
@@ -389,7 +389,7 @@ func resourceDialogflowAgentRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/agent"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}
@@ -565,7 +565,7 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["tier"] = tierProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/agent"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}
@@ -619,7 +619,7 @@ func resourceDialogflowAgentDelete(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error fetching project for Agent: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/agent"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}

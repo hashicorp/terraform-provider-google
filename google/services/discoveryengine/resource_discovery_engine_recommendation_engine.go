@@ -393,7 +393,7 @@ func resourceDiscoveryEngineRecommendationEngineCreate(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/default_collection/engines?engineId={{engine_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/engines?engineId={{engine_id}}")
 	if err != nil {
 		return err
 	}
@@ -477,7 +477,7 @@ func resourceDiscoveryEngineRecommendationEngineRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/default_collection/engines/{{engine_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/engines/{{engine_id}}")
 	if err != nil {
 		return err
 	}
@@ -632,7 +632,7 @@ func resourceDiscoveryEngineRecommendationEngineUpdate(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/default_collection/engines/{{engine_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/engines/{{engine_id}}")
 	if err != nil {
 		return err
 	}
@@ -709,7 +709,7 @@ func resourceDiscoveryEngineRecommendationEngineDelete(d *schema.ResourceData, m
 		return fmt.Errorf("Error fetching project for RecommendationEngine: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/collections/default_collection/engines/{{engine_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/engines/{{engine_id}}")
 	if err != nil {
 		return err
 	}

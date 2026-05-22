@@ -123,7 +123,7 @@ func testAccCheckGKEHub2NamespaceDestroyProducer(t *testing.T) func(s *terraform
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(gkehub2.Product, config), "projects/{{project}}/locations/global/scopes/{{scope_id}}/namespaces/{{scope_namespace_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(gkehub2.Product, config)+"projects/{{project}}/locations/global/scopes/{{scope_id}}/namespaces/{{scope_namespace_id}}")
 			if err != nil {
 				return err
 			}

@@ -201,7 +201,7 @@ func testAccCheckApigeeSecurityProfileV2DestroyProducer(t *testing.T) func(s *te
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(apigee.Product, config), "{{org_id}}/securityProfilesV2/{{profile_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(apigee.Product, config)+"{{org_id}}/securityProfilesV2/{{profile_id}}")
 			if err != nil {
 				return err
 			}

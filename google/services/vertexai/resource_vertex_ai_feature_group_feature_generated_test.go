@@ -265,7 +265,7 @@ func testAccCheckVertexAIFeatureGroupFeatureDestroyProducer(t *testing.T) func(s
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(vertexai.Product, config), "projects/{{project}}/locations/{{region}}/featureGroups/{{feature_group}}/features/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(vertexai.Product, config)+"projects/{{project}}/locations/{{region}}/featureGroups/{{feature_group}}/features/{{name}}")
 			if err != nil {
 				return err
 			}

@@ -219,7 +219,7 @@ func resourceContactCenterInsightsViewCreate(d *schema.ResourceData, meta interf
 		obj["value"] = valueProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/views"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/views")
 	if err != nil {
 		return err
 	}
@@ -299,7 +299,7 @@ func resourceContactCenterInsightsViewRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/views/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/views/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -443,7 +443,7 @@ func resourceContactCenterInsightsViewUpdate(d *schema.ResourceData, meta interf
 		obj["value"] = valueProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/views/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/views/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -516,7 +516,7 @@ func resourceContactCenterInsightsViewDelete(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error fetching project for View: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/views/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/views/{{name}}")
 	if err != nil {
 		return err
 	}

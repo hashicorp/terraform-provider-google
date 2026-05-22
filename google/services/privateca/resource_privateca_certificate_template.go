@@ -699,7 +699,7 @@ func resourcePrivatecaCertificateTemplateCreate(d *schema.ResourceData, meta int
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/certificateTemplates?certificateTemplateId={{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/certificateTemplates?certificateTemplateId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -783,7 +783,7 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/certificateTemplates/{{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/certificateTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -951,7 +951,7 @@ func resourcePrivatecaCertificateTemplateUpdate(d *schema.ResourceData, meta int
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/certificateTemplates/{{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/certificateTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1047,7 +1047,7 @@ func resourcePrivatecaCertificateTemplateDelete(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error fetching project for CertificateTemplate: %s", err)
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/certificateTemplates/{{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/certificateTemplates/{{name}}")
 	if err != nil {
 		return err
 	}

@@ -225,7 +225,7 @@ func resourceTagsTagValueCreate(d *schema.ResourceData, meta interface{}) error 
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "tagValues"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"tagValues")
 	if err != nil {
 		return err
 	}
@@ -307,7 +307,7 @@ func resourceTagsTagValueRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "tagValues/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"tagValues/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -415,7 +415,7 @@ func resourceTagsTagValueUpdate(d *schema.ResourceData, meta interface{}) error 
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "tagValues/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"tagValues/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -492,7 +492,7 @@ func resourceTagsTagValueDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "tagValues/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"tagValues/{{name}}")
 	if err != nil {
 		return err
 	}

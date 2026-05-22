@@ -133,7 +133,7 @@ func testAccCheckNetappVolumeSnapshotDestroyProducer(t *testing.T) func(s *terra
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(netapp.Product, config), "projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/snapshots/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(netapp.Product, config)+"projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/snapshots/{{name}}")
 			if err != nil {
 				return err
 			}

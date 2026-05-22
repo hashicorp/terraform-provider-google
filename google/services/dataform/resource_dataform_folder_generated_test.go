@@ -153,7 +153,7 @@ func testAccCheckDataformFolderDestroyProducer(t *testing.T) func(s *terraform.S
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(dataform.Product, config), "projects/{{project}}/locations/{{region}}/folders/{{folder_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(dataform.Product, config)+"projects/{{project}}/locations/{{region}}/folders/{{folder_id}}")
 			if err != nil {
 				return err
 			}

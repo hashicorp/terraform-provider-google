@@ -286,7 +286,7 @@ func resourceBackupDRBackupPlanAssociationCreate(d *schema.ResourceData, meta in
 		obj["resourceType"] = resourceTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlanAssociations/?backup_plan_association_id={{backup_plan_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backupPlanAssociations/?backup_plan_association_id={{backup_plan_association_id}}")
 	if err != nil {
 		return err
 	}
@@ -370,7 +370,7 @@ func resourceBackupDRBackupPlanAssociationRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlanAssociations/{{backup_plan_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backupPlanAssociations/{{backup_plan_association_id}}")
 	if err != nil {
 		return err
 	}
@@ -520,7 +520,7 @@ func resourceBackupDRBackupPlanAssociationUpdate(d *schema.ResourceData, meta in
 		obj["resourceType"] = resourceTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlanAssociations/{{backup_plan_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backupPlanAssociations/{{backup_plan_association_id}}")
 	if err != nil {
 		return err
 	}
@@ -604,7 +604,7 @@ func resourceBackupDRBackupPlanAssociationDelete(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error fetching project for BackupPlanAssociation: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlanAssociations/{{backup_plan_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backupPlanAssociations/{{backup_plan_association_id}}")
 	if err != nil {
 		return err
 	}

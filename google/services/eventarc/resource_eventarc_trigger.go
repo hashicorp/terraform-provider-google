@@ -485,7 +485,7 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/triggers?triggerId={{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/triggers?triggerId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -548,7 +548,7 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/triggers/{{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/triggers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -672,7 +672,7 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/triggers/{{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/triggers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -768,7 +768,7 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error fetching project for Trigger: %s", err)
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/triggers/{{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/triggers/{{name}}")
 	if err != nil {
 		return err
 	}

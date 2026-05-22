@@ -668,7 +668,7 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 		obj["zone"] = zoneProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/reservations"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations")
 	if err != nil {
 		return err
 	}
@@ -731,7 +731,7 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/reservations/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -879,7 +879,7 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/reservations/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -966,7 +966,7 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 			return err
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/reservations/{{name}}/resize"))
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}/resize")
 		if err != nil {
 			return err
 		}
@@ -1039,7 +1039,7 @@ func resourceComputeReservationDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error fetching project for Reservation: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/reservations/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 	if err != nil {
 		return err
 	}

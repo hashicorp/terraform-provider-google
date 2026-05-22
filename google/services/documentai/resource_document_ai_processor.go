@@ -220,7 +220,7 @@ func resourceDocumentAIProcessorCreate(d *schema.ResourceData, meta interface{})
 		obj["kmsKeyName"] = kmsKeyNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/processors"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/processors")
 	if err != nil {
 		return err
 	}
@@ -300,7 +300,7 @@ func resourceDocumentAIProcessorRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/processors/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/processors/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -408,7 +408,7 @@ func resourceDocumentAIProcessorDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error fetching project for Processor: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/processors/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/processors/{{name}}")
 	if err != nil {
 		return err
 	}

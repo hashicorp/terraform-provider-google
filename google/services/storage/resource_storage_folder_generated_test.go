@@ -120,7 +120,7 @@ func testAccCheckStorageFolderDestroyProducer(t *testing.T) func(s *terraform.St
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(storage.Product, config), "b/{{bucket}}/folders/{{%name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(storage.Product, config)+"b/{{bucket}}/folders/{{%name}}")
 			if err != nil {
 				return err
 			}

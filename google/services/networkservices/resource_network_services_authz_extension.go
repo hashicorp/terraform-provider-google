@@ -367,7 +367,7 @@ func resourceNetworkServicesAuthzExtensionCreate(d *schema.ResourceData, meta in
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/authzExtensions?authzExtensionId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/authzExtensions?authzExtensionId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -451,7 +451,7 @@ func resourceNetworkServicesAuthzExtensionRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/authzExtensions/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/authzExtensions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -649,7 +649,7 @@ func resourceNetworkServicesAuthzExtensionUpdate(d *schema.ResourceData, meta in
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/authzExtensions/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/authzExtensions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -765,7 +765,7 @@ func resourceNetworkServicesAuthzExtensionDelete(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error fetching project for AuthzExtension: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/authzExtensions/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/authzExtensions/{{name}}")
 	if err != nil {
 		return err
 	}

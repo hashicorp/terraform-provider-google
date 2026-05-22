@@ -328,7 +328,7 @@ func testAccCheckOracleDatabaseCloudVmClusterDestroyProducer(t *testing.T) func(
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(oracledatabase.Product, config), "projects/{{project}}/locations/{{location}}/cloudVmClusters/{{cloud_vm_cluster_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(oracledatabase.Product, config)+"projects/{{project}}/locations/{{location}}/cloudVmClusters/{{cloud_vm_cluster_id}}")
 			if err != nil {
 				return err
 			}

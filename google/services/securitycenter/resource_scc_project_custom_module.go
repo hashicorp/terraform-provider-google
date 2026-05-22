@@ -379,7 +379,7 @@ func resourceSecurityCenterProjectCustomModuleCreate(d *schema.ResourceData, met
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/securityHealthAnalyticsSettings/customModules"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/securityHealthAnalyticsSettings/customModules")
 	if err != nil {
 		return err
 	}
@@ -454,7 +454,7 @@ func resourceSecurityCenterProjectCustomModuleRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/securityHealthAnalyticsSettings/customModules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/securityHealthAnalyticsSettings/customModules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -594,7 +594,7 @@ func resourceSecurityCenterProjectCustomModuleUpdate(d *schema.ResourceData, met
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/securityHealthAnalyticsSettings/customModules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/securityHealthAnalyticsSettings/customModules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -674,7 +674,7 @@ func resourceSecurityCenterProjectCustomModuleDelete(d *schema.ResourceData, met
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/securityHealthAnalyticsSettings/customModules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/securityHealthAnalyticsSettings/customModules/{{name}}")
 	if err != nil {
 		return err
 	}

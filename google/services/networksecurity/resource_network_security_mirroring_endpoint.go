@@ -282,7 +282,7 @@ func resourceNetworkSecurityMirroringEndpointCreate(d *schema.ResourceData, meta
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringEndpoints?mirroringEndpointId={{mirroring_endpoint_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/mirroringEndpoints?mirroringEndpointId={{mirroring_endpoint_id}}")
 	if err != nil {
 		return err
 	}
@@ -366,7 +366,7 @@ func resourceNetworkSecurityMirroringEndpointRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringEndpoints/{{mirroring_endpoint_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/mirroringEndpoints/{{mirroring_endpoint_id}}")
 	if err != nil {
 		return err
 	}
@@ -510,7 +510,7 @@ func resourceNetworkSecurityMirroringEndpointUpdate(d *schema.ResourceData, meta
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringEndpoints/{{mirroring_endpoint_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/mirroringEndpoints/{{mirroring_endpoint_id}}")
 	if err != nil {
 		return err
 	}
@@ -590,7 +590,7 @@ func resourceNetworkSecurityMirroringEndpointDelete(d *schema.ResourceData, meta
 		return fmt.Errorf("Error fetching project for MirroringEndpoint: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/mirroringEndpoints/{{mirroring_endpoint_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/mirroringEndpoints/{{mirroring_endpoint_id}}")
 	if err != nil {
 		return err
 	}

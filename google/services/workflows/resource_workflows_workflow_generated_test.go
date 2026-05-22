@@ -226,7 +226,7 @@ func testAccCheckWorkflowsWorkflowDestroyProducer(t *testing.T) func(s *terrafor
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(workflows.Product, config), "projects/{{project}}/locations/{{region}}/workflows/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(workflows.Product, config)+"projects/{{project}}/locations/{{region}}/workflows/{{name}}")
 			if err != nil {
 				return err
 			}

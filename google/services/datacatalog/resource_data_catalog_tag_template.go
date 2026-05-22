@@ -367,7 +367,7 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 		obj["fields"] = fieldsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/tagTemplates?tagTemplateId={{tag_template_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/tagTemplates?tagTemplateId={{tag_template_id}}")
 	if err != nil {
 		return err
 	}
@@ -437,7 +437,7 @@ func resourceDataCatalogTagTemplateRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -567,7 +567,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 		obj["fields"] = fieldsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -767,7 +767,7 @@ func resourceDataCatalogTagTemplateDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error fetching project for TagTemplate: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}?force={{force_delete}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}?force={{force_delete}}")
 	if err != nil {
 		return err
 	}

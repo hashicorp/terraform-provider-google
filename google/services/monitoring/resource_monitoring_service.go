@@ -260,7 +260,7 @@ func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interfa
 		obj["basicService"] = basicServiceProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/projects/{{project}}/services?serviceId={{service_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/projects/{{project}}/services?serviceId={{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -330,7 +330,7 @@ func resourceMonitoringGenericServiceRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/projects/{{project}}/services/{{service_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -464,7 +464,7 @@ func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interfa
 		obj["userLabels"] = userLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/projects/{{project}}/services/{{service_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -538,7 +538,7 @@ func resourceMonitoringGenericServiceDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for GenericService: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/projects/{{project}}/services/{{service_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}

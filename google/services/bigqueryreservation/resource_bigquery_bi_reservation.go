@@ -229,7 +229,7 @@ func resourceBigqueryReservationBiReservationCreate(d *schema.ResourceData, meta
 		obj["preferredTables"] = preferredTablesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/biReservation"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/biReservation")
 	if err != nil {
 		return err
 	}
@@ -313,7 +313,7 @@ func resourceBigqueryReservationBiReservationRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/biReservation"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/biReservation")
 	if err != nil {
 		return err
 	}
@@ -446,7 +446,7 @@ func resourceBigqueryReservationBiReservationUpdate(d *schema.ResourceData, meta
 		obj["preferredTables"] = preferredTablesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/biReservation"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/biReservation")
 	if err != nil {
 		return err
 	}

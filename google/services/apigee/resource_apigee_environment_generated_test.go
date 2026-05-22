@@ -554,7 +554,7 @@ func testAccCheckApigeeEnvironmentDestroyProducer(t *testing.T) func(s *terrafor
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(apigee.Product, config), "{{org_id}}/environments/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(apigee.Product, config)+"{{org_id}}/environments/{{name}}")
 			if err != nil {
 				return err
 			}

@@ -198,7 +198,7 @@ func resourceKMSAutokeyConfigCreate(d *schema.ResourceData, meta interface{}) er
 		obj["keyProjectResolutionMode"] = keyProjectResolutionModeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/autokeyConfig?updateMask=keyProject,keyProjectResolutionMode"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/autokeyConfig?updateMask=keyProject,keyProjectResolutionMode")
 	if err != nil {
 		return err
 	}
@@ -263,7 +263,7 @@ func resourceKMSAutokeyConfigRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/autokeyConfig"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/autokeyConfig")
 	if err != nil {
 		return err
 	}
@@ -371,7 +371,7 @@ func resourceKMSAutokeyConfigUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["keyProjectResolutionMode"] = keyProjectResolutionModeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/autokeyConfig?updateMask=keyProject,keyProjectResolutionMode"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/autokeyConfig?updateMask=keyProject,keyProjectResolutionMode")
 	if err != nil {
 		return err
 	}
@@ -423,7 +423,7 @@ func resourceKMSAutokeyConfigDelete(d *schema.ResourceData, meta interface{}) er
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/autokeyConfig?updateMask=keyProject,keyProjectResolutionMode"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/autokeyConfig?updateMask=keyProject,keyProjectResolutionMode")
 	if err != nil {
 		return err
 	}

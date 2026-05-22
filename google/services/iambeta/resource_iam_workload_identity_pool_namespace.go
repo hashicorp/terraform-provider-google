@@ -297,7 +297,7 @@ func resourceIAMBetaWorkloadIdentityPoolNamespaceCreate(d *schema.ResourceData, 
 		obj["disabled"] = disabledProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces?workloadIdentityPoolNamespaceId={{workload_identity_pool_namespace_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces?workloadIdentityPoolNamespaceId={{workload_identity_pool_namespace_id}}")
 	if err != nil {
 		return err
 	}
@@ -381,7 +381,7 @@ func resourceIAMBetaWorkloadIdentityPoolNamespaceRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}")
 	if err != nil {
 		return err
 	}
@@ -537,7 +537,7 @@ func resourceIAMBetaWorkloadIdentityPoolNamespaceUpdate(d *schema.ResourceData, 
 		obj["disabled"] = disabledProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}")
 	if err != nil {
 		return err
 	}
@@ -617,7 +617,7 @@ func resourceIAMBetaWorkloadIdentityPoolNamespaceDelete(d *schema.ResourceData, 
 		return fmt.Errorf("Error fetching project for WorkloadIdentityPoolNamespace: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/namespaces/{{workload_identity_pool_namespace_id}}")
 	if err != nil {
 		return err
 	}

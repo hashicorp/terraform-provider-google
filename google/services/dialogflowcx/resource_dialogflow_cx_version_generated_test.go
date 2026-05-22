@@ -181,7 +181,7 @@ func testAccCheckDialogflowCXVersionDestroyProducer(t *testing.T) func(s *terraf
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(dialogflowcx.Product, config), "{{parent}}/versions/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(dialogflowcx.Product, config)+"{{parent}}/versions/{{name}}")
 			if err != nil {
 				return err
 			}

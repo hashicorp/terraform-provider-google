@@ -265,7 +265,7 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/o/{{%object}}/acl"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/o/{{%object}}/acl")
 	if err != nil {
 		return err
 	}
@@ -333,7 +333,7 @@ func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/o/{{%object}}/acl/{{entity}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/o/{{%object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -481,7 +481,7 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/o/{{%object}}/acl/{{entity}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/o/{{%object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -536,7 +536,7 @@ func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta inter
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/o/{{%object}}/acl/{{entity}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/o/{{%object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}

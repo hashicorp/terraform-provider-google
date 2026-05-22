@@ -314,7 +314,7 @@ func resourceVmwareengineDatastoreCreate(d *schema.ResourceData, meta interface{
 		obj["nfsDatastore"] = nfsDatastoreProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datastores?datastoreId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datastores?datastoreId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -398,7 +398,7 @@ func resourceVmwareengineDatastoreRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datastores/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datastores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -542,7 +542,7 @@ func resourceVmwareengineDatastoreUpdate(d *schema.ResourceData, meta interface{
 		obj["nfsDatastore"] = nfsDatastoreProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datastores/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datastores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -622,7 +622,7 @@ func resourceVmwareengineDatastoreDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for Datastore: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datastores/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datastores/{{name}}")
 	if err != nil {
 		return err
 	}

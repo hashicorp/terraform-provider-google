@@ -330,7 +330,7 @@ func resourceManagedKafkaConnectClusterCreate(d *schema.ResourceData, meta inter
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connectClusters?connectClusterId={{connect_cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/connectClusters?connectClusterId={{connect_cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -414,7 +414,7 @@ func resourceManagedKafkaConnectClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -570,7 +570,7 @@ func resourceManagedKafkaConnectClusterUpdate(d *schema.ResourceData, meta inter
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -658,7 +658,7 @@ func resourceManagedKafkaConnectClusterDelete(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for ConnectCluster: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/connectClusters/{{connect_cluster_id}}")
 	if err != nil {
 		return err
 	}

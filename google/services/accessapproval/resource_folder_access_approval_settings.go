@@ -300,7 +300,7 @@ func resourceAccessApprovalFolderSettingsCreate(d *schema.ResourceData, meta int
 		obj["activeKeyVersion"] = activeKeyVersionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder_id}}/accessApprovalSettings"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -382,7 +382,7 @@ func resourceAccessApprovalFolderSettingsRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder_id}}/accessApprovalSettings"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -495,7 +495,7 @@ func resourceAccessApprovalFolderSettingsUpdate(d *schema.ResourceData, meta int
 		obj["activeKeyVersion"] = activeKeyVersionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder_id}}/accessApprovalSettings"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}

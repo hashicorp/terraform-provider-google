@@ -516,7 +516,7 @@ func resourceComputeFirewallPolicyRuleCreate(d *schema.ResourceData, meta interf
 		obj["firewallPolicy"] = firewallPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{firewall_policy}}/addRule"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"locations/global/firewallPolicies/{{firewall_policy}}/addRule")
 	if err != nil {
 		return err
 	}
@@ -592,7 +592,7 @@ func resourceComputeFirewallPolicyRuleRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{firewall_policy}}/getRule?priority={{priority}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"locations/global/firewallPolicies/{{firewall_policy}}/getRule?priority={{priority}}")
 	if err != nil {
 		return err
 	}
@@ -782,7 +782,7 @@ func resourceComputeFirewallPolicyRuleUpdate(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{firewall_policy}}/patchRule?priority={{priority}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"locations/global/firewallPolicies/{{firewall_policy}}/patchRule?priority={{priority}}")
 	if err != nil {
 		return err
 	}
@@ -842,7 +842,7 @@ func resourceComputeFirewallPolicyRuleDelete(d *schema.ResourceData, meta interf
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{firewall_policy}}/removeRule?priority={{priority}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"locations/global/firewallPolicies/{{firewall_policy}}/removeRule?priority={{priority}}")
 	if err != nil {
 		return err
 	}

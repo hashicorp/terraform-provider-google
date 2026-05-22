@@ -324,7 +324,7 @@ func resourceNetworkSecurityInterceptDeploymentGroupCreate(d *schema.ResourceDat
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/interceptDeploymentGroups?interceptDeploymentGroupId={{intercept_deployment_group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/interceptDeploymentGroups?interceptDeploymentGroupId={{intercept_deployment_group_id}}")
 	if err != nil {
 		return err
 	}
@@ -408,7 +408,7 @@ func resourceNetworkSecurityInterceptDeploymentGroupRead(d *schema.ResourceData,
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/interceptDeploymentGroups/{{intercept_deployment_group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/interceptDeploymentGroups/{{intercept_deployment_group_id}}")
 	if err != nil {
 		return err
 	}
@@ -552,7 +552,7 @@ func resourceNetworkSecurityInterceptDeploymentGroupUpdate(d *schema.ResourceDat
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/interceptDeploymentGroups/{{intercept_deployment_group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/interceptDeploymentGroups/{{intercept_deployment_group_id}}")
 	if err != nil {
 		return err
 	}
@@ -632,7 +632,7 @@ func resourceNetworkSecurityInterceptDeploymentGroupDelete(d *schema.ResourceDat
 		return fmt.Errorf("Error fetching project for InterceptDeploymentGroup: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/interceptDeploymentGroups/{{intercept_deployment_group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/interceptDeploymentGroups/{{intercept_deployment_group_id}}")
 	if err != nil {
 		return err
 	}

@@ -212,7 +212,7 @@ func resourceApigeeEndpointAttachmentCreate(d *schema.ResourceData, meta interfa
 		obj["serviceAttachment"] = serviceAttachmentProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/endpointAttachments?endpointAttachmentId={{endpoint_attachment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/endpointAttachments?endpointAttachmentId={{endpoint_attachment_id}}")
 	if err != nil {
 		return err
 	}
@@ -285,7 +285,7 @@ func resourceApigeeEndpointAttachmentRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}")
 	if err != nil {
 		return err
 	}
@@ -373,7 +373,7 @@ func resourceApigeeEndpointAttachmentDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}")
 	if err != nil {
 		return err
 	}

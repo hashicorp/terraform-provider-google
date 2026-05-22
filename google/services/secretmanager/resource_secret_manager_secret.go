@@ -518,7 +518,7 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/secrets?secretId={{secret_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/secrets?secretId={{secret_id}}")
 	if err != nil {
 		return err
 	}
@@ -587,7 +587,7 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/secrets/{{secret_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/secrets/{{secret_id}}")
 	if err != nil {
 		return err
 	}
@@ -761,7 +761,7 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/secrets/{{secret_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/secrets/{{secret_id}}")
 	if err != nil {
 		return err
 	}
@@ -881,7 +881,7 @@ func resourceSecretManagerSecretDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error fetching project for Secret: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/secrets/{{secret_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/secrets/{{secret_id}}")
 	if err != nil {
 		return err
 	}

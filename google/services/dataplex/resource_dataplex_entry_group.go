@@ -264,7 +264,7 @@ func resourceDataplexEntryGroupCreate(d *schema.ResourceData, meta interface{}) 
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/entryGroups?entryGroupId={{entry_group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/entryGroups?entryGroupId={{entry_group_id}}")
 	if err != nil {
 		return err
 	}
@@ -348,7 +348,7 @@ func resourceDataplexEntryGroupRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/entryGroups/{{entry_group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/entryGroups/{{entry_group_id}}")
 	if err != nil {
 		return err
 	}
@@ -498,7 +498,7 @@ func resourceDataplexEntryGroupUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/entryGroups/{{entry_group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/entryGroups/{{entry_group_id}}")
 	if err != nil {
 		return err
 	}
@@ -582,7 +582,7 @@ func resourceDataplexEntryGroupDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error fetching project for EntryGroup: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/entryGroups/{{entry_group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/entryGroups/{{entry_group_id}}")
 	if err != nil {
 		return err
 	}

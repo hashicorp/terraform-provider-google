@@ -291,7 +291,7 @@ func resourceContactCenterInsightsAutoLabelingRuleCreate(d *schema.ResourceData,
 		obj["conditions"] = conditionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/autoLabelingRules?autoLabelingRuleId={{auto_labeling_rule_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/autoLabelingRules?autoLabelingRuleId={{auto_labeling_rule_id}}")
 	if err != nil {
 		return err
 	}
@@ -371,7 +371,7 @@ func resourceContactCenterInsightsAutoLabelingRuleRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/autoLabelingRules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/autoLabelingRules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -539,7 +539,7 @@ func resourceContactCenterInsightsAutoLabelingRuleUpdate(d *schema.ResourceData,
 		obj["conditions"] = conditionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/autoLabelingRules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/autoLabelingRules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -628,7 +628,7 @@ func resourceContactCenterInsightsAutoLabelingRuleDelete(d *schema.ResourceData,
 		return fmt.Errorf("Error fetching project for AutoLabelingRule: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/autoLabelingRules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/autoLabelingRules/{{name}}")
 	if err != nil {
 		return err
 	}

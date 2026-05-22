@@ -211,7 +211,7 @@ func resourceComputeResourcePolicyAttachmentCreate(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instances/{{instance}}/addResourcePolicies"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instances/{{instance}}/addResourcePolicies")
 	if err != nil {
 		return err
 	}
@@ -300,7 +300,7 @@ func resourceComputeResourcePolicyAttachmentRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instances/{{instance}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instances/{{instance}}")
 	if err != nil {
 		return err
 	}
@@ -445,7 +445,7 @@ func resourceComputeResourcePolicyAttachmentDelete(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error fetching project for ResourcePolicyAttachment: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instances/{{instance}}/removeResourcePolicies"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instances/{{instance}}/removeResourcePolicies")
 	if err != nil {
 		return err
 	}

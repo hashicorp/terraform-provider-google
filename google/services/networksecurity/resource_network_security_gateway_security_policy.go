@@ -228,7 +228,7 @@ func resourceNetworkSecurityGatewaySecurityPolicyCreate(d *schema.ResourceData, 
 		obj["tlsInspectionPolicy"] = tlsInspectionPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies?gatewaySecurityPolicyId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies?gatewaySecurityPolicyId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -312,7 +312,7 @@ func resourceNetworkSecurityGatewaySecurityPolicyRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -456,7 +456,7 @@ func resourceNetworkSecurityGatewaySecurityPolicyUpdate(d *schema.ResourceData, 
 		obj["tlsInspectionPolicy"] = tlsInspectionPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -536,7 +536,7 @@ func resourceNetworkSecurityGatewaySecurityPolicyDelete(d *schema.ResourceData, 
 		return fmt.Errorf("Error fetching project for GatewaySecurityPolicy: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{name}}")
 	if err != nil {
 		return err
 	}

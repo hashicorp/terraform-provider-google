@@ -277,7 +277,7 @@ func resourceCertificateManagerCertificateMapCreate(d *schema.ResourceData, meta
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/certificateMaps?certificateMapId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/certificateMaps?certificateMapId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -356,7 +356,7 @@ func resourceCertificateManagerCertificateMapRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/certificateMaps/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/certificateMaps/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -489,7 +489,7 @@ func resourceCertificateManagerCertificateMapUpdate(d *schema.ResourceData, meta
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/certificateMaps/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/certificateMaps/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -569,7 +569,7 @@ func resourceCertificateManagerCertificateMapDelete(d *schema.ResourceData, meta
 		return fmt.Errorf("Error fetching project for CertificateMap: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/certificateMaps/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/certificateMaps/{{name}}")
 	if err != nil {
 		return err
 	}

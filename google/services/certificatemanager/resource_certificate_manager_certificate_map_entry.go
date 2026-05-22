@@ -302,7 +302,7 @@ func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData,
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries?certificateMapEntryId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries?certificateMapEntryId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -386,7 +386,7 @@ func resourceCertificateManagerCertificateMapEntryRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -536,7 +536,7 @@ func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData,
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -620,7 +620,7 @@ func resourceCertificateManagerCertificateMapEntryDelete(d *schema.ResourceData,
 		return fmt.Errorf("Error fetching project for CertificateMapEntry: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
 	if err != nil {
 		return err
 	}

@@ -1141,7 +1141,7 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/jobs?jobId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/jobs?jobId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -1224,7 +1224,7 @@ func resourceCloudRunV2JobRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/jobs/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1403,7 +1403,7 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/jobs/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1465,7 +1465,7 @@ func resourceCloudRunV2JobDelete(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error fetching project for Job: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/jobs/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}

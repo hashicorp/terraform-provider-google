@@ -396,7 +396,7 @@ func resourceBlockchainNodeEngineBlockchainNodesCreate(d *schema.ResourceData, m
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/blockchainNodes?blockchain_node_id={{blockchain_node_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/blockchainNodes?blockchain_node_id={{blockchain_node_id}}")
 	if err != nil {
 		return err
 	}
@@ -480,7 +480,7 @@ func resourceBlockchainNodeEngineBlockchainNodesRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/blockchainNodes/{{blockchain_node_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/blockchainNodes/{{blockchain_node_id}}")
 	if err != nil {
 		return err
 	}
@@ -630,7 +630,7 @@ func resourceBlockchainNodeEngineBlockchainNodesUpdate(d *schema.ResourceData, m
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/blockchainNodes/{{blockchain_node_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/blockchainNodes/{{blockchain_node_id}}")
 	if err != nil {
 		return err
 	}
@@ -692,7 +692,7 @@ func resourceBlockchainNodeEngineBlockchainNodesDelete(d *schema.ResourceData, m
 		return fmt.Errorf("Error fetching project for BlockchainNodes: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/blockchainNodes/{{blockchain_node_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/blockchainNodes/{{blockchain_node_id}}")
 	if err != nil {
 		return err
 	}

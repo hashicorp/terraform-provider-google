@@ -585,7 +585,7 @@ func resourceCloudSecurityComplianceFrameworkDeploymentCreate(d *schema.Resource
 		obj["targetResourceConfig"] = targetResourceConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/frameworkDeployments?frameworkDeploymentId={{framework_deployment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworkDeployments?frameworkDeploymentId={{framework_deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -663,7 +663,7 @@ func resourceCloudSecurityComplianceFrameworkDeploymentRead(d *schema.ResourceDa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -757,7 +757,7 @@ func resourceCloudSecurityComplianceFrameworkDeploymentDelete(d *schema.Resource
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
 	if err != nil {
 		return err
 	}

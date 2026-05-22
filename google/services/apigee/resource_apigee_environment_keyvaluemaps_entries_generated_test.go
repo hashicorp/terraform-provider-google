@@ -225,7 +225,7 @@ func testAccCheckApigeeEnvironmentKeyvaluemapsEntriesDestroyProducer(t *testing.
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(apigee.Product, config), "{{env_keyvaluemap_id}}/entries/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(apigee.Product, config)+"{{env_keyvaluemap_id}}/entries/{{name}}")
 			if err != nil {
 				return err
 			}

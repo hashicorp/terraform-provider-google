@@ -346,7 +346,7 @@ func resourceNetworkServicesEndpointPolicyCreate(d *schema.ResourceData, meta in
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/endpointPolicies?endpointPolicyId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/endpointPolicies?endpointPolicyId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -425,7 +425,7 @@ func resourceNetworkServicesEndpointPolicyRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/endpointPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/endpointPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -594,7 +594,7 @@ func resourceNetworkServicesEndpointPolicyUpdate(d *schema.ResourceData, meta in
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/endpointPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/endpointPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -698,7 +698,7 @@ func resourceNetworkServicesEndpointPolicyDelete(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error fetching project for EndpointPolicy: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/endpointPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/endpointPolicies/{{name}}")
 	if err != nil {
 		return err
 	}

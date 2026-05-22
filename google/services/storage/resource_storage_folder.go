@@ -215,7 +215,7 @@ func resourceStorageFolderCreate(d *schema.ResourceData, meta interface{}) error
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/folders"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/folders")
 	if err != nil {
 		return err
 	}
@@ -278,7 +278,7 @@ func resourceStorageFolderRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/folders/{{%name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/folders/{{%name}}")
 	if err != nil {
 		return err
 	}

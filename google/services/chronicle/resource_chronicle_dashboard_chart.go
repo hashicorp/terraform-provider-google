@@ -1492,7 +1492,7 @@ func resourceChronicleDashboardChartCreate(d *schema.ResourceData, meta interfac
 		obj["dashboardChart"] = dashboardChartProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{native_dashboard}}:addChart"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{native_dashboard}}:addChart")
 	if err != nil {
 		return err
 	}
@@ -1577,7 +1577,7 @@ func resourceChronicleDashboardChartRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/dashboardCharts/{{chart_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/dashboardCharts/{{chart_id}}")
 	if err != nil {
 		return err
 	}
@@ -1755,7 +1755,7 @@ func resourceChronicleDashboardChartUpdate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{native_dashboard}}:editChart"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{native_dashboard}}:editChart")
 	if err != nil {
 		return err
 	}
@@ -1854,7 +1854,7 @@ func resourceChronicleDashboardChartDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error fetching project for DashboardChart: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{native_dashboard}}:removeChart"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{native_dashboard}}:removeChart")
 	if err != nil {
 		return err
 	}

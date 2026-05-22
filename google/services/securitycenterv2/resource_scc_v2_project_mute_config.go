@@ -252,7 +252,7 @@ func resourceSecurityCenterV2ProjectMuteConfigCreate(d *schema.ResourceData, met
 		obj["type"] = typeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/muteConfigs?muteConfigId={{mute_config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/muteConfigs?muteConfigId={{mute_config_id}}")
 	if err != nil {
 		return err
 	}
@@ -326,7 +326,7 @@ func resourceSecurityCenterV2ProjectMuteConfigRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/muteConfigs/{{mute_config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/muteConfigs/{{mute_config_id}}")
 	if err != nil {
 		return err
 	}
@@ -476,7 +476,7 @@ func resourceSecurityCenterV2ProjectMuteConfigUpdate(d *schema.ResourceData, met
 		obj["type"] = typeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/muteConfigs/{{mute_config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/muteConfigs/{{mute_config_id}}")
 	if err != nil {
 		return err
 	}
@@ -553,7 +553,7 @@ func resourceSecurityCenterV2ProjectMuteConfigDelete(d *schema.ResourceData, met
 		return fmt.Errorf("Error fetching project for ProjectMuteConfig: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/muteConfigs/{{mute_config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/muteConfigs/{{mute_config_id}}")
 	if err != nil {
 		return err
 	}

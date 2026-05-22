@@ -314,7 +314,7 @@ func resourceDataplexEntryTypeCreate(d *schema.ResourceData, meta interface{}) e
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/entryTypes?entryTypeId={{entry_type_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/entryTypes?entryTypeId={{entry_type_id}}")
 	if err != nil {
 		return err
 	}
@@ -398,7 +398,7 @@ func resourceDataplexEntryTypeRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/entryTypes/{{entry_type_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/entryTypes/{{entry_type_id}}")
 	if err != nil {
 		return err
 	}
@@ -572,7 +572,7 @@ func resourceDataplexEntryTypeUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/entryTypes/{{entry_type_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/entryTypes/{{entry_type_id}}")
 	if err != nil {
 		return err
 	}
@@ -672,7 +672,7 @@ func resourceDataplexEntryTypeDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error fetching project for EntryType: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/entryTypes/{{entry_type_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/entryTypes/{{entry_type_id}}")
 	if err != nil {
 		return err
 	}

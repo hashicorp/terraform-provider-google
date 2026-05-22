@@ -435,7 +435,7 @@ func resourceNetappActiveDirectoryCreate(d *schema.ResourceData, meta interface{
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/activeDirectories?activeDirectoryId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/activeDirectories?activeDirectoryId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -519,7 +519,7 @@ func resourceNetappActiveDirectoryRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/activeDirectories/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/activeDirectories/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -759,7 +759,7 @@ func resourceNetappActiveDirectoryUpdate(d *schema.ResourceData, meta interface{
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/activeDirectories/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/activeDirectories/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -903,7 +903,7 @@ func resourceNetappActiveDirectoryDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for ActiveDirectory: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/activeDirectories/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/activeDirectories/{{name}}")
 	if err != nil {
 		return err
 	}

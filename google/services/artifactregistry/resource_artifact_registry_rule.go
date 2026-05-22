@@ -284,7 +284,7 @@ func resourceArtifactRegistryRuleCreate(d *schema.ResourceData, meta interface{}
 		obj["packageId"] = packageIdProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/rules?ruleId={{rule_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/rules?ruleId={{rule_id}}")
 	if err != nil {
 		return err
 	}
@@ -366,7 +366,7 @@ func resourceArtifactRegistryRuleRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/rules/{{rule_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/rules/{{rule_id}}")
 	if err != nil {
 		return err
 	}
@@ -536,7 +536,7 @@ func resourceArtifactRegistryRuleUpdate(d *schema.ResourceData, meta interface{}
 		obj["packageId"] = packageIdProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/rules/{{rule_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/rules/{{rule_id}}")
 	if err != nil {
 		return err
 	}
@@ -620,7 +620,7 @@ func resourceArtifactRegistryRuleDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for Rule: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/rules/{{rule_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/rules/{{rule_id}}")
 	if err != nil {
 		return err
 	}

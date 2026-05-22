@@ -204,7 +204,7 @@ func resourceMigrationCenterSettingsCreate(d *schema.ResourceData, meta interfac
 		obj["preferenceSet"] = preferenceSetProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/settings?updateMask=*"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/settings?updateMask=*")
 	if err != nil {
 		return err
 	}
@@ -273,7 +273,7 @@ func resourceMigrationCenterSettingsRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/settings"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/settings")
 	if err != nil {
 		return err
 	}
@@ -406,7 +406,7 @@ func resourceMigrationCenterSettingsUpdate(d *schema.ResourceData, meta interfac
 		obj["preferenceSet"] = preferenceSetProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/settings"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/settings")
 	if err != nil {
 		return err
 	}

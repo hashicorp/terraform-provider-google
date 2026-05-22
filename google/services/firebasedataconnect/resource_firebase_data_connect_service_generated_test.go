@@ -183,7 +183,7 @@ func testAccCheckFirebaseDataConnectServiceDestroyProducer(t *testing.T) func(s 
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(firebasedataconnect.Product, config), "projects/{{project}}/locations/{{location}}/services/{{service_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(firebasedataconnect.Product, config)+"projects/{{project}}/locations/{{location}}/services/{{service_id}}")
 			if err != nil {
 				return err
 			}

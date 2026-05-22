@@ -293,7 +293,7 @@ func resourceParameterManagerRegionalRegionalParameterCreate(d *schema.ResourceD
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/parameters?parameter_id={{parameter_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/parameters?parameter_id={{parameter_id}}")
 	if err != nil {
 		return err
 	}
@@ -367,7 +367,7 @@ func resourceParameterManagerRegionalRegionalParameterRead(d *schema.ResourceDat
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/parameters/{{parameter_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/parameters/{{parameter_id}}")
 	if err != nil {
 		return err
 	}
@@ -511,7 +511,7 @@ func resourceParameterManagerRegionalRegionalParameterUpdate(d *schema.ResourceD
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/parameters/{{parameter_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/parameters/{{parameter_id}}")
 	if err != nil {
 		return err
 	}
@@ -584,7 +584,7 @@ func resourceParameterManagerRegionalRegionalParameterDelete(d *schema.ResourceD
 		return fmt.Errorf("Error fetching project for RegionalParameter: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/parameters/{{parameter_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/parameters/{{parameter_id}}")
 	if err != nil {
 		return err
 	}

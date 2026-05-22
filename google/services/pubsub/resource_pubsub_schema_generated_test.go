@@ -160,7 +160,7 @@ func testAccCheckPubsubSchemaDestroyProducer(t *testing.T) func(s *terraform.Sta
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(pubsub.Product, config), "projects/{{project}}/schemas/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(pubsub.Product, config)+"projects/{{project}}/schemas/{{name}}")
 			if err != nil {
 				return err
 			}

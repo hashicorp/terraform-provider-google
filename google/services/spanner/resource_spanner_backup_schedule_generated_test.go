@@ -236,7 +236,7 @@ func testAccCheckSpannerBackupScheduleDestroyProducer(t *testing.T) func(s *terr
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(spanner.Product, config), "projects/{{project}}/instances/{{instance}}/databases/{{database}}/backupSchedules/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(spanner.Product, config)+"projects/{{project}}/instances/{{instance}}/databases/{{database}}/backupSchedules/{{name}}")
 			if err != nil {
 				return err
 			}

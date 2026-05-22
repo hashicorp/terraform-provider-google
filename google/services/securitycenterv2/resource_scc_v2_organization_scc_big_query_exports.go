@@ -284,7 +284,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsCreate(d *schema.Reso
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/bigQueryExports?bigQueryExportId={{big_query_export_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/bigQueryExports?bigQueryExportId={{big_query_export_id}}")
 	if err != nil {
 		return err
 	}
@@ -352,7 +352,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsRead(d *schema.Resour
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
 	if err != nil {
 		return err
 	}
@@ -493,7 +493,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsUpdate(d *schema.Reso
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
 	if err != nil {
 		return err
 	}
@@ -569,7 +569,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsDelete(d *schema.Reso
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
 	if err != nil {
 		return err
 	}

@@ -517,7 +517,7 @@ func resourceStorageInsightsDatasetConfigCreate(d *schema.ResourceData, meta int
 		obj["excludeCloudStorageBuckets"] = excludeCloudStorageBucketsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datasetConfigs?datasetConfigId={{dataset_config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datasetConfigs?datasetConfigId={{dataset_config_id}}")
 	if err != nil {
 		return err
 	}
@@ -635,7 +635,7 @@ func resourceStorageInsightsDatasetConfigRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datasetConfigs/{{dataset_config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datasetConfigs/{{dataset_config_id}}")
 	if err != nil {
 		return err
 	}
@@ -838,7 +838,7 @@ func resourceStorageInsightsDatasetConfigUpdate(d *schema.ResourceData, meta int
 		obj["excludeCloudStorageBuckets"] = excludeCloudStorageBucketsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datasetConfigs/{{dataset_config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datasetConfigs/{{dataset_config_id}}")
 	if err != nil {
 		return err
 	}
@@ -1018,7 +1018,7 @@ func resourceStorageInsightsDatasetConfigDelete(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error fetching project for DatasetConfig: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datasetConfigs/{{dataset_config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datasetConfigs/{{dataset_config_id}}")
 	if err != nil {
 		return err
 	}

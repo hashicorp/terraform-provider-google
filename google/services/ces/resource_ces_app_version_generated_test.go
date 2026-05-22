@@ -120,7 +120,7 @@ func testAccCheckCESAppVersionDestroyProducer(t *testing.T) func(s *terraform.St
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(ces.Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/versions/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(ces.Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/versions/{{name}}")
 			if err != nil {
 				return err
 			}

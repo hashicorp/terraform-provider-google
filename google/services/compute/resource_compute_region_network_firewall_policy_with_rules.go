@@ -862,7 +862,7 @@ func resourceComputeRegionNetworkFirewallPolicyWithRulesCreate(d *schema.Resourc
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/firewallPolicies")
 	if err != nil {
 		return err
 	}
@@ -978,7 +978,7 @@ func resourceComputeRegionNetworkFirewallPolicyWithRulesRead(d *schema.ResourceD
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1145,7 +1145,7 @@ func resourceComputeRegionNetworkFirewallPolicyWithRulesUpdate(d *schema.Resourc
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1207,7 +1207,7 @@ func resourceComputeRegionNetworkFirewallPolicyWithRulesDelete(d *schema.Resourc
 		return fmt.Errorf("Error fetching project for RegionNetworkFirewallPolicyWithRules: %s", err)
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
 	if err != nil {
 		return err
 	}

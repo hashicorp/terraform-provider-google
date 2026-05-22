@@ -486,7 +486,7 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/connectivityTests?testId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/connectivityTests?testId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -565,7 +565,7 @@ func resourceNetworkManagementConnectivityTestRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/connectivityTests/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -734,7 +734,7 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/connectivityTests/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -858,7 +858,7 @@ func resourceNetworkManagementConnectivityTestDelete(d *schema.ResourceData, met
 		return fmt.Errorf("Error fetching project for ConnectivityTest: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/connectivityTests/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
 		return err
 	}

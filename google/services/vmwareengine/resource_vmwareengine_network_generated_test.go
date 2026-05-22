@@ -108,7 +108,7 @@ func testAccCheckVmwareengineNetworkDestroyProducer(t *testing.T) func(s *terraf
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(vmwareengine.Product, config), "projects/{{project}}/locations/{{location}}/vmwareEngineNetworks/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(vmwareengine.Product, config)+"projects/{{project}}/locations/{{location}}/vmwareEngineNetworks/{{name}}")
 			if err != nil {
 				return err
 			}

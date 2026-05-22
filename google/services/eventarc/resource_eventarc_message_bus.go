@@ -320,7 +320,7 @@ func resourceEventarcMessageBusCreate(d *schema.ResourceData, meta interface{}) 
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/messageBuses?messageBusId={{message_bus_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/messageBuses?messageBusId={{message_bus_id}}")
 	if err != nil {
 		return err
 	}
@@ -404,7 +404,7 @@ func resourceEventarcMessageBusRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/messageBuses/{{message_bus_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/messageBuses/{{message_bus_id}}")
 	if err != nil {
 		return err
 	}
@@ -566,7 +566,7 @@ func resourceEventarcMessageBusUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/messageBuses/{{message_bus_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/messageBuses/{{message_bus_id}}")
 	if err != nil {
 		return err
 	}
@@ -658,7 +658,7 @@ func resourceEventarcMessageBusDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error fetching project for MessageBus: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/messageBuses/{{message_bus_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/messageBuses/{{message_bus_id}}")
 	if err != nil {
 		return err
 	}
