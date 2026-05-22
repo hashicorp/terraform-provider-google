@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 // TestAccSdkProvider_request_timeout is a series of acc tests asserting how the SDK provider handles request_timeout arguments

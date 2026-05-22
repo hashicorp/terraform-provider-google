@@ -25,6 +25,8 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	ptu "github.com/hashicorp/terraform-provider-google/google/provider/testutils"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/kms"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
