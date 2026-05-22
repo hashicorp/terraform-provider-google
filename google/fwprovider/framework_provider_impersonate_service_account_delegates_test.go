@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 )
 
 // TestAccFwProvider_impersonate_service_account_delegates is a series of acc tests asserting how the plugin-framework provider handles impersonate_service_account_delegates arguments
