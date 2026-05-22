@@ -18,6 +18,8 @@ package tpgiamresource
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -53,14 +55,34 @@ func ParseIamResourceIdentity(
 	config *transport_tpg.Config,
 	rc IamResourceIdentityConfig,
 ) (string, error) {
-	resolved := make(map[string]string, len(rc.Params))
+	// Collect the raw value supplied for each param from the import identity.
+	rawVals := make([]string, len(rc.Params))
 	for i, p := range rc.Params {
-		var val string
 		if rv, ok := identity.GetOk(p.IdentityKey); ok {
 			if s, ok := rv.(string); ok {
-				val = s
+				rawVals[i] = s
 			}
 		}
+	}
+
+	if uriRe := buildUriFormatRegexp(rc.UriFormat); uriRe != nil {
+		for i := len(rawVals) - 1; i >= 0; i-- {
+			if rawVals[i] == "" {
+				continue
+			}
+			m := uriRe.FindStringSubmatch(rawVals[i])
+			if m != nil && len(m)-1 == len(rc.Params) {
+				for j := range rc.Params {
+					rawVals[j] = m[j+1]
+				}
+				break
+			}
+		}
+	}
+
+	resolved := make(map[string]string, len(rc.Params))
+	for i, p := range rc.Params {
+		val := rawVals[i]
 		if GetDefaultConfigValue := DefaultConfigValueFuncs[p.Key]; GetDefaultConfigValue != nil && val == "" {
 			defaultVal, err := GetDefaultConfigValue(d, config)
 			if err != nil {
@@ -75,9 +97,6 @@ func ParseIamResourceIdentity(
 		if val == "" {
 			return "", fmt.Errorf("import identity is missing attribute %q", p.IdentityKey)
 		}
-		if i == len(rc.Params)-1 {
-			val = tpgresource.GetResourceNameFromSelfLink(val)
-		}
 		resolved[p.Key] = val
 	}
 
@@ -87,4 +106,29 @@ func ParseIamResourceIdentity(
 	}
 
 	return fmt.Sprintf(rc.UriFormat, args...), nil
+}
+
+func buildUriFormatRegexp(uriFormat string) *regexp.Regexp {
+	parts := strings.Split(uriFormat, "%s")
+	var sb strings.Builder
+	sb.WriteString("^")
+	for i, part := range parts {
+		sb.WriteString(regexp.QuoteMeta(part))
+		if i < len(parts)-1 {
+			if i == len(parts)-2 {
+				sb.WriteString("(.+)")
+			} else {
+				// Non-final params may themselves contain '/'
+				// (e.g. "organizations/{id}"). Use a non-greedy match so the
+				// literal separator that follows anchors the split.
+				sb.WriteString("(.+?)")
+			}
+		}
+	}
+	sb.WriteString("$")
+	re, err := regexp.Compile(sb.String())
+	if err != nil {
+		return nil
+	}
+	return re
 }
