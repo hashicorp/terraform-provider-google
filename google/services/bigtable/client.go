@@ -19,79 +19,91 @@ package bigtable
 import (
 	"context"
 	"log"
-	"os"
+	"strings"
 
 	"cloud.google.com/go/bigtable"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/bigtableadmin/v2"
 	"google.golang.org/api/option"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type ClientFactory struct {
+	BasePath            string
+	AdminBasePath       string
+	UniverseDomain      string
 	GRPCLoggingOptions  []option.ClientOption
 	UserAgent           string
 	TokenSource         oauth2.TokenSource
 	BillingProject      string
 	UserProjectOverride bool
+	RequestReason       string
 }
 
-func (s ClientFactory) NewInstanceAdminClient(project string) (*bigtable.InstanceAdminClient, error) {
+func (s ClientFactory) getClientOptions(isDataClient bool) []option.ClientOption {
 	var opts []option.ClientOption
-	if requestReason := os.Getenv("CLOUDSDK_CORE_REQUEST_REASON"); requestReason != "" {
-		opts = append(opts, option.WithRequestReason(requestReason))
+	if s.RequestReason != "" {
+		opts = append(opts, option.WithRequestReason(s.RequestReason))
 	}
 
 	if s.UserProjectOverride && s.BillingProject != "" {
 		opts = append(opts, option.WithQuotaProject(s.BillingProject))
 	}
 
+	if s.UniverseDomain != "" {
+		opts = append(opts, option.WithUniverseDomain(s.UniverseDomain))
+	}
+
+	if isDataClient && s.BasePath != "" {
+		endpoint := strings.TrimPrefix(s.BasePath, "https://")
+		endpoint = strings.TrimSuffix(endpoint, "/")
+
+		if strings.HasPrefix(endpoint, "bigtableadmin.") {
+			endpoint = strings.Replace(endpoint, "bigtableadmin.", "bigtable.", 1)
+		}
+
+		opts = append(opts, option.WithEndpoint(endpoint))
+	} else if !isDataClient && s.AdminBasePath != "" {
+		endpoint := strings.TrimPrefix(s.AdminBasePath, "https://")
+		endpoint = strings.TrimSuffix(endpoint, "/")
+		opts = append(opts, option.WithEndpoint(endpoint))
+	}
+
 	opts = append(opts, option.WithTokenSource(s.TokenSource), option.WithUserAgent(s.UserAgent))
 	opts = append(opts, s.GRPCLoggingOptions...)
 
+	return opts
+}
+
+func (s ClientFactory) NewInstanceAdminClient(project string) (*bigtable.InstanceAdminClient, error) {
+	opts := s.getClientOptions(false)
 	return bigtable.NewInstanceAdminClient(context.Background(), project, opts...)
 }
 
 func (s ClientFactory) NewAdminClient(project, instance string) (*bigtable.AdminClient, error) {
-	var opts []option.ClientOption
-	if requestReason := os.Getenv("CLOUDSDK_CORE_REQUEST_REASON"); requestReason != "" {
-		opts = append(opts, option.WithRequestReason(requestReason))
-	}
-
-	if s.UserProjectOverride && s.BillingProject != "" {
-		opts = append(opts, option.WithQuotaProject(s.BillingProject))
-	}
-
-	opts = append(opts, option.WithTokenSource(s.TokenSource), option.WithUserAgent(s.UserAgent))
-	opts = append(opts, s.GRPCLoggingOptions...)
-
+	opts := s.getClientOptions(false)
 	return bigtable.NewAdminClient(context.Background(), project, instance, opts...)
 }
 
 func (s ClientFactory) NewClient(project, instance string) (*bigtable.Client, error) {
-	var opts []option.ClientOption
-	if requestReason := os.Getenv("CLOUDSDK_CORE_REQUEST_REASON"); requestReason != "" {
-		opts = append(opts, option.WithRequestReason(requestReason))
-	}
-
-	if s.UserProjectOverride && s.BillingProject != "" {
-		opts = append(opts, option.WithQuotaProject(s.BillingProject))
-	}
-
-	opts = append(opts, option.WithTokenSource(s.TokenSource), option.WithUserAgent(s.UserAgent))
-	opts = append(opts, s.GRPCLoggingOptions...)
-
+	opts := s.getClientOptions(true)
 	return bigtable.NewClient(context.Background(), project, instance, opts...)
 }
 
 func NewClientFactory(c *transport_tpg.Config, userAgent string) *ClientFactory {
+	baseUrl := transport_tpg.BaseUrl(registry.GetProduct("bigtable"), c)
 	bigtableClientFactory := &ClientFactory{
+		BasePath:            transport_tpg.RemoveBasePathVersion(baseUrl),
+		AdminBasePath:       transport_tpg.RemoveBasePathVersion(baseUrl),
+		UniverseDomain:      c.UniverseDomain,
 		UserAgent:           userAgent,
 		TokenSource:         c.TokenSource,
 		GRPCLoggingOptions:  c.GRPCLoggingOptions,
 		BillingProject:      c.BillingProject,
 		UserProjectOverride: c.UserProjectOverride,
+		RequestReason:       c.RequestReason,
 	}
 
 	return bigtableClientFactory
@@ -103,7 +115,7 @@ func NewClientFactory(c *transport_tpg.Config, userAgent string) *ClientFactory 
 // we expose those directly instead of providing the `Service` object
 // as a factory.
 func NewProjectsInstancesClient(c *transport_tpg.Config, userAgent string) *bigtableadmin.ProjectsInstancesService {
-	bigtableAdminBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
+	bigtableAdminBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(registry.GetProduct("bigtable"), c))
 	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
 	clientBigtable, err := bigtableadmin.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {
@@ -118,7 +130,7 @@ func NewProjectsInstancesClient(c *transport_tpg.Config, userAgent string) *bigt
 }
 
 func NewProjectsInstancesTablesClient(c *transport_tpg.Config, userAgent string) *bigtableadmin.ProjectsInstancesTablesService {
-	bigtableAdminBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
+	bigtableAdminBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(registry.GetProduct("bigtable"), c))
 	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
 	clientBigtable, err := bigtableadmin.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {
