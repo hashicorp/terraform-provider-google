@@ -59,7 +59,7 @@ func dataSourceOracleDatabaseAutonomousDatabasesRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/autonomousDatabases")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/autonomousDatabases")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

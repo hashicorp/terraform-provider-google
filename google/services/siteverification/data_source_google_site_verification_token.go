@@ -101,7 +101,7 @@ func dataSourceSiteVerificationTokenRead(d *schema.ResourceData, meta interface{
 		obj["verificationMethod"] = verification_methodProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SiteVerificationBasePath}}token")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"token")
 	if err != nil {
 		return err
 	}

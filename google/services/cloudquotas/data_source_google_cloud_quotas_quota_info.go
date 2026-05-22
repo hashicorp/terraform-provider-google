@@ -149,7 +149,7 @@ func dataSourceGoogleCloudQuotasQuotaInfoRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CloudQuotasBasePath}}{{parent}}/locations/global/services/{{service}}/quotaInfos/{{quota_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/global/services/{{service}}/quotaInfos/{{quota_id}}")
 	if err != nil {
 		return fmt.Errorf("error setting api endpoint")
 	}

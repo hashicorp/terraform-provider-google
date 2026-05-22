@@ -242,7 +242,7 @@ func resourceStorageAnywhereCacheCreate(d *schema.ResourceData, meta interface{}
 		obj["ingestOnWrite"] = ingestOnWriteProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/anywhereCaches/")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/anywhereCaches/")
 	if err != nil {
 		return err
 	}
@@ -453,7 +453,7 @@ func resourceStorageAnywhereCacheUpdate(d *schema.ResourceData, meta interface{}
 		obj["ingestOnWrite"] = ingestOnWriteProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/anywhereCaches/{{anywhere_cache_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/anywhereCaches/{{anywhere_cache_id}}")
 	if err != nil {
 		return err
 	}

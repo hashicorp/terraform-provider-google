@@ -322,7 +322,7 @@ func dataSourceDataplexDataQualityRulesRead(d *schema.ResourceData, meta interfa
 
 	data_scan_id := d.Get("data_scan_id").(string)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/dataScans/{{data_scan_id}}:generateDataQualityRules")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/dataScans/{{data_scan_id}}:generateDataQualityRules")
 	if err != nil {
 		return err
 	}

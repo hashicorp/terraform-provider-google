@@ -1132,7 +1132,7 @@ func resourceOSConfigOSPolicyAssignmentCreate(d *schema.ResourceData, meta inter
 	// Shorten long form project id to short form.
 	billingProject = tpgresource.GetResourceNameFromSelfLink(project)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSConfigBasePath}}projects/{{project}}/locations/{{location}}/osPolicyAssignments?osPolicyAssignmentId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/osPolicyAssignments?osPolicyAssignmentId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -1217,7 +1217,7 @@ func resourceOSConfigOSPolicyAssignmentRead(d *schema.ResourceData, meta interfa
 	// Shorten long form project id to short form
 	billingProject = tpgresource.GetResourceNameFromSelfLink(project)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSConfigBasePath}}projects/{{project}}/locations/{{location}}/osPolicyAssignments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/osPolicyAssignments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1346,7 +1346,7 @@ func resourceOSConfigOSPolicyAssignmentUpdate(d *schema.ResourceData, meta inter
 		obj["rollout"] = rolloutProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSConfigBasePath}}projects/{{project}}/locations/{{location}}/osPolicyAssignments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/osPolicyAssignments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1437,7 +1437,7 @@ func resourceOSConfigOSPolicyAssignmentDelete(d *schema.ResourceData, meta inter
 	// Shorten long form project id to short form
 	billingProject = tpgresource.GetResourceNameFromSelfLink(project)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OSConfigBasePath}}projects/{{project}}/locations/{{location}}/osPolicyAssignments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/osPolicyAssignments/{{name}}")
 	if err != nil {
 		return err
 	}

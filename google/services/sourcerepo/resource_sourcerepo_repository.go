@@ -80,7 +80,7 @@ func resourceSourceRepoRepositoryPollRead(d *schema.ResourceData, meta interface
 			return nil, err
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/repos")
 		if err != nil {
 			return nil, err
 		}
@@ -298,7 +298,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 		obj["pubsubConfigs"] = pubsubConfigsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/repos")
 	if err != nil {
 		return err
 	}

@@ -58,7 +58,7 @@ func dataSourceVmwareengineNsxCredentialsRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}:showNsxCredentials")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}:showNsxCredentials")
 	if err != nil {
 		return err
 	}

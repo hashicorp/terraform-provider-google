@@ -464,7 +464,7 @@ func testAccCheckComputePublicDelegatedPrefixDestroyProducer(t *testing.T) func(
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/publicDelegatedPrefixes/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(compute.Product, config)+"projects/{{project}}/regions/{{region}}/publicDelegatedPrefixes/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -503,7 +503,7 @@ func testAccCheckComputePublicAdvertisedPrefixDestroyProducer(t *testing.T) func
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/publicAdvertisedPrefixes/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(compute.Product, config)+"projects/{{project}}/global/publicAdvertisedPrefixes/{{name}}")
 			if err != nil {
 				return err
 			}

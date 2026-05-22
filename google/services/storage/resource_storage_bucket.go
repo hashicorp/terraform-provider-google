@@ -757,7 +757,7 @@ func labelKeyValidator(val interface{}, key string) (warns []string, errs []erro
 
 func getAnywhereCacheListResult(d *schema.ResourceData, config *transport_tpg.Config) ([]interface{}, error) {
 	// Define the cache list URL
-	cacheListUrl, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{name}}/anywhereCaches/")
+	cacheListUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{name}}/anywhereCaches/")
 	if err != nil {
 		return nil, err
 	}
@@ -822,7 +822,7 @@ func deleteAnywhereCacheIfAny(d *schema.ResourceData, config *transport_tpg.Conf
 			if !ok {
 				return fmt.Errorf("missing or invalid anywhereCacheId: %v", obj)
 			}
-			anywhereCacheUrl, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{name}}/anywhereCaches/")
+			anywhereCacheUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{name}}/anywhereCaches/")
 			if err != nil {
 				return err
 			}

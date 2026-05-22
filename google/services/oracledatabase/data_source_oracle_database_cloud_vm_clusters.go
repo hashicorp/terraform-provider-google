@@ -59,7 +59,7 @@ func dataSourceOracleDatabaseCloudVmClustersRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/cloudVmClusters")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/cloudVmClusters")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

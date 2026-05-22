@@ -92,7 +92,7 @@ func dataSourceApphubDiscoveredServiceRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApphubBasePath}}projects/{{project}}/locations/{{location}}/discoveredServices:lookup?uri={{service_uri}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/discoveredServices:lookup?uri={{service_uri}}")
 	if err != nil {
 		return err
 	}

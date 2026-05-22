@@ -1779,7 +1779,7 @@ func resourceChronicleDashboardChartUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	// 2. URL Formatting
-	baseUrl, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}")
+	baseUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config))
 	if err != nil {
 		return err
 	}

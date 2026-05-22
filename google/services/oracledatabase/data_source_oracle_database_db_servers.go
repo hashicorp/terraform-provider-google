@@ -142,7 +142,7 @@ func DataSourceOracleDatabaseDbServersRead(d *schema.ResourceData, meta interfac
 		billingProject = bp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/cloudExadataInfrastructures/{{cloud_exadata_infrastructure}}/dbServers")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/cloudExadataInfrastructures/{{cloud_exadata_infrastructure}}/dbServers")
 	if err != nil {
 		return err
 	}

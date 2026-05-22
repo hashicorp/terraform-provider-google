@@ -113,7 +113,7 @@ func DataSourceArtifactRegistryNpmPackageRead(d *schema.ResourceData, meta inter
 		// fetch package by version
 		// https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.npmPackages/get
 		packageUrlSafe := url.QueryEscape(packageName)
-		urlRequest, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("{{ArtifactRegistryBasePath}}projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/npmPackages/%s:%s", packageUrlSafe, version))
+		urlRequest, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf(transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/npmPackages/%s:%s", packageUrlSafe, version))
 		if err != nil {
 			return fmt.Errorf("Error setting api endpoint")
 		}
@@ -132,7 +132,7 @@ func DataSourceArtifactRegistryNpmPackageRead(d *schema.ResourceData, meta inter
 	} else {
 		// fetch the list of packages, ordered by update time
 		// https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.npmPackages/list
-		urlRequest, err := tpgresource.ReplaceVars(d, config, "{{ArtifactRegistryBasePath}}projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/npmPackages")
+		urlRequest, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/npmPackages")
 		if err != nil {
 			return fmt.Errorf("Error setting api endpoint")
 		}

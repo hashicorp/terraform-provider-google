@@ -84,7 +84,7 @@ func dataSourceVertexAIReasoningEngineQueryRead(d *schema.ResourceData, meta int
 	// A non-nil billing_project indicates no error, and should be used.
 	billingProject, _ := tpgresource.GetBillingProject(d, config)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/reasoningEngines/{{reasoning_engine_id}}:query")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/reasoningEngines/{{reasoning_engine_id}}:query")
 	if err != nil {
 		return err
 	}

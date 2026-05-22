@@ -81,7 +81,7 @@ func DataSourceArtifactRegistryPackageRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error setting Artifact Registry project: %s", err)
 	}
 
-	basePath, err := tpgresource.ReplaceVars(d, config, "{{ArtifactRegistryBasePath}}")
+	basePath, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config))
 	if err != nil {
 		return fmt.Errorf("Error setting Artifact Registry base path: %s", err)
 	}

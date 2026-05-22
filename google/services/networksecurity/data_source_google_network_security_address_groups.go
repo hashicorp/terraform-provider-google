@@ -98,7 +98,7 @@ func dataSourceNetworkSecurityAddressGroups(d *schema.ResourceData, meta interfa
 			return err
 		}
 
-		url, err = tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/addressGroups")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/addressGroups")
 		if err != nil {
 			return err
 		}

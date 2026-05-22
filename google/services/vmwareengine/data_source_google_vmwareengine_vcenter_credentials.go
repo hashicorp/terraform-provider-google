@@ -59,7 +59,7 @@ func dataSourceVmwareengineVcenterCredentialsRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}:showVcenterCredentials")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}:showVcenterCredentials")
 	if err != nil {
 		return err
 	}
