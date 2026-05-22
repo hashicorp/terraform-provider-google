@@ -17,7 +17,6 @@
 package networkconnectivityv1_test
 
 import (
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -413,71 +412,4 @@ resource "google_compute_network" "default" {
   auto_create_subnetworks = false
 }
 `, context)
-}
-
-func TestInternalRangeDetach_RegexParse(t *testing.T) {
-	re := regexp.MustCompile(`//[^/]+/(projects/([^/]+)/(?:locations|regions)/([^/]+)/subnetworks/([^/]+))`)
-
-	cases := []struct {
-		name            string
-		message         string
-		expectedProject string
-		expectedRegion  string
-		expectedSubnet  string
-		wantMatch       bool
-	}{
-		{
-			name:            "default public universe",
-			message:         "resource is already being used by //compute.googleapis.com/projects/p1/regions/us-central1/subnetworks/s1",
-			expectedProject: "p1",
-			expectedRegion:  "us-central1",
-			expectedSubnet:  "s1",
-			wantMatch:       true,
-		},
-		{
-			name:            "custom domain universe",
-			message:         "resource is already being used by //compute.myuniverse.com/projects/p2/regions/europe-west3/subnetworks/s2",
-			expectedProject: "p2",
-			expectedRegion:  "europe-west3",
-			expectedSubnet:  "s2",
-			wantMatch:       true,
-		},
-		{
-			name:            "private cloud universe with custom domain",
-			message:         "some error referencing //compute.internal.net/projects/p3/regions/asia-east1/subnetworks/s3",
-			expectedProject: "p3",
-			expectedRegion:  "asia-east1",
-			expectedSubnet:  "s3",
-			wantMatch:       true,
-		},
-		{
-			name:      "non-matching error",
-			message:   "resource is locked by network connectivity service",
-			wantMatch: false,
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			match := re.FindStringSubmatch(tc.message)
-			if tc.wantMatch {
-				if len(match) <= 4 {
-					t.Fatalf("expected match, got: %v", match)
-				}
-				if match[2] != tc.expectedProject {
-					t.Errorf("expected project %q, got %q", tc.expectedProject, match[2])
-				}
-				if match[3] != tc.expectedRegion {
-					t.Errorf("expected region %q, got %q", tc.expectedRegion, match[3])
-				}
-				if match[4] != tc.expectedSubnet {
-					t.Errorf("expected subnetwork %q, got %q", tc.expectedSubnet, match[4])
-				}
-			} else {
-				if len(match) > 0 {
-					t.Errorf("expected no match, got: %v", match)
-				}
-			}
-		})
-	}
 }

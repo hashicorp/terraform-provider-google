@@ -778,36 +778,29 @@ func resourceNetworkConnectivityv1InternalRangeDelete(d *schema.ResourceData, me
 		return err
 	}
 
-	// 1. Setup local variables. userAgent and err are already declared in the function preamble.
-	userAgent, err = tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return err
-	}
+	billingProject := ""
 
-	var project string
-	project, err = tpgresource.GetProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for InternalRange: %s", err)
 	}
-
-	billingProject := project
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
-	// Escaped URL for ReplaceVars (V1 API uses NetworkConnectivityv1BasePath)
-	var url string
-	url, err = tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityv1BasePath}}projects/{{project}}/locations/global/internalRanges/{{name}}")
+	billingProject = project
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/internalRanges/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting InternalRange %q", d.Id())
 
-	// 2. Initial deletion attempt
-	var res map[string]interface{}
-	res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	headers := make(http.Header)
+
+	log.Printf("[DEBUG] Deleting InternalRange %q", d.Id())
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
 		Project:   billingProject,
@@ -815,100 +808,22 @@ func resourceNetworkConnectivityv1InternalRangeDelete(d *schema.ResourceData, me
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
-
-	if err != nil {
-		// 3. Bug 1 Fix: Synchronous Detachment if Resource is in use
-		if gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok && gerr != nil && gerr.Code == 400 && strings.Contains(gerr.Message, "already being used") {
-			log.Printf("[DEBUG] InternalRange %q in use, attempting programmatic detachment", d.Id())
-
-			// Parse subnetwork project, region, and name from the API error message
-			re := regexp.MustCompile(`//[^/]+/(projects/([^/]+)/(?:locations|regions)/([^/]+)/subnetworks/([^/]+))`)
-			match := re.FindStringSubmatch(gerr.Message)
-			if len(match) > 1 {
-				computeBasePath, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
-				if err != nil {
-					return err
-				}
-				// Construct Compute API URL dynamically (compatible with distinct cloud universes / custom endpoints)
-				subnetUrl := fmt.Sprintf("%sprojects/%s/regions/%s/subnetworks/%s", computeBasePath, match[2], match[3], match[4])
-
-				// a) Fetch the referencing subnetwork
-				getRes, getErr := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-					Config: config, Method: "GET", Project: billingProject, RawURL: subnetUrl, UserAgent: userAgent,
-				})
-
-				if getErr == nil {
-					// b) Rebuild secondaryIpRanges, excluding the one pointing to this InternalRange
-					var updatedRanges []interface{}
-					if ranges, ok := getRes["secondaryIpRanges"].([]interface{}); ok {
-						for _, r := range ranges {
-							rMap := r.(map[string]interface{})
-							if ref, ok := rMap["reservedInternalRange"].(string); ok && strings.Contains(ref, "/internalRanges/"+d.Get("name").(string)) {
-								continue // This is the blocker; detach it
-							}
-							updatedRanges = append(updatedRanges, r)
-						}
-					}
-
-					// c) PATCH the subnetwork to remove the reference
-					patchObj := map[string]interface{}{
-						"secondaryIpRanges": updatedRanges,
-						"fingerprint":       getRes["fingerprint"],
-					}
-					patchRes, patchErr := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-						Config: config, Method: "PATCH", Project: billingProject, RawURL: subnetUrl, UserAgent: userAgent, Body: patchObj,
-					})
-
-					if patchErr == nil {
-						// d) Manually poll for operation completion (avoids complex waiter dependencies)
-						if opName, ok := patchRes["name"].(string); ok {
-							opUrl := fmt.Sprintf("%sprojects/%s/regions/%s/operations/%s", computeBasePath, match[2], match[3], opName)
-							for i := 0; i < 60; i++ { // Wait up to 5 mins
-								opRes, _ := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-									Config: config, Method: "GET", Project: billingProject, RawURL: opUrl, UserAgent: userAgent,
-								})
-								if opRes["status"] == "DONE" {
-									break
-								}
-								time.Sleep(5 * time.Second)
-							}
-						}
-						// e) Re-attempt the InternalRange deletion with retry loop to allow GCP backend synchronization
-						for j := 0; j < 12; j++ { // Retry up to 1 minute
-							time.Sleep(5 * time.Second)
-							res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-								Config: config, Method: "DELETE", Project: billingProject, RawURL: url, UserAgent: userAgent,
-							})
-							if err == nil {
-								err = NetworkConnectivityv1OperationWaitTime(config, res, project, "Deleting InternalRange", userAgent, d.Timeout(schema.TimeoutDelete))
-								if err == nil {
-									return nil
-								}
-								if gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok && gerr != nil && gerr.Code == 400 && strings.Contains(gerr.Message, "already being used") {
-									continue
-								}
-								return err
-							}
-							if gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok && gerr != nil && gerr.Code == 400 && strings.Contains(gerr.Message, "already being used") {
-								continue
-							}
-							break
-						}
-					}
-				}
-			}
-		}
-	}
-
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "InternalRange")
 	}
 
-	// 4. Final long-running operation wait
-	return NetworkConnectivityv1OperationWaitTime(
+	err = NetworkConnectivityv1OperationWaitTime(
 		config, res, project, "Deleting InternalRange", userAgent,
 		d.Timeout(schema.TimeoutDelete))
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Finished deleting InternalRange %q: %#v", d.Id(), res)
+	return nil
 }
 
 func resourceNetworkConnectivityv1InternalRangeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
