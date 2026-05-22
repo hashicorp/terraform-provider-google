@@ -242,7 +242,7 @@ func resourceBigtableSchemaBundleCreate(d *schema.ResourceData, meta interface{}
 		obj["protoSchema"] = protoSchemaProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/tables/{{table}}/schemaBundles?schemaBundleId={{schema_bundle_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/tables/{{table}}/schemaBundles?schemaBundleId={{schema_bundle_id}}")
 	if err != nil {
 		return err
 	}
@@ -321,7 +321,7 @@ func resourceBigtableSchemaBundleRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/tables/{{table}}/schemaBundles/{{schema_bundle_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/tables/{{table}}/schemaBundles/{{schema_bundle_id}}")
 	if err != nil {
 		return err
 	}
@@ -470,7 +470,7 @@ func resourceBigtableSchemaBundleUpdate(d *schema.ResourceData, meta interface{}
 		obj["protoSchema"] = protoSchemaProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/tables/{{table}}/schemaBundles/{{schema_bundle_id}}?ignoreWarnings={{ignore_warnings}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/tables/{{table}}/schemaBundles/{{schema_bundle_id}}?ignoreWarnings={{ignore_warnings}}")
 	if err != nil {
 		return err
 	}
@@ -539,7 +539,7 @@ func resourceBigtableSchemaBundleDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for SchemaBundle: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/instances/{{instance}}/tables/{{table}}/schemaBundles/{{schema_bundle_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/tables/{{table}}/schemaBundles/{{schema_bundle_id}}")
 	if err != nil {
 		return err
 	}

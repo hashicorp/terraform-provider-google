@@ -137,7 +137,7 @@ func testAccCheckDiscoveryEngineControlDestroyProducer(t *testing.T) func(s *ter
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(discoveryengine.Product, config), "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/controls/{{control_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(discoveryengine.Product, config)+"projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/controls/{{control_id}}")
 			if err != nil {
 				return err
 			}

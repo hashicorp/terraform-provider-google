@@ -1139,7 +1139,7 @@ func resourceGkeonpremVmwareClusterCreate(d *schema.ResourceData, meta interface
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vmwareClusters?vmware_cluster_id={{name}}&skipValidations={{skip_validations}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/vmwareClusters?vmware_cluster_id={{name}}&skipValidations={{skip_validations}}")
 	if err != nil {
 		return err
 	}
@@ -1222,7 +1222,7 @@ func resourceGkeonpremVmwareClusterRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vmwareClusters/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/vmwareClusters/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1456,7 +1456,7 @@ func resourceGkeonpremVmwareClusterUpdate(d *schema.ResourceData, meta interface
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vmwareClusters/{{name}}?skipValidations={{skip_validations}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/vmwareClusters/{{name}}?skipValidations={{skip_validations}}")
 	if err != nil {
 		return err
 	}
@@ -1596,7 +1596,7 @@ func resourceGkeonpremVmwareClusterDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error fetching project for VmwareCluster: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/vmwareClusters/{{name}}?force=true"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/vmwareClusters/{{name}}?force=true")
 	if err != nil {
 		return err
 	}

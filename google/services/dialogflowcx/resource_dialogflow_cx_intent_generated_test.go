@@ -268,7 +268,7 @@ func testAccCheckDialogflowCXIntentDestroyProducer(t *testing.T) func(s *terrafo
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(dialogflowcx.Product, config), "{{parent}}/intents/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(dialogflowcx.Product, config)+"{{parent}}/intents/{{name}}")
 			if err != nil {
 				return err
 			}

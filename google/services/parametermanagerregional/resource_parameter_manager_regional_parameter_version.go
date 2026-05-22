@@ -206,7 +206,7 @@ func resourceParameterManagerRegionalRegionalParameterVersionCreate(d *schema.Re
 		obj["payload"] = payloadProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parameter}}/versions?parameter_version_id={{parameter_version_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parameter}}/versions?parameter_version_id={{parameter_version_id}}")
 	if err != nil {
 		return err
 	}
@@ -270,7 +270,7 @@ func resourceParameterManagerRegionalRegionalParameterVersionRead(d *schema.Reso
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parameter}}/versions/{{parameter_version_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parameter}}/versions/{{parameter_version_id}}")
 	if err != nil {
 		return err
 	}
@@ -349,7 +349,7 @@ func resourceParameterManagerRegionalRegionalParameterVersionUpdate(d *schema.Re
 		obj["disabled"] = disabledProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parameter}}/versions/{{parameter_version_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parameter}}/versions/{{parameter_version_id}}")
 	if err != nil {
 		return err
 	}
@@ -413,7 +413,7 @@ func resourceParameterManagerRegionalRegionalParameterVersionDelete(d *schema.Re
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parameter}}/versions/{{parameter_version_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parameter}}/versions/{{parameter_version_id}}")
 	if err != nil {
 		return err
 	}

@@ -476,7 +476,7 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyCreate(d *schema.R
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{perimeter}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}")
 	if err != nil {
 		return err
 	}
@@ -568,7 +568,7 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyRead(d *schema.Res
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{perimeter}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}")
 	if err != nil {
 		return err
 	}
@@ -671,7 +671,7 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyDelete(d *schema.R
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{perimeter}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}")
 	if err != nil {
 		return err
 	}

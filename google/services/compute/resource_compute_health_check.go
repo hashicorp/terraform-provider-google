@@ -940,7 +940,7 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/healthChecks"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/healthChecks")
 	if err != nil {
 		return err
 	}
@@ -1019,7 +1019,7 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/healthChecks/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1235,7 +1235,7 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/healthChecks/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1297,7 +1297,7 @@ func resourceComputeHealthCheckDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error fetching project for HealthCheck: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/healthChecks/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return err
 	}

@@ -862,7 +862,7 @@ func resourceComputeRegionSecurityPolicyCreate(d *schema.ResourceData, meta inte
 		obj["region"] = regionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/securityPolicies"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/securityPolicies")
 	if err != nil {
 		return err
 	}
@@ -925,7 +925,7 @@ func resourceComputeRegionSecurityPolicyRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/securityPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/securityPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1049,7 +1049,7 @@ func resourceComputeRegionSecurityPolicyUpdate(d *schema.ResourceData, meta inte
 		obj["rules"] = rulesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/securityPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/securityPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1145,7 +1145,7 @@ func resourceComputeRegionSecurityPolicyDelete(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error fetching project for RegionSecurityPolicy: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/securityPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/securityPolicies/{{name}}")
 	if err != nil {
 		return err
 	}

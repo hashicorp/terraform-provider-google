@@ -1110,7 +1110,7 @@ func testAccCheckWorkstationsWorkstationConfigDestroyProducer(t *testing.T) func
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(workstations.Product, config), "projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}/workstationConfigs/{{workstation_config_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(workstations.Product, config)+"projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}/workstationConfigs/{{workstation_config_id}}")
 			if err != nil {
 				return err
 			}

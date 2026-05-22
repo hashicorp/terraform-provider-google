@@ -798,7 +798,7 @@ func resourceNotebooksRuntimeCreate(d *schema.ResourceData, meta interface{}) er
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/runtimes?runtimeId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/runtimes?runtimeId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -882,7 +882,7 @@ func resourceNotebooksRuntimeRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/runtimes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1038,7 +1038,7 @@ func resourceNotebooksRuntimeUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/runtimes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1195,7 +1195,7 @@ func resourceNotebooksRuntimeDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error fetching project for Runtime: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/runtimes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
 	if err != nil {
 		return err
 	}

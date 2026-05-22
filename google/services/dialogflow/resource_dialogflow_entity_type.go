@@ -246,7 +246,7 @@ func resourceDialogflowEntityTypeCreate(d *schema.ResourceData, meta interface{}
 		obj["entities"] = entitiesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/agent/entityTypes/"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/agent/entityTypes/")
 	if err != nil {
 		return err
 	}
@@ -316,7 +316,7 @@ func resourceDialogflowEntityTypeRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -450,7 +450,7 @@ func resourceDialogflowEntityTypeUpdate(d *schema.ResourceData, meta interface{}
 		obj["entities"] = entitiesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -504,7 +504,7 @@ func resourceDialogflowEntityTypeDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for EntityType: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}

@@ -368,7 +368,7 @@ func testAccCheckComputeTargetHttpProxyDestroyProducer(t *testing.T) func(s *ter
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(compute.Product, config), "projects/{{project}}/global/targetHttpProxies/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(compute.Product, config)+"projects/{{project}}/global/targetHttpProxies/{{name}}")
 			if err != nil {
 				return err
 			}

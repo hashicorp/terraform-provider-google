@@ -225,7 +225,7 @@ func resourceComputeFirewallPolicyCreate(d *schema.ResourceData, meta interface{
 		obj["fingerprint"] = fingerprintProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies?parentId={{parent}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/global/firewallPolicies?parentId={{parent}}")
 	if err != nil {
 		return err
 	}
@@ -304,7 +304,7 @@ func resourceComputeFirewallPolicyRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/global/firewallPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -389,7 +389,7 @@ func resourceComputeFirewallPolicyUpdate(d *schema.ResourceData, meta interface{
 		obj["fingerprint"] = fingerprintProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/global/firewallPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -447,7 +447,7 @@ func resourceComputeFirewallPolicyDelete(d *schema.ResourceData, meta interface{
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/global/firewallPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/global/firewallPolicies/{{name}}")
 	if err != nil {
 		return err
 	}

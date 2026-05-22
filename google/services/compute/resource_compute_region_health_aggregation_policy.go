@@ -303,7 +303,7 @@ func resourceComputeRegionHealthAggregationPolicyCreate(d *schema.ResourceData, 
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/healthAggregationPolicies"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/healthAggregationPolicies")
 	if err != nil {
 		return err
 	}
@@ -387,7 +387,7 @@ func resourceComputeRegionHealthAggregationPolicyRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/healthAggregationPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/healthAggregationPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -549,7 +549,7 @@ func resourceComputeRegionHealthAggregationPolicyUpdate(d *schema.ResourceData, 
 		obj["fingerprint"] = fingerprintProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/healthAggregationPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/healthAggregationPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -641,7 +641,7 @@ func resourceComputeRegionHealthAggregationPolicyDelete(d *schema.ResourceData, 
 		return fmt.Errorf("Error fetching project for RegionHealthAggregationPolicy: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/healthAggregationPolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/healthAggregationPolicies/{{name}}")
 	if err != nil {
 		return err
 	}

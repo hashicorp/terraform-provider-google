@@ -173,7 +173,7 @@ func resourceWorkloadIdentityServiceAgentCreate(d *schema.ResourceData, meta int
 		obj["parent"] = parentProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}:generateServiceAgents"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}:generateServiceAgents")
 	if err != nil {
 		return err
 	}

@@ -478,7 +478,7 @@ func resourceNetworkServicesGrpcRouteCreate(d *schema.ResourceData, meta interfa
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/grpcRoutes?grpcRouteId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/grpcRoutes?grpcRouteId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -562,7 +562,7 @@ func resourceNetworkServicesGrpcRouteRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/grpcRoutes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/grpcRoutes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -730,7 +730,7 @@ func resourceNetworkServicesGrpcRouteUpdate(d *schema.ResourceData, meta interfa
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/grpcRoutes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/grpcRoutes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -826,7 +826,7 @@ func resourceNetworkServicesGrpcRouteDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for GrpcRoute: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/grpcRoutes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/grpcRoutes/{{name}}")
 	if err != nil {
 		return err
 	}

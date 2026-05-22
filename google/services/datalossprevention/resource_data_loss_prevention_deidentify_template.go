@@ -4336,7 +4336,7 @@ func resourceDataLossPreventionDeidentifyTemplateCreate(d *schema.ResourceData, 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/deidentifyTemplates"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/deidentifyTemplates")
 	if err != nil {
 		return err
 	}
@@ -4405,7 +4405,7 @@ func resourceDataLossPreventionDeidentifyTemplateRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/deidentifyTemplates/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/deidentifyTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -4546,7 +4546,7 @@ func resourceDataLossPreventionDeidentifyTemplateUpdate(d *schema.ResourceData, 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/deidentifyTemplates/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/deidentifyTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -4618,7 +4618,7 @@ func resourceDataLossPreventionDeidentifyTemplateDelete(d *schema.ResourceData, 
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/deidentifyTemplates/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/deidentifyTemplates/{{name}}")
 	if err != nil {
 		return err
 	}

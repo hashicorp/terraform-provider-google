@@ -116,7 +116,7 @@ func testAccCheckLoggingLogScopeDestroyProducer(t *testing.T) func(s *terraform.
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(logging.Product, config), "{{parent}}/locations/{{location}}/logScopes/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(logging.Product, config)+"{{parent}}/locations/{{location}}/logScopes/{{name}}")
 			if err != nil {
 				return err
 			}

@@ -343,7 +343,7 @@ func testAccCheckClouddeployCustomTargetTypeDestroyProducer(t *testing.T) func(s
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(clouddeploy.Product, config), "projects/{{project}}/locations/{{location}}/customTargetTypes/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(clouddeploy.Product, config)+"projects/{{project}}/locations/{{location}}/customTargetTypes/{{name}}")
 			if err != nil {
 				return err
 			}

@@ -837,7 +837,7 @@ func testAccCheckDialogflowCXFlowDestroyProducer(t *testing.T) func(s *terraform
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(dialogflowcx.Product, config), "{{parent}}/flows/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(dialogflowcx.Product, config)+"{{parent}}/flows/{{name}}")
 			if err != nil {
 				return err
 			}

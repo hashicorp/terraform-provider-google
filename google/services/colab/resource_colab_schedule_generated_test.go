@@ -328,7 +328,7 @@ func testAccCheckColabScheduleDestroyProducer(t *testing.T) func(s *terraform.St
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(colab.Product, config), "projects/{{project}}/locations/{{location}}/schedules/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(colab.Product, config)+"projects/{{project}}/locations/{{location}}/schedules/{{name}}")
 			if err != nil {
 				return err
 			}

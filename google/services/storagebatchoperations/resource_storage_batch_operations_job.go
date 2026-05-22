@@ -442,7 +442,7 @@ func resourceStorageBatchOperationsJobCreate(d *schema.ResourceData, meta interf
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/jobs?jobId={{job_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/jobs?jobId={{job_id}}")
 	if err != nil {
 		return err
 	}
@@ -521,7 +521,7 @@ func resourceStorageBatchOperationsJobRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/jobs/{{job_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/jobs/{{job_id}}")
 	if err != nil {
 		return err
 	}
@@ -650,7 +650,7 @@ func resourceStorageBatchOperationsJobDelete(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error fetching project for Job: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/jobs/{{job_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/jobs/{{job_id}}")
 	if err != nil {
 		return err
 	}

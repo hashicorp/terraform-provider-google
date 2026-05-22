@@ -355,7 +355,7 @@ func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) er
 		obj["parentFollowupIntentName"] = parentFollowupIntentNameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/agent/intents/"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/agent/intents/")
 	if err != nil {
 		return err
 	}
@@ -425,7 +425,7 @@ func resourceDialogflowIntentRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -595,7 +595,7 @@ func resourceDialogflowIntentUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["defaultResponsePlatforms"] = defaultResponsePlatformsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -649,7 +649,7 @@ func resourceDialogflowIntentDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error fetching project for Intent: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}

@@ -112,7 +112,7 @@ func testAccCheckIdentityPlatformTenantDefaultSupportedIdpConfigDestroyProducer(
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(identityplatform.Product, config), "projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(identityplatform.Product, config)+"projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 			if err != nil {
 				return err
 			}

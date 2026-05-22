@@ -245,7 +245,7 @@ func resourceApigeeSecurityFeedbackCreate(d *schema.ResourceData, meta interface
 		obj["comment"] = commentProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityFeedback?security_feedback_id={{feedback_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/securityFeedback?security_feedback_id={{feedback_id}}")
 	if err != nil {
 		return err
 	}
@@ -292,7 +292,7 @@ func resourceApigeeSecurityFeedbackRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityFeedback/{{feedback_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/securityFeedback/{{feedback_id}}")
 	if err != nil {
 		return err
 	}
@@ -395,7 +395,7 @@ func resourceApigeeSecurityFeedbackUpdate(d *schema.ResourceData, meta interface
 		obj["comment"] = commentProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityFeedback/{{feedback_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/securityFeedback/{{feedback_id}}")
 	if err != nil {
 		return err
 	}
@@ -444,7 +444,7 @@ func resourceApigeeSecurityFeedbackDelete(d *schema.ResourceData, meta interface
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/securityFeedback/{{feedback_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/securityFeedback/{{feedback_id}}")
 	if err != nil {
 		return err
 	}

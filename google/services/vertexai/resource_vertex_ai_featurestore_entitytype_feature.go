@@ -255,7 +255,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{entitytype}}/features?featureId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{entitytype}}/features?featureId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -337,7 +337,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{entitytype}}/features/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{entitytype}}/features/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -460,7 +460,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{entitytype}}/features/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{entitytype}}/features/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -529,7 +529,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureDelete(d *schema.ResourceData,
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{entitytype}}/features/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{entitytype}}/features/{{name}}")
 	if err != nil {
 		return err
 	}

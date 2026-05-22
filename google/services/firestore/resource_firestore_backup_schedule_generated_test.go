@@ -183,7 +183,7 @@ func testAccCheckFirestoreBackupScheduleDestroyProducer(t *testing.T) func(s *te
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(firestore.Product, config), "projects/{{project}}/databases/{{database}}/backupSchedules/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(firestore.Product, config)+"projects/{{project}}/databases/{{database}}/backupSchedules/{{name}}")
 			if err != nil {
 				return err
 			}

@@ -278,7 +278,7 @@ func resourceSecurityCenterV2FolderSccBigQueryExportCreate(d *schema.ResourceDat
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/bigQueryExports?bigQueryExportId={{big_query_export_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/locations/{{location}}/bigQueryExports?bigQueryExportId={{big_query_export_id}}")
 	if err != nil {
 		return err
 	}
@@ -346,7 +346,7 @@ func resourceSecurityCenterV2FolderSccBigQueryExportRead(d *schema.ResourceData,
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
 	if err != nil {
 		return err
 	}
@@ -481,7 +481,7 @@ func resourceSecurityCenterV2FolderSccBigQueryExportUpdate(d *schema.ResourceDat
 		obj["filter"] = filterProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
 	if err != nil {
 		return err
 	}
@@ -553,7 +553,7 @@ func resourceSecurityCenterV2FolderSccBigQueryExportDelete(d *schema.ResourceDat
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
 	if err != nil {
 		return err
 	}

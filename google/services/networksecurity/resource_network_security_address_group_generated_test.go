@@ -208,7 +208,7 @@ func testAccCheckNetworkSecurityAddressGroupDestroyProducer(t *testing.T) func(s
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(networksecurity.Product, config), "{{parent}}/locations/{{location}}/addressGroups/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(networksecurity.Product, config)+"{{parent}}/locations/{{location}}/addressGroups/{{name}}")
 			if err != nil {
 				return err
 			}

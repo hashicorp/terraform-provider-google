@@ -179,7 +179,7 @@ func testAccCheckChronicleRuleDestroyProducer(t *testing.T) func(s *terraform.St
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(chronicle.Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(chronicle.Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule_id}}")
 			if err != nil {
 				return err
 			}

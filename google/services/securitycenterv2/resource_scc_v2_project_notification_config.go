@@ -245,7 +245,7 @@ func resourceSecurityCenterV2ProjectNotificationConfigCreate(d *schema.ResourceD
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/notificationConfigs?configId={{config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/notificationConfigs?configId={{config_id}}")
 	if err != nil {
 		return err
 	}
@@ -304,7 +304,7 @@ func resourceSecurityCenterV2ProjectNotificationConfigRead(d *schema.ResourceDat
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -410,7 +410,7 @@ func resourceSecurityCenterV2ProjectNotificationConfigUpdate(d *schema.ResourceD
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -487,7 +487,7 @@ func resourceSecurityCenterV2ProjectNotificationConfigDelete(d *schema.ResourceD
 		return fmt.Errorf("Error fetching project for ProjectNotificationConfig: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}

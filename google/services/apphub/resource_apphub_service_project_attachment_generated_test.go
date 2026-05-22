@@ -189,7 +189,7 @@ func testAccCheckApphubServiceProjectAttachmentDestroyProducer(t *testing.T) fun
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(apphub.Product, config), "projects/{{project}}/locations/global/serviceProjectAttachments/{{service_project_attachment_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(apphub.Product, config)+"projects/{{project}}/locations/global/serviceProjectAttachments/{{service_project_attachment_id}}")
 			if err != nil {
 				return err
 			}

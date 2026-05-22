@@ -362,7 +362,7 @@ func resourceIAM3OrganizationsPolicyBindingCreate(d *schema.ResourceData, meta i
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/policyBindings?policyBindingId={{policy_binding_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/policyBindings?policyBindingId={{policy_binding_id}}")
 	if err != nil {
 		return err
 	}
@@ -440,7 +440,7 @@ func resourceIAM3OrganizationsPolicyBindingRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/policyBindings/{{policy_binding_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/policyBindings/{{policy_binding_id}}")
 	if err != nil {
 		return err
 	}
@@ -581,7 +581,7 @@ func resourceIAM3OrganizationsPolicyBindingUpdate(d *schema.ResourceData, meta i
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/policyBindings/{{policy_binding_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/policyBindings/{{policy_binding_id}}")
 	if err != nil {
 		return err
 	}
@@ -665,7 +665,7 @@ func resourceIAM3OrganizationsPolicyBindingDelete(d *schema.ResourceData, meta i
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/locations/{{location}}/policyBindings/{{policy_binding_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/policyBindings/{{policy_binding_id}}")
 	if err != nil {
 		return err
 	}

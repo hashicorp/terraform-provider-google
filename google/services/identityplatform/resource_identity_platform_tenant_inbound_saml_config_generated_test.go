@@ -126,7 +126,7 @@ func testAccCheckIdentityPlatformTenantInboundSamlConfigDestroyProducer(t *testi
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(identityplatform.Product, config), "projects/{{project}}/tenants/{{tenant}}/inboundSamlConfigs/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(identityplatform.Product, config)+"projects/{{project}}/tenants/{{tenant}}/inboundSamlConfigs/{{name}}")
 			if err != nil {
 				return err
 			}

@@ -241,7 +241,7 @@ func resourceSecurityCenterEventThreatDetectionCustomModuleCreate(d *schema.Reso
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/eventThreatDetectionSettings/customModules"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/eventThreatDetectionSettings/customModules")
 	if err != nil {
 		return err
 	}
@@ -310,7 +310,7 @@ func resourceSecurityCenterEventThreatDetectionCustomModuleRead(d *schema.Resour
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/eventThreatDetectionSettings/customModules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/eventThreatDetectionSettings/customModules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -441,7 +441,7 @@ func resourceSecurityCenterEventThreatDetectionCustomModuleUpdate(d *schema.Reso
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/eventThreatDetectionSettings/customModules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/eventThreatDetectionSettings/customModules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -519,7 +519,7 @@ func resourceSecurityCenterEventThreatDetectionCustomModuleDelete(d *schema.Reso
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{organization}}/eventThreatDetectionSettings/customModules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/eventThreatDetectionSettings/customModules/{{name}}")
 	if err != nil {
 		return err
 	}

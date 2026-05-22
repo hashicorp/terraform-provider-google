@@ -257,7 +257,7 @@ func resourceApigeeDeveloperCreate(d *schema.ResourceData, meta interface{}) err
 		obj["attributes"] = attributesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/developers"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/developers")
 	if err != nil {
 		return err
 	}
@@ -320,7 +320,7 @@ func resourceApigeeDeveloperRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/developers/{{email}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/developers/{{email}}")
 	if err != nil {
 		return err
 	}
@@ -456,7 +456,7 @@ func resourceApigeeDeveloperUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["attributes"] = attributesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/developers/{{email}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/developers/{{email}}")
 	if err != nil {
 		return err
 	}
@@ -505,7 +505,7 @@ func resourceApigeeDeveloperDelete(d *schema.ResourceData, meta interface{}) err
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/developers/{{email}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/developers/{{email}}")
 	if err != nil {
 		return err
 	}

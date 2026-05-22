@@ -317,7 +317,7 @@ func resourceComputeInstantSnapshotCreate(d *schema.ResourceData, meta interface
 		obj["zone"] = zoneProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instantSnapshots"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instantSnapshots")
 	if err != nil {
 		return err
 	}
@@ -401,7 +401,7 @@ func resourceComputeInstantSnapshotRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instantSnapshots/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instantSnapshots/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -549,7 +549,7 @@ func resourceComputeInstantSnapshotUpdate(d *schema.ResourceData, meta interface
 			obj["labels"] = labelsProp
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instantSnapshots/{{name}}/setLabels"))
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instantSnapshots/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}
@@ -611,7 +611,7 @@ func resourceComputeInstantSnapshotDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error fetching project for InstantSnapshot: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/zones/{{zone}}/instantSnapshots/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instantSnapshots/{{name}}")
 	if err != nil {
 		return err
 	}

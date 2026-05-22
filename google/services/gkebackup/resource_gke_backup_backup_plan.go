@@ -648,7 +648,7 @@ func resourceGKEBackupBackupPlanCreate(d *schema.ResourceData, meta interface{})
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlans?backupPlanId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backupPlans?backupPlanId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -732,7 +732,7 @@ func resourceGKEBackupBackupPlanRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -900,7 +900,7 @@ func resourceGKEBackupBackupPlanUpdate(d *schema.ResourceData, meta interface{})
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -996,7 +996,7 @@ func resourceGKEBackupBackupPlanDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error fetching project for BackupPlan: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 	if err != nil {
 		return err
 	}

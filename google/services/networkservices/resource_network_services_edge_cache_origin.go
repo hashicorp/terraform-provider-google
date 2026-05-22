@@ -572,7 +572,7 @@ func resourceNetworkServicesEdgeCacheOriginCreate(d *schema.ResourceData, meta i
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/edgeCacheOrigins?edgeCacheOriginId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/edgeCacheOrigins?edgeCacheOriginId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -651,7 +651,7 @@ func resourceNetworkServicesEdgeCacheOriginRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -850,7 +850,7 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -974,7 +974,7 @@ func resourceNetworkServicesEdgeCacheOriginDelete(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error fetching project for EdgeCacheOrigin: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}")
 	if err != nil {
 		return err
 	}

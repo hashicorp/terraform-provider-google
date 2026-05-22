@@ -263,7 +263,7 @@ func resourceCloudIdsEndpointCreate(d *schema.ResourceData, meta interface{}) er
 		obj["threatExceptions"] = threatExceptionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/endpoints?endpointId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpoints?endpointId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -347,7 +347,7 @@ func resourceCloudIdsEndpointRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/endpoints/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -485,7 +485,7 @@ func resourceCloudIdsEndpointUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["threatExceptions"] = threatExceptionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/endpoints/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -561,7 +561,7 @@ func resourceCloudIdsEndpointDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error fetching project for Endpoint: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/endpoints/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 	if err != nil {
 		return err
 	}

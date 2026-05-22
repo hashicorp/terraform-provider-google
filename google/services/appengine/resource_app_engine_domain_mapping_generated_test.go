@@ -108,7 +108,7 @@ func testAccCheckAppEngineDomainMappingDestroyProducer(t *testing.T) func(s *ter
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(appengine.Product, config), "apps/{{project}}/domainMappings/{{domain_name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(appengine.Product, config)+"apps/{{project}}/domainMappings/{{domain_name}}")
 			if err != nil {
 				return err
 			}

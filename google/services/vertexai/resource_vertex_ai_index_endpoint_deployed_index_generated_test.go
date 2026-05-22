@@ -533,7 +533,7 @@ func testAccCheckVertexAIIndexEndpointDeployedIndexDestroyProducer(t *testing.T)
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(vertexai.Product, config), "{{index_endpoint}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(vertexai.Product, config)+"{{index_endpoint}}")
 			if err != nil {
 				return err
 			}

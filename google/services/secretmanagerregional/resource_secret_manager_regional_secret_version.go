@@ -248,7 +248,7 @@ func resourceSecretManagerRegionalRegionalSecretVersionCreate(d *schema.Resource
 		obj["payload"] = payloadProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{secret}}:addVersion"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{secret}}:addVersion")
 	if err != nil {
 		return err
 	}
@@ -333,7 +333,7 @@ func resourceSecretManagerRegionalRegionalSecretVersionRead(d *schema.ResourceDa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -457,7 +457,7 @@ func resourceSecretManagerRegionalRegionalSecretVersionDelete(d *schema.Resource
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}:destroy"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}:destroy")
 	if err != nil {
 		return err
 	}

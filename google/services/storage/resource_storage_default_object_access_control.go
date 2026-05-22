@@ -261,7 +261,7 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/defaultObjectAcl"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/defaultObjectAcl")
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,7 @@ func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/defaultObjectAcl/{{entity}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -461,7 +461,7 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/defaultObjectAcl/{{entity}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -516,7 +516,7 @@ func resourceStorageDefaultObjectAccessControlDelete(d *schema.ResourceData, met
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "b/{{bucket}}/defaultObjectAcl/{{entity}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
 		return err
 	}

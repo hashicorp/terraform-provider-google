@@ -321,7 +321,7 @@ func resourceColabRuntimeCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/notebookRuntimes:assign?notebook_runtime_id={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/notebookRuntimes:assign?notebook_runtime_id={{name}}")
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func resourceColabRuntimeRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/notebookRuntimes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/notebookRuntimes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -621,7 +621,7 @@ func resourceColabRuntimeDelete(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error fetching project for Runtime: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/notebookRuntimes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/notebookRuntimes/{{name}}")
 	if err != nil {
 		return err
 	}

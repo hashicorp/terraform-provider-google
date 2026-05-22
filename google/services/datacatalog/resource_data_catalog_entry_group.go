@@ -211,7 +211,7 @@ func resourceDataCatalogEntryGroupCreate(d *schema.ResourceData, meta interface{
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/entryGroups?entryGroupId={{entry_group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/entryGroups?entryGroupId={{entry_group_id}}")
 	if err != nil {
 		return err
 	}
@@ -281,7 +281,7 @@ func resourceDataCatalogEntryGroupRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func resourceDataCatalogEntryGroupUpdate(d *schema.ResourceData, meta interface{
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -484,7 +484,7 @@ func resourceDataCatalogEntryGroupDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for EntryGroup: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}

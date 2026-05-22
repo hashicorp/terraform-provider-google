@@ -555,7 +555,7 @@ func resourceDocumentAIWarehouseDocumentSchemaCreate(d *schema.ResourceData, met
 		obj["propertyDefinitions"] = propertyDefinitionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project_number}}/locations/{{location}}/documentSchemas"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project_number}}/locations/{{location}}/documentSchemas")
 	if err != nil {
 		return err
 	}
@@ -629,7 +629,7 @@ func resourceDocumentAIWarehouseDocumentSchemaRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -723,7 +723,7 @@ func resourceDocumentAIWarehouseDocumentSchemaDelete(d *schema.ResourceData, met
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}

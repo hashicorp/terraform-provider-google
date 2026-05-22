@@ -1417,7 +1417,7 @@ func resourceGkeonpremBareMetalClusterCreate(d *schema.ResourceData, meta interf
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bareMetalClusters?bare_metal_cluster_id={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/bareMetalClusters?bare_metal_cluster_id={{name}}")
 	if err != nil {
 		return err
 	}
@@ -1500,7 +1500,7 @@ func resourceGkeonpremBareMetalClusterRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bareMetalClusters/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/bareMetalClusters/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1728,7 +1728,7 @@ func resourceGkeonpremBareMetalClusterUpdate(d *schema.ResourceData, meta interf
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bareMetalClusters/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/bareMetalClusters/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1864,7 +1864,7 @@ func resourceGkeonpremBareMetalClusterDelete(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error fetching project for BareMetalCluster: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bareMetalClusters/{{name}}?force=true"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/bareMetalClusters/{{name}}?force=true")
 	if err != nil {
 		return err
 	}

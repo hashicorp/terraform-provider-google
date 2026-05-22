@@ -344,7 +344,7 @@ func resourceNetworkServicesTcpRouteCreate(d *schema.ResourceData, meta interfac
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/tcpRoutes?tcpRouteId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/tcpRoutes?tcpRouteId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -423,7 +423,7 @@ func resourceNetworkServicesTcpRouteRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/tcpRoutes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/tcpRoutes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -574,7 +574,7 @@ func resourceNetworkServicesTcpRouteUpdate(d *schema.ResourceData, meta interfac
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/tcpRoutes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/tcpRoutes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -666,7 +666,7 @@ func resourceNetworkServicesTcpRouteDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error fetching project for TcpRoute: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/tcpRoutes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/tcpRoutes/{{name}}")
 	if err != nil {
 		return err
 	}

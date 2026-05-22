@@ -325,7 +325,7 @@ func resourceCloudBuildBitbucketServerConfigCreate(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs?bitbucketServerConfigId={{config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/bitbucketServerConfigs?bitbucketServerConfigId={{config_id}}")
 	if err != nil {
 		return err
 	}
@@ -460,7 +460,7 @@ func resourceCloudBuildBitbucketServerConfigRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 	if err != nil {
 		return err
 	}
@@ -633,7 +633,7 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 	if err != nil {
 		return err
 	}
@@ -831,7 +831,7 @@ func resourceCloudBuildBitbucketServerConfigDelete(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error fetching project for BitbucketServerConfig: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 	if err != nil {
 		return err
 	}

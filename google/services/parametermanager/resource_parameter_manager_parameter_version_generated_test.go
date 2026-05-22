@@ -345,7 +345,7 @@ func testAccCheckParameterManagerParameterVersionDestroyProducer(t *testing.T) f
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(parametermanager.Product, config), "{{parameter}}/versions/{{parameter_version_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(parametermanager.Product, config)+"{{parameter}}/versions/{{parameter_version_id}}")
 			if err != nil {
 				return err
 			}

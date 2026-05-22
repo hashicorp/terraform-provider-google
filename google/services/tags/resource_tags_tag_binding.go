@@ -191,7 +191,7 @@ func resourceTagsTagBindingCreate(d *schema.ResourceData, meta interface{}) erro
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "tagBindings"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"tagBindings")
 	if err != nil {
 		return err
 	}
@@ -283,7 +283,7 @@ func resourceTagsTagBindingRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "tagBindings/?parent={{parent}}&pageSize=300"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"tagBindings/?parent={{parent}}&pageSize=300")
 	if err != nil {
 		return err
 	}
@@ -434,7 +434,7 @@ func resourceTagsTagBindingDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "tagBindings/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"tagBindings/{{name}}")
 	if err != nil {
 		return err
 	}

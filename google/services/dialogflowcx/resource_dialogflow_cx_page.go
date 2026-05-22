@@ -2027,7 +2027,7 @@ func resourceDialogflowCXPageCreate(d *schema.ResourceData, meta interface{}) er
 		obj["languageCode"] = languageCodeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/pages"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/pages")
 	if err != nil {
 		return err
 	}
@@ -2116,7 +2116,7 @@ func resourceDialogflowCXPageRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/pages/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/pages/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -2290,7 +2290,7 @@ func resourceDialogflowCXPageUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["knowledgeConnectorSettings"] = knowledgeConnectorSettingsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/pages/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/pages/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -2402,7 +2402,7 @@ func resourceDialogflowCXPageDelete(d *schema.ResourceData, meta interface{}) er
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/pages/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/pages/{{name}}")
 	if err != nil {
 		return err
 	}

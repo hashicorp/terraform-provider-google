@@ -413,7 +413,7 @@ func testAccCheckChronicleDashboardChartDestroyProducer(t *testing.T) func(s *te
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(chronicle.Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/dashboardCharts/{{chart_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(chronicle.Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/dashboardCharts/{{chart_id}}")
 			if err != nil {
 				return err
 			}

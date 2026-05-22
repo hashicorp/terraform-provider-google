@@ -624,7 +624,7 @@ func testAccCheckComputeResourcePolicyDestroyProducer(t *testing.T) func(s *terr
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(compute.Product, config), "projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(compute.Product, config)+"projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
 			if err != nil {
 				return err
 			}

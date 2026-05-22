@@ -649,7 +649,7 @@ func resourceCESAgentCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["toolsets"] = toolsetsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/agents?agentId={{agent_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/agents?agentId={{agent_id}}")
 	if err != nil {
 		return err
 	}
@@ -734,7 +734,7 @@ func resourceCESAgentRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/agents/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/agents/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -973,7 +973,7 @@ func resourceCESAgentUpdate(d *schema.ResourceData, meta interface{}) error {
 		obj["toolsets"] = toolsetsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/agents/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/agents/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1102,7 +1102,7 @@ func resourceCESAgentDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error fetching project for Agent: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/agents/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/agents/{{name}}")
 	if err != nil {
 		return err
 	}

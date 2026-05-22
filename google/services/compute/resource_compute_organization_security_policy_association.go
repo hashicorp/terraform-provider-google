@@ -224,7 +224,7 @@ func resourceComputeOrganizationSecurityPolicyAssociationCreate(d *schema.Resour
 		obj["excludedFolders"] = excludedFoldersProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{policy_id}}/addAssociation"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{policy_id}}/addAssociation")
 	if err != nil {
 		return err
 	}
@@ -317,7 +317,7 @@ func resourceComputeOrganizationSecurityPolicyAssociationRead(d *schema.Resource
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{policy_id}}/getAssociation?name={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{policy_id}}/getAssociation?name={{name}}")
 	if err != nil {
 		return err
 	}
@@ -405,7 +405,7 @@ func resourceComputeOrganizationSecurityPolicyAssociationDelete(d *schema.Resour
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{policy_id}}/removeAssociation?name={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{policy_id}}/removeAssociation?name={{name}}")
 	if err != nil {
 		return err
 	}

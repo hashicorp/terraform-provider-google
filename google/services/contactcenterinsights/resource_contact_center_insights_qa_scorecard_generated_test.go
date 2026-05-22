@@ -110,7 +110,7 @@ func testAccCheckContactCenterInsightsQaScorecardDestroyProducer(t *testing.T) f
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(contactcenterinsights.Product, config), "projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(contactcenterinsights.Product, config)+"projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard_id}}")
 			if err != nil {
 				return err
 			}

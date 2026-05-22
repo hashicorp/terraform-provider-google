@@ -137,7 +137,7 @@ func testAccCheckNetworkServicesMulticastDomainGroupDestroyProducer(t *testing.T
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(networkservices.Product, config), "projects/{{project}}/locations/{{location}}/multicastDomainGroups/{{multicast_domain_group_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(networkservices.Product, config)+"projects/{{project}}/locations/{{location}}/multicastDomainGroups/{{multicast_domain_group_id}}")
 			if err != nil {
 				return err
 			}

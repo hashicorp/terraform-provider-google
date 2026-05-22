@@ -250,7 +250,7 @@ func resourceDataLineageConfigCreate(d *schema.ResourceData, meta interface{}) e
 		obj["ingestion"] = ingestionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/config"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/config")
 	if err != nil {
 		return err
 	}
@@ -313,7 +313,7 @@ func resourceDataLineageConfigRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/config"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/config")
 	if err != nil {
 		return err
 	}
@@ -431,7 +431,7 @@ func resourceDataLineageConfigUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["ingestion"] = ingestionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/config"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/config")
 	if err != nil {
 		return err
 	}
@@ -480,7 +480,7 @@ func resourceDataLineageConfigDelete(d *schema.ResourceData, meta interface{}) e
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/config"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/config")
 	if err != nil {
 		return err
 	}

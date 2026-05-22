@@ -269,7 +269,7 @@ func resourceComputePublicAdvertisedPrefixCreate(d *schema.ResourceData, meta in
 		obj["ipv6AccessType"] = ipv6AccessTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/publicAdvertisedPrefixes"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/publicAdvertisedPrefixes")
 	if err != nil {
 		return err
 	}
@@ -348,7 +348,7 @@ func resourceComputePublicAdvertisedPrefixRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/publicAdvertisedPrefixes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/publicAdvertisedPrefixes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -450,7 +450,7 @@ func resourceComputePublicAdvertisedPrefixDelete(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error fetching project for PublicAdvertisedPrefix: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/publicAdvertisedPrefixes/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/publicAdvertisedPrefixes/{{name}}")
 	if err != nil {
 		return err
 	}

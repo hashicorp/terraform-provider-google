@@ -253,7 +253,7 @@ func testAccCheckCloudSecurityComplianceCloudControlDestroyProducer(t *testing.T
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(cloudsecuritycompliance.Product, config), "organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(cloudsecuritycompliance.Product, config)+"organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}")
 			if err != nil {
 				return err
 			}

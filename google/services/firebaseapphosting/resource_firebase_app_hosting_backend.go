@@ -411,7 +411,7 @@ func resourceFirebaseAppHostingBackendCreate(d *schema.ResourceData, meta interf
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backends?backendId={{backend_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backends?backendId={{backend_id}}")
 	if err != nil {
 		return err
 	}
@@ -495,7 +495,7 @@ func resourceFirebaseAppHostingBackendRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backends/{{backend_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backends/{{backend_id}}")
 	if err != nil {
 		return err
 	}
@@ -675,7 +675,7 @@ func resourceFirebaseAppHostingBackendUpdate(d *schema.ResourceData, meta interf
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backends/{{backend_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backends/{{backend_id}}")
 	if err != nil {
 		return err
 	}
@@ -779,7 +779,7 @@ func resourceFirebaseAppHostingBackendDelete(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error fetching project for Backend: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/backends/{{backend_id}}?force=true"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backends/{{backend_id}}?force=true")
 	if err != nil {
 		return err
 	}

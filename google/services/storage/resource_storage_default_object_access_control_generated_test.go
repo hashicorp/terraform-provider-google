@@ -112,7 +112,7 @@ func testAccCheckStorageDefaultObjectAccessControlDestroyProducer(t *testing.T) 
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(storage.Product, config), "b/{{bucket}}/defaultObjectAcl/{{entity}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(storage.Product, config)+"b/{{bucket}}/defaultObjectAcl/{{entity}}")
 			if err != nil {
 				return err
 			}

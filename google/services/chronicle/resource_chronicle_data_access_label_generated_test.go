@@ -111,7 +111,7 @@ func testAccCheckChronicleDataAccessLabelDestroyProducer(t *testing.T) func(s *t
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(chronicle.Product, config), "projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataAccessLabels/{{data_access_label_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(chronicle.Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataAccessLabels/{{data_access_label_id}}")
 			if err != nil {
 				return err
 			}

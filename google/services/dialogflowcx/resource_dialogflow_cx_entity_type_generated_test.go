@@ -132,7 +132,7 @@ func testAccCheckDialogflowCXEntityTypeDestroyProducer(t *testing.T) func(s *ter
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(dialogflowcx.Product, config), "{{parent}}/entityTypes/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(dialogflowcx.Product, config)+"{{parent}}/entityTypes/{{name}}")
 			if err != nil {
 				return err
 			}

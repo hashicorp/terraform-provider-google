@@ -520,7 +520,7 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/serviceAttachments"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/serviceAttachments")
 	if err != nil {
 		return err
 	}
@@ -604,7 +604,7 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -814,7 +814,7 @@ func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -876,7 +876,7 @@ func resourceComputeServiceAttachmentDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for ServiceAttachment: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
 	if err != nil {
 		return err
 	}

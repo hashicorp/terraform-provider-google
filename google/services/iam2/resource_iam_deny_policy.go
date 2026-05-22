@@ -293,7 +293,7 @@ func resourceIAM2DenyPolicyCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["rules"] = rulesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "policies/{{parent}}/denypolicies?policyId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"policies/{{parent}}/denypolicies?policyId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -366,7 +366,7 @@ func resourceIAM2DenyPolicyRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "policies/{{parent}}/denypolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"policies/{{parent}}/denypolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -490,7 +490,7 @@ func resourceIAM2DenyPolicyUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["rules"] = rulesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "policies/{{parent}}/denypolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"policies/{{parent}}/denypolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -547,7 +547,7 @@ func resourceIAM2DenyPolicyDelete(d *schema.ResourceData, meta interface{}) erro
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "policies/{{parent}}/denypolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"policies/{{parent}}/denypolicies/{{name}}")
 	if err != nil {
 		return err
 	}

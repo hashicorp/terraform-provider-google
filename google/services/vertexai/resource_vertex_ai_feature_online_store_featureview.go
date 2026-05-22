@@ -342,7 +342,7 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewCreate(d *schema.ResourceData,
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/featureOnlineStores/{{feature_online_store}}/featureViews?featureViewId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/featureOnlineStores/{{feature_online_store}}/featureViews?featureViewId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -431,7 +431,7 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/featureOnlineStores/{{feature_online_store}}/featureViews/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/featureOnlineStores/{{feature_online_store}}/featureViews/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -598,7 +598,7 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewUpdate(d *schema.ResourceData,
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/featureOnlineStores/{{feature_online_store}}/featureViews/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/featureOnlineStores/{{feature_online_store}}/featureViews/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -679,7 +679,7 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewDelete(d *schema.ResourceData,
 		return fmt.Errorf("Error fetching project for FeatureOnlineStoreFeatureview: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/featureOnlineStores/{{feature_online_store}}/featureViews/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/featureOnlineStores/{{feature_online_store}}/featureViews/{{name}}")
 	if err != nil {
 		return err
 	}

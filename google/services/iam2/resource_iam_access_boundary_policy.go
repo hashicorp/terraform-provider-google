@@ -270,7 +270,7 @@ func resourceIAM2AccessBoundaryPolicyCreate(d *schema.ResourceData, meta interfa
 		obj["rules"] = rulesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "policies/{{parent}}/accessboundarypolicies?policyId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"policies/{{parent}}/accessboundarypolicies?policyId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -343,7 +343,7 @@ func resourceIAM2AccessBoundaryPolicyRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "policies/{{parent}}/accessboundarypolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"policies/{{parent}}/accessboundarypolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -467,7 +467,7 @@ func resourceIAM2AccessBoundaryPolicyUpdate(d *schema.ResourceData, meta interfa
 		obj["rules"] = rulesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "policies/{{parent}}/accessboundarypolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"policies/{{parent}}/accessboundarypolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -524,7 +524,7 @@ func resourceIAM2AccessBoundaryPolicyDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "policies/{{parent}}/accessboundarypolicies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"policies/{{parent}}/accessboundarypolicies/{{name}}")
 	if err != nil {
 		return err
 	}

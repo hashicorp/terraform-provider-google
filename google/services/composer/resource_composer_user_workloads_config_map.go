@@ -218,7 +218,7 @@ func resourceComposerUserWorkloadsConfigMapCreate(d *schema.ResourceData, meta i
 		obj["data"] = dataProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/environments/{{environment}}/userWorkloadsConfigMaps"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/environments/{{environment}}/userWorkloadsConfigMaps")
 	if err != nil {
 		return err
 	}
@@ -297,7 +297,7 @@ func resourceComposerUserWorkloadsConfigMapRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/environments/{{environment}}/userWorkloadsConfigMaps/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/environments/{{environment}}/userWorkloadsConfigMaps/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -452,7 +452,7 @@ func resourceComposerUserWorkloadsConfigMapUpdate(d *schema.ResourceData, meta i
 		obj["data"] = dataProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/environments/{{environment}}/userWorkloadsConfigMaps/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/environments/{{environment}}/userWorkloadsConfigMaps/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -506,7 +506,7 @@ func resourceComposerUserWorkloadsConfigMapDelete(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error fetching project for UserWorkloadsConfigMap: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/environments/{{environment}}/userWorkloadsConfigMaps/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/environments/{{environment}}/userWorkloadsConfigMaps/{{name}}")
 	if err != nil {
 		return err
 	}

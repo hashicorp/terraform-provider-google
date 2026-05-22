@@ -473,7 +473,7 @@ func resourceApigeeSecurityActionCreate(d *schema.ResourceData, meta interface{}
 		obj["ttl"] = ttlProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{org_id}}/environments/{{env_id}}/securityActions?securityActionId={{security_action_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/environments/{{env_id}}/securityActions?securityActionId={{security_action_id}}")
 	if err != nil {
 		return err
 	}
@@ -541,7 +541,7 @@ func resourceApigeeSecurityActionRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{org_id}}/environments/{{env_id}}/securityActions/{{security_action_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/environments/{{env_id}}/securityActions/{{security_action_id}}")
 	if err != nil {
 		return err
 	}
@@ -635,7 +635,7 @@ func resourceApigeeSecurityActionDelete(d *schema.ResourceData, meta interface{}
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{org_id}}/environments/{{env_id}}/securityActions/{{security_action_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/environments/{{env_id}}/securityActions/{{security_action_id}}")
 	if err != nil {
 		return err
 	}

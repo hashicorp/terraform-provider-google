@@ -2733,7 +2733,7 @@ func resourceDatastreamStreamCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/streams?streamId={{stream_id}}&force={{create_without_validation}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/streams?streamId={{stream_id}}&force={{create_without_validation}}")
 	if err != nil {
 		return err
 	}
@@ -2828,7 +2828,7 @@ func resourceDatastreamStreamRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/streams/{{stream_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/streams/{{stream_id}}")
 	if err != nil {
 		return err
 	}
@@ -3012,7 +3012,7 @@ func resourceDatastreamStreamUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/streams/{{stream_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/streams/{{stream_id}}")
 	if err != nil {
 		return err
 	}
@@ -3147,7 +3147,7 @@ func resourceDatastreamStreamDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error fetching project for Stream: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/streams/{{stream_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/streams/{{stream_id}}")
 	if err != nil {
 		return err
 	}

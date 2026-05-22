@@ -155,7 +155,7 @@ func testAccCheckMonitoringGroupDestroyProducer(t *testing.T) func(s *terraform.
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(monitoring.Product, config), "v3/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(monitoring.Product, config)+"v3/{{name}}")
 			if err != nil {
 				return err
 			}

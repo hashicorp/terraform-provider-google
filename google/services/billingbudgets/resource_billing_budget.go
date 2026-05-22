@@ -563,7 +563,7 @@ func resourceBillingBudgetsBudgetCreate(d *schema.ResourceData, meta interface{}
 		obj["ownershipScope"] = ownershipScopeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "billingAccounts/{{billing_account}}/budgets"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"billingAccounts/{{billing_account}}/budgets")
 	if err != nil {
 		return err
 	}
@@ -632,7 +632,7 @@ func resourceBillingBudgetsBudgetRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "billingAccounts/{{billing_account}}/budgets/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"billingAccounts/{{billing_account}}/budgets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -774,7 +774,7 @@ func resourceBillingBudgetsBudgetUpdate(d *schema.ResourceData, meta interface{}
 		obj["ownershipScope"] = ownershipScopeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "billingAccounts/{{billing_account}}/budgets/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"billingAccounts/{{billing_account}}/budgets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -872,7 +872,7 @@ func resourceBillingBudgetsBudgetDelete(d *schema.ResourceData, meta interface{}
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "billingAccounts/{{billing_account}}/budgets/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"billingAccounts/{{billing_account}}/budgets/{{name}}")
 	if err != nil {
 		return err
 	}

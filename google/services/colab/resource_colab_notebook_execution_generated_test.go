@@ -317,7 +317,7 @@ func testAccCheckColabNotebookExecutionDestroyProducer(t *testing.T) func(s *ter
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(colab.Product, config), "projects/{{project}}/locations/{{location}}/notebookExecutionJobs/{{notebook_execution_job_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(colab.Product, config)+"projects/{{project}}/locations/{{location}}/notebookExecutionJobs/{{notebook_execution_job_id}}")
 			if err != nil {
 				return err
 			}

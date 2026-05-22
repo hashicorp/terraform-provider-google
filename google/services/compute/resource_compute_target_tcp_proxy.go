@@ -256,7 +256,7 @@ func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{
 		obj["proxyBind"] = proxyBindProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/targetTcpProxies"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/targetTcpProxies")
 	if err != nil {
 		return err
 	}
@@ -335,7 +335,7 @@ func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/targetTcpProxies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/targetTcpProxies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -466,7 +466,7 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 			obj["proxyHeader"] = proxyHeaderProp
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/targetTcpProxies/{{name}}/setProxyHeader"))
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/targetTcpProxies/{{name}}/setProxyHeader")
 		if err != nil {
 			return err
 		}
@@ -511,7 +511,7 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 			obj["service"] = serviceProp
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/targetTcpProxies/{{name}}/setBackendService"))
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/targetTcpProxies/{{name}}/setBackendService")
 		if err != nil {
 			return err
 		}
@@ -573,7 +573,7 @@ func resourceComputeTargetTcpProxyDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/targetTcpProxies/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/targetTcpProxies/{{name}}")
 	if err != nil {
 		return err
 	}

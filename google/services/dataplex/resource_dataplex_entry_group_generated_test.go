@@ -157,7 +157,7 @@ func testAccCheckDataplexEntryGroupDestroyProducer(t *testing.T) func(s *terrafo
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(dataplex.Product, config), "projects/{{project}}/locations/{{location}}/entryGroups/{{entry_group_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(dataplex.Product, config)+"projects/{{project}}/locations/{{location}}/entryGroups/{{entry_group_id}}")
 			if err != nil {
 				return err
 			}

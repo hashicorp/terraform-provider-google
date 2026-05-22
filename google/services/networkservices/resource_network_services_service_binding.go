@@ -252,7 +252,7 @@ func resourceNetworkServicesServiceBindingCreate(d *schema.ResourceData, meta in
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/serviceBindings?serviceBindingId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/serviceBindings?serviceBindingId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -331,7 +331,7 @@ func resourceNetworkServicesServiceBindingRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/serviceBindings/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/serviceBindings/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -433,7 +433,7 @@ func resourceNetworkServicesServiceBindingDelete(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error fetching project for ServiceBinding: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/serviceBindings/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/serviceBindings/{{name}}")
 	if err != nil {
 		return err
 	}

@@ -1070,7 +1070,7 @@ func resourceAccessContextManagerServicePerimetersCreate(d *schema.ResourceData,
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/servicePerimeters:replaceAll"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/servicePerimeters:replaceAll")
 	if err != nil {
 		return err
 	}
@@ -1138,7 +1138,7 @@ func resourceAccessContextManagerServicePerimetersRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/servicePerimeters"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/servicePerimeters")
 	if err != nil {
 		return err
 	}
@@ -1252,7 +1252,7 @@ func resourceAccessContextManagerServicePerimetersUpdate(d *schema.ResourceData,
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/servicePerimeters:replaceAll"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/servicePerimeters:replaceAll")
 	if err != nil {
 		return err
 	}

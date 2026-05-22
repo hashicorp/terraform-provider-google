@@ -234,7 +234,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/projects/{{project}}/groups"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/projects/{{project}}/groups")
 	if err != nil {
 		return err
 	}
@@ -310,7 +310,7 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -463,7 +463,7 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -525,7 +525,7 @@ func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "v3/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/{{name}}")
 	if err != nil {
 		return err
 	}

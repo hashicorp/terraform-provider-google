@@ -232,7 +232,7 @@ func testAccCheckHealthcareConsentStoreDestroyProducer(t *testing.T) func(s *ter
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(healthcare.Product, config), "{{dataset}}/consentStores/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(healthcare.Product, config)+"{{dataset}}/consentStores/{{name}}")
 			if err != nil {
 				return err
 			}

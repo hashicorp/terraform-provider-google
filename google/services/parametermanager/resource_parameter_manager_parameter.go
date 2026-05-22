@@ -284,7 +284,7 @@ func resourceParameterManagerParameterCreate(d *schema.ResourceData, meta interf
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/parameters?parameter_id={{parameter_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/parameters?parameter_id={{parameter_id}}")
 	if err != nil {
 		return err
 	}
@@ -353,7 +353,7 @@ func resourceParameterManagerParameterRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/parameters/{{parameter_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/parameters/{{parameter_id}}")
 	if err != nil {
 		return err
 	}
@@ -486,7 +486,7 @@ func resourceParameterManagerParameterUpdate(d *schema.ResourceData, meta interf
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/parameters/{{parameter_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/parameters/{{parameter_id}}")
 	if err != nil {
 		return err
 	}
@@ -559,7 +559,7 @@ func resourceParameterManagerParameterDelete(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error fetching project for Parameter: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/parameters/{{parameter_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/parameters/{{parameter_id}}")
 	if err != nil {
 		return err
 	}

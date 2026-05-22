@@ -447,7 +447,7 @@ func resourceDialogflowGeneratorCreate(d *schema.ResourceData, meta interface{})
 		obj["generatorId"] = generatorIdProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/generators?generatorId={{generator_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/generators?generatorId={{generator_id}}")
 	if err != nil {
 		return err
 	}
@@ -557,7 +557,7 @@ func resourceDialogflowGeneratorRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -737,7 +737,7 @@ func resourceDialogflowGeneratorUpdate(d *schema.ResourceData, meta interface{})
 		obj["generatorId"] = generatorIdProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -838,7 +838,7 @@ func resourceDialogflowGeneratorDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error fetching project for Generator: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}

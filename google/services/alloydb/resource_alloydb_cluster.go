@@ -1021,7 +1021,7 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters?clusterId={{cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/clusters?clusterId={{cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -1185,7 +1185,7 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -1430,7 +1430,7 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -1695,7 +1695,7 @@ func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 	if err != nil {
 		return err
 	}

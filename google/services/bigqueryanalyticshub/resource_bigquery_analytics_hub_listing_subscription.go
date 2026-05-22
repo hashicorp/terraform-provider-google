@@ -393,7 +393,7 @@ func resourceBigqueryAnalyticsHubListingSubscriptionCreate(d *schema.ResourceDat
 		obj["destinationDataset"] = destinationDatasetProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}:subscribe"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}:subscribe")
 	if err != nil {
 		return err
 	}
@@ -473,7 +473,7 @@ func resourceBigqueryAnalyticsHubListingSubscriptionRead(d *schema.ResourceData,
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/subscriptions/{{subscription_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/subscriptions/{{subscription_id}}")
 	if err != nil {
 		return err
 	}
@@ -620,7 +620,7 @@ func resourceBigqueryAnalyticsHubListingSubscriptionDelete(d *schema.ResourceDat
 		return fmt.Errorf("Error fetching project for ListingSubscription: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/subscriptions/{{subscription_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/subscriptions/{{subscription_id}}")
 	if err != nil {
 		return err
 	}

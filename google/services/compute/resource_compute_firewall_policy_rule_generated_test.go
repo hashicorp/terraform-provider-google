@@ -398,7 +398,7 @@ func testAccCheckComputeFirewallPolicyRuleDestroyProducer(t *testing.T) func(s *
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(compute.Product, config), "locations/global/firewallPolicies/{{firewall_policy}}/getRule?priority={{priority}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(compute.Product, config)+"locations/global/firewallPolicies/{{firewall_policy}}/getRule?priority={{priority}}")
 			if err != nil {
 				return err
 			}

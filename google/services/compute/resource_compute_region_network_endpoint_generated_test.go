@@ -185,7 +185,7 @@ func testAccCheckComputeRegionNetworkEndpointDestroyProducer(t *testing.T) func(
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(compute.Product, config), "projects/{{project}}/regions/{{region}}/networkEndpointGroups/{{region_network_endpoint_group}}/listNetworkEndpoints"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(compute.Product, config)+"projects/{{project}}/regions/{{region}}/networkEndpointGroups/{{region_network_endpoint_group}}/listNetworkEndpoints")
 			if err != nil {
 				return err
 			}

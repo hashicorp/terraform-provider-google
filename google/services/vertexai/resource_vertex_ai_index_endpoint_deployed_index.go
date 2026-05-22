@@ -442,7 +442,7 @@ func resourceVertexAIIndexEndpointDeployedIndexCreate(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{index_endpoint}}:deployIndex"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{index_endpoint}}:deployIndex")
 	if err != nil {
 		return err
 	}
@@ -499,7 +499,7 @@ func resourceVertexAIIndexEndpointDeployedIndexRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{index_endpoint}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{index_endpoint}}")
 	if err != nil {
 		return err
 	}
@@ -643,7 +643,7 @@ func resourceVertexAIIndexEndpointDeployedIndexUpdate(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{index_endpoint}}:mutateDeployedIndex"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{index_endpoint}}:mutateDeployedIndex")
 	if err != nil {
 		return err
 	}
@@ -701,7 +701,7 @@ func resourceVertexAIIndexEndpointDeployedIndexDelete(d *schema.ResourceData, me
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{index_endpoint}}:undeployIndex"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{index_endpoint}}:undeployIndex")
 	if err != nil {
 		return err
 	}

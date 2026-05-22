@@ -413,7 +413,7 @@ func resourceNetworkConnectivityv1InternalRangeCreate(d *schema.ResourceData, me
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/internalRanges?internalRangeId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/internalRanges?internalRangeId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -492,7 +492,7 @@ func resourceNetworkConnectivityv1InternalRangeRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/internalRanges/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/internalRanges/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -673,7 +673,7 @@ func resourceNetworkConnectivityv1InternalRangeUpdate(d *schema.ResourceData, me
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/internalRanges/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/internalRanges/{{name}}")
 	if err != nil {
 		return err
 	}

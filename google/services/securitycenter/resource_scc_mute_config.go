@@ -252,7 +252,7 @@ func resourceSecurityCenterMuteConfigCreate(d *schema.ResourceData, meta interfa
 		obj["expiryTime"] = expiryTimeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/muteConfigs?muteConfigId={{mute_config_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/muteConfigs?muteConfigId={{mute_config_id}}")
 	if err != nil {
 		return err
 	}
@@ -316,7 +316,7 @@ func resourceSecurityCenterMuteConfigRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -435,7 +435,7 @@ func resourceSecurityCenterMuteConfigUpdate(d *schema.ResourceData, meta interfa
 		obj["expiryTime"] = expiryTimeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -511,7 +511,7 @@ func resourceSecurityCenterMuteConfigDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}

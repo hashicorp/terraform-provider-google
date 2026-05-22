@@ -176,7 +176,7 @@ func resourceContactCenterInsightsEncryptionSpecCreate(d *schema.ResourceData, m
 		obj["kmsKey"] = kmsKeyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/encryptionSpec:initialize"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/encryptionSpec:initialize")
 	if err != nil {
 		return err
 	}
@@ -275,7 +275,7 @@ func resourceContactCenterInsightsEncryptionSpecRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/encryptionSpec"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/encryptionSpec")
 	if err != nil {
 		return err
 	}

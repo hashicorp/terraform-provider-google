@@ -279,7 +279,7 @@ func resourceDataplexGlossaryCategoryCreate(d *schema.ResourceData, meta interfa
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/categories?category_id={{category_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/categories?category_id={{category_id}}")
 	if err != nil {
 		return err
 	}
@@ -358,7 +358,7 @@ func resourceDataplexGlossaryCategoryRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/categories/{{category_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/categories/{{category_id}}")
 	if err != nil {
 		return err
 	}
@@ -525,7 +525,7 @@ func resourceDataplexGlossaryCategoryUpdate(d *schema.ResourceData, meta interfa
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/categories/{{category_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/categories/{{category_id}}")
 	if err != nil {
 		return err
 	}
@@ -606,7 +606,7 @@ func resourceDataplexGlossaryCategoryDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for GlossaryCategory: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/categories/{{category_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/categories/{{category_id}}")
 	if err != nil {
 		return err
 	}

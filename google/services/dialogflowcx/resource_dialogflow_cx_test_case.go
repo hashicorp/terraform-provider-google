@@ -730,7 +730,7 @@ func resourceDialogflowCXTestCaseCreate(d *schema.ResourceData, meta interface{}
 		obj["testCaseConversationTurns"] = testCaseConversationTurnsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/testCases"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/testCases")
 	if err != nil {
 		return err
 	}
@@ -819,7 +819,7 @@ func resourceDialogflowCXTestCaseRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/testCases/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/testCases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -975,7 +975,7 @@ func resourceDialogflowCXTestCaseUpdate(d *schema.ResourceData, meta interface{}
 		obj["testCaseConversationTurns"] = testCaseConversationTurnsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/testCases/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/testCases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1075,7 +1075,7 @@ func resourceDialogflowCXTestCaseDelete(d *schema.ResourceData, meta interface{}
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/testCases/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/testCases/{{name}}")
 	if err != nil {
 		return err
 	}

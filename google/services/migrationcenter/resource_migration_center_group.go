@@ -252,7 +252,7 @@ func resourceMigrationCenterGroupCreate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/groups?groupId={{group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/groups?groupId={{group_id}}")
 	if err != nil {
 		return err
 	}
@@ -336,7 +336,7 @@ func resourceMigrationCenterGroupRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/groups/{{group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/groups/{{group_id}}")
 	if err != nil {
 		return err
 	}
@@ -486,7 +486,7 @@ func resourceMigrationCenterGroupUpdate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/groups/{{group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/groups/{{group_id}}")
 	if err != nil {
 		return err
 	}
@@ -570,7 +570,7 @@ func resourceMigrationCenterGroupDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for Group: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/groups/{{group_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/groups/{{group_id}}")
 	if err != nil {
 		return err
 	}

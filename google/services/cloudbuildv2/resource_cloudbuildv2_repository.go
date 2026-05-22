@@ -259,7 +259,7 @@ func resourceCloudbuildv2RepositoryCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/repositories?repositoryId={{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/repositories?repositoryId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -348,7 +348,7 @@ func resourceCloudbuildv2RepositoryRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/repositories/{{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/repositories/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -462,7 +462,7 @@ func resourceCloudbuildv2RepositoryDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/repositories/{{name}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/repositories/{{name}}")
 	if err != nil {
 		return err
 	}

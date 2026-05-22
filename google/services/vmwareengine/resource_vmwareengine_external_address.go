@@ -226,7 +226,7 @@ func resourceVmwareengineExternalAddressCreate(d *schema.ResourceData, meta inte
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/externalAddresses?externalAddressId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/externalAddresses?externalAddressId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -300,7 +300,7 @@ func resourceVmwareengineExternalAddressRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/externalAddresses/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/externalAddresses/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -419,7 +419,7 @@ func resourceVmwareengineExternalAddressUpdate(d *schema.ResourceData, meta inte
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/externalAddresses/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/externalAddresses/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -496,7 +496,7 @@ func resourceVmwareengineExternalAddressDelete(d *schema.ResourceData, meta inte
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/externalAddresses/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/externalAddresses/{{name}}")
 	if err != nil {
 		return err
 	}

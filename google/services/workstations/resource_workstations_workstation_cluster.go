@@ -449,7 +449,7 @@ func resourceWorkstationsWorkstationClusterCreate(d *schema.ResourceData, meta i
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/workstationClusters?workstationClusterId={{workstation_cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/workstationClusters?workstationClusterId={{workstation_cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -533,7 +533,7 @@ func resourceWorkstationsWorkstationClusterRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -713,7 +713,7 @@ func resourceWorkstationsWorkstationClusterUpdate(d *schema.ResourceData, meta i
 		obj["annotations"] = effectiveAnnotationsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -817,7 +817,7 @@ func resourceWorkstationsWorkstationClusterDelete(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error fetching project for WorkstationCluster: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}")
 	if err != nil {
 		return err
 	}

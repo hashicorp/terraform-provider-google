@@ -272,7 +272,7 @@ func testAccCheckColabRuntimeTemplateDestroyProducer(t *testing.T) func(s *terra
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(colab.Product, config), "projects/{{project}}/locations/{{location}}/notebookRuntimeTemplates/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(colab.Product, config)+"projects/{{project}}/locations/{{location}}/notebookRuntimeTemplates/{{name}}")
 			if err != nil {
 				return err
 			}

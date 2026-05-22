@@ -195,7 +195,7 @@ func testAccCheckStorageBatchOperationsJobDestroyProducer(t *testing.T) func(s *
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(storagebatchoperations.Product, config), "projects/{{project}}/locations/global/jobs/{{job_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(storagebatchoperations.Product, config)+"projects/{{project}}/locations/global/jobs/{{job_id}}")
 			if err != nil {
 				return err
 			}

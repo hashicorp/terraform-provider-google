@@ -316,7 +316,7 @@ func resourceNetworkServicesMulticastConsumerAssociationCreate(d *schema.Resourc
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastConsumerAssociations?multicastConsumerAssociationId={{multicast_consumer_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/multicastConsumerAssociations?multicastConsumerAssociationId={{multicast_consumer_association_id}}")
 	if err != nil {
 		return err
 	}
@@ -400,7 +400,7 @@ func resourceNetworkServicesMulticastConsumerAssociationRead(d *schema.ResourceD
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastConsumerAssociations/{{multicast_consumer_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/multicastConsumerAssociations/{{multicast_consumer_association_id}}")
 	if err != nil {
 		return err
 	}
@@ -544,7 +544,7 @@ func resourceNetworkServicesMulticastConsumerAssociationUpdate(d *schema.Resourc
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastConsumerAssociations/{{multicast_consumer_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/multicastConsumerAssociations/{{multicast_consumer_association_id}}")
 	if err != nil {
 		return err
 	}
@@ -624,7 +624,7 @@ func resourceNetworkServicesMulticastConsumerAssociationDelete(d *schema.Resourc
 		return fmt.Errorf("Error fetching project for MulticastConsumerAssociation: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/multicastConsumerAssociations/{{multicast_consumer_association_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/multicastConsumerAssociations/{{multicast_consumer_association_id}}")
 	if err != nil {
 		return err
 	}

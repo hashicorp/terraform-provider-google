@@ -245,7 +245,7 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/versions"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/versions")
 	if err != nil {
 		return err
 	}
@@ -352,7 +352,7 @@ func resourceDialogflowCXVersionRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/versions/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/versions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -490,7 +490,7 @@ func resourceDialogflowCXVersionUpdate(d *schema.ResourceData, meta interface{})
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/versions/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/versions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -578,7 +578,7 @@ func resourceDialogflowCXVersionDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/versions/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/versions/{{name}}")
 	if err != nil {
 		return err
 	}

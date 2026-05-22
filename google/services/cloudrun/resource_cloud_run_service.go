@@ -1482,7 +1482,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "apis/serving.knative.dev/v1/namespaces/{{project}}/services"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"apis/serving.knative.dev/v1/namespaces/{{project}}/services")
 	if err != nil {
 		return err
 	}
@@ -1559,7 +1559,7 @@ func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) t
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 
-		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}"))
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 		if err != nil {
 			return nil, err
 		}
@@ -1612,7 +1612,7 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1779,7 +1779,7 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1839,7 +1839,7 @@ func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}

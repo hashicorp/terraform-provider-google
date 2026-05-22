@@ -145,7 +145,7 @@ func testAccCheckVertexAIIndexDestroyProducer(t *testing.T) func(s *terraform.St
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(vertexai.Product, config), "projects/{{project}}/locations/{{region}}/indexes/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(vertexai.Product, config)+"projects/{{project}}/locations/{{region}}/indexes/{{name}}")
 			if err != nil {
 				return err
 			}

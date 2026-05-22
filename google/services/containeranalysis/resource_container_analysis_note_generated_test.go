@@ -169,7 +169,7 @@ func testAccCheckContainerAnalysisNoteDestroyProducer(t *testing.T) func(s *terr
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(containeranalysis.Product, config), "projects/{{project}}/notes/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(containeranalysis.Product, config)+"projects/{{project}}/notes/{{name}}")
 			if err != nil {
 				return err
 			}

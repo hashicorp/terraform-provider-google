@@ -494,7 +494,7 @@ func resourcePrivilegedAccessManagerEntitlementCreate(d *schema.ResourceData, me
 		obj["additionalNotificationTargets"] = additionalNotificationTargetsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/entitlements?entitlementId={{entitlement_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/entitlements?entitlementId={{entitlement_id}}")
 	if err != nil {
 		return err
 	}
@@ -572,7 +572,7 @@ func resourcePrivilegedAccessManagerEntitlementRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/entitlements/{{entitlement_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/entitlements/{{entitlement_id}}")
 	if err != nil {
 		return err
 	}
@@ -725,7 +725,7 @@ func resourcePrivilegedAccessManagerEntitlementUpdate(d *schema.ResourceData, me
 		obj["additionalNotificationTargets"] = additionalNotificationTargetsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/entitlements/{{entitlement_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/entitlements/{{entitlement_id}}")
 	if err != nil {
 		return err
 	}
@@ -829,7 +829,7 @@ func resourcePrivilegedAccessManagerEntitlementDelete(d *schema.ResourceData, me
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/entitlements/{{entitlement_id}}?force=true"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/entitlements/{{entitlement_id}}?force=true")
 	if err != nil {
 		return err
 	}

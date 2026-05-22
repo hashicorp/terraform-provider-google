@@ -563,7 +563,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleCreate(d *schema.ResourceData
 		obj["targetForwardingRules"] = targetForwardingRulesProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies/{{firewall_policy}}/addRule"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/firewallPolicies/{{firewall_policy}}/addRule")
 	if err != nil {
 		return err
 	}
@@ -653,7 +653,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleRead(d *schema.ResourceData, 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies/{{firewall_policy}}/getRule?priority={{priority}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/firewallPolicies/{{firewall_policy}}/getRule?priority={{priority}}")
 	if err != nil {
 		return err
 	}
@@ -886,7 +886,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies/{{firewall_policy}}/patchRule?priority={{priority}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/firewallPolicies/{{firewall_policy}}/patchRule?priority={{priority}}")
 	if err != nil {
 		return err
 	}
@@ -948,7 +948,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleDelete(d *schema.ResourceData
 		return fmt.Errorf("Error fetching project for RegionNetworkFirewallPolicyRule: %s", err)
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
-	url, err := tpgresource.ReplaceVarsForId(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/regions/{{region}}/firewallPolicies/{{firewall_policy}}/removeRule?priority={{priority}}"))
+	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/firewallPolicies/{{firewall_policy}}/removeRule?priority={{priority}}")
 	if err != nil {
 		return err
 	}

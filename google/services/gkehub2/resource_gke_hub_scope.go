@@ -261,7 +261,7 @@ func resourceGKEHub2ScopeCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/scopes?scopeId={{scope_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/scopes?scopeId={{scope_id}}")
 	if err != nil {
 		return err
 	}
@@ -340,7 +340,7 @@ func resourceGKEHub2ScopeRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/scopes/{{scope_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/scopes/{{scope_id}}")
 	if err != nil {
 		return err
 	}
@@ -473,7 +473,7 @@ func resourceGKEHub2ScopeUpdate(d *schema.ResourceData, meta interface{}) error 
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/scopes/{{scope_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/scopes/{{scope_id}}")
 	if err != nil {
 		return err
 	}
@@ -553,7 +553,7 @@ func resourceGKEHub2ScopeDelete(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error fetching project for Scope: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/scopes/{{scope_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/scopes/{{scope_id}}")
 	if err != nil {
 		return err
 	}

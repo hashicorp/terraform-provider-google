@@ -265,7 +265,7 @@ func resourceIntegrationConnectorsEndpointAttachmentCreate(d *schema.ResourceDat
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/endpointAttachments?endpointAttachmentId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpointAttachments?endpointAttachmentId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -349,7 +349,7 @@ func resourceIntegrationConnectorsEndpointAttachmentRead(d *schema.ResourceData,
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/endpointAttachments/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpointAttachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -499,7 +499,7 @@ func resourceIntegrationConnectorsEndpointAttachmentUpdate(d *schema.ResourceDat
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/endpointAttachments/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpointAttachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -583,7 +583,7 @@ func resourceIntegrationConnectorsEndpointAttachmentDelete(d *schema.ResourceDat
 		return fmt.Errorf("Error fetching project for EndpointAttachment: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/endpointAttachments/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpointAttachments/{{name}}")
 	if err != nil {
 		return err
 	}

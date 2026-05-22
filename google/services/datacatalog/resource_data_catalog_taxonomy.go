@@ -223,7 +223,7 @@ func resourceDataCatalogTaxonomyCreate(d *schema.ResourceData, meta interface{})
 		obj["activatedPolicyTypes"] = activatedPolicyTypesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{region}}/taxonomies"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/taxonomies")
 	if err != nil {
 		return err
 	}
@@ -293,7 +293,7 @@ func resourceDataCatalogTaxonomyRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -421,7 +421,7 @@ func resourceDataCatalogTaxonomyUpdate(d *schema.ResourceData, meta interface{})
 		obj["activatedPolicyTypes"] = activatedPolicyTypesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -498,7 +498,7 @@ func resourceDataCatalogTaxonomyDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error fetching project for Taxonomy: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}

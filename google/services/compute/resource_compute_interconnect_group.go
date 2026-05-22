@@ -422,7 +422,7 @@ func resourceComputeInterconnectGroupCreate(d *schema.ResourceData, meta interfa
 		obj["intent"] = intentProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/interconnectGroups"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/interconnectGroups")
 	if err != nil {
 		return err
 	}
@@ -501,7 +501,7 @@ func resourceComputeInterconnectGroupRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/interconnectGroups/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/interconnectGroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -640,7 +640,7 @@ func resourceComputeInterconnectGroupUpdate(d *schema.ResourceData, meta interfa
 		obj["intent"] = intentProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/interconnectGroups/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/interconnectGroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -702,7 +702,7 @@ func resourceComputeInterconnectGroupDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for InterconnectGroup: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/global/interconnectGroups/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/interconnectGroups/{{name}}")
 	if err != nil {
 		return err
 	}

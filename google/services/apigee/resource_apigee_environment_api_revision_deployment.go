@@ -229,7 +229,7 @@ func resourceApigeeEnvironmentApiRevisionDeploymentCreate(d *schema.ResourceData
 
 	obj := make(map[string]interface{})
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{org_id}}/environments/{{environment}}/apis/{{api}}/revisions/{{revision}}/deployments?override={{override}}&sequencedRollout={{sequenced_rollout}}&serviceAccount={{service_account}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/environments/{{environment}}/apis/{{api}}/revisions/{{revision}}/deployments?override={{override}}&sequencedRollout={{sequenced_rollout}}&serviceAccount={{service_account}}")
 	if err != nil {
 		return err
 	}
@@ -303,7 +303,7 @@ func resourceApigeeEnvironmentApiRevisionDeploymentRead(d *schema.ResourceData, 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{org_id}}/environments/{{environment}}/apis/{{api}}/revisions/{{revision}}/deployments"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/environments/{{environment}}/apis/{{api}}/revisions/{{revision}}/deployments")
 	if err != nil {
 		return err
 	}
@@ -403,7 +403,7 @@ func resourceApigeeEnvironmentApiRevisionDeploymentDelete(d *schema.ResourceData
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{org_id}}/environments/{{environment}}/apis/{{api}}/revisions/{{revision}}/deployments"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/environments/{{environment}}/apis/{{api}}/revisions/{{revision}}/deployments")
 	if err != nil {
 		return err
 	}

@@ -284,7 +284,7 @@ func resourceGKEHub2FleetCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["defaultClusterConfig"] = defaultClusterConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/fleets"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/fleets")
 	if err != nil {
 		return err
 	}
@@ -358,7 +358,7 @@ func resourceGKEHub2FleetRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/fleets/default"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/fleets/default")
 	if err != nil {
 		return err
 	}
@@ -480,7 +480,7 @@ func resourceGKEHub2FleetUpdate(d *schema.ResourceData, meta interface{}) error 
 		obj["defaultClusterConfig"] = defaultClusterConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/fleets/default"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/fleets/default")
 	if err != nil {
 		return err
 	}
@@ -560,7 +560,7 @@ func resourceGKEHub2FleetDelete(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error fetching project for Fleet: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/global/fleets/default"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/fleets/default")
 	if err != nil {
 		return err
 	}

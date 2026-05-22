@@ -108,7 +108,7 @@ func testAccCheckOSLoginSSHPublicKeyDestroyProducer(t *testing.T) func(s *terraf
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(oslogin.Product, config), "users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(oslogin.Product, config)+"users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
 			if err != nil {
 				return err
 			}

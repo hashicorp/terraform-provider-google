@@ -388,7 +388,7 @@ func resourceContactCenterInsightsAnalysisRuleCreate(d *schema.ResourceData, met
 		obj["active"] = activeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/analysisRules"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/analysisRules")
 	if err != nil {
 		return err
 	}
@@ -468,7 +468,7 @@ func resourceContactCenterInsightsAnalysisRuleRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/analysisRules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/analysisRules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -630,7 +630,7 @@ func resourceContactCenterInsightsAnalysisRuleUpdate(d *schema.ResourceData, met
 		obj["active"] = activeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/analysisRules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/analysisRules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -715,7 +715,7 @@ func resourceContactCenterInsightsAnalysisRuleDelete(d *schema.ResourceData, met
 		return fmt.Errorf("Error fetching project for AnalysisRule: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/analysisRules/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/analysisRules/{{name}}")
 	if err != nil {
 		return err
 	}

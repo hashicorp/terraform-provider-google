@@ -290,7 +290,7 @@ func resourceSecureSourceManagerHookCreate(d *schema.ResourceData, meta interfac
 		obj["pushOption"] = pushOptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/hooks?hook_id={{hook_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/hooks?hook_id={{hook_id}}")
 	if err != nil {
 		return err
 	}
@@ -379,7 +379,7 @@ func resourceSecureSourceManagerHookRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/hooks/{{hook_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/hooks/{{hook_id}}")
 	if err != nil {
 		return err
 	}
@@ -552,7 +552,7 @@ func resourceSecureSourceManagerHookUpdate(d *schema.ResourceData, meta interfac
 		obj["pushOption"] = pushOptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/hooks/{{hook_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/hooks/{{hook_id}}")
 	if err != nil {
 		return err
 	}
@@ -637,7 +637,7 @@ func resourceSecureSourceManagerHookDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error fetching project for Hook: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/hooks/{{hook_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}/hooks/{{hook_id}}")
 	if err != nil {
 		return err
 	}

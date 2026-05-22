@@ -357,7 +357,7 @@ func resourceDialogflowCXSecuritySettingsCreate(d *schema.ResourceData, meta int
 		obj["retentionStrategy"] = retentionStrategyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/securitySettings"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/securitySettings")
 	if err != nil {
 		return err
 	}
@@ -442,7 +442,7 @@ func resourceDialogflowCXSecuritySettingsRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/securitySettings/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/securitySettings/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -634,7 +634,7 @@ func resourceDialogflowCXSecuritySettingsUpdate(d *schema.ResourceData, meta int
 		obj["retentionStrategy"] = retentionStrategyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/securitySettings/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/securitySettings/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -743,7 +743,7 @@ func resourceDialogflowCXSecuritySettingsDelete(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error fetching project for SecuritySettings: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/securitySettings/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/securitySettings/{{name}}")
 	if err != nil {
 		return err
 	}

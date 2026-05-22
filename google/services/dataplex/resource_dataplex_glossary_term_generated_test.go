@@ -170,7 +170,7 @@ func testAccCheckDataplexGlossaryTermDestroyProducer(t *testing.T) func(s *terra
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(dataplex.Product, config), "projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/terms/{{term_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(dataplex.Product, config)+"projects/{{project}}/locations/{{location}}/glossaries/{{glossary_id}}/terms/{{term_id}}")
 			if err != nil {
 				return err
 			}

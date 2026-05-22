@@ -746,7 +746,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData,
 		obj["detailedAuditLogging"] = detailedAuditLoggingProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers?workforcePoolProviderId={{provider_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers?workforcePoolProviderId={{provider_id}}")
 	if err != nil {
 		return err
 	}
@@ -871,7 +871,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
 	if err != nil {
 		return err
 	}
@@ -1066,7 +1066,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 		obj["detailedAuditLogging"] = detailedAuditLoggingProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
 	if err != nil {
 		return err
 	}
@@ -1219,7 +1219,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderDelete(d *schema.ResourceData,
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
 	if err != nil {
 		return err
 	}

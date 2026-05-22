@@ -140,7 +140,7 @@ func testAccCheckBigtableLogicalViewDestroyProducer(t *testing.T) func(s *terraf
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(bigtable.Product, config), "projects/{{project}}/instances/{{instance}}/logicalViews/{{logical_view_id}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(bigtable.Product, config)+"projects/{{project}}/instances/{{instance}}/logicalViews/{{logical_view_id}}")
 			if err != nil {
 				return err
 			}

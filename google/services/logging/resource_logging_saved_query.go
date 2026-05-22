@@ -298,7 +298,7 @@ func resourceLoggingSavedQueryCreate(d *schema.ResourceData, meta interface{}) e
 		obj["opsAnalyticsQuery"] = opsAnalyticsQueryProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/savedQueries?savedQueryId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/savedQueries?savedQueryId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -366,7 +366,7 @@ func resourceLoggingSavedQueryRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/savedQueries/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/savedQueries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -513,7 +513,7 @@ func resourceLoggingSavedQueryUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["opsAnalyticsQuery"] = opsAnalyticsQueryProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/savedQueries/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/savedQueries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -593,7 +593,7 @@ func resourceLoggingSavedQueryDelete(d *schema.ResourceData, meta interface{}) e
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/savedQueries/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/savedQueries/{{name}}")
 	if err != nil {
 		return err
 	}

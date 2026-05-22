@@ -129,7 +129,7 @@ func testAccCheckPubsubLiteSubscriptionDestroyProducer(t *testing.T) func(s *ter
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(pubsublite.Product, config), "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(pubsublite.Product, config)+"projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 			if err != nil {
 				return err
 			}

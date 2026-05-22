@@ -714,7 +714,7 @@ func resourceApigeeApiProductCreate(d *schema.ResourceData, meta interface{}) er
 		obj["space"] = spaceProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/apiproducts"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/apiproducts")
 	if err != nil {
 		return err
 	}
@@ -777,7 +777,7 @@ func resourceApigeeApiProductRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/apiproducts/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/apiproducts/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -985,7 +985,7 @@ func resourceApigeeApiProductUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["space"] = spaceProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/apiproducts/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/apiproducts/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1034,7 +1034,7 @@ func resourceApigeeApiProductDelete(d *schema.ResourceData, meta interface{}) er
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/apiproducts/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/apiproducts/{{name}}")
 	if err != nil {
 		return err
 	}

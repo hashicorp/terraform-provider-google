@@ -113,7 +113,7 @@ func testAccCheckIapTunnelDestGroupDestroyProducer(t *testing.T) func(s *terrafo
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(iap.Product, config), "projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups/{{group_name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(iap.Product, config)+"projects/{{project}}/iap_tunnel/locations/{{region}}/destGroups/{{group_name}}")
 			if err != nil {
 				return err
 			}

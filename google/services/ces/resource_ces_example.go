@@ -469,7 +469,7 @@ func resourceCESExampleCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["messages"] = messagesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/examples?exampleId={{example_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/examples?exampleId={{example_id}}")
 	if err != nil {
 		return err
 	}
@@ -554,7 +554,7 @@ func resourceCESExampleRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/examples/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/examples/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -727,7 +727,7 @@ func resourceCESExampleUpdate(d *schema.ResourceData, meta interface{}) error {
 		obj["messages"] = messagesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/examples/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/examples/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -812,7 +812,7 @@ func resourceCESExampleDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error fetching project for Example: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/apps/{{app}}/examples/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/examples/{{name}}")
 	if err != nil {
 		return err
 	}

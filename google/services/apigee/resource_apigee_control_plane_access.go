@@ -187,7 +187,7 @@ func resourceApigeeControlPlaneAccessCreate(d *schema.ResourceData, meta interfa
 		obj["analyticsPublisherIdentities"] = analyticsPublisherIdentitiesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{name}}/controlPlaneAccess"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{name}}/controlPlaneAccess")
 	if err != nil {
 		return err
 	}
@@ -255,7 +255,7 @@ func resourceApigeeControlPlaneAccessRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{name}}/controlPlaneAccess"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{name}}/controlPlaneAccess")
 	if err != nil {
 		return err
 	}
@@ -336,7 +336,7 @@ func resourceApigeeControlPlaneAccessUpdate(d *schema.ResourceData, meta interfa
 		obj["analyticsPublisherIdentities"] = analyticsPublisherIdentitiesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "organizations/{{name}}/controlPlaneAccess"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{name}}/controlPlaneAccess")
 	if err != nil {
 		return err
 	}

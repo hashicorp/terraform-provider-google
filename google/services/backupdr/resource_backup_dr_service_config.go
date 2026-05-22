@@ -150,7 +150,7 @@ func resourceBackupDRServiceConfigCreate(d *schema.ResourceData, meta interface{
 		obj["resourceType"] = resourceTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/serviceConfig:initialize"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/serviceConfig:initialize")
 	if err != nil {
 		return err
 	}

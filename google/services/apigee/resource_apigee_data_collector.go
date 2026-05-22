@@ -214,7 +214,7 @@ func resourceApigeeDataCollectorCreate(d *schema.ResourceData, meta interface{})
 		obj["type"] = typeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/datacollectors?dataCollectorId={{data_collector_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/datacollectors?dataCollectorId={{data_collector_id}}")
 	if err != nil {
 		return err
 	}
@@ -277,7 +277,7 @@ func resourceApigeeDataCollectorRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/datacollectors/{{data_collector_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/datacollectors/{{data_collector_id}}")
 	if err != nil {
 		return err
 	}
@@ -389,7 +389,7 @@ func resourceApigeeDataCollectorUpdate(d *schema.ResourceData, meta interface{})
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/datacollectors/{{data_collector_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/datacollectors/{{data_collector_id}}")
 	if err != nil {
 		return err
 	}
@@ -453,7 +453,7 @@ func resourceApigeeDataCollectorDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{org_id}}/datacollectors/{{data_collector_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/datacollectors/{{data_collector_id}}")
 	if err != nil {
 		return err
 	}

@@ -809,7 +809,7 @@ func resourceEdgecontainerClusterCreate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters?cluster_id={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/clusters?cluster_id={{name}}")
 	if err != nil {
 		return err
 	}
@@ -893,7 +893,7 @@ func resourceEdgecontainerClusterRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/clusters/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1079,7 +1079,7 @@ func resourceEdgecontainerClusterUpdate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/clusters/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1174,7 +1174,7 @@ func resourceEdgecontainerClusterUpdate(d *schema.ResourceData, meta interface{}
 			obj["targetVersion"] = targetVersionProp
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{name}}:upgrade"))
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/clusters/{{name}}:upgrade")
 		if err != nil {
 			return err
 		}
@@ -1236,7 +1236,7 @@ func resourceEdgecontainerClusterDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error fetching project for Cluster: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/clusters/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/clusters/{{name}}")
 	if err != nil {
 		return err
 	}

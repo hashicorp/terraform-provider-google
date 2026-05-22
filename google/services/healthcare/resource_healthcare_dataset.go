@@ -238,7 +238,7 @@ func resourceHealthcareDatasetCreate(d *schema.ResourceData, meta interface{}) e
 		obj["encryptionSpec"] = encryptionSpecProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datasets?datasetId={{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datasets?datasetId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -313,7 +313,7 @@ func resourceHealthcareDatasetRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datasets/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datasets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -464,7 +464,7 @@ func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["timeZone"] = timeZoneProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datasets/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datasets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -534,7 +534,7 @@ func resourceHealthcareDatasetDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error fetching project for Dataset: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "projects/{{project}}/locations/{{location}}/datasets/{{name}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/datasets/{{name}}")
 	if err != nil {
 		return err
 	}

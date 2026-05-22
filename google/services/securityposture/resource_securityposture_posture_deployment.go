@@ -284,7 +284,7 @@ func resourceSecurityposturePostureDeploymentCreate(d *schema.ResourceData, meta
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/postureDeployments?postureDeploymentId={{posture_deployment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/postureDeployments?postureDeploymentId={{posture_deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -362,7 +362,7 @@ func resourceSecurityposturePostureDeploymentRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/postureDeployments/{{posture_deployment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/postureDeployments/{{posture_deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -497,7 +497,7 @@ func resourceSecurityposturePostureDeploymentUpdate(d *schema.ResourceData, meta
 		obj["description"] = descriptionProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/postureDeployments/{{posture_deployment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/postureDeployments/{{posture_deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -576,7 +576,7 @@ func resourceSecurityposturePostureDeploymentDelete(d *schema.ResourceData, meta
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "{{parent}}/locations/{{location}}/postureDeployments/{{posture_deployment_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/postureDeployments/{{posture_deployment_id}}")
 	if err != nil {
 		return err
 	}

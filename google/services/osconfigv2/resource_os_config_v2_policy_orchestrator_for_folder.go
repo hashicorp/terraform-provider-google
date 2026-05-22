@@ -1814,7 +1814,7 @@ func resourceOSConfigV2PolicyOrchestratorForFolderCreate(d *schema.ResourceData,
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder_id}}/locations/global/policyOrchestrators?policyOrchestratorId={{policy_orchestrator_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder_id}}/locations/global/policyOrchestrators?policyOrchestratorId={{policy_orchestrator_id}}")
 	if err != nil {
 		return err
 	}
@@ -1887,7 +1887,7 @@ func resourceOSConfigV2PolicyOrchestratorForFolderRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder_id}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder_id}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}")
 	if err != nil {
 		return err
 	}
@@ -2029,7 +2029,7 @@ func resourceOSConfigV2PolicyOrchestratorForFolderUpdate(d *schema.ResourceData,
 		obj["labels"] = effectiveLabelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder_id}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder_id}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}")
 	if err != nil {
 		return err
 	}
@@ -2121,7 +2121,7 @@ func resourceOSConfigV2PolicyOrchestratorForFolderDelete(d *schema.ResourceData,
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(Product, config), "folders/{{folder_id}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}"))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder_id}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}")
 	if err != nil {
 		return err
 	}

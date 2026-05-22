@@ -239,7 +239,7 @@ func testAccCheckContactCenterInsightsAnalysisRuleDestroyProducer(t *testing.T) 
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, fmt.Sprintf("%s%s", transport_tpg.BaseUrl(contactcenterinsights.Product, config), "projects/{{project}}/locations/{{location}}/analysisRules/{{name}}"))
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(contactcenterinsights.Product, config)+"projects/{{project}}/locations/{{location}}/analysisRules/{{name}}")
 			if err != nil {
 				return err
 			}
