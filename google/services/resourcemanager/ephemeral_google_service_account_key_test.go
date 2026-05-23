@@ -39,6 +39,9 @@ func TestAccEphemeralServiceAccountKey_create(t *testing.T) {
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		ProtoV6ProviderFactories: acctest.ProtoV6ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEphemeralServiceAccountKey_create_setup(accountID, displayName),
@@ -62,6 +65,11 @@ resource "google_service_account" "service_account" {
 	display_name = "%s"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_service_account.service_account]
+}
+
 `, accountID, displayName)
 }
 
@@ -70,6 +78,11 @@ func testAccEphemeralServiceAccountKey_create(accountID, displayName string) str
 resource "google_service_account" "service_account" {
 	account_id   = "%s"
 	display_name = "%s"
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_service_account.service_account]
 }
 
 ephemeral "google_service_account_key" "key" {
@@ -116,8 +129,8 @@ resource "google_service_account" "service_account" {
 	account_id   = "%s"
 	display_name = "%s"
 }
-resource "time_sleep" "wait_30_seconds" {
-  create_duration = "30s"
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
   depends_on = [google_service_account.service_account]
 }
 `, accountID, displayName)
@@ -129,8 +142,8 @@ resource "google_service_account" "service_account" {
 	account_id   = "%s"
 	display_name = "%s"
 }
-resource "time_sleep" "wait_30_seconds" {
-  create_duration = "30s"
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
   depends_on = [google_service_account.service_account]
 }
 
