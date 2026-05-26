@@ -850,19 +850,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	return resourceComputeInstanceGroupManagerRead(d, meta)
 }
 
-func flattenNamedPortsBeta(namedPorts []*compute.NamedPort) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, len(namedPorts))
-	for _, namedPort := range namedPorts {
-		namedPortMap := make(map[string]interface{})
-		namedPortMap["name"] = namedPort.Name
-		namedPortMap["port"] = namedPort.Port
-		result = append(result, namedPortMap)
-	}
-	return result
-
-}
-
-func flattenNamedPortsBetaV2(raw interface{}) []map[string]interface{} {
+func flattenNamedPortsBeta(raw interface{}) []map[string]interface{} {
 	namedPorts := sliceFromInterface(raw)
 	result := make([]map[string]interface{}, 0, len(namedPorts))
 	for _, namedPortRaw := range namedPorts {
@@ -1043,7 +1031,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if err = d.Set("target_pools", tpgresource.MapStringArr(stringSliceFromInterface(manager["targetPools"]), tpgresource.ConvertSelfLinkToV1)); err != nil {
 		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
 	}
-	if err = d.Set("named_port", flattenNamedPortsBetaV2(manager["namedPorts"])); err != nil {
+	if err = d.Set("named_port", flattenNamedPortsBeta(manager["namedPorts"])); err != nil {
 		return fmt.Errorf("Error setting named_port in state: %s", err.Error())
 	}
 	statefulPolicyMap := mapFromInterface(manager["statefulPolicy"])
@@ -1394,6 +1382,39 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 
 	d.SetId("")
 	return nil
+}
+
+type getInstanceManagerFunc func(*schema.ResourceData, interface{}) (*compute.InstanceGroupManager, error)
+
+func waitForInstancesRefreshFunc(f getInstanceManagerFunc, waitForUpdates bool, d *schema.ResourceData, meta interface{}) retry.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		m, err := f(d, meta)
+		if err != nil {
+			log.Printf("[WARNING] Error in fetching manager while waiting for instances to come up: %s\n", err)
+			return nil, "error", err
+		}
+		if m == nil {
+			return nil, "error", fmt.Errorf("instance manager not found")
+		}
+		if m.Status.IsStable {
+			if waitForUpdates {
+				if m.Status.Stateful.HasStatefulConfig {
+					if !m.Status.Stateful.PerInstanceConfigs.AllEffective {
+						return false, "updating per instance configs", nil
+					}
+				}
+				if !m.Status.VersionTarget.IsReached {
+					return false, "reaching version target", nil
+				}
+				if !m.Status.AllInstancesConfig.Effective {
+					return false, "updating all instances config", nil
+				}
+			}
+			return true, "created", nil
+		} else {
+			return false, "creating", nil
+		}
+	}
 }
 
 func computeIGMWaitForInstanceStatus(d *schema.ResourceData, meta interface{}) error {
