@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
+	"github.com/hashicorp/terraform-plugin-testing/config"
 	"github.com/hashicorp/terraform-plugin-testing/echoprovider"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -142,6 +143,37 @@ func (c *ListDisplayName) CheckValue() knownvalue.Check {
 		}
 		return nil
 	})
+}
+
+type ListScopeCapture struct {
+	vars config.Variables
+}
+
+func (c *ListScopeCapture) Capture(scopeToResource map[string]string) resource.TestCheckFunc {
+	if c.vars == nil {
+		c.vars = config.Variables{}
+	}
+	return func(s *terraform.State) error {
+		for scope, addr := range scopeToResource {
+			rs, ok := s.RootModule().Resources[addr]
+			if !ok {
+				return fmt.Errorf("list scope %q: resource %q not found in state", scope, addr)
+			}
+			v, ok := rs.Primary.Attributes[scope]
+			if !ok || v == "" {
+				return fmt.Errorf("list scope %q: attribute %q on %s is empty", scope, scope, addr)
+			}
+			c.vars[scope] = config.StringVariable(v)
+		}
+		return nil
+	}
+}
+
+func (c *ListScopeCapture) AsConfigVariables() config.Variables {
+	if c.vars == nil {
+		c.vars = config.Variables{}
+	}
+	return c.vars
 }
 
 // General test utils

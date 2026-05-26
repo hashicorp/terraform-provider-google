@@ -47,6 +47,7 @@ func TestAccCloudRunServiceListQuery_generated(t *testing.T) {
 	}
 
 	var listDisplayName acctest.ListDisplayName
+	var listScope acctest.ListScopeCapture
 	acctest.VcrTest(t, resource.TestCase{
 		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
 			tfversion.SkipBelow(tfversion.Version1_14_0),
@@ -64,11 +65,15 @@ func TestAccCloudRunServiceListQuery_generated(t *testing.T) {
 							"name",
 						},
 					),
+					listScope.Capture(map[string]string{
+						"location": "google_cloud_run_service.default",
+					}),
 				),
 			},
 			{
-				Query:  true,
-				Config: testAccCloudRunService_cloudRunServiceBasicExampleListQuery(context),
+				Query:           true,
+				Config:          testAccCloudRunService_cloudRunServiceBasicExampleListQuery(context),
+				ConfigVariables: listScope.AsConfigVariables(),
 				QueryResultChecks: []querycheck.QueryResultCheck{
 					querycheck.ExpectLengthAtLeast("google_cloud_run_service.list_query", 1),
 					querycheck.ExpectResourceDisplayName(
@@ -84,11 +89,11 @@ func TestAccCloudRunServiceListQuery_generated(t *testing.T) {
 
 func testAccCloudRunService_cloudRunServiceBasicExampleListQuery(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+variable "location" { type = string }
 list "google_cloud_run_service" "list_query" {
     provider = google
     config {
-        location = "%{location}"
-        project = "%{project}"
+        location = var.location
     }
 }
 `, context)
