@@ -1,0 +1,120 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_migration_center_report
+generation_type: mmv1
+source_file: products/migrationcenter/Report.yaml
+api_service_name: migrationcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: Report
+autogen_status: true
+fields:
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: report_config
+      provider_only: true
+    - field: report_id
+      provider_only: true
+    - api_field: state
+    - api_field: summary.allAssetsStats.coreCountHistogram.buckets.count
+    - api_field: summary.allAssetsStats.coreCountHistogram.buckets.lowerBound
+    - api_field: summary.allAssetsStats.coreCountHistogram.buckets.upperBound
+    - api_field: summary.allAssetsStats.memoryBytesHistogram.buckets.count
+    - api_field: summary.allAssetsStats.memoryBytesHistogram.buckets.lowerBound
+    - api_field: summary.allAssetsStats.memoryBytesHistogram.buckets.upperBound
+    - api_field: summary.allAssetsStats.memoryUtilizationChart.free
+    - api_field: summary.allAssetsStats.memoryUtilizationChart.used
+    - api_field: summary.allAssetsStats.operatingSystem.dataPoints.label
+    - api_field: summary.allAssetsStats.operatingSystem.dataPoints.value
+    - api_field: summary.allAssetsStats.softwareInstances.dataPoints.label
+    - api_field: summary.allAssetsStats.softwareInstances.dataPoints.value
+    - api_field: summary.allAssetsStats.storageBytesHistogram.buckets.count
+    - api_field: summary.allAssetsStats.storageBytesHistogram.buckets.lowerBound
+    - api_field: summary.allAssetsStats.storageBytesHistogram.buckets.upperBound
+    - api_field: summary.allAssetsStats.storageUtilizationChart.free
+    - api_field: summary.allAssetsStats.storageUtilizationChart.used
+    - api_field: summary.allAssetsStats.totalAssets
+    - api_field: summary.allAssetsStats.totalCores
+    - api_field: summary.allAssetsStats.totalMemoryBytes
+    - api_field: summary.allAssetsStats.totalStorageBytes
+    - api_field: summary.groupFindings.assetAggregateStats.coreCountHistogram.buckets.count
+    - api_field: summary.groupFindings.assetAggregateStats.coreCountHistogram.buckets.lowerBound
+    - api_field: summary.groupFindings.assetAggregateStats.coreCountHistogram.buckets.upperBound
+    - api_field: summary.groupFindings.assetAggregateStats.memoryBytesHistogram.buckets.count
+    - api_field: summary.groupFindings.assetAggregateStats.memoryBytesHistogram.buckets.lowerBound
+    - api_field: summary.groupFindings.assetAggregateStats.memoryBytesHistogram.buckets.upperBound
+    - api_field: summary.groupFindings.assetAggregateStats.memoryUtilizationChart.free
+    - api_field: summary.groupFindings.assetAggregateStats.memoryUtilizationChart.used
+    - api_field: summary.groupFindings.assetAggregateStats.operatingSystem.dataPoints.label
+    - api_field: summary.groupFindings.assetAggregateStats.operatingSystem.dataPoints.value
+    - api_field: summary.groupFindings.assetAggregateStats.softwareInstances.dataPoints.label
+    - api_field: summary.groupFindings.assetAggregateStats.softwareInstances.dataPoints.value
+    - api_field: summary.groupFindings.assetAggregateStats.storageBytesHistogram.buckets.count
+    - api_field: summary.groupFindings.assetAggregateStats.storageBytesHistogram.buckets.lowerBound
+    - api_field: summary.groupFindings.assetAggregateStats.storageBytesHistogram.buckets.upperBound
+    - api_field: summary.groupFindings.assetAggregateStats.storageUtilizationChart.free
+    - api_field: summary.groupFindings.assetAggregateStats.storageUtilizationChart.used
+    - api_field: summary.groupFindings.assetAggregateStats.totalAssets
+    - api_field: summary.groupFindings.assetAggregateStats.totalCores
+    - api_field: summary.groupFindings.assetAggregateStats.totalMemoryBytes
+    - api_field: summary.groupFindings.assetAggregateStats.totalStorageBytes
+    - api_field: summary.groupFindings.description
+    - api_field: summary.groupFindings.displayName
+    - api_field: summary.groupFindings.overlappingAssetCount
+    - api_field: summary.groupFindings.preferenceSetFindings.computeEngineFinding.allocatedAssetCount
+    - api_field: summary.groupFindings.preferenceSetFindings.computeEngineFinding.allocatedDiskTypes
+    - api_field: summary.groupFindings.preferenceSetFindings.computeEngineFinding.allocatedRegions
+    - api_field: summary.groupFindings.preferenceSetFindings.computeEngineFinding.machineSeriesAllocations.allocatedAssetCount
+    - api_field: summary.groupFindings.preferenceSetFindings.computeEngineFinding.machineSeriesAllocations.machineSeries.code
+    - api_field: summary.groupFindings.preferenceSetFindings.description
+    - api_field: summary.groupFindings.preferenceSetFindings.displayName
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.commitmentPlan
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.computeEnginePreferences.licenseType
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.computeEnginePreferences.machinePreferences.allowedMachineSeries.code
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.computeEnginePreferences.persistentDiskType
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.regionPreferences.preferredRegions
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.sizingOptimizationStrategy
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.soleTenancyPreferences.commitmentPlan
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.soleTenancyPreferences.cpuOvercommitRatio
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.soleTenancyPreferences.hostMaintenancePolicy
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.soleTenancyPreferences.nodeTypes.nodeName
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.targetProduct
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.vmwareEnginePreferences.commitmentPlan
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.vmwareEnginePreferences.cpuOvercommitRatio
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.vmwareEnginePreferences.memoryOvercommitRatio
+    - api_field: summary.groupFindings.preferenceSetFindings.machinePreferences.vmwareEnginePreferences.storageDeduplicationCompressionRatio
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostCompute.currencyCode
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostCompute.nanos
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostCompute.units
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostNetworkEgress.currencyCode
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostNetworkEgress.nanos
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostNetworkEgress.units
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostOsLicense.currencyCode
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostOsLicense.nanos
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostOsLicense.units
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostOther.currencyCode
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostOther.nanos
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostOther.units
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostStorage.currencyCode
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostStorage.nanos
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostStorage.units
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostTotal.currencyCode
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostTotal.nanos
+    - api_field: summary.groupFindings.preferenceSetFindings.monthlyCostTotal.units
+    - api_field: summary.groupFindings.preferenceSetFindings.soleTenantFinding.allocatedAssetCount
+    - api_field: summary.groupFindings.preferenceSetFindings.soleTenantFinding.allocatedRegions
+    - api_field: summary.groupFindings.preferenceSetFindings.soleTenantFinding.nodeAllocations.allocatedAssetCount
+    - api_field: summary.groupFindings.preferenceSetFindings.soleTenantFinding.nodeAllocations.node.nodeName
+    - api_field: summary.groupFindings.preferenceSetFindings.soleTenantFinding.nodeAllocations.nodeCount
+    - api_field: summary.groupFindings.preferenceSetFindings.vmwareEngineFinding.allocatedAssetCount
+    - api_field: summary.groupFindings.preferenceSetFindings.vmwareEngineFinding.allocatedRegions
+    - api_field: summary.groupFindings.preferenceSetFindings.vmwareEngineFinding.nodeAllocations.allocatedAssetCount
+    - api_field: summary.groupFindings.preferenceSetFindings.vmwareEngineFinding.nodeAllocations.nodeCount
+    - api_field: summary.groupFindings.preferenceSetFindings.vmwareEngineFinding.nodeAllocations.vmwareNode.code
+    - api_field: type
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
