@@ -1,0 +1,21 @@
+```release-note:new-list-resource
+`google_compute_firewall`
+```
+
+```release-note:new-list-resource
+`google_compute_subnetwork`
+```
+
+```release-note:new-list-resource
+`google_compute_global_address`
+```
+
+<details><summary>Local test output</summary>
+
+```
+--- PASS: TestAccComputeGlobalAddressListQuery_generated (36.07s)
+--- PASS: TestAccComputeSubnetworkListQuery_generated (100.27s)
+--- PASS: TestAccComputeFirewallListQuery_generated (204.28s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/compute 205.702s
+```
