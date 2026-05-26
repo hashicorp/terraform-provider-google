@@ -4933,7 +4933,7 @@ func TestAccContainerCluster_withLoggingConfig(t *testing.T) {
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
 	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
-	minVersion := "1.32"
+	minVersion := "1.36"
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -12372,7 +12372,7 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
   logging_config {
-    enable_components = [ "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "KCP_CONNECTION", "KCP_SSHD", "KCP_HPA"]
+    enable_components = [ "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "KCP_CONNECTION", "KCP_SSHD", "KCP_HPA", "KCP_VPA" ]
   }
   monitoring_config {
     enable_components = [ "SYSTEM_COMPONENTS" ]
