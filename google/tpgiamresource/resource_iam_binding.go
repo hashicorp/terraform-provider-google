@@ -263,6 +263,17 @@ func resourceIamBindingRead(newUpdaterFunc NewResourceIamUpdaterFunc, parentSpec
 			if err := d.Set("members", nil); err != nil {
 				return fmt.Errorf("Error setting members: %s", err)
 			}
+			if parentResourceIdentityParser != nil {
+				identity, err := d.Identity()
+				if err != nil {
+					return err
+				}
+				conditionTitle := ""
+				if eBinding.Condition != nil {
+					conditionTitle = eBinding.Condition.Title
+				}
+				setIamBindingResourceIdentity(identity, d, parentSpecificSchema, eBinding.Role, conditionTitle)
+			}
 			return nil
 		} else {
 			if err := d.Set("role", binding.Role); err != nil {
