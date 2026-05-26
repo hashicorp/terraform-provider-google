@@ -19,6 +19,7 @@ package compute
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,8 +31,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-
-	"google.golang.org/api/compute/v1"
 )
 
 func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
@@ -678,43 +677,69 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		return err
 	}
 
-	region, err := tpgresource.GetRegion(d, config)
-	if err != nil {
-		return err
-	}
-
 	flexibilityPolicy, err := expandInstanceFlexibilityPolicy(d)
 	if err != nil {
 		return err
 	}
 
-	manager := &compute.InstanceGroupManager{
-		Name:                        d.Get("name").(string),
-		Description:                 d.Get("description").(string),
-		BaseInstanceName:            d.Get("base_instance_name").(string),
-		TargetSize:                  int64(d.Get("target_size").(int)),
-		ListManagedInstancesResults: d.Get("list_managed_instances_results").(string),
-		NamedPorts:                  getNamedPortsBeta(d.Get("named_port").(*schema.Set).List()),
-		TargetPools:                 tpgresource.ConvertStringSet(d.Get("target_pools").(*schema.Set)),
-		AutoHealingPolicies:         expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
-		Versions:                    expandVersions(d.Get("version").([]interface{})),
-		StandbyPolicy:               expandStandbyPolicy(d),
-		TargetSuspendedSize:         int64(d.Get("target_suspended_size").(int)),
-		TargetStoppedSize:           int64(d.Get("target_stopped_size").(int)),
-		InstanceFlexibilityPolicy:   flexibilityPolicy,
-		UpdatePolicy:                expandRegionUpdatePolicy(d.Get("update_policy").([]interface{})),
-		InstanceLifecyclePolicy:     expandInstanceLifecyclePolicy(d.Get("instance_lifecycle_policy").([]interface{})),
-		AllInstancesConfig:          expandAllInstancesConfig(nil, d.Get("all_instances_config").([]interface{})),
-		DistributionPolicy:          expandDistributionPolicyForCreate(d),
-		StatefulPolicy:              expandStatefulPolicy(d),
-		ResourcePolicies:            expandResourcePolicies(d.Get("resource_policies").([]interface{})),
-		TargetSizePolicy:            expandTargetSizePolicy(d.Get("target_size_policy").([]interface{})),
-		// Force send TargetSize to allow size of 0.
-		ForceSendFields: []string{"TargetSize"},
+	body := map[string]interface{}{
+		"name":                        d.Get("name").(string),
+		"baseInstanceName":            d.Get("base_instance_name").(string),
+		"targetSize":                  int64(d.Get("target_size").(int)),
+		"listManagedInstancesResults": d.Get("list_managed_instances_results").(string),
+		"versions":                    expandVersions(d.Get("version").([]interface{})),
+		"updatePolicy":                expandRegionUpdatePolicy(d.Get("update_policy").([]interface{})),
+		"instanceLifecyclePolicy":     expandInstanceLifecyclePolicy(d.Get("instance_lifecycle_policy").([]interface{})),
+		"statefulPolicy":              expandStatefulPolicy(d),
+		"resourcePolicies":            expandResourcePolicies(d.Get("resource_policies").([]interface{})),
+	}
+	if standbyPolicy := expandStandbyPolicy(d); standbyPolicy != nil {
+		body["standbyPolicy"] = standbyPolicy
+	}
+	if flexibilityPolicy != nil {
+		body["instanceFlexibilityPolicy"] = flexibilityPolicy
+	}
+	if desc := d.Get("description").(string); desc != "" {
+		body["description"] = desc
+	}
+	if namedPorts := getNamedPortsBeta(d.Get("named_port").(*schema.Set).List()); len(namedPorts) > 0 {
+		body["namedPorts"] = namedPorts
+	}
+	if targetPools := tpgresource.ConvertStringSet(d.Get("target_pools").(*schema.Set)); len(targetPools) > 0 {
+		body["targetPools"] = targetPools
+	}
+	if autoHealingPolicies := expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})); len(autoHealingPolicies) > 0 {
+		body["autoHealingPolicies"] = autoHealingPolicies
+	}
+	if targetSuspendedSize := d.Get("target_suspended_size").(int); targetSuspendedSize > 0 {
+		body["targetSuspendedSize"] = int64(targetSuspendedSize)
+	}
+	if targetStoppedSize := d.Get("target_stopped_size").(int); targetStoppedSize > 0 {
+		body["targetStoppedSize"] = int64(targetStoppedSize)
+	}
+	if allInstancesConfig := expandAllInstancesConfig(nil, d.Get("all_instances_config").([]interface{})); allInstancesConfig != nil {
+		body["allInstancesConfig"] = allInstancesConfig
+	}
+	if distributionPolicy := expandDistributionPolicyForCreate(d); distributionPolicy != nil {
+		body["distributionPolicy"] = distributionPolicy
+	}
+	if targetSizePolicy := expandTargetSizePolicy(d.Get("target_size_policy").([]interface{})); targetSizePolicy != nil {
+		body["targetSizePolicy"] = targetSizePolicy
 	}
 
-	op, err := NewClient(config, userAgent).RegionInstanceGroupManagers.Insert(project, region, manager).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers")
+	if err != nil {
+		return err
+	}
 
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      body,
+	})
 	if err != nil {
 		return fmt.Errorf("Error creating RegionInstanceGroupManager: %s", err)
 	}
@@ -726,7 +751,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 	d.SetId(id)
 
 	// Wait for the operation to complete
-	err = ComputeOperationWaitTime(config, op, project, "Creating InstanceGroupManager", userAgent, d.Timeout(schema.TimeoutCreate))
+	err = ComputeOperationWaitTime(config, res, project, "Creating InstanceGroupManager", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -746,7 +771,7 @@ func computeRIGMWaitForInstanceStatus(d *schema.ResourceData, meta interface{}) 
 	conf := retry.StateChangeConf{
 		Pending: []string{"creating", "error", "updating per instance configs", "reaching version target", "updating all instances config"},
 		Target:  []string{"created"},
-		Refresh: waitForInstancesRefreshFunc(getRegionalManager, waitForUpdates, d, meta),
+		Refresh: waitForRegionInstancesRefreshFunc(getRegionalManager, waitForUpdates, d, meta),
 		Timeout: d.Timeout(schema.TimeoutCreate),
 	}
 	_, err := conf.WaitForState()
@@ -756,17 +781,12 @@ func computeRIGMWaitForInstanceStatus(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 
-type getInstanceManagerFunc func(*schema.ResourceData, interface{}) (*compute.InstanceGroupManager, error)
+type getRegionInstanceManagerFunc func(*schema.ResourceData, interface{}) (map[string]interface{}, error)
 
-func getRegionalManager(d *schema.ResourceData, meta interface{}) (*compute.InstanceGroupManager, error) {
+func getRegionalManager(d *schema.ResourceData, meta interface{}) (map[string]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
 
 	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -777,15 +797,27 @@ func getRegionalManager(d *schema.ResourceData, meta interface{}) (*compute.Inst
 	}
 
 	name := d.Get("name").(string)
-	manager, err := NewClient(config, userAgent).RegionInstanceGroupManagers.Get(project, region, name).Do()
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{name}}")
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Region Instance Manager %q", name))
 	}
 
-	return manager, nil
+	return res, nil
 }
 
-func waitForInstancesRefreshFunc(f getInstanceManagerFunc, waitForUpdates bool, d *schema.ResourceData, meta interface{}) retry.StateRefreshFunc {
+func waitForRegionInstancesRefreshFunc(f getRegionInstanceManagerFunc, waitForUpdates bool, d *schema.ResourceData, meta interface{}) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		m, err := f(d, meta)
 		if err != nil {
@@ -798,22 +830,29 @@ func waitForInstancesRefreshFunc(f getInstanceManagerFunc, waitForUpdates bool, 
 			// error so that we can parse it later on and handle it there
 			return nil, "error", fmt.Errorf("instance manager not found")
 		}
-		if m.Status.IsStable {
+		status, _ := m["status"].(map[string]interface{})
+		isStable, _ := status["isStable"].(bool)
+		if isStable {
 			if waitForUpdates {
 				// waitForUpdates waits for versions to be reached and per instance configs to be updated (if present)
-				if m.Status.Stateful.HasStatefulConfig {
-					if !m.Status.Stateful.PerInstanceConfigs.AllEffective {
-						return false, "updating per instance configs", nil
+				if stateful, ok := status["stateful"].(map[string]interface{}); ok {
+					if hasStateful, _ := stateful["hasStatefulConfig"].(bool); hasStateful {
+						if pics, ok := stateful["perInstanceConfigs"].(map[string]interface{}); ok {
+							if allEffective, _ := pics["allEffective"].(bool); !allEffective {
+								return false, "updating per instance configs", nil
+							}
+						}
 					}
 				}
-				if !m.Status.VersionTarget.IsReached {
-					return false, "reaching version target", nil
+				if vt, ok := status["versionTarget"].(map[string]interface{}); ok {
+					if isReached, _ := vt["isReached"].(bool); !isReached {
+						return false, "reaching version target", nil
+					}
 				}
-				if !m.Status.VersionTarget.IsReached {
-					return false, "reaching version target", nil
-				}
-				if !m.Status.AllInstancesConfig.Effective {
-					return false, "updating all instances config", nil
+				if aic, ok := status["allInstancesConfig"].(map[string]interface{}); ok {
+					if effective, _ := aic["effective"].(bool); !effective {
+						return false, "updating all instances config", nil
+					}
 				}
 			}
 			return true, "created", nil
@@ -841,99 +880,107 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	if err := d.Set("base_instance_name", manager.BaseInstanceName); err != nil {
+	if err := d.Set("base_instance_name", manager["baseInstanceName"]); err != nil {
 		return fmt.Errorf("Error setting base_instance_name: %s", err)
 	}
-	if err := d.Set("name", manager.Name); err != nil {
+	if err := d.Set("name", manager["name"]); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if err := d.Set("region", tpgresource.GetResourceNameFromSelfLink(manager.Region)); err != nil {
+	if err := d.Set("region", tpgresource.GetResourceNameFromSelfLink(manager["region"].(string))); err != nil {
 		return fmt.Errorf("Error setting region: %s", err)
 	}
-	if err := d.Set("creation_timestamp", manager.CreationTimestamp); err != nil {
+	if err := d.Set("creation_timestamp", manager["creationTimestamp"]); err != nil {
 		return fmt.Errorf("Error reading creation_timestamp: %s", err)
 	}
-	if err := d.Set("description", manager.Description); err != nil {
+	if err := d.Set("description", manager["description"]); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
-	if err := d.Set("instance_group_manager_id", manager.Id); err != nil {
-		return fmt.Errorf("Error setting description: %s", err)
+	if err := d.Set("instance_group_manager_id", getInt(manager["id"])); err != nil {
+		return fmt.Errorf("Error setting instance_group_manager_id: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("target_size", manager.TargetSize); err != nil {
+	if err := d.Set("target_size", manager["targetSize"]); err != nil {
 		return fmt.Errorf("Error setting target_size: %s", err)
 	}
-	if err := d.Set("list_managed_instances_results", manager.ListManagedInstancesResults); err != nil {
+	if err := d.Set("list_managed_instances_results", manager["listManagedInstancesResults"]); err != nil {
 		return fmt.Errorf("Error setting list_managed_instances_results: %s", err)
 	}
-	if err := d.Set("target_pools", tpgresource.MapStringArr(manager.TargetPools, tpgresource.ConvertSelfLinkToV1)); err != nil {
-		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
+	if rawPools, ok := manager["targetPools"].([]interface{}); ok {
+		pools := make([]string, 0, len(rawPools))
+		for _, p := range rawPools {
+			if s, ok := p.(string); ok {
+				pools = append(pools, tpgresource.ConvertSelfLinkToV1(s))
+			}
+		}
+		if err := d.Set("target_pools", pools); err != nil {
+			return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
+		}
 	}
-	if err := d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts)); err != nil {
+	if err := d.Set("named_port", flattenRegionNamedPorts(manager["namedPorts"])); err != nil {
 		return fmt.Errorf("Error setting named_port in state: %s", err.Error())
 	}
-	if err := d.Set("fingerprint", manager.Fingerprint); err != nil {
+	if err := d.Set("fingerprint", manager["fingerprint"]); err != nil {
 		return fmt.Errorf("Error setting fingerprint: %s", err)
 	}
-	if err := d.Set("instance_group", tpgresource.ConvertSelfLinkToV1(manager.InstanceGroup)); err != nil {
-		return fmt.Errorf("Error setting instance_group: %s", err)
+	if instanceGroup, ok := manager["instanceGroup"].(string); ok {
+		if err := d.Set("instance_group", tpgresource.ConvertSelfLinkToV1(instanceGroup)); err != nil {
+			return fmt.Errorf("Error setting instance_group: %s", err)
+		}
 	}
-	if err := d.Set("distribution_policy_zones", flattenDistributionPolicy(manager.DistributionPolicy)); err != nil {
+	if err := d.Set("distribution_policy_zones", flattenDistributionPolicy(manager["distributionPolicy"])); err != nil {
 		return err
 	}
-	if err := d.Set("distribution_policy_target_shape", manager.DistributionPolicy.TargetShape); err != nil {
+	var distTargetShape string
+	if dp, ok := manager["distributionPolicy"].(map[string]interface{}); ok {
+		distTargetShape, _ = dp["targetShape"].(string)
+	}
+	if err := d.Set("distribution_policy_target_shape", distTargetShape); err != nil {
 		return err
 	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(manager.SelfLink)); err != nil {
-		return fmt.Errorf("Error setting self_link: %s", err)
+	if selfLink, ok := manager["selfLink"].(string); ok {
+		if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error setting self_link: %s", err)
+		}
 	}
-
-	if err := d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies)); err != nil {
+	if err := d.Set("auto_healing_policies", flattenRegionAutoHealingPolicies(manager["autoHealingPolicies"])); err != nil {
 		return fmt.Errorf("Error setting auto_healing_policies in state: %s", err.Error())
 	}
-	if err := d.Set("version", flattenVersions(manager.Versions)); err != nil {
+	if err := d.Set("version", flattenRegionVersions(manager["versions"])); err != nil {
 		return err
 	}
-	if err = d.Set("standby_policy", flattenStandbyPolicy(manager.StandbyPolicy)); err != nil {
+	if err = d.Set("standby_policy", flattenRegionStandbyPolicy(manager["standbyPolicy"])); err != nil {
 		return fmt.Errorf("Error setting standby_policy in state: %s", err.Error())
 	}
-	if err := d.Set("target_suspended_size", manager.TargetSuspendedSize); err != nil {
+	if err := d.Set("target_suspended_size", manager["targetSuspendedSize"]); err != nil {
 		return fmt.Errorf("Error setting target_suspended_size: %s", err)
 	}
-	if err := d.Set("target_stopped_size", manager.TargetStoppedSize); err != nil {
+	if err := d.Set("target_stopped_size", manager["targetStoppedSize"]); err != nil {
 		return fmt.Errorf("Error setting target_stopped_size: %s", err)
 	}
-	if err := d.Set("instance_flexibility_policy", flattenInstanceFlexibilityPolicy(manager.InstanceFlexibilityPolicy)); err != nil {
+	if err := d.Set("instance_flexibility_policy", flattenInstanceFlexibilityPolicy(manager["instanceFlexibilityPolicy"])); err != nil {
 		return err
 	}
-	if err := d.Set("update_policy", flattenRegionUpdatePolicy(manager.UpdatePolicy)); err != nil {
+	if err := d.Set("update_policy", flattenRegionUpdatePolicy(manager["updatePolicy"])); err != nil {
 		return fmt.Errorf("Error setting update_policy in state: %s", err.Error())
 	}
-	if err = d.Set("instance_lifecycle_policy", flattenInstanceLifecyclePolicy(manager.InstanceLifecyclePolicy)); err != nil {
+	if err = d.Set("instance_lifecycle_policy", flattenRegionInstanceLifecyclePolicy(manager["instanceLifecyclePolicy"])); err != nil {
 		return fmt.Errorf("Error setting instance lifecycle policy in state: %s", err.Error())
 	}
-	if manager.AllInstancesConfig != nil {
-		if err = d.Set("all_instances_config", flattenAllInstancesConfig(manager.AllInstancesConfig)); err != nil {
+	if manager["allInstancesConfig"] != nil {
+		if err = d.Set("all_instances_config", flattenRegionAllInstancesConfig(manager["allInstancesConfig"])); err != nil {
 			return fmt.Errorf("Error setting all_instances_config in state: %s", err.Error())
 		}
 	}
-	var statefulPolicyMap map[string]interface{}
-	if manager.StatefulPolicy != nil {
-		spMap, err := tpgresource.ConvertToMap(manager.StatefulPolicy)
-		if err != nil {
-			return fmt.Errorf("Error converting stateful policy: %s", err)
-		}
-		statefulPolicyMap = spMap
-	}
+	statefulPolicyMap, _ := manager["statefulPolicy"].(map[string]interface{})
 	if err = d.Set("stateful_disk", flattenStatefulPolicy(statefulPolicyMap)); err != nil {
 		return fmt.Errorf("Error setting stateful_disk in state: %s", err.Error())
 	}
-	if err = d.Set("status", flattenStatus(manager.Status)); err != nil {
+	if err = d.Set("status", flattenRegionStatus(manager["status"])); err != nil {
 		return fmt.Errorf("Error setting status in state: %s", err.Error())
 	}
-	if err = d.Set("resource_policies", flattenResourcePolicies(manager.ResourcePolicies)); err != nil {
+	if err = d.Set("resource_policies", flattenRegionResourcePolicies(manager["resourcePolicies"])); err != nil {
 		return fmt.Errorf("Error setting resource_policies in state: %s", err.Error())
 	}
 	if err = d.Set("stateful_internal_ip", flattenStatefulPolicyStatefulInternalIps(d, statefulPolicyMap)); err != nil {
@@ -942,7 +989,7 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	if err = d.Set("stateful_external_ip", flattenStatefulPolicyStatefulExternalIps(d, statefulPolicyMap)); err != nil {
 		return fmt.Errorf("Error setting stateful_external_ip in state: %s", err.Error())
 	}
-	if err = d.Set("target_size_policy", flattenTargetSizePolicy(manager.TargetSizePolicy)); err != nil {
+	if err = d.Set("target_size_policy", flattenRegionTargetSizePolicy(manager["targetSizePolicy"])); err != nil {
 		return fmt.Errorf("Error setting target_size_policy in state: %s", err.Error())
 	}
 	// If unset in state set to default value
@@ -977,30 +1024,23 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 		return err
 	}
 
-	region, err := tpgresource.GetRegion(d, config)
-	if err != nil {
-		return err
-	}
-
-	updatedManager := &compute.InstanceGroupManager{
-		Fingerprint: d.Get("fingerprint").(string),
+	body := map[string]interface{}{
+		"fingerprint": d.Get("fingerprint").(string),
 	}
 	var change bool
 
 	if d.HasChange("target_pools") {
-		updatedManager.TargetPools = tpgresource.ConvertStringSet(d.Get("target_pools").(*schema.Set))
-		updatedManager.ForceSendFields = append(updatedManager.ForceSendFields, "TargetPools")
+		body["targetPools"] = tpgresource.ConvertStringSet(d.Get("target_pools").(*schema.Set))
 		change = true
 	}
 
 	if d.HasChange("auto_healing_policies") {
-		updatedManager.AutoHealingPolicies = expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{}))
-		updatedManager.ForceSendFields = append(updatedManager.ForceSendFields, "AutoHealingPolicies")
+		body["autoHealingPolicies"] = expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{}))
 		change = true
 	}
 
 	if d.HasChange("version") {
-		updatedManager.Versions = expandVersions(d.Get("version").([]interface{}))
+		body["versions"] = expandVersions(d.Get("version").([]interface{}))
 		change = true
 	}
 
@@ -1011,81 +1051,90 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 			return err
 		}
 
-		updatedManager.InstanceFlexibilityPolicy = flexibilityPolicy
+		body["instanceFlexibilityPolicy"] = flexibilityPolicy
 		change = true
 
 		// target size update should be done by patch instead of using resize
 		if d.HasChange("target_size") {
-			updatedManager.TargetSize = int64(d.Get("target_size").(int))
-			updatedManager.ForceSendFields = append(updatedManager.ForceSendFields, "TargetSize")
+			body["targetSize"] = int64(d.Get("target_size").(int))
 			targetSizePatchUpdate = true
 		}
 	}
 
 	if d.HasChange("distribution_policy_target_shape") {
-		updatedManager.DistributionPolicy = expandDistributionPolicyForUpdate(d)
+		body["distributionPolicy"] = expandDistributionPolicyForUpdate(d)
 		change = true
 	}
 
 	if d.HasChange("standby_policy") {
-		updatedManager.StandbyPolicy = expandStandbyPolicy(d)
+		body["standbyPolicy"] = expandStandbyPolicy(d)
 		change = true
 	}
 
 	if d.HasChange("target_suspended_size") {
-		updatedManager.TargetSuspendedSize = int64(d.Get("target_suspended_size").(int))
-		updatedManager.ForceSendFields = append(updatedManager.ForceSendFields, "TargetSuspendedSize")
+		body["targetSuspendedSize"] = int64(d.Get("target_suspended_size").(int))
 		change = true
 	}
 
 	if d.HasChange("target_stopped_size") {
-		updatedManager.TargetStoppedSize = int64(d.Get("target_stopped_size").(int))
-		updatedManager.ForceSendFields = append(updatedManager.ForceSendFields, "TargetStoppedSize")
+		body["targetStoppedSize"] = int64(d.Get("target_stopped_size").(int))
 		change = true
 	}
 
 	if d.HasChange("update_policy") {
-		updatedManager.UpdatePolicy = expandRegionUpdatePolicy(d.Get("update_policy").([]interface{}))
+		body["updatePolicy"] = expandRegionUpdatePolicy(d.Get("update_policy").([]interface{}))
 		change = true
 	}
 
 	if d.HasChange("instance_lifecycle_policy") {
-		updatedManager.InstanceLifecyclePolicy = expandInstanceLifecyclePolicy(d.Get("instance_lifecycle_policy").([]interface{}))
+		body["instanceLifecyclePolicy"] = expandInstanceLifecyclePolicy(d.Get("instance_lifecycle_policy").([]interface{}))
 		change = true
 	}
 
 	if d.HasChange("stateful_internal_ip") || d.HasChange("stateful_external_ip") || d.HasChange("stateful_disk") {
-		updatedManager.StatefulPolicy = expandStatefulPolicy(d)
+		body["statefulPolicy"] = expandStatefulPolicy(d)
 		change = true
 	}
 
 	if d.HasChange("all_instances_config") {
 		oldAic, newAic := d.GetChange("all_instances_config")
 		if newAic == nil || len(newAic.([]interface{})) == 0 {
-			updatedManager.NullFields = append(updatedManager.NullFields, "AllInstancesConfig")
+			body["allInstancesConfig"] = nil
 		} else {
-			updatedManager.AllInstancesConfig = expandAllInstancesConfig(oldAic.([]interface{}), newAic.([]interface{}))
+			body["allInstancesConfig"] = expandAllInstancesConfig(oldAic.([]interface{}), newAic.([]interface{}))
 		}
 		change = true
 	}
 
 	if d.HasChange("list_managed_instances_results") {
-		updatedManager.ListManagedInstancesResults = d.Get("list_managed_instances_results").(string)
+		body["listManagedInstancesResults"] = d.Get("list_managed_instances_results").(string)
 		change = true
 	}
 
 	if d.HasChange("resource_policies") {
-		updatedManager.ResourcePolicies = expandResourcePolicies(d.Get("resource_policies").([]interface{}))
+		body["resourcePolicies"] = expandResourcePolicies(d.Get("resource_policies").([]interface{}))
 		change = true
 	}
 
 	if change {
-		op, err := NewClient(config, userAgent).RegionInstanceGroupManagers.Patch(project, region, d.Get("name").(string), updatedManager).Do()
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      body,
+		})
 		if err != nil {
 			return fmt.Errorf("Error updating region managed group instances: %s", err)
 		}
 
-		err = ComputeOperationWaitTime(config, op, project, "Updating region managed group instances", userAgent, d.Timeout(schema.TimeoutUpdate))
+		err = ComputeOperationWaitTime(config, res, project, "Updating region managed group instances", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -1096,18 +1145,28 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 	if d.HasChange("named_port") {
 		d.Partial(true)
 		namedPorts := getNamedPortsBeta(d.Get("named_port").(*schema.Set).List())
-		setNamedPorts := &compute.RegionInstanceGroupsSetNamedPortsRequest{
-			NamedPorts: namedPorts,
+		setNamedPortsBody := map[string]interface{}{
+			"namedPorts": namedPorts,
 		}
 
-		op, err := NewClient(config, userAgent).RegionInstanceGroups.SetNamedPorts(
-			project, region, d.Get("name").(string), setNamedPorts).Do()
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroups/{{name}}/setNamedPorts")
+		if err != nil {
+			return err
+		}
 
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      setNamedPortsBody,
+		})
 		if err != nil {
 			return fmt.Errorf("Error updating RegionInstanceGroupManager: %s", err)
 		}
 
-		err = ComputeOperationWaitTime(config, op, project, "Updating RegionInstanceGroupManager", userAgent, d.Timeout(schema.TimeoutUpdate))
+		err = ComputeOperationWaitTime(config, res, project, "Updating RegionInstanceGroupManager", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -1117,14 +1176,28 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 	if d.HasChange("target_size") && !targetSizePatchUpdate {
 		d.Partial(true)
 		targetSize := int64(d.Get("target_size").(int))
-		op, err := NewClient(config, userAgent).RegionInstanceGroupManagers.Resize(
-			project, region, d.Get("name").(string), targetSize).Do()
-
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{name}}/resize")
+		if err != nil {
+			return err
+		}
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{
+			"size": fmt.Sprintf("%d", targetSize),
+		})
+		if err != nil {
+			return err
+		}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
 		if err != nil {
 			return fmt.Errorf("Error resizing RegionInstanceGroupManager: %s", err)
 		}
 
-		err = ComputeOperationWaitTime(config, op, project, "Resizing RegionInstanceGroupManager", userAgent, d.Timeout(schema.TimeoutUpdate))
+		err = ComputeOperationWaitTime(config, res, project, "Resizing RegionInstanceGroupManager", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -1162,21 +1235,24 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 		return err
 	}
 
-	region, err := tpgresource.GetRegion(d, config)
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{name}}")
 	if err != nil {
 		return err
 	}
 
-	name := d.Get("name").(string)
-
-	op, err := NewClient(config, userAgent).RegionInstanceGroupManagers.Delete(project, region, name).Do()
-
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return fmt.Errorf("Error deleting region instance group manager: %s", err)
 	}
 
 	// Wait for the operation to complete
-	err = ComputeOperationWaitTime(config, op, project, "Deleting RegionInstanceGroupManager", userAgent, d.Timeout(schema.TimeoutDelete))
+	err = ComputeOperationWaitTime(config, res, project, "Deleting RegionInstanceGroupManager", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return fmt.Errorf("Error waiting for delete to complete: %s", err)
 	}
@@ -1185,96 +1261,98 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 	return nil
 }
 
-func expandRegionUpdatePolicy(configured []interface{}) *compute.InstanceGroupManagerUpdatePolicy {
-	updatePolicy := &compute.InstanceGroupManagerUpdatePolicy{}
+func expandRegionUpdatePolicy(configured []interface{}) map[string]interface{} {
+	updatePolicy := map[string]interface{}{}
 
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
 
-		updatePolicy.MinimalAction = data["minimal_action"].(string)
+		updatePolicy["minimalAction"] = data["minimal_action"].(string)
 		mostDisruptiveAllowedAction := data["most_disruptive_allowed_action"].(string)
 		if mostDisruptiveAllowedAction != "" {
-			updatePolicy.MostDisruptiveAllowedAction = mostDisruptiveAllowedAction
+			updatePolicy["mostDisruptiveAllowedAction"] = mostDisruptiveAllowedAction
 		} else {
-			updatePolicy.NullFields = append(updatePolicy.NullFields, "MostDisruptiveAllowedAction")
+			updatePolicy["mostDisruptiveAllowedAction"] = nil
 		}
-		updatePolicy.Type = data["type"].(string)
-		updatePolicy.InstanceRedistributionType = data["instance_redistribution_type"].(string)
-		updatePolicy.ReplacementMethod = data["replacement_method"].(string)
+		updatePolicy["type"] = data["type"].(string)
+		updatePolicy["instanceRedistributionType"] = data["instance_redistribution_type"].(string)
+		if rm := data["replacement_method"].(string); rm != "" {
+			updatePolicy["replacementMethod"] = rm
+		}
 
 		// percent and fixed values are conflicting
 		// when the percent values are set, the fixed values will be ignored
 		if v := data["max_surge_percent"]; v.(int) > 0 {
-			updatePolicy.MaxSurge = &compute.FixedOrPercent{
-				Percent:    int64(v.(int)),
-				NullFields: []string{"Fixed"},
+			updatePolicy["maxSurge"] = map[string]interface{}{
+				"percent": int64(v.(int)),
+				"fixed":   nil,
 			}
 		} else {
-			updatePolicy.MaxSurge = &compute.FixedOrPercent{
-				Fixed: int64(data["max_surge_fixed"].(int)),
-				// allow setting this value to 0
-				ForceSendFields: []string{"Fixed"},
-				NullFields:      []string{"Percent"},
+			updatePolicy["maxSurge"] = map[string]interface{}{
+				"fixed":   int64(data["max_surge_fixed"].(int)),
+				"percent": nil,
 			}
 		}
 
 		if v := data["max_unavailable_percent"]; v.(int) > 0 {
-			updatePolicy.MaxUnavailable = &compute.FixedOrPercent{
-				Percent:    int64(v.(int)),
-				NullFields: []string{"Fixed"},
+			updatePolicy["maxUnavailable"] = map[string]interface{}{
+				"percent": int64(v.(int)),
+				"fixed":   nil,
 			}
 		} else {
-			updatePolicy.MaxUnavailable = &compute.FixedOrPercent{
-				Fixed: int64(data["max_unavailable_fixed"].(int)),
-				// allow setting this value to 0
-				ForceSendFields: []string{"Fixed"},
-				NullFields:      []string{"Percent"},
+			updatePolicy["maxUnavailable"] = map[string]interface{}{
+				"fixed":   int64(data["max_unavailable_fixed"].(int)),
+				"percent": nil,
 			}
 		}
 	}
 	return updatePolicy
 }
 
-func flattenRegionUpdatePolicy(updatePolicy *compute.InstanceGroupManagerUpdatePolicy) []map[string]interface{} {
+func flattenRegionUpdatePolicy(updatePolicyRaw interface{}) []map[string]interface{} {
 	results := []map[string]interface{}{}
-	if updatePolicy != nil {
-		up := map[string]interface{}{}
-		if updatePolicy.MaxSurge != nil {
-			up["max_surge_fixed"] = updatePolicy.MaxSurge.Fixed
-			up["max_surge_percent"] = updatePolicy.MaxSurge.Percent
-		} else {
-			up["max_surge_fixed"] = 0
-			up["max_surge_percent"] = 0
-		}
-		if updatePolicy.MaxUnavailable != nil {
-			up["max_unavailable_fixed"] = updatePolicy.MaxUnavailable.Fixed
-			up["max_unavailable_percent"] = updatePolicy.MaxUnavailable.Percent
-		} else {
-			up["max_unavailable_fixed"] = 0
-			up["max_unavailable_percent"] = 0
-		}
-		up["minimal_action"] = updatePolicy.MinimalAction
-		up["most_disruptive_allowed_action"] = updatePolicy.MostDisruptiveAllowedAction
-		up["type"] = updatePolicy.Type
-		up["instance_redistribution_type"] = updatePolicy.InstanceRedistributionType
-		up["replacement_method"] = updatePolicy.ReplacementMethod
-
-		results = append(results, up)
+	updatePolicy, ok := updatePolicyRaw.(map[string]interface{})
+	if !ok || updatePolicy == nil {
+		return results
 	}
+	up := map[string]interface{}{}
+	if maxSurge, ok := updatePolicy["maxSurge"].(map[string]interface{}); ok && maxSurge != nil {
+		up["max_surge_fixed"] = getInt(maxSurge["fixed"])
+		up["max_surge_percent"] = getInt(maxSurge["percent"])
+	} else {
+		up["max_surge_fixed"] = 0
+		up["max_surge_percent"] = 0
+	}
+	if maxUnavailable, ok := updatePolicy["maxUnavailable"].(map[string]interface{}); ok && maxUnavailable != nil {
+		up["max_unavailable_fixed"] = getInt(maxUnavailable["fixed"])
+		up["max_unavailable_percent"] = getInt(maxUnavailable["percent"])
+	} else {
+		up["max_unavailable_fixed"] = 0
+		up["max_unavailable_percent"] = 0
+	}
+	up["minimal_action"] = updatePolicy["minimalAction"]
+	up["most_disruptive_allowed_action"] = updatePolicy["mostDisruptiveAllowedAction"]
+	up["type"] = updatePolicy["type"]
+	up["instance_redistribution_type"] = updatePolicy["instanceRedistributionType"]
+	up["replacement_method"] = updatePolicy["replacementMethod"]
+
+	results = append(results, up)
 	return results
 }
 
-func expandInstanceFlexibilityPolicy(d *schema.ResourceData) (*compute.InstanceGroupManagerInstanceFlexibilityPolicy, error) {
-	instanceFlexibilityPolicy := &compute.InstanceGroupManagerInstanceFlexibilityPolicy{}
+func expandInstanceFlexibilityPolicy(d *schema.ResourceData) (map[string]interface{}, error) {
 	oldFlexibilityPolicy, newFlexibilityPolicy := d.GetChange("instance_flexibility_policy")
 
+	instanceSelections := map[string]interface{}{}
 	for _, flexibilityPolicy := range newFlexibilityPolicy.([]any) {
 		flexibilityPolicyData := flexibilityPolicy.(map[string]any)
-		instanceSelections, err := expandInstanceSelections(flexibilityPolicyData["instance_selections"].(*schema.Set).List())
+		selections, err := expandInstanceSelections(flexibilityPolicyData["instance_selections"].(*schema.Set).List())
 		if err != nil {
 			return nil, err
 		}
-		instanceFlexibilityPolicy.InstanceSelections = instanceSelections
+		for k, v := range selections {
+			instanceSelections[k] = v
+		}
 	}
 
 	for _, flexibilityPolicy := range oldFlexibilityPolicy.([]any) {
@@ -1282,96 +1360,327 @@ func expandInstanceFlexibilityPolicy(d *schema.ResourceData) (*compute.InstanceG
 		for _, instanceSelection := range flexibilityPolicyData["instance_selections"].(*schema.Set).List() {
 			instanceSelectionData := instanceSelection.(map[string]any)
 			name := instanceSelectionData["name"].(string)
-			if _, exist := instanceFlexibilityPolicy.InstanceSelections[name]; !exist {
-				instanceFlexibilityPolicy.NullFields = append(instanceFlexibilityPolicy.NullFields, "InstanceSelections."+name)
+			if _, exist := instanceSelections[name]; !exist {
+				instanceSelections[name] = nil
 			}
 		}
-		instanceFlexibilityPolicy.ForceSendFields = append(instanceFlexibilityPolicy.ForceSendFields, "InstanceSelections")
 	}
-	return instanceFlexibilityPolicy, nil
+
+	if len(instanceSelections) == 0 {
+		return map[string]interface{}{}, nil
+	}
+	return map[string]interface{}{
+		"instanceSelections": instanceSelections,
+	}, nil
 }
 
-func expandInstanceSelections(instanceSelections []any) (map[string]compute.InstanceGroupManagerInstanceFlexibilityPolicyInstanceSelection, error) {
-	instanceSelectionsMap := make(map[string]compute.InstanceGroupManagerInstanceFlexibilityPolicyInstanceSelection)
+func expandInstanceSelections(instanceSelections []any) (map[string]interface{}, error) {
+	instanceSelectionsMap := make(map[string]interface{})
 	for _, instanceSelectionRaw := range instanceSelections {
 		instanceSelectionData := instanceSelectionRaw.(map[string]any)
 
-		instanceSelection := compute.InstanceGroupManagerInstanceFlexibilityPolicyInstanceSelection{
-			Rank:         int64(instanceSelectionData["rank"].(int)),
-			MachineTypes: tpgresource.ConvertStringSet(instanceSelectionData["machine_types"].(*schema.Set)),
+		instanceSelection := map[string]interface{}{
+			"machineTypes": tpgresource.ConvertStringSet(instanceSelectionData["machine_types"].(*schema.Set)),
+		}
+		if rank := int64(instanceSelectionData["rank"].(int)); rank != 0 {
+			instanceSelection["rank"] = rank
 		}
 		instanceSelectionsMap[instanceSelectionData["name"].(string)] = instanceSelection
 	}
 	return instanceSelectionsMap, nil
 }
 
-func expandDistributionPolicyForUpdate(d *schema.ResourceData) *compute.DistributionPolicy {
+func expandDistributionPolicyForUpdate(d *schema.ResourceData) map[string]interface{} {
 	dpts := d.Get("distribution_policy_target_shape").(string)
 	if dpts == "" {
 		return nil
 	}
-	// distributionPolicy.Zones is NOT updateable.
-	return &compute.DistributionPolicy{TargetShape: dpts}
+
+	return map[string]interface{}{"targetShape": dpts}
 }
 
-func expandDistributionPolicyForCreate(d *schema.ResourceData) *compute.DistributionPolicy {
+func expandDistributionPolicyForCreate(d *schema.ResourceData) map[string]interface{} {
 	dpz := d.Get("distribution_policy_zones").(*schema.Set)
 	dpts := d.Get("distribution_policy_target_shape").(string)
 	if dpz.Len() == 0 && dpts == "" {
 		return nil
 	}
-	distributionPolicy := &compute.DistributionPolicy{}
+	distributionPolicy := map[string]interface{}{}
 
 	if dpz.Len() > 0 {
-		distributionPolicyZoneConfigs := make([]*compute.DistributionPolicyZoneConfiguration, 0, dpz.Len())
+		zones := make([]interface{}, 0, dpz.Len())
 		for _, raw := range dpz.List() {
 			data := raw.(string)
-			distributionPolicyZoneConfig := compute.DistributionPolicyZoneConfiguration{
-				Zone: "zones/" + data,
-			}
-
-			distributionPolicyZoneConfigs = append(distributionPolicyZoneConfigs, &distributionPolicyZoneConfig)
+			zones = append(zones, map[string]interface{}{"zone": "zones/" + data})
 		}
-		distributionPolicy.Zones = distributionPolicyZoneConfigs
+		distributionPolicy["zones"] = zones
 	}
 	if dpts != "" {
-		distributionPolicy.TargetShape = dpts
+		distributionPolicy["targetShape"] = dpts
 	}
 	return distributionPolicy
 }
 
-func flattenInstanceFlexibilityPolicy(instanceFlexibilityPolicy *compute.InstanceGroupManagerInstanceFlexibilityPolicy) []any {
+func flattenInstanceFlexibilityPolicy(instanceFlexibilityPolicyRaw interface{}) []any {
 	flattenedInstanceFlexibilityPolicy := []any{}
-	if instanceFlexibilityPolicy != nil {
-		instanceSelectionsMap := map[string]any{}
-		instanceSelectionsMap["instance_selections"] = flattenInstanceSelections(instanceFlexibilityPolicy.InstanceSelections)
-		flattenedInstanceFlexibilityPolicy = append(flattenedInstanceFlexibilityPolicy, instanceSelectionsMap)
+	instanceFlexibilityPolicy, ok := instanceFlexibilityPolicyRaw.(map[string]interface{})
+	if !ok || instanceFlexibilityPolicy == nil {
+		return flattenedInstanceFlexibilityPolicy
 	}
+	instanceSelectionsMap := map[string]any{}
+	instanceSelectionsMap["instance_selections"] = flattenInstanceSelections(instanceFlexibilityPolicy["instanceSelections"])
+	flattenedInstanceFlexibilityPolicy = append(flattenedInstanceFlexibilityPolicy, instanceSelectionsMap)
 	return flattenedInstanceFlexibilityPolicy
 }
 
-func flattenInstanceSelections(instanceSelections map[string]compute.InstanceGroupManagerInstanceFlexibilityPolicyInstanceSelection) []map[string]any {
-	instanceSelectionsMap := make([]map[string]any, 0, len(instanceSelections))
-	for instanceSelectionName, instanceSelection := range instanceSelections {
+func flattenInstanceSelections(instanceSelectionsRaw interface{}) []map[string]any {
+	instanceSelectionsMap := make([]map[string]any, 0)
+	instanceSelections, ok := instanceSelectionsRaw.(map[string]interface{})
+	if !ok || instanceSelections == nil {
+		return instanceSelectionsMap
+	}
+	for instanceSelectionName, instanceSelectionRaw := range instanceSelections {
+		instanceSelection, ok := instanceSelectionRaw.(map[string]interface{})
+		if !ok {
+			continue
+		}
 		instanceSelectionData := make(map[string]any)
 		instanceSelectionData["name"] = instanceSelectionName
-		instanceSelectionData["rank"] = instanceSelection.Rank
-		instanceSelectionData["machine_types"] = instanceSelection.MachineTypes
+		instanceSelectionData["rank"] = getInt(instanceSelection["rank"])
+		instanceSelectionData["machine_types"] = instanceSelection["machineTypes"]
 		instanceSelectionsMap = append(instanceSelectionsMap, instanceSelectionData)
 	}
 	return instanceSelectionsMap
 }
 
-func flattenDistributionPolicy(distributionPolicy *compute.DistributionPolicy) []string {
+func flattenDistributionPolicy(distributionPolicyRaw interface{}) []string {
 	zones := make([]string, 0)
-
-	if distributionPolicy != nil {
-		for _, zone := range distributionPolicy.Zones {
-			zones = append(zones, tpgresource.GetResourceNameFromSelfLink(zone.Zone))
+	distributionPolicy, ok := distributionPolicyRaw.(map[string]interface{})
+	if !ok || distributionPolicy == nil {
+		return zones
+	}
+	if rawZones, ok := distributionPolicy["zones"].([]interface{}); ok {
+		for _, rawZone := range rawZones {
+			if zone, ok := rawZone.(map[string]interface{}); ok {
+				if zoneStr, ok := zone["zone"].(string); ok {
+					zones = append(zones, tpgresource.GetResourceNameFromSelfLink(zoneStr))
+				}
+			}
 		}
 	}
-
 	return zones
+}
+
+func getInt(v interface{}) int64 {
+	switch t := v.(type) {
+	case int:
+		return int64(t)
+	case int64:
+		return t
+	case float64:
+		return int64(t)
+	case string:
+		i, _ := strconv.ParseInt(t, 10, 64)
+		return i
+	default:
+		return 0
+	}
+}
+
+func flattenRegionNamedPorts(raw interface{}) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0)
+	namedPorts, ok := raw.([]interface{})
+	if !ok {
+		return result
+	}
+	for _, npRaw := range namedPorts {
+		np, ok := npRaw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		result = append(result, map[string]interface{}{
+			"name": np["name"],
+			"port": getInt(np["port"]),
+		})
+	}
+	return result
+}
+
+func flattenRegionAutoHealingPolicies(raw interface{}) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0)
+	policies, ok := raw.([]interface{})
+	if !ok {
+		return result
+	}
+	for _, pRaw := range policies {
+		p, ok := pRaw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		result = append(result, map[string]interface{}{
+			"health_check":      p["healthCheck"],
+			"initial_delay_sec": getInt(p["initialDelaySec"]),
+		})
+	}
+	return result
+}
+
+func flattenRegionVersions(raw interface{}) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0)
+	versions, ok := raw.([]interface{})
+	if !ok {
+		return result
+	}
+	for _, vRaw := range versions {
+		v, ok := vRaw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		versionMap := map[string]interface{}{
+			"name":              v["name"],
+			"instance_template": tpgresource.ConvertSelfLinkToV1(v["instanceTemplate"].(string)),
+		}
+		if ts, ok := v["targetSize"].(map[string]interface{}); ok && ts != nil {
+			if pct := getInt(ts["percent"]); pct > 0 {
+				tsEntry := map[string]interface{}{"percent": pct}
+				versionMap["target_size"] = []map[string]interface{}{tsEntry}
+			} else if fixed := getInt(ts["fixed"]); fixed > 0 {
+				tsEntry := map[string]interface{}{"fixed": fixed}
+				versionMap["target_size"] = []map[string]interface{}{tsEntry}
+			} else {
+				versionMap["target_size"] = []map[string]interface{}{}
+			}
+		} else {
+			versionMap["target_size"] = []map[string]interface{}{}
+		}
+		result = append(result, versionMap)
+	}
+	return result
+}
+
+func flattenRegionStandbyPolicy(raw interface{}) []map[string]any {
+	results := []map[string]any{}
+	sp, ok := raw.(map[string]interface{})
+	if !ok || sp == nil {
+		return results
+	}
+	return append(results, map[string]any{
+		"initial_delay_sec": getInt(sp["initialDelaySec"]),
+		"mode":              sp["mode"],
+	})
+}
+
+func flattenRegionInstanceLifecyclePolicy(raw interface{}) []map[string]interface{} {
+	results := []map[string]interface{}{}
+	ilp, ok := raw.(map[string]interface{})
+	if !ok || ilp == nil {
+		return results
+	}
+	entry := map[string]interface{}{
+		"force_update_on_repair":    ilp["forceUpdateOnRepair"],
+		"default_action_on_failure": ilp["defaultActionOnFailure"],
+	}
+	return append(results, entry)
+}
+
+func flattenRegionAllInstancesConfig(raw interface{}) []map[string]interface{} {
+	results := []map[string]interface{}{}
+	aic, ok := raw.(map[string]interface{})
+	if !ok || aic == nil {
+		return results
+	}
+	props, _ := aic["properties"].(map[string]interface{})
+	if props == nil {
+		return results
+	}
+	entry := map[string]interface{}{}
+	if metadata, ok := props["metadata"].(map[string]interface{}); ok && len(metadata) > 0 {
+		m := make(map[string]string, len(metadata))
+		for k, v := range metadata {
+			m[k], _ = v.(string)
+		}
+		entry["metadata"] = m
+	}
+	if labels, ok := props["labels"].(map[string]interface{}); ok && len(labels) > 0 {
+		l := make(map[string]string, len(labels))
+		for k, v := range labels {
+			l[k], _ = v.(string)
+		}
+		entry["labels"] = l
+	}
+	return append(results, entry)
+}
+
+func flattenRegionStatus(raw interface{}) []map[string]interface{} {
+	results := []map[string]interface{}{}
+	status, ok := raw.(map[string]interface{})
+	if !ok || status == nil {
+		return results
+	}
+	data := map[string]interface{}{
+		"is_stable":      status["isStable"],
+		"stateful":       flattenRegionStatusStateful(status["stateful"]),
+		"version_target": flattenRegionStatusVersionTarget(status["versionTarget"]),
+	}
+	if status["allInstancesConfig"] != nil {
+		data["all_instances_config"] = flattenRegionStatusAllInstancesConfig(status["allInstancesConfig"])
+	}
+	return append(results, data)
+}
+
+func flattenRegionStatusStateful(raw interface{}) []map[string]interface{} {
+	results := []map[string]interface{}{}
+	stateful, ok := raw.(map[string]interface{})
+	if !ok || stateful == nil {
+		return results
+	}
+	pics := []map[string]interface{}{}
+	if picRaw, ok := stateful["perInstanceConfigs"].(map[string]interface{}); ok {
+		pics = append(pics, map[string]interface{}{"all_effective": picRaw["allEffective"]})
+	}
+	return append(results, map[string]interface{}{
+		"has_stateful_config":  stateful["hasStatefulConfig"],
+		"per_instance_configs": pics,
+	})
+}
+
+func flattenRegionStatusVersionTarget(raw interface{}) []map[string]interface{} {
+	results := []map[string]interface{}{}
+	vt, ok := raw.(map[string]interface{})
+	if !ok || vt == nil {
+		return results
+	}
+	return append(results, map[string]interface{}{"is_reached": vt["isReached"]})
+}
+
+func flattenRegionStatusAllInstancesConfig(raw interface{}) []map[string]interface{} {
+	results := []map[string]interface{}{}
+	aic, ok := raw.(map[string]interface{})
+	if !ok || aic == nil {
+		return results
+	}
+	return append(results, map[string]interface{}{
+		"effective":        aic["effective"],
+		"current_revision": aic["currentRevision"],
+	})
+}
+
+func flattenRegionResourcePolicies(raw interface{}) []map[string]interface{} {
+	results := []map[string]interface{}{}
+	rp, ok := raw.(map[string]interface{})
+	if !ok || rp == nil {
+		return results
+	}
+	return append(results, map[string]interface{}{"workload_policy": rp["workloadPolicy"]})
+}
+
+func flattenRegionTargetSizePolicy(raw interface{}) []map[string]interface{} {
+	tsp, ok := raw.(map[string]interface{})
+	if !ok || tsp == nil {
+		return nil
+	}
+	entry := map[string]interface{}{"mode": tsp["mode"]}
+	return []map[string]interface{}{entry}
 }
 
 func hashZoneFromSelfLinkOrResourceName(value interface{}) int {
