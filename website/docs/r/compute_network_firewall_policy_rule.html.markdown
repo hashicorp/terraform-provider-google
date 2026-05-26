@@ -232,6 +232,118 @@ resource "google_compute_network" "network" {
   name     = "network"
 }
 ```
+## Example Usage - Network Firewall Policy Rule Target Type Internal Managed Lb
+
+
+```hcl
+resource "google_compute_network" "net" {
+  provider                = google-beta
+  name                    = "network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "backend" {
+  provider      = google-beta
+  name          = "backend-subnet"
+  region        = "us-central1"
+  network       = google_compute_network.net.id
+  ip_cidr_range = "10.10.0.0/24"
+}
+
+resource "google_compute_subnetwork" "proxy" {
+  provider      = google-beta
+  name          = "proxy-subnet"
+  region        = "us-central1"
+  network       = google_compute_network.net.id
+  ip_cidr_range = "10.20.0.0/24"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+}
+
+resource "google_compute_region_health_check" "default" {
+  provider = google-beta
+  name     = "health-check"
+  region   = "us-central1"
+
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_compute_region_backend_service" "default" {
+  provider              = google-beta
+  name                  = "backend-service"
+  region                = "us-central1"
+  protocol              = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  health_checks         = [google_compute_region_health_check.default.id]
+}
+
+resource "google_compute_region_url_map" "default" {
+  provider        = google-beta
+  name            = "url-map"
+  region          = "us-central1"
+  default_service = google_compute_region_backend_service.default.id
+}
+
+resource "google_compute_region_target_http_proxy" "default" {
+  provider = google-beta
+  name     = "target-http-proxy"
+  region   = "us-central1"
+  url_map  = google_compute_region_url_map.default.id
+}
+
+resource "google_compute_forwarding_rule" "ilb" {
+  provider              = google-beta
+  name                  = "forwarding-rule"
+  region                = "us-central1"
+  network               = google_compute_network.net.id
+  subnetwork            = google_compute_subnetwork.backend.id
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  target                = google_compute_region_target_http_proxy.default.id
+  ip_protocol           = "TCP"
+  port_range            = "80"
+
+  depends_on = [
+    google_compute_subnetwork.proxy
+  ]
+}
+
+resource "google_compute_network_firewall_policy" "fw_policy" {
+  provider = google-beta
+  name     = "fw-policy"
+  project  = "my-project-name"
+}
+
+resource "google_compute_network_firewall_policy_rule" "primary" {
+  provider        = google-beta
+  firewall_policy = google_compute_network_firewall_policy.fw_policy.name
+  priority        = 1000
+  action          = "allow"
+  direction       = "INGRESS"
+
+  target_type = "INTERNAL_MANAGED_LB"
+
+  target_forwarding_rules = [
+    google_compute_forwarding_rule.ilb.id
+  ]
+
+  match {
+    src_ip_ranges = ["10.0.0.0/8"]
+
+    layer4_configs {
+      ip_protocol = "tcp"
+    }
+  }
+}
+
+resource "google_compute_network_firewall_policy_association" "global_assoc" {
+  provider          = google-beta
+  name              = "global-policy-assoc-%{random_suffix}"
+  firewall_policy   = google_compute_network_firewall_policy.fw_policy.id
+  attachment_target = google_compute_network.net.id
+}
+```
 
 ## Argument Reference
 
@@ -305,6 +417,23 @@ The following arguments are supported:
   Denotes whether the firewall policy rule is disabled.
   When set to true, the firewall policy rule is not enforced and traffic behaves as if it did not exist.
   If this is unspecified, the firewall policy rule will be enabled.
+
+* `target_type` -
+  (Optional)
+  Target types of the firewall policy rule.
+  Default value is INSTANCES.
+  When target_type is INTERNAL_MANAGED_LB, target_forwarding_rules must be set
+  Possible values are: `INSTANCES`, `INTERNAL_MANAGED_LB`.
+
+* `target_forwarding_rules` -
+  (Optional)
+  A list of forwarding rules to which this rule applies.
+  This field allows you to control which load balancers get this rule.
+  For example, the following are valid values:
+  - https://www.googleapis.com/compute/v1/projects/project/global/forwardingRules/forwardingRule
+  - https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule
+  - projects/project/global/forwardingRules/forwardingRule
+  - projects/project/regions/region/forwardingRules/forwardingRule
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
