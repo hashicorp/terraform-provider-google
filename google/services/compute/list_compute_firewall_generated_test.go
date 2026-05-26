@@ -47,6 +47,7 @@ func TestAccComputeFirewallListQuery_generated(t *testing.T) {
 	}
 
 	var listDisplayName acctest.ListDisplayName
+	var listScope acctest.ListScopeCapture
 	acctest.VcrTest(t, resource.TestCase{
 		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
 			tfversion.SkipBelow(tfversion.Version1_14_0),
@@ -64,11 +65,13 @@ func TestAccComputeFirewallListQuery_generated(t *testing.T) {
 							"name",
 						},
 					),
+					listScope.Capture(map[string]string{}),
 				),
 			},
 			{
-				Query:  true,
-				Config: testAccComputeFirewall_firewallBasicExampleListQuery(context),
+				Query:           true,
+				Config:          testAccComputeFirewall_firewallBasicExampleListQuery(context),
+				ConfigVariables: listScope.AsConfigVariables(),
 				QueryResultChecks: []querycheck.QueryResultCheck{
 					querycheck.ExpectLengthAtLeast("google_compute_firewall.list_query", 1),
 					querycheck.ExpectResourceDisplayName(
@@ -87,7 +90,6 @@ func testAccComputeFirewall_firewallBasicExampleListQuery(context map[string]int
 list "google_compute_firewall" "list_query" {
     provider = google
     config {
-        project = "%{project}"
     }
 }
 `, context)
