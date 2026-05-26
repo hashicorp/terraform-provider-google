@@ -369,6 +369,21 @@ Note: you cannot enable logging on "goto_next" rules.`,
 Example: https://networksecurity.googleapis.com/v1/projects/{project}/locations/{location}/securityProfileGroups/my-security-profile-group
 Must be specified if action = 'apply_security_profile_group' and cannot be specified for other actions.`,
 			},
+			"target_forwarding_rules": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
+				Description: `A list of forwarding rules to which this rule applies.
+This field allows you to control which load balancers get this rule.
+For example, the following are valid values:
+- https://www.googleapis.com/compute/v1/projects/project/global/forwardingRules/forwardingRule
+- https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule
+- projects/project/global/forwardingRules/forwardingRule
+- projects/project/regions/region/forwardingRules/forwardingRule`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"target_secure_tags": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -398,6 +413,15 @@ targetSecureTag may not be set at the same time as targetServiceAccounts. If nei
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"target_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"INSTANCES", "INTERNAL_MANAGED_LB", ""}),
+				Description: `Target types of the firewall policy rule.
+Default value is INSTANCES.
+When target_type is INTERNAL_MANAGED_LB, target_forwarding_rules must be set Possible values: ["INSTANCES", "INTERNAL_MANAGED_LB"]`,
 			},
 			"tls_inspect": {
 				Type:     schema.TypeBool,
@@ -522,6 +546,18 @@ func resourceComputeNetworkFirewallPolicyRuleCreate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("disabled"); ok || !reflect.DeepEqual(v, disabledProp) {
 		obj["disabled"] = disabledProp
+	}
+	targetTypeProp, err := expandComputeNetworkFirewallPolicyRuleTargetType(d.Get("target_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetTypeProp)) && (ok || !reflect.DeepEqual(v, targetTypeProp)) {
+		obj["targetType"] = targetTypeProp
+	}
+	targetForwardingRulesProp, err := expandComputeNetworkFirewallPolicyRuleTargetForwardingRules(d.Get("target_forwarding_rules"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_forwarding_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetForwardingRulesProp)) && (ok || !reflect.DeepEqual(v, targetForwardingRulesProp)) {
+		obj["targetForwardingRules"] = targetForwardingRulesProp
 	}
 
 	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/addRule")
@@ -812,6 +848,18 @@ func resourceComputeNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("disabled"); ok || !reflect.DeepEqual(v, disabledProp) {
 		obj["disabled"] = disabledProp
+	}
+	targetTypeProp, err := expandComputeNetworkFirewallPolicyRuleTargetType(d.Get("target_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetTypeProp)) {
+		obj["targetType"] = targetTypeProp
+	}
+	targetForwardingRulesProp, err := expandComputeNetworkFirewallPolicyRuleTargetForwardingRules(d.Get("target_forwarding_rules"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_forwarding_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetForwardingRulesProp)) {
+		obj["targetForwardingRules"] = targetForwardingRulesProp
 	}
 
 	obj, err = resourceComputeNetworkFirewallPolicyRuleUpdateEncoder(d, meta, obj)
@@ -1238,6 +1286,14 @@ func flattenComputeNetworkFirewallPolicyRuleDisabled(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenComputeNetworkFirewallPolicyRuleTargetType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeNetworkFirewallPolicyRuleTargetForwardingRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandComputeNetworkFirewallPolicyRuleRuleName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1570,6 +1626,14 @@ func expandComputeNetworkFirewallPolicyRuleDisabled(v interface{}, d tpgresource
 	return v, nil
 }
 
+func expandComputeNetworkFirewallPolicyRuleTargetType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkFirewallPolicyRuleTargetForwardingRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceComputeNetworkFirewallPolicyRuleUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	if !d.HasChange("match") {
 		return obj, nil
@@ -1630,6 +1694,12 @@ func ResourceComputeNetworkFirewallPolicyRuleFlatten(d *schema.ResourceData, met
 		return fmt.Errorf("Error reading NetworkFirewallPolicyRule: %s", err)
 	}
 	if err = d.Set("disabled", flattenComputeNetworkFirewallPolicyRuleDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkFirewallPolicyRule: %s", err)
+	}
+	if err = d.Set("target_type", flattenComputeNetworkFirewallPolicyRuleTargetType(res["targetType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkFirewallPolicyRule: %s", err)
+	}
+	if err = d.Set("target_forwarding_rules", flattenComputeNetworkFirewallPolicyRuleTargetForwardingRules(res["targetForwardingRules"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkFirewallPolicyRule: %s", err)
 	}
 
