@@ -380,7 +380,7 @@ resource "google_storage_bucket_object" "object" {
 resource "google_app_engine_standard_app_version" "version" {
   version_id      = "%{random_suffix}"
   service         = "default"
-  runtime         = "nodejs20"
+  runtime         = "nodejs22"
   noop_on_destroy = false
 
   entrypoint {
@@ -423,7 +423,7 @@ resource "google_storage_bucket_object" "object" {
 resource "google_app_engine_standard_app_version" "version" {
   version_id      = "%{random_suffix}"
   service         = "default"
-  runtime         = "nodejs20"
+  runtime         = "nodejs22"
   noop_on_destroy = false
 
   entrypoint {
@@ -482,7 +482,7 @@ resource "google_storage_bucket_object" "object" {
 resource "google_app_engine_standard_app_version" "version" {
   version_id      = "%{random_suffix}"
   service         = "default"
-  runtime         = "nodejs20"
+  runtime         = "nodejs22"
   noop_on_destroy = false
 
   entrypoint {
@@ -527,7 +527,7 @@ resource "google_storage_bucket_object" "object" {
 resource "google_app_engine_standard_app_version" "version" {
   version_id      = "%{random_suffix}"
   service         = "default"
-  runtime         = "nodejs20"
+  runtime         = "nodejs22"
   noop_on_destroy = false
 
   entrypoint {
@@ -570,7 +570,7 @@ resource "google_storage_bucket_object" "object" {
 resource "google_app_engine_standard_app_version" "version" {
   version_id      = "%{random_suffix}"
   service         = "default"
-  runtime         = "nodejs20"
+  runtime         = "nodejs22"
   noop_on_destroy = false
 
   entrypoint {
@@ -613,7 +613,7 @@ resource "google_storage_bucket_object" "object" {
 resource "google_app_engine_standard_app_version" "version" {
   version_id      = "%{random_suffix}"
   service         = "default"
-  runtime         = "nodejs20"
+  runtime         = "nodejs22"
   noop_on_destroy = false
 
   entrypoint {
@@ -661,7 +661,7 @@ resource "google_storage_bucket_object" "object" {
 resource "google_app_engine_standard_app_version" "version" {
   version_id      = "%{random_suffix}"
   service         = "default"
-  runtime         = "nodejs20"
+  runtime         = "nodejs22"
   noop_on_destroy = false
 
   entrypoint {
@@ -733,7 +733,7 @@ resource "google_storage_bucket_object" "object" {
 resource "google_app_engine_standard_app_version" "version" {
   version_id      = "%{random_suffix}"
   service         = "default"
-  runtime         = "nodejs20"
+  runtime         = "nodejs22"
   noop_on_destroy = false
 
   entrypoint {
@@ -781,7 +781,7 @@ resource "google_storage_bucket_object" "object" {
 resource "google_app_engine_standard_app_version" "version" {
   version_id      = "%{random_suffix}"
   service         = "default"
-  runtime         = "nodejs20"
+  runtime         = "nodejs22"
   noop_on_destroy = false
 
   entrypoint {
@@ -853,7 +853,7 @@ resource "google_storage_bucket_object" "object" {
 resource "google_app_engine_standard_app_version" "version" {
   version_id      = "%{random_suffix}"
   service         = "default"
-  runtime         = "nodejs20"
+  runtime         = "nodejs22"
   noop_on_destroy = false
 
   entrypoint {
