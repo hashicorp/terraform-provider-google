@@ -1629,6 +1629,8 @@ those in the Guaranteed QoS class, by influencing NUMA affinity. Structure is [d
 
 * `eviction_minimum_reclaim` - (Optional) Defines a map of signal names to percentage that defines minimum reclaims. It describes the minimum amount of a given resource the kubelet will reclaim when performing a pod eviction. Structure is [documented below](#nested_eviction_minimum_reclaim).
 
+* `crash_loop_back_off` - (Optional) Contains configuration options to modify node-level parameters for container restart behavior. Structure is [documented below](#nested_crash_loop_back_off).
+
 <a name="nested_eviction_soft"></a>The `eviction_soft` block supports:
 
 * `memory_available` - (Optional) Defines quantity of soft eviction threshold for memory.available. The value must be a quantity, such as `"100Mi"`. The value must be greater than or equal to the GKE default hard eviction threshold of `"100Mi"` and less than 50% of machine memory.
@@ -1668,6 +1670,10 @@ those in the Guaranteed QoS class, by influencing NUMA affinity. Structure is [d
 * `policy` - (Optional) The [Memory
   Manager](https://kubernetes.io/docs/tasks/administer-cluster/memory-manager/)
   policy can be set to None (default) or Static. This policy dictates how memory alignment is handled on the node.  If unset (or set to the empty string `""`), the API will treat the field as if set to "None".  
+
+<a name="nested_crash_loop_back_off"></a>The `crash_loop_back_off` block supports:
+
+* `max_container_restart_period` - (Optional) The maximum duration the backoff delay can accrue to for container restarts. If not set, defaults to the internal crashloopbackoff maximum. The value must be a positive duration string no more than `"5m"` and no less than `"1s"`, such as `"30s"`, `"1m30s"`, `"2.5m"`. Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". See [Configurable container restart delay](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#configurable-container-restart-delay) for more details.
 
 <a name="nested_linux_node_config"></a>The `linux_node_config` block supports:
 

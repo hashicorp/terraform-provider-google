@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `crash_loop_back_off.max_container_restart_period` field to `google_container_node_pool` and `google_container_cluster` resources
+```

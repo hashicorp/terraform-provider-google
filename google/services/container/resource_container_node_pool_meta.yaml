@@ -142,6 +142,8 @@ fields:
     api_field: 'config.kubeletConfig.cpuCfsQuotaPeriod'
   - field: 'node_config.kubelet_config.cpu_manager_policy'
     api_field: 'config.kubeletConfig.cpuManagerPolicy'
+  - field: 'node_config.kubelet_config.crash_loop_back_off.max_container_restart_period'
+    api_field: 'config.kubeletConfig.crashLoopBackOff.maxContainerRestartPeriod'
   - field: 'node_config.kubelet_config.eviction_max_pod_grace_period_seconds'
     api_field: 'config.kubeletConfig.evictionMaxPodGracePeriodSeconds'
   - field: 'node_config.kubelet_config.eviction_minimum_reclaim.imagefs_available'
