@@ -1,0 +1,32 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_oracle_database_goldengate_connection_assignment
+generation_type: mmv1
+source_file: products/oracledatabase/GoldengateConnectionAssignment.yaml
+api_service_name: oracledatabase.googleapis.com
+api_version: v1
+api_resource_type_kind: GoldengateConnectionAssignment
+autogen_status: true
+fields:
+    - api_field: createTime
+    - field: deletion_protection
+      provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: entitlementId
+    - field: goldengate_connection_assignment_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: properties.alias
+    - api_field: properties.goldengateConnection
+    - api_field: properties.goldengateDeployment
+    - api_field: properties.ocid
+    - api_field: properties.state
+    - field: terraform_labels
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
