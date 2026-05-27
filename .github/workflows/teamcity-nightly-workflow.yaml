@@ -18,7 +18,7 @@ jobs:
     if: github.repository == 'hashicorp/terraform-provider-google' || github.repository == 'hashicorp/terraform-provider-google-beta'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           retries: 3
           retry-exempt-status-codes: 400, 401, 403, 404, 422
@@ -50,7 +50,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           retries: 3
           retry-exempt-status-codes: 400, 401, 403, 404, 422
@@ -79,7 +79,7 @@ jobs:
     needs: rename-TC-nightly-branch
     runs-on: ubuntu-latest
     steps: 
-      - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           DAYS_THRESHOLD: ${{ inputs.dayThreshold || '3'}} # this allows the default value to be 3 when triggered on schedule
         with:
