@@ -1,4 +1,4 @@
-## 7.34.0 (Unreleased)
+## 7.34.0 (May 27, 2026)
 
 NOTES:
 * compute: migrated `google_compute_region_instance_template` to use direct HTTP rather than a client library ([#27471](https://github.com/hashicorp/terraform-provider-google/pull/27471))
@@ -18,7 +18,6 @@ IMPROVEMENTS:
 * bigtable: added `edition` field to `google_bigtable_instance` resource ([#27507](https://github.com/hashicorp/terraform-provider-google/pull/27507))
 * ces: added `fail_open` field to `llm_prompt_security` block in `google_ces_guardrail` resource ([#27497](https://github.com/hashicorp/terraform-provider-google/pull/27497))
 * ces: added read-only `fail_open` field to `llm_prompt_security` block in `google_ces_app_version` resource ([#27497](https://github.com/hashicorp/terraform-provider-google/pull/27497))
-* compute: added `alias_ipv6` field to `google_compute_instance` and `google_compute_instance_template` (beta) ([#27500](https://github.com/hashicorp/terraform-provider-google/pull/27500))
 * compute: added `ip_version` and `ip_collection` fields to `secondary_ip_range` field in `google_compute_subnetwork` resource ([#27432](https://github.com/hashicorp/terraform-provider-google/pull/27432))
 * compute: added `post_quantum_key_exchange` field to `google_compute_ssl_policy` and `google_compute_region_ssl_policy` resources ([#27479](https://github.com/hashicorp/terraform-provider-google/pull/27479))
 * compute: added support in the `google_compute_network` datasource for looking up a network by `self_link` in addition to `name` ([#27509](https://github.com/hashicorp/terraform-provider-google/pull/27509))
@@ -26,8 +25,6 @@ IMPROVEMENTS:
 * container: added `node_config.gpudirect_strategy` and `node_pool.node_config.gpudirect_strategy` to `cluster` resource, added `node_config.gpudirect_strategy` to `node_pool` resource ([#27495](https://github.com/hashicorp/terraform-provider-google/pull/27495))
 * dataflow: Added  `create_ignore_already_exists`  field to  `google_dataflow_flex_template_job` resource to handle 409 conflicts ([#27476](https://github.com/hashicorp/terraform-provider-google/pull/27476))
 * datafusion: added `maintenance_policy` field to `google_data_fusion_instance` resource ([#27470](https://github.com/hashicorp/terraform-provider-google/pull/27470))
-* dialogflow: added `sip_config` field to `google_dialogflow_conversation_profile` resource (beta) ([#27459](https://github.com/hashicorp/terraform-provider-google/pull/27459))
-* firebasestorage: added `bucket.bucket_id` field to `google_firebase_storage_default_bucket` resource (beta) ([#27510](https://github.com/hashicorp/terraform-provider-google/pull/27510))
 * iam: add resource identity support for `iam_member` resources ([#27383](https://github.com/hashicorp/terraform-provider-google/pull/27383))
 * networkconnectivity: `google_network_connectivity_transport` resource promoted to GA ([#27440](https://github.com/hashicorp/terraform-provider-google/pull/27440))
 * oracledatabase: added `identity_connector` to `google_oracle_database_cloud_vm_cluster` for CMEK support ([#27435](https://github.com/hashicorp/terraform-provider-google/pull/27435))
