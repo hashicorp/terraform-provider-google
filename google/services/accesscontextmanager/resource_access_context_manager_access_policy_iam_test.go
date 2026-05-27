@@ -18,6 +18,7 @@ package accesscontextmanager_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -144,6 +145,13 @@ resource google_access_context_manager_access_policy_iam_policy policy {
 }
 
 func createScopedPolicy(t *testing.T, org string) string {
+	// Scoped AccessPolicies require both an org with the feature enabled and
+	// quota to create an additional org-level policy. Skip when the test env
+	// signals it does not support this (mirrors the GOOGLE_ORG_DOMAIN gating
+	// used by gcp_user_access_binding).
+	if os.Getenv("GOOGLE_ACM_SCOPED_POLICIES_ENABLED") == "" {
+		t.Skip("GOOGLE_ACM_SCOPED_POLICIES_ENABLED is not set; skipping test that requires a scoped AccessPolicy")
+	}
 	rand := acctest.RandString(t, 10)
 	return fmt.Sprintf(`
 		resource "google_project" "project" {
