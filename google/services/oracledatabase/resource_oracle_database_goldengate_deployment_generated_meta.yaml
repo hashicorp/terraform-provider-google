@@ -1,0 +1,103 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_oracle_database_goldengate_deployment
+generation_type: mmv1
+source_file: products/oracledatabase/GoldengateDeployment.yaml
+api_service_name: oracledatabase.googleapis.com
+api_version: v1
+api_resource_type_kind: GoldengateDeployment
+autogen_status: true
+fields:
+    - api_field: createTime
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: entitlementId
+    - api_field: gcpOracleZone
+    - field: goldengate_deployment_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: ociUrl
+    - api_field: odbNetwork
+    - api_field: odbSubnet
+    - api_field: properties.backupSchedule.backupScheduledTime
+    - api_field: properties.backupSchedule.bucket
+    - api_field: properties.backupSchedule.compartmentId
+    - api_field: properties.backupSchedule.frequencyBackupScheduled
+    - api_field: properties.backupSchedule.metadataOnly
+    - api_field: properties.backupSchedule.namespace
+    - api_field: properties.category
+    - api_field: properties.cpuCoreCount
+    - api_field: properties.deploymentBackupId
+    - api_field: properties.deploymentDiagnosticData.bucket
+    - api_field: properties.deploymentDiagnosticData.diagnosticEndTime
+    - api_field: properties.deploymentDiagnosticData.diagnosticStartTime
+    - api_field: properties.deploymentDiagnosticData.diagnosticState
+    - api_field: properties.deploymentDiagnosticData.namespace
+    - api_field: properties.deploymentDiagnosticData.object
+    - api_field: properties.deploymentRole
+    - api_field: properties.deploymentType
+    - api_field: properties.deploymentUrl
+    - api_field: properties.description
+    - api_field: properties.environmentType
+    - api_field: properties.fqdn
+    - api_field: properties.healthy
+    - api_field: properties.ingressIps.ingressIpAddress
+    - api_field: properties.isAutoScalingEnabled
+    - api_field: properties.isLatestVersion
+    - api_field: properties.isPublic
+    - api_field: properties.isStorageUtilizationLimitExceeded
+    - api_field: properties.lastBackupScheduleTime
+    - api_field: properties.licenseModel
+    - api_field: properties.lifecycleDetails
+    - api_field: properties.lifecycleState
+    - api_field: properties.lifecycleSubState
+    - api_field: properties.loadBalancerId
+    - api_field: properties.loadBalancerSubnetId
+    - api_field: properties.locks.compartmentId
+    - api_field: properties.locks.createTime
+    - api_field: properties.locks.message
+    - api_field: properties.locks.relatedResourceId
+    - api_field: properties.locks.type
+    - api_field: properties.maintenanceConfig.bundleReleaseUpgradePeriodDays
+    - api_field: properties.maintenanceConfig.interimReleaseUpgradePeriodDays
+    - api_field: properties.maintenanceConfig.isInterimReleaseAutoUpgradeEnabled
+    - api_field: properties.maintenanceConfig.majorReleaseUpgradePeriodDays
+    - api_field: properties.maintenanceConfig.securityPatchUpgradePeriodDays
+    - api_field: properties.maintenanceWindow.day
+    - api_field: properties.maintenanceWindow.startHour
+    - api_field: properties.nextBackupScheduleTime
+    - api_field: properties.nextMaintenanceActionType
+    - api_field: properties.nextMaintenanceDescription
+    - api_field: properties.nextMaintenanceTime
+    - api_field: properties.nsgIds
+    - api_field: properties.ocid
+    - api_field: properties.oggData.adminPassword
+    - api_field: properties.oggData.adminPasswordSecretVersion
+    - api_field: properties.oggData.adminUsername
+    - api_field: properties.oggData.certificate
+    - api_field: properties.oggData.credentialStore
+    - api_field: properties.oggData.deployment
+    - api_field: properties.oggData.groupRolesMapping.administratorGroupId
+    - api_field: properties.oggData.groupRolesMapping.operatorGroupId
+    - api_field: properties.oggData.groupRolesMapping.securityGroupId
+    - api_field: properties.oggData.groupRolesMapping.userGroupId
+    - api_field: properties.oggData.identityDomainId
+    - api_field: properties.oggData.oggVersion
+    - api_field: properties.oggData.passwordSecretId
+    - api_field: properties.oggVersionSupportEndTime
+    - api_field: properties.placements.availabilityDomain
+    - api_field: properties.placements.faultDomain
+    - api_field: properties.privateIpAddress
+    - api_field: properties.publicIpAddress
+    - api_field: properties.roleChangeTime
+    - api_field: properties.storageUtilizationBytes
+    - api_field: properties.updateTime
+    - api_field: properties.upgradeRequiredTime
+    - field: terraform_labels
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
