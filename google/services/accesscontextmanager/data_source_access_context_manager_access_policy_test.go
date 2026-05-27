@@ -17,6 +17,7 @@
 package accesscontextmanager_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -60,6 +61,9 @@ data "google_access_context_manager_access_policy" "policy" {
 }
 
 func testAccDataSourceAccessContextManagerServicePerimeter_scopedPolicyTest(t *testing.T) {
+	if os.Getenv("GOOGLE_ACM_SCOPED_POLICIES_ENABLED") == "" {
+		t.Skip("GOOGLE_ACM_SCOPED_POLICIES_ENABLED is not set; skipping test that requires a scoped AccessPolicy")
+	}
 
 	org := envvar.GetTestOrgFromEnv(t)
 	project := envvar.GetTestProjectNumberFromEnv()
