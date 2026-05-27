@@ -1,0 +1,37 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_migration_center_discovery_client
+generation_type: mmv1
+source_file: products/migrationcenter/DiscoveryClient.yaml
+api_service_name: migrationcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: DiscoveryClient
+autogen_status: true
+fields:
+    - api_field: createTime
+    - api_field: description
+    - field: discovery_client_id
+      provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: errors.code
+    - api_field: errors.details
+    - api_field: errors.message
+    - api_field: expireTime
+    - api_field: heartbeatTime
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: serviceAccount
+    - api_field: signalsEndpoint
+    - api_field: source
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: ttl
+    - api_field: updateTime
+    - api_field: version
+    - field: deletion_policy
+      provider_only: true
