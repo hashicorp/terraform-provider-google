@@ -8901,6 +8901,9 @@ resource "google_container_cluster" "with_node_config_kubelet_config_settings" {
         imagefs_inodes_free = "9.0%%"
         pid_available       = "1.5%%"
       }
+			crash_loop_back_off {
+			  max_container_restart_period = "100s"
+			}
     }
   }
   network    = "%s"
@@ -8952,6 +8955,9 @@ resource "google_container_cluster" "with_node_config_kubelet_config_settings" {
         imagefs_inodes_free = "9%%"
         pid_available       = "5%%"
       }
+			crash_loop_back_off {
+			  max_container_restart_period = "60s"
+			}
     }
   }
   network    = "%s"
@@ -9017,6 +9023,9 @@ resource "google_container_cluster" "with_node_config_kubelet_config_settings_in
           imagefs_inodes_free = "9%%"
           pid_available = "5%%"
         }
+				crash_loop_back_off {
+					max_container_restart_period = "100s"
+				}
       }
       disk_size_gb = 15
       disk_type    = "pd-ssd"
