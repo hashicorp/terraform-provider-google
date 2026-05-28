@@ -1705,9 +1705,16 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 	if err != nil {
 		return nil, fmt.Errorf("Error creating network interfaces: %s", err)
 	}
-	networkPerformanceConfig, err := expandNetworkPerformanceConfig(d, config)
+	npcMap, err := expandNetworkPerformanceConfig(d, config)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating network performance config: %s", err)
+	}
+	var networkPerformanceConfig *compute.NetworkPerformanceConfig
+	if npcMap != nil {
+		networkPerformanceConfig = &compute.NetworkPerformanceConfig{}
+		if err := tpgresource.Convert(npcMap, networkPerformanceConfig); err != nil {
+			return nil, fmt.Errorf("Error converting networkPerformanceConfig: %s", err)
+		}
 	}
 	accels, err := expandInstanceGuestAccelerators(d, config)
 	if err != nil {
@@ -1976,7 +1983,15 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("machine_type", tpgresource.GetResourceNameFromSelfLink(instance.MachineType)); err != nil {
 		return fmt.Errorf("Error setting machine_type: %s", err)
 	}
-	if err := d.Set("network_performance_config", flattenNetworkPerformanceConfig(instance.NetworkPerformanceConfig)); err != nil {
+	var npcMap map[string]interface{}
+	if instance.NetworkPerformanceConfig != nil {
+		var err error
+		npcMap, err = tpgresource.ConvertToMap(instance.NetworkPerformanceConfig)
+		if err != nil {
+			return fmt.Errorf("Error converting network_performance_config: %s", err)
+		}
+	}
+	if err := d.Set("network_performance_config", flattenNetworkPerformanceConfig(npcMap)); err != nil {
 		return err
 	}
 	// Set the networks

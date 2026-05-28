@@ -1543,9 +1543,16 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	networkPerformanceConfig, err := expandNetworkPerformanceConfig(d, config)
+	npcMap, err := expandNetworkPerformanceConfig(d, config)
 	if err != nil {
 		return nil
+	}
+	var networkPerformanceConfig *compute.NetworkPerformanceConfig
+	if npcMap != nil {
+		networkPerformanceConfig = &compute.NetworkPerformanceConfig{}
+		if err := tpgresource.Convert(npcMap, networkPerformanceConfig); err != nil {
+			return fmt.Errorf("Error converting networkPerformanceConfig: %s", err)
+		}
 	}
 	reservationAffinity, err := expandReservationAffinity(d)
 	if err != nil {
@@ -1986,7 +1993,15 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	if err = d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("network_performance_config", flattenNetworkPerformanceConfig(instanceTemplate.Properties.NetworkPerformanceConfig)); err != nil {
+	var npcMap map[string]interface{}
+	if instanceTemplate.Properties.NetworkPerformanceConfig != nil {
+		var err error
+		npcMap, err = tpgresource.ConvertToMap(instanceTemplate.Properties.NetworkPerformanceConfig)
+		if err != nil {
+			return fmt.Errorf("Error converting network_performance_config: %s", err)
+		}
+	}
+	if err := d.Set("network_performance_config", flattenNetworkPerformanceConfig(npcMap)); err != nil {
 		return err
 	}
 	if instanceTemplate.Properties.NetworkInterfaces != nil {

@@ -1279,11 +1279,7 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 		instanceProperties["metadata"] = metadataMap
 	}
 	if networkPerformanceConfig != nil {
-		npcMap, err := tpgresource.ConvertToMap(networkPerformanceConfig)
-		if err != nil {
-			return fmt.Errorf("Error converting networkPerformanceConfig: %s", err)
-		}
-		instanceProperties["networkPerformanceConfig"] = npcMap
+		instanceProperties["networkPerformanceConfig"] = networkPerformanceConfig
 	}
 	if tags := resourceInstanceTags(d); tags != nil {
 		tagsMap, err := tpgresource.ConvertToMap(tags)
@@ -1527,7 +1523,15 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 	if err = d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("network_performance_config", flattenNetworkPerformanceConfig(instanceTemplate.Properties.NetworkPerformanceConfig)); err != nil {
+	var npcMap map[string]interface{}
+	if instanceTemplate.Properties.NetworkPerformanceConfig != nil {
+		var err error
+		npcMap, err = tpgresource.ConvertToMap(instanceTemplate.Properties.NetworkPerformanceConfig)
+		if err != nil {
+			return fmt.Errorf("Error converting network_performance_config: %s", err)
+		}
+	}
+	if err := d.Set("network_performance_config", flattenNetworkPerformanceConfig(npcMap)); err != nil {
 		return err
 	}
 	if instanceTemplate.Properties.NetworkInterfaces != nil {

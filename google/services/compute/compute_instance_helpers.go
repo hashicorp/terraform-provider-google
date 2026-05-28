@@ -888,7 +888,7 @@ func flattenReservationAffinity(affinity *compute.ReservationAffinity) []map[str
 	return []map[string]interface{}{flattened}
 }
 
-func expandNetworkPerformanceConfig(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (*compute.NetworkPerformanceConfig, error) {
+func expandNetworkPerformanceConfig(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	configs, ok := d.GetOk("network_performance_config")
 	if !ok {
 		return nil, nil
@@ -903,8 +903,8 @@ func expandNetworkPerformanceConfig(d tpgresource.TerraformResourceData, config 
 		return nil, nil
 	}
 	npc := npcSlice[0].(map[string]interface{})
-	return &compute.NetworkPerformanceConfig{
-		TotalEgressBandwidthTier: npc["total_egress_bandwidth_tier"].(string),
+	return map[string]interface{}{
+		"totalEgressBandwidthTier": npc["total_egress_bandwidth_tier"].(string),
 	}, nil
 }
 
@@ -936,13 +936,13 @@ func expandComputeInstanceGuestOsFeatures(v interface{}) []*compute.GuestOsFeatu
 	return result
 }
 
-func flattenNetworkPerformanceConfig(c *compute.NetworkPerformanceConfig) []map[string]interface{} {
+func flattenNetworkPerformanceConfig(c map[string]interface{}) []map[string]interface{} {
 	if c == nil {
 		return nil
 	}
 	return []map[string]interface{}{
 		{
-			"total_egress_bandwidth_tier": c.TotalEgressBandwidthTier,
+			"total_egress_bandwidth_tier": c["totalEgressBandwidthTier"],
 		},
 	}
 }
