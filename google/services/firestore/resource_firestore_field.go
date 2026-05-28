@@ -176,10 +176,17 @@ the field.`,
 			"ttl_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: `The TTL configuration for this Field. If set to an empty block (i.e. 'ttl_config {}'), a TTL policy is configured based on the field. If unset, a TTL policy is not configured (or will be disabled upon updating the resource).`,
+				Description: `The TTL configuration for this Field. If set to an empty (i.e. 'ttl_config {}') or non-empty block, a TTL policy is configured based on the field. If unset, a TTL policy is not configured (or will be disabled upon updating the resource).`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"expiration_offset": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The offset, relative to the timestamp value from the field, used to determine the document's expiration time. Formatted as the number of seconds followed by 's'. For example, "60s" represents an offset of one minute. The number of seconds must be between 1 and 2147483647 inclusive. To configure no offset, omit this field.`,
+						},
 						"state": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -721,9 +728,15 @@ func flattenFirestoreFieldTtlConfig(v interface{}, d *schema.ResourceData, confi
 	transformed := make(map[string]interface{})
 	transformed["state"] =
 		flattenFirestoreFieldTtlConfigState(original["state"], d, config)
+	transformed["expiration_offset"] =
+		flattenFirestoreFieldTtlConfigExpirationOffset(original["expirationOffset"], d, config)
 	return []interface{}{transformed}
 }
 func flattenFirestoreFieldTtlConfigState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirestoreFieldTtlConfigExpirationOffset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -781,7 +794,7 @@ func expandFirestoreFieldIndexConfig(v interface{}, d tpgresource.TerraformResou
 }
 
 /*
- * Expands an empty terraform config into an empty object.
+ * Expands an empty ttlConfig terraform block into an empty object.
  *
  * Used to differentiate a user specifying an empty block versus a null/unset block.
  *
@@ -792,13 +805,20 @@ func expandFirestoreFieldTtlConfig(v interface{}, d tpgresource.TerraformResourc
 	if v == nil {
 		return nil, nil
 	}
-
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
 	}
-	// A set, but empty object.
-	return struct{}{}, nil
+	// A set (but possibly) empty value.
+	transformed := make(map[string]interface{})
+	if l[0] != nil {
+		original := l[0].(map[string]interface{})
+		originalValue := original["expiration_offset"]
+		if val := reflect.ValueOf(originalValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["expiration_offset"] = originalValue
+		}
+	}
+	return transformed, nil
 }
 
 func resourceFirestoreFieldEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {

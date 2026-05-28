@@ -119,6 +119,139 @@ resource "google_firestore_field" "basic" {
 `, context)
 }
 
+func TestAccFirestoreField_firestoreFieldTimestampEnterpriseExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
+		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
+		"random_suffix":           randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirestoreFieldDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFirestoreField_firestoreFieldTimestampEnterpriseExample(context),
+			},
+			{
+				ResourceName:            "google_firestore_field.timestamp-enterprise",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"collection", "database", "field"},
+			},
+			{
+				ResourceName:       "google_firestore_field.timestamp-enterprise",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccFirestoreField_firestoreFieldTimestampEnterpriseExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+  project          = "%{project_id}"
+  name             = "%{database_id}"
+  location_id      = "nam5"
+  type             = "FIRESTORE_NATIVE"
+  database_edition = "ENTERPRISE"
+
+  delete_protection_state = "%{delete_protection_state}"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_field" "timestamp-enterprise" {
+  project    = "%{project_id}"
+  database   = google_firestore_database.database.name
+  collection = "chatrooms"
+  field      = "timestamp"
+
+  # Enable a TTL policy with no expiration offset for the collection based on
+  # timestamp values in this field.
+  ttl_config {}
+
+  # Omit the index_config block for Enterprise Edition databases, which do not
+  # have built-in single field indexes.
+}
+`, context)
+}
+
+func TestAccFirestoreField_firestoreFieldTimestampWithTtlOffsetEnterpriseExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
+		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
+		"random_suffix":           randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirestoreFieldDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFirestoreField_firestoreFieldTimestampWithTtlOffsetEnterpriseExample(context),
+			},
+			{
+				ResourceName:            "google_firestore_field.timestamp-with-offset-enterprise",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"collection", "database", "field"},
+			},
+			{
+				ResourceName:       "google_firestore_field.timestamp-with-offset-enterprise",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccFirestoreField_firestoreFieldTimestampWithTtlOffsetEnterpriseExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+  project          = "%{project_id}"
+  name             = "%{database_id}"
+  location_id      = "nam5"
+  type             = "FIRESTORE_NATIVE"
+  database_edition = "ENTERPRISE"
+
+  delete_protection_state = "%{delete_protection_state}"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_field" "timestamp-with-offset-enterprise" {
+  project    = "%{project_id}"
+  database   = google_firestore_database.database.name
+  collection = "chatrooms"
+  field      = "timestamp"
+
+  # Enable a TTL policy for the collection based on timestamp values in the field.
+  ttl_config {
+    # The expiration time is 30d after the timestamp value.
+    # 30d * 24 * 60 * 60 = 2592000s
+    expiration_offset = "2592000s"
+  }
+
+  # Omit the index_config block for Enterprise Edition databases, which do not
+  # have built-in single field indexes.
+}
+`, context)
+}
+
 func TestAccFirestoreField_firestoreFieldTimestampExample(t *testing.T) {
 	t.Parallel()
 
@@ -173,10 +306,84 @@ resource "google_firestore_field" "timestamp" {
   collection = "chatrooms"
   field      = "timestamp"
 
-  # enables a TTL policy for the document based on the value of entries with this field
+  # Enable a TTL policy with no expiration offset for the collection based on
+  # timestamp values in this field.
   ttl_config {}
 
-  // Disable all single field indexes for the timestamp property.
+  # Disable all built-in single field indexes for the field.
+  #
+  # Omit this block for Enterprise Edition databases, which do not
+  # have built-in single field indexes.
+  index_config {}
+}
+`, context)
+}
+
+func TestAccFirestoreField_firestoreFieldTimestampWithTtlOffsetExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
+		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
+		"random_suffix":           randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirestoreFieldDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFirestoreField_firestoreFieldTimestampWithTtlOffsetExample(context),
+			},
+			{
+				ResourceName:            "google_firestore_field.timestamp-with-offset",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"collection", "database", "field"},
+			},
+			{
+				ResourceName:       "google_firestore_field.timestamp-with-offset",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccFirestoreField_firestoreFieldTimestampWithTtlOffsetExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+  project     = "%{project_id}"
+  name        = "%{database_id}"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "%{delete_protection_state}"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_field" "timestamp-with-offset" {
+  project    = "%{project_id}"
+  database   = google_firestore_database.database.name
+  collection = "chatrooms"
+  field      = "timestamp"
+
+  # Enable a TTL policy for the collection based on timestamp values in the field.
+  ttl_config {
+    # The expiration time is 30d after the timestamp value.
+    # 30d * 24 * 60 * 60 = 2592000s
+    expiration_offset = "2592000s"
+  }
+
+  # Disable all built-in single field indexes for the field.
+  #
+  # Omit this block for Enterprise Edition databases, which do not
+  # have built-in single field indexes.
   index_config {}
 }
 `, context)
