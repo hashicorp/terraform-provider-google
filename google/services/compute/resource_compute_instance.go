@@ -1732,7 +1732,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		Tags:                       resourceInstanceTags(d),
 		Params:                     params,
 		Labels:                     tpgresource.ExpandEffectiveLabels(d),
-		ServiceAccounts:            expandServiceAccounts(d.Get("service_account").([]interface{})),
+		ServiceAccounts:            expandServiceAccountsTyped(d.Get("service_account").([]interface{})),
 		GuestAccelerators:          accels,
 		MinCpuPlatform:             d.Get("min_cpu_platform").(string),
 		Scheduling:                 scheduling,
@@ -2132,7 +2132,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	zone := tpgresource.GetResourceNameFromSelfLink(instance.Zone)
 
-	if err := d.Set("service_account", flattenServiceAccounts(instance.ServiceAccounts)); err != nil {
+	if err := d.Set("service_account", flattenServiceAccounts(serviceAccountsToInterface(instance.ServiceAccounts))); err != nil {
 		return fmt.Errorf("Error setting service_account: %s", err)
 	}
 	if err := d.Set("attached_disk", ads); err != nil {

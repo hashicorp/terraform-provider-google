@@ -3377,7 +3377,7 @@ func testAccComputeRegionInstanceTemplate_instanceResourcePolicyCollocated(suffi
 	return fmt.Sprintf(`
 resource "google_compute_resource_policy" "foo" {
   name = "%s"
-  region = "us-central1"
+  region = "us-east1"
   group_placement_policy {
     vm_count  = 2
     collocation = "COLLOCATED"
@@ -3392,7 +3392,7 @@ data "google_compute_image" "my_image" {
 resource "google_compute_region_instance_template" "foobar" {
   name         = "tf-test-instance-template-%s"
   machine_type = "e2-standard-4"
-  region      = "us-central1"
+  region      = "us-east1"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -3422,7 +3422,7 @@ func testAccComputeRegionInstanceTemplate_instanceResourcePolicySpread(suffix st
 	return fmt.Sprintf(`
 resource "google_compute_resource_policy" "foo" {
   name = "%s"
-  region = "us-central1"
+  region = "us-east1"
   group_placement_policy {
 	availability_domain_count = 5
   }
@@ -3436,7 +3436,7 @@ data "google_compute_image" "my_image" {
 resource "google_compute_region_instance_template" "foobar" {
   name         = "tf-test-instance-template-%s"
   machine_type = "e2-standard-4"
-  region      = "us-central1"
+  region      = "us-east1"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
