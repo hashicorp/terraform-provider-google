@@ -68,6 +68,67 @@ resource "google_firestore_field" "basic" {
   }
 }
 ```
+## Example Usage - Firestore Field Timestamp Enterprise
+
+
+```hcl
+resource "google_firestore_database" "database" {
+  project          = "my-project-name"
+  name             = "database-id"
+  location_id      = "nam5"
+  type             = "FIRESTORE_NATIVE"
+  database_edition = "ENTERPRISE"
+
+  delete_protection_state = "DELETE_PROTECTION_ENABLED"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_field" "timestamp-enterprise" {
+  project    = "my-project-name"
+  database   = google_firestore_database.database.name
+  collection = "chatrooms"
+  field      = "timestamp"
+
+  # Enable a TTL policy with no expiration offset for the collection based on
+  # timestamp values in this field.
+  ttl_config {}
+
+  # Omit the index_config block for Enterprise Edition databases, which do not
+  # have built-in single field indexes.
+}
+```
+## Example Usage - Firestore Field Timestamp With Ttl Offset Enterprise
+
+
+```hcl
+resource "google_firestore_database" "database" {
+  project          = "my-project-name"
+  name             = "database-id"
+  location_id      = "nam5"
+  type             = "FIRESTORE_NATIVE"
+  database_edition = "ENTERPRISE"
+
+  delete_protection_state = "DELETE_PROTECTION_ENABLED"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_field" "timestamp-with-offset-enterprise" {
+  project    = "my-project-name"
+  database   = google_firestore_database.database.name
+  collection = "chatrooms"
+  field      = "timestamp"
+
+  # Enable a TTL policy for the collection based on timestamp values in the field.
+  ttl_config {
+    # The expiration time is 30d after the timestamp value.
+    # 30d * 24 * 60 * 60 = 2592000s
+    expiration_offset = "2592000s"
+  }
+
+  # Omit the index_config block for Enterprise Edition databases, which do not
+  # have built-in single field indexes.
+}
+```
 ## Example Usage - Firestore Field Timestamp
 
 
@@ -88,10 +149,48 @@ resource "google_firestore_field" "timestamp" {
   collection = "chatrooms"
   field      = "timestamp"
 
-  # enables a TTL policy for the document based on the value of entries with this field
+  # Enable a TTL policy with no expiration offset for the collection based on
+  # timestamp values in this field.
   ttl_config {}
 
-  // Disable all single field indexes for the timestamp property.
+  # Disable all built-in single field indexes for the field.
+  #
+  # Omit this block for Enterprise Edition databases, which do not
+  # have built-in single field indexes.
+  index_config {}
+}
+```
+## Example Usage - Firestore Field Timestamp With Ttl Offset
+
+
+```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_ENABLED"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_field" "timestamp-with-offset" {
+  project    = "my-project-name"
+  database   = google_firestore_database.database.name
+  collection = "chatrooms"
+  field      = "timestamp"
+
+  # Enable a TTL policy for the collection based on timestamp values in the field.
+  ttl_config {
+    # The expiration time is 30d after the timestamp value.
+    # 30d * 24 * 60 * 60 = 2592000s
+    expiration_offset = "2592000s"
+  }
+
+  # Disable all built-in single field indexes for the field.
+  #
+  # Omit this block for Enterprise Edition databases, which do not
+  # have built-in single field indexes.
   index_config {}
 }
 ```
@@ -188,7 +287,7 @@ The following arguments are supported:
 
 * `ttl_config` -
   (Optional)
-  The TTL configuration for this Field. If set to an empty block (i.e. `ttl_config {}`), a TTL policy is configured based on the field. If unset, a TTL policy is not configured (or will be disabled upon updating the resource).
+  The TTL configuration for this Field. If set to an empty (i.e. `ttl_config {}`) or non-empty block, a TTL policy is configured based on the field. If unset, a TTL policy is not configured (or will be disabled upon updating the resource).
   Structure is [documented below](#nested_ttl_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -237,6 +336,10 @@ The following arguments are supported:
 * `state` -
   (Output)
   The state of TTL (time-to-live) configuration for documents that have this Field set.
+
+* `expiration_offset` -
+  (Optional)
+  The offset, relative to the timestamp value from the field, used to determine the document's expiration time. Formatted as the number of seconds followed by 's'. For example, "60s" represents an offset of one minute. The number of seconds must be between 1 and 2147483647 inclusive. To configure no offset, omit this field.
 
 ## Attributes Reference
 

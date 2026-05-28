@@ -1,0 +1,3 @@
+```release-note:enhancement
+firestore: added `ttl_config.expiration_offset` field to `google_firestore_field` resource
+```
