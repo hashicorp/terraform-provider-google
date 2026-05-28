@@ -1,0 +1,28 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dataplex_data_product_data_asset
+generation_type: mmv1
+source_file: products/dataplex/DataProductDataAsset.yaml
+api_service_name: dataplex.googleapis.com
+api_version: v1
+api_resource_type_kind: DataProductDataAsset
+fields:
+    - api_field: accessGroupConfigs.key
+      field: access_group_configs.access_group
+    - api_field: accessGroupConfigs.value.iamRoles
+      field: access_group_configs.iam_roles
+    - field: data_asset_id
+      provider_only: true
+    - field: data_product_id
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: resource
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - field: deletion_policy
+      provider_only: true

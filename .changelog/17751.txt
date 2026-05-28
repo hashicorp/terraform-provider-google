@@ -1,0 +1,7 @@
+```release-note:enhancement
+dataplex: promoted `google_dataplex_data_product` and `google_dataplex_data_product_data_asset` resources to GA
+```
+
+```release-note:enhancement
+dataplex: added `service_account` support to `google_dataplex_data_product` access group principals
+```

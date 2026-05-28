@@ -1,0 +1,40 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dataplex_data_product
+generation_type: mmv1
+source_file: products/dataplex/DataProduct.yaml
+api_service_name: dataplex.googleapis.com
+api_version: v1
+api_resource_type_kind: DataProduct
+fields:
+    - api_field: accessGroups.key
+      field: access_groups.id
+    - api_field: accessGroups.value.description
+      field: access_groups.description
+    - api_field: accessGroups.value.displayName
+      field: access_groups.display_name
+    - api_field: accessGroups.value.id
+      field: access_groups.group_id
+    - api_field: accessGroups.value.principal.googleGroup
+      field: access_groups.principal.google_group
+    - api_field: accessGroups.value.principal.serviceAccount
+      field: access_groups.principal.service_account
+    - api_field: assetCount
+    - api_field: createTime
+    - field: data_product_id
+      provider_only: true
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: ownerEmails
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
