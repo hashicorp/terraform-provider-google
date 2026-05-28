@@ -306,6 +306,62 @@ resource "google_network_management_connectivity_test" "endpoints-test" {
 `, context)
 }
 
+func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestGkePodExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"primary_resource_name": "tf-test-conn-test-pod" + randomSuffix,
+		"random_suffix":         randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestGkePodExample(context),
+			},
+			{
+				ResourceName:            "google_network_management_connectivity_test.pod-test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_management_connectivity_test.pod-test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestGkePodExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_management_connectivity_test" "pod-test" {
+  name = "%{primary_resource_name}"
+  source {
+    ip_address = "10.0.0.1"
+    project_id = "test-project"
+    network_type = "GCP_NETWORK"
+  }
+
+  destination {
+    ip_address = "10.0.0.2"
+    project_id = "test-project"
+    network_type = "GCP_NETWORK"
+    gke_pod = "projects/test-project/locations/us-central1/clusters/cluster-name/namespaces/default/pods/pod-name"
+  }
+
+  protocol = "TCP"
+}
+`, context)
+}
+
 func testAccCheckNetworkManagementConnectivityTestDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
