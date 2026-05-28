@@ -176,6 +176,11 @@ ip_address or network. Applicable only to destination endpoint.`,
 							Optional:    true,
 							Description: `A cluster URI for Google Kubernetes Engine cluster control plane.`,
 						},
+						"gke_pod": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A [GKE Pod](https://cloud.google.com/kubernetes-engine/docs/concepts/pod) URI.`,
+						},
 						"instance": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -190,6 +195,12 @@ ip_address or network. Applicable only to destination endpoint.`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `A VPC network URI.`,
+						},
+						"network_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"GCP_NETWORK", "NON_GCP_NETWORK", "INTERNET", ""}),
+							Description:  `For source endpoints, type of the network where the endpoint is located. Not relevant for destination endpoints. Possible values: ["GCP_NETWORK", "NON_GCP_NETWORK", "INTERNET"]`,
 						},
 						"port": {
 							Type:     schema.TypeInt,
@@ -1090,6 +1101,10 @@ func flattenNetworkManagementConnectivityTestDestination(v interface{}, d *schem
 		flattenNetworkManagementConnectivityTestDestinationNetwork(original["network"], d, config)
 	transformed["project_id"] =
 		flattenNetworkManagementConnectivityTestDestinationProjectId(original["projectId"], d, config)
+	transformed["gke_pod"] =
+		flattenNetworkManagementConnectivityTestDestinationGkePod(original["gkePod"], d, config)
+	transformed["network_type"] =
+		flattenNetworkManagementConnectivityTestDestinationNetworkType(original["networkType"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkManagementConnectivityTestDestinationIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1146,6 +1161,14 @@ func flattenNetworkManagementConnectivityTestDestinationNetwork(v interface{}, d
 }
 
 func flattenNetworkManagementConnectivityTestDestinationProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestDestinationGkePod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestDestinationNetworkType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1503,6 +1526,20 @@ func expandNetworkManagementConnectivityTestDestination(v interface{}, d tpgreso
 		transformed["projectId"] = transformedProjectId
 	}
 
+	transformedGkePod, err := expandNetworkManagementConnectivityTestDestinationGkePod(original["gke_pod"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGkePod); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gkePod"] = transformedGkePod
+	}
+
+	transformedNetworkType, err := expandNetworkManagementConnectivityTestDestinationNetworkType(original["network_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetworkType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["networkType"] = transformedNetworkType
+	}
+
 	return transformed, nil
 }
 
@@ -1547,6 +1584,14 @@ func expandNetworkManagementConnectivityTestDestinationNetwork(v interface{}, d 
 }
 
 func expandNetworkManagementConnectivityTestDestinationProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestDestinationGkePod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestDestinationNetworkType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

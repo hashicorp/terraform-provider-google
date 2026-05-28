@@ -1,0 +1,3 @@
+```release-note:enhancement
+networkmanagement: added `gke_pod` and `network_type` fields to `google_network_management_connectivity_test` resource
+```

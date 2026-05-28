@@ -13,9 +13,11 @@ fields:
     - api_field: destination.forwardingRule
     - api_field: destination.fqdn
     - api_field: destination.gkeMasterCluster
+    - api_field: destination.gkePod
     - api_field: destination.instance
     - api_field: destination.ipAddress
     - api_field: destination.network
+    - api_field: destination.networkType
     - api_field: destination.port
     - api_field: destination.projectId
     - api_field: destination.redisCluster
