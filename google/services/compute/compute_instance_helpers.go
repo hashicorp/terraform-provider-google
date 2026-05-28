@@ -947,29 +947,29 @@ func flattenNetworkPerformanceConfig(c *compute.NetworkPerformanceConfig) []map[
 	}
 }
 
-func expandComputeInstanceEncryptionKey(d tpgresource.TerraformResourceData) *compute.CustomerEncryptionKey {
+func expandComputeInstanceEncryptionKey(d tpgresource.TerraformResourceData) map[string]interface{} {
 	iek, ok := d.GetOk("instance_encryption_key")
 	if !ok {
 		return nil
 	}
 
 	iekRes := iek.([]interface{})[0].(map[string]interface{})
-	return &compute.CustomerEncryptionKey{
-		KmsKeyName:           iekRes["kms_key_self_link"].(string),
-		Sha256:               iekRes["sha256"].(string),
-		KmsKeyServiceAccount: iekRes["kms_key_service_account"].(string),
+	return map[string]interface{}{
+		"kmsKeyName":           iekRes["kms_key_self_link"].(string),
+		"sha256":               iekRes["sha256"].(string),
+		"kmsKeyServiceAccount": iekRes["kms_key_service_account"].(string),
 	}
 }
 
-func flattenComputeInstanceEncryptionKey(v *compute.CustomerEncryptionKey) []map[string]interface{} {
+func flattenComputeInstanceEncryptionKey(v map[string]interface{}) []map[string]interface{} {
 	if v == nil {
 		return nil
 	}
 	return []map[string]interface{}{
 		{
-			"kms_key_self_link":       v.KmsKeyName,
-			"sha256":                  v.Sha256,
-			"kms_key_service_account": v.KmsKeyServiceAccount,
+			"kms_key_self_link":       v["kmsKeyName"],
+			"sha256":                  v["sha256"],
+			"kms_key_service_account": v["kmsKeyServiceAccount"],
 		},
 	}
 }
