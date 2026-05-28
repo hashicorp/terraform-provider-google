@@ -180,6 +180,37 @@ func ResourceNetappBackup() *schema.Resource {
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"ontap_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Details of the ONTAP source volume and snapshot.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"storage_pool": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Name of the storage pool. This must be specified for creating backups for ONTAP mode volumes.
+Format: 'projects/{{project}}/locations/{{location}}/storagePools/{{storage_pool_id}}'`,
+						},
+						"volume_uuid": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The UUID of the ONTAP source volume.`,
+						},
+						"snapshot_uuid": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The UUID of the ONTAP source snapshot.`,
+						},
+					},
+				},
+			},
 			"source_snapshot": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -292,6 +323,12 @@ func resourceNetappBackupCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	} else if v, ok := d.GetOkExists("source_snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSnapshotProp)) && (ok || !reflect.DeepEqual(v, sourceSnapshotProp)) {
 		obj["sourceSnapshot"] = sourceSnapshotProp
+	}
+	ontapSourceProp, err := expandNetappBackupOntapSource(d.Get("ontap_source"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ontap_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(ontapSourceProp)) && (ok || !reflect.DeepEqual(v, ontapSourceProp)) {
+		obj["ontapSource"] = ontapSourceProp
 	}
 	effectiveLabelsProp, err := expandNetappBackupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -742,6 +779,35 @@ func flattenNetappBackupSourceSnapshot(v interface{}, d *schema.ResourceData, co
 	return v
 }
 
+func flattenNetappBackupOntapSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["storage_pool"] =
+		flattenNetappBackupOntapSourceStoragePool(original["storagePool"], d, config)
+	transformed["volume_uuid"] =
+		flattenNetappBackupOntapSourceVolumeUuid(original["volumeUuid"], d, config)
+	transformed["snapshot_uuid"] =
+		flattenNetappBackupOntapSourceSnapshotUuid(original["snapshotUuid"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetappBackupOntapSourceStoragePool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupOntapSourceVolumeUuid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupOntapSourceSnapshotUuid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappBackupVolumeRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -778,6 +844,54 @@ func expandNetappBackupSourceVolume(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandNetappBackupSourceSnapshot(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappBackupOntapSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStoragePool, err := expandNetappBackupOntapSourceStoragePool(original["storage_pool"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStoragePool); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["storagePool"] = transformedStoragePool
+	}
+
+	transformedVolumeUuid, err := expandNetappBackupOntapSourceVolumeUuid(original["volume_uuid"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVolumeUuid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["volumeUuid"] = transformedVolumeUuid
+	}
+
+	transformedSnapshotUuid, err := expandNetappBackupOntapSourceSnapshotUuid(original["snapshot_uuid"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSnapshotUuid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["snapshotUuid"] = transformedSnapshotUuid
+	}
+
+	return transformed, nil
+}
+
+func expandNetappBackupOntapSourceStoragePool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappBackupOntapSourceVolumeUuid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappBackupOntapSourceSnapshotUuid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -820,6 +934,9 @@ func ResourceNetappBackupFlatten(d *schema.ResourceData, meta interface{}, res m
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
 	if err = d.Set("source_snapshot", flattenNetappBackupSourceSnapshot(res["sourceSnapshot"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err = d.Set("ontap_source", flattenNetappBackupOntapSource(res["ontapSource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
 	if err = d.Set("volume_region", flattenNetappBackupVolumeRegion(res["volumeRegion"], d, config)); err != nil {
