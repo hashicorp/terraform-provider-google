@@ -131,7 +131,7 @@ The following arguments are supported:
   Format: `projects/{{projectId}}/locations/{{location}}/volumes/{{volumename}}/snapshots/{{snapshotname}}``
 
 * `ontap_source` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Details of the ONTAP source volume and snapshot.
   Structure is [documented below](#nested_ontap_source).
 

@@ -1,0 +1,7 @@
+```release-note:enhancement
+netapp: added `ontap_source` field to `google_netapp_backup` resource (ga)
+```
+
+```release-note:enhancement
+netapp: marked `ontap_source.snapshot_uuid` field as Computed in `google_netapp_backup` resource (beta)
+```
