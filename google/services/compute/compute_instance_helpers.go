@@ -974,33 +974,33 @@ func flattenComputeInstanceEncryptionKey(v *compute.CustomerEncryptionKey) []map
 	}
 }
 
-func expandComputeInstanceSourceEncryptionKey(d tpgresource.TerraformResourceData, field string) *compute.CustomerEncryptionKey {
+func expandComputeInstanceSourceEncryptionKey(d tpgresource.TerraformResourceData, field string) map[string]interface{} {
 	cek, ok := d.GetOk(field)
 	if !ok {
 		return nil
 	}
 
 	cekRes := cek.([]interface{})[0].(map[string]interface{})
-	return &compute.CustomerEncryptionKey{
-		RsaEncryptedKey:      cekRes["rsa_encrypted_key"].(string),
-		RawKey:               cekRes["raw_key"].(string),
-		KmsKeyName:           cekRes["kms_key_self_link"].(string),
-		Sha256:               cekRes["sha256"].(string),
-		KmsKeyServiceAccount: cekRes["kms_key_service_account"].(string),
+	return map[string]interface{}{
+		"rsaEncryptedKey":      cekRes["rsa_encrypted_key"].(string),
+		"rawKey":               cekRes["raw_key"].(string),
+		"kmsKeyName":           cekRes["kms_key_self_link"].(string),
+		"sha256":               cekRes["sha256"].(string),
+		"kmsKeyServiceAccount": cekRes["kms_key_service_account"].(string),
 	}
 }
 
-func flattenComputeInstanceSourceEncryptionKey(v *compute.CustomerEncryptionKey) []map[string]interface{} {
+func flattenComputeInstanceSourceEncryptionKey(v map[string]interface{}) []map[string]interface{} {
 	if v == nil {
 		return nil
 	}
 	return []map[string]interface{}{
 		{
-			"rsa_encrypted_key":       v.RsaEncryptedKey,
-			"raw_key":                 v.RawKey,
-			"kms_key_self_link":       v.KmsKeyName,
-			"sha256":                  v.Sha256,
-			"kms_key_service_account": v.KmsKeyServiceAccount,
+			"rsa_encrypted_key":       v["rsaEncryptedKey"],
+			"raw_key":                 v["rawKey"],
+			"kms_key_self_link":       v["kmsKeyName"],
+			"sha256":                  v["sha256"],
+			"kms_key_service_account": v["kmsKeyServiceAccount"],
 		},
 	}
 }
