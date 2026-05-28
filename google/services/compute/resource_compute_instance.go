@@ -3912,7 +3912,13 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 		}
 
 		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.source_image_encryption_key"); ok {
-			disk.InitializeParams.SourceImageEncryptionKey = expandComputeInstanceSourceEncryptionKey(d, "boot_disk.0.initialize_params.0.source_image_encryption_key")
+			sourceImageEncryptionKeyMap := expandComputeInstanceSourceEncryptionKey(d, "boot_disk.0.initialize_params.0.source_image_encryption_key")
+			if sourceImageEncryptionKeyMap != nil {
+				disk.InitializeParams.SourceImageEncryptionKey = &compute.CustomerEncryptionKey{}
+				if err := tpgresource.Convert(sourceImageEncryptionKeyMap, disk.InitializeParams.SourceImageEncryptionKey); err != nil {
+					return nil, fmt.Errorf("Error converting source_image_encryption_key: %s", err)
+				}
+			}
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.snapshot"); ok {
@@ -3925,7 +3931,13 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 		}
 
 		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.source_snapshot_encryption_key"); ok {
-			disk.InitializeParams.SourceSnapshotEncryptionKey = expandComputeInstanceSourceEncryptionKey(d, "boot_disk.0.initialize_params.0.source_snapshot_encryption_key")
+			sourceSnapshotEncryptionKeyMap := expandComputeInstanceSourceEncryptionKey(d, "boot_disk.0.initialize_params.0.source_snapshot_encryption_key")
+			if sourceSnapshotEncryptionKeyMap != nil {
+				disk.InitializeParams.SourceSnapshotEncryptionKey = &compute.CustomerEncryptionKey{}
+				if err := tpgresource.Convert(sourceSnapshotEncryptionKeyMap, disk.InitializeParams.SourceSnapshotEncryptionKey); err != nil {
+					return nil, fmt.Errorf("Error converting source_snapshot_encryption_key: %s", err)
+				}
+			}
 		}
 
 		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.labels"); ok {
