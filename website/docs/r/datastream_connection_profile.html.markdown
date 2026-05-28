@@ -213,13 +213,6 @@ resource "google_datastream_connection_profile" "default" {
 		bucket    = "my-bucket"
 		root_path = "/path"
 	}
-
-	forward_ssh_connectivity {
-		hostname = "google.com"
-		username = "my-user"
-		port     = 8022
-		password = "swordfish"
-	}
 	labels = {
 		key = "value"
 	}
