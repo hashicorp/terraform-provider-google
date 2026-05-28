@@ -793,6 +793,10 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
 		Headers:   headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{
+			transport_tpg.IamServiceAccountNotFound,
+			transport_tpg.IsBigqueryIAMQuotaError,
+		},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating Dataset: %s", err)
@@ -1029,6 +1033,10 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutUpdate),
 		Headers:   headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{
+			transport_tpg.IamServiceAccountNotFound,
+			transport_tpg.IsBigqueryIAMQuotaError,
+		},
 	})
 
 	if err != nil {
