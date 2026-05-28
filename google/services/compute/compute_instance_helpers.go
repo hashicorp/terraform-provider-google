@@ -529,32 +529,67 @@ func expandNetworkInterfaces(d tpgresource.TerraformResourceData, config *transp
 	return ifaces, nil
 }
 
-func flattenServiceAccounts(serviceAccounts []*compute.ServiceAccount) []map[string]interface{} {
+func flattenServiceAccounts(serviceAccounts []interface{}) []map[string]interface{} {
 	result := make([]map[string]interface{}, len(serviceAccounts))
-	for i, serviceAccount := range serviceAccounts {
+	for i, raw := range serviceAccounts {
+		serviceAccount := raw.(map[string]interface{})
+		scopes := []interface{}{}
+		if s, ok := serviceAccount["scopes"].([]interface{}); ok {
+			scopes = s
+		}
 		result[i] = map[string]interface{}{
-			"email":  serviceAccount.Email,
-			"scopes": schema.NewSet(tpgresource.StringScopeHashcode, tpgresource.ConvertStringArrToInterface(serviceAccount.Scopes)),
+			"email":  serviceAccount["email"],
+			"scopes": schema.NewSet(tpgresource.StringScopeHashcode, scopes),
 		}
 	}
 	return result
 }
 
-func expandServiceAccounts(configs []interface{}) []*compute.ServiceAccount {
-	accounts := make([]*compute.ServiceAccount, len(configs))
+func expandServiceAccounts(configs []interface{}) []interface{} {
+	accounts := make([]interface{}, len(configs))
 	for i, raw := range configs {
 		data := raw.(map[string]interface{})
 
-		accounts[i] = &compute.ServiceAccount{
-			Email:  data["email"].(string),
-			Scopes: tpgresource.CanonicalizeServiceScopes(tpgresource.ConvertStringSet(data["scopes"].(*schema.Set))),
+		email := data["email"].(string)
+		if email == "" {
+			email = "default"
 		}
 
-		if accounts[i].Email == "" {
-			accounts[i].Email = "default"
+		accounts[i] = map[string]interface{}{
+			"email":  email,
+			"scopes": tpgresource.CanonicalizeServiceScopes(tpgresource.ConvertStringSet(data["scopes"].(*schema.Set))),
 		}
 	}
 	return accounts
+}
+
+// expandServiceAccountsTyped adapts the map-based expandServiceAccounts output
+// to the typed []*compute.ServiceAccount still required by callers that build
+// Apiary request structs directly.
+func expandServiceAccountsTyped(configs []interface{}) []*compute.ServiceAccount {
+	expanded := expandServiceAccounts(configs)
+	accounts := make([]*compute.ServiceAccount, len(expanded))
+	for i, raw := range expanded {
+		data := raw.(map[string]interface{})
+		accounts[i] = &compute.ServiceAccount{
+			Email:  data["email"].(string),
+			Scopes: data["scopes"].([]string),
+		}
+	}
+	return accounts
+}
+
+// serviceAccountsToInterface adapts typed []*compute.ServiceAccount decoded from
+// an Apiary response into the []interface{} form accepted by flattenServiceAccounts.
+func serviceAccountsToInterface(serviceAccounts []*compute.ServiceAccount) []interface{} {
+	result := make([]interface{}, len(serviceAccounts))
+	for i, sa := range serviceAccounts {
+		result[i] = map[string]interface{}{
+			"email":  sa.Email,
+			"scopes": tpgresource.ConvertStringArrToInterface(sa.Scopes),
+		}
+	}
+	return result
 }
 
 func flattenGuestAccelerators(accelerators []*compute.AcceleratorConfig) []map[string]interface{} {

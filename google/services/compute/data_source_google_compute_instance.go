@@ -159,7 +159,7 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	err = d.Set("service_account", flattenServiceAccounts(instance.ServiceAccounts))
+	err = d.Set("service_account", flattenServiceAccounts(serviceAccountsToInterface(instance.ServiceAccounts)))
 	if err != nil {
 		return err
 	}

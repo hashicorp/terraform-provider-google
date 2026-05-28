@@ -1564,7 +1564,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		NetworkInterfaces:          networks,
 		NetworkPerformanceConfig:   networkPerformanceConfig,
 		Scheduling:                 scheduling,
-		ServiceAccounts:            expandServiceAccounts(d.Get("service_account").([]interface{})),
+		ServiceAccounts:            expandServiceAccountsTyped(d.Get("service_account").([]interface{})),
 		Tags:                       resourceInstanceTags(d),
 		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
 		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
@@ -2021,7 +2021,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	if instanceTemplate.Properties.ServiceAccounts != nil {
-		if err = d.Set("service_account", flattenServiceAccounts(instanceTemplate.Properties.ServiceAccounts)); err != nil {
+		if err = d.Set("service_account", flattenServiceAccounts(serviceAccountsToInterface(instanceTemplate.Properties.ServiceAccounts))); err != nil {
 			return fmt.Errorf("Error setting service_account: %s", err)
 		}
 	}

@@ -1241,15 +1241,8 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error unmarshaling network interfaces: %s", err)
 	}
 
-	// Convert service accounts (still typed) via JSON roundtrip
-	saJSON, err := json.Marshal(expandServiceAccounts(d.Get("service_account").([]interface{})))
-	if err != nil {
-		return fmt.Errorf("Error marshaling service accounts: %s", err)
-	}
-	var serviceAccountsIface interface{}
-	if err := json.Unmarshal(saJSON, &serviceAccountsIface); err != nil {
-		return fmt.Errorf("Error unmarshaling service accounts: %s", err)
-	}
+	// Service accounts are already expanded to the map-based representation.
+	serviceAccountsIface := expandServiceAccounts(d.Get("service_account").([]interface{}))
 
 	instanceProperties := map[string]interface{}{
 		"machineType":       d.Get("machine_type").(string),
@@ -1266,7 +1259,7 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 	if ga := expandInstanceTemplateGuestAccelerators(d, config); len(ga) > 0 {
 		instanceProperties["guestAccelerators"] = ga
 	}
-	if sa, ok := serviceAccountsIface.([]interface{}); ok && len(sa) > 0 {
+	if len(serviceAccountsIface) > 0 {
 		instanceProperties["serviceAccounts"] = serviceAccountsIface
 	}
 	if len(resourcePolicies) > 0 {
@@ -1569,7 +1562,7 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 		}
 	}
 	if instanceTemplate.Properties.ServiceAccounts != nil {
-		if err = d.Set("service_account", flattenServiceAccounts(instanceTemplate.Properties.ServiceAccounts)); err != nil {
+		if err = d.Set("service_account", flattenServiceAccounts(serviceAccountsToInterface(instanceTemplate.Properties.ServiceAccounts))); err != nil {
 			return fmt.Errorf("Error setting service_account: %s", err)
 		}
 	}
