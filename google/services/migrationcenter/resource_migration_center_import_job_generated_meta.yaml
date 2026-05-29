@@ -1,0 +1,64 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_migration_center_import_job
+generation_type: mmv1
+source_file: products/migrationcenter/ImportJob.yaml
+api_service_name: migrationcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: ImportJob
+autogen_status: true
+fields:
+    - api_field: assetSource
+    - api_field: completeTime
+    - api_field: createTime
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: executionReport.executionErrors.fileValidations.fileErrors.errorDetails
+    - api_field: executionReport.executionErrors.fileValidations.fileErrors.severity
+    - api_field: executionReport.executionErrors.fileValidations.fileName
+    - api_field: executionReport.executionErrors.fileValidations.partialReport
+    - api_field: executionReport.executionErrors.fileValidations.rowErrors.archiveError.csvError.rowNumber
+    - api_field: executionReport.executionErrors.fileValidations.rowErrors.archiveError.filePath
+    - api_field: executionReport.executionErrors.fileValidations.rowErrors.assetTitle
+    - api_field: executionReport.executionErrors.fileValidations.rowErrors.csvError.rowNumber
+    - api_field: executionReport.executionErrors.fileValidations.rowErrors.errors.errorDetails
+    - api_field: executionReport.executionErrors.fileValidations.rowErrors.errors.severity
+    - api_field: executionReport.executionErrors.fileValidations.rowErrors.rowNumber
+    - api_field: executionReport.executionErrors.fileValidations.rowErrors.vmName
+    - api_field: executionReport.executionErrors.fileValidations.rowErrors.vmUuid
+    - api_field: executionReport.executionErrors.fileValidations.rowErrors.xlsxError.rowNumber
+    - api_field: executionReport.executionErrors.fileValidations.rowErrors.xlsxError.sheet
+    - api_field: executionReport.executionErrors.jobErrors.errorDetails
+    - api_field: executionReport.executionErrors.jobErrors.severity
+    - api_field: executionReport.framesReported
+    - api_field: executionReport.totalRowsCount
+    - field: import_job_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: validationReport.fileValidations.fileErrors.errorDetails
+    - api_field: validationReport.fileValidations.fileErrors.severity
+    - api_field: validationReport.fileValidations.fileName
+    - api_field: validationReport.fileValidations.partialReport
+    - api_field: validationReport.fileValidations.rowErrors.archiveError.csvError.rowNumber
+    - api_field: validationReport.fileValidations.rowErrors.archiveError.filePath
+    - api_field: validationReport.fileValidations.rowErrors.assetTitle
+    - api_field: validationReport.fileValidations.rowErrors.csvError.rowNumber
+    - api_field: validationReport.fileValidations.rowErrors.errors.errorDetails
+    - api_field: validationReport.fileValidations.rowErrors.errors.severity
+    - api_field: validationReport.fileValidations.rowErrors.rowNumber
+    - api_field: validationReport.fileValidations.rowErrors.vmName
+    - api_field: validationReport.fileValidations.rowErrors.vmUuid
+    - api_field: validationReport.fileValidations.rowErrors.xlsxError.rowNumber
+    - api_field: validationReport.fileValidations.rowErrors.xlsxError.sheet
+    - api_field: validationReport.jobErrors.errorDetails
+    - api_field: validationReport.jobErrors.severity
+    - field: deletion_policy
+      provider_only: true
