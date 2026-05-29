@@ -1,0 +1,25 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_apigee_datastore
+generation_type: mmv1
+source_file: products/apigee/Datastore.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: Datastore
+fields:
+    - api_field: createTime
+    - api_field: datastoreConfig.bucketName
+    - api_field: datastoreConfig.datasetName
+    - api_field: datastoreConfig.path
+    - api_field: datastoreConfig.projectId
+    - api_field: datastoreConfig.tablePrefix
+    - api_field: displayName
+    - api_field: lastUpdateTime
+    - api_field: name
+    - api_field: org
+    - field: org_id
+      provider_only: true
+    - api_field: self
+    - api_field: targetType
+    - field: deletion_policy
+      provider_only: true
