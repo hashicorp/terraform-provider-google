@@ -1,0 +1,24 @@
+```release-note:new-list-resource
+`google_compute_disk`
+```
+
+```release-note:new-list-resource
+`google_compute_image`
+```
+
+```release-note:new-list-resource
+`google_compute_snapshot`
+```
+
+<details><summary>Local test output</summary>
+
+```
+=== RUN   TestAccComputeDiskListQuery_generated
+=== RUN   TestAccComputeImageListQuery_generated
+=== RUN   TestAccComputeSnapshotListQuery_generated
+--- PASS: TestAccComputeDiskListQuery_generated (36.67s)
+--- PASS: TestAccComputeSnapshotListQuery_generated (111.54s)
+--- PASS: TestAccComputeImageListQuery_generated (123.13s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/compute
+```
