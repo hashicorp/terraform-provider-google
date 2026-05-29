@@ -30,9 +30,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
-	"google.golang.org/api/googleapi"
-
-	"google.golang.org/api/compute/v1"
 )
 
 func ResourceComputeRouterInterface() *schema.Resource {
@@ -172,44 +169,59 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	transport_tpg.MutexStore.Lock(routerLock)
 	defer transport_tpg.MutexStore.Unlock(routerLock)
 
-	routersService := NewClient(config, userAgent).Routers
-	router, err := routersService.Get(project, region, routerName).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+		return err
+	}
+
+	router, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			log.Printf("[WARN] Removing router interface %s because its router %s/%s is gone", ifaceName, region, routerName)
 			d.SetId("")
-
 			return nil
 		}
-
 		return fmt.Errorf("Error Reading router %s/%s: %s", region, routerName, err)
 	}
 
-	ifaces := router.Interfaces
+	var ifaces []interface{}
+	if ifacesRaw, ok := router["interfaces"].([]interface{}); ok {
+		ifaces = ifacesRaw
+	}
 
-	for _, iface := range ifaces {
-		if iface.Name == ifaceName {
+	for _, rawIface := range ifaces {
+		existingIface, ok := rawIface.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		if existingIface["name"] == ifaceName {
 			d.SetId("")
 			return fmt.Errorf("Router %s has interface %s already", routerName, ifaceName)
 		}
 	}
 
-	iface := &compute.RouterInterface{Name: ifaceName}
+	iface := map[string]interface{}{"name": ifaceName}
 
 	if riVal, ok := d.GetOk("redundant_interface"); ok {
-		iface.RedundantInterface = riVal.(string)
+		iface["redundantInterface"] = riVal.(string)
 	}
 
 	if ipRangeVal, ok := d.GetOk("ip_range"); ok {
-		iface.IpRange = ipRangeVal.(string)
+		iface["ipRange"] = ipRangeVal.(string)
 	}
 
 	if ipVersionVal, ok := d.GetOk("ip_version"); ok {
-		iface.IpVersion = ipVersionVal.(string)
+		iface["ipVersion"] = ipVersionVal.(string)
 	}
 
 	if privateIpVal, ok := d.GetOk("private_ip_address"); ok {
-		iface.PrivateIpAddress = privateIpVal.(string)
+		iface["privateIpAddress"] = privateIpVal.(string)
 	}
 
 	if vpnVal, ok := d.GetOk("vpn_tunnel"); ok {
@@ -217,7 +229,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 		if err != nil {
 			return err
 		}
-		iface.LinkedVpnTunnel = vpnTunnel
+		iface["linkedVpnTunnel"] = vpnTunnel
 	}
 
 	if icVal, ok := d.GetOk("interconnect_attachment"); ok {
@@ -225,26 +237,33 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 		if err != nil {
 			return err
 		}
-		iface.LinkedInterconnectAttachment = interconnectAttachment
+		iface["linkedInterconnectAttachment"] = interconnectAttachment
 	}
 
 	if subVal, ok := d.GetOk("subnetwork"); ok {
-		iface.Subnetwork = subVal.(string)
+		iface["subnetwork"] = subVal.(string)
 	}
 
 	log.Printf("[INFO] Adding interface %s", ifaceName)
 	ifaces = append(ifaces, iface)
-	patchRouter := &compute.Router{
-		Interfaces: ifaces,
+	patchRouter := map[string]interface{}{
+		"interfaces": ifaces,
 	}
 
 	log.Printf("[DEBUG] Updating router %s/%s with interfaces: %+v", region, routerName, ifaces)
-	op, err := routersService.Patch(project, region, router.Name, patchRouter).Do()
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      patchRouter,
+	})
 	if err != nil {
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
-	err = ComputeOperationWaitTime(config, op, project, "Patching router", userAgent, d.Timeout(schema.TimeoutCreate))
+	err = ComputeOperationWaitTime(config, res, project, "Patching router", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
@@ -273,39 +292,51 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 	routerName := d.Get("router").(string)
 	ifaceName := d.Get("name").(string)
 
-	routersService := NewClient(config, userAgent).Routers
-	router, err := routersService.Get(project, region, routerName).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+		return err
+	}
+
+	router, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			log.Printf("[WARN] Removing router interface %s because its router %s/%s is gone", ifaceName, region, routerName)
 			d.SetId("")
-
 			return nil
 		}
-
 		return fmt.Errorf("Error Reading router %s/%s: %s", region, routerName, err)
 	}
 
-	for _, iface := range router.Interfaces {
-
-		if iface.Name == ifaceName {
+	ifaces, _ := router["interfaces"].([]interface{})
+	for _, rawIface := range ifaces {
+		iface, ok := rawIface.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		if iface["name"] == ifaceName {
 			d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
-			if err := d.Set("vpn_tunnel", iface.LinkedVpnTunnel); err != nil {
+			if err := d.Set("vpn_tunnel", iface["linkedVpnTunnel"]); err != nil {
 				return fmt.Errorf("Error setting vpn_tunnel: %s", err)
 			}
-			if err := d.Set("interconnect_attachment", iface.LinkedInterconnectAttachment); err != nil {
+			if err := d.Set("interconnect_attachment", iface["linkedInterconnectAttachment"]); err != nil {
 				return fmt.Errorf("Error setting interconnect_attachment: %s", err)
 			}
-			if err := d.Set("ip_range", iface.IpRange); err != nil {
+			if err := d.Set("ip_range", iface["ipRange"]); err != nil {
 				return fmt.Errorf("Error setting ip_range: %s", err)
 			}
-			if err := d.Set("ip_version", iface.IpVersion); err != nil {
+			if err := d.Set("ip_version", iface["ipVersion"]); err != nil {
 				return fmt.Errorf("Error setting ip_version: %s", err)
 			}
-			if err := d.Set("private_ip_address", iface.PrivateIpAddress); err != nil {
+			if err := d.Set("private_ip_address", iface["privateIpAddress"]); err != nil {
 				return fmt.Errorf("Error setting private_ip_address: %s", err)
 			}
-			if err := d.Set("subnetwork", iface.Subnetwork); err != nil {
+			if err := d.Set("subnetwork", iface["subnetwork"]); err != nil {
 				return fmt.Errorf("Error setting subnetwork: %s", err)
 			}
 			if err := d.Set("region", region); err != nil {
@@ -314,7 +345,7 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 			if err := d.Set("project", project); err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
-			if err := d.Set("redundant_interface", iface.RedundantInterface); err != nil {
+			if err := d.Set("redundant_interface", iface["redundantInterface"]); err != nil {
 				return fmt.Errorf("Error setting redundant interface: %s", err)
 			}
 
@@ -370,34 +401,45 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 	transport_tpg.MutexStore.Lock(routerLock)
 	defer transport_tpg.MutexStore.Unlock(routerLock)
 
-	routersService := NewClient(config, userAgent).Routers
-	router, err := routersService.Get(project, region, routerName).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			log.Printf("[WARN] Removing router interface %s because its router %s/%s is gone", ifaceName, region, routerName)
+		return err
+	}
 
+	router, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+			log.Printf("[WARN] Removing router interface %s because its router %s/%s is gone", ifaceName, region, routerName)
 			return nil
 		}
-
 		return fmt.Errorf("Error Reading Router %s: %s", routerName, err)
 	}
 
 	var ifaceFound bool
 
-	newIfaces := make([]*compute.RouterInterface, 0, len(router.Interfaces))
-	for _, iface := range router.Interfaces {
-
-		if iface.Name == ifaceName {
+	ifaces, _ := router["interfaces"].([]interface{})
+	newIfaces := make([]interface{}, 0, len(ifaces))
+	for _, rawIface := range ifaces {
+		iface, ok := rawIface.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		if iface["name"] == ifaceName {
 			ifaceFound = true
 			continue
-		} else {
-			// If this is a redundant interface,
-			// remove its reference from other interfaces as well
-			if iface.RedundantInterface == ifaceName {
-				iface.RedundantInterface = ""
-			}
-			newIfaces = append(newIfaces, iface)
 		}
+		// If this is a redundant interface,
+		// remove its reference from other interfaces as well
+		if iface["redundantInterface"] == ifaceName {
+			delete(iface, "redundantInterface")
+		}
+		newIfaces = append(newIfaces, iface)
 	}
 
 	if !ifaceFound {
@@ -408,21 +450,24 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 
 	log.Printf(
 		"[INFO] Removing interface %s from router %s/%s", ifaceName, region, routerName)
-	patchRouter := &compute.Router{
-		Interfaces: newIfaces,
-	}
-
-	if len(newIfaces) == 0 {
-		patchRouter.ForceSendFields = append(patchRouter.ForceSendFields, "Interfaces")
+	patchRouter := map[string]interface{}{
+		"interfaces": newIfaces,
 	}
 
 	log.Printf("[DEBUG] Updating router %s/%s with interfaces: %+v", region, routerName, newIfaces)
-	op, err := routersService.Patch(project, region, router.Name, patchRouter).Do()
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      patchRouter,
+	})
 	if err != nil {
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 
-	err = ComputeOperationWaitTime(config, op, project, "Patching router", userAgent, d.Timeout(schema.TimeoutDelete))
+	err = ComputeOperationWaitTime(config, res, project, "Patching router", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
 	}
