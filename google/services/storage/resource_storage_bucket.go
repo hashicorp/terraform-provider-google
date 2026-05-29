@@ -1223,7 +1223,10 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 	d.SetId(res.Id)
 
-	return nil
+	return tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"name":    res.Name,
+		"project": d.Get("project").(string),
+	})
 }
 
 func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
