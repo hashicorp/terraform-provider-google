@@ -1,3 +1,8 @@
+# 7.34.1 (Unreleased)
+
+BUG FIXES: 
+* storage: fixed missing identity error when updating values in `google_storage_bucket` resource
+
 ## 7.34.0 (May 27, 2026)
 
 NOTES:
