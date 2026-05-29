@@ -289,7 +289,7 @@ resource "google_ces_app" "ces_app_basic" {
   tool_execution_mode = "PARALLEL"
 
   language_settings {
-    default_language_code    = "en-ES"
+    default_language_code    = "en-US"
     supported_language_codes = ["en-US", "fr-FR", "es-ES"]
     enable_multilingual_support = false
     fallback_action          = "escalate"
