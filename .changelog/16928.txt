@@ -1,0 +1,3 @@
+```release-note:enhancement
+securityscanner: added `ignore_http_status_errors` field to `google_security_scanner_scan_config` resource (beta)
+```
