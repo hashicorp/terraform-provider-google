@@ -51,6 +51,34 @@ resource "google_firebase_ai_logic_prompt_template_lock" "basic_lock" {
   template_id = google_firebase_ai_logic_prompt_template.basic.template_id
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=firebaseailogic_prompt_template_lock_global_only&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Firebaseailogic Prompt Template Lock Global Only
+
+
+```hcl
+resource "google_firebase_ai_logic_prompt_template" "global_only" {
+  provider = google-beta
+  location = "global"
+  template_id = "global-only-lock-template"
+  template_string = <<EOF
+---
+model: googleai/gemini-1.5-flash
+---
+Hello World
+EOF
+}
+
+resource "google_firebase_ai_logic_prompt_template_lock" "global_only_lock" {
+  provider = google-beta
+  location = google_firebase_ai_logic_prompt_template.global_only.location
+  template_id = google_firebase_ai_logic_prompt_template.global_only.template_id
+  regional_propagation_disabled = true
+}
+```
 
 ## Argument Reference
 
@@ -65,6 +93,12 @@ The following arguments are supported:
   (Required)
   The ID of the prompt template.
 
+
+* `regional_propagation_disabled` -
+  (Optional)
+  For the `global` location only. If true, the modifyLock operation will
+  apply to the global region only. Otherwise, the operation will also
+  propagate to all applicable regions.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
