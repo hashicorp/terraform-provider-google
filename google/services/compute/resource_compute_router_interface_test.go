@@ -24,7 +24,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeRouterInterface_basic(t *testing.T) {
@@ -186,8 +187,6 @@ func testAccCheckComputeRouterInterfaceDestroyProducer(t *testing.T) func(s *ter
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		routersService := compute.NewClient(config, config.UserAgent).Routers
-
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router" {
 				continue
@@ -204,8 +203,18 @@ func testAccCheckComputeRouterInterfaceDestroyProducer(t *testing.T) func(s *ter
 			}
 
 			routerName := rs.Primary.Attributes["router"]
+			if routerName == "" {
+				continue
+			}
 
-			_, err = routersService.Get(project, region, routerName).Do()
+			url := fmt.Sprintf("%sprojects/%s/regions/%s/routers/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), project, region, routerName)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 
 			if err == nil {
 				return fmt.Errorf("Error, Router %s in region %s still exists",
@@ -220,8 +229,6 @@ func testAccCheckComputeRouterInterfaceDestroyProducer(t *testing.T) func(s *ter
 func testAccCheckComputeRouterInterfaceDelete(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-
-		routersService := compute.NewClient(config, config.UserAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router_interface" {
@@ -241,17 +248,28 @@ func testAccCheckComputeRouterInterfaceDelete(t *testing.T, n string) resource.T
 			name := rs.Primary.Attributes["name"]
 			routerName := rs.Primary.Attributes["router"]
 
-			router, err := routersService.Get(project, region, routerName).Do()
+			url := fmt.Sprintf("%sprojects/%s/regions/%s/routers/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), project, region, routerName)
+			router, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 
 			if err != nil {
 				return fmt.Errorf("Error Reading Router %s: %s", routerName, err)
 			}
 
-			ifaces := router.Interfaces
-			for _, iface := range ifaces {
-
-				if iface.Name == name {
-					return fmt.Errorf("Interface %s still exists on router %s/%s", name, region, router.Name)
+			ifaces, _ := router["interfaces"].([]interface{})
+			for _, rawIface := range ifaces {
+				iface, ok := rawIface.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				if iface["name"] == name {
+					apiRouterName, _ := router["name"].(string)
+					return fmt.Errorf("Interface %s still exists on router %s/%s", name, region, apiRouterName)
 				}
 			}
 		}
@@ -286,21 +304,32 @@ func testAccCheckComputeRouterInterfaceExists(t *testing.T, n string) resource.T
 		name := rs.Primary.Attributes["name"]
 		routerName := rs.Primary.Attributes["router"]
 
-		routersService := compute.NewClient(config, config.UserAgent).Routers
-		router, err := routersService.Get(project, region, routerName).Do()
+		url := fmt.Sprintf("%sprojects/%s/regions/%s/routers/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), project, region, routerName)
+		router, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 
 		if err != nil {
 			return fmt.Errorf("Error Reading Router %s: %s", routerName, err)
 		}
 
-		for _, iface := range router.Interfaces {
-
-			if iface.Name == name {
+		ifaces, _ := router["interfaces"].([]interface{})
+		for _, rawIface := range ifaces {
+			iface, ok := rawIface.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if iface["name"] == name {
 				return nil
 			}
 		}
 
-		return fmt.Errorf("Interface %s not found for router %s", name, router.Name)
+		apiRouterName, _ := router["name"].(string)
+		return fmt.Errorf("Interface %s not found for router %s", name, apiRouterName)
 	}
 }
 
