@@ -107,7 +107,7 @@ func (listR *GoogleStorageBucketListResource) List(ctx context.Context, listReq 
 	}
 }
 
-func flattenStorageBucketListItem(res map[string]interface{}, d *schema.ResourceData, config *transport_tpg.Config) error {
+func flattenStorageBucketListItem(res map[string]interface{}, d *schema.ResourceData, config *transport_tpg.Config, project string) error {
 	var bucket storage.Bucket
 	if err := tpgresource.Convert(res, &bucket); err != nil {
 		return fmt.Errorf("error converting storage bucket list response: %w", err)
@@ -117,6 +117,11 @@ func flattenStorageBucketListItem(res map[string]interface{}, d *schema.Resource
 	}
 	if err := d.Set("name", bucket.Name); err != nil {
 		return err
+	}
+	if project != "" {
+		if err := d.Set("project", project); err != nil {
+			return err
+		}
 	}
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -158,7 +163,9 @@ func ListStorageBuckets(config *transport_tpg.Config, project string, callback f
 		ListURL:        url,
 		BillingProject: billingProject,
 		UserAgent:      userAgent,
-		Flattener:      flattenStorageBucketListItem,
-		Callback:       callback,
+		Flattener: func(res map[string]interface{}, d *schema.ResourceData, config *transport_tpg.Config) error {
+			return flattenStorageBucketListItem(res, d, config, project)
+		},
+		Callback: callback,
 	})
 }
