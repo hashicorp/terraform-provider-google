@@ -174,7 +174,7 @@ OrganizationSccBigQueryExports can be imported using any of these accepted forma
 * `organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}`
 * `{{organization}}/{{location}}/{{big_query_export_id}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import OrganizationSccBigQueryExports using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import OrganizationSccBigQueryExports using identity values. For example:
 
 ```tf
 import {

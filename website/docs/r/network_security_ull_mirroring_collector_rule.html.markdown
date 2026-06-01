@@ -216,7 +216,7 @@ UllMirroringCollectorRule can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{ull_mirroring_collector}}/{{ull_mirroring_collector_rule_id}}`
 * `{{location}}/{{ull_mirroring_collector}}/{{ull_mirroring_collector_rule_id}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import UllMirroringCollectorRule using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import UllMirroringCollectorRule using identity values. For example:
 
 ```tf
 import {

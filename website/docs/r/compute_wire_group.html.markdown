@@ -277,7 +277,7 @@ WireGroup can be imported using any of these accepted formats:
 * `{{project}}/{{cross_site_network}}/{{name}}`
 * `{{cross_site_network}}/{{name}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import WireGroup using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import WireGroup using identity values. For example:
 
 ```tf
 import {

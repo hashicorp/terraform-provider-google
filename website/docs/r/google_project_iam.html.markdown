@@ -255,7 +255,7 @@ $ terraform import google_project_iam_member.default "{{project_id}} roles/viewe
 
 #### Import via resource identity
 
-`google_project_iam_member` also supports plannable import via [resource identity](https://developer.hashicorp.com/terraform/language/resources/identities) (Terraform 1.12+):
+`google_project_iam_member` also supports plannable import via [resource identity](https://developer.hashicorp.com/terraform/language/block/import#identity) (Terraform 1.12+):
 
 ```tf
 import {
@@ -298,7 +298,7 @@ terraform import google_project_iam_binding.default "{{project_id}} roles/viewer
 
 #### Import via resource identity
 
-`google_project_iam_binding` also supports plannable import via [resource identity](https://developer.hashicorp.com/terraform/language/resources/identities) (Terraform 1.12+):
+`google_project_iam_binding` also supports plannable import via [resource identity](https://developer.hashicorp.com/terraform/language/block/import#identity) (Terraform 1.12+):
 
 ```tf
 import {
@@ -339,7 +339,7 @@ $ terraform import google_project_iam_policy.default {{project_id}}
 
 #### Import via resource identity
 
-`google_project_iam_policy` also supports plannable import via [resource identity](https://developer.hashicorp.com/terraform/language/resources/identities) (Terraform 1.12+):
+`google_project_iam_policy` also supports plannable import via [resource identity](https://developer.hashicorp.com/terraform/language/block/import#identity) (Terraform 1.12+):
 
 ```tf
 import {

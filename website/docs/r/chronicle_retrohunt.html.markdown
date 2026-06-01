@@ -170,7 +170,7 @@ Retrohunt can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{instance}}/{{rule}}/{{retrohunt}}`
 * `{{location}}/{{instance}}/{{rule}}/{{retrohunt}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Retrohunt using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import Retrohunt using identity values. For example:
 
 ```tf
 import {

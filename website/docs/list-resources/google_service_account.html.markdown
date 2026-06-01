@@ -54,7 +54,7 @@ Run `terraform query` from the directory that contains the `.tfquery.hcl` file.
 ## Results
 
 By default each result includes **resource identity** for `google_service_account` (see
-[Resource identity](https://developer.hashicorp.com/terraform/language/resources/identities)):
+[Resource identity](https://developer.hashicorp.com/terraform/language/block/import#identity)):
 
 * `email` - Service account email (required for identity).
 * `project` - Project ID when applicable.

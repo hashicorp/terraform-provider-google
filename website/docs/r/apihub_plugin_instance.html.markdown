@@ -362,7 +362,7 @@ PluginInstance can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{plugin}}/{{plugin_instance_id}}`
 * `{{location}}/{{plugin}}/{{plugin_instance_id}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import PluginInstance using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import PluginInstance using identity values. For example:
 
 ```tf
 import {

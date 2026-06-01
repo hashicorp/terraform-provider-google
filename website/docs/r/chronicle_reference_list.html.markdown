@@ -188,7 +188,7 @@ ReferenceList can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{instance}}/{{reference_list_id}}`
 * `{{location}}/{{instance}}/{{reference_list_id}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import ReferenceList using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import ReferenceList using identity values. For example:
 
 ```tf
 import {

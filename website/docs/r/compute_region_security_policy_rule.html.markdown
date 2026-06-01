@@ -663,7 +663,7 @@ RegionSecurityPolicyRule can be imported using any of these accepted formats:
 * `{{region}}/{{security_policy}}/{{priority}}`
 * `{{security_policy}}/{{priority}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import RegionSecurityPolicyRule using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import RegionSecurityPolicyRule using identity values. For example:
 
 ```tf
 import {

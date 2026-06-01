@@ -45,6 +45,6 @@ Run `terraform query` from the directory that contains the `.tfquery.hcl` file.
 
 ## Results
 
-By default each result includes **resource identity** for [`google_compute_firewall`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_compute_firewall) (see [Resource identity](https://developer.hashicorp.com/terraform/language/resources/identities)).
+By default each result includes **resource identity** for [`google_compute_firewall`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_compute_firewall) (see [Resource identity](https://developer.hashicorp.com/terraform/language/block/import#identity)).
 
 With `include_resource = true` on the `list` block, results also include the full resource-style attributes documented for the managed [`google_compute_firewall` resource](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_compute_firewall#attributes-reference).

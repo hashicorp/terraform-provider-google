@@ -551,7 +551,7 @@ Image can be imported using any of these accepted formats:
 * `{{project}}/{{name}}`
 * `{{name}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Image using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import Image using identity values. For example:
 
 ```tf
 import {
