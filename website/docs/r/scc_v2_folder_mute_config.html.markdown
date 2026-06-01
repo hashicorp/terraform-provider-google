@@ -140,7 +140,7 @@ FolderMuteConfig can be imported using any of these accepted formats:
 * `folders/{{folder}}/locations/{{location}}/muteConfigs/{{mute_config_id}}`
 * `{{folder}}/{{location}}/{{mute_config_id}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import FolderMuteConfig using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import FolderMuteConfig using identity values. For example:
 
 ```tf
 import {

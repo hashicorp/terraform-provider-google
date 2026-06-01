@@ -49,6 +49,6 @@ ID.
 
 ## Results
 
-By default each result includes **resource identity** for [`google_sql_database`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_sql_database) (see [Resource identity](https://developer.hashicorp.com/terraform/language/resources/identities)).
+By default each result includes **resource identity** for [`google_sql_database`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_sql_database) (see [Resource identity](https://developer.hashicorp.com/terraform/language/block/import#identity)).
 
 With `include_resource = true` on the `list` block, results also include the full resource-style attributes documented for the managed [`google_sql_database` resource](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_sql_database#attributes-reference).

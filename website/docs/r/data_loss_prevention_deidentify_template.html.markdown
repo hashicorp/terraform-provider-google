@@ -3363,7 +3363,7 @@ DeidentifyTemplate can be imported using any of these accepted formats:
 * `{{parent}}/deidentifyTemplates/{{name}}`
 * `{{parent}}/{{name}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import DeidentifyTemplate using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import DeidentifyTemplate using identity values. For example:
 
 ```tf
 import {

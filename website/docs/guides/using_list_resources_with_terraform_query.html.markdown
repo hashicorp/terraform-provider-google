@@ -99,7 +99,7 @@ The following are **core Terraform** features; see the HashiCorp language docs f
 * **`config { ... }`** — Provider-specific arguments; each list resource documents its supported
   attributes.
 * **`include_resource`** — When `true`, results include full resource-shaped data in addition to
-  [resource identity](https://developer.hashicorp.com/terraform/language/resources/identities).
+  [resource identity](https://developer.hashicorp.com/terraform/language/block/import#identity).
   When unset/false, identity is returned by default.
 * **`limit`** — Maximum number of results (default `100` per Terraform documentation).
 * **`count` / `for_each`** — Meta-arguments for multiple queries, same idea as for managed resources.

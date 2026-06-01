@@ -990,7 +990,7 @@ AutonomousDatabase can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{autonomous_database_id}}`
 * `{{location}}/{{autonomous_database_id}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import AutonomousDatabase using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import AutonomousDatabase using identity values. For example:
 
 ```tf
 import {

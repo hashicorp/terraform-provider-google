@@ -200,7 +200,7 @@ ScopeRBACRoleBinding can be imported using any of these accepted formats:
 * `{{project}}/{{scope_id}}/{{scope_rbac_role_binding_id}}`
 * `{{scope_id}}/{{scope_rbac_role_binding_id}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import ScopeRBACRoleBinding using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import ScopeRBACRoleBinding using identity values. For example:
 
 ```tf
 import {

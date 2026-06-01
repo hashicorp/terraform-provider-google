@@ -180,7 +180,7 @@ FolderSccBigQueryExport can be imported using any of these accepted formats:
 * `folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}`
 * `{{folder}}/{{location}}/{{big_query_export_id}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import FolderSccBigQueryExport using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import FolderSccBigQueryExport using identity values. For example:
 
 ```tf
 import {

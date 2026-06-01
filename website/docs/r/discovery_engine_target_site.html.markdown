@@ -211,7 +211,7 @@ TargetSite can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{data_store_id}}/{{target_site_id}}`
 * `{{location}}/{{data_store_id}}/{{target_site_id}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import TargetSite using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import TargetSite using identity values. For example:
 
 ```tf
 import {

@@ -301,7 +301,7 @@ KeystoresAliasesSelfSignedCert can be imported using any of these accepted forma
 * `organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}`
 * `{{org_id}}/{{environment}}/{{keystore}}/{{alias}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import KeystoresAliasesSelfSignedCert using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import KeystoresAliasesSelfSignedCert using identity values. For example:
 
 ```tf
 import {

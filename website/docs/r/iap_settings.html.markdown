@@ -447,7 +447,7 @@ Settings can be imported using any of these accepted formats:
 * `{{name}}/iapSettings`
 * `{{name}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Settings using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import Settings using identity values. For example:
 
 ```tf
 import {

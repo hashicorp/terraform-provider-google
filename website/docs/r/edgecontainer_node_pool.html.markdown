@@ -198,7 +198,7 @@ NodePool can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{cluster}}/{{name}}`
 * `{{location}}/{{cluster}}/{{name}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import NodePool using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import NodePool using identity values. For example:
 
 ```tf
 import {

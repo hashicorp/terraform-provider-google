@@ -349,7 +349,7 @@ Hl7V2Store can be imported using any of these accepted formats:
 * `{{dataset}}/hl7V2Stores/{{name}}`
 * `{{dataset}}/{{name}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Hl7V2Store using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import Hl7V2Store using identity values. For example:
 
 ```tf
 import {

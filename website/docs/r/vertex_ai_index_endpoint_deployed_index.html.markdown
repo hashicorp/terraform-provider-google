@@ -415,7 +415,7 @@ IndexEndpointDeployedIndex can be imported using any of these accepted formats:
 * `{{region}}/{{index_endpoint}}/{{deployed_index_id}}`
 * `{{index_endpoint}}/{{deployed_index_id}}`
 
-In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import IndexEndpointDeployedIndex using identity values. For example:
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import IndexEndpointDeployedIndex using identity values. For example:
 
 ```tf
 import {
