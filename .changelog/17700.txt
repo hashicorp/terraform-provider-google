@@ -1,0 +1,11 @@
+```release-note:new-list-resource
+`google_storage_hmac_key`
+```
+
+<details><summary>Local test output</summary>
+
+```
+--- PASS: TestAccStorageHmacKeyListQuery_generated (29.41s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/storage  30.972s
+```
