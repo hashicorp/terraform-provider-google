@@ -1,0 +1,3 @@
+```release-note:bug
+firebaseailogic: fixed perma-diff in `google_firebase_ai_logic_config` template_only field on `google_firebase_ai_logic_config` resource
+```
