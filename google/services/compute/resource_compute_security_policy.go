@@ -33,8 +33,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
-
-	"google.golang.org/api/compute/v1"
 )
 
 func verifyRulePriorityCompareEmptyValues(d *schema.ResourceData, rulePriority int, schemaKey string) bool {
@@ -58,13 +56,9 @@ func verifyRulePriorityCompareEmptyValues(d *schema.ResourceData, rulePriority i
 }
 
 // IsEmptyValue does not consider a empty PreconfiguredWafConfig object as empty so we check it's nested values
-func preconfiguredWafConfigIsEmptyValue(config *compute.SecurityPolicyRulePreconfiguredWafConfig) bool {
-	if tpgresource.IsEmptyValue(reflect.ValueOf(config.Exclusions)) &&
-		tpgresource.IsEmptyValue(reflect.ValueOf(config.ForceSendFields)) &&
-		tpgresource.IsEmptyValue(reflect.ValueOf(config.NullFields)) {
-		return true
-	}
-	return false
+func preconfiguredWafConfigIsEmptyValue(config map[string]interface{}) bool {
+	exclusions, _ := config["exclusions"].([]interface{})
+	return len(exclusions) == 0
 }
 
 func ResourceComputeSecurityPolicy() *schema.Resource {
@@ -772,37 +766,41 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	sp := d.Get("name").(string)
-	securityPolicy := &compute.SecurityPolicy{
-		Name:        sp,
-		Description: d.Get("description").(string),
+	body := map[string]interface{}{
+		"name":        sp,
+		"description": d.Get("description").(string),
 	}
 
 	if v, ok := d.GetOk("type"); ok {
-		securityPolicy.Type = v.(string)
+		body["type"] = v.(string)
 	}
 
 	if v, ok := d.GetOk("rule"); ok {
-		securityPolicy.Rules = expandSecurityPolicyRules(v.(*schema.Set).List())
+		body["rules"] = expandSecurityPolicyRules(v.(*schema.Set).List())
 	}
 
 	if v, ok := d.GetOk("advanced_options_config"); ok {
-		securityPolicy.AdvancedOptionsConfig = expandSecurityPolicyAdvancedOptionsConfig(v.([]interface{}))
+		body["advancedOptionsConfig"] = expandSecurityPolicyAdvancedOptionsConfig(v.([]interface{}))
 	}
 
 	if v, ok := d.GetOk("adaptive_protection_config"); ok {
-		securityPolicy.AdaptiveProtectionConfig = expandSecurityPolicyAdaptiveProtectionConfig(v.([]interface{}))
+		body["adaptiveProtectionConfig"] = expandSecurityPolicyAdaptiveProtectionConfig(v.([]interface{}))
 	}
-
-	log.Printf("[DEBUG] SecurityPolicy insert request: %#v", securityPolicy)
 
 	if v, ok := d.GetOk("recaptcha_options_config"); ok {
-		securityPolicy.RecaptchaOptionsConfig = expandSecurityPolicyRecaptchaOptionsConfig(v.([]interface{}), d)
+		body["recaptchaOptionsConfig"] = expandSecurityPolicyRecaptchaOptionsConfig(v.([]interface{}), d)
 	}
 
-	client := NewClient(config, userAgent)
+	log.Printf("[DEBUG] SecurityPolicy insert request: %#v", body)
 
-	op, err := client.SecurityPolicies.Insert(project, securityPolicy).Do()
-
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    fmt.Sprintf("%sprojects/%s/global/securityPolicies", transport_tpg.BaseUrl(Product, config), project),
+		UserAgent: userAgent,
+		Body:      body,
+	})
 	if err != nil {
 		return errwrap.Wrapf("Error creating SecurityPolicy: {{err}}", err)
 	}
@@ -813,7 +811,7 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	err = ComputeOperationWaitTime(config, op, project, fmt.Sprintf("Creating SecurityPolicy %q", sp), userAgent, d.Timeout(schema.TimeoutCreate))
+	err = ComputeOperationWaitTime(config, res, project, fmt.Sprintf("Creating SecurityPolicy %q", sp), userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -829,17 +827,22 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 		}
 
 		// Now we can set the labels
-		setLabels := &compute.GlobalSetLabelsRequest{
-			Labels:           effectiveLabels,
-			LabelFingerprint: d.Get("label_fingerprint").(string),
-		}
-
-		op, err = client.SecurityPolicies.SetLabels(project, sp, setLabels).Do()
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    fmt.Sprintf("%sprojects/%s/global/securityPolicies/%s/setLabels", transport_tpg.BaseUrl(Product, config), project, sp),
+			UserAgent: userAgent,
+			Body: map[string]interface{}{
+				"labels":           effectiveLabels,
+				"labelFingerprint": d.Get("label_fingerprint").(string),
+			},
+		})
 		if err != nil {
 			return err
 		}
 
-		err = ComputeOperationWaitTime(config, op, project, fmt.Sprintf("Creating SecurityPolicy.Labels %q", sp), userAgent, d.Timeout(schema.TimeoutCreate))
+		err = ComputeOperationWaitTime(config, res, project, fmt.Sprintf("Creating SecurityPolicy.Labels %q", sp), userAgent, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
 		}
@@ -877,59 +880,72 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 
 	sp := d.Get("name").(string)
 
-	client := NewClient(config, userAgent)
-
-	securityPolicy, err := client.SecurityPolicies.Get(project, sp).Do()
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    fmt.Sprintf("%sprojects/%s/global/securityPolicies/%s", transport_tpg.BaseUrl(Product, config), project, sp),
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityPolicy %q", d.Id()))
 	}
 
-	if err := d.Set("name", securityPolicy.Name); err != nil {
+	if err := d.Set("name", res["name"]); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if err := d.Set("description", securityPolicy.Description); err != nil {
+	if err := d.Set("description", res["description"]); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
-	if err := d.Set("type", securityPolicy.Type); err != nil {
+	if err := d.Set("type", res["type"]); err != nil {
 		return fmt.Errorf("Error setting type: %s", err)
 	}
-	if err := d.Set("rule", flattenSecurityPolicyRules(securityPolicy.Rules, d)); err != nil {
+	if err := d.Set("rule", flattenSecurityPolicyRules(res["rules"], d)); err != nil {
 		return err
 	}
-	if err := d.Set("fingerprint", securityPolicy.Fingerprint); err != nil {
+	if err := d.Set("fingerprint", res["fingerprint"]); err != nil {
 		return fmt.Errorf("Error setting fingerprint: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(securityPolicy.SelfLink)); err != nil {
+	selfLink, _ := res["selfLink"].(string)
+	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
-	if err := d.Set("advanced_options_config", flattenSecurityPolicyAdvancedOptionsConfig(securityPolicy.AdvancedOptionsConfig)); err != nil {
+	if err := d.Set("advanced_options_config", flattenSecurityPolicyAdvancedOptionsConfig(res["advancedOptionsConfig"])); err != nil {
 		return fmt.Errorf("Error setting advanced_options_config: %s", err)
 	}
 
-	if err := d.Set("adaptive_protection_config", flattenSecurityPolicyAdaptiveProtectionConfig(securityPolicy.AdaptiveProtectionConfig)); err != nil {
+	if err := d.Set("adaptive_protection_config", flattenSecurityPolicyAdaptiveProtectionConfig(res["adaptiveProtectionConfig"])); err != nil {
 		return fmt.Errorf("Error setting adaptive_protection_config: %s", err)
 	}
 
-	if err := d.Set("recaptcha_options_config", flattenSecurityPolicyRecaptchaOptionConfig(securityPolicy.RecaptchaOptionsConfig)); err != nil {
+	if err := d.Set("recaptcha_options_config", flattenSecurityPolicyRecaptchaOptionConfig(res["recaptchaOptionsConfig"])); err != nil {
 		return fmt.Errorf("Error setting recaptcha_options_config: %s", err)
 	}
 
-	if err := tpgresource.SetLabels(securityPolicy.Labels, d, "labels"); err != nil {
+	var labels map[string]string
+	if rawLabels, ok := res["labels"].(map[string]interface{}); ok {
+		labels = make(map[string]string, len(rawLabels))
+		for k, v := range rawLabels {
+			labels[k] = v.(string)
+		}
+	}
+
+	if err := tpgresource.SetLabels(labels, d, "labels"); err != nil {
 		return err
 	}
 
-	if err := tpgresource.SetLabels(securityPolicy.Labels, d, "terraform_labels"); err != nil {
+	if err := tpgresource.SetLabels(labels, d, "terraform_labels"); err != nil {
 		return err
 	}
 
-	if err := d.Set("effective_labels", securityPolicy.Labels); err != nil {
+	if err := d.Set("effective_labels", labels); err != nil {
 		return err
 	}
 
-	if err := d.Set("label_fingerprint", securityPolicy.LabelFingerprint); err != nil {
+	if err := d.Set("label_fingerprint", res["labelFingerprint"]); err != nil {
 		return fmt.Errorf("Error setting label_fingerprint: %s", err)
 	}
 
@@ -959,68 +975,89 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 
 	sp := d.Get("name").(string)
 
-	securityPolicy := &compute.SecurityPolicy{
-		Fingerprint: d.Get("fingerprint").(string),
+	body := map[string]interface{}{
+		"fingerprint": d.Get("fingerprint").(string),
 	}
 
 	updateMask := []string{}
+	needsPatch := false
 
 	if d.HasChange("type") {
-		securityPolicy.Type = d.Get("type").(string)
-		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "Type")
+		body["type"] = d.Get("type").(string)
+		needsPatch = true
 	}
 
 	if d.HasChange("description") {
-		securityPolicy.Description = d.Get("description").(string)
-		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "Description")
+		body["description"] = d.Get("description").(string)
+		needsPatch = true
 	}
 
 	if d.HasChange("advanced_options_config") {
-		securityPolicy.AdvancedOptionsConfig = expandSecurityPolicyAdvancedOptionsConfig(d.Get("advanced_options_config").([]interface{}))
-		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "AdvancedOptionsConfig", "advancedOptionsConfig.jsonParsing", "advancedOptionsConfig.jsonCustomConfig", "advancedOptionsConfig.logLevel", "advancedOptionsConfig.requestBodyInspectionSize")
-		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "advanceOptionConfig.userIpRequestHeaders")
-		if len(securityPolicy.AdvancedOptionsConfig.UserIpRequestHeaders) == 0 {
-			// to clean this list we must send the updateMask of this field on the request.
-			updateMask = append(updateMask, "advanced_options_config.user_ip_request_headers")
+		advancedConfig := expandSecurityPolicyAdvancedOptionsConfig(d.Get("advanced_options_config").([]interface{}))
+		body["advancedOptionsConfig"] = advancedConfig
+		needsPatch = true
+		if advancedConfig != nil {
+			headers, _ := advancedConfig["userIpRequestHeaders"].([]interface{})
+			if len(headers) == 0 {
+				updateMask = append(updateMask, "advanced_options_config.user_ip_request_headers")
+			}
 		}
 	}
 
 	if d.HasChange("adaptive_protection_config") {
-		securityPolicy.AdaptiveProtectionConfig = expandSecurityPolicyAdaptiveProtectionConfig(d.Get("adaptive_protection_config").([]interface{}))
-		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "AdaptiveProtectionConfig", "adaptiveProtectionConfig.layer7DdosDefenseConfig.enable", "adaptiveProtectionConfig.layer7DdosDefenseConfig.ruleVisibility")
+		body["adaptiveProtectionConfig"] = expandSecurityPolicyAdaptiveProtectionConfig(d.Get("adaptive_protection_config").([]interface{}))
+		needsPatch = true
 	}
 
 	if d.HasChange("recaptcha_options_config") {
-		securityPolicy.RecaptchaOptionsConfig = expandSecurityPolicyRecaptchaOptionsConfig(d.Get("recaptcha_options_config").([]interface{}), d)
-		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "RecaptchaOptionsConfig")
+		body["recaptchaOptionsConfig"] = expandSecurityPolicyRecaptchaOptionsConfig(d.Get("recaptcha_options_config").([]interface{}), d)
+		needsPatch = true
 	}
 
 	if d.HasChange("effective_labels") {
 		labels := tpgresource.ExpandEffectiveLabels(d)
 		labelFingerprint := d.Get("label_fingerprint").(string)
-		req := compute.GlobalSetLabelsRequest{Labels: labels, LabelFingerprint: labelFingerprint}
 
-		op, err := NewClient(config, userAgent).SecurityPolicies.SetLabels(project, sp, &req).Do()
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    fmt.Sprintf("%sprojects/%s/global/securityPolicies/%s/setLabels", transport_tpg.BaseUrl(Product, config), project, sp),
+			UserAgent: userAgent,
+			Body: map[string]interface{}{
+				"labels":           labels,
+				"labelFingerprint": labelFingerprint,
+			},
+		})
 		if err != nil {
 			return fmt.Errorf("Error updating labels: %s", err)
 		}
 
-		opErr := ComputeOperationWaitTime(config, op, project, "labels to update", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if opErr != nil {
-			return opErr
+		err = ComputeOperationWaitTime(config, res, project, "labels to update", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
 		}
 	}
 
-	if len(securityPolicy.ForceSendFields) > 0 {
-		client := NewClient(config, userAgent)
+	if needsPatch {
+		patchURL := fmt.Sprintf("%sprojects/%s/global/securityPolicies/%s", transport_tpg.BaseUrl(Product, config), project, sp)
+		if len(updateMask) > 0 {
+			patchURL = fmt.Sprintf("%s?updateMask=%s", patchURL, strings.Join(updateMask, ","))
+		}
 
-		op, err := client.SecurityPolicies.Patch(project, sp, securityPolicy).UpdateMask(strings.Join(updateMask, ",")).Do()
-
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   project,
+			RawURL:    patchURL,
+			UserAgent: userAgent,
+			Body:      body,
+		})
 		if err != nil {
 			return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
 		}
 
-		err = ComputeOperationWaitTime(config, op, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), userAgent, d.Timeout(schema.TimeoutUpdate))
+		err = ComputeOperationWaitTime(config, res, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -1047,16 +1084,20 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 			nPriorities[priority] = true
 
 			if !oPriorities[priority] {
-				client := NewClient(config, userAgent)
-
 				// If the rule is in new and its priority does not exist in old, then add it.
-				op, err := client.SecurityPolicies.AddRule(project, sp, expandSecurityPolicyRule(rule)).Do()
-
+				res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "POST",
+					Project:   project,
+					RawURL:    fmt.Sprintf("%sprojects/%s/global/securityPolicies/%s/addRule", transport_tpg.BaseUrl(Product, config), project, sp),
+					UserAgent: userAgent,
+					Body:      expandSecurityPolicyRule(rule),
+				})
 				if err != nil {
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
 				}
 
-				err = ComputeOperationWaitTime(config, op, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), userAgent, d.Timeout(schema.TimeoutUpdate))
+				err = ComputeOperationWaitTime(config, res, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), userAgent, d.Timeout(schema.TimeoutUpdate))
 				if err != nil {
 					return err
 				}
@@ -1065,7 +1106,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 				oMap := make(map[string]interface{})
 				nMap := make(map[string]interface{})
 
-				updateMask := []string{}
+				patchRuleUpdateMask := []string{}
 
 				if oRules[priority]["rate_limit_options"] != nil {
 					for _, oValue := range oRules[priority]["rate_limit_options"].([]interface{}) {
@@ -1080,19 +1121,19 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 				}
 
 				if fmt.Sprintf("%v", oMap) != fmt.Sprintf("%v", nMap) {
-					updateMask = append(updateMask, "rate_limit_options")
+					patchRuleUpdateMask = append(patchRuleUpdateMask, "rate_limit_options")
 				}
 
 				if fmt.Sprintf("%v", oMap["enforce_on_key"]) != fmt.Sprintf("%v", nMap["enforce_on_key"]) {
-					updateMask = append(updateMask, "rate_limit_options.enforce_on_key")
+					patchRuleUpdateMask = append(patchRuleUpdateMask, "rate_limit_options.enforce_on_key")
 				}
 
 				if fmt.Sprintf("%v", oMap["enforce_on_key_configs"]) != fmt.Sprintf("%v", nMap["enforce_on_key_configs"]) {
-					updateMask = append(updateMask, "rate_limit_options.enforce_on_key_configs")
+					patchRuleUpdateMask = append(patchRuleUpdateMask, "rate_limit_options.enforce_on_key_configs")
 				}
 
 				if fmt.Sprintf("%v", oMap["enforce_on_key_name"]) != fmt.Sprintf("%v", nMap["enforce_on_key_name"]) {
-					updateMask = append(updateMask, "rate_limit_options.enforce_on_key_name")
+					patchRuleUpdateMask = append(patchRuleUpdateMask, "rate_limit_options.enforce_on_key_name")
 				}
 
 				// Detect changes to preconfigured_waf_config so that removing or clearing
@@ -1100,19 +1141,32 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 				// updateMask, the PatchRule call will not clear the existing value because
 				// the request body omits nil pointers.
 				if fmt.Sprintf("%v", oRules[priority]["preconfigured_waf_config"]) != fmt.Sprintf("%v", nRules[priority]["preconfigured_waf_config"]) {
-					updateMask = append(updateMask, "preconfigured_waf_config")
+					patchRuleUpdateMask = append(patchRuleUpdateMask, "preconfigured_waf_config")
 				}
 
-				client := NewClient(config, userAgent)
+				if fmt.Sprintf("%v", oRules[priority]["header_action"]) != fmt.Sprintf("%v", nRules[priority]["header_action"]) {
+					patchRuleUpdateMask = append(patchRuleUpdateMask, "header_action")
+				}
 
 				// If the rule is in new, and its priority is in old, but its hash is different than the one in old, update it.
-				op, err := client.SecurityPolicies.PatchRule(project, sp, expandSecurityPolicyRule(rule)).Priority(priority).UpdateMask(strings.Join(updateMask, ",")).Do()
+				patchRuleURL := fmt.Sprintf("%sprojects/%s/global/securityPolicies/%s/patchRule?priority=%d", transport_tpg.BaseUrl(Product, config), project, sp, priority)
+				if len(patchRuleUpdateMask) > 0 {
+					patchRuleURL = fmt.Sprintf("%s&updateMask=%s", patchRuleURL, strings.Join(patchRuleUpdateMask, ","))
+				}
 
+				res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "POST",
+					Project:   project,
+					RawURL:    patchRuleURL,
+					UserAgent: userAgent,
+					Body:      expandSecurityPolicyRule(rule),
+				})
 				if err != nil {
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
 				}
 
-				err = ComputeOperationWaitTime(config, op, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), userAgent, d.Timeout(schema.TimeoutUpdate))
+				err = ComputeOperationWaitTime(config, res, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), userAgent, d.Timeout(schema.TimeoutUpdate))
 				if err != nil {
 					return err
 				}
@@ -1122,16 +1176,20 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 		for _, rule := range oSet.List() {
 			priority := int64(rule.(map[string]interface{})["priority"].(int))
 			if !nPriorities[priority] {
-				client := NewClient(config, userAgent)
-
 				// If the rule's priority is in old but not new, remove it.
-				op, err := client.SecurityPolicies.RemoveRule(project, sp).Priority(priority).Do()
-
+				res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "POST",
+					Project:   project,
+					RawURL:    fmt.Sprintf("%sprojects/%s/global/securityPolicies/%s/removeRule?priority=%d", transport_tpg.BaseUrl(Product, config), project, sp, priority),
+					UserAgent: userAgent,
+					Body:      map[string]interface{}{},
+				})
 				if err != nil {
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
 				}
 
-				err = ComputeOperationWaitTime(config, op, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), userAgent, d.Timeout(schema.TimeoutUpdate))
+				err = ComputeOperationWaitTime(config, res, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), userAgent, d.Timeout(schema.TimeoutUpdate))
 				if err != nil {
 					return err
 				}
@@ -1161,15 +1219,19 @@ func resourceComputeSecurityPolicyDelete(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	client := NewClient(config, userAgent)
-
 	// Delete the SecurityPolicy
-	op, err := client.SecurityPolicies.Delete(project, d.Get("name").(string)).Do()
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		Project:   project,
+		RawURL:    fmt.Sprintf("%sprojects/%s/global/securityPolicies/%s", transport_tpg.BaseUrl(Product, config), project, d.Get("name").(string)),
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return errwrap.Wrapf("Error deleting SecurityPolicy: {{err}}", err)
 	}
 
-	err = ComputeOperationWaitTime(config, op, project, "Deleting SecurityPolicy", userAgent, d.Timeout(schema.TimeoutDelete))
+	err = ComputeOperationWaitTime(config, res, project, "Deleting SecurityPolicy", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}
@@ -1178,82 +1240,97 @@ func resourceComputeSecurityPolicyDelete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func expandSecurityPolicyRules(configured []interface{}) []*compute.SecurityPolicyRule {
-	rules := make([]*compute.SecurityPolicyRule, 0, len(configured))
+func expandSecurityPolicyRules(configured []interface{}) []interface{} {
+	rules := make([]interface{}, 0, len(configured))
 	for _, raw := range configured {
 		rules = append(rules, expandSecurityPolicyRule(raw))
 	}
 	return rules
 }
 
-func expandSecurityPolicyRule(raw interface{}) *compute.SecurityPolicyRule {
+func expandSecurityPolicyRule(raw interface{}) map[string]interface{} {
 	data := raw.(map[string]interface{})
-	return &compute.SecurityPolicyRule{
-		Description:            data["description"].(string),
-		Priority:               int64(data["priority"].(int)),
-		Action:                 data["action"].(string),
-		Preview:                data["preview"].(bool),
-		Match:                  expandSecurityPolicyMatch(data["match"].([]interface{})),
-		PreconfiguredWafConfig: expandSecurityPolicyPreconfiguredWafConfig(data["preconfigured_waf_config"].([]interface{})),
-		RateLimitOptions:       expandSecurityPolicyRuleRateLimitOptions(data["rate_limit_options"].([]interface{})),
-		RedirectOptions:        expandSecurityPolicyRuleRedirectOptions(data["redirect_options"].([]interface{})),
-		HeaderAction:           expandSecurityPolicyRuleHeaderAction(data["header_action"].([]interface{})),
-		ForceSendFields:        []string{"Description", "Preview"},
+	rule := map[string]interface{}{
+		"priority": int64(data["priority"].(int)),
+		"action":   data["action"].(string),
+		"match":    expandSecurityPolicyMatch(data["match"].([]interface{})),
 	}
+	rule["description"] = data["description"].(string)
+	rule["preview"] = data["preview"].(bool)
+	if v := expandSecurityPolicyPreconfiguredWafConfig(data["preconfigured_waf_config"].([]interface{})); v != nil {
+		rule["preconfiguredWafConfig"] = v
+	}
+	if v := expandSecurityPolicyRuleRateLimitOptions(data["rate_limit_options"].([]interface{})); v != nil {
+		rule["rateLimitOptions"] = v
+	}
+	if v := expandSecurityPolicyRuleRedirectOptions(data["redirect_options"].([]interface{})); v != nil {
+		rule["redirectOptions"] = v
+	}
+	if v := expandSecurityPolicyRuleHeaderAction(data["header_action"].([]interface{})); len(v) > 0 {
+		rule["headerAction"] = v
+	}
+	return rule
 }
 
-func expandSecurityPolicyMatch(configured []interface{}) *compute.SecurityPolicyRuleMatcher {
+func expandSecurityPolicyMatch(configured []interface{}) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
 	data := configured[0].(map[string]interface{})
-	return &compute.SecurityPolicyRuleMatcher{
-		VersionedExpr: data["versioned_expr"].(string),
-		Config:        expandSecurityPolicyMatchConfig(data["config"].([]interface{})),
-		Expr:          expandSecurityPolicyMatchExpr(data["expr"].([]interface{})),
-		ExprOptions:   expandSecurityPolicyMatchExprOptions(data["expr_options"].([]interface{})),
+	match := map[string]interface{}{
+		"versionedExpr": data["versioned_expr"].(string),
 	}
+	if v := expandSecurityPolicyMatchConfig(data["config"].([]interface{})); v != nil {
+		match["config"] = v
+	}
+	if v := expandSecurityPolicyMatchExpr(data["expr"].([]interface{})); v != nil {
+		match["expr"] = v
+	}
+	if v := expandSecurityPolicyMatchExprOptions(data["expr_options"].([]interface{})); v != nil {
+		match["exprOptions"] = v
+	}
+	return match
 }
 
-func expandSecurityPolicyMatchConfig(configured []interface{}) *compute.SecurityPolicyRuleMatcherConfig {
+func expandSecurityPolicyMatchConfig(configured []interface{}) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
 	data := configured[0].(map[string]interface{})
-	return &compute.SecurityPolicyRuleMatcherConfig{
-		SrcIpRanges: tpgresource.ConvertStringArr(data["src_ip_ranges"].(*schema.Set).List()),
+	return map[string]interface{}{
+		"srcIpRanges": tpgresource.ConvertStringArr(data["src_ip_ranges"].(*schema.Set).List()),
 	}
 }
 
-func expandSecurityPolicyMatchExpr(expr []interface{}) *compute.Expr {
+func expandSecurityPolicyMatchExpr(expr []interface{}) map[string]interface{} {
 	if len(expr) == 0 || expr[0] == nil {
 		return nil
 	}
 
 	data := expr[0].(map[string]interface{})
-	return &compute.Expr{
-		Expression: data["expression"].(string),
+	return map[string]interface{}{
+		"expression": data["expression"].(string),
 		// These fields are not yet supported  (Issue hashicorp/terraform-provider-google#4497: mbang)
-		// Title:       data["title"].(string),
-		// Description: data["description"].(string),
-		// Location:    data["location"].(string),
+		// "title":       data["title"].(string),
+		// "description": data["description"].(string),
+		// "location":    data["location"].(string),
 	}
 }
 
-func expandSecurityPolicyMatchExprOptions(exprOptions []interface{}) *compute.SecurityPolicyRuleMatcherExprOptions {
+func expandSecurityPolicyMatchExprOptions(exprOptions []interface{}) map[string]interface{} {
 	if len(exprOptions) == 0 || exprOptions[0] == nil {
 		return nil
 	}
 
 	data := exprOptions[0].(map[string]interface{})
-	return &compute.SecurityPolicyRuleMatcherExprOptions{
-		RecaptchaOptions: expandSecurityPolicyMatchExprOptionsRecaptchaOptions(data["recaptcha_options"].([]interface{})),
+	return map[string]interface{}{
+		"recaptchaOptions": expandSecurityPolicyMatchExprOptionsRecaptchaOptions(data["recaptcha_options"].([]interface{})),
 	}
 }
 
-func expandSecurityPolicyMatchExprOptionsRecaptchaOptions(recaptchaOptions []interface{}) *compute.SecurityPolicyRuleMatcherExprOptionsRecaptchaOptions {
+func expandSecurityPolicyMatchExprOptionsRecaptchaOptions(recaptchaOptions []interface{}) map[string]interface{} {
 	if len(recaptchaOptions) == 0 || recaptchaOptions[0] == nil {
 		return nil
 	}
@@ -1272,164 +1349,183 @@ func expandSecurityPolicyMatchExprOptionsRecaptchaOptions(recaptchaOptions []int
 		sessionTokenKeys[i] = v.(string)
 	}
 
-	return &compute.SecurityPolicyRuleMatcherExprOptionsRecaptchaOptions{
-		ActionTokenSiteKeys:  actionTokenKeys,
-		SessionTokenSiteKeys: sessionTokenKeys,
+	return map[string]interface{}{
+		"actionTokenSiteKeys":  actionTokenKeys,
+		"sessionTokenSiteKeys": sessionTokenKeys,
 	}
 }
 
-func expandSecurityPolicyPreconfiguredWafConfig(configured []interface{}) *compute.SecurityPolicyRulePreconfiguredWafConfig {
+func expandSecurityPolicyPreconfiguredWafConfig(configured []interface{}) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
 	data := configured[0].(map[string]interface{})
-	return &compute.SecurityPolicyRulePreconfiguredWafConfig{
-		Exclusions: expandSecurityPolicyRulePreconfiguredWafConfigExclusions(data["exclusion"].([]interface{})),
+	return map[string]interface{}{
+		"exclusions": expandSecurityPolicyRulePreconfiguredWafConfigExclusions(data["exclusion"].([]interface{})),
 	}
 }
 
-func expandSecurityPolicyRulePreconfiguredWafConfigExclusions(configured []interface{}) []*compute.SecurityPolicyRulePreconfiguredWafConfigExclusion {
-	exclusions := make([]*compute.SecurityPolicyRulePreconfiguredWafConfigExclusion, 0, len(configured))
+func expandSecurityPolicyRulePreconfiguredWafConfigExclusions(configured []interface{}) []interface{} {
+	exclusions := make([]interface{}, 0, len(configured))
 	for _, raw := range configured {
 		exclusions = append(exclusions, expandSecurityPolicyRulePreconfiguredWafConfigExclusion(raw))
 	}
 	return exclusions
 }
 
-func expandSecurityPolicyRulePreconfiguredWafConfigExclusion(raw interface{}) *compute.SecurityPolicyRulePreconfiguredWafConfigExclusion {
+func expandSecurityPolicyRulePreconfiguredWafConfigExclusion(raw interface{}) map[string]interface{} {
 	data := raw.(map[string]interface{})
-	return &compute.SecurityPolicyRulePreconfiguredWafConfigExclusion{
-		RequestHeadersToExclude:     expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_header"].([]interface{})),
-		RequestCookiesToExclude:     expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_cookie"].([]interface{})),
-		RequestUrisToExclude:        expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_uri"].([]interface{})),
-		RequestQueryParamsToExclude: expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_query_param"].([]interface{})),
-		TargetRuleSet:               data["target_rule_set"].(string),
-		TargetRuleIds:               tpgresource.ConvertStringArr(data["target_rule_ids"].(*schema.Set).List()),
+	return map[string]interface{}{
+		"requestHeadersToExclude":     expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_header"].([]interface{})),
+		"requestCookiesToExclude":     expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_cookie"].([]interface{})),
+		"requestUrisToExclude":        expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_uri"].([]interface{})),
+		"requestQueryParamsToExclude": expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_query_param"].([]interface{})),
+		"targetRuleSet":               data["target_rule_set"].(string),
+		"targetRuleIds":               tpgresource.ConvertStringArr(data["target_rule_ids"].(*schema.Set).List()),
 	}
 }
 
-func expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(configured []interface{}) []*compute.SecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams {
-	params := make([]*compute.SecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams, 0, len(configured))
+func expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(configured []interface{}) []interface{} {
+	params := make([]interface{}, 0, len(configured))
 	for _, raw := range configured {
 		params = append(params, expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParam(raw))
 	}
 	return params
 }
 
-func expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParam(raw interface{}) *compute.SecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams {
+func expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParam(raw interface{}) map[string]interface{} {
 	data := raw.(map[string]interface{})
-	return &compute.SecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams{
-		Op:  data["operator"].(string),
-		Val: data["value"].(string),
+	return map[string]interface{}{
+		"op":  data["operator"].(string),
+		"val": data["value"].(string),
 	}
 }
 
-func flattenSecurityPolicyRules(rules []*compute.SecurityPolicyRule, d *schema.ResourceData) []map[string]interface{} {
+func flattenSecurityPolicyRules(rawRules interface{}, d *schema.ResourceData) []map[string]interface{} {
+	rules, ok := rawRules.([]interface{})
+	if !ok {
+		return nil
+	}
 	rulesSchema := make([]map[string]interface{}, 0, len(rules))
-	for _, rule := range rules {
+	for _, raw := range rules {
+		rule, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		priority := int(rule["priority"].(float64))
+		preview, _ := rule["preview"].(bool)
 		data := map[string]interface{}{
-			"description":              rule.Description,
-			"priority":                 rule.Priority,
-			"action":                   rule.Action,
-			"preview":                  rule.Preview,
-			"match":                    flattenMatch(rule.Match, d, int(rule.Priority)),
-			"preconfigured_waf_config": flattenPreconfiguredWafConfig(rule.PreconfiguredWafConfig, d, int(rule.Priority)),
-			"rate_limit_options":       flattenSecurityPolicyRuleRateLimitOptions(rule.RateLimitOptions),
-			"redirect_options":         flattenSecurityPolicyRedirectOptions(rule.RedirectOptions),
-			"header_action":            flattenSecurityPolicyRuleHeaderAction(rule.HeaderAction),
+			"description":              rule["description"],
+			"priority":                 priority,
+			"action":                   rule["action"],
+			"preview":                  preview,
+			"match":                    flattenMatch(rule["match"], d, priority),
+			"preconfigured_waf_config": flattenPreconfiguredWafConfig(rule["preconfiguredWafConfig"], d, priority),
+			"rate_limit_options":       flattenSecurityPolicyRuleRateLimitOptions(rule["rateLimitOptions"]),
+			"redirect_options":         flattenSecurityPolicyRedirectOptions(rule["redirectOptions"]),
+			"header_action":            flattenSecurityPolicyRuleHeaderAction(rule["headerAction"]),
 		}
 		rulesSchema = append(rulesSchema, data)
 	}
 	return rulesSchema
 }
 
-func flattenMatch(match *compute.SecurityPolicyRuleMatcher, d *schema.ResourceData, rulePriority int) []map[string]interface{} {
-	if match == nil {
+func flattenMatch(rawMatch interface{}, d *schema.ResourceData, rulePriority int) []map[string]interface{} {
+	match, ok := rawMatch.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	data := map[string]interface{}{
-		"versioned_expr": match.VersionedExpr,
-		"config":         flattenMatchConfig(match.Config),
-		"expr":           flattenMatchExpr(match),
-		"expr_options":   flattenMatchExprOptions(match.ExprOptions, d, rulePriority),
+		"versioned_expr": match["versionedExpr"],
+		"config":         flattenMatchConfig(match["config"]),
+		"expr":           flattenMatchExpr(match["expr"]),
+		"expr_options":   flattenMatchExprOptions(match["exprOptions"], d, rulePriority),
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func flattenMatchConfig(conf *compute.SecurityPolicyRuleMatcherConfig) []map[string]interface{} {
-	if conf == nil {
+func flattenMatchConfig(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
+	srcIpRanges, _ := conf["srcIpRanges"].([]interface{})
 	data := map[string]interface{}{
-		"src_ip_ranges": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(conf.SrcIpRanges)),
+		"src_ip_ranges": schema.NewSet(schema.HashString, srcIpRanges),
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func flattenMatchExprOptions(exprOptions *compute.SecurityPolicyRuleMatcherExprOptions, d *schema.ResourceData, rulePriority int) []map[string]interface{} {
-	if exprOptions == nil {
+func flattenMatchExprOptions(rawExprOptions interface{}, d *schema.ResourceData, rulePriority int) []map[string]interface{} {
+	exprOptions, ok := rawExprOptions.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	// The API can return an explicit entry `exprOptions` object, causing evaluation of the `recaptcha_options` settings to fail as it's nil: https://github.com/hashicorp/terraform-provider-google/issues/24334
 	// Explicitly check it's available and exit early if not.
-	if exprOptions.RecaptchaOptions == nil {
+	rawRecaptcha, ok := exprOptions["recaptchaOptions"].(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	// The API can return an explicit empty rule causing an issue: https://github.com/hashicorp/terraform-provider-google/issues/16882#issuecomment-2474528447
 	// We check if the API is returning a empty non-null value then we find the current value for this field in the rule config and check if its empty.
-	if (tpgresource.IsEmptyValue(reflect.ValueOf(exprOptions.RecaptchaOptions.ActionTokenSiteKeys)) &&
-		tpgresource.IsEmptyValue(reflect.ValueOf(exprOptions.RecaptchaOptions.SessionTokenSiteKeys))) &&
+	actionTokenKeys, _ := rawRecaptcha["actionTokenSiteKeys"].([]interface{})
+	sessionTokenKeys, _ := rawRecaptcha["sessionTokenSiteKeys"].([]interface{})
+	if len(actionTokenKeys) == 0 && len(sessionTokenKeys) == 0 &&
 		verifyRulePriorityCompareEmptyValues(d, rulePriority, "recaptcha_options") {
 		return nil
 	}
 
 	data := map[string]interface{}{
 		// NOTE: when adding new entries, the recaptcha_options rule above will need to be revised
-		"recaptcha_options": flattenMatchExprOptionsRecaptchaOptions(exprOptions.RecaptchaOptions),
+		"recaptcha_options": flattenMatchExprOptionsRecaptchaOptions(rawRecaptcha),
 		// NOTE: when adding new entries, the recaptcha_options rule above will need to be revised
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func flattenMatchExprOptionsRecaptchaOptions(recaptchaOptions *compute.SecurityPolicyRuleMatcherExprOptionsRecaptchaOptions) []map[string]interface{} {
-	if recaptchaOptions == nil {
+func flattenMatchExprOptionsRecaptchaOptions(rawRecaptchaOptions interface{}) []map[string]interface{} {
+	recaptchaOptions, ok := rawRecaptchaOptions.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	data := map[string]interface{}{
-		"action_token_site_keys":  recaptchaOptions.ActionTokenSiteKeys,
-		"session_token_site_keys": recaptchaOptions.SessionTokenSiteKeys,
+		"action_token_site_keys":  recaptchaOptions["actionTokenSiteKeys"],
+		"session_token_site_keys": recaptchaOptions["sessionTokenSiteKeys"],
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func flattenMatchExpr(match *compute.SecurityPolicyRuleMatcher) []map[string]interface{} {
-	if match.Expr == nil {
+func flattenMatchExpr(rawExpr interface{}) []map[string]interface{} {
+	expr, ok := rawExpr.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	data := map[string]interface{}{
-		"expression": match.Expr.Expression,
+		"expression": expr["expression"],
 		// These fields are not yet supported (Issue hashicorp/terraform-provider-google#4497: mbang)
-		// "title":       match.Expr.Title,
-		// "description": match.Expr.Description,
-		// "location":    match.Expr.Location,
+		// "title":       expr["title"],
+		// "description": expr["description"],
+		// "location":    expr["location"],
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func flattenPreconfiguredWafConfig(config *compute.SecurityPolicyRulePreconfiguredWafConfig, d *schema.ResourceData, rulePriority int) []map[string]interface{} {
-	if config == nil {
+func flattenPreconfiguredWafConfig(rawConfig interface{}, d *schema.ResourceData, rulePriority int) []map[string]interface{} {
+	config, ok := rawConfig.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
@@ -1439,22 +1535,31 @@ func flattenPreconfiguredWafConfig(config *compute.SecurityPolicyRulePreconfigur
 	}
 
 	data := map[string]interface{}{
-		"exclusion": flattenPreconfiguredWafConfigExclusions(config.Exclusions),
+		"exclusion": flattenPreconfiguredWafConfigExclusions(config["exclusions"]),
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func flattenPreconfiguredWafConfigExclusions(exclusions []*compute.SecurityPolicyRulePreconfiguredWafConfigExclusion) []map[string]interface{} {
+func flattenPreconfiguredWafConfigExclusions(rawExclusions interface{}) []map[string]interface{} {
+	exclusions, ok := rawExclusions.([]interface{})
+	if !ok {
+		return nil
+	}
 	exclusionsSchema := make([]map[string]interface{}, 0, len(exclusions))
-	for _, exclusion := range exclusions {
+	for _, raw := range exclusions {
+		exclusion, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		targetRuleIds, _ := exclusion["targetRuleIds"].([]interface{})
 		data := map[string]interface{}{
-			"request_header":      flattenPreconfiguredWafConfigExclusionField(exclusion.RequestHeadersToExclude),
-			"request_cookie":      flattenPreconfiguredWafConfigExclusionField(exclusion.RequestCookiesToExclude),
-			"request_uri":         flattenPreconfiguredWafConfigExclusionField(exclusion.RequestUrisToExclude),
-			"request_query_param": flattenPreconfiguredWafConfigExclusionField(exclusion.RequestQueryParamsToExclude),
-			"target_rule_set":     exclusion.TargetRuleSet,
-			"target_rule_ids":     schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(exclusion.TargetRuleIds)),
+			"request_header":      flattenPreconfiguredWafConfigExclusionField(exclusion["requestHeadersToExclude"]),
+			"request_cookie":      flattenPreconfiguredWafConfigExclusionField(exclusion["requestCookiesToExclude"]),
+			"request_uri":         flattenPreconfiguredWafConfigExclusionField(exclusion["requestUrisToExclude"]),
+			"request_query_param": flattenPreconfiguredWafConfigExclusionField(exclusion["requestQueryParamsToExclude"]),
+			"target_rule_set":     exclusion["targetRuleSet"],
+			"target_rule_ids":     schema.NewSet(schema.HashString, targetRuleIds),
 		}
 
 		exclusionsSchema = append(exclusionsSchema, data)
@@ -1462,226 +1567,271 @@ func flattenPreconfiguredWafConfigExclusions(exclusions []*compute.SecurityPolic
 	return exclusionsSchema
 }
 
-func flattenPreconfiguredWafConfigExclusionField(fieldParams []*compute.SecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams) []map[string]interface{} {
+func flattenPreconfiguredWafConfigExclusionField(rawFieldParams interface{}) []map[string]interface{} {
+	fieldParams, ok := rawFieldParams.([]interface{})
+	if !ok {
+		return nil
+	}
 	fieldSchema := make([]map[string]interface{}, 0, len(fieldParams))
-	for _, field := range fieldParams {
+	for _, raw := range fieldParams {
+		field, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
 		data := map[string]interface{}{
-			"operator": &field.Op,
-			"value":    &field.Val,
+			"operator": field["op"],
+			"value":    field["val"],
 		}
 		fieldSchema = append(fieldSchema, data)
 	}
 	return fieldSchema
 }
 
-func expandSecurityPolicyAdvancedOptionsConfig(configured []interface{}) *compute.SecurityPolicyAdvancedOptionsConfig {
+func expandSecurityPolicyAdvancedOptionsConfig(configured []interface{}) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
 	data := configured[0].(map[string]interface{})
-	return &compute.SecurityPolicyAdvancedOptionsConfig{
-		JsonParsing:               data["json_parsing"].(string),
-		JsonCustomConfig:          expandSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(data["json_custom_config"].([]interface{})),
-		LogLevel:                  data["log_level"].(string),
-		UserIpRequestHeaders:      tpgresource.ConvertStringArr(data["user_ip_request_headers"].(*schema.Set).List()),
-		RequestBodyInspectionSize: data["request_body_inspection_size"].(string),
+	result := map[string]interface{}{
+		"jsonParsing":          data["json_parsing"].(string),
+		"jsonCustomConfig":     expandSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(data["json_custom_config"].([]interface{})),
+		"logLevel":             data["log_level"].(string),
+		"userIpRequestHeaders": tpgresource.ConvertStringArr(data["user_ip_request_headers"].(*schema.Set).List()),
 	}
+	if v := data["request_body_inspection_size"].(string); v != "" {
+		result["requestBodyInspectionSize"] = v
+	}
+	return result
 }
 
-func flattenSecurityPolicyAdvancedOptionsConfig(conf *compute.SecurityPolicyAdvancedOptionsConfig) []map[string]interface{} {
-	if conf == nil {
+func flattenSecurityPolicyAdvancedOptionsConfig(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
+	userIpHeaders, _ := conf["userIpRequestHeaders"].([]interface{})
 	data := map[string]interface{}{
-		"json_parsing":                 conf.JsonParsing,
-		"json_custom_config":           flattenSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(conf.JsonCustomConfig),
-		"log_level":                    conf.LogLevel,
-		"user_ip_request_headers":      schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(conf.UserIpRequestHeaders)),
-		"request_body_inspection_size": conf.RequestBodyInspectionSize,
+		"json_parsing":                 conf["jsonParsing"],
+		"json_custom_config":           flattenSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(conf["jsonCustomConfig"]),
+		"log_level":                    conf["logLevel"],
+		"user_ip_request_headers":      schema.NewSet(schema.HashString, userIpHeaders),
+		"request_body_inspection_size": conf["requestBodyInspectionSize"],
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func expandSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(configured []interface{}) *compute.SecurityPolicyAdvancedOptionsConfigJsonCustomConfig {
+func expandSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(configured []interface{}) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
-		// If configuration is unset, return an empty JsonCustomConfig; this ensures the ContentTypes list can be cleared
-		return &compute.SecurityPolicyAdvancedOptionsConfigJsonCustomConfig{}
+		// If configuration is unset, return an empty map; this ensures the ContentTypes list can be cleared
+		return map[string]interface{}{}
 	}
 
 	data := configured[0].(map[string]interface{})
-	return &compute.SecurityPolicyAdvancedOptionsConfigJsonCustomConfig{
-		ContentTypes: tpgresource.ConvertStringArr(data["content_types"].(*schema.Set).List()),
+	return map[string]interface{}{
+		"contentTypes": tpgresource.ConvertStringArr(data["content_types"].(*schema.Set).List()),
 	}
 }
 
-func flattenSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(conf *compute.SecurityPolicyAdvancedOptionsConfigJsonCustomConfig) []map[string]interface{} {
-	if conf == nil {
+func flattenSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
+	contentTypes, _ := conf["contentTypes"].([]interface{})
 	data := map[string]interface{}{
-		"content_types": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(conf.ContentTypes)),
+		"content_types": schema.NewSet(schema.HashString, contentTypes),
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func expandSecurityPolicyAdaptiveProtectionConfig(configured []interface{}) *compute.SecurityPolicyAdaptiveProtectionConfig {
+func expandSecurityPolicyAdaptiveProtectionConfig(configured []interface{}) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
 	data := configured[0].(map[string]interface{})
-	return &compute.SecurityPolicyAdaptiveProtectionConfig{
-		Layer7DdosDefenseConfig: expandLayer7DdosDefenseConfig(data["layer_7_ddos_defense_config"].([]interface{})),
+	result := map[string]interface{}{}
+	if v := expandLayer7DdosDefenseConfig(data["layer_7_ddos_defense_config"].([]interface{})); v != nil {
+		result["layer7DdosDefenseConfig"] = v
 	}
+	return result
 }
 
-func expandLayer7DdosDefenseConfig(configured []interface{}) *compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfig {
+func expandLayer7DdosDefenseConfig(configured []interface{}) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
 	data := configured[0].(map[string]interface{})
-	return &compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfig{
-		Enable:           data["enable"].(bool),
-		RuleVisibility:   data["rule_visibility"].(string),
-		ThresholdConfigs: expandThresholdConfigs(data["threshold_configs"].([]interface{})),
-		ForceSendFields:  []string{"Enable"},
+	result := map[string]interface{}{
+		"enable":         data["enable"].(bool),
+		"ruleVisibility": data["rule_visibility"].(string),
 	}
+	if v := expandThresholdConfigs(data["threshold_configs"].([]interface{})); len(v) > 0 {
+		result["thresholdConfigs"] = v
+	}
+	return result
 }
 
-func expandThresholdConfigs(configured []interface{}) []*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfig {
-	params := make([]*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfig, 0, len(configured))
+func expandThresholdConfigs(configured []interface{}) []interface{} {
+	params := make([]interface{}, 0, len(configured))
 	for _, raw := range configured {
 		params = append(params, expandThresholdConfig(raw))
 	}
 	return params
 }
 
-func expandThresholdConfig(configured interface{}) *compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfig {
+func expandThresholdConfig(configured interface{}) map[string]interface{} {
 	data := configured.(map[string]interface{})
-	return &compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfig{
-		AutoDeployConfidenceThreshold:       data["auto_deploy_confidence_threshold"].(float64),
-		AutoDeployExpirationSec:             int64(data["auto_deploy_expiration_sec"].(int)),
-		AutoDeployImpactedBaselineThreshold: data["auto_deploy_impacted_baseline_threshold"].(float64),
-		AutoDeployLoadThreshold:             data["auto_deploy_load_threshold"].(float64),
-		DetectionAbsoluteQps:                data["detection_absolute_qps"].(float64),
-		DetectionLoadThreshold:              data["detection_load_threshold"].(float64),
-		DetectionRelativeToBaselineQps:      data["detection_relative_to_baseline_qps"].(float64),
-		Name:                                data["name"].(string),
-		TrafficGranularityConfigs:           expandTrafficGranularityConfig(data["traffic_granularity_configs"].([]interface{})),
+	return map[string]interface{}{
+		"autoDeployConfidenceThreshold":       data["auto_deploy_confidence_threshold"].(float64),
+		"autoDeployExpirationSec":             int64(data["auto_deploy_expiration_sec"].(int)),
+		"autoDeployImpactedBaselineThreshold": data["auto_deploy_impacted_baseline_threshold"].(float64),
+		"autoDeployLoadThreshold":             data["auto_deploy_load_threshold"].(float64),
+		"detectionAbsoluteQps":                data["detection_absolute_qps"].(float64),
+		"detectionLoadThreshold":              data["detection_load_threshold"].(float64),
+		"detectionRelativeToBaselineQps":      data["detection_relative_to_baseline_qps"].(float64),
+		"name":                                data["name"].(string),
+		"trafficGranularityConfigs":           expandTrafficGranularityConfig(data["traffic_granularity_configs"].([]interface{})),
 	}
 }
 
-func expandTrafficGranularityConfig(configured []interface{}) []*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfigTrafficGranularityConfig {
-	params := make([]*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfigTrafficGranularityConfig, 0, len(configured))
+func expandTrafficGranularityConfig(configured []interface{}) []interface{} {
+	params := make([]interface{}, 0, len(configured))
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
-		params = append(params, &compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfigTrafficGranularityConfig{
-			EnableEachUniqueValue: data["enable_each_unique_value"].(bool),
-			Type:                  data["type"].(string),
-			Value:                 data["value"].(string),
+		params = append(params, map[string]interface{}{
+			"enableEachUniqueValue": data["enable_each_unique_value"].(bool),
+			"type":                  data["type"].(string),
+			"value":                 data["value"].(string),
 		})
 	}
 	return params
 }
 
-func flattenSecurityPolicyAdaptiveProtectionConfig(conf *compute.SecurityPolicyAdaptiveProtectionConfig) []map[string]interface{} {
-	if conf == nil {
+func flattenSecurityPolicyAdaptiveProtectionConfig(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	data := map[string]interface{}{
-		"layer_7_ddos_defense_config": flattenLayer7DdosDefenseConfig(conf.Layer7DdosDefenseConfig),
+		"layer_7_ddos_defense_config": flattenLayer7DdosDefenseConfig(conf["layer7DdosDefenseConfig"]),
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func flattenLayer7DdosDefenseConfig(conf *compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfig) []map[string]interface{} {
-	if conf == nil {
+func flattenLayer7DdosDefenseConfig(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	data := map[string]interface{}{
-		"enable":            conf.Enable,
-		"rule_visibility":   conf.RuleVisibility,
-		"threshold_configs": flattenThresholdConfigs(conf.ThresholdConfigs),
+		"enable":            conf["enable"],
+		"rule_visibility":   conf["ruleVisibility"],
+		"threshold_configs": flattenThresholdConfigs(conf["thresholdConfigs"]),
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func flattenThresholdConfigs(conf []*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfig) []map[string]interface{} {
+func flattenThresholdConfigs(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.([]interface{})
+	if !ok {
+		return nil
+	}
 	configs := make([]map[string]interface{}, 0, len(conf))
-	for _, field := range conf {
+	for _, raw := range conf {
+		field, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
 		data := map[string]interface{}{
-			"name":                                    field.Name,
-			"auto_deploy_load_threshold":              field.AutoDeployLoadThreshold,
-			"auto_deploy_confidence_threshold":        field.AutoDeployConfidenceThreshold,
-			"auto_deploy_impacted_baseline_threshold": field.AutoDeployImpactedBaselineThreshold,
-			"auto_deploy_expiration_sec":              field.AutoDeployExpirationSec,
-			"detection_load_threshold":                field.DetectionLoadThreshold,
-			"detection_absolute_qps":                  field.DetectionAbsoluteQps,
-			"detection_relative_to_baseline_qps":      field.DetectionRelativeToBaselineQps,
-			"traffic_granularity_configs":             flattenTrafficGranularityConfigs(field.TrafficGranularityConfigs),
+			"name":                                    field["name"],
+			"auto_deploy_load_threshold":              field["autoDeployLoadThreshold"],
+			"auto_deploy_confidence_threshold":        field["autoDeployConfidenceThreshold"],
+			"auto_deploy_impacted_baseline_threshold": field["autoDeployImpactedBaselineThreshold"],
+			"auto_deploy_expiration_sec":              field["autoDeployExpirationSec"],
+			"detection_load_threshold":                field["detectionLoadThreshold"],
+			"detection_absolute_qps":                  field["detectionAbsoluteQps"],
+			"detection_relative_to_baseline_qps":      field["detectionRelativeToBaselineQps"],
+			"traffic_granularity_configs":             flattenTrafficGranularityConfigs(field["trafficGranularityConfigs"]),
 		}
 		configs = append(configs, data)
 	}
 	return configs
 }
 
-func flattenTrafficGranularityConfigs(conf []*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfigTrafficGranularityConfig) []map[string]interface{} {
+func flattenTrafficGranularityConfigs(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.([]interface{})
+	if !ok {
+		return nil
+	}
 	configs := make([]map[string]interface{}, 0, len(conf))
-	for _, field := range conf {
+	for _, raw := range conf {
+		field, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
 		data := map[string]interface{}{
-			"type":                     field.Type,
-			"value":                    field.Value,
-			"enable_each_unique_value": field.EnableEachUniqueValue,
+			"type":                     field["type"],
+			"value":                    field["value"],
+			"enable_each_unique_value": field["enableEachUniqueValue"],
 		}
 		configs = append(configs, data)
 	}
 	return configs
 }
 
-func expandSecurityPolicyRuleRateLimitOptions(configured []interface{}) *compute.SecurityPolicyRuleRateLimitOptions {
+func expandSecurityPolicyRuleRateLimitOptions(configured []interface{}) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
 	data := configured[0].(map[string]interface{})
-	return &compute.SecurityPolicyRuleRateLimitOptions{
-		BanThreshold:          expandThreshold(data["ban_threshold"].([]interface{})),
-		RateLimitThreshold:    expandThreshold(data["rate_limit_threshold"].([]interface{})),
-		ExceedAction:          data["exceed_action"].(string),
-		ConformAction:         data["conform_action"].(string),
-		EnforceOnKey:          data["enforce_on_key"].(string),
-		EnforceOnKeyName:      data["enforce_on_key_name"].(string),
-		EnforceOnKeyConfigs:   expandSecurityPolicyEnforceOnKeyConfigs(data["enforce_on_key_configs"].([]interface{})),
-		BanDurationSec:        int64(data["ban_duration_sec"].(int)),
-		ExceedRedirectOptions: expandSecurityPolicyRuleRedirectOptions(data["exceed_redirect_options"].([]interface{})),
-		ForceSendFields:       []string{"EnforceOnKey", "EnforceOnKeyName"},
+	opts := map[string]interface{}{
+		"exceedAction":        data["exceed_action"].(string),
+		"conformAction":       data["conform_action"].(string),
+		"enforceOnKey":        data["enforce_on_key"].(string),
+		"enforceOnKeyName":    data["enforce_on_key_name"].(string),
+		"enforceOnKeyConfigs": expandSecurityPolicyEnforceOnKeyConfigs(data["enforce_on_key_configs"].([]interface{})),
 	}
+	if v := int64(data["ban_duration_sec"].(int)); v != 0 {
+		opts["banDurationSec"] = v
+	}
+	if v := expandThreshold(data["ban_threshold"].([]interface{})); v != nil {
+		opts["banThreshold"] = v
+	}
+	if v := expandThreshold(data["rate_limit_threshold"].([]interface{})); v != nil {
+		opts["rateLimitThreshold"] = v
+	}
+	if v := expandSecurityPolicyRuleRedirectOptions(data["exceed_redirect_options"].([]interface{})); v != nil {
+		opts["exceedRedirectOptions"] = v
+	}
+	return opts
 }
 
-func expandThreshold(configured []interface{}) *compute.SecurityPolicyRuleRateLimitOptionsThreshold {
+func expandThreshold(configured []interface{}) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
 	data := configured[0].(map[string]interface{})
-	return &compute.SecurityPolicyRuleRateLimitOptionsThreshold{
-		Count:       int64(data["count"].(int)),
-		IntervalSec: int64(data["interval_sec"].(int)),
+	return map[string]interface{}{
+		"count":       int64(data["count"].(int)),
+		"intervalSec": int64(data["interval_sec"].(int)),
 	}
 }
 
-func expandSecurityPolicyEnforceOnKeyConfigs(configured []interface{}) []*compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig {
-	params := make([]*compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig, 0, len(configured))
+func expandSecurityPolicyEnforceOnKeyConfigs(configured []interface{}) []interface{} {
+	params := make([]interface{}, 0, len(configured))
 
 	for _, raw := range configured {
 		params = append(params, expandSecurityPolicyEnforceOnKeyConfigsFields(raw))
@@ -1690,62 +1840,65 @@ func expandSecurityPolicyEnforceOnKeyConfigs(configured []interface{}) []*comput
 	return params
 }
 
-func expandSecurityPolicyEnforceOnKeyConfigsFields(raw interface{}) *compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig {
+func expandSecurityPolicyEnforceOnKeyConfigsFields(raw interface{}) map[string]interface{} {
 	data := raw.(map[string]interface{})
 
-	return &compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig{
-		EnforceOnKeyType: data["enforce_on_key_type"].(string),
-		EnforceOnKeyName: data["enforce_on_key_name"].(string),
+	return map[string]interface{}{
+		"enforceOnKeyType": data["enforce_on_key_type"].(string),
+		"enforceOnKeyName": data["enforce_on_key_name"].(string),
 	}
 }
 
-func flattenSecurityPolicyRuleRateLimitOptions(conf *compute.SecurityPolicyRuleRateLimitOptions) []map[string]interface{} {
-	if conf == nil {
+func flattenSecurityPolicyRuleRateLimitOptions(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	data := map[string]interface{}{
-		"ban_threshold":           flattenThreshold(conf.BanThreshold),
-		"rate_limit_threshold":    flattenThreshold(conf.RateLimitThreshold),
-		"exceed_action":           conf.ExceedAction,
-		"conform_action":          conf.ConformAction,
-		"enforce_on_key":          conf.EnforceOnKey,
-		"enforce_on_key_name":     conf.EnforceOnKeyName,
-		"enforce_on_key_configs":  flattenSecurityPolicyEnforceOnKeyConfigs(conf.EnforceOnKeyConfigs),
-		"ban_duration_sec":        conf.BanDurationSec,
-		"exceed_redirect_options": flattenSecurityPolicyRedirectOptions(conf.ExceedRedirectOptions),
+		"ban_threshold":           flattenThreshold(conf["banThreshold"]),
+		"rate_limit_threshold":    flattenThreshold(conf["rateLimitThreshold"]),
+		"exceed_action":           conf["exceedAction"],
+		"conform_action":          conf["conformAction"],
+		"enforce_on_key":          conf["enforceOnKey"],
+		"enforce_on_key_name":     conf["enforceOnKeyName"],
+		"enforce_on_key_configs":  flattenSecurityPolicyEnforceOnKeyConfigs(conf["enforceOnKeyConfigs"]),
+		"ban_duration_sec":        conf["banDurationSec"],
+		"exceed_redirect_options": flattenSecurityPolicyRedirectOptions(conf["exceedRedirectOptions"]),
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func flattenThreshold(conf *compute.SecurityPolicyRuleRateLimitOptionsThreshold) []map[string]interface{} {
-	if conf == nil {
+func flattenThreshold(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	data := map[string]interface{}{
-		"count":        conf.Count,
-		"interval_sec": conf.IntervalSec,
+		"count":        conf["count"],
+		"interval_sec": conf["intervalSec"],
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func expandSecurityPolicyRuleRedirectOptions(configured []interface{}) *compute.SecurityPolicyRuleRedirectOptions {
+func expandSecurityPolicyRuleRedirectOptions(configured []interface{}) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
 	data := configured[0].(map[string]interface{})
-	return &compute.SecurityPolicyRuleRedirectOptions{
-		Type:   data["type"].(string),
-		Target: data["target"].(string),
+	return map[string]interface{}{
+		"type":   data["type"].(string),
+		"target": data["target"].(string),
 	}
 }
 
-func flattenSecurityPolicyEnforceOnKeyConfigs(conf []*compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig) []map[string]interface{} {
-	if conf == nil || len(conf) == 0 {
+func flattenSecurityPolicyEnforceOnKeyConfigs(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.([]interface{})
+	if !ok || len(conf) == 0 {
 		return nil
 	}
 
@@ -1756,70 +1909,72 @@ func flattenSecurityPolicyEnforceOnKeyConfigs(conf []*compute.SecurityPolicyRule
 	return transformed
 }
 
-func flattenSecurityPolicyEnforceOnKeyConfigsFields(conf *compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig) map[string]interface{} {
-	if conf == nil {
+func flattenSecurityPolicyEnforceOnKeyConfigsFields(rawConf interface{}) map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	return map[string]interface{}{
-		"enforce_on_key_name": conf.EnforceOnKeyName,
-		"enforce_on_key_type": conf.EnforceOnKeyType,
+		"enforce_on_key_name": conf["enforceOnKeyName"],
+		"enforce_on_key_type": conf["enforceOnKeyType"],
 	}
 }
 
-func flattenSecurityPolicyRedirectOptions(conf *compute.SecurityPolicyRuleRedirectOptions) []map[string]interface{} {
-	if conf == nil {
+func flattenSecurityPolicyRedirectOptions(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	data := map[string]interface{}{
-		"type":   conf.Type,
-		"target": conf.Target,
+		"type":   conf["type"],
+		"target": conf["target"],
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func expandSecurityPolicyRecaptchaOptionsConfig(configured []interface{}, d *schema.ResourceData) *compute.SecurityPolicyRecaptchaOptionsConfig {
+func expandSecurityPolicyRecaptchaOptionsConfig(configured []interface{}, d *schema.ResourceData) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
 	data := configured[0].(map[string]interface{})
 
-	return &compute.SecurityPolicyRecaptchaOptionsConfig{
-		RedirectSiteKey: data["redirect_site_key"].(string),
-		ForceSendFields: []string{"RedirectSiteKey"},
+	return map[string]interface{}{
+		"redirectSiteKey": data["redirect_site_key"].(string),
 	}
 }
 
-func flattenSecurityPolicyRecaptchaOptionConfig(conf *compute.SecurityPolicyRecaptchaOptionsConfig) []map[string]interface{} {
-	if conf == nil {
+func flattenSecurityPolicyRecaptchaOptionConfig(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	data := map[string]interface{}{
-		"redirect_site_key": conf.RedirectSiteKey,
+		"redirect_site_key": conf["redirectSiteKey"],
 	}
 
 	return []map[string]interface{}{data}
 }
 
-func expandSecurityPolicyRuleHeaderAction(configured []interface{}) *compute.SecurityPolicyRuleHttpHeaderAction {
+func expandSecurityPolicyRuleHeaderAction(configured []interface{}) map[string]interface{} {
 	if len(configured) == 0 || configured[0] == nil {
-		// If header action is unset, return an empty object; this ensures the header action can be cleared
-		return &compute.SecurityPolicyRuleHttpHeaderAction{}
+		// If header action is unset, return an empty map; this ensures the header action can be cleared
+		return map[string]interface{}{}
 	}
 
 	data := configured[0].(map[string]interface{})
 
-	return &compute.SecurityPolicyRuleHttpHeaderAction{
-		RequestHeadersToAdds: expandSecurityPolicyRequestHeadersToAdds(data["request_headers_to_adds"].([]interface{})),
+	return map[string]interface{}{
+		"requestHeadersToAdds": expandSecurityPolicyRequestHeadersToAdds(data["request_headers_to_adds"].([]interface{})),
 	}
 }
 
-func expandSecurityPolicyRequestHeadersToAdds(configured []interface{}) []*compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption {
-	transformed := make([]*compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption, 0, len(configured))
+func expandSecurityPolicyRequestHeadersToAdds(configured []interface{}) []interface{} {
+	transformed := make([]interface{}, 0, len(configured))
 
 	for _, raw := range configured {
 		transformed = append(transformed, expandSecurityPolicyRequestHeader(raw))
@@ -1828,29 +1983,34 @@ func expandSecurityPolicyRequestHeadersToAdds(configured []interface{}) []*compu
 	return transformed
 }
 
-func expandSecurityPolicyRequestHeader(configured interface{}) *compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption {
+func expandSecurityPolicyRequestHeader(configured interface{}) map[string]interface{} {
 	data := configured.(map[string]interface{})
 
-	return &compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption{
-		HeaderName:  data["header_name"].(string),
-		HeaderValue: data["header_value"].(string),
+	return map[string]interface{}{
+		"headerName":  data["header_name"].(string),
+		"headerValue": data["header_value"].(string),
 	}
 }
 
-func flattenSecurityPolicyRuleHeaderAction(conf *compute.SecurityPolicyRuleHttpHeaderAction) []map[string]interface{} {
-	if conf == nil || conf.RequestHeadersToAdds == nil {
+func flattenSecurityPolicyRuleHeaderAction(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	if conf["requestHeadersToAdds"] == nil {
 		return nil
 	}
 
 	transformed := map[string]interface{}{
-		"request_headers_to_adds": flattenSecurityPolicyRequestHeadersToAdds(conf.RequestHeadersToAdds),
+		"request_headers_to_adds": flattenSecurityPolicyRequestHeadersToAdds(conf["requestHeadersToAdds"]),
 	}
 
 	return []map[string]interface{}{transformed}
 }
 
-func flattenSecurityPolicyRequestHeadersToAdds(conf []*compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption) []map[string]interface{} {
-	if conf == nil || len(conf) == 0 {
+func flattenSecurityPolicyRequestHeadersToAdds(rawConf interface{}) []map[string]interface{} {
+	conf, ok := rawConf.([]interface{})
+	if !ok || len(conf) == 0 {
 		return nil
 	}
 
@@ -1862,14 +2022,15 @@ func flattenSecurityPolicyRequestHeadersToAdds(conf []*compute.SecurityPolicyRul
 	return transformed
 }
 
-func flattenSecurityPolicyRequestHeader(conf *compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption) map[string]interface{} {
-	if conf == nil {
+func flattenSecurityPolicyRequestHeader(rawConf interface{}) map[string]interface{} {
+	conf, ok := rawConf.(map[string]interface{})
+	if !ok {
 		return nil
 	}
 
 	return map[string]interface{}{
-		"header_name":  conf.HeaderName,
-		"header_value": conf.HeaderValue,
+		"header_name":  conf["headerName"],
+		"header_value": conf["headerValue"],
 	}
 }
 
