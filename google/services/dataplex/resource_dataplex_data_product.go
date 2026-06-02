@@ -168,6 +168,24 @@ func ResourceDataplexDataProduct() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"access_approval_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for access approval for the data product.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"approver_emails": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Specifies the email addresses of users who are potential approvers.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"access_groups": {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -251,6 +269,11 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Computed:    true,
 				Description: `Checksum for concurrency control.`,
 			},
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The relative resource name of the data product.`,
+			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -299,6 +322,12 @@ func resourceDataplexDataProductCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	obj := make(map[string]interface{})
+	accessApprovalConfigProp, err := expandDataplexDataProductAccessApprovalConfig(d.Get("access_approval_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("access_approval_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessApprovalConfigProp)) && (ok || !reflect.DeepEqual(v, accessApprovalConfigProp)) {
+		obj["accessApprovalConfig"] = accessApprovalConfigProp
+	}
 	displayNameProp, err := expandDataplexDataProductDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -545,6 +574,12 @@ func resourceDataplexDataProductUpdate(d *schema.ResourceData, meta interface{})
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	accessApprovalConfigProp, err := expandDataplexDataProductAccessApprovalConfig(d.Get("access_approval_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("access_approval_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessApprovalConfigProp)) {
+		obj["accessApprovalConfig"] = accessApprovalConfigProp
+	}
 	displayNameProp, err := expandDataplexDataProductDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -584,6 +619,10 @@ func resourceDataplexDataProductUpdate(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Updating DataProduct %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
+
+	if d.HasChange("access_approval_config") {
+		updateMask = append(updateMask, "accessApprovalConfig")
+	}
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
@@ -729,7 +768,28 @@ func resourceDataplexDataProductImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenDataplexDataProductName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDataplexDataProductUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDataProductAccessApprovalConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["approver_emails"] =
+		flattenDataplexDataProductAccessApprovalConfigApproverEmails(original["approverEmails"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDataProductAccessApprovalConfigApproverEmails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -861,6 +921,32 @@ func flattenDataplexDataProductEffectiveLabels(v interface{}, d *schema.Resource
 	return v
 }
 
+func expandDataplexDataProductAccessApprovalConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedApproverEmails, err := expandDataplexDataProductAccessApprovalConfigApproverEmails(original["approver_emails"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedApproverEmails); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["approverEmails"] = transformedApproverEmails
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDataProductAccessApprovalConfigApproverEmails(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDataplexDataProductDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -982,7 +1068,13 @@ func expandDataplexDataProductEffectiveLabels(v interface{}, d tpgresource.Terra
 func ResourceDataplexDataProductFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
+	if err = d.Set("name", flattenDataplexDataProductName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataProduct: %s", err)
+	}
 	if err = d.Set("uid", flattenDataplexDataProductUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataProduct: %s", err)
+	}
+	if err = d.Set("access_approval_config", flattenDataplexDataProductAccessApprovalConfig(res["accessApprovalConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataProduct: %s", err)
 	}
 	if err = d.Set("display_name", flattenDataplexDataProductDisplayName(res["displayName"], d, config)); err != nil {

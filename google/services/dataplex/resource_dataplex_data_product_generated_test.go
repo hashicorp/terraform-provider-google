@@ -164,6 +164,10 @@ resource "google_dataplex_data_product" "example" {
 
   owner_emails = ["gterraformtestuser@gmail.com"]
 
+  access_approval_config {
+    approver_emails = ["gterraformtestuser@gmail.com"]
+  }
+
   labels = {
     env = "manual-test"
   }

@@ -1,0 +1,7 @@
+```release-note:enhancement
+dataplex: added IAM support for `google_dataplex_data_product` (iam_policy, iam_binding, iam_member)
+```
+
+```release-note:enhancement
+dataplex: added `access_approval_config` field to `google_dataplex_data_product`
+```
