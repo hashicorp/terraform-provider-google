@@ -7,6 +7,7 @@ api_service_name: dataplex.googleapis.com
 api_version: v1
 api_resource_type_kind: DataProduct
 fields:
+    - api_field: accessApprovalConfig.approverEmails
     - api_field: accessGroups.key
       field: access_groups.id
     - api_field: accessGroups.value.description
@@ -31,6 +32,7 @@ fields:
     - api_field: labels
     - field: location
       provider_only: true
+    - api_field: name
     - api_field: ownerEmails
     - field: terraform_labels
       provider_only: true

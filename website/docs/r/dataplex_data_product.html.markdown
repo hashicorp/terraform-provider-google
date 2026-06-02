@@ -75,6 +75,10 @@ resource "google_dataplex_data_product" "example" {
 
   owner_emails = ["gterraformtestuser@gmail.com"]
 
+  access_approval_config {
+    approver_emails = ["gterraformtestuser@gmail.com"]
+  }
+
   labels = {
     env = "manual-test"
   }
@@ -123,6 +127,11 @@ The following arguments are supported:
   The ID of the data product.
 
 
+* `access_approval_config` -
+  (Optional)
+  Configuration for access approval for the data product.
+  Structure is [documented below](#nested_access_approval_config).
+
 * `labels` -
   (Optional)
   User-defined labels.
@@ -148,6 +157,12 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 
+
+<a name="nested_access_approval_config"></a>The `access_approval_config` block supports:
+
+* `approver_emails` -
+  (Optional)
+  Specifies the email addresses of users who are potential approvers.
 
 <a name="nested_access_groups"></a>The `access_groups` block supports:
 
@@ -186,6 +201,9 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/dataProducts/{{data_product_id}}`
+
+* `name` -
+  The relative resource name of the data product.
 
 * `uid` -
   System generated unique ID.
