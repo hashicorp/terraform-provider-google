@@ -25,6 +25,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * resourcemanager: fixed a bug where ephemeral `google_service_account_key` failed on deletion if the parent service account had already been deleted ([#27541](https://github.com/hashicorp/terraform-provider-google/pull/27541))
+* storage: fixed missing identity error when updating values in `google_storage_bucket` ([#27605](https://github.com/hashicorp/terraform-provider-google/pull/27605))
 
 ## 7.34.0 (May 27, 2026)
 
