@@ -837,7 +837,7 @@ func hasNodeAffinitiesChanged(oScheduling, newScheduling map[string]interface{})
 	return false
 }
 
-func expandReservationAffinity(d tpgresource.TerraformResourceData) (*compute.ReservationAffinity, error) {
+func expandReservationAffinity(d tpgresource.TerraformResourceData) (map[string]interface{}, error) {
 	_, ok := d.GetOk("reservation_affinity")
 	if !ok {
 		return nil, nil
@@ -846,9 +846,8 @@ func expandReservationAffinity(d tpgresource.TerraformResourceData) (*compute.Re
 	prefix := "reservation_affinity.0"
 	reservationAffinityType := d.Get(prefix + ".type").(string)
 
-	affinity := compute.ReservationAffinity{
-		ConsumeReservationType: reservationAffinityType,
-		ForceSendFields:        []string{"ConsumeReservationType"},
+	affinity := map[string]interface{}{
+		"consumeReservationType": reservationAffinityType,
 	}
 
 	_, hasSpecificReservation := d.GetOk(prefix + ".specific_reservation")
@@ -858,30 +857,32 @@ func expandReservationAffinity(d tpgresource.TerraformResourceData) (*compute.Re
 
 	prefix = prefix + ".specific_reservation.0"
 	if hasSpecificReservation {
-		affinity.Key = d.Get(prefix + ".key").(string)
-		affinity.ForceSendFields = append(affinity.ForceSendFields, "Key", "Values")
-
+		affinity["key"] = d.Get(prefix + ".key").(string)
+		values := []interface{}{}
 		for _, v := range d.Get(prefix + ".values").([]interface{}) {
-			affinity.Values = append(affinity.Values, v.(string))
+			values = append(values, v.(string))
 		}
+		affinity["values"] = values
 	}
 
-	return &affinity, nil
+	return affinity, nil
 }
 
-func flattenReservationAffinity(affinity *compute.ReservationAffinity) []map[string]interface{} {
+func flattenReservationAffinity(affinity map[string]interface{}) []map[string]interface{} {
 	if affinity == nil {
 		return nil
 	}
 
+	consumeType, _ := affinity["consumeReservationType"].(string)
 	flattened := map[string]interface{}{
-		"type": affinity.ConsumeReservationType,
+		"type": consumeType,
 	}
 
-	if affinity.ConsumeReservationType == "SPECIFIC_RESERVATION" {
+	if consumeType == "SPECIFIC_RESERVATION" {
+		key, _ := affinity["key"].(string)
 		flattened["specific_reservation"] = []map[string]interface{}{{
-			"key":    affinity.Key,
-			"values": affinity.Values,
+			"key":    key,
+			"values": affinity["values"],
 		}}
 	}
 

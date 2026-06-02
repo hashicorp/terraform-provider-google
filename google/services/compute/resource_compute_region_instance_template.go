@@ -1311,11 +1311,7 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 		instanceProperties["advancedMachineFeatures"] = amfMap
 	}
 	if reservationAffinity != nil {
-		raMap, err := tpgresource.ConvertToMap(reservationAffinity)
-		if err != nil {
-			return fmt.Errorf("Error converting reservationAffinity: %s", err)
-		}
-		instanceProperties["reservationAffinity"] = raMap
+		instanceProperties["reservationAffinity"] = reservationAffinity
 	}
 	if _, ok := d.GetOk("effective_labels"); ok {
 		instanceProperties["labels"] = tpgresource.ExpandEffectiveLabels(d)
@@ -1599,7 +1595,11 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 	}
 
 	if reservationAffinity := instanceTemplate.Properties.ReservationAffinity; reservationAffinity != nil {
-		if err = d.Set("reservation_affinity", flattenReservationAffinity(reservationAffinity)); err != nil {
+		reservationAffinityMap, err := tpgresource.ConvertToMap(reservationAffinity)
+		if err != nil {
+			return fmt.Errorf("Error converting reservation_affinity: %s", err)
+		}
+		if err = d.Set("reservation_affinity", flattenReservationAffinity(reservationAffinityMap)); err != nil {
 			return fmt.Errorf("Error setting reservation_affinity: %s", err)
 		}
 	}
