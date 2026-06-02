@@ -1554,9 +1554,16 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 			return fmt.Errorf("Error converting networkPerformanceConfig: %s", err)
 		}
 	}
-	reservationAffinity, err := expandReservationAffinity(d)
+	reservationAffinityMap, err := expandReservationAffinity(d)
 	if err != nil {
 		return err
+	}
+	var reservationAffinity *compute.ReservationAffinity
+	if reservationAffinityMap != nil {
+		reservationAffinity = &compute.ReservationAffinity{}
+		if err := tpgresource.Convert(reservationAffinityMap, reservationAffinity); err != nil {
+			return fmt.Errorf("Error converting reservationAffinity: %s", err)
+		}
 	}
 	resourcePolicies := expandInstanceTemplateResourcePolicies(d, "resource_policies")
 
@@ -2069,7 +2076,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 
 	if reservationAffinity := instanceTemplate.Properties.ReservationAffinity; reservationAffinity != nil {
-		if err = d.Set("reservation_affinity", flattenReservationAffinity(reservationAffinity)); err != nil {
+		reservationAffinityMap, err := tpgresource.ConvertToMap(reservationAffinity)
+		if err != nil {
+			return fmt.Errorf("Error converting reservation_affinity: %s", err)
+		}
+		if err = d.Set("reservation_affinity", flattenReservationAffinity(reservationAffinityMap)); err != nil {
 			return fmt.Errorf("Error setting reservation_affinity: %s", err)
 		}
 	}
