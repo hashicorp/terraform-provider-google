@@ -3,6 +3,8 @@
 FEATURES:
 * **New Data Source:** `google_oracle_database_goldengate_connection_types` ([#27567](https://github.com/hashicorp/terraform-provider-google/pull/27567))
 * **New Resource:** `google_chronicle_findings_refinement` ([#27591](https://github.com/hashicorp/terraform-provider-google/pull/27591))
+* **New Resource:** `google_dataplex_data_product` ([#27588](https://github.com/hashicorp/terraform-provider-google/pull/27588))
+* **New Resource:** `google_dataplex_data_product_data_asset` ([#27588](https://github.com/hashicorp/terraform-provider-google/pull/27588))
 * **New Resource:** `google_migration_center_discovery_client` ([#27572](https://github.com/hashicorp/terraform-provider-google/pull/27572))
 * **New Resource:** `google_migration_center_report` ([#27548](https://github.com/hashicorp/terraform-provider-google/pull/27548))
 * **New Resource:** `google_oracle_database_goldengate_connection_assignment` ([#27566](https://github.com/hashicorp/terraform-provider-google/pull/27566))
@@ -18,7 +20,6 @@ IMPROVEMENTS:
 * container: added `crash_loop_back_off.max_container_restart_period` field to `google_container_node_pool` and `google_container_cluster` resources ([#27574](https://github.com/hashicorp/terraform-provider-google/pull/27574))
 * container: added additional value `KCP_VPA` for `logging_config.enable_components` field to `google_container_cluster` resource ([#27546](https://github.com/hashicorp/terraform-provider-google/pull/27546))
 * dataplex: added `service_account` support to `google_dataplex_data_product` access group principals ([#27588](https://github.com/hashicorp/terraform-provider-google/pull/27588))
-* dataplex: promoted `google_dataplex_data_product` and `google_dataplex_data_product_data_asset` resources to GA ([#27588](https://github.com/hashicorp/terraform-provider-google/pull/27588))
 * firestore: added `ttl_config.expiration_offset` field to `google_firestore_field` resource ([#27589](https://github.com/hashicorp/terraform-provider-google/pull/27589))
 * netapp: added `ontap_source` field to `google_netapp_backup` resource ([#27584](https://github.com/hashicorp/terraform-provider-google/pull/27584))
 * networkmanagement: added `gke_pod` and `network_type` fields to `google_network_management_connectivity_test` resource ([#27585](https://github.com/hashicorp/terraform-provider-google/pull/27585))
