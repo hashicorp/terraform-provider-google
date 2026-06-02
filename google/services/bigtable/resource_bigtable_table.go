@@ -170,6 +170,15 @@ func ResourceBigtableTable() *schema.Resource {
 							ValidateFunc: verify.ValidateDuration(),
 							Description:  `How frequently automated backups should occur.`,
 						},
+						"locations": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Description: `A list of Cloud Bigtable zones where automated backups are allowed to be created. If empty, automated backups will be created in all zones of the instance. Locations are in the format projects/{project}/locations/{zone}. This field can only be set for tables in Enterprise Plus instances.`,
+						},
 					},
 				},
 				Description: `Defines an automated backup policy for a table, specified by Retention Period and Frequency. To _create_ a table with automated backup disabled, either omit the automated_backup_policy argument, or set both Retention Period and Frequency properties to "0". To disable automated backup on an _existing_ table that has automated backup enabled, set _both_ Retention Period and Frequency properties to "0". When updating an existing table, to modify the Retention Period or Frequency properties of the resource's automated backup policy, set the respective property to a non-zero value. If the automated_backup_policy argument is not provided in the configuration on update, the resource's automated backup policy will _not_ be modified.`,
@@ -303,9 +312,14 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 				return fmt.Errorf("Error parsing automated backup policy frequency: %s", err)
 			}
 			if abpFrequency != 0 && abpRetentionPeriod != 0 { // if fields are zero this indicates disable-on-create
+				var locations []string
+				if v, ok := automatedBackupPolicy["locations"]; ok {
+					locations = tpgresource.ConvertStringArr(v.([]interface{}))
+				}
 				tblConf.AutomatedBackupConfig = &bigtable.TableAutomatedBackupPolicy{
 					RetentionPeriod: abpRetentionPeriod,
 					Frequency:       abpFrequency,
+					Locations:       locations,
 				}
 			}
 		}
@@ -436,10 +450,16 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 			var tableAbp bigtable.TableAutomatedBackupPolicy = *automatedBackupConfig
 			abpRetentionPeriod := tableAbp.RetentionPeriod.(time.Duration).String()
 			abpFrequency := tableAbp.Frequency.(time.Duration).String()
+			// Normalize nil locations to empty list for consistent state representation
+			locations := tableAbp.Locations
+			if locations == nil {
+				locations = []string{}
+			}
 			abp := []interface{}{
 				map[string]interface{}{
 					"retention_period": abpRetentionPeriod,
 					"frequency":        abpFrequency,
+					"locations":        locations,
 				},
 			}
 			if err := d.Set("automated_backup_policy", abp); err != nil {
@@ -624,6 +644,14 @@ func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error
 					return fmt.Errorf("Error parsing automated backup policy frequency: %s", err)
 				}
 				abp.Frequency = abpFrequency
+			}
+
+			if v, ok := automatedBackupPolicy["locations"]; ok && v != nil {
+				if len(v.([]interface{})) == 0 {
+					abp.Locations = []string{} // Force non-nil empty slice to trigger clearing in mask
+				} else {
+					abp.Locations = tpgresource.ConvertStringArr(v.([]interface{}))
+				}
 			}
 
 			if abp.RetentionPeriod != nil && abp.RetentionPeriod.(time.Duration) == 0 && abp.Frequency != nil && abp.Frequency.(time.Duration) == 0 {

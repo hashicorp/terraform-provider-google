@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigtable: added `locations` field to `automated_backup_policy` field in `google_bigtable_table` resource
+```

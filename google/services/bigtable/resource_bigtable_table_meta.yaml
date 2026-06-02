@@ -10,6 +10,7 @@ cai_asset_name_formats:
 fields:
   - api_field: 'automatedBackupPolicy.frequency'
   - api_field: 'automatedBackupPolicy.retentionPeriod'
+  - api_field: 'automatedBackupPolicy.locations'
   - field: 'change_stream_retention'
   - field: 'column_family.family'
   - field: 'column_family.type'
