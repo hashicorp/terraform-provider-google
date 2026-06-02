@@ -100,6 +100,15 @@ resource "google_hypercomputecluster_cluster" "cluster" {
 The following arguments are supported:
 
 
+* `network_resources` -
+  (Required)
+  Network resources available to the cluster. Must contain at most one value.
+  Keys specify the ID of the network resource by which it can be referenced
+  elsewhere, and must conform to
+  [RFC-1034](https://datatracker.ietf.org/doc/html/rfc1034) (lower-case,
+  alphanumeric, and at most 63 characters).
+  Structure is [documented below](#nested_network_resources).
+
 * `location` -
   (Required)
   Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
@@ -130,15 +139,6 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
-* `network_resources` -
-  (Optional)
-  Network resources available to the cluster. Must contain at most one value.
-  Keys specify the ID of the network resource by which it can be referenced
-  elsewhere, and must conform to
-  [RFC-1034](https://datatracker.ietf.org/doc/html/rfc1034) (lower-case,
-  alphanumeric, and at most 63 characters).
-  Structure is [documented below](#nested_network_resources).
-
 * `orchestrator` -
   (Optional)
   The component responsible for scheduling and running workloads on the
@@ -164,6 +164,74 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 
+
+<a name="nested_network_resources"></a>The `network_resources` block supports:
+
+* `id` - (Required) The identifier for this object. Format specified above.
+
+* `config` -
+  (Optional)
+  Describes how a network resource should be initialized. Each network resource
+  can either be imported from an existing Google Cloud resource or initialized
+  when the cluster is created.
+  Structure is [documented below](#nested_network_resources_config).
+
+* `network` -
+  (Output)
+  A reference to a [VPC network](https://cloud.google.com/vpc/docs/vpc) in
+  Google Compute Engine.
+  Structure is [documented below](#nested_network_resources_network).
+
+
+<a name="nested_network_resources_config"></a>The `config` block supports:
+
+* `existing_network` -
+  (Optional)
+  When set in a NetworkResourceConfig, indicates that an existing network
+  should be imported.
+  Structure is [documented below](#nested_network_resources_config_existing_network).
+
+* `new_network` -
+  (Optional)
+  When set in a NetworkResourceConfig, indicates that a new network should
+  be created.
+  Structure is [documented below](#nested_network_resources_config_new_network).
+
+
+<a name="nested_network_resources_config_existing_network"></a>The `existing_network` block supports:
+
+* `network` -
+  (Required)
+  Name of the network to import, in the format
+  `projects/{project}/global/networks/{network}`.
+
+* `subnetwork` -
+  (Required)
+  Particular subnetwork to use, in the format
+  `projects/{project}/regions/{region}/subnetworks/{subnetwork}`.
+
+<a name="nested_network_resources_config_new_network"></a>The `new_network` block supports:
+
+* `description` -
+  (Optional)
+  Description of the network. Maximum of 2048 characters.
+
+* `network` -
+  (Required)
+  Name of the network to create, in the format
+  `projects/{project}/global/networks/{network}`.
+
+<a name="nested_network_resources_network"></a>The `network` block contains:
+
+* `network` -
+  (Output)
+  Name of the network, in the format
+  `projects/{project}/global/networks/{network}`.
+
+* `subnetwork` -
+  (Output)
+  Name of the particular subnetwork being used by the cluster, in the format
+  `projects/{project}/regions/{region}/subnetworks/{subnetwork}`.
 
 <a name="nested_compute_resources"></a>The `compute_resources` block supports:
 
@@ -265,74 +333,6 @@ The following arguments are supported:
   Name of the zone in which VM instances should run, e.g., `us-central1-a`.
   Must be in the same region as the cluster, and must match the zone of any
   other resources specified in the cluster.
-
-<a name="nested_network_resources"></a>The `network_resources` block supports:
-
-* `id` - (Required) The identifier for this object. Format specified above.
-
-* `config` -
-  (Optional)
-  Describes how a network resource should be initialized. Each network resource
-  can either be imported from an existing Google Cloud resource or initialized
-  when the cluster is created.
-  Structure is [documented below](#nested_network_resources_config).
-
-* `network` -
-  (Output)
-  A reference to a [VPC network](https://cloud.google.com/vpc/docs/vpc) in
-  Google Compute Engine.
-  Structure is [documented below](#nested_network_resources_network).
-
-
-<a name="nested_network_resources_config"></a>The `config` block supports:
-
-* `existing_network` -
-  (Optional)
-  When set in a NetworkResourceConfig, indicates that an existing network
-  should be imported.
-  Structure is [documented below](#nested_network_resources_config_existing_network).
-
-* `new_network` -
-  (Optional)
-  When set in a NetworkResourceConfig, indicates that a new network should
-  be created.
-  Structure is [documented below](#nested_network_resources_config_new_network).
-
-
-<a name="nested_network_resources_config_existing_network"></a>The `existing_network` block supports:
-
-* `network` -
-  (Required)
-  Name of the network to import, in the format
-  `projects/{project}/global/networks/{network}`.
-
-* `subnetwork` -
-  (Required)
-  Particular subnetwork to use, in the format
-  `projects/{project}/regions/{region}/subnetworks/{subnetwork}`.
-
-<a name="nested_network_resources_config_new_network"></a>The `new_network` block supports:
-
-* `description` -
-  (Optional)
-  Description of the network. Maximum of 2048 characters.
-
-* `network` -
-  (Required)
-  Name of the network to create, in the format
-  `projects/{project}/global/networks/{network}`.
-
-<a name="nested_network_resources_network"></a>The `network` block contains:
-
-* `network` -
-  (Output)
-  Name of the network, in the format
-  `projects/{project}/global/networks/{network}`.
-
-* `subnetwork` -
-  (Output)
-  Name of the particular subnetwork being used by the cluster, in the format
-  `projects/{project}/regions/{region}/subnetworks/{subnetwork}`.
 
 <a name="nested_orchestrator"></a>The `orchestrator` block supports:
 
