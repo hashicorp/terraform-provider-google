@@ -165,6 +165,103 @@ use only lowercase letters and numbers, and be at most 10 characters long.`,
 				ForceNew:    true,
 				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
 			},
+			"network_resources": {
+				Type:     schema.TypeSet,
+				Required: true,
+				Description: `Network resources available to the cluster. Must contain at most one value.
+Keys specify the ID of the network resource by which it can be referenced
+elsewhere, and must conform to
+[RFC-1034](https://datatracker.ietf.org/doc/html/rfc1034) (lower-case,
+alphanumeric, and at most 63 characters).`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Describes how a network resource should be initialized. Each network resource
+can either be imported from an existing Google Cloud resource or initialized
+when the cluster is created.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"existing_network": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `When set in a NetworkResourceConfig, indicates that an existing network
+should be imported.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"network": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Name of the network to import, in the format
+'projects/{project}/global/networks/{network}'.`,
+												},
+												"subnetwork": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Particular subnetwork to use, in the format
+'projects/{project}/regions/{region}/subnetworks/{subnetwork}'.`,
+												},
+											},
+										},
+									},
+									"new_network": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `When set in a NetworkResourceConfig, indicates that a new network should
+be created.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"network": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Name of the network to create, in the format
+'projects/{project}/global/networks/{network}'.`,
+												},
+												"description": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Description of the network. Maximum of 2048 characters.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"network": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Description: `A reference to a [VPC network](https://cloud.google.com/vpc/docs/vpc) in
+Google Compute Engine.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"network": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `Name of the network, in the format
+'projects/{project}/global/networks/{network}'.`,
+									},
+									"subnetwork": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `Name of the particular subnetwork being used by the cluster, in the format
+'projects/{project}/regions/{region}/subnetworks/{subnetwork}'.`,
+									},
+								},
+							},
+						},
+					},
+				},
+				Set: resourceHypercomputeclusterClusterResourceHash,
+			},
 			"compute_resources": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -316,103 +413,6 @@ in queries.
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
-			},
-			"network_resources": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Description: `Network resources available to the cluster. Must contain at most one value.
-Keys specify the ID of the network resource by which it can be referenced
-elsewhere, and must conform to
-[RFC-1034](https://datatracker.ietf.org/doc/html/rfc1034) (lower-case,
-alphanumeric, and at most 63 characters).`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `Describes how a network resource should be initialized. Each network resource
-can either be imported from an existing Google Cloud resource or initialized
-when the cluster is created.`,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"existing_network": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Description: `When set in a NetworkResourceConfig, indicates that an existing network
-should be imported.`,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"network": {
-													Type:     schema.TypeString,
-													Required: true,
-													Description: `Name of the network to import, in the format
-'projects/{project}/global/networks/{network}'.`,
-												},
-												"subnetwork": {
-													Type:     schema.TypeString,
-													Required: true,
-													Description: `Particular subnetwork to use, in the format
-'projects/{project}/regions/{region}/subnetworks/{subnetwork}'.`,
-												},
-											},
-										},
-									},
-									"new_network": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Description: `When set in a NetworkResourceConfig, indicates that a new network should
-be created.`,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"network": {
-													Type:     schema.TypeString,
-													Required: true,
-													Description: `Name of the network to create, in the format
-'projects/{project}/global/networks/{network}'.`,
-												},
-												"description": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: `Description of the network. Maximum of 2048 characters.`,
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-						"network": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Description: `A reference to a [VPC network](https://cloud.google.com/vpc/docs/vpc) in
-Google Compute Engine.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"network": {
-										Type:     schema.TypeString,
-										Computed: true,
-										Description: `Name of the network, in the format
-'projects/{project}/global/networks/{network}'.`,
-									},
-									"subnetwork": {
-										Type:     schema.TypeString,
-										Computed: true,
-										Description: `Name of the particular subnetwork being used by the cluster, in the format
-'projects/{project}/regions/{region}/subnetworks/{subnetwork}'.`,
-									},
-								},
-							},
-						},
-					},
-				},
-				Set: resourceHypercomputeclusterClusterResourceHash,
 			},
 			"orchestrator": {
 				Type:     schema.TypeList,
