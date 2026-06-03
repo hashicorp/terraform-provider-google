@@ -1,0 +1,3 @@
+```release-note:new-datasource
+apigee: new `google_apigee_instance` datasource
+```
