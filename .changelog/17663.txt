@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: send zero values for `ip_header_index` in `google_apigee_environment`
+```

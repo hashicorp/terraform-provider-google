@@ -1074,7 +1074,7 @@ func expandApigeeEnvironmentClientIpResolutionConfigHeaderIndexAlgorithm(v inter
 	transformedIpHeaderIndex, err := expandApigeeEnvironmentClientIpResolutionConfigHeaderIndexAlgorithmIpHeaderIndex(original["ip_header_index"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIpHeaderIndex); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["ipHeaderIndex"] = transformedIpHeaderIndex
 	}
 
