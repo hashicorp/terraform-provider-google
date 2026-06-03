@@ -1854,7 +1854,7 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 						niObj["subnetwork"] = v.(string)
 					}
 					if v, ok := niMap["ip_address"]; ok && v != "" {
-						niObj["ipAddress"] = v.(string)
+						niObj["networkIP"] = v.(string)
 					}
 					if v, ok := niMap["ipv6_address"]; ok && v != "" {
 						niObj["ipv6Address"] = v.(string)
@@ -1895,7 +1895,7 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 								acObj["name"] = n.(string)
 							}
 							if ei, ok := acMap["external_ip"]; ok && ei != "" {
-								acObj["externalIp"] = ei.(string)
+								acObj["natIP"] = ei.(string)
 							}
 							if eiv6, ok := acMap["external_ipv6"]; ok && eiv6 != "" {
 								acObj["externalIpv6"] = eiv6.(string)
@@ -1938,7 +1938,7 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 								iacObj["name"] = n.(string)
 							}
 							if ei, ok := iacMap["external_ip"]; ok && ei != "" {
-								iacObj["externalIp"] = ei.(string)
+								iacObj["natIP"] = ei.(string)
 							}
 							if eiv6, ok := iacMap["external_ipv6"]; ok && eiv6 != "" {
 								iacObj["externalIpv6"] = eiv6.(string)
@@ -2046,7 +2046,7 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 					aa := aaList[0].(map[string]interface{})
 					aaObj := make(map[string]interface{})
 					if cat, ok := aa["consume_allocation_type"]; ok && cat != "" {
-						aaObj["consumeAllocationType"] = cat.(string)
+						aaObj["consumeReservationType"] = cat.(string)
 					}
 					if k, ok := aa["key"]; ok && k != "" {
 						aaObj["key"] = k.(string)
@@ -2055,7 +2055,7 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 						aaObj["values"] = v.([]interface{})
 					}
 					if len(aaObj) > 0 {
-						props["allocationAffinity"] = aaObj
+						props["reservationAffinity"] = aaObj
 					}
 				}
 			}
@@ -2774,7 +2774,7 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestoreProperties(v interface{
 	transformed["private_ipv6_google_access"] =
 		flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesPrivateIpv6GoogleAccess(original["privateIpv6GoogleAccess"], d, config)
 	transformed["allocation_affinity"] =
-		flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesAllocationAffinity(original["allocationAffinity"], d, config)
+		flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesAllocationAffinity(original["reservationAffinity"], d, config)
 	transformed["resource_policies"] =
 		flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesResourcePolicies(original["resourcePolicies"], d, config)
 	transformed["scheduling"] =
@@ -3254,7 +3254,7 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterf
 		transformed = append(transformed, map[string]interface{}{
 			"network":                     flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesNetwork(original["network"], d, config),
 			"subnetwork":                  flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesSubnetwork(original["subnetwork"], d, config),
-			"ip_address":                  flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpAddress(original["ipAddress"], d, config),
+			"ip_address":                  flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpAddress(original["networkIP"], d, config),
 			"ipv6_address":                flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpv6Address(original["ipv6Address"], d, config),
 			"internal_ipv6_prefix_length": flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesInternalIpv6PrefixLength(original["internalIpv6PrefixLength"], d, config),
 			"access_configs":              flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesAccessConfigs(original["accessConfigs"], d, config),
@@ -3317,7 +3317,7 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterf
 		transformed = append(transformed, map[string]interface{}{
 			"type":                        flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesAccessConfigsType(original["type"], d, config),
 			"name":                        flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesAccessConfigsName(original["name"], d, config),
-			"external_ip":                 flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesAccessConfigsExternalIp(original["externalIp"], d, config),
+			"external_ip":                 flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesAccessConfigsExternalIp(original["natIP"], d, config),
 			"external_ipv6":               flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesAccessConfigsExternalIpv6(original["externalIpv6"], d, config),
 			"external_ipv6_prefix_length": flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesAccessConfigsExternalIpv6PrefixLength(original["externalIpv6PrefixLength"], d, config),
 			"set_public_ptr":              flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesAccessConfigsSetPublicPtr(original["setPublicPtr"], d, config),
@@ -3387,7 +3387,7 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterf
 		transformed = append(transformed, map[string]interface{}{
 			"type":                        flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpv6AccessConfigsType(original["type"], d, config),
 			"name":                        flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpv6AccessConfigsName(original["name"], d, config),
-			"external_ip":                 flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpv6AccessConfigsExternalIp(original["externalIp"], d, config),
+			"external_ip":                 flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpv6AccessConfigsExternalIp(original["natIP"], d, config),
 			"external_ipv6":               flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpv6AccessConfigsExternalIpv6(original["externalIpv6"], d, config),
 			"external_ipv6_prefix_length": flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpv6AccessConfigsExternalIpv6PrefixLength(original["externalIpv6PrefixLength"], d, config),
 			"set_public_ptr":              flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpv6AccessConfigsSetPublicPtr(original["setPublicPtr"], d, config),
@@ -3565,7 +3565,7 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesAllocationAff
 	}
 	transformed := make(map[string]interface{})
 	transformed["consume_allocation_type"] =
-		flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesAllocationAffinityConsumeAllocationType(original["consumeAllocationType"], d, config)
+		flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesAllocationAffinityConsumeAllocationType(original["consumeReservationType"], d, config)
 	transformed["key"] =
 		flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesAllocationAffinityKey(original["key"], d, config)
 	transformed["values"] =
@@ -4443,7 +4443,7 @@ func expandBackupDRRestoreWorkloadComputeInstanceRestoreProperties(v interface{}
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedAllocationAffinity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["allocationAffinity"] = transformedAllocationAffinity
+		transformed["reservationAffinity"] = transformedAllocationAffinity
 	}
 
 	transformedResourcePolicies, err := expandBackupDRRestoreWorkloadComputeInstanceRestorePropertiesResourcePolicies(original["resource_policies"], d, config)
@@ -5155,7 +5155,7 @@ func expandBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfa
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedIpAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["ipAddress"] = transformedIpAddress
+			transformed["networkIP"] = transformedIpAddress
 		}
 
 		transformedIpv6Address, err := expandBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpv6Address(original["ipv6_address"], d, config)
@@ -5284,7 +5284,7 @@ func expandBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfa
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedExternalIp); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["externalIp"] = transformedExternalIp
+			transformed["natIP"] = transformedExternalIp
 		}
 
 		transformedExternalIpv6, err := expandBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesAccessConfigsExternalIpv6(original["external_ipv6"], d, config)
@@ -5390,7 +5390,7 @@ func expandBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfa
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedExternalIp); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["externalIp"] = transformedExternalIp
+			transformed["natIP"] = transformedExternalIp
 		}
 
 		transformedExternalIpv6, err := expandBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterfacesIpv6AccessConfigsExternalIpv6(original["external_ipv6"], d, config)
@@ -5622,7 +5622,7 @@ func expandBackupDRRestoreWorkloadComputeInstanceRestorePropertiesAllocationAffi
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedConsumeAllocationType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["consumeAllocationType"] = transformedConsumeAllocationType
+		transformed["consumeReservationType"] = transformedConsumeAllocationType
 	}
 
 	transformedKey, err := expandBackupDRRestoreWorkloadComputeInstanceRestorePropertiesAllocationAffinityKey(original["key"], d, config)
