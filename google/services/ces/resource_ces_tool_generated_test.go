@@ -458,6 +458,226 @@ resource "google_ces_tool" "ces_tool_python_function_basic" {
 `, context)
 }
 
+func TestAccCESTool_cesToolAgentBasicExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"app_display_name":  "tf-test-my-app" + randomSuffix,
+		"app_id":            "tf-test-app-id" + randomSuffix,
+		"tool_display_name": "tf_test_ces_tool_agent_basic" + randomSuffix,
+		"tool_id":           "tf_test_ces_tool_basic5" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESToolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESTool_cesToolAgentBasicExample(context),
+			},
+			{
+				ResourceName:            "google_ces_tool.ces_tool_agent_basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "location", "tool_id"},
+			},
+			{
+				ResourceName:       "google_ces_tool.ces_tool_agent_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCESTool_cesToolAgentBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "%{app_display_name}"
+    app_id       = "%{app_id}"
+    time_zone_settings {   
+        time_zone = "America/Los_Angeles"
+    }
+}
+
+resource "google_ces_agent" "target_agent" {
+  agent_id     = "target-agent"
+  location     = "us"
+  app          = google_ces_app.my-app.app_id
+  display_name = "Target Agent"
+  instruction  = "Target agent instruction"
+  llm_agent {}
+}
+
+resource "google_ces_tool" "ces_tool_agent_basic" {
+    location       = "us"
+    app            = google_ces_app.my-app.name
+    tool_id        = "%{tool_id}"
+    execution_type = "SYNCHRONOUS"
+    agent_tool {
+        name        = "%{tool_display_name}"
+        description = "example-description"
+        agent       = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/agents/${google_ces_agent.target_agent.agent_id}"
+    }
+}
+`, context)
+}
+
+func TestAccCESTool_cesToolFileSearchBasicExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"app_display_name":  "tf-test-my-app" + randomSuffix,
+		"app_id":            "tf-test-app-id" + randomSuffix,
+		"tool_display_name": "tf_test_ces_tool_file_search_basic" + randomSuffix,
+		"tool_id":           "tf_test_ces_tool_basic6" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESToolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESTool_cesToolFileSearchBasicExample(context),
+			},
+			{
+				ResourceName:            "google_ces_tool.ces_tool_file_search_basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "location", "tool_id"},
+			},
+			{
+				ResourceName:       "google_ces_tool.ces_tool_file_search_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCESTool_cesToolFileSearchBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "%{app_display_name}"
+    app_id       = "%{app_id}"
+    time_zone_settings {   
+        time_zone = "America/Los_Angeles"
+    }
+}
+
+resource "google_ces_tool" "ces_tool_file_search_basic" {
+    location       = "us"
+    app            = google_ces_app.my-app.name
+    tool_id        = "%{tool_id}"
+    execution_type = "SYNCHRONOUS"
+    file_search_tool {
+        name        = "%{tool_display_name}"
+        description = "example-description"
+        corpus_type = "FULLY_MANAGED"
+        file_corpus = "projects/${google_ces_app.my-app.project}/locations/us/ragCorpora/tf-test-mock-corpus"
+    }
+}
+`, context)
+}
+
+func TestAccCESTool_cesToolWidgetBasicExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"app_display_name":  "tf-test-my-app" + randomSuffix,
+		"app_id":            "tf-test-app-id" + randomSuffix,
+		"tool_display_name": "tf_test_ces_tool_widget_basic" + randomSuffix,
+		"tool_id":           "tf_test_ces_tool_basic7" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESToolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESTool_cesToolWidgetBasicExample(context),
+			},
+			{
+				ResourceName:            "google_ces_tool.ces_tool_widget_basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "location", "tool_id"},
+			},
+			{
+				ResourceName:       "google_ces_tool.ces_tool_widget_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCESTool_cesToolWidgetBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "%{app_display_name}"
+    app_id       = "%{app_id}"
+    time_zone_settings {   
+        time_zone = "America/Los_Angeles"
+    }
+}
+
+resource "google_ces_tool" "ces_tool_widget_basic" {
+    location       = "us"
+    app            = google_ces_app.my-app.name
+    tool_id        = "%{tool_id}"
+    execution_type = "SYNCHRONOUS"
+    widget_tool {
+        name        = "%{tool_display_name}"
+        description = "example-description"
+        widget_type = "PRODUCT_CAROUSEL"
+        ui_config = jsonencode({
+            displaySettings = {
+                showHeader = true
+            }
+        })
+        data_mapping {
+            mode = "FIELD_MAPPING"
+            field_mappings = {
+                "key1" = "value1"
+                "key2" = "value2"
+            }
+        }
+        text_response_config {
+            type = "STATIC"
+            static_text = "example-static-text"
+        }
+        parameters {
+            type = "OBJECT"
+            properties = jsonencode({
+                param1 = {
+                    type = "STRING"
+                }
+            })
+        }
+    }
+}
+`, context)
+}
+
 func testAccCheckCESToolDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
