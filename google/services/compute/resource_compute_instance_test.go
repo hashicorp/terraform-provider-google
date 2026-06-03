@@ -40,7 +40,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-	"google.golang.org/api/compute/v1"
 )
 
 func TestMinCpuPlatformDiffSuppress(t *testing.T) {
@@ -199,53 +198,53 @@ func TestValidateInstanceMetadata(t *testing.T) {
 
 func TestCheckForCommonAliasIp(t *testing.T) {
 	type testCase struct {
-		old, new []*compute.AliasIpRange
-		expected []*compute.AliasIpRange
+		old, new []interface{}
+		expected []interface{}
 	}
 
 	testCases := []testCase{
 		{
-			old: []*compute.AliasIpRange{
-				{IpCidrRange: "10.0.0.0/24"},
-				{IpCidrRange: "10.0.1.0/24"},
+			old: []interface{}{
+				map[string]interface{}{"ipCidrRange": "10.0.0.0/24"},
+				map[string]interface{}{"ipCidrRange": "10.0.1.0/24"},
 			},
-			new: []*compute.AliasIpRange{
-				{IpCidrRange: "10.0.0.0/24"},
-				{IpCidrRange: "10.0.2.0/24"},
+			new: []interface{}{
+				map[string]interface{}{"ipCidrRange": "10.0.0.0/24"},
+				map[string]interface{}{"ipCidrRange": "10.0.2.0/24"},
 			},
-			expected: []*compute.AliasIpRange{
-				{IpCidrRange: "10.0.0.0/24"},
-			},
-		},
-		{
-			old: []*compute.AliasIpRange{
-				{IpCidrRange: "172.16.0.0/24"},
-				{IpCidrRange: "10.0.1.0/24"},
-			},
-			new: []*compute.AliasIpRange{
-				{IpCidrRange: "172.16.0.0/24"},
-				{IpCidrRange: "10.0.2.0/24"},
-			},
-			expected: []*compute.AliasIpRange{
-				{IpCidrRange: "172.16.0.0/24"},
+			expected: []interface{}{
+				map[string]interface{}{"ipCidrRange": "10.0.0.0/24"},
 			},
 		},
 		{
-			old: []*compute.AliasIpRange{
-				{IpCidrRange: "10.0.0.0/24"},
-				{IpCidrRange: "10.0.1.0/24"},
+			old: []interface{}{
+				map[string]interface{}{"ipCidrRange": "172.16.0.0/24"},
+				map[string]interface{}{"ipCidrRange": "10.0.1.0/24"},
 			},
-			new: []*compute.AliasIpRange{
-				{IpCidrRange: "192.168.0.0/24"},
-				{IpCidrRange: "172.17.0.0/24"},
+			new: []interface{}{
+				map[string]interface{}{"ipCidrRange": "172.16.0.0/24"},
+				map[string]interface{}{"ipCidrRange": "10.0.2.0/24"},
 			},
-			expected: []*compute.AliasIpRange{},
+			expected: []interface{}{
+				map[string]interface{}{"ipCidrRange": "172.16.0.0/24"},
+			},
+		},
+		{
+			old: []interface{}{
+				map[string]interface{}{"ipCidrRange": "10.0.0.0/24"},
+				map[string]interface{}{"ipCidrRange": "10.0.1.0/24"},
+			},
+			new: []interface{}{
+				map[string]interface{}{"ipCidrRange": "192.168.0.0/24"},
+				map[string]interface{}{"ipCidrRange": "172.17.0.0/24"},
+			},
+			expected: []interface{}{},
 		},
 	}
 
 	for _, tc := range testCases {
-		oldInterface := &compute.NetworkInterface{AliasIpRanges: tc.old}
-		newInterface := &compute.NetworkInterface{AliasIpRanges: tc.new}
+		oldInterface := map[string]interface{}{"aliasIpRanges": tc.old}
+		newInterface := map[string]interface{}{"aliasIpRanges": tc.new}
 		result := tpgcompute.CheckForCommonAliasIp(oldInterface, newInterface)
 		assert.Equal(t, tc.expected, result)
 	}

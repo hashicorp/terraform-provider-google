@@ -2647,13 +2647,22 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return fmt.Errorf("Cannot determine self_link for subnetwork %q: %s", subnetwork, err)
 				}
-				resp, err := NewClient(config, userAgent).Subnetworks.Get(sf.Project, sf.Region, sf.Name).Do()
+				subnetUrl := fmt.Sprintf("%sprojects/%s/regions/%s/subnetworks/%s",
+					transport_tpg.BaseUrl(Product, config), sf.Project, sf.Region, sf.Name)
+				subnetRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "GET",
+					Project:   sf.Project,
+					RawURL:    subnetUrl,
+					UserAgent: userAgent,
+				})
 				if err != nil {
 					return errwrap.Wrapf("Error getting subnetwork value: {{err}}", err)
 				}
-				nf, err := tpgresource.ParseNetworkFieldValue(resp.Network, d, config)
+				networkSelfLink := subnetRes["network"].(string)
+				nf, err := tpgresource.ParseNetworkFieldValue(networkSelfLink, d, config)
 				if err != nil {
-					return fmt.Errorf("Cannot determine self_link for network %q: %s", resp.Network, err)
+					return fmt.Errorf("Cannot determine self_link for network %q: %s", networkSelfLink, err)
 				}
 				networkInterface.Network = nf.RelativeLink()
 			}
@@ -2691,9 +2700,22 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 
 			// re-read fingerprint
-			instance, err = NewClient(config, userAgent).Instances.Get(project, zone, instance.Name).Do()
+			freshUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}")
 			if err != nil {
 				return err
+			}
+			freshMap, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    freshUrl,
+				UserAgent: userAgent,
+			})
+			if err != nil {
+				return err
+			}
+			if err := tpgresource.Convert(freshMap, instance); err != nil {
+				return fmt.Errorf("Error parsing instance response: %s", err)
 			}
 			instNetworkInterface = instance.NetworkInterfaces[i]
 		}
@@ -2702,16 +2724,21 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			// Alias IP ranges cannot be updated; they must be removed and then added
 			// unless you are changing subnetwork/network
 			if len(instNetworkInterface.AliasIpRanges) > 0 {
-				ni := &compute.NetworkInterface{
-					Fingerprint:     instNetworkInterface.Fingerprint,
-					ForceSendFields: []string{"AliasIpRanges"},
-				}
-				if commonAliasIpRanges := CheckForCommonAliasIp(instNetworkInterface, networkInterface); len(commonAliasIpRanges) > 0 {
-					ni.AliasIpRanges = commonAliasIpRanges
-				}
-				niBody, err := tpgresource.ConvertToMap(ni)
+				oldNiMap, err := tpgresource.ConvertToMap(instNetworkInterface)
 				if err != nil {
-					return errwrap.Wrapf("Error converting network interface: {{err}}", err)
+					return fmt.Errorf("Error converting network interface to map: %w", err)
+				}
+				newNiMap, err := tpgresource.ConvertToMap(networkInterface)
+				if err != nil {
+					return fmt.Errorf("Error converting network interface to map: %w", err)
+				}
+				aliasRanges := []interface{}{}
+				if commonAliasIpRanges := CheckForCommonAliasIp(oldNiMap, newNiMap); len(commonAliasIpRanges) > 0 {
+					aliasRanges = commonAliasIpRanges
+				}
+				niBody := map[string]interface{}{
+					"fingerprint":   instNetworkInterface.Fingerprint,
+					"aliasIpRanges": aliasRanges,
 				}
 				url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/updateNetworkInterface")
 				if err != nil {
@@ -2737,9 +2764,22 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return opErr
 				}
 				// re-read fingerprint
-				instance, err = NewClient(config, userAgent).Instances.Get(project, zone, instance.Name).Do()
+				freshUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}")
 				if err != nil {
 					return err
+				}
+				freshMap, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "GET",
+					Project:   project,
+					RawURL:    freshUrl,
+					UserAgent: userAgent,
+				})
+				if err != nil {
+					return err
+				}
+				if err := tpgresource.Convert(freshMap, instance); err != nil {
+					return fmt.Errorf("Error parsing instance response: %s", err)
 				}
 				instNetworkInterface = instance.NetworkInterfaces[i]
 			}
@@ -4326,21 +4366,35 @@ func isEmptyServiceAccountBlock(d *schema.ResourceData) bool {
 }
 
 // Alias ip ranges cannot be removed and created at the same time. This checks if there are any unchanged alias ip ranges
-// to be kept in between the PATCH operations on Network Interface
-func CheckForCommonAliasIp(old, new *compute.NetworkInterface) []*compute.AliasIpRange {
-	return checkForCommonAliasIpRanges(old.AliasIpRanges, new.AliasIpRanges)
-}
-
-func checkForCommonAliasIpRanges(old, new []*compute.AliasIpRange) []*compute.AliasIpRange {
+// to be kept in between the PATCH operations on Network Interface.
+//
+// The arguments and return value use REST-shaped maps (camelCase keys) to keep this helper
+// independent of the typed compute client library; callers can convert via tpgresource.ConvertToMap
+// before invoking it.
+func CheckForCommonAliasIp(old, new map[string]interface{}) []interface{} {
 	newAliasIpMap := make(map[string]bool)
-	for _, ipRange := range new {
-		newAliasIpMap[ipRange.IpCidrRange] = true
+	if newRanges, ok := new["aliasIpRanges"].([]interface{}); ok {
+		for _, raw := range newRanges {
+			ipRange, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			cidr := ipRange["ipCidrRange"].(string)
+			newAliasIpMap[cidr] = true
+		}
 	}
 
-	resultAliasIpRanges := make([]*compute.AliasIpRange, 0)
-	for _, val := range old {
-		if newAliasIpMap[val.IpCidrRange] {
-			resultAliasIpRanges = append(resultAliasIpRanges, val)
+	resultAliasIpRanges := make([]interface{}, 0)
+	if oldRanges, ok := old["aliasIpRanges"].([]interface{}); ok {
+		for _, raw := range oldRanges {
+			ipRange, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			cidr := ipRange["ipCidrRange"].(string)
+			if newAliasIpMap[cidr] {
+				resultAliasIpRanges = append(resultAliasIpRanges, ipRange)
+			}
 		}
 	}
 	return resultAliasIpRanges
