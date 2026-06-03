@@ -16,9 +16,12 @@ fields:
     - api_field: computeInstanceRestoreProperties.advancedMachineFeatures.enableUefiNetworking
     - api_field: computeInstanceRestoreProperties.advancedMachineFeatures.threadsPerCore
     - api_field: computeInstanceRestoreProperties.advancedMachineFeatures.visibleCoreCount
-    - api_field: computeInstanceRestoreProperties.allocationAffinity.consumeAllocationType
-    - api_field: computeInstanceRestoreProperties.allocationAffinity.key
-    - api_field: computeInstanceRestoreProperties.allocationAffinity.values
+    - api_field: computeInstanceRestoreProperties.reservationAffinity.consumeReservationType
+      field: compute_instance_restore_properties.allocation_affinity.consume_allocation_type
+    - api_field: computeInstanceRestoreProperties.reservationAffinity.key
+      field: compute_instance_restore_properties.allocation_affinity.key
+    - api_field: computeInstanceRestoreProperties.reservationAffinity.values
+      field: compute_instance_restore_properties.allocation_affinity.values
     - api_field: computeInstanceRestoreProperties.canIpForward
     - api_field: computeInstanceRestoreProperties.confidentialInstanceConfig.enableConfidentialCompute
     - api_field: computeInstanceRestoreProperties.deletionProtection
@@ -60,7 +63,8 @@ fields:
     - api_field: computeInstanceRestoreProperties.metadata.items.value
     - api_field: computeInstanceRestoreProperties.minCpuPlatform
     - api_field: computeInstanceRestoreProperties.name
-    - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.externalIp
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.natIP
+      field: compute_instance_restore_properties.network_interfaces.access_configs.external_ip
     - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.externalIpv6
     - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.externalIpv6PrefixLength
     - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.name
@@ -71,8 +75,10 @@ fields:
     - api_field: computeInstanceRestoreProperties.networkInterfaces.aliasIpRanges.ipCidrRange
     - api_field: computeInstanceRestoreProperties.networkInterfaces.aliasIpRanges.subnetworkRangeName
     - api_field: computeInstanceRestoreProperties.networkInterfaces.internalIpv6PrefixLength
-    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipAddress
-    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.externalIp
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.networkIP
+      field: compute_instance_restore_properties.network_interfaces.ip_address
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.natIP
+      field: compute_instance_restore_properties.network_interfaces.ipv6_access_configs.external_ip
     - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.externalIpv6
     - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.externalIpv6PrefixLength
     - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.name

@@ -1,0 +1,3 @@
+```release-note:bug
+backupdr: fixed an issue where `google_backup_dr_restore_workload` did not use the correct API JSON names for networking/reservation fields
+```
