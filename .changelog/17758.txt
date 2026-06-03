@@ -1,0 +1,9 @@
+```release-note:enhancement
+ces: added `agent_tool`, `file_search_tool`, and `widget_tool` support to the `google_ces_tool` resource
+```
+```release-note:enhancement
+ces: added `prompt_config` to `google_search_tool` and `data_store_source` to `data_store_tool` in the `google_ces_tool` resource
+```
+```release-note:enhancement
+ces: exposed `remote_agent_tool`, `connector_tool`, and `mcp_tool` as read-only (output-only) attributes in `google_ces_tool`
+```

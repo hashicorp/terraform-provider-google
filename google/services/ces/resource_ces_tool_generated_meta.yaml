@@ -8,6 +8,9 @@ api_version: v1
 api_resource_type_kind: Tool
 autogen_status: true
 fields:
+    - api_field: agentTool.agent
+    - api_field: agentTool.description
+    - api_field: agentTool.name
     - field: app
       provider_only: true
     - api_field: clientFunction.description
@@ -62,6 +65,16 @@ fields:
     - api_field: clientFunction.response.title
     - api_field: clientFunction.response.type
     - api_field: clientFunction.response.uniqueItems
+    - api_field: connectorTool.action.connectionActionId
+    - api_field: connectorTool.action.entityOperation.entityId
+    - api_field: connectorTool.action.entityOperation.operation
+    - api_field: connectorTool.action.inputFields
+    - api_field: connectorTool.action.outputFields
+    - api_field: connectorTool.authConfig
+      json: true
+    - api_field: connectorTool.connection
+    - api_field: connectorTool.description
+    - api_field: connectorTool.name
     - api_field: createTime
     - api_field: dataStoreTool.boostSpecs.dataStores
     - api_field: dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boost
@@ -71,6 +84,15 @@ fields:
     - api_field: dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.fieldName
     - api_field: dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.interpolationType
     - api_field: dataStoreTool.boostSpecs.spec.conditionBoostSpecs.condition
+    - api_field: dataStoreTool.dataStoreSource.dataStore.connectorConfig.collection
+    - api_field: dataStoreTool.dataStoreSource.dataStore.connectorConfig.collectionDisplayName
+    - api_field: dataStoreTool.dataStoreSource.dataStore.connectorConfig.dataSource
+    - api_field: dataStoreTool.dataStoreSource.dataStore.createTime
+    - api_field: dataStoreTool.dataStoreSource.dataStore.displayName
+    - api_field: dataStoreTool.dataStoreSource.dataStore.documentProcessingMode
+    - api_field: dataStoreTool.dataStoreSource.dataStore.name
+    - api_field: dataStoreTool.dataStoreSource.dataStore.type
+    - api_field: dataStoreTool.dataStoreSource.filter
     - api_field: dataStoreTool.description
     - api_field: dataStoreTool.engineSource.dataStoreSources.dataStore.connectorConfig.collection
     - api_field: dataStoreTool.engineSource.dataStoreSources.dataStore.connectorConfig.collectionDisplayName
@@ -83,6 +105,7 @@ fields:
     - api_field: dataStoreTool.engineSource.dataStoreSources.filter
     - api_field: dataStoreTool.engineSource.engine
     - api_field: dataStoreTool.engineSource.filter
+    - api_field: dataStoreTool.filterParameterBehavior
     - api_field: dataStoreTool.maxResults
     - api_field: dataStoreTool.modalityConfigs.groundingConfig.disabled
     - api_field: dataStoreTool.modalityConfigs.groundingConfig.groundingLevel
@@ -99,14 +122,44 @@ fields:
     - api_field: displayName
     - api_field: etag
     - api_field: executionType
+    - api_field: fileSearchTool.corpusType
+    - api_field: fileSearchTool.description
+    - api_field: fileSearchTool.fileCorpus
+    - api_field: fileSearchTool.name
     - api_field: generatedSummary
     - api_field: googleSearchTool.contextUrls
     - api_field: googleSearchTool.description
     - api_field: googleSearchTool.excludeDomains
     - api_field: googleSearchTool.name
     - api_field: googleSearchTool.preferredDomains
+    - api_field: googleSearchTool.promptConfig.textPrompt
+    - api_field: googleSearchTool.promptConfig.voicePrompt
     - field: location
       provider_only: true
+    - api_field: mcpTool.apiAuthentication.apiKeyConfig.apiKeySecretVersion
+    - api_field: mcpTool.apiAuthentication.apiKeyConfig.keyName
+    - api_field: mcpTool.apiAuthentication.apiKeyConfig.requestLocation
+    - api_field: mcpTool.apiAuthentication.bearerTokenConfig.token
+    - api_field: mcpTool.apiAuthentication.oauthConfig.clientId
+    - api_field: mcpTool.apiAuthentication.oauthConfig.clientSecretVersion
+    - api_field: mcpTool.apiAuthentication.oauthConfig.oauthGrantType
+    - api_field: mcpTool.apiAuthentication.oauthConfig.scopes
+    - api_field: mcpTool.apiAuthentication.oauthConfig.tokenEndpoint
+    - api_field: mcpTool.apiAuthentication.serviceAccountAuthConfig.serviceAccount
+    - api_field: mcpTool.apiAuthentication.serviceAgentIdTokenAuthConfig
+    - api_field: mcpTool.customHeaders
+    - api_field: mcpTool.description
+    - api_field: mcpTool.inputSchema
+      json: true
+    - api_field: mcpTool.name
+    - api_field: mcpTool.nameOverride
+    - api_field: mcpTool.outputSchema
+      json: true
+    - api_field: mcpTool.serverAddress
+    - api_field: mcpTool.serviceDirectoryConfig.service
+    - api_field: mcpTool.state
+    - api_field: mcpTool.tlsConfig.caCerts.cert
+    - api_field: mcpTool.tlsConfig.caCerts.displayName
     - api_field: name
     - api_field: openApiTool.apiAuthentication.apiKeyConfig.apiKeySecretVersion
     - api_field: openApiTool.apiAuthentication.apiKeyConfig.keyName
@@ -130,10 +183,66 @@ fields:
     - api_field: pythonFunction.description
     - api_field: pythonFunction.name
     - api_field: pythonFunction.pythonCode
+    - api_field: remoteAgentTool.agentCard.description
+    - api_field: remoteAgentTool.agentCard.name
+    - api_field: remoteAgentTool.agentCard.skills.description
+    - api_field: remoteAgentTool.agentCard.skills.examples
+    - api_field: remoteAgentTool.agentCard.skills.id
+    - api_field: remoteAgentTool.agentCard.skills.inputModes
+    - api_field: remoteAgentTool.agentCard.skills.name
+    - api_field: remoteAgentTool.agentCard.skills.outputModes
+    - api_field: remoteAgentTool.agentCard.skills.tags
+    - api_field: remoteAgentTool.agentCard.supportedInterfaces.protocolBinding
+    - api_field: remoteAgentTool.agentCard.supportedInterfaces.protocolVersion
+    - api_field: remoteAgentTool.agentCard.supportedInterfaces.tenant
+    - api_field: remoteAgentTool.agentCard.supportedInterfaces.url
+    - api_field: remoteAgentTool.agentCard.version
+    - api_field: remoteAgentTool.description
+    - api_field: remoteAgentTool.name
     - api_field: systemTool.description
     - api_field: systemTool.name
     - field: tool_id
       provider_only: true
     - api_field: updateTime
+    - api_field: widgetTool.dataMapping.fieldMappings
+    - api_field: widgetTool.dataMapping.mode
+    - api_field: widgetTool.dataMapping.pythonFunction.description
+    - api_field: widgetTool.dataMapping.pythonFunction.name
+    - api_field: widgetTool.dataMapping.pythonFunction.pythonCode
+    - api_field: widgetTool.dataMapping.sourceToolName
+    - api_field: widgetTool.description
+    - api_field: widgetTool.name
+    - api_field: widgetTool.parameters.additionalProperties
+      json: true
+    - api_field: widgetTool.parameters.anyOf
+      json: true
+    - api_field: widgetTool.parameters.default
+      json: true
+    - api_field: widgetTool.parameters.defs
+      json: true
+    - api_field: widgetTool.parameters.description
+    - api_field: widgetTool.parameters.enum
+    - api_field: widgetTool.parameters.items
+      json: true
+    - api_field: widgetTool.parameters.maxItems
+    - api_field: widgetTool.parameters.maximum
+    - api_field: widgetTool.parameters.minItems
+    - api_field: widgetTool.parameters.minimum
+    - api_field: widgetTool.parameters.nullable
+    - api_field: widgetTool.parameters.prefixItems
+      json: true
+    - api_field: widgetTool.parameters.properties
+      json: true
+    - api_field: widgetTool.parameters.ref
+    - api_field: widgetTool.parameters.required
+    - api_field: widgetTool.parameters.title
+    - api_field: widgetTool.parameters.type
+    - api_field: widgetTool.parameters.uniqueItems
+    - api_field: widgetTool.textResponseConfig.staticText
+    - api_field: widgetTool.textResponseConfig.textResponseInstruction
+    - api_field: widgetTool.textResponseConfig.type
+    - api_field: widgetTool.uiConfig
+      json: true
+    - api_field: widgetTool.widgetType
     - field: deletion_policy
       provider_only: true

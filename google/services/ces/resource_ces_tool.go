@@ -166,6 +166,32 @@ func ResourceCESTool() *schema.Resource {
 the tool's resource name. If not provided, a unique ID will be
 automatically assigned for the tool.`,
 			},
+			"agent_tool": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Represents a tool that allows the agent to call another agent.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Required. The name of the agent tool.`,
+						},
+						"agent": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Optional. The resource name of the agent that is the entry point of the tool.
+Format: projects/{project}/locations/{location}/agents/{agent}`,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Optional. Description of the tool's purpose.`,
+						},
+					},
+				},
+			},
 			"client_function": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -641,6 +667,94 @@ LINEAR`,
 								},
 							},
 						},
+						"data_store_source": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Optional. Search within a single specific DataStore.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"data_store": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. The data store.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Full resource name of the DataStore.
+Format: projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}`,
+												},
+												"connector_config": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `The connector config for the data store connection.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"collection": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `Resource name of the collection the data store belongs to.`,
+															},
+															"collection_display_name": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `Display name of the collection the data store belongs to.`,
+															},
+															"data_source": {
+																Type:     schema.TypeString,
+																Computed: true,
+																Description: `The name of the data source.
+Example: 'salesforce', 'jira', 'confluence', 'bigquery'.`,
+															},
+														},
+													},
+												},
+												"create_time": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Timestamp when the data store was created.`,
+												},
+												"display_name": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The display name of the data store.`,
+												},
+												"document_processing_mode": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The document processing mode for the data store connection.
+Only set for PUBLIC_WEB and UNSTRUCTURED data stores.
+Possible values:
+DOCUMENTS
+CHUNKS`,
+												},
+												"type": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The type of the data store. This field is readonly and populated by the
+server.
+Possible values:
+PUBLIC_WEB
+UNSTRUCTURED
+FAQ
+CONNECTOR`,
+												},
+											},
+										},
+									},
+									"filter": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Optional. Filter specification for the DataStore.
+See: https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata`,
+									},
+								},
+							},
+							ConflictsWith: []string{},
+						},
 						"description": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -761,6 +875,17 @@ https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata`,
 									},
 								},
 							},
+							ConflictsWith: []string{},
+						},
+						"filter_parameter_behavior": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"FILTER_PARAMETER_BEHAVIOR_UNSPECIFIED", "ALWAYS_INCLUDE", "NEVER_INCLUDE", ""}),
+							Description: `Optional. The filter parameter behavior.
+Possible values:
+FILTER_PARAMETER_BEHAVIOR_UNSPECIFIED
+ALWAYS_INCLUDE
+NEVER_INCLUDE Possible values: ["FILTER_PARAMETER_BEHAVIOR_UNSPECIFIED", "ALWAYS_INCLUDE", "NEVER_INCLUDE"]`,
 						},
 						"max_results": {
 							Type:       schema.TypeInt,
@@ -910,6 +1035,43 @@ responses that are more creative.`,
 SYNCHRONOUS
 ASYNCHRONOUS`,
 			},
+			"file_search_tool": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The file search tool allows the agent to search across the files uploaded by the
+app/agent developer.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Required. The tool name.`,
+						},
+						"corpus_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"CORPUS_TYPE_UNSPECIFIED", "USER_OWNED", "FULLY_MANAGED", ""}),
+							Description: `Optional. The type of the corpus. Default is FULLY_MANAGED.
+Possible values:
+CORPUS_TYPE_UNSPECIFIED
+USER_OWNED
+FULLY_MANAGED Possible values: ["CORPUS_TYPE_UNSPECIFIED", "USER_OWNED", "FULLY_MANAGED"]`,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Optional. The tool description.`,
+						},
+						"file_corpus": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Optional. The corpus where files are stored.
+Format: projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`,
+						},
+					},
+				},
+			},
 			"google_search_tool": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -963,6 +1125,29 @@ A maximum of 20 domains can be specified.`,
 								Type: schema.TypeString,
 							},
 						},
+						"prompt_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Optional. Prompt instructions passed to planner on how the search results should be
+processed for text and voice.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"text_prompt": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Optional. Defines the prompt used for the system instructions when interacting with the
+agent in chat conversations. If not set, default prompt will be used.`,
+									},
+									"voice_prompt": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Optional. Defines the prompt used for the system instructions when interacting with the
+agent in voice conversations. If not set, default prompt will be used.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -994,6 +1179,392 @@ docstring.`,
 					},
 				},
 			},
+			"widget_tool": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Represents a widget tool that the agent can invoke.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Required. The display name of the widget tool.`,
+						},
+						"data_mapping": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Optional. The mapping that defines how data from a source tool is mapped to the
+widget's input parameters.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"field_mappings": {
+										Type:     schema.TypeMap,
+										Optional: true,
+										Description: `Optional. A map of widget input parameter fields to the corresponding output fields of the source tool.
+An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+										Elem: &schema.Schema{Type: schema.TypeString},
+									},
+									"mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"MODE_UNSPECIFIED", "FIELD_MAPPING", "PYTHON_SCRIPT", ""}),
+										Description: `Optional. The mode of the data mapping.
+Possible values:
+MODE_UNSPECIFIED
+FIELD_MAPPING
+PYTHON_SCRIPT Possible values: ["MODE_UNSPECIFIED", "FIELD_MAPPING", "PYTHON_SCRIPT"]`,
+									},
+									"python_function": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Optional. Configuration for a Python function used to transform the source tool's
+output into the widget's input format.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Optional. The name of the Python function to execute. Must match a Python function
+name defined in the python code. Case sensitive. If the name is not
+provided, the first function defined in the python code will be used.`,
+												},
+												"python_code": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Optional. The Python code to execute for the tool.`,
+												},
+												"description": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The description of the Python function, parsed from the python code's
+docstring.`,
+												},
+											},
+										},
+									},
+									"source_tool_name": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Optional. The resource name of the tool that provides the data for the widget (e.g., a search tool or a custom function).
+Format: projects/{project}/locations/{location}/agents/{agent}/tools/{tool}`,
+									},
+								},
+							},
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Optional. The description of the widget tool.`,
+						},
+						"parameters": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Optional. The input parameters of the widget tool. Represents a Schema object.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The type of the data.
+Possible values:
+STRING
+INTEGER
+NUMBER
+BOOLEAN
+OBJECT
+ARRAY`,
+									},
+									"additional_properties": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
+										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+										Description: `Defines the schema for additional properties allowed in an object.
+The value must be a valid JSON string representing the Schema object.
+(Note: OpenAPI also allows a boolean, this definition expects a Schema JSON).`,
+									},
+									"any_of": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
+										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+										Description:  `The instance value should be valid against at least one of the schemas in this list.`,
+									},
+									"default": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
+										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+										Description: `Default value of the data. Represents a dynamically typed value
+which can be either null, a number, a string, a boolean, a struct,
+or a list of values. The provided default value must be compatible
+with the defined 'type' and other schema constraints.`,
+									},
+									"defs": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
+										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+										Description:  `A map of definitions for use by ref. Only allowed at the root of the schema.`,
+									},
+									"description": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The description of the data.`,
+									},
+									"enum": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Possible values of the element of primitive type with enum format.
+Examples:
+1. We can define direction as :
+{type:STRING, format:enum, enum:["EAST", NORTH", "SOUTH", "WEST"]}
+2. We can define apartment number as :
+{type:INTEGER, format:enum, enum:["101", "201", "301"]}`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"items": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
+										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+										Description:  `Schema of the elements of Type.ARRAY.`,
+									},
+									"max_items": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Maximum number of the elements for Type.ARRAY. (int64 format)`,
+									},
+									"maximum": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Maximum value for Type.INTEGER and Type.NUMBER.`,
+									},
+									"min_items": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Minimum number of the elements for Type.ARRAY. (int64 format)`,
+									},
+									"minimum": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Minimum value for Type.INTEGER and Type.NUMBER.`,
+									},
+									"nullable": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Indicates if the value may be null.`,
+									},
+									"prefix_items": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
+										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+										Description:  `Schemas of initial elements of Type.ARRAY.`,
+									},
+									"properties": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
+										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+										Description:  `Properties of Type.OBJECT.`,
+									},
+									"ref": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Allows indirect references between schema nodes. The value should be a
+valid reference to a child of the root 'defs'.
+For example, the following schema defines a reference to a schema node
+named "Pet":
+type: object
+properties:
+  pet:
+    ref: #/defs/Pet
+defs:
+  Pet:
+    type: object
+    properties:
+      name:
+        type: string
+The value of the "pet" property is a reference to the schema node
+named "Pet".
+See details in
+https://json-schema.org/understanding-json-schema/structuring.`,
+									},
+									"required": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Required properties of Type.OBJECT.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"title": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The title of the schema.`,
+									},
+									"unique_items": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Indicate the items in the array must be unique. Only applies to TYPE.ARRAY.`,
+									},
+								},
+							},
+						},
+						"text_response_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Optional. Configuration for always-included text responses.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"static_text": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Optional. The static text response to return when type is STATIC.`,
+									},
+									"text_response_instruction": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Optional. Instruction for the LLM on how to generate the text response. Used as
+the description for the text response parameter if type is LLM_GENERATED.`,
+									},
+									"type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"TYPE_UNSPECIFIED", "NONE", "LLM_GENERATED", "STATIC", ""}),
+										Description: `Optional. The strategy for providing the text response.
+Possible values:
+TYPE_UNSPECIFIED
+NONE
+LLM_GENERATED
+STATIC Possible values: ["TYPE_UNSPECIFIED", "NONE", "LLM_GENERATED", "STATIC"]`,
+									},
+								},
+							},
+						},
+						"ui_config": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringIsJSON,
+							StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+							Description:  `Optional. Configuration for rendering the widget. Represents a JSON object.`,
+						},
+						"widget_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"WIDGET_TYPE_UNSPECIFIED", "CUSTOM", "PRODUCT_CAROUSEL", "PRODUCT_DETAILS", "QUICK_ACTIONS", "PRODUCT_COMPARISON", "ADVANCED_PRODUCT_DETAILS", "SHORT_FORM", "OVERALL_SATISFACTION", "ORDER_SUMMARY", "APPOINTMENT_DETAILS", "APPOINTMENT_SCHEDULER", "CONTACT_FORM", ""}),
+							Description: `Optional. The type of the widget tool. If not specified, the default type will be CUSTOMIZED.
+Possible values:
+WIDGET_TYPE_UNSPECIFIED
+CUSTOM
+PRODUCT_CAROUSEL
+PRODUCT_DETAILS
+QUICK_ACTIONS
+PRODUCT_COMPARISON
+ADVANCED_PRODUCT_DETAILS
+SHORT_FORM
+OVERALL_SATISFACTION
+ORDER_SUMMARY
+APPOINTMENT_DETAILS
+APPOINTMENT_SCHEDULER
+CONTACT_FORM Possible values: ["WIDGET_TYPE_UNSPECIFIED", "CUSTOM", "PRODUCT_CAROUSEL", "PRODUCT_DETAILS", "QUICK_ACTIONS", "PRODUCT_COMPARISON", "ADVANCED_PRODUCT_DETAILS", "SHORT_FORM", "OVERALL_SATISFACTION", "ORDER_SUMMARY", "APPOINTMENT_DETAILS", "APPOINTMENT_SCHEDULER", "CONTACT_FORM"]`,
+						},
+					},
+				},
+			},
+			"connector_tool": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `A ConnectorTool allows connections to different integrations.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"action": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Action for the tool to use.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"connection_action_id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `ID of a Connection action for the tool to use.`,
+									},
+									"entity_operation": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Entity operation configuration for the tool to use.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"entity_id": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `ID of the entity.`,
+												},
+												"operation": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `Operation to perform on the entity.
+Possible values:
+OPERATION_TYPE_UNSPECIFIED
+LIST
+GET
+CREATE
+UPDATE
+DELETE`,
+												},
+											},
+										},
+									},
+									"input_fields": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Entity fields to use as inputs for the operation.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"output_fields": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Entity fields to return from the operation.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"auth_config": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Configures how authentication is handled in Integration Connectors. By default, an admin authentication is passed in the Integration Connectors API requests. You can override it with a different end-user authentication config. Note: The Connection must have authentication override enabled in order to specify an EUC configuration here - otherwise, the ConnectorTool creation will fail. See https://cloud.google.com/application-integration/docs/configure-connectors-task#configure-authentication-override for details. Represents a JSON object.`,
+						},
+						"connection": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The full resource name of the referenced Integration Connectors Connection. Format: projects/{project}/locations/{location}/connections/{connection}`,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The description of the tool that can be used by the Agent to decide whether to call this ConnectorTool.`,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the tool that can be used by the Agent to decide whether to call this ConnectorTool.`,
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1018,6 +1589,246 @@ changes.`,
 				Computed: true,
 				Description: `If the tool is generated by the LLM assistant, this field contains a
 descriptive summary of the generation.`,
+			},
+			"mcp_tool": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `An MCP tool.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"api_authentication": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Authentication information required to access tools and execute a tool against the MCP server. For API key auth, the API key can only be sent in the request header; sending it via query parameters is not supported.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"api_key_config": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Configurations for authentication with API key.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"api_key_secret_version": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The name of the SecretManager secret version resource storing the API key.
+Format: 'projects/{project}/secrets/{secret}/versions/{version}'
+Note: You should grant 'roles/secretmanager.secretAccessor' role to the CES
+service agent
+'service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com'.`,
+												},
+												"key_name": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The parameter name or the header name of the API key.
+E.g., If the API request is "https://example.com/act?X-Api-Key=", "X-Api-Key" would be the parameter name.`,
+												},
+												"request_location": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `Key location in the request. For API key auth on MCP toolsets,
+the API key can only be sent in the request header.
+Possible values:
+HEADER`,
+												},
+											},
+										},
+									},
+									"bearer_token_config": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Configurations for authentication with a bearer token.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"token": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The bearer token. Must be in the format $context.variables.<name_of_variable>.`,
+												},
+											},
+										},
+									},
+									"oauth_config": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Configurations for authentication with OAuth.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"client_id": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The client ID from the OAuth provider.`,
+												},
+												"client_secret_version": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The name of the SecretManager secret version resource storing the
+client secret.
+Format: 'projects/{project}/secrets/{secret}/versions/{version}'
+Note: You should grant 'roles/secretmanager.secretAccessor' role to the CES
+service agent
+'service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com'.`,
+												},
+												"oauth_grant_type": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `OAuth grant types.
+Possible values:
+CLIENT_CREDENTIAL`,
+												},
+												"scopes": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `The OAuth scopes to grant.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"token_endpoint": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The token endpoint in the OAuth provider to exchange for an access token.`,
+												},
+											},
+										},
+									},
+									"service_account_auth_config": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Configurations for authentication using a custom service account.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"service_account": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The email address of the service account used for authenticatation. CES
+uses this service account to exchange an access token and the access token
+is then sent in the 'Authorization' header of the request.
+The service account must have the
+'roles/iam.serviceAccountTokenCreator' role granted to the
+CES service agent
+'service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com'.`,
+												},
+											},
+										},
+									},
+									"service_agent_id_token_auth_config": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Description: `Configurations for authentication with [ID
+token](https://cloud.google.com/docs/authentication/token-types#id) generated
+from service agent.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+									},
+								},
+							},
+						},
+						"custom_headers": {
+							Type:        schema.TypeMap,
+							Computed:    true,
+							Description: `The custom headers to send in the request to the MCP server. The values must be in the format '$context.variables.<name_of_variable>' and can be set in the session variables.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The description of the MCP tool.`,
+						},
+						"input_schema": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The schema of the input arguments of the MCP tool. Represents a JSON object.`,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the MCP tool.`,
+						},
+						"name_override": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name override of the MCP tool. This is populated if the name was overridden by a Toolset override.`,
+						},
+						"output_schema": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The schema of the output arguments of the MCP tool. Represents a JSON object.`,
+						},
+						"server_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The server address of the MCP server, e.g., "https://example.com/mcp/". If the server is built with the MCP SDK, the url should be suffixed with "/mcp/". Only Streamable HTTP transport based servers are supported. This is the same as the serverAddress in the McpToolset.`,
+						},
+						"service_directory_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Service Directory configuration for VPC-SC, used to resolve service names within a perimeter.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"service": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `The name of [Service
+Directory](https://cloud.google.com/service-directory) service.
+Format:
+'projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}'.
+Location of the service directory must be the same as the location of the
+app.`,
+									},
+								},
+							},
+						},
+						"state": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The state of the MCP tool.
+Possible values:
+STATE_UNSPECIFIED
+ACTIVE
+INACTIVE
+STALE`,
+						},
+						"tls_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The TLS configuration. Includes the custom server certificates that the client should trust.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"ca_certs": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Specifies a list of allowed custom CA certificates for HTTPS verification.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cert": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The allowed custom CA certificates (in DER format) for
+HTTPS verification. This overrides the default SSL trust store. If this
+is empty or unspecified, CES will use Google's default trust
+store to verify certificates. N.B. Make sure the HTTPS server
+certificates are signed with "subject alt name". For instance a
+certificate can be self-signed using the following command,
+openssl x509 -req -days 200 -in example.com.csr \
+-signkey example.com.key \
+-out example.com.crt \
+-extfile <(printf "\nsubjectAltName='DNS:www.example.com'")`,
+												},
+												"display_name": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The name of the allowed custom CA certificates. This can be used to disambiguate the custom CA certificates.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -1256,6 +2067,141 @@ placeholder in the schema.`,
 					},
 				},
 			},
+			"remote_agent_tool": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Represents a tool that allows the agent to call another remote agent.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"agent_card": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The agent card of the remote agent that this tool invokes.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"description": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `A description of the agent's domain of action/solution space.`,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `A human-readable name for the agent.`,
+									},
+									"skills": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Description: `Skills represent a unit of ability an agent can perform. This may
+somewhat abstract but represents a more focused set of actions that the agent is highly
+likely to succeed at.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"description": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `A detailed description of the skill.`,
+												},
+												"examples": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `Example prompts or scenarios that this skill can handle.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"id": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `A unique identifier for the agent's skill.`,
+												},
+												"input_modes": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Description: `The set of supported input media types for this skill, overriding the agent's
+defaults.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"name": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `A human-readable name for the skill.`,
+												},
+												"output_modes": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Description: `The set of supported output media types for this skill, overriding the agent's
+defaults.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"tags": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `A set of keywords describing the skill's capabilities.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
+									"supported_interfaces": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Ordered list of supported interfaces. The first entry is preferred.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"protocol_binding": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The protocol binding supported at this URL. The core ones officially
+supported are JSONRPC, GRPC and HTTP+JSON.`,
+												},
+												"protocol_version": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The version of the A2A protocol this interface exposes.
+Examples: "0.3", "1.0"`,
+												},
+												"tenant": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Tenant ID to be used in the request when calling the agent.`,
+												},
+												"url": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The URL where this interface is available. Must be a valid absolute
+HTTPS URL in production.`,
+												},
+											},
+										},
+									},
+									"version": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The version of the agent.`,
+									},
+								},
+							},
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The description of the tool.`,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the tool.`,
+						},
+					},
+				},
+			},
 			"system_tool": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -1311,6 +2257,12 @@ func resourceCESToolCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	obj := make(map[string]interface{})
+	agentToolProp, err := expandCESToolAgentTool(d.Get("agent_tool"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("agent_tool"); !tpgresource.IsEmptyValue(reflect.ValueOf(agentToolProp)) && (ok || !reflect.DeepEqual(v, agentToolProp)) {
+		obj["agentTool"] = agentToolProp
+	}
 	clientFunctionProp, err := expandCESToolClientFunction(d.Get("client_function"), d, config)
 	if err != nil {
 		return err
@@ -1329,6 +2281,12 @@ func resourceCESToolCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("execution_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(executionTypeProp)) && (ok || !reflect.DeepEqual(v, executionTypeProp)) {
 		obj["executionType"] = executionTypeProp
 	}
+	fileSearchToolProp, err := expandCESToolFileSearchTool(d.Get("file_search_tool"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("file_search_tool"); !tpgresource.IsEmptyValue(reflect.ValueOf(fileSearchToolProp)) && (ok || !reflect.DeepEqual(v, fileSearchToolProp)) {
+		obj["fileSearchTool"] = fileSearchToolProp
+	}
 	googleSearchToolProp, err := expandCESToolGoogleSearchTool(d.Get("google_search_tool"), d, config)
 	if err != nil {
 		return err
@@ -1340,6 +2298,12 @@ func resourceCESToolCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("python_function"); !tpgresource.IsEmptyValue(reflect.ValueOf(pythonFunctionProp)) && (ok || !reflect.DeepEqual(v, pythonFunctionProp)) {
 		obj["pythonFunction"] = pythonFunctionProp
+	}
+	widgetToolProp, err := expandCESToolWidgetTool(d.Get("widget_tool"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("widget_tool"); !tpgresource.IsEmptyValue(reflect.ValueOf(widgetToolProp)) && (ok || !reflect.DeepEqual(v, widgetToolProp)) {
+		obj["widgetTool"] = widgetToolProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/tools?toolId={{tool_id}}")
@@ -1569,6 +2533,12 @@ func resourceCESToolUpdate(d *schema.ResourceData, meta interface{}) error {
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	agentToolProp, err := expandCESToolAgentTool(d.Get("agent_tool"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("agent_tool"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, agentToolProp)) {
+		obj["agentTool"] = agentToolProp
+	}
 	clientFunctionProp, err := expandCESToolClientFunction(d.Get("client_function"), d, config)
 	if err != nil {
 		return err
@@ -1587,6 +2557,12 @@ func resourceCESToolUpdate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("execution_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, executionTypeProp)) {
 		obj["executionType"] = executionTypeProp
 	}
+	fileSearchToolProp, err := expandCESToolFileSearchTool(d.Get("file_search_tool"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("file_search_tool"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fileSearchToolProp)) {
+		obj["fileSearchTool"] = fileSearchToolProp
+	}
 	googleSearchToolProp, err := expandCESToolGoogleSearchTool(d.Get("google_search_tool"), d, config)
 	if err != nil {
 		return err
@@ -1599,6 +2575,12 @@ func resourceCESToolUpdate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("python_function"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pythonFunctionProp)) {
 		obj["pythonFunction"] = pythonFunctionProp
 	}
+	widgetToolProp, err := expandCESToolWidgetTool(d.Get("widget_tool"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("widget_tool"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, widgetToolProp)) {
+		obj["widgetTool"] = widgetToolProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/tools/{{name}}")
 	if err != nil {
@@ -1608,6 +2590,10 @@ func resourceCESToolUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Tool %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
+
+	if d.HasChange("agent_tool") {
+		updateMask = append(updateMask, "agentTool")
+	}
 
 	if d.HasChange("client_function") {
 		updateMask = append(updateMask, "clientFunction")
@@ -1621,12 +2607,20 @@ func resourceCESToolUpdate(d *schema.ResourceData, meta interface{}) error {
 		updateMask = append(updateMask, "executionType")
 	}
 
+	if d.HasChange("file_search_tool") {
+		updateMask = append(updateMask, "fileSearchTool")
+	}
+
 	if d.HasChange("google_search_tool") {
 		updateMask = append(updateMask, "googleSearchTool")
 	}
 
 	if d.HasChange("python_function") {
 		updateMask = append(updateMask, "pythonFunction")
+	}
+
+	if d.HasChange("widget_tool") {
+		updateMask = append(updateMask, "widgetTool")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1736,6 +2730,35 @@ func resourceCESToolImport(d *schema.ResourceData, meta interface{}) ([]*schema.
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenCESToolAgentTool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenCESToolAgentToolName(original["name"], d, config)
+	transformed["description"] =
+		flattenCESToolAgentToolDescription(original["description"], d, config)
+	transformed["agent"] =
+		flattenCESToolAgentToolAgent(original["agent"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolAgentToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolAgentToolDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolAgentToolAgent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCESToolClientFunction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2163,6 +3186,105 @@ func flattenCESToolClientFunctionResponseUniqueItems(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenCESToolConnectorTool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["connection"] =
+		flattenCESToolConnectorToolConnection(original["connection"], d, config)
+	transformed["action"] =
+		flattenCESToolConnectorToolAction(original["action"], d, config)
+	transformed["auth_config"] =
+		flattenCESToolConnectorToolAuthConfig(original["authConfig"], d, config)
+	transformed["name"] =
+		flattenCESToolConnectorToolName(original["name"], d, config)
+	transformed["description"] =
+		flattenCESToolConnectorToolDescription(original["description"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolConnectorToolConnection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolConnectorToolAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["input_fields"] =
+		flattenCESToolConnectorToolActionInputFields(original["inputFields"], d, config)
+	transformed["output_fields"] =
+		flattenCESToolConnectorToolActionOutputFields(original["outputFields"], d, config)
+	transformed["connection_action_id"] =
+		flattenCESToolConnectorToolActionConnectionActionId(original["connectionActionId"], d, config)
+	transformed["entity_operation"] =
+		flattenCESToolConnectorToolActionEntityOperation(original["entityOperation"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolConnectorToolActionInputFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolConnectorToolActionOutputFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolConnectorToolActionConnectionActionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolConnectorToolActionEntityOperation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["entity_id"] =
+		flattenCESToolConnectorToolActionEntityOperationEntityId(original["entityId"], d, config)
+	transformed["operation"] =
+		flattenCESToolConnectorToolActionEntityOperationOperation(original["operation"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolConnectorToolActionEntityOperationEntityId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolConnectorToolActionEntityOperationOperation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolConnectorToolAuthConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolConnectorToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolConnectorToolDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCESToolCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2178,10 +3300,14 @@ func flattenCESToolDataStoreTool(v interface{}, d *schema.ResourceData, config *
 	transformed := make(map[string]interface{})
 	transformed["boost_specs"] =
 		flattenCESToolDataStoreToolBoostSpecs(original["boostSpecs"], d, config)
+	transformed["data_store_source"] =
+		flattenCESToolDataStoreToolDataStoreSource(original["dataStoreSource"], d, config)
 	transformed["description"] =
 		flattenCESToolDataStoreToolDescription(original["description"], d, config)
 	transformed["engine_source"] =
 		flattenCESToolDataStoreToolEngineSource(original["engineSource"], d, config)
+	transformed["filter_parameter_behavior"] =
+		flattenCESToolDataStoreToolFilterParameterBehavior(original["filterParameterBehavior"], d, config)
 	transformed["max_results"] =
 		flattenCESToolDataStoreToolMaxResults(original["maxResults"], d, config)
 	transformed["modality_configs"] =
@@ -2317,6 +3443,97 @@ func flattenCESToolDataStoreToolBoostSpecsSpecConditionBoostSpecsCondition(v int
 	return v
 }
 
+func flattenCESToolDataStoreToolDataStoreSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["filter"] =
+		flattenCESToolDataStoreToolDataStoreSourceFilter(original["filter"], d, config)
+	transformed["data_store"] =
+		flattenCESToolDataStoreToolDataStoreSourceDataStore(original["dataStore"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolDataStoreToolDataStoreSourceFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolDataStoreToolDataStoreSourceDataStore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["connector_config"] =
+		flattenCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfig(original["connectorConfig"], d, config)
+	transformed["create_time"] =
+		flattenCESToolDataStoreToolDataStoreSourceDataStoreCreateTime(original["createTime"], d, config)
+	transformed["display_name"] =
+		flattenCESToolDataStoreToolDataStoreSourceDataStoreDisplayName(original["displayName"], d, config)
+	transformed["document_processing_mode"] =
+		flattenCESToolDataStoreToolDataStoreSourceDataStoreDocumentProcessingMode(original["documentProcessingMode"], d, config)
+	transformed["name"] =
+		flattenCESToolDataStoreToolDataStoreSourceDataStoreName(original["name"], d, config)
+	transformed["type"] =
+		flattenCESToolDataStoreToolDataStoreSourceDataStoreType(original["type"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["collection"] =
+		flattenCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigCollection(original["collection"], d, config)
+	transformed["collection_display_name"] =
+		flattenCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigCollectionDisplayName(original["collectionDisplayName"], d, config)
+	transformed["data_source"] =
+		flattenCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigDataSource(original["dataSource"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigCollection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigCollectionDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigDataSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolDataStoreToolDataStoreSourceDataStoreCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolDataStoreToolDataStoreSourceDataStoreDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolDataStoreToolDataStoreSourceDataStoreDocumentProcessingMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolDataStoreToolDataStoreSourceDataStoreName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolDataStoreToolDataStoreSourceDataStoreType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCESToolDataStoreToolDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2438,6 +3655,10 @@ func flattenCESToolDataStoreToolEngineSourceEngine(v interface{}, d *schema.Reso
 }
 
 func flattenCESToolDataStoreToolEngineSourceFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolDataStoreToolFilterParameterBehavior(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2618,6 +3839,41 @@ func flattenCESToolExecutionType(v interface{}, d *schema.ResourceData, config *
 	return v
 }
 
+func flattenCESToolFileSearchTool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["corpus_type"] =
+		flattenCESToolFileSearchToolCorpusType(original["corpusType"], d, config)
+	transformed["name"] =
+		flattenCESToolFileSearchToolName(original["name"], d, config)
+	transformed["description"] =
+		flattenCESToolFileSearchToolDescription(original["description"], d, config)
+	transformed["file_corpus"] =
+		flattenCESToolFileSearchToolFileCorpus(original["fileCorpus"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolFileSearchToolCorpusType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolFileSearchToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolFileSearchToolDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolFileSearchToolFileCorpus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCESToolGeneratedSummary(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2641,6 +3897,8 @@ func flattenCESToolGoogleSearchTool(v interface{}, d *schema.ResourceData, confi
 		flattenCESToolGoogleSearchToolName(original["name"], d, config)
 	transformed["preferred_domains"] =
 		flattenCESToolGoogleSearchToolPreferredDomains(original["preferredDomains"], d, config)
+	transformed["prompt_config"] =
+		flattenCESToolGoogleSearchToolPromptConfig(original["promptConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolGoogleSearchToolContextUrls(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2660,6 +3918,304 @@ func flattenCESToolGoogleSearchToolName(v interface{}, d *schema.ResourceData, c
 }
 
 func flattenCESToolGoogleSearchToolPreferredDomains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolGoogleSearchToolPromptConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["text_prompt"] =
+		flattenCESToolGoogleSearchToolPromptConfigTextPrompt(original["textPrompt"], d, config)
+	transformed["voice_prompt"] =
+		flattenCESToolGoogleSearchToolPromptConfigVoicePrompt(original["voicePrompt"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolGoogleSearchToolPromptConfigTextPrompt(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolGoogleSearchToolPromptConfigVoicePrompt(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpTool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenCESToolMcpToolName(original["name"], d, config)
+	transformed["name_override"] =
+		flattenCESToolMcpToolNameOverride(original["nameOverride"], d, config)
+	transformed["description"] =
+		flattenCESToolMcpToolDescription(original["description"], d, config)
+	transformed["input_schema"] =
+		flattenCESToolMcpToolInputSchema(original["inputSchema"], d, config)
+	transformed["output_schema"] =
+		flattenCESToolMcpToolOutputSchema(original["outputSchema"], d, config)
+	transformed["server_address"] =
+		flattenCESToolMcpToolServerAddress(original["serverAddress"], d, config)
+	transformed["api_authentication"] =
+		flattenCESToolMcpToolApiAuthentication(original["apiAuthentication"], d, config)
+	transformed["tls_config"] =
+		flattenCESToolMcpToolTlsConfig(original["tlsConfig"], d, config)
+	transformed["service_directory_config"] =
+		flattenCESToolMcpToolServiceDirectoryConfig(original["serviceDirectoryConfig"], d, config)
+	transformed["custom_headers"] =
+		flattenCESToolMcpToolCustomHeaders(original["customHeaders"], d, config)
+	transformed["state"] =
+		flattenCESToolMcpToolState(original["state"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolMcpToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolNameOverride(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolInputSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolMcpToolOutputSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolMcpToolServerAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthentication(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["api_key_config"] =
+		flattenCESToolMcpToolApiAuthenticationApiKeyConfig(original["apiKeyConfig"], d, config)
+	transformed["bearer_token_config"] =
+		flattenCESToolMcpToolApiAuthenticationBearerTokenConfig(original["bearerTokenConfig"], d, config)
+	transformed["oauth_config"] =
+		flattenCESToolMcpToolApiAuthenticationOauthConfig(original["oauthConfig"], d, config)
+	transformed["service_account_auth_config"] =
+		flattenCESToolMcpToolApiAuthenticationServiceAccountAuthConfig(original["serviceAccountAuthConfig"], d, config)
+	transformed["service_agent_id_token_auth_config"] =
+		flattenCESToolMcpToolApiAuthenticationServiceAgentIdTokenAuthConfig(original["serviceAgentIdTokenAuthConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolMcpToolApiAuthenticationApiKeyConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["api_key_secret_version"] =
+		flattenCESToolMcpToolApiAuthenticationApiKeyConfigApiKeySecretVersion(original["apiKeySecretVersion"], d, config)
+	transformed["key_name"] =
+		flattenCESToolMcpToolApiAuthenticationApiKeyConfigKeyName(original["keyName"], d, config)
+	transformed["request_location"] =
+		flattenCESToolMcpToolApiAuthenticationApiKeyConfigRequestLocation(original["requestLocation"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolMcpToolApiAuthenticationApiKeyConfigApiKeySecretVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthenticationApiKeyConfigKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthenticationApiKeyConfigRequestLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthenticationBearerTokenConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["token"] =
+		flattenCESToolMcpToolApiAuthenticationBearerTokenConfigToken(original["token"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolMcpToolApiAuthenticationBearerTokenConfigToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthenticationOauthConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["client_id"] =
+		flattenCESToolMcpToolApiAuthenticationOauthConfigClientId(original["clientId"], d, config)
+	transformed["client_secret_version"] =
+		flattenCESToolMcpToolApiAuthenticationOauthConfigClientSecretVersion(original["clientSecretVersion"], d, config)
+	transformed["oauth_grant_type"] =
+		flattenCESToolMcpToolApiAuthenticationOauthConfigOauthGrantType(original["oauthGrantType"], d, config)
+	transformed["scopes"] =
+		flattenCESToolMcpToolApiAuthenticationOauthConfigScopes(original["scopes"], d, config)
+	transformed["token_endpoint"] =
+		flattenCESToolMcpToolApiAuthenticationOauthConfigTokenEndpoint(original["tokenEndpoint"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolMcpToolApiAuthenticationOauthConfigClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthenticationOauthConfigClientSecretVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthenticationOauthConfigOauthGrantType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthenticationOauthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthenticationOauthConfigTokenEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthenticationServiceAccountAuthConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_account"] =
+		flattenCESToolMcpToolApiAuthenticationServiceAccountAuthConfigServiceAccount(original["serviceAccount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolMcpToolApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthenticationServiceAgentIdTokenAuthConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenCESToolMcpToolTlsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ca_certs"] =
+		flattenCESToolMcpToolTlsConfigCaCerts(original["caCerts"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolMcpToolTlsConfigCaCerts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"cert":         flattenCESToolMcpToolTlsConfigCaCertsCert(original["cert"], d, config),
+			"display_name": flattenCESToolMcpToolTlsConfigCaCertsDisplayName(original["displayName"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCESToolMcpToolTlsConfigCaCertsCert(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolTlsConfigCaCertsDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolServiceDirectoryConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service"] =
+		flattenCESToolMcpToolServiceDirectoryConfigService(original["service"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolMcpToolServiceDirectoryConfigService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolCustomHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2940,6 +4496,153 @@ func flattenCESToolUpdateTime(v interface{}, d *schema.ResourceData, config *tra
 	return v
 }
 
+func flattenCESToolRemoteAgentTool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenCESToolRemoteAgentToolName(original["name"], d, config)
+	transformed["description"] =
+		flattenCESToolRemoteAgentToolDescription(original["description"], d, config)
+	transformed["agent_card"] =
+		flattenCESToolRemoteAgentToolAgentCard(original["agentCard"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolRemoteAgentToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCard(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenCESToolRemoteAgentToolAgentCardName(original["name"], d, config)
+	transformed["description"] =
+		flattenCESToolRemoteAgentToolAgentCardDescription(original["description"], d, config)
+	transformed["version"] =
+		flattenCESToolRemoteAgentToolAgentCardVersion(original["version"], d, config)
+	transformed["supported_interfaces"] =
+		flattenCESToolRemoteAgentToolAgentCardSupportedInterfaces(original["supportedInterfaces"], d, config)
+	transformed["skills"] =
+		flattenCESToolRemoteAgentToolAgentCardSkills(original["skills"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolRemoteAgentToolAgentCardName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardSupportedInterfaces(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"url":              flattenCESToolRemoteAgentToolAgentCardSupportedInterfacesUrl(original["url"], d, config),
+			"protocol_binding": flattenCESToolRemoteAgentToolAgentCardSupportedInterfacesProtocolBinding(original["protocolBinding"], d, config),
+			"tenant":           flattenCESToolRemoteAgentToolAgentCardSupportedInterfacesTenant(original["tenant"], d, config),
+			"protocol_version": flattenCESToolRemoteAgentToolAgentCardSupportedInterfacesProtocolVersion(original["protocolVersion"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCESToolRemoteAgentToolAgentCardSupportedInterfacesUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardSupportedInterfacesProtocolBinding(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardSupportedInterfacesTenant(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardSupportedInterfacesProtocolVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardSkills(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"id":           flattenCESToolRemoteAgentToolAgentCardSkillsId(original["id"], d, config),
+			"name":         flattenCESToolRemoteAgentToolAgentCardSkillsName(original["name"], d, config),
+			"description":  flattenCESToolRemoteAgentToolAgentCardSkillsDescription(original["description"], d, config),
+			"tags":         flattenCESToolRemoteAgentToolAgentCardSkillsTags(original["tags"], d, config),
+			"examples":     flattenCESToolRemoteAgentToolAgentCardSkillsExamples(original["examples"], d, config),
+			"input_modes":  flattenCESToolRemoteAgentToolAgentCardSkillsInputModes(original["inputModes"], d, config),
+			"output_modes": flattenCESToolRemoteAgentToolAgentCardSkillsOutputModes(original["outputModes"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCESToolRemoteAgentToolAgentCardSkillsId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardSkillsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardSkillsDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardSkillsTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardSkillsExamples(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardSkillsInputModes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolAgentCardSkillsOutputModes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCESToolSystemTool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -2961,6 +4664,399 @@ func flattenCESToolSystemToolDescription(v interface{}, d *schema.ResourceData, 
 
 func flattenCESToolSystemToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenCESToolWidgetTool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenCESToolWidgetToolName(original["name"], d, config)
+	transformed["description"] =
+		flattenCESToolWidgetToolDescription(original["description"], d, config)
+	transformed["widget_type"] =
+		flattenCESToolWidgetToolWidgetType(original["widgetType"], d, config)
+	transformed["ui_config"] =
+		flattenCESToolWidgetToolUiConfig(original["uiConfig"], d, config)
+	transformed["data_mapping"] =
+		flattenCESToolWidgetToolDataMapping(original["dataMapping"], d, config)
+	transformed["text_response_config"] =
+		flattenCESToolWidgetToolTextResponseConfig(original["textResponseConfig"], d, config)
+	transformed["parameters"] =
+		flattenCESToolWidgetToolParameters(original["parameters"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolWidgetToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolWidgetType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolUiConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolWidgetToolDataMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["source_tool_name"] =
+		flattenCESToolWidgetToolDataMappingSourceToolName(original["sourceToolName"], d, config)
+	transformed["field_mappings"] =
+		flattenCESToolWidgetToolDataMappingFieldMappings(original["fieldMappings"], d, config)
+	transformed["python_function"] =
+		flattenCESToolWidgetToolDataMappingPythonFunction(original["pythonFunction"], d, config)
+	transformed["mode"] =
+		flattenCESToolWidgetToolDataMappingMode(original["mode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolWidgetToolDataMappingSourceToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolDataMappingFieldMappings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolDataMappingPythonFunction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenCESToolWidgetToolDataMappingPythonFunctionName(original["name"], d, config)
+	transformed["python_code"] =
+		flattenCESToolWidgetToolDataMappingPythonFunctionPythonCode(original["pythonCode"], d, config)
+	transformed["description"] =
+		flattenCESToolWidgetToolDataMappingPythonFunctionDescription(original["description"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolWidgetToolDataMappingPythonFunctionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolDataMappingPythonFunctionPythonCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolDataMappingPythonFunctionDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolDataMappingMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolTextResponseConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["type"] =
+		flattenCESToolWidgetToolTextResponseConfigType(original["type"], d, config)
+	transformed["static_text"] =
+		flattenCESToolWidgetToolTextResponseConfigStaticText(original["staticText"], d, config)
+	transformed["text_response_instruction"] =
+		flattenCESToolWidgetToolTextResponseConfigTextResponseInstruction(original["textResponseInstruction"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolWidgetToolTextResponseConfigType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolTextResponseConfigStaticText(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolTextResponseConfigTextResponseInstruction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["additional_properties"] =
+		flattenCESToolWidgetToolParametersAdditionalProperties(original["additionalProperties"], d, config)
+	transformed["any_of"] =
+		flattenCESToolWidgetToolParametersAnyOf(original["anyOf"], d, config)
+	transformed["default"] =
+		flattenCESToolWidgetToolParametersDefault(original["default"], d, config)
+	transformed["defs"] =
+		flattenCESToolWidgetToolParametersDefs(original["defs"], d, config)
+	transformed["description"] =
+		flattenCESToolWidgetToolParametersDescription(original["description"], d, config)
+	transformed["enum"] =
+		flattenCESToolWidgetToolParametersEnum(original["enum"], d, config)
+	transformed["items"] =
+		flattenCESToolWidgetToolParametersItems(original["items"], d, config)
+	transformed["max_items"] =
+		flattenCESToolWidgetToolParametersMaxItems(original["maxItems"], d, config)
+	transformed["maximum"] =
+		flattenCESToolWidgetToolParametersMaximum(original["maximum"], d, config)
+	transformed["min_items"] =
+		flattenCESToolWidgetToolParametersMinItems(original["minItems"], d, config)
+	transformed["minimum"] =
+		flattenCESToolWidgetToolParametersMinimum(original["minimum"], d, config)
+	transformed["nullable"] =
+		flattenCESToolWidgetToolParametersNullable(original["nullable"], d, config)
+	transformed["prefix_items"] =
+		flattenCESToolWidgetToolParametersPrefixItems(original["prefixItems"], d, config)
+	transformed["properties"] =
+		flattenCESToolWidgetToolParametersProperties(original["properties"], d, config)
+	transformed["ref"] =
+		flattenCESToolWidgetToolParametersRef(original["ref"], d, config)
+	transformed["required"] =
+		flattenCESToolWidgetToolParametersRequired(original["required"], d, config)
+	transformed["title"] =
+		flattenCESToolWidgetToolParametersTitle(original["title"], d, config)
+	transformed["type"] =
+		flattenCESToolWidgetToolParametersType(original["type"], d, config)
+	transformed["unique_items"] =
+		flattenCESToolWidgetToolParametersUniqueItems(original["uniqueItems"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolWidgetToolParametersAdditionalProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolWidgetToolParametersAnyOf(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolWidgetToolParametersDefault(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolWidgetToolParametersDefs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolWidgetToolParametersDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolParametersEnum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolParametersItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolWidgetToolParametersMaxItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCESToolWidgetToolParametersMaximum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolParametersMinItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCESToolWidgetToolParametersMinimum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolParametersNullable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolParametersPrefixItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolWidgetToolParametersProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolWidgetToolParametersRef(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolParametersRequired(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolParametersTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolParametersType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolWidgetToolParametersUniqueItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func expandCESToolAgentTool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandCESToolAgentToolName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedDescription, err := expandCESToolAgentToolDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedAgent, err := expandCESToolAgentToolAgent(original["agent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAgent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["agent"] = transformedAgent
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolAgentToolName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolAgentToolDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolAgentToolAgent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCESToolClientFunction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -3577,6 +5673,13 @@ func expandCESToolDataStoreTool(v interface{}, d tpgresource.TerraformResourceDa
 		transformed["boostSpecs"] = transformedBoostSpecs
 	}
 
+	transformedDataStoreSource, err := expandCESToolDataStoreToolDataStoreSource(original["data_store_source"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDataStoreSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dataStoreSource"] = transformedDataStoreSource
+	}
+
 	transformedDescription, err := expandCESToolDataStoreToolDescription(original["description"], d, config)
 	if err != nil {
 		return nil, err
@@ -3589,6 +5692,13 @@ func expandCESToolDataStoreTool(v interface{}, d tpgresource.TerraformResourceDa
 		return nil, err
 	} else if val := reflect.ValueOf(transformedEngineSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["engineSource"] = transformedEngineSource
+	}
+
+	transformedFilterParameterBehavior, err := expandCESToolDataStoreToolFilterParameterBehavior(original["filter_parameter_behavior"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilterParameterBehavior); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filterParameterBehavior"] = transformedFilterParameterBehavior
 	}
 
 	transformedMaxResults, err := expandCESToolDataStoreToolMaxResults(original["max_results"], d, config)
@@ -3818,6 +5928,164 @@ func expandCESToolDataStoreToolBoostSpecsSpecConditionBoostSpecsCondition(v inte
 	return v, nil
 }
 
+func expandCESToolDataStoreToolDataStoreSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFilter, err := expandCESToolDataStoreToolDataStoreSourceFilter(original["filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filter"] = transformedFilter
+	}
+
+	transformedDataStore, err := expandCESToolDataStoreToolDataStoreSourceDataStore(original["data_store"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDataStore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dataStore"] = transformedDataStore
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolDataStoreToolDataStoreSourceFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolDataStoreToolDataStoreSourceDataStore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedConnectorConfig, err := expandCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfig(original["connector_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConnectorConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["connectorConfig"] = transformedConnectorConfig
+	}
+
+	transformedCreateTime, err := expandCESToolDataStoreToolDataStoreSourceDataStoreCreateTime(original["create_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCreateTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["createTime"] = transformedCreateTime
+	}
+
+	transformedDisplayName, err := expandCESToolDataStoreToolDataStoreSourceDataStoreDisplayName(original["display_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisplayName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["displayName"] = transformedDisplayName
+	}
+
+	transformedDocumentProcessingMode, err := expandCESToolDataStoreToolDataStoreSourceDataStoreDocumentProcessingMode(original["document_processing_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDocumentProcessingMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["documentProcessingMode"] = transformedDocumentProcessingMode
+	}
+
+	transformedName, err := expandCESToolDataStoreToolDataStoreSourceDataStoreName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedType, err := expandCESToolDataStoreToolDataStoreSourceDataStoreType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCollection, err := expandCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigCollection(original["collection"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCollection); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["collection"] = transformedCollection
+	}
+
+	transformedCollectionDisplayName, err := expandCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigCollectionDisplayName(original["collection_display_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCollectionDisplayName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["collectionDisplayName"] = transformedCollectionDisplayName
+	}
+
+	transformedDataSource, err := expandCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigDataSource(original["data_source"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDataSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dataSource"] = transformedDataSource
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigCollection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigCollectionDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolDataStoreToolDataStoreSourceDataStoreConnectorConfigDataSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolDataStoreToolDataStoreSourceDataStoreCreateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolDataStoreToolDataStoreSourceDataStoreDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolDataStoreToolDataStoreSourceDataStoreDocumentProcessingMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolDataStoreToolDataStoreSourceDataStoreName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolDataStoreToolDataStoreSourceDataStoreType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandCESToolDataStoreToolDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -4024,6 +6292,10 @@ func expandCESToolDataStoreToolEngineSourceEngine(v interface{}, d tpgresource.T
 }
 
 func expandCESToolDataStoreToolEngineSourceFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolDataStoreToolFilterParameterBehavior(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -4288,6 +6560,65 @@ func expandCESToolExecutionType(v interface{}, d tpgresource.TerraformResourceDa
 	return v, nil
 }
 
+func expandCESToolFileSearchTool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCorpusType, err := expandCESToolFileSearchToolCorpusType(original["corpus_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCorpusType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["corpusType"] = transformedCorpusType
+	}
+
+	transformedName, err := expandCESToolFileSearchToolName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedDescription, err := expandCESToolFileSearchToolDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedFileCorpus, err := expandCESToolFileSearchToolFileCorpus(original["file_corpus"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFileCorpus); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fileCorpus"] = transformedFileCorpus
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolFileSearchToolCorpusType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolFileSearchToolName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolFileSearchToolDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolFileSearchToolFileCorpus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandCESToolGoogleSearchTool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -4335,6 +6666,13 @@ func expandCESToolGoogleSearchTool(v interface{}, d tpgresource.TerraformResourc
 		transformed["preferredDomains"] = transformedPreferredDomains
 	}
 
+	transformedPromptConfig, err := expandCESToolGoogleSearchToolPromptConfig(original["prompt_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPromptConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["promptConfig"] = transformedPromptConfig
+	}
+
 	return transformed, nil
 }
 
@@ -4355,6 +6693,43 @@ func expandCESToolGoogleSearchToolName(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandCESToolGoogleSearchToolPreferredDomains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolGoogleSearchToolPromptConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTextPrompt, err := expandCESToolGoogleSearchToolPromptConfigTextPrompt(original["text_prompt"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTextPrompt); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["textPrompt"] = transformedTextPrompt
+	}
+
+	transformedVoicePrompt, err := expandCESToolGoogleSearchToolPromptConfigVoicePrompt(original["voice_prompt"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVoicePrompt); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["voicePrompt"] = transformedVoicePrompt
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolGoogleSearchToolPromptConfigTextPrompt(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolGoogleSearchToolPromptConfigVoicePrompt(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -4406,6 +6781,532 @@ func expandCESToolPythonFunctionPythonCode(v interface{}, d tpgresource.Terrafor
 	return v, nil
 }
 
+func expandCESToolWidgetTool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandCESToolWidgetToolName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedDescription, err := expandCESToolWidgetToolDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedWidgetType, err := expandCESToolWidgetToolWidgetType(original["widget_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWidgetType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["widgetType"] = transformedWidgetType
+	}
+
+	transformedUiConfig, err := expandCESToolWidgetToolUiConfig(original["ui_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUiConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uiConfig"] = transformedUiConfig
+	}
+
+	transformedDataMapping, err := expandCESToolWidgetToolDataMapping(original["data_mapping"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDataMapping); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dataMapping"] = transformedDataMapping
+	}
+
+	transformedTextResponseConfig, err := expandCESToolWidgetToolTextResponseConfig(original["text_response_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTextResponseConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["textResponseConfig"] = transformedTextResponseConfig
+	}
+
+	transformedParameters, err := expandCESToolWidgetToolParameters(original["parameters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParameters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["parameters"] = transformedParameters
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolWidgetToolName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolWidgetType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolUiConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolWidgetToolDataMapping(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSourceToolName, err := expandCESToolWidgetToolDataMappingSourceToolName(original["source_tool_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceToolName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceToolName"] = transformedSourceToolName
+	}
+
+	transformedFieldMappings, err := expandCESToolWidgetToolDataMappingFieldMappings(original["field_mappings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFieldMappings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fieldMappings"] = transformedFieldMappings
+	}
+
+	transformedPythonFunction, err := expandCESToolWidgetToolDataMappingPythonFunction(original["python_function"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPythonFunction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pythonFunction"] = transformedPythonFunction
+	}
+
+	transformedMode, err := expandCESToolWidgetToolDataMappingMode(original["mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mode"] = transformedMode
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolWidgetToolDataMappingSourceToolName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolDataMappingFieldMappings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandCESToolWidgetToolDataMappingPythonFunction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandCESToolWidgetToolDataMappingPythonFunctionName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedPythonCode, err := expandCESToolWidgetToolDataMappingPythonFunctionPythonCode(original["python_code"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPythonCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pythonCode"] = transformedPythonCode
+	}
+
+	transformedDescription, err := expandCESToolWidgetToolDataMappingPythonFunctionDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolWidgetToolDataMappingPythonFunctionName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolDataMappingPythonFunctionPythonCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolDataMappingPythonFunctionDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolDataMappingMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolTextResponseConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedType, err := expandCESToolWidgetToolTextResponseConfigType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
+	transformedStaticText, err := expandCESToolWidgetToolTextResponseConfigStaticText(original["static_text"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStaticText); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["staticText"] = transformedStaticText
+	}
+
+	transformedTextResponseInstruction, err := expandCESToolWidgetToolTextResponseConfigTextResponseInstruction(original["text_response_instruction"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTextResponseInstruction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["textResponseInstruction"] = transformedTextResponseInstruction
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolWidgetToolTextResponseConfigType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolTextResponseConfigStaticText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolTextResponseConfigTextResponseInstruction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAdditionalProperties, err := expandCESToolWidgetToolParametersAdditionalProperties(original["additional_properties"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAdditionalProperties); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["additionalProperties"] = transformedAdditionalProperties
+	}
+
+	transformedAnyOf, err := expandCESToolWidgetToolParametersAnyOf(original["any_of"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAnyOf); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["anyOf"] = transformedAnyOf
+	}
+
+	transformedDefault, err := expandCESToolWidgetToolParametersDefault(original["default"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefault); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["default"] = transformedDefault
+	}
+
+	transformedDefs, err := expandCESToolWidgetToolParametersDefs(original["defs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defs"] = transformedDefs
+	}
+
+	transformedDescription, err := expandCESToolWidgetToolParametersDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedEnum, err := expandCESToolWidgetToolParametersEnum(original["enum"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnum); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enum"] = transformedEnum
+	}
+
+	transformedItems, err := expandCESToolWidgetToolParametersItems(original["items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["items"] = transformedItems
+	}
+
+	transformedMaxItems, err := expandCESToolWidgetToolParametersMaxItems(original["max_items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxItems"] = transformedMaxItems
+	}
+
+	transformedMaximum, err := expandCESToolWidgetToolParametersMaximum(original["maximum"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaximum); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maximum"] = transformedMaximum
+	}
+
+	transformedMinItems, err := expandCESToolWidgetToolParametersMinItems(original["min_items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minItems"] = transformedMinItems
+	}
+
+	transformedMinimum, err := expandCESToolWidgetToolParametersMinimum(original["minimum"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinimum); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minimum"] = transformedMinimum
+	}
+
+	transformedNullable, err := expandCESToolWidgetToolParametersNullable(original["nullable"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNullable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["nullable"] = transformedNullable
+	}
+
+	transformedPrefixItems, err := expandCESToolWidgetToolParametersPrefixItems(original["prefix_items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrefixItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["prefixItems"] = transformedPrefixItems
+	}
+
+	transformedProperties, err := expandCESToolWidgetToolParametersProperties(original["properties"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProperties); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["properties"] = transformedProperties
+	}
+
+	transformedRef, err := expandCESToolWidgetToolParametersRef(original["ref"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRef); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ref"] = transformedRef
+	}
+
+	transformedRequired, err := expandCESToolWidgetToolParametersRequired(original["required"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequired); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["required"] = transformedRequired
+	}
+
+	transformedTitle, err := expandCESToolWidgetToolParametersTitle(original["title"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["title"] = transformedTitle
+	}
+
+	transformedType, err := expandCESToolWidgetToolParametersType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
+	transformedUniqueItems, err := expandCESToolWidgetToolParametersUniqueItems(original["unique_items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUniqueItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uniqueItems"] = transformedUniqueItems
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolWidgetToolParametersAdditionalProperties(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolWidgetToolParametersAnyOf(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolWidgetToolParametersDefault(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolWidgetToolParametersDefs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolWidgetToolParametersDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParametersEnum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParametersItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolWidgetToolParametersMaxItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParametersMaximum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParametersMinItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParametersMinimum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParametersNullable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParametersPrefixItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolWidgetToolParametersProperties(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolWidgetToolParametersRef(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParametersRequired(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParametersTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParametersType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolWidgetToolParametersUniqueItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceCESToolPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	if err := d.Set("name", flattenCESToolName(res["name"], d, config)); err != nil {
@@ -4417,7 +7318,13 @@ func resourceCESToolPostCreateSetComputedFields(d *schema.ResourceData, meta int
 func ResourceCESToolFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
+	if err = d.Set("agent_tool", flattenCESToolAgentTool(res["agentTool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
 	if err = d.Set("client_function", flattenCESToolClientFunction(res["clientFunction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("connector_tool", flattenCESToolConnectorTool(res["connectorTool"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tool: %s", err)
 	}
 	if err = d.Set("create_time", flattenCESToolCreateTime(res["createTime"], d, config)); err != nil {
@@ -4435,10 +7342,16 @@ func ResourceCESToolFlatten(d *schema.ResourceData, meta interface{}, res map[st
 	if err = d.Set("execution_type", flattenCESToolExecutionType(res["executionType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tool: %s", err)
 	}
+	if err = d.Set("file_search_tool", flattenCESToolFileSearchTool(res["fileSearchTool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
 	if err = d.Set("generated_summary", flattenCESToolGeneratedSummary(res["generatedSummary"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tool: %s", err)
 	}
 	if err = d.Set("google_search_tool", flattenCESToolGoogleSearchTool(res["googleSearchTool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("mcp_tool", flattenCESToolMcpTool(res["mcpTool"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tool: %s", err)
 	}
 	if err = d.Set("name", flattenCESToolName(res["name"], d, config)); err != nil {
@@ -4453,7 +7366,13 @@ func ResourceCESToolFlatten(d *schema.ResourceData, meta interface{}, res map[st
 	if err = d.Set("update_time", flattenCESToolUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tool: %s", err)
 	}
+	if err = d.Set("remote_agent_tool", flattenCESToolRemoteAgentTool(res["remoteAgentTool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
 	if err = d.Set("system_tool", flattenCESToolSystemTool(res["systemTool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("widget_tool", flattenCESToolWidgetTool(res["widgetTool"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tool: %s", err)
 	}
 
