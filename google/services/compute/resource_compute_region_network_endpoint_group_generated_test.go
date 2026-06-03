@@ -249,8 +249,8 @@ resource "google_app_engine_flexible_app_version" "appengine_neg" {
   service    = "%{neg_name}"
   runtime    = "nodejs"
   flexible_runtime_settings {
-    operating_system = "ubuntu22"
-    runtime_version = "20"
+    operating_system = "ubuntu24"
+    runtime_version = "24"
   }
 
   entrypoint {
