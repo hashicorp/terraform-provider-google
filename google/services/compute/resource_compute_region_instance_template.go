@@ -1289,11 +1289,7 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 		instanceProperties["tags"] = tagsMap
 	}
 	if cic := expandConfidentialInstanceConfig(d); cic != nil {
-		cicMap, err := tpgresource.ConvertToMap(cic)
-		if err != nil {
-			return fmt.Errorf("Error converting confidentialInstanceConfig: %s", err)
-		}
-		instanceProperties["confidentialInstanceConfig"] = cicMap
+		instanceProperties["confidentialInstanceConfig"] = cic
 	}
 	if sic := expandShieldedVmConfigs(d); sic != nil {
 		// Build manually to preserve false boolean values (ForceSendFields workaround)
@@ -1578,7 +1574,11 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 	}
 
 	if instanceTemplate.Properties.ConfidentialInstanceConfig != nil {
-		if err = d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(instanceTemplate.Properties.ConfidentialInstanceConfig)); err != nil {
+		cicMap, convErr := tpgresource.ConvertToMap(instanceTemplate.Properties.ConfidentialInstanceConfig)
+		if convErr != nil {
+			return fmt.Errorf("Error converting confidential_instance_config: %s", convErr)
+		}
+		if err = d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(cicMap)); err != nil {
 			return fmt.Errorf("Error setting confidential_instance_config: %s", err)
 		}
 	}

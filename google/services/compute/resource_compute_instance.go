@@ -1743,34 +1743,40 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 	}
 
 	// Create the instance information
-	return &compute.Instance{
-		CanIpForward:               d.Get("can_ip_forward").(bool),
-		Description:                d.Get("description").(string),
-		Disks:                      disks,
-		MachineType:                machineTypeUrl,
-		Metadata:                   metadata,
-		Name:                       d.Get("name").(string),
-		NetworkInterfaces:          networkInterfaces,
-		NetworkPerformanceConfig:   networkPerformanceConfig,
-		Tags:                       resourceInstanceTags(d),
-		Params:                     params,
-		Labels:                     tpgresource.ExpandEffectiveLabels(d),
-		ServiceAccounts:            expandServiceAccountsTyped(d.Get("service_account").([]interface{})),
-		GuestAccelerators:          accels,
-		MinCpuPlatform:             d.Get("min_cpu_platform").(string),
-		Scheduling:                 scheduling,
-		DeletionProtection:         d.Get("deletion_protection").(bool),
-		Hostname:                   d.Get("hostname").(string),
-		ForceSendFields:            []string{"CanIpForward", "DeletionProtection"},
-		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
-		AdvancedMachineFeatures:    expandAdvancedMachineFeatures(d),
-		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
-		DisplayDevice:              expandDisplayDevice(d),
-		ResourcePolicies:           tpgresource.ConvertStringArr(d.Get("resource_policies").([]interface{})),
-		ReservationAffinity:        reservationAffinity,
-		KeyRevocationActionType:    d.Get("key_revocation_action_type").(string),
-		InstanceEncryptionKey:      instanceEncryptionKey,
-	}, nil
+	instance := &compute.Instance{
+		CanIpForward:             d.Get("can_ip_forward").(bool),
+		Description:              d.Get("description").(string),
+		Disks:                    disks,
+		MachineType:              machineTypeUrl,
+		Metadata:                 metadata,
+		Name:                     d.Get("name").(string),
+		NetworkInterfaces:        networkInterfaces,
+		NetworkPerformanceConfig: networkPerformanceConfig,
+		Tags:                     resourceInstanceTags(d),
+		Params:                   params,
+		Labels:                   tpgresource.ExpandEffectiveLabels(d),
+		ServiceAccounts:          expandServiceAccountsTyped(d.Get("service_account").([]interface{})),
+		GuestAccelerators:        accels,
+		MinCpuPlatform:           d.Get("min_cpu_platform").(string),
+		Scheduling:               scheduling,
+		DeletionProtection:       d.Get("deletion_protection").(bool),
+		Hostname:                 d.Get("hostname").(string),
+		ForceSendFields:          []string{"CanIpForward", "DeletionProtection"},
+		AdvancedMachineFeatures:  expandAdvancedMachineFeatures(d),
+		ShieldedInstanceConfig:   expandShieldedVmConfigs(d),
+		DisplayDevice:            expandDisplayDevice(d),
+		ResourcePolicies:         tpgresource.ConvertStringArr(d.Get("resource_policies").([]interface{})),
+		ReservationAffinity:      reservationAffinity,
+		KeyRevocationActionType:  d.Get("key_revocation_action_type").(string),
+		InstanceEncryptionKey:    instanceEncryptionKey,
+	}
+	if cic := expandConfidentialInstanceConfig(d); cic != nil {
+		instance.ConfidentialInstanceConfig = &compute.ConfidentialInstanceConfig{
+			EnableConfidentialCompute: cic["enableConfidentialCompute"].(bool),
+			ConfidentialInstanceType:  cic["confidentialInstanceType"].(string),
+		}
+	}
+	return instance, nil
 }
 
 var computeInstanceStatus = []string{
@@ -2222,8 +2228,14 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("current_status", instance.Status); err != nil {
 		return fmt.Errorf("Error setting current_status: %s", err)
 	}
-	if err := d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(instance.ConfidentialInstanceConfig)); err != nil {
-		return fmt.Errorf("Error setting confidential_instance_config: %s", err)
+	if instance.ConfidentialInstanceConfig != nil {
+		cicMap, err := tpgresource.ConvertToMap(instance.ConfidentialInstanceConfig)
+		if err != nil {
+			return fmt.Errorf("Error converting confidential_instance_config: %s", err)
+		}
+		if err := d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(cicMap)); err != nil {
+			return fmt.Errorf("Error setting confidential_instance_config: %s", err)
+		}
 	}
 	if err := d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(instance.AdvancedMachineFeatures)); err != nil {
 		return fmt.Errorf("Error setting advanced_machine_features: %s", err)
