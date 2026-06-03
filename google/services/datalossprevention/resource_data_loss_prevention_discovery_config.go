@@ -3461,7 +3461,28 @@ func flattenDataLossPreventionDiscoveryConfigErrorsDetailsMessage(v interface{},
 }
 
 func flattenDataLossPreventionDiscoveryConfigErrorsDetailsDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return nil
+	}
+	detailsArray := v.([]interface{})
+	for i, raw := range detailsArray {
+		m := raw.(map[string]interface{})
+		if len(m) < 1 {
+			// Do not include empty json objects coming back from the API
+			continue
+		}
+		for k, val := range m {
+			if _, ok := val.(string); !ok {
+				b, err := json.Marshal(v)
+				if err != nil {
+					return err
+				}
+				m[k] = string(b)
+			}
+		}
+		detailsArray[i] = m
+	}
+	return detailsArray
 }
 
 func flattenDataLossPreventionDiscoveryConfigErrorsTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
