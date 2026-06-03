@@ -1,0 +1,3 @@
+```release-note:note
+compute: migrated network interface refreshes in `google_compute_instance` resource to use direct HTTP rather than a client library
+```
