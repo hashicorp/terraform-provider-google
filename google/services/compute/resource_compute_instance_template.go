@@ -1577,24 +1577,29 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	resourcePolicies := expandInstanceTemplateResourcePolicies(d, "resource_policies")
 
 	instanceProperties := &compute.InstanceProperties{
-		CanIpForward:               d.Get("can_ip_forward").(bool),
-		Description:                d.Get("instance_description").(string),
-		GuestAccelerators:          expandInstanceTemplateGuestAccelerators(d, config),
-		MachineType:                d.Get("machine_type").(string),
-		MinCpuPlatform:             d.Get("min_cpu_platform").(string),
-		Disks:                      disks,
-		Metadata:                   metadata,
-		NetworkInterfaces:          networks,
-		NetworkPerformanceConfig:   networkPerformanceConfig,
-		Scheduling:                 scheduling,
-		ServiceAccounts:            expandServiceAccountsTyped(d.Get("service_account").([]interface{})),
-		Tags:                       resourceInstanceTags(d),
-		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
-		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
-		AdvancedMachineFeatures:    expandAdvancedMachineFeatures(d),
-		ResourcePolicies:           resourcePolicies,
-		ReservationAffinity:        reservationAffinity,
-		KeyRevocationActionType:    d.Get("key_revocation_action_type").(string),
+		CanIpForward:             d.Get("can_ip_forward").(bool),
+		Description:              d.Get("instance_description").(string),
+		GuestAccelerators:        expandInstanceTemplateGuestAccelerators(d, config),
+		MachineType:              d.Get("machine_type").(string),
+		MinCpuPlatform:           d.Get("min_cpu_platform").(string),
+		Disks:                    disks,
+		Metadata:                 metadata,
+		NetworkInterfaces:        networks,
+		NetworkPerformanceConfig: networkPerformanceConfig,
+		Scheduling:               scheduling,
+		ServiceAccounts:          expandServiceAccountsTyped(d.Get("service_account").([]interface{})),
+		Tags:                     resourceInstanceTags(d),
+		ShieldedInstanceConfig:   expandShieldedVmConfigs(d),
+		AdvancedMachineFeatures:  expandAdvancedMachineFeatures(d),
+		ResourcePolicies:         resourcePolicies,
+		ReservationAffinity:      reservationAffinity,
+		KeyRevocationActionType:  d.Get("key_revocation_action_type").(string),
+	}
+	if cic := expandConfidentialInstanceConfig(d); cic != nil {
+		instanceProperties.ConfidentialInstanceConfig = &compute.ConfidentialInstanceConfig{
+			EnableConfidentialCompute: cic["enableConfidentialCompute"].(bool),
+			ConfidentialInstanceType:  cic["confidentialInstanceType"].(string),
+		}
 	}
 
 	if _, ok := d.GetOk("effective_labels"); ok {
@@ -2074,7 +2079,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 
 	if instanceTemplate.Properties.ConfidentialInstanceConfig != nil {
-		if err = d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(instanceTemplate.Properties.ConfidentialInstanceConfig)); err != nil {
+		cicMap, convErr := tpgresource.ConvertToMap(instanceTemplate.Properties.ConfidentialInstanceConfig)
+		if convErr != nil {
+			return fmt.Errorf("Error converting confidential_instance_config: %s", convErr)
+		}
+		if err = d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(cicMap)); err != nil {
 			return fmt.Errorf("Error setting confidential_instance_config: %s", err)
 		}
 	}
