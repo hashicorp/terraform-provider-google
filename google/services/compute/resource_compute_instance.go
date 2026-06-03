@@ -3930,7 +3930,16 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.guest_os_features"); ok {
-		disk.GuestOsFeatures = expandComputeInstanceGuestOsFeatures(v)
+		guestOsFeaturesSlice := expandComputeInstanceGuestOsFeatures(v)
+		disk.GuestOsFeatures = make([]*compute.GuestOsFeature, len(guestOsFeaturesSlice))
+		for i, raw := range guestOsFeaturesSlice {
+			disk.GuestOsFeatures[i] = &compute.GuestOsFeature{}
+			if m, ok := raw.(map[string]interface{}); ok && m != nil {
+				if err := tpgresource.Convert(m, disk.GuestOsFeatures[i]); err != nil {
+					return nil, fmt.Errorf("Error converting guest_os_features: %s", err)
+				}
+			}
+		}
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.disk_encryption_key_raw"); ok {
@@ -4096,12 +4105,18 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 }
 
 func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config *transport_tpg.Config) []map[string]interface{} {
+	guestOsFeaturesSlice := make([]interface{}, 0, len(disk.GuestOsFeatures))
+	for _, f := range disk.GuestOsFeatures {
+		if f != nil && f.Type != "" {
+			guestOsFeaturesSlice = append(guestOsFeaturesSlice, map[string]interface{}{"type": f.Type})
+		}
+	}
 	result := map[string]interface{}{
 		"auto_delete":       disk.AutoDelete,
 		"device_name":       disk.DeviceName,
 		"mode":              disk.Mode,
 		"source":            tpgresource.ConvertSelfLinkToV1(disk.Source),
-		"guest_os_features": flattenComputeInstanceGuestOsFeatures(disk.GuestOsFeatures),
+		"guest_os_features": flattenComputeInstanceGuestOsFeatures(guestOsFeaturesSlice),
 		"force_attach":      d.Get("boot_disk.0.force_attach"),
 		// disk_encryption_key_raw is not returned from the API, so copy it from what the user
 		// originally specified to avoid diffs.

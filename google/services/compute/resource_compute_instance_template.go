@@ -1463,7 +1463,16 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 		}
 
 		if v, ok := d.GetOk(prefix + ".guest_os_features"); ok {
-			disk.GuestOsFeatures = expandComputeInstanceGuestOsFeatures(v.([]interface{}))
+			guestOsFeaturesSlice := expandComputeInstanceGuestOsFeatures(v.([]interface{}))
+			disk.GuestOsFeatures = make([]*compute.GuestOsFeature, len(guestOsFeaturesSlice))
+			for i, raw := range guestOsFeaturesSlice {
+				disk.GuestOsFeatures[i] = &compute.GuestOsFeature{}
+				if m, ok := raw.(map[string]interface{}); ok && m != nil {
+					if err := tpgresource.Convert(m, disk.GuestOsFeatures[i]); err != nil {
+						return nil, fmt.Errorf("Error converting guest_os_features: %s", err)
+					}
+				}
+			}
 		}
 
 		if v, ok := d.GetOk(prefix + ".architecture"); ok {
@@ -1744,6 +1753,12 @@ func flattenDisk(disk *compute.AttachedDisk, configDisk map[string]any, defaultP
 		diskMap["disk_encryption_key"] = encryption
 	}
 
+	guestOsFeaturesSlice := make([]interface{}, 0, len(disk.GuestOsFeatures))
+	for _, f := range disk.GuestOsFeatures {
+		if f != nil && f.Type != "" {
+			guestOsFeaturesSlice = append(guestOsFeaturesSlice, map[string]interface{}{"type": f.Type})
+		}
+	}
 	diskMap["auto_delete"] = disk.AutoDelete
 	diskMap["boot"] = disk.Boot
 	diskMap["device_name"] = disk.DeviceName
@@ -1751,7 +1766,7 @@ func flattenDisk(disk *compute.AttachedDisk, configDisk map[string]any, defaultP
 	diskMap["source"] = tpgresource.ConvertSelfLinkToV1(disk.Source)
 	diskMap["mode"] = disk.Mode
 	diskMap["type"] = disk.Type
-	diskMap["guest_os_features"] = flattenComputeInstanceGuestOsFeatures(disk.GuestOsFeatures)
+	diskMap["guest_os_features"] = flattenComputeInstanceGuestOsFeatures(guestOsFeaturesSlice)
 	diskMap["architecture"] = configDisk["architecture"]
 
 	return diskMap, nil

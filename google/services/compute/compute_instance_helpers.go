@@ -913,26 +913,28 @@ func flattenComputeInstanceGuestOsFeatures(v interface{}) []interface{} {
 	if v == nil {
 		return nil
 	}
-	features, ok := v.([]*compute.GuestOsFeature)
+	features, ok := v.([]interface{})
 	if !ok {
 		return nil
 	}
 	var result []interface{}
-	for _, feature := range features {
-		if feature != nil && feature.Type != "" {
-			result = append(result, feature.Type)
+	for _, raw := range features {
+		if m, ok := raw.(map[string]interface{}); ok {
+			if t, ok := m["type"].(string); ok && t != "" {
+				result = append(result, t)
+			}
 		}
 	}
 	return result
 }
 
-func expandComputeInstanceGuestOsFeatures(v interface{}) []*compute.GuestOsFeature {
+func expandComputeInstanceGuestOsFeatures(v interface{}) []interface{} {
 	if v == nil {
 		return nil
 	}
-	var result []*compute.GuestOsFeature
+	var result []interface{}
 	for _, feature := range v.([]interface{}) {
-		result = append(result, &compute.GuestOsFeature{Type: feature.(string)})
+		result = append(result, map[string]interface{}{"type": feature.(string)})
 	}
 	return result
 }
