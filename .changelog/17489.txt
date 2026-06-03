@@ -1,0 +1,3 @@
+```release-note:enhancement
+data_catalog: added `RICHTEXT` to allowed values of `primitive_type` on `google_data_catalog_tag_template` fields.
+```
