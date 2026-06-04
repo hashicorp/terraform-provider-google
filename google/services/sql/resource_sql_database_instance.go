@@ -3093,7 +3093,10 @@ func flattenSettings(settings *sqladmin.Settings, iType string, d *schema.Resour
 		data["database_flags"] = flattenDatabaseFlags(settings.DatabaseFlags)
 	}
 
-	if settings.ConnectionPoolConfig != nil {
+	// When connection_pooling_enabled=false the API returns nil for ConnectionPoolConfig.
+	// We still need to flatten if the user has configured the block to avoid a permadiff.
+	poolConfigSet, _ := d.Get("settings.0.connection_pool_config").(*schema.Set)
+	if settings.ConnectionPoolConfig != nil || (poolConfigSet != nil && poolConfigSet.Len() > 0) {
 		data["connection_pool_config"] = flattenConnectionPoolConfig(settings.ConnectionPoolConfig)
 	}
 
