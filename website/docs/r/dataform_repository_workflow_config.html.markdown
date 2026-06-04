@@ -143,6 +143,118 @@ resource "google_dataform_repository_workflow_config" "workflow" {
   time_zone       = "America/New_York"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dataform_repository_workflow_config_with_disabled&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dataform Repository Workflow Config With Disabled
+
+
+```hcl
+resource "google_sourcerepo_repository" "git_repository" {
+  provider = google-beta
+  name     = "my/repository"
+}
+
+resource "google_secret_manager_secret" "secret" {
+  provider  = google-beta
+  secret_id = "my_secret"
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret_version" {
+  provider = google-beta
+  secret   = google_secret_manager_secret.secret.id
+
+  secret_data = "secret-data"
+}
+
+resource "google_dataform_repository" "repository" {
+  provider = google-beta
+  name     = "dataform_repository"
+  region   = "us-central1"
+
+  git_remote_settings {
+      url = google_sourcerepo_repository.git_repository.url
+      default_branch = "main"
+      authentication_token_secret_version = google_secret_manager_secret_version.secret_version.id
+  }
+
+  workspace_compilation_overrides {
+    default_database = "database"
+    schema_suffix = "_suffix"
+    table_prefix = "prefix_"
+  }
+}
+
+resource "google_dataform_repository_release_config" "release_config" {
+  provider = google-beta
+
+  project    = google_dataform_repository.repository.project
+  region     = google_dataform_repository.repository.region
+  repository = google_dataform_repository.repository.name
+
+  name          = "my_release"
+  git_commitish = "main"
+  cron_schedule = "0 7 * * *"
+  time_zone     = "America/New_York"
+
+  code_compilation_config {
+    default_database = "gcp-example-project"
+    default_schema   = "example-dataset"
+    default_location = "us-central1"
+    assertion_schema = "example-assertion-dataset"
+    database_suffix  = ""
+    schema_suffix    = ""
+    table_prefix     = ""
+    vars = {
+      var1 = "value"
+    }
+  }
+}
+
+resource "google_service_account" "dataform_sa" {
+  provider     = google-beta
+  account_id   = "dataform-sa"
+  display_name = "Dataform Service Account"
+}
+
+resource "google_dataform_repository_workflow_config" "workflow" {
+  provider = google-beta
+
+  project        = google_dataform_repository.repository.project
+  region         = google_dataform_repository.repository.region
+  repository     = google_dataform_repository.repository.name
+  name           = "my_workflow"
+  release_config = google_dataform_repository_release_config.release_config.id
+
+  invocation_config {
+    included_targets {
+      database = "gcp-example-project"
+      schema   = "example-dataset"
+      name     = "target_1"
+    }
+    included_targets {
+      database = "gcp-example-project"
+      schema   = "example-dataset"
+      name     = "target_2"
+    }
+    included_tags                            = ["tag_1"]
+    transitive_dependencies_included         = true
+    transitive_dependents_included           = true
+    fully_refresh_incremental_tables_enabled = false
+    service_account                          = google_service_account.dataform_sa.email
+  }
+
+  cron_schedule   = "0 7 * * *"
+  time_zone       = "America/New_York"
+  disabled        = true
+}
+```
 
 ## Argument Reference
 
@@ -170,6 +282,10 @@ The following arguments are supported:
 * `time_zone` -
   (Optional)
   Optional. Specifies the time zone to be used when interpreting cronSchedule. Must be a time zone name from the time zone database (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). If left unspecified, the default is UTC.
+
+* `disabled` -
+  (Optional)
+  Disables automatic creation of workflow invocations.
 
 * `region` -
   (Optional)
