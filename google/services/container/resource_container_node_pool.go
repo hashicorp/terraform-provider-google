@@ -672,6 +672,16 @@ var schemaNodePool = map[string]*schema.Schema{
 		Description: `Node drain configuration for this NodePool.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
+				"grace_termination_duration": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: `The duration of the grace termination period for node drain.`,
+				},
+				"pdb_timeout_duration": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: `The duration of the PDB timeout period for node drain.`,
+				},
 				"respect_pdb_during_node_pool_deletion": {
 					Type:        schema.TypeBool,
 					Optional:    true,
@@ -1296,6 +1306,12 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		if v, ok := nodeDrainConfig["respect_pdb_during_node_pool_deletion"]; ok {
 			np.NodeDrainConfig.RespectPdbDuringNodePoolDeletion = v.(bool)
 		}
+		if v, ok := nodeDrainConfig["grace_termination_duration"]; ok {
+			np.NodeDrainConfig.GraceTerminationDuration = v.(string)
+		}
+		if v, ok := nodeDrainConfig["pdb_timeout_duration"]; ok {
+			np.NodeDrainConfig.PdbTimeoutDuration = v.(string)
+		}
 	}
 
 	return np, nil
@@ -1350,6 +1366,8 @@ func flattenNodePoolNodeDrainConfig(ndc *container.NodeDrainConfig) []map[string
 	nodeDrainConfig := make(map[string]interface{})
 
 	nodeDrainConfig["respect_pdb_during_node_pool_deletion"] = ndc.RespectPdbDuringNodePoolDeletion
+	nodeDrainConfig["grace_termination_duration"] = ndc.GraceTerminationDuration
+	nodeDrainConfig["pdb_timeout_duration"] = ndc.PdbTimeoutDuration
 	return []map[string]interface{}{nodeDrainConfig}
 }
 
@@ -1911,6 +1929,12 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			nodeDrain := v.([]interface{})[0].(map[string]interface{})
 			if v, ok := nodeDrain["respect_pdb_during_node_pool_deletion"]; ok {
 				nodeDrainConfig.RespectPdbDuringNodePoolDeletion = v.(bool)
+			}
+			if v, ok := nodeDrain["grace_termination_duration"]; ok {
+				nodeDrainConfig.GraceTerminationDuration = v.(string)
+			}
+			if v, ok := nodeDrain["pdb_timeout_duration"]; ok {
+				nodeDrainConfig.PdbTimeoutDuration = v.(string)
 			}
 		}
 		req := &container.UpdateNodePoolRequest{

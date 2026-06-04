@@ -3318,6 +3318,14 @@ func TestAccContainerCluster_withNodePoolNodeDrainConfig(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
+			{
+				Config:      testAccContainerCluster_withPrivateNodePoolNodeDrainConfig(cluster, np, networkName, subnetworkName, "pdb_timeout_duration", "300s"),
+				ExpectError: regexp.MustCompile(`node drain timeout is not enabled for this project`),
+			},
+			{
+				Config:      testAccContainerCluster_withPrivateNodePoolNodeDrainConfig(cluster, np, networkName, subnetworkName, "grace_termination_duration", "300s"),
+				ExpectError: regexp.MustCompile(`node drain timeout is not enabled for this project`),
+			},
 		},
 	})
 }
@@ -10604,6 +10612,31 @@ resource "google_container_cluster" "with_node_pool_node_drain_config" {
   deletion_protection = false
 }
 `, cluster, np, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withPrivateNodePoolNodeDrainConfig(cluster, np, networkName, subnetworkName, privateName, privateVal string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_node_pool_node_drain_config" {
+  name     = "%s"
+  location = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  node_pool {
+    name       = "%s"
+    initial_node_count = 1
+    node_drain_config {
+      %s = "%s"
+    }
+  }
+
+  network    = "%s"
+  subnetwork = "%s"
+  deletion_protection = false
+}
+`, cluster, np, privateName, privateVal, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withClusterDisruptionBudget(clusterName, interval, networkName, subnetworkName string) string {

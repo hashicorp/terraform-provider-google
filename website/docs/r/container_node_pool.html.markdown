@@ -272,6 +272,10 @@ cluster.
 
 <a name="nested_node_drain_config"></a>The `node_drain_config` block supports:
 
+* `grace_termination_duration` - (Optional) The duration of the grace termination period for node drain.
+
+* `pdb_timeout_duration` - (Optional) The duration of the PDB timeout period for node drain.
+
 * `respect_pdb_during_node_pool_deletion` - (Optional) Whether to respect PodDisruptionBudget policy during node pool deletion.
 
 <a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:

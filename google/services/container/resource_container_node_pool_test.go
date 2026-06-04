@@ -1585,6 +1585,14 @@ func TestAccContainerNodePool_withNodeDrainConfig(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config:      testAccContainerNodePool_withPrivateNodeDrainConfig(cluster, nodePool, networkName, subnetworkName, "pdb_timeout_duration", "300s"),
+				ExpectError: regexp.MustCompile(`node drain timeout is not enabled for this project`),
+			},
+			{
+				Config:      testAccContainerNodePool_withPrivateNodeDrainConfig(cluster, nodePool, networkName, subnetworkName, "grace_termination_duration", "300s"),
+				ExpectError: regexp.MustCompile(`node drain timeout is not enabled for this project`),
+			},
 		},
 	})
 }
@@ -4618,6 +4626,34 @@ resource "google_container_node_pool" "np_with_node_drain_config" {
   }
 }
 `, cluster, networkName, subnetworkName, np)
+}
+
+func testAccContainerNodePool_withPrivateNodeDrainConfig(cluster, np, networkName, subnetworkName, privateName, privateVal string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+
+resource "google_container_node_pool" "np_with_node_drain_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_drain_config {
+    %s = "%s"
+  }
+}
+`, cluster, networkName, subnetworkName, np, privateName, privateVal)
 }
 
 func testAccContainerNodePool_withAccurateTimeConfig(cluster, np, networkName, subnetworkName string, enablePTP bool) string {
