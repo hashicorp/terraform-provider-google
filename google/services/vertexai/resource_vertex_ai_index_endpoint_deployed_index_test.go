@@ -22,9 +22,70 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/vertexai"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 )
+
+// Regression test for the import failure that surfaced as
+// "Cannot determine region: set in this resource, or set provider-level
+// region or zone". The custom_import must populate region from the
+// index_endpoint path so the subsequent Read can template the regional
+// aiplatform URL even when the provider has no region configured.
+func TestVertexAIIndexEndpointDeployedIndexImport_setsRegion(t *testing.T) {
+	cases := map[string]struct {
+		importID       string
+		wantRegion     string
+		wantEndpoint   string
+		wantDeployedID string
+	}{
+		"us-central1": {
+			importID:       "projects/my-proj/locations/us-central1/indexEndpoints/ie-123/deployedIndex/di-456",
+			wantRegion:     "us-central1",
+			wantEndpoint:   "projects/my-proj/locations/us-central1/indexEndpoints/ie-123",
+			wantDeployedID: "di-456",
+		},
+		"europe-west4": {
+			importID:       "projects/p2/locations/europe-west4/indexEndpoints/ie-x/deployedIndex/di-y",
+			wantRegion:     "europe-west4",
+			wantEndpoint:   "projects/p2/locations/europe-west4/indexEndpoints/ie-x",
+			wantDeployedID: "di-y",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			r := vertexai.ResourceVertexAIIndexEndpointDeployedIndex()
+			d := r.TestResourceData()
+			d.SetId(tc.importID)
+
+			// Empty Config — the case the fix targets (no provider region).
+			out, err := r.Importer.State(d, &transport_tpg.Config{})
+			if err != nil {
+				t.Fatalf("Importer.State returned error: %v", err)
+			}
+			if len(out) != 1 {
+				t.Fatalf("expected 1 ResourceData, got %d", len(out))
+			}
+			got := out[0]
+
+			if v := got.Get("region").(string); v != tc.wantRegion {
+				t.Errorf("region = %q, want %q", v, tc.wantRegion)
+			}
+			if v := got.Get("index_endpoint").(string); v != tc.wantEndpoint {
+				t.Errorf("index_endpoint = %q, want %q", v, tc.wantEndpoint)
+			}
+			if v := got.Get("deployed_index_id").(string); v != tc.wantDeployedID {
+				t.Errorf("deployed_index_id = %q, want %q", v, tc.wantDeployedID)
+			}
+			wantID := tc.wantEndpoint + "/deployedIndex/" + tc.wantDeployedID
+			if got.Id() != wantID {
+				t.Errorf("Id = %q, want %q", got.Id(), wantID)
+			}
+		})
+	}
+}
 
 func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedIndexDedicatedResourcesExample_update(t *testing.T) {
 	t.Parallel()
