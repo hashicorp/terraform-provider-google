@@ -124,6 +124,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/integrationconnectors"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/integrations"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/kms"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/licensemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/logging"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/looker"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/lustre"
