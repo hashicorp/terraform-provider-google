@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -186,6 +187,137 @@ resource "google_access_context_manager_service_perimeter_egress_policy" "test-i
 
 `, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName), projectNumber, strings.ToUpper(serviceAccount))
 	// Using an uppercase service account to test normalization of IAM principal casing
+}
+
+func testAccAccessContextManagerServicePerimeterEgressPolicy_updateTest(t *testing.T) {
+	org := envvar.GetTestOrgFromEnv(t)
+
+	policyTitle := acctest.RandString(t, 10)
+	perimeterTitle := "perimeter"
+	projectNumber := envvar.GetTestProjectNumberFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_egressPolicyUpdate_step1(org, policyTitle, perimeterTitle),
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_egressPolicyUpdate_step2(org, policyTitle, perimeterTitle, projectNumber),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(
+							"google_access_context_manager_service_perimeter_egress_policy.test-access1",
+							plancheck.ResourceActionUpdate,
+						),
+					},
+				},
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_egressPolicyUpdate_step3(org, policyTitle, perimeterTitle),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(
+							"google_access_context_manager_service_perimeter_egress_policy.test-access1",
+							plancheck.ResourceActionUpdate,
+						),
+					},
+				},
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitle),
+				Check:  testAccCheckAccessContextManagerServicePerimeterEgressPolicyDestroyProducer(t),
+			},
+		},
+	})
+}
+
+// step 1: create
+func testAccAccessContextManagerServicePerimeterEgressPolicy_egressPolicyUpdate_step1(org, policyTitle, perimeterTitleName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_access_context_manager_service_perimeter_egress_policy" "test-access1" {
+  perimeter = google_access_context_manager_service_perimeter.test-access.name
+  title     = "egress policy update test"
+  egress_from {
+    identity_type = "ANY_USER_ACCOUNT"
+  }
+  egress_to {
+    operations {
+      service_name = "storage.googleapis.com"
+      method_selectors {
+        method = "*"
+      }
+    }
+  }
+}
+`, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName))
+}
+
+// step 2: update identity_type, add source_restriction/sources/roles/resources
+func testAccAccessContextManagerServicePerimeterEgressPolicy_egressPolicyUpdate_step2(org, policyTitle, perimeterTitleName, projectNumber string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_access_context_manager_service_perimeter_egress_policy" "test-access1" {
+  perimeter = google_access_context_manager_service_perimeter.test-access.name
+  title     = "egress policy update test"
+  egress_from {
+    identity_type = "ANY_SERVICE_ACCOUNT"
+    sources {
+      resource = "projects/%s"
+    }
+    source_restriction = "SOURCE_RESTRICTION_ENABLED"
+  }
+  egress_to {
+    resources = ["*"]
+    roles     = ["roles/bigquery.admin"]
+  }
+}
+`, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName), projectNumber)
+}
+
+// step 3: switch to access_level source, external_resources, permission selector
+func testAccAccessContextManagerServicePerimeterEgressPolicy_egressPolicyUpdate_step3(org, policyTitle, perimeterTitleName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_access_context_manager_access_level" "update-test" {
+  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/egressupdlevel"
+  title       = "egressupdlevel"
+  description = "Access level for egress update test"
+  basic {
+    conditions {
+      ip_subnetworks = ["192.0.4.0/24"]
+    }
+  }
+}
+
+resource "google_access_context_manager_service_perimeter_egress_policy" "test-access1" {
+  perimeter = google_access_context_manager_service_perimeter.test-access.name
+  title     = "egress policy update test"
+  egress_from {
+    identity_type = "ANY_USER_ACCOUNT"
+    sources {
+      access_level = google_access_context_manager_access_level.update-test.name
+    }
+    source_restriction = "SOURCE_RESTRICTION_ENABLED"
+  }
+  egress_to {
+    resources          = []
+    external_resources = ["s3://bucket-update-test"]
+    operations {
+      service_name = "bigquery.googleapis.com"
+      method_selectors {
+        permission = "externalResource.read"
+      }
+    }
+  }
+}
+`, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName))
 }
 
 func testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName string) string {

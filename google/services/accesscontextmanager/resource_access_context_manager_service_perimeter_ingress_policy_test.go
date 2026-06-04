@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -187,6 +188,150 @@ resource "google_access_context_manager_service_perimeter_ingress_policy" "test-
 
 `, testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName), strings.ToUpper(serviceAccount))
 	// Using an uppercase service account to test normalization of IAM principal casing
+}
+
+func testAccAccessContextManagerServicePerimeterIngressPolicy_updateTest(t *testing.T) {
+	org := envvar.GetTestOrgFromEnv(t)
+
+	policyTitle := acctest.RandString(t, 10)
+	perimeterTitle := "perimeter"
+	projectNumber := envvar.GetTestProjectNumberFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step1(org, policyTitle, perimeterTitle),
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step2(org, policyTitle, perimeterTitle),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(
+							"google_access_context_manager_service_perimeter_ingress_policy.test-access1",
+							plancheck.ResourceActionUpdate,
+						),
+					},
+				},
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step3(org, policyTitle, perimeterTitle, projectNumber),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(
+							"google_access_context_manager_service_perimeter_ingress_policy.test-access1",
+							plancheck.ResourceActionUpdate,
+						),
+					},
+				},
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitle),
+				Check:  testAccCheckAccessContextManagerServicePerimeterIngressPolicyDestroyProducer(t),
+			},
+		},
+	})
+}
+
+// step 1: create
+func testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step1(org, policyTitle, perimeterTitleName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_access_context_manager_service_perimeter_ingress_policy" "test-access1" {
+  perimeter = google_access_context_manager_service_perimeter.test-access.name
+  title     = "ingress policy update test"
+  ingress_from {
+    identity_type = "ANY_IDENTITY"
+  }
+  ingress_to {
+    resources = ["*"]
+    operations {
+      service_name = "storage.googleapis.com"
+      method_selectors {
+        method = "*"
+      }
+    }
+  }
+}
+`, testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName))
+}
+
+// step 2: change identity_type, swap to access_level source and roles
+func testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step2(org, policyTitle, perimeterTitleName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_access_context_manager_access_level" "update-test" {
+  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/updatetestlevel"
+  title       = "updatetestlevel"
+  description = "Access level for ingress update test"
+  basic {
+    conditions {
+      ip_subnetworks = ["192.0.4.0/24"]
+    }
+  }
+}
+
+resource "google_access_context_manager_service_perimeter_ingress_policy" "test-access1" {
+  perimeter = google_access_context_manager_service_perimeter.test-access.name
+  title     = "ingress policy update test"
+  ingress_from {
+    identity_type = "ANY_USER_ACCOUNT"
+    sources {
+      access_level = google_access_context_manager_access_level.update-test.name
+    }
+  }
+  ingress_to {
+    resources = ["*"]
+    roles     = ["roles/bigquery.admin"]
+  }
+}
+`, testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName))
+}
+
+// step 3: switch to project resource source and permission selector
+func testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step3(org, policyTitle, perimeterTitleName, projectNumber string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_access_context_manager_access_level" "update-test" {
+  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/updatetestlevel"
+  title       = "updatetestlevel"
+  description = "Access level for ingress update test"
+  basic {
+    conditions {
+      ip_subnetworks = ["192.0.4.0/24"]
+    }
+  }
+}
+
+resource "google_access_context_manager_service_perimeter_ingress_policy" "test-access1" {
+  perimeter = google_access_context_manager_service_perimeter.test-access.name
+  title     = "ingress policy update test"
+  ingress_from {
+    identity_type = "ANY_IDENTITY"
+    sources {
+      resource = "projects/%s"
+    }
+  }
+  ingress_to {
+    resources = ["*"]
+    operations {
+      service_name = "bigquery.googleapis.com"
+      method_selectors {
+        method = "BigQueryStorage.ReadRows"
+      }
+      method_selectors {
+        permission = "bigquery.jobs.get"
+      }
+    }
+  }
+}
+`, testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName), projectNumber)
 }
 
 func testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName string) string {

@@ -217,6 +217,7 @@ func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -246,7 +247,6 @@ func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource
 			"egress_from": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Defines conditions on the source of a request causing this 'EgressPolicy' to apply.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -254,7 +254,6 @@ func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource
 						"identities": {
 							Type:             schema.TypeList,
 							Optional:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: AccessContextManagerServicePerimeterEgressPolicyEgressFromIdentitiesDiffSuppressFunc,
 							Description: `Identities can be an individual user, service account, Google group,
 or third-party identity. For third-party identity, only single identities
@@ -268,7 +267,6 @@ https://cloud.google.com/iam/docs/principal-identifiers#v1 are supported.`,
 						"identity_type": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							ForceNew:         true,
 							ValidateFunc:     verify.ValidateEnum([]string{"ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
 							DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSuppressFunc,
 							Description: `Specifies the type of identities that are allowed access to outside the
@@ -278,27 +276,23 @@ be allowed access. Possible values: ["ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SE
 						"source_restriction": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"SOURCE_RESTRICTION_UNSPECIFIED", "SOURCE_RESTRICTION_ENABLED", "SOURCE_RESTRICTION_DISABLED", ""}),
 							Description:  `Whether to enforce traffic restrictions based on 'sources' field. If the 'sources' field is non-empty, then this field must be set to 'SOURCE_RESTRICTION_ENABLED'. Possible values: ["SOURCE_RESTRICTION_UNSPECIFIED", "SOURCE_RESTRICTION_ENABLED", "SOURCE_RESTRICTION_DISABLED"]`,
 						},
 						"sources": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Sources that this EgressPolicy authorizes access from.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"access_level": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `An AccessLevel resource name that allows resources outside the ServicePerimeter to be accessed from the inside.`,
 									},
 									"resource": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 										Description: `A Google Cloud resource that is allowed to egress the perimeter.
 Requests from these resources are allowed to access data outside the perimeter.
 Currently only projects are allowed. Project format: 'projects/{project_number}'.
@@ -315,7 +309,6 @@ case of allowing all Google Cloud resources only is not supported.`,
 			"egress_to": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `Defines the conditions on the 'ApiOperation' and destination resources that
 cause this 'EgressPolicy' to apply.`,
 				MaxItems: 1,
@@ -324,7 +317,6 @@ cause this 'EgressPolicy' to apply.`,
 						"external_resources": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Description: `A list of external resources that are allowed to be accessed. A request
 matches if it contains an external resource in this list (Example:
 s3://bucket/path). Currently '*' is not allowed.`,
@@ -335,7 +327,6 @@ s3://bucket/path). Currently '*' is not allowed.`,
 						"operations": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Description: `A list of 'ApiOperations' that this egress rule applies to. A request matches
 if it contains an operation/service in this list.`,
 							Elem: &schema.Resource{
@@ -343,7 +334,6 @@ if it contains an operation/service in this list.`,
 									"method_selectors": {
 										Type:     schema.TypeList,
 										Optional: true,
-										ForceNew: true,
 										Description: `API methods or permissions to allow. Method or permission must belong
 to the service specified by 'serviceName' field. A single MethodSelector
 entry with '*' specified for the 'method' field will allow all methods
@@ -353,7 +343,6 @@ AND permissions for the service specified in 'serviceName'.`,
 												"method": {
 													Type:     schema.TypeString,
 													Optional: true,
-													ForceNew: true,
 													Description: `Value for 'method' should be a valid method name for the corresponding
 'serviceName' in 'ApiOperation'. If '*' used as value for method,
 then ALL methods and permissions are allowed.`,
@@ -361,7 +350,6 @@ then ALL methods and permissions are allowed.`,
 												"permission": {
 													Type:     schema.TypeString,
 													Optional: true,
-													ForceNew: true,
 													Description: `Value for permission should be a valid Cloud IAM permission for the
 corresponding 'serviceName' in 'ApiOperation'.`,
 												},
@@ -371,7 +359,6 @@ corresponding 'serviceName' in 'ApiOperation'.`,
 									"service_name": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 										Description: `The name of the API whose methods or permissions the 'IngressPolicy' or
 'EgressPolicy' want to allow. A single 'ApiOperation' with serviceName
 field set to '*' will allow all methods AND permissions for all services.`,
@@ -382,7 +369,6 @@ field set to '*' will allow all methods AND permissions for all services.`,
 						"resources": {
 							Type:             schema.TypeList,
 							Optional:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: AccessContextManagerServicePerimeterEgressPolicyEgressToResourcesDiffSuppressFunc,
 							Description: `A list of resources, currently only projects in the form
 'projects/<projectnumber>', that match this to stanza. A request matches
@@ -396,7 +382,6 @@ the perimeter.`,
 						"roles": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Description: `A list of IAM roles that represent the set of operations that the sources
 specified in the corresponding 'EgressFrom'
 are allowed to perform.`,
@@ -480,7 +465,7 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyCreate(d *schema.Re
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}?updateMask=status.egressPolicies")
 	if err != nil {
 		return err
 	}
@@ -488,10 +473,6 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyCreate(d *schema.Re
 	log.Printf("[DEBUG] Creating new ServicePerimeterEgressPolicy: %#v", obj)
 
 	obj, err = resourceAccessContextManagerServicePerimeterEgressPolicyPatchCreateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.egressPolicies"})
 	if err != nil {
 		return err
 	}
@@ -649,7 +630,106 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyRead(d *schema.Reso
 }
 
 func resourceAccessContextManagerServicePerimeterEgressPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceAccessContextManagerServicePerimeterEgressPolicy().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceAccessContextManagerServicePerimeterEgressPolicyRead(d, meta)
+	}
+
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if perimeterValue, ok := d.GetOk("perimeter"); ok && perimeterValue.(string) != "" {
+			if err = identity.Set("perimeter", perimeterValue.(string)); err != nil {
+				return fmt.Errorf("Error setting perimeter: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
+	}
+
+	billingProject := ""
+
+	obj := make(map[string]interface{})
+	egressFromProp, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(d.Get("egress_from"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("egress_from"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, egressFromProp)) {
+		obj["egressFrom"] = egressFromProp
+	}
+	egressToProp, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(d.Get("egress_to"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("egress_to"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, egressToProp)) {
+		obj["egressTo"] = egressToProp
+	}
+
+	obj, err = resourceAccessContextManagerServicePerimeterEgressPolicyEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{access_policy_id}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}?updateMask=status.egressPolicies")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating ServicePerimeterEgressPolicy %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+
+	obj, err = resourceAccessContextManagerServicePerimeterEgressPolicyPatchUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error updating ServicePerimeterEgressPolicy %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating ServicePerimeterEgressPolicy %q: %#v", d.Id(), res)
+	}
+
+	err = AccessContextManagerOperationWaitTime(
+		config, res, "Updating ServicePerimeterEgressPolicy", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return err
+	}
+
 	return resourceAccessContextManagerServicePerimeterEgressPolicyRead(d, meta)
 }
 
@@ -675,7 +755,7 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyDelete(d *schema.Re
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}?updateMask=status.egressPolicies")
 	if err != nil {
 		return err
 	}
@@ -685,11 +765,6 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyDelete(d *schema.Re
 	obj, err = resourceAccessContextManagerServicePerimeterEgressPolicyPatchDeleteEncoder(d, meta, obj)
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "ServicePerimeterEgressPolicy")
-	}
-
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.egressPolicies"})
-	if err != nil {
-		return err
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -1289,6 +1364,105 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyPatchCreateEncoder(
 	res := map[string]interface{}{
 		"egressPolicies": append(currItems, obj),
 	}
+	wrapped := map[string]interface{}{
+		"status": res,
+	}
+	res = wrapped
+
+	return res, nil
+}
+
+// PatchUpdateEncoder handles creating request data to PATCH parent resource
+// with list including updated object.
+func resourceAccessContextManagerServicePerimeterEgressPolicyPatchUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	items, err := resourceAccessContextManagerServicePerimeterEgressPolicyListForPatch(d, meta)
+	if err != nil {
+		return nil, err
+	}
+
+	// Use the old values of identity fields to find the existing object in the
+	// API response. During an update, d.Get() returns the new desired values,
+	// but the API still has the old values. Using d.GetChange() ensures we
+	// search for the object as it currently exists in the API.
+	oldEgressFromRaw, _ := d.GetChange("egress_from")
+	expectedOldEgressFrom, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(oldEgressFromRaw, d, meta.(*transport_tpg.Config))
+	if err != nil {
+		return nil, err
+	}
+	expectedOldFlattenedEgressFrom := flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(expectedOldEgressFrom, d, meta.(*transport_tpg.Config))
+	oldEgressToRaw, _ := d.GetChange("egress_to")
+	expectedOldEgressTo, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(oldEgressToRaw, d, meta.(*transport_tpg.Config))
+	if err != nil {
+		return nil, err
+	}
+	expectedOldFlattenedEgressTo := flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(expectedOldEgressTo, d, meta.(*transport_tpg.Config))
+	oldTitleRaw, _ := d.GetChange("title")
+	expectedOldTitle, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyTitle(oldTitleRaw, d, meta.(*transport_tpg.Config))
+	if err != nil {
+		return nil, err
+	}
+	expectedOldFlattenedTitle := flattenNestedAccessContextManagerServicePerimeterEgressPolicyTitle(expectedOldTitle, d, meta.(*transport_tpg.Config))
+
+	// Search list for this resource using old identity values.
+	var idx int = -1
+	var item map[string]interface{}
+	for i, itemRaw := range items {
+		if itemRaw == nil {
+			continue
+		}
+		currItem := itemRaw.(map[string]interface{})
+
+		itemEgressFrom := flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(currItem["egressFrom"], d, meta.(*transport_tpg.Config))
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemEgressFrom)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedOldFlattenedEgressFrom))) && !reflect.DeepEqual(itemEgressFrom, expectedOldFlattenedEgressFrom) {
+			log.Printf("[DEBUG] Skipping item with egressFrom= %#v, looking for %#v)", itemEgressFrom, expectedOldFlattenedEgressFrom)
+			continue
+		}
+		itemEgressTo := flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(currItem["egressTo"], d, meta.(*transport_tpg.Config))
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemEgressTo)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedOldFlattenedEgressTo))) && !reflect.DeepEqual(itemEgressTo, expectedOldFlattenedEgressTo) {
+			log.Printf("[DEBUG] Skipping item with egressTo= %#v, looking for %#v)", itemEgressTo, expectedOldFlattenedEgressTo)
+			continue
+		}
+		itemTitle := flattenNestedAccessContextManagerServicePerimeterEgressPolicyTitle(currItem["title"], d, meta.(*transport_tpg.Config))
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemTitle)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedOldFlattenedTitle))) && !reflect.DeepEqual(itemTitle, expectedOldFlattenedTitle) {
+			log.Printf("[DEBUG] Skipping item with title= %#v, looking for %#v)", itemTitle, expectedOldFlattenedTitle)
+			continue
+		}
+		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), currItem)
+		idx = i
+		item = currItem
+		break
+	}
+
+	// Return error if item to update does not exist.
+	if item == nil {
+		return nil, fmt.Errorf("Unable to update ServicePerimeterEgressPolicy %q - not found in list", d.Id())
+	}
+
+	// Copy over values for immutable fields
+	obj["title"] = item["title"]
+	// Merge any fields in item that aren't managed by this resource into obj
+	// This is necessary because item might be managed by multiple resources.
+	settableFields := map[string]struct{}{
+		"egressFrom": struct{}{},
+		"egressTo":   struct{}{},
+	}
+	for k, v := range item {
+		if _, ok := settableFields[k]; !ok {
+			obj[k] = v
+		}
+	}
+
+	// Override old object with new
+	items[idx] = obj
+
+	// Return list with new item added
+	res := map[string]interface{}{
+		"egressPolicies": items,
+	}
+
 	wrapped := map[string]interface{}{
 		"status": res,
 	}
