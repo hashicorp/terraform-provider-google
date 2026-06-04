@@ -151,13 +151,13 @@ func ListComputeSnapshots(config *transport_tpg.Config,
 			if res == nil {
 				return fmt.Errorf("error decoding ComputeSnapshot from list response")
 			}
-			if err = ResourceComputeSnapshotFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
-				return err
-			}
 			if v, ok := res["name"]; ok && v != nil {
 				if err := d.Set("name", v); err != nil {
 					return fmt.Errorf("error setting name: %w", err)
 				}
+			}
+			if err = ResourceComputeSnapshotFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
+				return err
 			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/global/snapshots/{{name}}")
 			if err != nil {
