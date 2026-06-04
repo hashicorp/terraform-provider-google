@@ -804,3 +804,99 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 }
 `, context)
 }
+
+func TestAccComputeServiceAttachment_connectionLimitUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeServiceAttachmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Create the Service Attachment with limit = 1
+				Config: testAccComputeServiceAttachment_connectionLimitConfig(context, 1),
+			},
+			{
+				// Step 2: Update the limit to 2
+				Config:       testAccComputeServiceAttachment_connectionLimitConfig(context, 2),
+				ResourceName: "google_compute_service_attachment.psc_ilb_service_attachment",
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						// PROOF OF FIX: This assertion ensures Terraform detects a change
+						plancheck.ExpectNonEmptyPlan(),
+					},
+				},
+				// Verify the state remains stable after the update (no permadiff)
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"target_service", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeServiceAttachment_connectionLimitConfig(context map[string]interface{}, limit int) string {
+	context["limit"] = limit
+	return acctest.Nprintf(`
+resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
+  name                  = "tf-test-sa-%{random_suffix}"
+  region                = "us-west2"
+  enable_proxy_protocol = false
+  connection_preference = "ACCEPT_MANUAL"
+  nat_subnets           = [google_compute_subnetwork.psc_ilb_nat.id]
+  target_service        = google_compute_forwarding_rule.psc_ilb_target_service.id
+
+  consumer_accept_lists {
+    project_id_or_num = "658859330310"
+    connection_limit  = %{limit}
+  }
+}
+
+# (Minimal supporting resources: NAT subnet, ILB, etc.)
+resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
+  name                  = "tf-test-fw-%{random_suffix}"
+  region                = "us-west2"
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_service_backend.id
+  all_ports             = true
+  network               = google_compute_network.psc_ilb_network.name
+  subnetwork            = google_compute_subnetwork.psc_ilb_producer_subnetwork.name
+}
+
+resource "google_compute_region_backend_service" "producer_service_backend" {
+  name          = "tf-test-bs-%{random_suffix}"
+  region        = "us-west2"
+  health_checks = [google_compute_health_check.producer_service_health_check.id]
+}
+
+resource "google_compute_health_check" "producer_service_health_check" {
+  name = "tf-test-hc-%{random_suffix}"
+  tcp_health_check { port = "80" }
+}
+
+resource "google_compute_network" "psc_ilb_network" {
+  name = "tf-test-net-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
+  name          = "tf-test-sub-%{random_suffix}"
+  region        = "us-west2"
+  network       = google_compute_network.psc_ilb_network.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_subnetwork" "psc_ilb_nat" {
+  name    = "tf-test-nat-%{random_suffix}"
+  region  = "us-west2"
+  network = google_compute_network.psc_ilb_network.id
+  purpose = "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = "10.1.0.0/16"
+}
+`, context)
+}

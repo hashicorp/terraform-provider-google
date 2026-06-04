@@ -87,6 +87,14 @@ func computeServiceAttachmentConsumerAcceptListsHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%v-", v))
 	}
 
+	if v, ok := m["connection_limit"]; ok {
+		if v == nil {
+			v = 0
+		}
+
+		buf.WriteString(fmt.Sprintf("%v-", v))
+	}
+
 	log.Printf("[DEBUG] computed hash value of %v from %v", tpgresource.Hashcode(buf.String()), buf.String())
 	return tpgresource.Hashcode(buf.String())
 }
