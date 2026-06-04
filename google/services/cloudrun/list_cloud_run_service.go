@@ -161,9 +161,6 @@ func ListCloudRunServices(config *transport_tpg.Config,
 			if res == nil {
 				return fmt.Errorf("error decoding CloudRunService from list response")
 			}
-			if err = ResourceCloudRunServiceFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
-				return err
-			}
 			if v, ok := res["name"]; ok && v != nil {
 				if err := d.Set("name", v); err != nil {
 					return fmt.Errorf("error setting name: %w", err)
@@ -173,6 +170,9 @@ func ListCloudRunServices(config *transport_tpg.Config,
 				if err := d.Set("location", v); err != nil {
 					return fmt.Errorf("error setting location: %w", err)
 				}
+			}
+			if err = ResourceCloudRunServiceFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
+				return err
 			}
 			id, err := tpgresource.ReplaceVars(d, config, "locations/{{location}}/namespaces/{{project}}/services/{{name}}")
 			if err != nil {

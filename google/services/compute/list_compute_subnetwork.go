@@ -154,9 +154,6 @@ func ListComputeSubnetworks(config *transport_tpg.Config,
 		Flattener: func(res map[string]interface{}, d *schema.ResourceData, config *transport_tpg.Config) error {
 			headers := make(http.Header)
 			var err error
-			if err = ResourceComputeSubnetworkFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
-				return err
-			}
 			if v, ok := res["name"]; ok && v != nil {
 				if err := d.Set("name", v); err != nil {
 					return fmt.Errorf("error setting name: %w", err)
@@ -166,6 +163,9 @@ func ListComputeSubnetworks(config *transport_tpg.Config,
 				if err := d.Set("region", v); err != nil {
 					return fmt.Errorf("error setting region: %w", err)
 				}
+			}
+			if err = ResourceComputeSubnetworkFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
+				return err
 			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
 			if err != nil {

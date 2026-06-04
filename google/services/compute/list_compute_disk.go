@@ -162,9 +162,6 @@ func ListComputeDisks(config *transport_tpg.Config,
 			if res == nil {
 				return fmt.Errorf("error decoding ComputeDisk from list response")
 			}
-			if err = ResourceComputeDiskFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
-				return err
-			}
 			if v, ok := res["name"]; ok && v != nil {
 				if err := d.Set("name", v); err != nil {
 					return fmt.Errorf("error setting name: %w", err)
@@ -174,6 +171,9 @@ func ListComputeDisks(config *transport_tpg.Config,
 				if err := d.Set("zone", v); err != nil {
 					return fmt.Errorf("error setting zone: %w", err)
 				}
+			}
+			if err = ResourceComputeDiskFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
+				return err
 			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/disks/{{name}}")
 			if err != nil {

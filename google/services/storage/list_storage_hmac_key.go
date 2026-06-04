@@ -151,13 +151,13 @@ func ListStorageHmacKeys(config *transport_tpg.Config,
 			if res == nil {
 				return fmt.Errorf("error decoding StorageHmacKey from list response")
 			}
-			if err = ResourceStorageHmacKeyFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
-				return err
-			}
 			if v, ok := res["accessId"]; ok && v != nil {
 				if err := d.Set("access_id", v); err != nil {
 					return fmt.Errorf("error setting access_id: %w", err)
 				}
+			}
+			if err = ResourceStorageHmacKeyFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
+				return err
 			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/hmacKeys/{{access_id}}")
 			if err != nil {
