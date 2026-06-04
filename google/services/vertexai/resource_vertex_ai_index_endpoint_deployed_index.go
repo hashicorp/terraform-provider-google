@@ -277,6 +277,7 @@ Note: we only support up to 5 deployment groups (not including 'default').`,
 			},
 			"region": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The region of the index endpoint deployment. eg us-central1`,
@@ -755,6 +756,17 @@ func resourceVertexAIIndexEndpointDeployedIndexImport(d *schema.ResourceData, me
 		return nil, err
 	}
 
+	// The Read URL is templated on '{{region}}' (https://{{region}}-aiplatform.googleapis.com/...),
+	// so extract region (and project) from the index_endpoint path. Otherwise an
+	// import that doesn't set provider-level region/zone fails with
+	// "Cannot determine region".
+	indexEndpointRe := regexp.MustCompile(`^projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/indexEndpoints/[^/]+$`)
+	if m := indexEndpointRe.FindStringSubmatch(d.Get("index_endpoint").(string)); m != nil {
+		if err := d.Set("region", m[2]); err != nil {
+			return nil, fmt.Errorf("Error setting region: %s", err)
+		}
+	}
+
 	// Replace import id for the resource id
 	id, err := tpgresource.ReplaceVars(d, config, "{{index_endpoint}}/deployedIndex/{{deployed_index_id}}")
 	if err != nil {
@@ -1218,6 +1230,15 @@ func resourceVertexAIIndexEndpointDeployedIndexUpdateEncoder(d *schema.ResourceD
 }
 
 func resourceVertexAIIndexEndpointDeployedIndexDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	if d.Get("region").(string) == "" {
+		re := regexp.MustCompile(`^projects/[^/]+/locations/(?P<region>[^/]+)/indexEndpoints/[^/]+$`)
+		if m := re.FindStringSubmatch(d.Get("index_endpoint").(string)); m != nil {
+			if err := d.Set("region", m[1]); err != nil {
+				return nil, fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+	}
+
 	v, ok := res["deployedIndexes"]
 	if !ok || v == nil { // CREATE
 		res["name"] = res["deployedIndexId"]
