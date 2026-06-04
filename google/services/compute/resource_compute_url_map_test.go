@@ -423,6 +423,48 @@ func TestAccComputeUrlMap_cachePolicyMultiLevelUpdate(t *testing.T) {
 	})
 }
 
+func testAccComputeUrlMap_regional(bsName, hcName, umName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_regional_backend_service" "foobar" {
+  name          = "urlmap-test-%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "urlmap-test-%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+
+resource "google_compute_regional_url_map" "foobar" {
+  name            = "urlmap-test-%s"
+  default_service = google_compute_backend_service.foobar.self_link
+
+  host_rule {
+    hosts        = ["mysite.com", "myothersite.com"]
+    path_matcher = "boop"
+  }
+
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "boop"
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
+
+  test {
+    host    = "mysite.com"
+    path    = "/*"
+    service = google_compute_backend_service.foobar.self_link
+  }
+}
+`, bsName, hcName, umName)
+}
+
 func testAccComputeUrlMap_basic1(bsName, hcName, umName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {

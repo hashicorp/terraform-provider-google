@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed regional backend reference in  `google_compute_regional_url_map`
+```
