@@ -1589,7 +1589,6 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Scheduling:               scheduling,
 		ServiceAccounts:          expandServiceAccountsTyped(d.Get("service_account").([]interface{})),
 		Tags:                     resourceInstanceTags(d),
-		ShieldedInstanceConfig:   expandShieldedVmConfigs(d),
 		AdvancedMachineFeatures:  expandAdvancedMachineFeatures(d),
 		ResourcePolicies:         resourcePolicies,
 		ReservationAffinity:      reservationAffinity,
@@ -1599,6 +1598,15 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		instanceProperties.ConfidentialInstanceConfig = &compute.ConfidentialInstanceConfig{
 			EnableConfidentialCompute: cic["enableConfidentialCompute"].(bool),
 			ConfidentialInstanceType:  cic["confidentialInstanceType"].(string),
+		}
+	}
+
+	if sicMap := expandShieldedVmConfigs(d); sicMap != nil {
+		instanceProperties.ShieldedInstanceConfig = &compute.ShieldedInstanceConfig{
+			EnableSecureBoot:          sicMap["enableSecureBoot"].(bool),
+			EnableVtpm:                sicMap["enableVtpm"].(bool),
+			EnableIntegrityMonitoring: sicMap["enableIntegrityMonitoring"].(bool),
+			ForceSendFields:           []string{"EnableSecureBoot", "EnableVtpm", "EnableIntegrityMonitoring"},
 		}
 	}
 
@@ -2072,8 +2080,13 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting guest_accelerator: %s", err)
 		}
 	}
-	if instanceTemplate.Properties.ShieldedInstanceConfig != nil {
-		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instanceTemplate.Properties.ShieldedInstanceConfig)); err != nil {
+	if sic := instanceTemplate.Properties.ShieldedInstanceConfig; sic != nil {
+		sicMap := map[string]interface{}{
+			"enableSecureBoot":          sic.EnableSecureBoot,
+			"enableVtpm":                sic.EnableVtpm,
+			"enableIntegrityMonitoring": sic.EnableIntegrityMonitoring,
+		}
+		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(sicMap)); err != nil {
 			return fmt.Errorf("Error setting shielded_instance_config: %s", err)
 		}
 	}

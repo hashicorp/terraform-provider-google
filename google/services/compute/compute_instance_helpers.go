@@ -620,17 +620,16 @@ func resourceInstanceTags(d tpgresource.TerraformResourceData) *compute.Tags {
 	return tags
 }
 
-func expandShieldedVmConfigs(d tpgresource.TerraformResourceData) *compute.ShieldedInstanceConfig {
+func expandShieldedVmConfigs(d tpgresource.TerraformResourceData) map[string]interface{} {
 	if _, ok := d.GetOk("shielded_instance_config"); !ok {
 		return nil
 	}
 
 	prefix := "shielded_instance_config.0"
-	return &compute.ShieldedInstanceConfig{
-		EnableSecureBoot:          d.Get(prefix + ".enable_secure_boot").(bool),
-		EnableVtpm:                d.Get(prefix + ".enable_vtpm").(bool),
-		EnableIntegrityMonitoring: d.Get(prefix + ".enable_integrity_monitoring").(bool),
-		ForceSendFields:           []string{"EnableSecureBoot", "EnableVtpm", "EnableIntegrityMonitoring"},
+	return map[string]interface{}{
+		"enableSecureBoot":          d.Get(prefix + ".enable_secure_boot").(bool),
+		"enableVtpm":                d.Get(prefix + ".enable_vtpm").(bool),
+		"enableIntegrityMonitoring": d.Get(prefix + ".enable_integrity_monitoring").(bool),
 	}
 }
 
@@ -687,15 +686,15 @@ func flattenAdvancedMachineFeatures(AdvancedMachineFeatures *compute.AdvancedMac
 	}}
 }
 
-func flattenShieldedVmConfig(shieldedVmConfig *compute.ShieldedInstanceConfig) []map[string]bool {
+func flattenShieldedVmConfig(shieldedVmConfig map[string]interface{}) []map[string]bool {
 	if shieldedVmConfig == nil {
 		return nil
 	}
 
 	return []map[string]bool{{
-		"enable_secure_boot":          shieldedVmConfig.EnableSecureBoot,
-		"enable_vtpm":                 shieldedVmConfig.EnableVtpm,
-		"enable_integrity_monitoring": shieldedVmConfig.EnableIntegrityMonitoring,
+		"enable_secure_boot":          shieldedVmConfig["enableSecureBoot"].(bool),
+		"enable_vtpm":                 shieldedVmConfig["enableVtpm"].(bool),
+		"enable_integrity_monitoring": shieldedVmConfig["enableIntegrityMonitoring"].(bool),
 	}}
 }
 

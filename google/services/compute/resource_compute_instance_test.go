@@ -4252,7 +4252,7 @@ func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resour
 
 		config := acctest.GoogleProviderConfig(t)
 
-		stopUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/stop", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
+		stopUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/stop", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["zone"], tpgresource.GetResourceNameFromSelfLink(rs.Primary.Attributes["name"]))
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
@@ -4268,7 +4268,7 @@ func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resour
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
 
-		setMachineTypeUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/setMachineType", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
+		setMachineTypeUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/setMachineType", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["zone"], tpgresource.GetResourceNameFromSelfLink(rs.Primary.Attributes["name"]))
 		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
@@ -4565,7 +4565,7 @@ func testAccCheckComputeInstanceDestroyProducer(t *testing.T) func(s *terraform.
 				continue
 			}
 
-			url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
+			url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, rs.Primary.Attributes["zone"], tpgresource.GetResourceNameFromSelfLink(rs.Primary.Attributes["name"]))
 			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 				Config:    config,
 				Method:    "GET",
@@ -4602,7 +4602,7 @@ func testAccCheckComputeInstanceExistsInProject(t *testing.T, n, p string, insta
 		}
 
 		config := acctest.GoogleProviderConfig(t)
-		url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"])
+		url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), p, rs.Primary.Attributes["zone"], tpgresource.GetResourceNameFromSelfLink(rs.Primary.Attributes["name"]))
 		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "GET",
@@ -4615,7 +4615,7 @@ func testAccCheckComputeInstanceExistsInProject(t *testing.T, n, p string, insta
 		}
 
 		name, _ := found["name"].(string)
-		if name != rs.Primary.Attributes["name"] {
+		if name != tpgresource.GetResourceNameFromSelfLink(rs.Primary.Attributes["name"]) {
 			return fmt.Errorf("Instance not found")
 		}
 

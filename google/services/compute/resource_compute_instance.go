@@ -1763,7 +1763,6 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		Hostname:                 d.Get("hostname").(string),
 		ForceSendFields:          []string{"CanIpForward", "DeletionProtection"},
 		AdvancedMachineFeatures:  expandAdvancedMachineFeatures(d),
-		ShieldedInstanceConfig:   expandShieldedVmConfigs(d),
 		DisplayDevice:            expandDisplayDevice(d),
 		ResourcePolicies:         tpgresource.ConvertStringArr(d.Get("resource_policies").([]interface{})),
 		ReservationAffinity:      reservationAffinity,
@@ -1774,6 +1773,14 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		instance.ConfidentialInstanceConfig = &compute.ConfidentialInstanceConfig{
 			EnableConfidentialCompute: cic["enableConfidentialCompute"].(bool),
 			ConfidentialInstanceType:  cic["confidentialInstanceType"].(string),
+		}
+	}
+	if sicMap := expandShieldedVmConfigs(d); sicMap != nil {
+		instance.ShieldedInstanceConfig = &compute.ShieldedInstanceConfig{
+			EnableSecureBoot:          sicMap["enableSecureBoot"].(bool),
+			EnableVtpm:                sicMap["enableVtpm"].(bool),
+			EnableIntegrityMonitoring: sicMap["enableIntegrityMonitoring"].(bool),
+			ForceSendFields:           []string{"EnableSecureBoot", "EnableVtpm", "EnableIntegrityMonitoring"},
 		}
 	}
 	return instance, nil
@@ -2186,7 +2193,15 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators)); err != nil {
 		return fmt.Errorf("Error setting guest_accelerator: %s", err)
 	}
-	if err := d.Set("shielded_instance_config", flattenShieldedVmConfig(instance.ShieldedInstanceConfig)); err != nil {
+	var shieldedVmConfigMap map[string]interface{}
+	if sic := instance.ShieldedInstanceConfig; sic != nil {
+		shieldedVmConfigMap = map[string]interface{}{
+			"enableSecureBoot":          sic.EnableSecureBoot,
+			"enableVtpm":                sic.EnableVtpm,
+			"enableIntegrityMonitoring": sic.EnableIntegrityMonitoring,
+		}
+	}
+	if err := d.Set("shielded_instance_config", flattenShieldedVmConfig(shieldedVmConfigMap)); err != nil {
 		return fmt.Errorf("Error setting shielded_instance_config: %s", err)
 	}
 	if err := d.Set("enable_display", flattenEnableDisplay(instance.DisplayDevice)); err != nil {
@@ -3477,12 +3492,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		if d.HasChange("shielded_instance_config") {
-			shieldedVmConfig := expandShieldedVmConfigs(d)
-
-			body, err := tpgresource.ConvertToMap(shieldedVmConfig)
-			if err != nil {
-				return fmt.Errorf("Error converting shielded vm config: %s", err)
-			}
+			body := expandShieldedVmConfigs(d)
 			url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/updateShieldedInstanceConfig")
 			if err != nil {
 				return fmt.Errorf("Error generating URL: %s", err)
