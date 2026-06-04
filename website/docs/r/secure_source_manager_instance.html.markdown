@@ -710,6 +710,11 @@ The following arguments are supported:
   (Output)
   Service Attachment for SSH, resource is in the format of `projects/{project}/regions/{region}/serviceAttachments/{service_attachment}`.
 
+* `psc_allowed_projects` -
+  (Optional)
+  Optional. Additional allowed projects for setting up PSC connections.
+  Instance host project is automatically allowed and does not need to be included in this list.
+
 
 <a name="nested_private_config_custom_host_config"></a>The `custom_host_config` block supports:
 

@@ -34,6 +34,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dns"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/privateca"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -174,6 +175,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateTruste
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"instance_id":   "tf-test-my-instance" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
@@ -204,12 +206,22 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateTruste
 
 func testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateTrustedCertExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_project" "psc_other_project" {
+  project_id      = "tf-test-psc-%{random_suffix}"
+  name            = "tf-test-psc-%{random_suffix}"
+  org_id          = "%{org_id}"
+  deletion_policy = "DELETE"
+}
+
 resource "google_secure_source_manager_instance" "default" {
   instance_id = "%{instance_id}"
   location    = "us-central1"
 
   private_config {
     is_private = true
+    psc_allowed_projects = [
+      google_project.psc_other_project.project_id
+    ]
   }
   deletion_policy = "DELETE"
 }
