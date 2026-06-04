@@ -1213,6 +1213,12 @@ func resourceCloudRunV2WorkerPoolCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	obj := make(map[string]interface{})
+	nameProp, err := expandCloudRunV2WorkerPoolName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
 	descriptionProp, err := expandCloudRunV2WorkerPoolDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -1278,6 +1284,11 @@ func resourceCloudRunV2WorkerPoolCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
 		obj["annotations"] = effectiveAnnotationsProp
+	}
+
+	obj, err = resourceCloudRunV2WorkerPoolEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/workerPools?workerPoolId={{name}}")
@@ -1564,6 +1575,11 @@ func resourceCloudRunV2WorkerPoolUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
 		obj["annotations"] = effectiveAnnotationsProp
+	}
+
+	obj, err = resourceCloudRunV2WorkerPoolUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/workerPools/{{name}}")
@@ -3114,6 +3130,10 @@ func flattenCloudRunV2WorkerPoolEffectiveAnnotations(v interface{}, d *schema.Re
 	return v
 }
 
+func expandCloudRunV2WorkerPoolName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return tpgresource.GetResourceNameFromSelfLink(v.(string)), nil
+}
+
 func expandCloudRunV2WorkerPoolDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -4655,6 +4675,16 @@ func expandCloudRunV2WorkerPoolEffectiveAnnotations(v interface{}, d tpgresource
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceCloudRunV2WorkerPoolEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	delete(obj, "name") // Field not allowed when creating.
+	return obj, nil
+}
+
+func resourceCloudRunV2WorkerPoolUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Keep the original resource. This file is to override the encoder for creation.
+	return obj, nil
 }
 
 func ResourceCloudRunV2WorkerPoolFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
