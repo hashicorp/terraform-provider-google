@@ -1,0 +1,28 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_license_manager_configuration
+generation_type: mmv1
+source_file: products/licensemanager/Configuration.yaml
+api_service_name: licensemanager.googleapis.com
+api_version: v1
+api_resource_type_kind: Configuration
+autogen_status: true
+fields:
+    - api_field: active
+    - field: configuration_id
+      provider_only: true
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - api_field: licenseCount
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: product
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
