@@ -16656,3 +16656,59 @@ func testAccContainerCluster_custom_subnet(clusterName string, networkName strin
 
 	`, clusterName, networkName, sri[0].SubnetName, additionalIpRangesStr, firstSubnet, firstSubnet)
 }
+
+func TestAccContainerCluster_withNodeCreationConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodeCreationConfig(clusterName, networkName, subnetworkName, "VIA_CONTROL_PLANE"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "node_creation_config.0.node_creation_mode", "VIA_CONTROL_PLANE"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withNodeCreationConfig(clusterName, networkName, subnetworkName, "VIA_KUBELET"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "node_creation_config.0.node_creation_mode", "VIA_KUBELET"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withNodeCreationConfig(name, networkName, subnetworkName string, mode string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  network             = "%s"
+  subnetwork          = "%s"
+  initial_node_count  = 1
+  deletion_protection = false
+
+  node_creation_config {
+    node_creation_mode = "%s"
+  }
+}
+ `, name, networkName, subnetworkName, mode)
+}

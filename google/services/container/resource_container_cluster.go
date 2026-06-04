@@ -2587,6 +2587,26 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			"node_creation_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Computed:    true,
+				Description: `NodeCreationConfig defines the settings of node creation mode.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"node_creation_mode": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"VIA_KUBELET", "VIA_CONTROL_PLANE"}, false),
+							Description: `NodeCreationMode defines the settings of node creation mode.
+ Accepted values are:
+* VIA_KUBELET: Kubelet registers itself.
+* VIA_CONTROL_PLANE: gcp-controller-manager automatically creates the node object after CSR approval.`,
+						},
+					},
+				},
+			},
 			"rbac_binding_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -2977,6 +2997,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("anonymous_authentication_config"); ok {
 		cluster.AnonymousAuthenticationConfig = expandAnonymousAuthenticationConfig(v)
+	}
+
+	if v, ok := d.GetOk("node_creation_config"); ok {
+		cluster.NodeCreationConfig = expandNodeCreationConfig(v)
 	}
 
 	if v, ok := d.GetOk("rbac_binding_config"); ok {
@@ -3564,6 +3588,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("anonymous_authentication_config", flattenAnonymousAuthenticationConfig(cluster.AnonymousAuthenticationConfig)); err != nil {
+		return err
+	}
+
+	if err := d.Set("node_creation_config", flattenNodeCreationConfig(cluster.NodeCreationConfig)); err != nil {
 		return err
 	}
 
@@ -5189,6 +5217,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	if d.HasChange("node_creation_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredNodeCreationConfig: expandNodeCreationConfig(
+					d.Get("node_creation_config"),
+				),
+			},
+		}
+		updateF := updateFunc(req, "updating node creation config")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+	}
+
 	if d.HasChange("rbac_binding_config") {
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
@@ -6038,6 +6081,15 @@ func flattenAnonymousAuthenticationConfig(aac *container.AnonymousAuthentication
 	return []map[string]interface{}{result}
 }
 
+func flattenNodeCreationConfig(ncc *container.NodeCreationConfig) []map[string]interface{} {
+	if ncc == nil {
+		return nil
+	}
+	result := make(map[string]interface{})
+	result["node_creation_mode"] = ncc.NodeCreationMode
+	return []map[string]interface{}{result}
+}
+
 func flattenAdditionalPodRangesConfig(ipAllocationPolicy *container.IPAllocationPolicy) []map[string]interface{} {
 	if ipAllocationPolicy == nil {
 		return nil
@@ -6176,6 +6228,23 @@ func expandAnonymousAuthenticationConfig(configured interface{}) *container.Anon
 	if v, ok := anonAuthConfig["mode"]; ok {
 		if mode, ok := v.(string); ok && mode != "" {
 			result.Mode = mode
+		}
+	}
+	return &result
+}
+
+func expandNodeCreationConfig(configured interface{}) *container.NodeCreationConfig {
+	l, ok := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil || !ok {
+		return nil
+	}
+
+	nodeCreationConfig := l[0].(map[string]interface{})
+	result := container.NodeCreationConfig{}
+
+	if v, ok := nodeCreationConfig["node_creation_mode"]; ok {
+		if mode, ok := v.(string); ok && mode != "" {
+			result.NodeCreationMode = mode
 		}
 	}
 	return &result
