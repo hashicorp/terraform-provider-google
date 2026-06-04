@@ -25,8 +25,6 @@ description: |-
 A Mirroring Engine is a logical representation of the underlying infrastructure
 that is used to manage and monitor the ULL Mirroring setup.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage - Network Security Ull Mirroring Engine Basic
@@ -34,7 +32,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 resource "google_network_security_ull_mirroring_engine" "default" {
-  provider                = google-beta
   ull_mirroring_engine_id = "example-ull-eng"
   location                = "us-south1-d"
   labels = {

@@ -1,0 +1,24 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_network_security_ull_mirroring_engine
+generation_type: mmv1
+source_file: products/networksecurity/UllMirroringEngine.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: UllMirroringEngine
+fields:
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: reconciling
+    - field: terraform_labels
+      provider_only: true
+    - field: ull_mirroring_engine_id
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
