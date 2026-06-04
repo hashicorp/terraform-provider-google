@@ -1,0 +1,7 @@
+```release-note:enhancement
+accesscontextmanager: added in-place update for `egress_from` and `egress_to` fields in `google_access_context_manager_service_perimeter_egress_policy` resource 
+```
+
+```release-note:enhancement
+accesscontextmanager: added in-place update for `egress_from` and `egress_to` fields in `google_access_context_manager_service_perimeter_ingress_policy` resource 
+```

@@ -2286,9 +2286,36 @@ func resourceComputeRouterNatPatchUpdateEncoder(d *schema.ResourceData, meta int
 		return nil, err
 	}
 
-	idx, item, err := resourceComputeRouterNatFindNestedObjectInList(d, meta, items)
+	// Use the old values of identity fields to find the existing object in the
+	// API response. During an update, d.Get() returns the new desired values,
+	// but the API still has the old values. Using d.GetChange() ensures we
+	// search for the object as it currently exists in the API.
+	oldNameRaw, _ := d.GetChange("name")
+	expectedOldName, err := expandNestedComputeRouterNatName(oldNameRaw, d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return nil, err
+	}
+	expectedOldFlattenedName := flattenNestedComputeRouterNatName(expectedOldName, d, meta.(*transport_tpg.Config))
+
+	// Search list for this resource using old identity values.
+	var idx int = -1
+	var item map[string]interface{}
+	for i, itemRaw := range items {
+		if itemRaw == nil {
+			continue
+		}
+		currItem := itemRaw.(map[string]interface{})
+
+		itemName := flattenNestedComputeRouterNatName(currItem["name"], d, meta.(*transport_tpg.Config))
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemName)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedOldFlattenedName))) && !reflect.DeepEqual(itemName, expectedOldFlattenedName) {
+			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedOldFlattenedName)
+			continue
+		}
+		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), currItem)
+		idx = i
+		item = currItem
+		break
 	}
 
 	// Return error if item to update does not exist.

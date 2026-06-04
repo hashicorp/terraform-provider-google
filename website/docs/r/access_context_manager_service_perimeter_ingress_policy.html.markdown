@@ -31,9 +31,6 @@ For access from private networks, using the project of the hosting network is re
 Individual ingress policies can be limited by restricting which services and/
 or actions they match using the ingressTo field.
 
-~> **Note:** By default, updates to this resource will remove the IngressPolicy from the
-from the perimeter and add it back in a non-atomic manner. To ensure that the new IngressPolicy
-is added before the old one is removed, add a `lifecycle` block with `create_before_destroy = true` to this resource.
 ~> **Note:** If this resource is used alongside a `google_access_context_manager_service_perimeter` resource,
 the service perimeter resource must have a `lifecycle` block with `ignore_changes = [status[0].ingress_policies]` so
 they don't fight over which ingress rules should be in the policy.
@@ -290,6 +287,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import
