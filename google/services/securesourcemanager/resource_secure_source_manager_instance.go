@@ -226,6 +226,16 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 								},
 							},
 						},
+						"psc_allowed_projects": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Description: `Optional. Additional allowed projects for setting up PSC connections.
+Instance host project is automatically allowed and does not need to be included in this list.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"http_service_attachment": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -735,6 +745,8 @@ func flattenSecureSourceManagerInstancePrivateConfig(v interface{}, d *schema.Re
 		flattenSecureSourceManagerInstancePrivateConfigHttpServiceAttachment(original["httpServiceAttachment"], d, config)
 	transformed["ssh_service_attachment"] =
 		flattenSecureSourceManagerInstancePrivateConfigSshServiceAttachment(original["sshServiceAttachment"], d, config)
+	transformed["psc_allowed_projects"] =
+		flattenSecureSourceManagerInstancePrivateConfigPscAllowedProjects(original["pscAllowedProjects"], d, config)
 	return []interface{}{transformed}
 }
 func flattenSecureSourceManagerInstancePrivateConfigIsPrivate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -785,6 +797,10 @@ func flattenSecureSourceManagerInstancePrivateConfigHttpServiceAttachment(v inte
 }
 
 func flattenSecureSourceManagerInstancePrivateConfigSshServiceAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerInstancePrivateConfigPscAllowedProjects(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -875,6 +891,13 @@ func expandSecureSourceManagerInstancePrivateConfig(v interface{}, d tpgresource
 		transformed["sshServiceAttachment"] = transformedSshServiceAttachment
 	}
 
+	transformedPscAllowedProjects, err := expandSecureSourceManagerInstancePrivateConfigPscAllowedProjects(original["psc_allowed_projects"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPscAllowedProjects); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pscAllowedProjects"] = transformedPscAllowedProjects
+	}
+
 	return transformed, nil
 }
 
@@ -950,6 +973,10 @@ func expandSecureSourceManagerInstancePrivateConfigHttpServiceAttachment(v inter
 }
 
 func expandSecureSourceManagerInstancePrivateConfigSshServiceAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecureSourceManagerInstancePrivateConfigPscAllowedProjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -28,6 +28,7 @@ fields:
     - api_field: privateConfig.customHostConfig.html
     - api_field: privateConfig.httpServiceAttachment
     - api_field: privateConfig.isPrivate
+    - api_field: privateConfig.pscAllowedProjects
     - api_field: privateConfig.sshServiceAttachment
     - api_field: state
     - api_field: stateNote
