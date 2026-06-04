@@ -30,8 +30,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
-	"google.golang.org/api/compute/v1"
 )
 
 func ResourceComputeInstanceGroup() *schema.Resource {
@@ -316,7 +314,6 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 		Network     string
 		Size        int64
 		SelfLink    string
-		NamedPorts  []*compute.NamedPort
 	}{}
 	if v, ok := res["description"].(string); ok {
 		instanceGroup.Description = v
@@ -329,20 +326,6 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 	}
 	if v, ok := res["size"].(float64); ok {
 		instanceGroup.Size = int64(v)
-	}
-	if rawPorts, ok := res["namedPorts"].([]interface{}); ok {
-		for _, rawPort := range rawPorts {
-			if p, ok := rawPort.(map[string]interface{}); ok {
-				port := &compute.NamedPort{}
-				if v, ok := p["name"].(string); ok {
-					port.Name = v
-				}
-				if v, ok := p["port"].(float64); ok {
-					port.Port = int64(v)
-				}
-				instanceGroup.NamedPorts = append(instanceGroup.NamedPorts, port)
-			}
-		}
 	}
 
 	// retrieve instance group members
@@ -398,7 +381,7 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
-	if err := d.Set("named_port", flattenNamedPorts(instanceGroup.NamedPorts)); err != nil {
+	if err := d.Set("named_port", flattenNamedPorts(res["namedPorts"])); err != nil {
 		return fmt.Errorf("Error setting named_port: %s", err)
 	}
 	if err := d.Set("description", instanceGroup.Description); err != nil {
@@ -638,13 +621,25 @@ func resourceComputeInstanceGroupImportState(d *schema.ResourceData, meta interf
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNamedPorts(namedPorts []*compute.NamedPort) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, len(namedPorts))
-	for _, namedPort := range namedPorts {
-		result = append(result, map[string]interface{}{
-			"name": namedPort.Name,
-			"port": namedPort.Port,
-		})
+func flattenNamedPorts(namedPorts interface{}) []map[string]interface{} {
+	rawPorts, ok := namedPorts.([]interface{})
+	if !ok {
+		return nil
+	}
+	result := make([]map[string]interface{}, 0, len(rawPorts))
+	for _, rawPort := range rawPorts {
+		port, ok := rawPort.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		namedPort := map[string]interface{}{}
+		if v, ok := port["name"].(string); ok {
+			namedPort["name"] = v
+		}
+		if v, ok := port["port"].(float64); ok {
+			namedPort["port"] = int(v)
+		}
+		result = append(result, namedPort)
 	}
 	return result
 }
