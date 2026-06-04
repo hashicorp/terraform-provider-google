@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: `google_network_security_ull_mirroring_engine`, `google_network_security_ull_mirroring_collector`, and `google_network_security_ull_mirroring_collector_rule ` resources promoted to GA
+```

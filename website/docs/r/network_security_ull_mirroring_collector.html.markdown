@@ -25,8 +25,6 @@ description: |-
 A Mirroring Collector is a logical representation of an appliance that collects
 mirrored traffic.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage - Network Security Ull Mirroring Collector Basic
@@ -34,13 +32,11 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 resource "google_compute_network" "network" {
-  provider                = google-beta
   name                    = "example-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  provider      = google-beta
   name          = "example-subnet"
   region        = "us-south1"
   ip_cidr_range = "10.1.0.0/16"
@@ -48,7 +44,6 @@ resource "google_compute_subnetwork" "subnetwork" {
 }
 
 resource "google_compute_region_health_check" "health_check" {
-  provider = google-beta
   name     = "example-hc"
   region   = "us-south1"
   http_health_check {
@@ -57,7 +52,6 @@ resource "google_compute_region_health_check" "health_check" {
 }
 
 resource "google_compute_region_backend_service" "backend_service" {
-  provider              = google-beta
   name                  = "example-bs"
   region                = "us-south1"
   health_checks         = [google_compute_region_health_check.health_check.id]
@@ -66,7 +60,6 @@ resource "google_compute_region_backend_service" "backend_service" {
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule" {
-  provider               = google-beta
   name                   = "example-fwr"
   region                 = "us-south1"
   network                = google_compute_network.network.name
@@ -79,13 +72,11 @@ resource "google_compute_forwarding_rule" "forwarding_rule" {
 }
 
 resource "google_network_security_ull_mirroring_engine" "ull_mirroring_engine" {
-  provider                = google-beta
   ull_mirroring_engine_id = "example-ull-eng"
   location                = "us-south1-d"
 }
 
 resource "google_network_security_ull_mirroring_collector" "default" {
-  provider                   = google-beta
   ull_mirroring_collector_id = "example-ull-col"
   location                   = "us-south1-d"
   forwarding_rule            = google_compute_forwarding_rule.forwarding_rule.id
