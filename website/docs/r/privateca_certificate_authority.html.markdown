@@ -209,7 +209,7 @@ resource "google_privateca_certificate_authority" "default" {
     }
   }
   # valid for 5 years
-  lifetime = "${5 * 365 * 24 * 3600}s"
+  lifetime = "157680000s"
   key_spec {
     algorithm = "RSA_PKCS1_2048_SHA256"
   }
