@@ -223,6 +223,8 @@ resource "google_vmwareengine_datastore" "test_fs_datastore" {
   }
 }
 
+# Mount NFS datastore on vSphere cluster
+# This code block is required to mount the datastore on ESXi hosts
 resource "google_vmwareengine_cluster" "vmw-ext-cluster" {
   name     = "ext-cluster"
   parent   = google_vmwareengine_private_cloud.cluster-pc.id
@@ -354,6 +356,8 @@ resource "google_vmwareengine_datastore" "test_fs_datastore" {
   }
 }
 
+# Mount NFS datastore on vSphere cluster
+# This code block is required to mount the datastore on ESXi hosts
 resource "google_vmwareengine_cluster" "vmw-ext-cluster" {
   name     = "ext-cluster"
   parent   = google_vmwareengine_private_cloud.cluster-pc.id
