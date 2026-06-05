@@ -30,8 +30,7 @@ import (
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
-
-	"google.golang.org/api/compute/v1"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Unit tests
@@ -188,8 +187,8 @@ func TestIpDiffSuppress_NoId(t *testing.T) {
 func TestAccComputeSubnetwork_basic(t *testing.T) {
 	t.Parallel()
 
-	var subnetwork1 compute.Subnetwork
-	var subnetwork2 compute.Subnetwork
+	var subnetwork1 map[string]interface{}
+	var subnetwork2 map[string]interface{}
 
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	subnetwork1Name := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -228,7 +227,7 @@ func TestAccComputeSubnetwork_basic(t *testing.T) {
 func TestAccComputeSubnetwork_update(t *testing.T) {
 	t.Parallel()
 
-	var subnetwork compute.Subnetwork
+	var subnetwork map[string]interface{}
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
@@ -272,15 +271,15 @@ func TestAccComputeSubnetwork_update(t *testing.T) {
 		},
 	})
 
-	if subnetwork.PrivateIpGoogleAccess {
-		t.Errorf("Expected PrivateIpGoogleAccess to be false, got %v", subnetwork.PrivateIpGoogleAccess)
+	if v, ok := subnetwork["privateIpGoogleAccess"].(bool); ok && v {
+		t.Errorf("Expected PrivateIpGoogleAccess to be false, got %v", v)
 	}
 }
 
 func TestAccComputeSubnetwork_purposeUpdate(t *testing.T) {
 	t.Parallel()
 
-	var subnetwork compute.Subnetwork
+	var subnetwork map[string]interface{}
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
@@ -323,7 +322,7 @@ func TestAccComputeSubnetwork_purposeUpdate(t *testing.T) {
 func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 	t.Parallel()
 
-	var subnetwork compute.Subnetwork
+	var subnetwork map[string]interface{}
 
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -389,7 +388,7 @@ func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 func TestAccComputeSubnetwork_secondaryIpRanges_sendEmpty(t *testing.T) {
 	t.Parallel()
 
-	var subnetwork compute.Subnetwork
+	var subnetwork map[string]interface{}
 
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -461,7 +460,7 @@ func TestAccComputeSubnetwork_secondaryIpRanges_sendEmpty(t *testing.T) {
 func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 	t.Parallel()
 
-	var subnetwork compute.Subnetwork
+	var subnetwork map[string]interface{}
 
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -538,7 +537,7 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 func TestAccComputeSubnetwork_flowLogsMigrate(t *testing.T) {
 	t.Parallel()
 
-	var subnetwork compute.Subnetwork
+	var subnetwork map[string]interface{}
 
 	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -645,7 +644,7 @@ func TestAccComputeSubnetwork_internal_ipv6(t *testing.T) {
 func TestAccComputeSubnetwork_resourceManagerTags(t *testing.T) {
 	t.Parallel()
 
-	var subnetwork compute.Subnetwork
+	var subnetwork map[string]interface{}
 	org := envvar.GetTestOrgFromEnv(t)
 
 	suffixName := acctest.RandString(t, 10)
@@ -715,7 +714,7 @@ func TestAccComputeSubnetwork_ipv6UpdateWithPdp(t *testing.T) {
 			{
 				Config: testAccComputeSubnetwork_ipv6PdpSetup(context),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSubnetworkExists(t, subnetResName, new(compute.Subnetwork)),
+					testAccCheckComputeSubnetworkExists(t, subnetResName, new(map[string]interface{})),
 					resource.TestCheckResourceAttr(subnetResName, "name", subnetName),
 					resource.TestCheckResourceAttr(subnetResName, "stack_type", "IPV4_ONLY"),
 					resource.TestCheckResourceAttrSet(papResName, "self_link"),
@@ -727,7 +726,7 @@ func TestAccComputeSubnetwork_ipv6UpdateWithPdp(t *testing.T) {
 			{
 				Config: testAccComputeSubnetwork_ipv6PdpUpdate(context),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSubnetworkExists(t, subnetResName, new(compute.Subnetwork)),
+					testAccCheckComputeSubnetworkExists(t, subnetResName, new(map[string]interface{})),
 					resource.TestCheckResourceAttr(subnetResName, "stack_type", "IPV4_IPV6"),
 					resource.TestCheckResourceAttr(subnetResName, "ipv6_access_type", "INTERNAL"),
 					testAccCheckSubnetIpCollectionMatchesPdp(t, subnetResName, subPdpResName),
@@ -764,7 +763,7 @@ resource "google_compute_subnetwork" "acc_subnetwork_with_resource_manager_tags"
 `, context)
 }
 
-func testAccCheckComputeSubnetworkExists(t *testing.T, n string, subnetwork *compute.Subnetwork) resource.TestCheckFunc {
+func testAccCheckComputeSubnetworkExists(t *testing.T, n string, subnetwork *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -779,30 +778,39 @@ func testAccCheckComputeSubnetworkExists(t *testing.T, n string, subnetwork *com
 		region := rs.Primary.Attributes["region"]
 		subnet_name := rs.Primary.Attributes["name"]
 
-		found, err := tpgcompute.NewClient(config, config.UserAgent).Subnetworks.Get(
-			config.Project, region, subnet_name).Do()
+		url := fmt.Sprintf("%sprojects/%s/regions/%s/subnetworks/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, region, subnet_name)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		if found.Name != subnet_name {
+		if found["name"].(string) != subnet_name {
 			return fmt.Errorf("Subnetwork not found")
 		}
 
-		*subnetwork = *found
+		*subnetwork = found
 
 		return nil
 	}
 }
 
-func testAccCheckComputeSubnetworkHasSecondaryIpRange(subnetwork *compute.Subnetwork, rangeName, ipCidrRange string) resource.TestCheckFunc {
+func testAccCheckComputeSubnetworkHasSecondaryIpRange(subnetwork *map[string]interface{}, rangeName, ipCidrRange string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, secondaryRange := range subnetwork.SecondaryIpRanges {
-			if secondaryRange.RangeName == rangeName {
-				if secondaryRange.IpCidrRange == ipCidrRange {
-					return nil
+		if ranges, ok := (*subnetwork)["secondaryIpRanges"].([]interface{}); ok {
+			for _, raw := range ranges {
+				r := raw.(map[string]interface{})
+				if r["rangeName"].(string) == rangeName {
+					if r["ipCidrRange"].(string) == ipCidrRange {
+						return nil
+					}
+					return fmt.Errorf("Secondary range %s has the wrong ip_cidr_range. Expected %s, got %s", rangeName, ipCidrRange, r["ipCidrRange"].(string))
 				}
-				return fmt.Errorf("Secondary range %s has the wrong ip_cidr_range. Expected %s, got %s", rangeName, ipCidrRange, secondaryRange.IpCidrRange)
 			}
 		}
 
@@ -810,12 +818,15 @@ func testAccCheckComputeSubnetworkHasSecondaryIpRange(subnetwork *compute.Subnet
 	}
 }
 
-func testAccCheckComputeSubnetworkHasNotSecondaryIpRange(subnetwork *compute.Subnetwork, rangeName, ipCidrRange string) resource.TestCheckFunc {
+func testAccCheckComputeSubnetworkHasNotSecondaryIpRange(subnetwork *map[string]interface{}, rangeName, ipCidrRange string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, secondaryRange := range subnetwork.SecondaryIpRanges {
-			if secondaryRange.RangeName == rangeName {
-				if secondaryRange.IpCidrRange == ipCidrRange {
-					return fmt.Errorf("Secondary range %s has the wrong ip_cidr_range. Expected %s, got %s", rangeName, ipCidrRange, secondaryRange.IpCidrRange)
+		if ranges, ok := (*subnetwork)["secondaryIpRanges"].([]interface{}); ok {
+			for _, raw := range ranges {
+				r := raw.(map[string]interface{})
+				if r["rangeName"].(string) == rangeName {
+					if r["ipCidrRange"].(string) == ipCidrRange {
+						return fmt.Errorf("Secondary range %s has the wrong ip_cidr_range. Expected %s, got %s", rangeName, ipCidrRange, r["ipCidrRange"].(string))
+					}
 				}
 			}
 		}
