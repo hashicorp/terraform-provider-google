@@ -27,7 +27,6 @@ key material, generated outside of Cloud KMS. A `KeyRingImportJob` expires 3 day
 Once expired, Cloud KMS will no longer be able to import or unwrap any key material that
 was wrapped with the `KeyRingImportJob`'s public key.
 
-
 ~> **Note:** KeyRingImportJobs cannot be deleted from Google Cloud Platform.
 Destroying a Terraform-managed KeyRingImportJob will remove it from state but
 *will not delete the resource from the project.*

@@ -23,7 +23,6 @@ description: |-
 
 A `KeyHandle` is a resource used to auto-provision CryptoKeys for CMEK.
 
-
 ~> **Note:** KeyHandles cannot be deleted from Google Cloud Platform.
 Destroying a Terraform-managed KeyHandle will remove it from state but
 *will not delete the resource from the project.*
