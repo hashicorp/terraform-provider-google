@@ -1,0 +1,3 @@
+```release-note:note
+compute: migrated getInstance, getDisk, Delete and the setMetadata update block in `resource_compute_instance.go.tmpl` to use direct HTTP rather than a client library
+```

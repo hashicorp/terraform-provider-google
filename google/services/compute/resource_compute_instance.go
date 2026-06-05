@@ -1594,19 +1594,29 @@ func getInstance(config *transport_tpg.Config, d *schema.ResourceData) (*compute
 	if err != nil {
 		return nil, err
 	}
-	zone, err := tpgresource.GetZone(d, config)
-	if err != nil {
-		return nil, err
-	}
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
-	instance, err := NewClient(config, userAgent).Instances.Get(project, zone, d.Get("name").(string)).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}")
+	if err != nil {
+		return nil, err
+	}
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
 	}
-	return instance, nil
+	var instance compute.Instance
+	if err = tpgresource.Convert(res, &instance); err != nil {
+		return nil, fmt.Errorf("Error parsing instance response: %s", err)
+	}
+	return &instance, nil
 }
 
 func getDisk(diskUri string, d *schema.ResourceData, config *transport_tpg.Config) (*compute.Disk, error) {
@@ -1615,31 +1625,38 @@ func getDisk(diskUri string, d *schema.ResourceData, config *transport_tpg.Confi
 		return nil, err
 	}
 
+	var diskUrl string
 	if strings.Contains(diskUri, "regions/") {
 		source, err := tpgresource.ParseRegionDiskFieldValue(diskUri, d, config)
 		if err != nil {
 			return nil, err
 		}
-
-		disk, err := NewClient(config, userAgent).RegionDisks.Get(source.Project, source.Region, source.Name).Do()
+		diskUrl = fmt.Sprintf("%sprojects/%s/regions/%s/disks/%s",
+			transport_tpg.BaseUrl(Product, config), source.Project, source.Region, source.Name)
+	} else {
+		source, err := tpgresource.ParseDiskFieldValue(diskUri, d, config)
 		if err != nil {
 			return nil, err
 		}
-
-		return disk, err
+		diskUrl = fmt.Sprintf("%sprojects/%s/zones/%s/disks/%s",
+			transport_tpg.BaseUrl(Product, config), source.Project, source.Zone, source.Name)
 	}
 
-	source, err := tpgresource.ParseDiskFieldValue(diskUri, d, config)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		RawURL:    diskUrl,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	disk, err := NewClient(config, userAgent).Disks.Get(source.Project, source.Zone, source.Name).Do()
-	if err != nil {
-		return nil, err
+	var disk compute.Disk
+	if err = tpgresource.Convert(res, &disk); err != nil {
+		return nil, fmt.Errorf("Error parsing disk response: %s", err)
 	}
-
-	return disk, err
+	return &disk, nil
 }
 
 func expandComputeInstance(project string, d *schema.ResourceData, config *transport_tpg.Config) (*compute.Instance, error) {
@@ -1902,12 +1919,6 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	log.Printf("[DEBUG] Loading zone: %s", z)
-	zone, err := NewClient(config, userAgent).Zones.Get(
-		project, z).Do()
-	if err != nil {
-		return fmt.Errorf("Error loading zone '%s': %s", z, err)
-	}
 
 	instance, err := expandComputeInstance(project, d, config)
 	if err != nil {
@@ -1953,7 +1964,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	if val, ok := d.GetOk("desired_status"); ok {
 		if val.(string) != "RUNNING" {
-			err = changeInstanceStatusOnCreation(config, d, project, zone.Name, val.(string), userAgent)
+			err = changeInstanceStatusOnCreation(config, d, project, z, val.(string), userAgent)
 			if err != nil {
 				return fmt.Errorf("Error changing instance status after creation: %s", err)
 			}
@@ -2382,9 +2393,18 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error parsing metadata: %s", err)
 		}
 
-		metadataV1 := &compute.Metadata{}
-		if err := tpgresource.Convert(metadata, metadataV1); err != nil {
-			return err
+		metadataBody, err := tpgresource.ConvertToMap(metadata)
+		if err != nil {
+			return fmt.Errorf("Error converting metadata: %s", err)
+		}
+
+		metadataInstanceUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}")
+		if err != nil {
+			return fmt.Errorf("Error generating URL: %s", err)
+		}
+		setMetadataUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/setMetadata")
+		if err != nil {
+			return fmt.Errorf("Error generating URL: %s", err)
 		}
 
 		// We're retrying for an error 412 where the metadata fingerprint is out of date
@@ -2392,24 +2412,34 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			RetryFunc: func() error {
 				// retrieve up-to-date metadata from the API in case several updates hit simultaneously. instances
 				// sometimes but not always share metadata fingerprints.
-				instance, err := NewClient(config, userAgent).Instances.Get(project, zone, instance.Name).Do()
+				instMap, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "GET",
+					Project:   project,
+					RawURL:    metadataInstanceUrl,
+					UserAgent: userAgent,
+				})
 				if err != nil {
 					return fmt.Errorf("Error retrieving metadata: %s", err)
 				}
 
-				metadataV1.Fingerprint = instance.Metadata.Fingerprint
+				if md, ok := instMap["metadata"].(map[string]interface{}); ok {
+					metadataBody["fingerprint"] = md["fingerprint"]
+				}
 
-				op, err := NewClient(config, userAgent).Instances.SetMetadata(project, zone, instance.Name, metadataV1).Do()
+				res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "POST",
+					Project:   project,
+					RawURL:    setMetadataUrl,
+					UserAgent: userAgent,
+					Body:      metadataBody,
+				})
 				if err != nil {
 					return fmt.Errorf("Error updating metadata: %s", err)
 				}
 
-				opErr := ComputeOperationWaitTime(config, op, project, "metadata to update", userAgent, d.Timeout(schema.TimeoutUpdate))
-				if opErr != nil {
-					return opErr
-				}
-
-				return nil
+				return ComputeOperationWaitTime(config, res, project, "metadata to update", userAgent, d.Timeout(schema.TimeoutUpdate))
 			},
 		})
 
@@ -3911,27 +3941,44 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	zone, err := tpgresource.GetZone(d, config)
-	if err != nil {
-		return err
-	}
 	log.Printf("[INFO] Requesting instance deletion: %s", d.Get("name").(string))
 
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("Cannot delete instance %s: instance Deletion Protection is enabled. Set deletion_protection to false for this resource and run \"terraform apply\" before attempting to delete it.", d.Get("name").(string))
 	} else {
-		op, err := NewClient(config, userAgent).Instances.Delete(project, zone, d.Get("name").(string)).Do()
+		deleteUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}")
+		if err != nil {
+			return fmt.Errorf("Error generating delete URL: %s", err)
+		}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "DELETE",
+			Project:   project,
+			RawURL:    deleteUrl,
+			UserAgent: userAgent,
+		})
 		if err != nil {
 			return fmt.Errorf("Error deleting instance: %s", err)
 		}
 
 		// Wait for the operation to complete
-		opErr := ComputeOperationWaitTime(config, op, project, "instance to delete", userAgent, d.Timeout(schema.TimeoutDelete))
+		opErr := ComputeOperationWaitTime(config, res, project, "instance to delete", userAgent, d.Timeout(schema.TimeoutDelete))
 		if opErr != nil {
-			// Refresh operation to check status
-			op, _ = NewClient(config, userAgent).ZoneOperations.Get(project, zone, strconv.FormatUint(op.Id, 10)).Do()
+			// Refresh operation status via its selfLink
+			selfLink, _ := res["selfLink"].(string)
+			if selfLink == "" {
+				return opErr
+			}
+			opCheck, _ := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    selfLink,
+				UserAgent: userAgent,
+			})
 			// Do not return an error if the operation actually completed
-			if op == nil || op.Status != "DONE" {
+			opStatus, _ := opCheck["status"].(string)
+			if opCheck == nil || opStatus != "DONE" {
 				return opErr
 			}
 		}
