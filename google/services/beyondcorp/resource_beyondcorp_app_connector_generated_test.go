@@ -54,6 +54,7 @@ var (
 )
 
 func TestAccBeyondcorpAppConnector_beyondcorpAppConnectorBasicExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/27729")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -107,6 +108,7 @@ resource "google_beyondcorp_app_connector" "app_connector" {
 }
 
 func TestAccBeyondcorpAppConnector_beyondcorpAppConnectorFullExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/27729")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)

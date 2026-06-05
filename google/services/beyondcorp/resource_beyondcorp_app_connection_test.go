@@ -27,6 +27,7 @@ import (
 
 func TestAccBeyondcorpAppConnection_beyondcorpAppConnectionUpdateExample(t *testing.T) {
 	t.Parallel()
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/27729")
 
 	randomSuffix := acctest.RandString(t, 10)
 

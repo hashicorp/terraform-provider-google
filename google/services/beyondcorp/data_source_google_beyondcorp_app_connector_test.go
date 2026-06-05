@@ -27,6 +27,7 @@ import (
 
 func TestAccDataSourceGoogleBeyondcorpAppConnector_basic(t *testing.T) {
 	t.Parallel()
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/27729")
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
@@ -49,6 +50,7 @@ func TestAccDataSourceGoogleBeyondcorpAppConnector_basic(t *testing.T) {
 
 func TestAccDataSourceGoogleBeyondcorpAppConnector_optionalProject(t *testing.T) {
 	t.Parallel()
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/27729")
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
@@ -71,6 +73,7 @@ func TestAccDataSourceGoogleBeyondcorpAppConnector_optionalProject(t *testing.T)
 
 func TestAccDataSourceGoogleBeyondcorpAppConnector_optionalRegion(t *testing.T) {
 	t.Parallel()
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/27729")
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
@@ -93,6 +96,7 @@ func TestAccDataSourceGoogleBeyondcorpAppConnector_optionalRegion(t *testing.T) 
 
 func TestAccDataSourceGoogleBeyondcorpAppConnector_optionalProjectRegion(t *testing.T) {
 	t.Parallel()
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/27729")
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
