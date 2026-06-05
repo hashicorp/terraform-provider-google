@@ -40,28 +40,29 @@ import (
 
 func TestAccTags(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"tagKeyBasic":                           testAccTagsTagKey_tagKeyBasic,
-		"tagKeyBasicWithPurposeGceFirewall":     testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewall,
-		"tagKeyBasicWithPurposeDataGovernance":  testAccTagsTagKey_tagKeyBasicWithPurposeDataGovernance,
-		"tagKeyBasicWithAllowedValuesRegex":     testAccTagsTagKey_tagKeyBasicWithAllowedValuesRegex,
-		"tagKeyUpdate":                          testAccTagsTagKey_tagKeyUpdate,
-		"tagKeyUpdateAllowedValuesRegex":        testAccTagsTagKey_tagKeyUpdateAllowedValuesRegex,
-		"tagKeyIamBinding":                      testAccTagsTagKeyIamBinding,
-		"tagKeyIamMember":                       testAccTagsTagKeyIamMember,
-		"tagKeyIamPolicy":                       testAccTagsTagKeyIamPolicy,
-		"tagValueBasic":                         testAccTagsTagValue_tagValueBasic,
-		"tagValueUpdate":                        testAccTagsTagValue_tagValueUpdate,
-		"tagBindingBasic":                       testAccTagsTagBinding_tagBindingBasic,
-		"tagBindingBasicDynamic":                testAccTagsTagBinding_tagBindingBasicDynamic,
-		"tagBindingNamespaced":                  testAccTagsTagBinding_tagBindingNamespaced,
-		"tagValueIamBinding":                    testAccTagsTagValueIamBinding,
-		"tagValueIamMember":                     testAccTagsTagValueIamMember,
-		"tagValueIamPolicy":                     testAccTagsTagValueIamPolicy,
-		"tagsLocationTagBindingBasic":           testAccTagsLocationTagBinding_locationTagBindingbasic,
-		"tagsLocationTagBindingBasicDynamic":    testAccTagsLocationTagBinding_locationTagBindingBasicDynamic,
-		"tagsLocationTagBindingZonal":           TestAccTagsLocationTagBinding_locationTagBindingzonal,
-		"tagsLocationTagBindingZonalDynamic":    testAccTagsLocationTagBinding_locationTagBindingZonalDynamic,
-		"tagsLocationTagBindingZonalNamespaced": testAccTagsLocationTagBinding_locationTagBindingZonalNamespaced,
+		"tagKeyBasic":                              testAccTagsTagKey_tagKeyBasic,
+		"tagKeyBasicWithPurposeGceFirewall":        testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewall,
+		"tagKeyBasicWithPurposeDataGovernance":     testAccTagsTagKey_tagKeyBasicWithPurposeDataGovernance,
+		"tagKeyBasicWithAllowedValuesRegex":        testAccTagsTagKey_tagKeyBasicWithAllowedValuesRegex,
+		"tagKeyUpdate":                             testAccTagsTagKey_tagKeyUpdate,
+		"tagKeyUpdateAllowedValuesRegex":           testAccTagsTagKey_tagKeyUpdateAllowedValuesRegex,
+		"tagKeyIamBinding":                         testAccTagsTagKeyIamBinding,
+		"tagKeyIamMember":                          testAccTagsTagKeyIamMember,
+		"tagKeyIamPolicy":                          testAccTagsTagKeyIamPolicy,
+		"tagValueBasic":                            testAccTagsTagValue_tagValueBasic,
+		"tagValueUpdate":                           testAccTagsTagValue_tagValueUpdate,
+		"tagBindingBasic":                          testAccTagsTagBinding_tagBindingBasic,
+		"tagBindingBasicDynamic":                   testAccTagsTagBinding_tagBindingBasicDynamic,
+		"tagBindingNamespaced":                     testAccTagsTagBinding_tagBindingNamespaced,
+		"tagValueIamBinding":                       testAccTagsTagValueIamBinding,
+		"tagValueIamMember":                        testAccTagsTagValueIamMember,
+		"tagValueIamPolicy":                        testAccTagsTagValueIamPolicy,
+		"tagsLocationTagBindingBasic":              testAccTagsLocationTagBinding_locationTagBindingbasic,
+		"tagsLocationTagBindingBasicDynamic":       testAccTagsLocationTagBinding_locationTagBindingBasicDynamic,
+		"tagsLocationTagBindingBasicWithProjectId": testAccTagsLocationTagBinding_locationTagBindingBasicWithProjectId,
+		"tagsLocationTagBindingZonal":              testAccTagsLocationTagBinding_locationTagBindingzonal,
+		"tagsLocationTagBindingZonalDynamic":       testAccTagsLocationTagBinding_locationTagBindingZonalDynamic,
+		"tagsLocationTagBindingZonalNamespaced":    testAccTagsLocationTagBinding_locationTagBindingZonalNamespaced,
 	}
 
 	for name, tc := range testCases {
@@ -1263,10 +1264,30 @@ func testAccTagsLocationTagBinding_locationTagBindingBasicExample(context map[st
 data "google_project" "project" {
 }
 
+resource "google_compute_instance" "vm" {
+  name         = "tagbinding-repro"
+  machine_type = "e2-small"
+  zone         = "us-east4-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-12"
+    }
+  }
+  network_interface {
+    network = "default"
+  }
+}
+
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/${data.google_project.project.org_id}"
 	short_name = "keyname%{random_suffix}"
 	description = "For a certain set of resources."
+
+	# Setting purpose of GCE_FIREWALL exercises creation LRO logic
+	purpose = "GCE_FIREWALL"
+	purpose_data = {
+		organization = "auto"
+	}
 }
 
 resource "google_tags_tag_value" "value" {
@@ -1274,29 +1295,11 @@ resource "google_tags_tag_value" "value" {
 	short_name  = "foo%{random_suffix}"
 	description = "For foo%{random_suffix} resources."
 }
-
-resource "google_cloud_run_service" "default" {
-	name     = "tf-test-cloudrun-srv%{random_suffix}"
-	location = "us-central1"
-  
-	template {
-	  spec {
-		containers {
-		  image = "us-docker.pkg.dev/cloudrun/container/hello"
-		}
-	  }
-	}
-  
-	traffic {
-	  percent         = 100
-	  latest_revision = true
-	}
-}
   
 resource "google_tags_location_tag_binding" "binding" {
-	parent    = "//run.googleapis.com/projects/${data.google_project.project.number}/locations/${google_cloud_run_service.default.location}/services/${google_cloud_run_service.default.name}"
+	parent    = "//compute.googleapis.com/projects/${data.google_project.project.number}/zones/us-east4-a/instances/${google_compute_instance.vm.instance_id}"
 	tag_value = google_tags_tag_value.value.id
-	location  = "us-central1"
+	location  = "us-east4-a"
 }
 `, context)
 }
@@ -1366,7 +1369,7 @@ resource "google_tags_location_tag_binding" "binding" {
 `, context)
 }
 
-func TestAccTagsLocationTagBinding_locationTagBindingBasicWithProjectId(t *testing.T) {
+func testAccTagsLocationTagBinding_locationTagBindingBasicWithProjectId(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -1436,7 +1439,7 @@ resource "google_tags_location_tag_binding" "binding" {
 `, context)
 }
 
-func TestAccTagsLocationTagBinding_locationTagBindingzonal(t *testing.T) {
+func testAccTagsLocationTagBinding_locationTagBindingzonal(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
