@@ -52,7 +52,6 @@ To keep the Terraform configuration and state in sync for such settings, please 
       * Manually edit the Terraform configuration file(s) for the secondary cluster(s) to update the setting with the latest value from the state.
       * Execute `terraform plan` once again. This should not generate any diff, confirming the configuration is in sync with the infrastructure.
 
-
 **Switchover**
 
 To perform a [switchover](https://cloud.google.com/memorystore/docs/cluster/working-with-cross-region-replication#perform_a_switchover), please follow the below steps:
