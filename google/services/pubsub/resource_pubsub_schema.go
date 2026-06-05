@@ -163,6 +163,11 @@ error indicating that the limit has been reached require manually
 				Description:  `The type of the schema definition Default value: "TYPE_UNSPECIFIED" Possible values: ["TYPE_UNSPECIFIED", "PROTOCOL_BUFFER", "AVRO"]`,
 				Default:      "TYPE_UNSPECIFIED",
 			},
+			"revision_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The revision ID of the schema.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -587,6 +592,10 @@ func flattenPubsubSchemaDefinition(v interface{}, d *schema.ResourceData, config
 	return v
 }
 
+func flattenPubsubSchemaRevisionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenPubsubSchemaName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -621,6 +630,9 @@ func ResourcePubsubSchemaFlatten(d *schema.ResourceData, meta interface{}, res m
 		return fmt.Errorf("Error reading Schema: %s", err)
 	}
 	if err = d.Set("definition", flattenPubsubSchemaDefinition(res["definition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
+	if err = d.Set("revision_id", flattenPubsubSchemaRevisionId(res["revisionId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Schema: %s", err)
 	}
 	if err = d.Set("name", flattenPubsubSchemaName(res["name"], d, config)); err != nil {

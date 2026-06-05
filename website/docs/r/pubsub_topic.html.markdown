@@ -108,6 +108,8 @@ resource "google_pubsub_topic" "example" {
   schema_settings {
     schema = "projects/my-project-name/schemas/example"
     encoding = "JSON"
+    first_revision_id = google_pubsub_schema.example.revision_id
+    last_revision_id = google_pubsub_schema.example.revision_id
   }
 }
 ```
@@ -488,6 +490,14 @@ The following arguments are supported:
   The encoding of messages validated against schema.
   Default value is `ENCODING_UNSPECIFIED`.
   Possible values are: `ENCODING_UNSPECIFIED`, `JSON`, `BINARY`.
+
+* `first_revision_id` -
+  (Optional)
+  The minimum (inclusive) revision allowed for validating messages. If empty or not present, allow any revision to be validated against last_revision or any revision created before.
+
+* `last_revision_id` -
+  (Optional)
+  The maximum (inclusive) revision allowed for validating messages. If empty or not present, allow any revision to be validated against first_revision or any revision created after.
 
 <a name="nested_ingestion_data_source_settings"></a>The `ingestion_data_source_settings` block supports:
 
