@@ -1,0 +1,26 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_migration_center_import_data_file
+generation_type: mmv1
+source_file: products/migrationcenter/ImportDataFile.yaml
+api_service_name: migrationcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: ImportDataFile
+autogen_status: true
+fields:
+    - api_field: createTime
+    - api_field: displayName
+    - api_field: format
+    - field: import_data_file_id
+      provider_only: true
+    - field: import_job
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: state
+    - api_field: uploadFileInfo.headers
+    - api_field: uploadFileInfo.signedUri
+    - api_field: uploadFileInfo.uriExpirationTime
+    - field: deletion_policy
+      provider_only: true
