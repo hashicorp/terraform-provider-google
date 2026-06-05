@@ -1,0 +1,17 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: 'google_apigee_environment_debugmask'
+generation_type: 'handwritten'
+api_service_name: 'apigee.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'DebugMask'
+fields:
+  - field: 'env_id'
+  - api_field: 'faultXPaths'
+  - api_field: 'name'
+  - api_field: 'namespaces'
+  - api_field: 'requestJSONPaths'
+  - api_field: 'requestXPaths'
+  - api_field: 'responseJSONPaths'
+  - api_field: 'responseXPaths'
+  - api_field: 'variables'
