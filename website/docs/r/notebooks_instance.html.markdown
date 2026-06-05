@@ -24,7 +24,6 @@ description: |-
 
 A Cloud AI Platform Notebook instance.
 
-
 ~> **Note:** Due to limitations of the Notebooks Instance API, many fields
 in this resource do not properly detect drift. These fields will also not
 appear in state once imported.
