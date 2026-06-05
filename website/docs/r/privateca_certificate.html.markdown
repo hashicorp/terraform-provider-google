@@ -23,7 +23,6 @@ description: |-
 
 A Certificate corresponds to a signed X.509 certificate issued by a Certificate.
 
-
 ~> **Note:** The Certificate Authority that is referenced by this resource **must** be
 `tier = "ENTERPRISE"`
 
