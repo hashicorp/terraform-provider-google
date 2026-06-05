@@ -23,7 +23,6 @@ description: |-
 
 A `KeyRing` is a toplevel logical grouping of `CryptoKeys`.
 
-
 ~> **Note:** KeyRings cannot be deleted from Google Cloud Platform.
 Destroying a Terraform-managed KeyRing will remove it from state but
 *will not delete the resource from the project.*
