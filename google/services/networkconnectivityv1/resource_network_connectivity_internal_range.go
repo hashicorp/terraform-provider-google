@@ -778,51 +778,66 @@ func resourceNetworkConnectivityv1InternalRangeDelete(d *schema.ResourceData, me
 		return err
 	}
 
-	billingProject := ""
-
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for InternalRange: %s", err)
-	}
-	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/internalRanges/{{name}}")
+	var url string
+	url, err = tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityv1BasePath}}projects/{{project}}/locations/global/internalRanges/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
+	log.Printf("[DEBUG] Deleting InternalRange %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return err
+	}
+	billingProject := project
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	headers := make(http.Header)
+	// Simple retry loop to handle eventual consistency of detachment from Subnetwork
+	// Retry up to 12 times (1 minute) with 5s sleep
+	var res map[string]interface{}
+	for i := 0; i < 12; i++ {
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "DELETE",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+		})
+		if err == nil {
+			// Delete request succeeded, wait for the operation
+			err = NetworkConnectivityv1OperationWaitTime(config, res, project, "Deleting InternalRange", userAgent, d.Timeout(schema.TimeoutDelete))
+			if err == nil {
+				return nil
+			}
+			// If operation wait failed with "already being used", retry the whole delete
+			if gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok && gerr != nil && gerr.Code == 400 && strings.Contains(gerr.Message, "already being used") {
+				log.Printf("[DEBUG] InternalRange %q is still in use during operation wait, retrying in 5s...", d.Id())
+				time.Sleep(5 * time.Second)
+				continue
+			}
+			return err
+		}
 
-	log.Printf("[DEBUG] Deleting InternalRange %q", d.Id())
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "DELETE",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
-		Headers:   headers,
-	})
-	if err != nil {
+		// If DELETE request failed with "already being used", retry
+		if gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok && gerr != nil && gerr.Code == 400 && strings.Contains(gerr.Message, "already being used") {
+			log.Printf("[DEBUG] InternalRange %q is still in use, retrying in 5s...", d.Id())
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		// Other error, return immediately
 		return transport_tpg.HandleNotFoundError(err, d, "InternalRange")
 	}
 
-	err = NetworkConnectivityv1OperationWaitTime(
-		config, res, project, "Deleting InternalRange", userAgent,
-		d.Timeout(schema.TimeoutDelete))
-
+	// If we exhausted retries and still have an error, return it
 	if err != nil {
-		return err
+		return fmt.Errorf("Timeout waiting for InternalRange %q to be released: %s", d.Id(), err)
 	}
-
-	log.Printf("[DEBUG] Finished deleting InternalRange %q: %#v", d.Id(), res)
 	return nil
 }
 
