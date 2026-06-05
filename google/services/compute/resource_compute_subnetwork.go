@@ -86,11 +86,6 @@ func sendSecondaryIpRangeIfEmptyDiff(_ context.Context, diff *schema.ResourceDif
 		return nil
 	}
 
-	sendZero := diff.Get("send_secondary_ip_range_if_empty").(bool)
-	if !sendZero {
-		return nil
-	}
-
 	configSecondaryIpRange := diff.GetRawConfig().GetAttr("secondary_ip_range")
 	if !configSecondaryIpRange.IsKnown() {
 		return nil
@@ -103,9 +98,20 @@ func sendSecondaryIpRangeIfEmptyDiff(_ context.Context, diff *schema.ResourceDif
 	}
 	stateValueIsEmpty := stateSecondaryIpRange.IsNull() || stateSecondaryIpRange.LengthInt() == 0
 
+	log.Printf("[DEBUG] sendSecondaryIpRangeIfEmptyDiff: configValueIsEmpty=%t, stateValueIsEmpty=%t", configValueIsEmpty, stateValueIsEmpty)
+
 	if configValueIsEmpty && !stateValueIsEmpty {
-		log.Printf("[DEBUG] setting secondary_ip_range to newly empty")
-		diff.SetNew("secondary_ip_range", make([]interface{}, 0))
+		v := diff.Get("send_secondary_ip_range_if_empty")
+		log.Printf("[DEBUG] sendSecondaryIpRangeIfEmptyDiff: send_secondary_ip_range_if_empty=%v", v)
+		// Only force if explicitly requested via the flag
+		if v != nil && v.(bool) {
+			log.Printf("[DEBUG] sendSecondaryIpRangeIfEmptyDiff: forcing secondary_ip_range to newly empty")
+			err := diff.SetNew("secondary_ip_range", make([]interface{}, 0))
+			if err != nil {
+				log.Printf("[ERROR] sendSecondaryIpRangeIfEmptyDiff: failed to SetNew: %s", err)
+				return fmt.Errorf("failed to set secondary_ip_range to empty: %w", err)
+			}
+		}
 	}
 
 	return nil
@@ -153,6 +159,168 @@ func resourceComputeSubnetworkSecondaryIpRangeCustomDiff(_ context.Context, diff
 }
 
 func resourceComputeSubnetworkSecondaryIpRangeCustomDiffFunc(diff tpgresource.TerraformResourceDiff) error {
+	return nil
+}
+
+func ipEqual(old, new string) bool {
+	if old == "" || new == "" {
+		return old == new
+	}
+	addr_netmask_old := strings.Split(old, "/")
+	addr_netmask_new := strings.Split(new, "/")
+
+	if !((len(addr_netmask_old)) == 2 && (len(addr_netmask_new) == 2)) {
+		return false
+	}
+
+	addr_old := net.ParseIP(addr_netmask_old[0])
+	if addr_old == nil {
+		return false
+	}
+	addr_new := net.ParseIP(addr_netmask_new[0])
+	if addr_new == nil {
+		return false
+	}
+
+	return net.IP.Equal(addr_old, addr_new) && addr_netmask_old[1] == addr_netmask_new[1]
+}
+
+func mergeSurvivor(oldEl, newEl interface{}, ipCidrExplicit bool) interface{} {
+	if oldEl == nil {
+		return newEl
+	}
+	if newEl == nil {
+		return oldEl
+	}
+
+	oldMap := oldEl.(map[string]interface{})
+	newMap := newEl.(map[string]interface{})
+
+	merged := make(map[string]interface{})
+	for k, v := range oldMap {
+		merged[k] = v
+	}
+
+	for k, v := range newMap {
+		if k == "ip_cidr_range" {
+			oldVal, _ := oldMap[k].(string)
+			newVal, _ := v.(string)
+			if ipEqual(oldVal, newVal) {
+				// If they are semantically equal, always prefer the old state value to avoid diffs
+				continue
+			}
+			if !ipCidrExplicit && oldVal != "" {
+				continue
+			}
+		}
+		merged[k] = v
+	}
+
+	return merged
+}
+
+func resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	if diff.Id() == "" {
+		return nil
+	}
+
+	keys := diff.GetChangedKeysPrefix("secondary_ip_range")
+	if len(keys) == 0 {
+		log.Printf("[DEBUG] SetStyleDiff: no changed keys prefix, exiting early")
+		return nil
+	}
+
+	oldRaw, newRaw := diff.GetChange("secondary_ip_range")
+	old := oldRaw.([]interface{})
+	new := newRaw.([]interface{})
+
+	log.Printf("[DEBUG] SetStyleDiff: starting. old len=%d, new len=%d", len(old), len(new))
+	log.Printf("[DEBUG] SetStyleDiff: old=%v", old)
+	log.Printf("[DEBUG] SetStyleDiff: new=%v", new)
+
+	// Extract explicit CIDRs from HCL config to prevent wrong index-based computed inheritance
+	explicitCidrByName := make(map[string]bool)
+	rawConfig := diff.GetRawConfig().GetAttr("secondary_ip_range")
+	if rawConfig.IsKnown() && !rawConfig.IsNull() {
+		for _, item := range rawConfig.AsValueSlice() {
+			if item.IsKnown() && !item.IsNull() && item.GetAttr("range_name").IsKnown() && !item.GetAttr("range_name").IsNull() {
+				nameVal := item.GetAttr("range_name").AsString()
+				if nameVal != "" {
+					if cidrVal := item.GetAttr("ip_cidr_range"); cidrVal.IsKnown() && !cidrVal.IsNull() && cidrVal.AsString() != "" {
+						explicitCidrByName[nameVal] = true
+					}
+				}
+			}
+		}
+	}
+
+	// Map existing range names to their current indices in 'old'
+	oldMap := make(map[string]int)
+	for i, r := range old {
+		if r == nil {
+			continue
+		}
+		m := r.(map[string]interface{})
+		oldMap[m["range_name"].(string)] = i
+	}
+
+	stableNew := make([]interface{}, len(new))
+	placed := make(map[string]bool)
+
+	// 1: Place survivors that fit in their old slots
+	for _, r := range new {
+		if r == nil {
+			continue
+		}
+		m := r.(map[string]interface{})
+		name := m["range_name"].(string)
+		if oldIdx, ok := oldMap[name]; ok {
+			if oldIdx < len(stableNew) {
+				// Merge config and state for survivor to preserve computed fields like ip_cidr_range
+				stableNew[oldIdx] = mergeSurvivor(old[oldIdx], r, explicitCidrByName[name])
+				placed[name] = true
+			}
+		}
+	}
+
+	// 2: Collect unplaced survivors and additions in the order they appear in 'new'
+	var unplaced []interface{}
+	for _, r := range new {
+		if r == nil {
+			continue
+		}
+		m := r.(map[string]interface{})
+		name := m["range_name"].(string)
+		if !placed[name] {
+			unplaced = append(unplaced, r)
+		}
+	}
+
+	// 3: Fill the remaining gaps in 'stableNew' with unplaced items
+	unplacedIdx := 0
+	for i := range stableNew {
+		if stableNew[i] == nil && unplacedIdx < len(unplaced) {
+			r := unplaced[unplacedIdx]
+			m := r.(map[string]interface{})
+			name := m["range_name"].(string)
+
+			// If it is a survivor (but was out of bounds), merge it
+			if oldIdx, ok := oldMap[name]; ok {
+				stableNew[i] = mergeSurvivor(old[oldIdx], r, explicitCidrByName[name])
+			} else {
+				stableNew[i] = r
+			}
+			unplacedIdx++
+		}
+	}
+
+	log.Printf("[DEBUG] SetStyleDiff: stableNew len=%d", len(stableNew))
+	log.Printf("[DEBUG] SetStyleDiff: stableNew=%v", stableNew)
+	err := diff.SetNew("secondary_ip_range", stableNew)
+	if err != nil {
+		log.Printf("[ERROR] SetStyleDiff: failed to SetNew: %s", err)
+		return fmt.Errorf("failed to set stableNew: %w", err)
+	}
 	return nil
 }
 
@@ -215,9 +383,9 @@ func ResourceComputeSubnetwork() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff,
 			customdiff.ForceNewIfChange("ip_cidr_range", IsShrinkageIpCidr),
 			sendSecondaryIpRangeIfEmptyDiff,
+			resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff,
 			resourceComputeSubnetworkSecondaryIpRangeCustomDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
@@ -611,48 +779,6 @@ When set to "DELETE", deleting the resource is allowed.
 		},
 		UseJSONNumber: true,
 	}
-}
-
-func resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
-	keys := diff.GetChangedKeysPrefix("secondary_ip_range")
-	if len(keys) == 0 {
-		return nil
-	}
-	oldCount, newCount := diff.GetChange("secondary_ip_range.#")
-	var count int
-	// There could be duplicates - worth continuing even if the counts are unequal.
-	if oldCount.(int) < newCount.(int) {
-		count = newCount.(int)
-	} else {
-		count = oldCount.(int)
-	}
-
-	if count < 1 {
-		return nil
-	}
-	old := make([]interface{}, 0, count)
-	new := make([]interface{}, 0, count)
-	for i := 0; i < count; i++ {
-		o, n := diff.GetChange(fmt.Sprintf("secondary_ip_range.%d", i))
-
-		if o != nil {
-			old = append(old, o)
-		}
-		if n != nil {
-			new = append(new, n)
-		}
-	}
-
-	oldSet := schema.NewSet(schema.HashResource(ResourceComputeSubnetwork().Schema["secondary_ip_range"].Elem.(*schema.Resource)), old)
-	newSet := schema.NewSet(schema.HashResource(ResourceComputeSubnetwork().Schema["secondary_ip_range"].Elem.(*schema.Resource)), new)
-
-	if oldSet.Equal(newSet) {
-		if err := diff.Clear("secondary_ip_range"); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) error {
@@ -1459,7 +1585,6 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		newRanges := schema.NewSet(schema.HashResource(ResourceComputeSubnetwork().Schema["secondary_ip_range"].Elem.(*schema.Resource)), new.([]interface{}))
 
 		removalsRaw := oldRanges.Difference(newRanges)
-		additionsRaw := newRanges.Difference(oldRanges)
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
 		if err != nil {
@@ -1471,7 +1596,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		// If there's a mix of additions and removals, we must perform the removal step first.
-		if removalsRaw.Len() > 0 && additionsRaw.Len() > 0 {
+		if removalsRaw.Len() > 0 {
 			log.Printf("[DEBUG] Splitting update for %q: Performing removal step first.", d.Id())
 
 			getRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -1698,7 +1823,12 @@ func flattenComputeSubnetworkReservedInternalRange(v interface{}, d *schema.Reso
 	if v == nil {
 		return v
 	}
-	return tpgresource.ConvertSelfLinkToV1(v.(string))
+	// Normalize the URL to the prefixed format: networkconnectivity.googleapis.com/projects/...
+	path, err := tpgresource.GetRelativePath(v.(string))
+	if err != nil {
+		return v
+	}
+	return "networkconnectivity.googleapis.com/" + path
 }
 
 func flattenComputeSubnetworkName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1752,7 +1882,12 @@ func flattenComputeSubnetworkSecondaryIpRangeReservedInternalRange(v interface{}
 	if v == nil {
 		return v
 	}
-	return tpgresource.ConvertSelfLinkToV1(v.(string))
+	// Normalize the URL to the prefixed format: networkconnectivity.googleapis.com/projects/...
+	path, err := tpgresource.GetRelativePath(v.(string))
+	if err != nil {
+		return v
+	}
+	return "networkconnectivity.googleapis.com/" + path
 }
 
 func flattenComputeSubnetworkPrivateIpGoogleAccess(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
