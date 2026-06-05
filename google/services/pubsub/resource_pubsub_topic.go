@@ -608,6 +608,16 @@ if the schema has been deleted.`,
 							Description:  `The encoding of messages validated against schema. Default value: "ENCODING_UNSPECIFIED" Possible values: ["ENCODING_UNSPECIFIED", "JSON", "BINARY"]`,
 							Default:      "ENCODING_UNSPECIFIED",
 						},
+						"first_revision_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The minimum (inclusive) revision allowed for validating messages. If empty or not present, allow any revision to be validated against last_revision or any revision created before.`,
+						},
+						"last_revision_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The maximum (inclusive) revision allowed for validating messages. If empty or not present, allow any revision to be validated against first_revision or any revision created after.`,
+						},
 					},
 				},
 			},
@@ -1228,6 +1238,10 @@ func flattenPubsubTopicSchemaSettings(v interface{}, d *schema.ResourceData, con
 		flattenPubsubTopicSchemaSettingsSchema(original["schema"], d, config)
 	transformed["encoding"] =
 		flattenPubsubTopicSchemaSettingsEncoding(original["encoding"], d, config)
+	transformed["first_revision_id"] =
+		flattenPubsubTopicSchemaSettingsFirstRevisionId(original["firstRevisionId"], d, config)
+	transformed["last_revision_id"] =
+		flattenPubsubTopicSchemaSettingsLastRevisionId(original["lastRevisionId"], d, config)
 	return []interface{}{transformed}
 }
 func flattenPubsubTopicSchemaSettingsSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1235,6 +1249,14 @@ func flattenPubsubTopicSchemaSettingsSchema(v interface{}, d *schema.ResourceDat
 }
 
 func flattenPubsubTopicSchemaSettingsEncoding(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicSchemaSettingsFirstRevisionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicSchemaSettingsLastRevisionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1694,6 +1716,20 @@ func expandPubsubTopicSchemaSettings(v interface{}, d tpgresource.TerraformResou
 		transformed["encoding"] = transformedEncoding
 	}
 
+	transformedFirstRevisionId, err := expandPubsubTopicSchemaSettingsFirstRevisionId(original["first_revision_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFirstRevisionId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["firstRevisionId"] = transformedFirstRevisionId
+	}
+
+	transformedLastRevisionId, err := expandPubsubTopicSchemaSettingsLastRevisionId(original["last_revision_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLastRevisionId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["lastRevisionId"] = transformedLastRevisionId
+	}
+
 	return transformed, nil
 }
 
@@ -1702,6 +1738,14 @@ func expandPubsubTopicSchemaSettingsSchema(v interface{}, d tpgresource.Terrafor
 }
 
 func expandPubsubTopicSchemaSettingsEncoding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicSchemaSettingsFirstRevisionId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicSchemaSettingsLastRevisionId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

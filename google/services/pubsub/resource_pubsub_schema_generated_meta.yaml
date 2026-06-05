@@ -9,6 +9,7 @@ api_resource_type_kind: Schema
 fields:
     - api_field: definition
     - api_field: name
+    - api_field: revisionId
     - api_field: type
     - field: deletion_policy
       provider_only: true

@@ -202,6 +202,8 @@ resource "google_pubsub_topic" "example" {
   schema_settings {
     schema = "projects/%{project_name}/schemas/%{schema_name}"
     encoding = "JSON"
+    first_revision_id = google_pubsub_schema.example.revision_id
+    last_revision_id = google_pubsub_schema.example.revision_id
   }
 }
 `, context)

@@ -49,6 +49,8 @@ fields:
     - api_field: messageTransforms.javascriptUdf.functionName
     - api_field: name
     - api_field: schemaSettings.encoding
+    - api_field: schemaSettings.firstRevisionId
+    - api_field: schemaSettings.lastRevisionId
     - api_field: schemaSettings.schema
     - api_field: tags
     - field: terraform_labels

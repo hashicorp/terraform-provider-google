@@ -111,6 +111,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/schemas/{{name}}`
 
+* `revision_id` -
+  Output only. The revision ID of the schema.
+
 
 ## Timeouts
 
