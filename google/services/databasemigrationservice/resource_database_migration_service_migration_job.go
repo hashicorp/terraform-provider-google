@@ -168,6 +168,13 @@ func ResourceDatabaseMigrationServiceMigrationJob() *schema.Resource {
 				ValidateFunc: verify.ValidateEnum([]string{"ONE_TIME", "CONTINUOUS"}),
 				Description:  `The type of the migration job. Possible values: ["ONE_TIME", "CONTINUOUS"]`,
 			},
+			"desired_state": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"NOT_STARTED", "RUNNING", ""}),
+				Description:  `The desired state of the migration job. If set to 'RUNNING', the migration job will be started. Possible values: ["NOT_STARTED", "RUNNING"]`,
+			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -345,11 +352,13 @@ source are migrated. Possible values: ["ALL_OBJECTS", "SPECIFIED_OBJECTS"]`,
 						"is_native_logical": {
 							Type:        schema.TypeBool,
 							Required:    true,
+							ForceNew:    true,
 							Description: `Whether the migration uses native logical replication.`,
 						},
 						"max_additional_subscriptions": {
 							Type:        schema.TypeInt,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `Maximum number of additional subscriptions to use for the migration job.`,
 						},
 					},
@@ -401,6 +410,12 @@ Cloud SQL console or using Cloud SQL APIs.`,
 					Schema: map[string]*schema.Schema{},
 				},
 				ConflictsWith: []string{"reverse_ssh_connectivity", "vpc_peering_connectivity"},
+			},
+			"stop_on_warnings": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If set to true, will stop the Terraform apply if there are validation warnings.`,
+				Default:     true,
 			},
 			"vpc_peering_connectivity": {
 				Type:        schema.TypeList,
@@ -614,6 +629,9 @@ func resourceDatabaseMigrationServiceMigrationJobCreate(d *schema.ResourceData, 
 	}
 
 	headers := make(http.Header)
+	if desiredState, ok := d.Get("desired_state").(string); ok && desiredState == "RUNNING" {
+		return fmt.Errorf("Migration Job cannot be created in RUNNING state. Please set desired_state to 'NOT_STARTED' for creation, and update to 'RUNNING' afterwards.")
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -958,6 +976,192 @@ func resourceDatabaseMigrationServiceMigrationJobUpdate(d *schema.ResourceData, 
 		}
 	}
 
+	// Function closure to DRY unpacking LRO errors
+	unpackLroError := func(res map[string]interface{}, project string, userAgent string) error {
+		opName, ok := res["name"].(string)
+		if !ok || opName == "" {
+			return nil
+		}
+		opBaseUrl, err := tpgresource.ReplaceVars(d, config, "{{DatabaseMigrationServiceBasePath}}")
+		if err != nil {
+			return err
+		}
+		opUrl := fmt.Sprintf("%sprojects/%s/locations/%s/operations/%s", opBaseUrl, project, d.Get("location").(string), tpgresource.GetResourceNameFromSelfLink(opName))
+		opRes, fetchErr := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			RawURL:    opUrl,
+			UserAgent: userAgent,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if fetchErr != nil {
+			return nil
+		}
+
+		errObj, ok := opRes["error"].(map[string]interface{})
+		if !ok {
+			return nil
+		}
+
+		// If available, get more detailed error info from the migration job resource itself.
+		if jobUrl, jobUrlErr := tpgresource.ReplaceVars(d, config, "{{DatabaseMigrationServiceBasePath}}projects/{{project}}/locations/{{location}}/migrationJobs/{{migration_job_id}}"); jobUrlErr == nil {
+			if jobRes, fetchJobErr := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				RawURL:    jobUrl,
+				UserAgent: userAgent,
+				Timeout:   d.Timeout(schema.TimeoutUpdate),
+			}); fetchJobErr == nil {
+				if jobErrObj, ok := jobRes["error"].(map[string]interface{}); ok {
+					errObj = jobErrObj
+				}
+			}
+		}
+
+		var errMsgs []string
+		var stopOnWarnings = d.Get("stop_on_warnings").(bool)
+		var hasErrors bool
+		var hasWarnings bool
+
+		errDetails, _ := errObj["details"].([]interface{})
+
+		for _, detail := range errDetails {
+			if dMap, ok := detail.(map[string]interface{}); ok {
+				datatype, _ := dMap["@type"].(string)
+				if datatype == "type.googleapis.com/google.rpc.ErrorInfo" {
+					var sev, objId, errMsg string
+
+					if metadata, ok := dMap["metadata"].(map[string]interface{}); ok {
+						if v, ok := metadata["severity"].(string); ok {
+							sev = v
+						}
+						if v, ok := metadata["objectId"].(string); ok {
+							objId = v
+						}
+						if v, ok := metadata["errorMessage"].(string); ok {
+							errMsg = v
+						}
+					}
+
+					if errMsg == "" {
+						if r, ok := dMap["reason"].(string); ok {
+							errMsg = r
+						}
+					}
+
+					var formattedMsg string
+					if objId != "" {
+						formattedMsg = fmt.Sprintf("[%s] %s: %s", strings.ToUpper(sev), objId, errMsg)
+					} else if sev != "" {
+						formattedMsg = fmt.Sprintf("[%s] %s", strings.ToUpper(sev), errMsg)
+					} else {
+						formattedMsg = errMsg
+					}
+					errMsgs = append(errMsgs, formattedMsg)
+
+					if strings.ToUpper(sev) == "ERROR" {
+						hasErrors = true
+					}
+					if strings.ToUpper(sev) == "WARNING" {
+						hasWarnings = true
+					}
+				}
+			}
+		}
+
+		var topMsg, _ = errObj["message"].(string)
+		var topCode, _ = errObj["code"].(float64)
+		var msgParts []string
+		if topMsg != "" {
+			msgParts = append(msgParts, fmt.Sprintf("Error Code %.0f: %s", topCode, topMsg))
+		} else {
+			msgParts = append(msgParts, fmt.Sprintf("Error Code %.0f", topCode))
+		}
+
+		if hasErrors || (hasWarnings && stopOnWarnings) || len(errMsgs) > 0 {
+			return fmt.Errorf("%s\n%s", strings.Join(msgParts, ""), strings.Join(errMsgs, "\n"))
+		}
+		return fmt.Errorf("%s", strings.Join(msgParts, ""))
+	}
+
+	project, err = tpgresource.GetProject(d, config)
+	if err != nil {
+		return err
+	}
+	userAgent, err = tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	isTransitionToRunning := false
+	isTransitionToNotStarted := false
+	if d.HasChange("desired_state") {
+		oldRaw, newRaw := d.GetChange("desired_state")
+		if (oldRaw.(string) == "NOT_STARTED" || oldRaw.(string) == "") && newRaw.(string) == "RUNNING" {
+			isTransitionToRunning = true
+		}
+		if oldRaw.(string) == "RUNNING" && newRaw.(string) == "NOT_STARTED" {
+			isTransitionToNotStarted = true
+		}
+	}
+
+	if isTransitionToNotStarted {
+		return fmt.Errorf("Transition from RUNNING to NOT_STARTED is not supported. Please destroy and recreate the Migration Job if you need to reset it.")
+	}
+
+	isObjectsConfigUpdate := d.HasChange("objects_config")
+
+	if isTransitionToRunning || isObjectsConfigUpdate {
+		log.Printf("[DEBUG] Running Verify on Migration Job %q due to state transition or objects_config update", d.Id())
+		url, err := tpgresource.ReplaceVars(d, config, "{{DatabaseMigrationServiceBasePath}}projects/{{project}}/locations/{{location}}/migrationJobs/{{migration_job_id}}:verify")
+		if err != nil {
+			return err
+		}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			RawURL:    url,
+			UserAgent: userAgent,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error verifying Migration Job %q: %s", d.Id(), err)
+		}
+		err = DatabaseMigrationServiceOperationWaitTime(
+			config, res, project, "Verifying Migration Job", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			if uerr := unpackLroError(res, project, userAgent); uerr != nil {
+				return uerr
+			}
+			return fmt.Errorf("Error waiting for Verify Migration Job operation: %s", err)
+		}
+
+		if isTransitionToRunning {
+			log.Printf("[DEBUG] Transitioning Migration Job %q to RUNNING", d.Id())
+			url, err := tpgresource.ReplaceVars(d, config, "{{DatabaseMigrationServiceBasePath}}projects/{{project}}/locations/{{location}}/migrationJobs/{{migration_job_id}}:start")
+			if err != nil {
+				return err
+			}
+
+			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				RawURL:    url,
+				UserAgent: userAgent,
+				Timeout:   d.Timeout(schema.TimeoutUpdate),
+			})
+
+			err = DatabaseMigrationServiceOperationWaitTime(
+				config, res, project, "Starting Migration Job Update", userAgent, d.Timeout(schema.TimeoutUpdate))
+
+			if err != nil {
+				if uerr := unpackLroError(res, project, userAgent); uerr != nil {
+					return uerr
+				}
+				return fmt.Errorf("Error waiting for Start Migration Job update operation: %s", err)
+			}
+		}
+	}
 	return resourceDatabaseMigrationServiceMigrationJobRead(d, meta)
 }
 
@@ -1070,8 +1274,31 @@ func flattenDatabaseMigrationServiceMigrationJobLabels(v interface{}, d *schema.
 	return transformed
 }
 
+func flattenDatabaseMigrationServiceMigrationJobStopOnWarnings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("stop_on_warnings")
+}
+
 func flattenDatabaseMigrationServiceMigrationJobState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenDatabaseMigrationServiceMigrationJobDesiredState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return "NOT_STARTED"
+	}
+
+	switch v.(string) {
+	case "DRAFT", "NOT_STARTED":
+		return "NOT_STARTED"
+	case "FAILED":
+		if phase, ok := d.Get("phase").(string); ok && phase == "PROMOTE_IN_PROGRESS" {
+			return "RUNNING"
+		}
+		return "NOT_STARTED"
+	default:
+		// Map all other active states (RUNNING, COMPLETED, STOPPED, etc.) to RUNNING
+		return "RUNNING"
+	}
 }
 
 func flattenDatabaseMigrationServiceMigrationJobPhase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1848,7 +2075,13 @@ func ResourceDatabaseMigrationServiceMigrationJobFlatten(d *schema.ResourceData,
 	if err = d.Set("labels", flattenDatabaseMigrationServiceMigrationJobLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MigrationJob: %s", err)
 	}
+	if err = d.Set("stop_on_warnings", flattenDatabaseMigrationServiceMigrationJobStopOnWarnings(res["stopOnWarnings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MigrationJob: %s", err)
+	}
 	if err = d.Set("state", flattenDatabaseMigrationServiceMigrationJobState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MigrationJob: %s", err)
+	}
+	if err = d.Set("desired_state", flattenDatabaseMigrationServiceMigrationJobDesiredState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MigrationJob: %s", err)
 	}
 	if err = d.Set("phase", flattenDatabaseMigrationServiceMigrationJobPhase(res["phase"], d, config)); err != nil {

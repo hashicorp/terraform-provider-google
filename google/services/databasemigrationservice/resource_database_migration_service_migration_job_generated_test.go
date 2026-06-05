@@ -85,7 +85,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 				ResourceName:            "google_database_migration_service_migration_job.mysqltomysql",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"desired_state", "labels", "location", "migration_job_id", "stop_on_warnings", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_database_migration_service_migration_job.mysqltomysql",
@@ -236,7 +236,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 				ResourceName:            "google_database_migration_service_migration_job.psqltopsql",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"desired_state", "labels", "location", "migration_job_id", "stop_on_warnings", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_database_migration_service_migration_job.psqltopsql",
@@ -372,7 +372,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 				ResourceName:            "google_database_migration_service_migration_job.psqltopsqlobjects",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"desired_state", "labels", "location", "migration_job_id", "stop_on_warnings", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_database_migration_service_migration_job.psqltopsqlobjects",
@@ -526,7 +526,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 				ResourceName:            "google_database_migration_service_migration_job.psqltoalloydb",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"desired_state", "labels", "location", "migration_job_id", "stop_on_warnings", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_database_migration_service_migration_job.psqltoalloydb",

@@ -47,7 +47,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_update(t *testing.T) {
 				ResourceName:            "google_database_migration_service_migration_job.mysqltomysql",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels", "state", "desired_state", "stop_on_warnings"},
 			},
 			{
 				Config: testAccDatabaseMigrationServiceMigrationJob_update(context),
@@ -56,7 +56,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_update(t *testing.T) {
 				ResourceName:            "google_database_migration_service_migration_job.mysqltomysql",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels", "state", "desired_state", "stop_on_warnings"},
 			},
 		},
 	})
@@ -301,7 +301,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_postgresQuickstart(t *testing.T
 				ResourceName:            "google_database_migration_service_migration_job.psql_to_psql",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels", "state"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels", "state", "desired_state", "stop_on_warnings"},
 			},
 		},
 	})
@@ -436,6 +436,8 @@ resource "google_database_migration_service_migration_job" "psql_to_psql" {
   source          = google_database_migration_service_connection_profile.source.name
   destination     = google_database_migration_service_connection_profile.dest.name
   type            = "CONTINUOUS"
+  desired_state    = "NOT_STARTED"
+  stop_on_warnings = false
 
   postgres_homogeneous_config {
     is_native_logical = true
