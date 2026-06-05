@@ -26,7 +26,6 @@ OAuth brand data. Only "Organization Internal" brands can be created
 programmatically via API. To convert it into an external brands
 please use the GCP Console.
 
-
 ~> **Note:** Brands can only be created once for a Google Cloud
 project and the underlying Google API doesn't not support DELETE or PATCH methods.
 Destroying a Terraform-managed Brand will remove it from state
