@@ -8111,7 +8111,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%{instance_name}"
-  machine_type = "c4-standard-96"
+  machine_type = "c4-standard-2"
   zone         = "us-central1-a"
 
   boot_disk {
