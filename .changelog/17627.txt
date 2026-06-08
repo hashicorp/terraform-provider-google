@@ -1,0 +1,3 @@
+```release-note:note
+compute: migrated desired_status block and startInstanceOperation in `resource_compute_instance.go.tmpl` to use direct HTTP rather than a client library
+```

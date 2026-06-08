@@ -3327,33 +3327,63 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		previousStatus, desiredStatus := d.GetChange("desired_status")
 
 		if desiredStatus != "" {
-			var op *compute.Operation
+			var res map[string]interface{}
 
 			if desiredStatus == "RUNNING" {
 				if previousStatus == "SUSPENDED" {
-					op, err = NewClient(config, userAgent).Instances.Resume(project, zone, instance.Name).Do()
+					resumeUrl, urlErr := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/resume")
+					if urlErr != nil {
+						return urlErr
+					}
+					res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+						Config:    config,
+						Method:    "POST",
+						Project:   project,
+						RawURL:    resumeUrl,
+						UserAgent: userAgent,
+					})
 					if err != nil {
 						return err
 					}
 				} else {
-					op, err = startInstanceOperation(d, config)
+					res, err = startInstanceOperation(d, config)
 					if err != nil {
 						return errwrap.Wrapf("Error starting instance: {{err}}", err)
 					}
 				}
 			} else if desiredStatus == "TERMINATED" {
-				op, err = NewClient(config, userAgent).Instances.Stop(project, zone, instance.Name).Do()
+				stopUrl, urlErr := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/stop")
+				if urlErr != nil {
+					return urlErr
+				}
+				res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "POST",
+					Project:   project,
+					RawURL:    stopUrl,
+					UserAgent: userAgent,
+				})
 				if err != nil {
 					return err
 				}
 			} else if desiredStatus == "SUSPENDED" {
-				op, err = NewClient(config, userAgent).Instances.Suspend(project, zone, instance.Name).Do()
+				suspendUrl, urlErr := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/suspend")
+				if urlErr != nil {
+					return urlErr
+				}
+				res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "POST",
+					Project:   project,
+					RawURL:    suspendUrl,
+					UserAgent: userAgent,
+				})
 				if err != nil {
 					return err
 				}
 			}
 			opErr := ComputeOperationWaitTime(
-				config, op, project, "updating status", userAgent,
+				config, res, project, "updating status", userAgent,
 				d.Timeout(schema.TimeoutUpdate))
 			if opErr != nil {
 				return opErr
@@ -3652,12 +3682,12 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		if (statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED") ||
 			(statusBeforeUpdate == "TERMINATED" && desiredStatus == "RUNNING") {
-			op, err := startInstanceOperation(d, config)
+			startRes, err := startInstanceOperation(d, config)
 			if err != nil {
 				return errwrap.Wrapf("Error starting instance: {{err}}", err)
 			}
 
-			opErr := ComputeOperationWaitTime(config, op, project,
+			opErr := ComputeOperationWaitTime(config, startRes, project,
 				"starting instance", userAgent, d.Timeout(schema.TimeoutUpdate))
 			if opErr != nil {
 				return opErr
@@ -3671,13 +3701,8 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	return resourceComputeInstanceRead(d, meta)
 }
 
-func startInstanceOperation(d *schema.ResourceData, config *transport_tpg.Config) (*compute.Operation, error) {
+func startInstanceOperation(d *schema.ResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	zone, err := tpgresource.GetZone(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -3687,38 +3712,56 @@ func startInstanceOperation(d *schema.ResourceData, config *transport_tpg.Config
 		return nil, err
 	}
 
-	// Use beta api directly in order to read network_interface.fingerprint without having to put it in the schema.
-	// Change back to getInstance(config, d) once updating alias ips is GA.
-	instance, err := NewClient(config, userAgent).Instances.Get(project, zone, d.Get("name").(string)).Do()
-	if err != nil {
-		return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Instance %s", instance.Name))
-	}
-
 	// Retrieve instance from config to pull encryption keys if necessary
 	instanceFromConfig, err := expandComputeInstance(project, d, config)
 	if err != nil {
 		return nil, err
 	}
 
-	var encrypted []*compute.CustomerEncryptionKeyProtectedDisk
+	var encryptedDisks []map[string]interface{}
 	for _, disk := range instanceFromConfig.Disks {
 		if disk.DiskEncryptionKey != nil {
-			key := compute.CustomerEncryptionKey{RawKey: disk.DiskEncryptionKey.RawKey, KmsKeyName: disk.DiskEncryptionKey.KmsKeyName}
-			eDisk := compute.CustomerEncryptionKeyProtectedDisk{Source: disk.Source, DiskEncryptionKey: &key}
-			encrypted = append(encrypted, &eDisk)
+			diskKey := map[string]interface{}{}
+			if disk.DiskEncryptionKey.RawKey != "" {
+				diskKey["rawKey"] = disk.DiskEncryptionKey.RawKey
+			}
+			if disk.DiskEncryptionKey.RsaEncryptedKey != "" {
+				diskKey["rsaEncryptedKey"] = disk.DiskEncryptionKey.RsaEncryptedKey
+			}
+			if disk.DiskEncryptionKey.KmsKeyName != "" {
+				diskKey["kmsKeyName"] = disk.DiskEncryptionKey.KmsKeyName
+			}
+			if disk.DiskEncryptionKey.KmsKeyServiceAccount != "" {
+				diskKey["kmsKeyServiceAccount"] = disk.DiskEncryptionKey.KmsKeyServiceAccount
+			}
+			encryptedDisks = append(encryptedDisks, map[string]interface{}{
+				"source":            disk.Source,
+				"diskEncryptionKey": diskKey,
+			})
 		}
 	}
 
-	var op *compute.Operation
+	var actionUrl string
+	var body map[string]interface{}
 
-	if len(encrypted) > 0 {
-		request := compute.InstancesStartWithEncryptionKeyRequest{Disks: encrypted}
-		op, err = NewClient(config, userAgent).Instances.StartWithEncryptionKey(project, zone, instance.Name, &request).Do()
+	if len(encryptedDisks) > 0 {
+		actionUrl, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/startWithEncryptionKey")
+		body = map[string]interface{}{"disks": encryptedDisks}
 	} else {
-		op, err = NewClient(config, userAgent).Instances.Start(project, zone, instance.Name).Do()
+		actionUrl, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/start")
+	}
+	if err != nil {
+		return nil, err
 	}
 
-	return op, err
+	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    actionUrl,
+		UserAgent: userAgent,
+		Body:      body,
+	})
 }
 
 func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*compute.AttachedDisk, error) {
