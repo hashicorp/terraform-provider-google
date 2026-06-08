@@ -175,6 +175,16 @@ All system annotations in v1 now have a corresponding field in v2 WorkerPoolRevi
 This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
+						"client": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Arbitrary identifier for the API client.`,
+						},
+						"client_version": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Arbitrary version identifier for the API client.`,
+						},
 						"containers": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -1913,6 +1923,10 @@ func flattenCloudRunV2WorkerPoolTemplate(v interface{}, d *schema.ResourceData, 
 		flattenCloudRunV2WorkerPoolTemplateLabels(original["labels"], d, config)
 	transformed["annotations"] =
 		flattenCloudRunV2WorkerPoolTemplateAnnotations(original["annotations"], d, config)
+	transformed["client"] =
+		flattenCloudRunV2WorkerPoolTemplateClient(original["client"], d, config)
+	transformed["client_version"] =
+		flattenCloudRunV2WorkerPoolTemplateClientVersion(original["clientVersion"], d, config)
 	transformed["vpc_access"] =
 		flattenCloudRunV2WorkerPoolTemplateVpcAccess(original["vpcAccess"], d, config)
 	transformed["service_account"] =
@@ -1942,6 +1956,14 @@ func flattenCloudRunV2WorkerPoolTemplateLabels(v interface{}, d *schema.Resource
 }
 
 func flattenCloudRunV2WorkerPoolTemplateAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2WorkerPoolTemplateClient(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2WorkerPoolTemplateClientVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3294,6 +3316,20 @@ func expandCloudRunV2WorkerPoolTemplate(v interface{}, d tpgresource.TerraformRe
 		transformed["annotations"] = transformedAnnotations
 	}
 
+	transformedClient, err := expandCloudRunV2WorkerPoolTemplateClient(original["client"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClient); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["client"] = transformedClient
+	}
+
+	transformedClientVersion, err := expandCloudRunV2WorkerPoolTemplateClientVersion(original["client_version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clientVersion"] = transformedClientVersion
+	}
+
 	transformedVpcAccess, err := expandCloudRunV2WorkerPoolTemplateVpcAccess(original["vpc_access"], d, config)
 	if err != nil {
 		return nil, err
@@ -3384,6 +3420,14 @@ func expandCloudRunV2WorkerPoolTemplateAnnotations(v interface{}, d tpgresource.
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandCloudRunV2WorkerPoolTemplateClient(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2WorkerPoolTemplateClientVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCloudRunV2WorkerPoolTemplateVpcAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

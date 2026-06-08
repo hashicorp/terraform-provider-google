@@ -679,6 +679,14 @@ When the field is set to false, deleting the WorkerPool is allowed.
   All system annotations in v1 now have a corresponding field in v2 WorkerPoolRevisionTemplate.
   This field follows Kubernetes annotations' namespacing, limits, and rules.
 
+* `client` -
+  (Optional)
+  Arbitrary identifier for the API client.
+
+* `client_version` -
+  (Optional)
+  Arbitrary version identifier for the API client.
+
 * `vpc_access` -
   (Optional)
   VPC Access configuration to use for this Revision. For more information, visit https://cloud.google.com/run/docs/configuring/connecting-vpc.
