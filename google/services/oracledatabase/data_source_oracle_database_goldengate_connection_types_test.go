@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/oracledatabase"
 )
 
 var oracleProject = flag.String("oracle_project", "oci-terraform-testing-prod", "The project to use for Oracle Database tests")

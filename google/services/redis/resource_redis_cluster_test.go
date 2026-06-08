@@ -31,6 +31,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkconnectivityv1"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/privateca"
 	"github.com/hashicorp/terraform-provider-google/google/services/redis"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )

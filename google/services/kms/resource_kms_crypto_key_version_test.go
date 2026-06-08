@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/kms"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )

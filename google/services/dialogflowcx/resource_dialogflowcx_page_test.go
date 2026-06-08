@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dialogflowcx"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/discoveryengine"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 func TestAccDialogflowCXPage_update(t *testing.T) {

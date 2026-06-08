@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/backupdr"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/filestore"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 func TestAccFilestoreInstance_restore(t *testing.T) {
