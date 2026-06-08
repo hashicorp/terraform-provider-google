@@ -7,6 +7,7 @@ api_service_name: migrationcenter.googleapis.com
 api_version: v1
 api_resource_type_kind: AssetsExportJob
 autogen_status: true
+autogen_version: 2
 fields:
     - field: assets_export_job_id
       provider_only: true

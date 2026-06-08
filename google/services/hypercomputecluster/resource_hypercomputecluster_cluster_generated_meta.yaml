@@ -7,6 +7,7 @@ api_service_name: hypercomputecluster.googleapis.com
 api_version: v1
 api_resource_type_kind: Cluster
 autogen_status: true
+autogen_version: 1
 fields:
     - field: cluster_id
       provider_only: true

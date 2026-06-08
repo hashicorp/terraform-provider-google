@@ -7,6 +7,7 @@ api_service_name: chronicle.googleapis.com
 api_version: v1
 api_resource_type_kind: DataAccessScope
 autogen_status: true
+autogen_version: 1
 fields:
     - api_field: allowAll
     - api_field: allowedDataAccessLabels.assetNamespace

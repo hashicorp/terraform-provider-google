@@ -7,6 +7,7 @@ api_service_name: lustre.googleapis.com
 api_version: v1
 api_resource_type_kind: Instance
 autogen_status: true
+autogen_version: 1
 fields:
     - api_field: accessRulesOptions.accessRules.ipAddressRanges
     - api_field: accessRulesOptions.accessRules.name

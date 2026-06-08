@@ -7,6 +7,7 @@ api_service_name: cloudsecuritycompliance.googleapis.com
 api_version: v1
 api_resource_type_kind: CloudControl
 autogen_status: true
+autogen_version: 1
 fields:
     - api_field: categories
     - field: cloud_control_id

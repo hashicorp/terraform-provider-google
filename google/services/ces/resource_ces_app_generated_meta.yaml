@@ -7,6 +7,7 @@ api_service_name: ces.googleapis.com
 api_version: v1
 api_resource_type_kind: App
 autogen_status: true
+autogen_version: 1
 fields:
     - field: app_id
       provider_only: true

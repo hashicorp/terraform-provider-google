@@ -7,6 +7,7 @@ api_service_name: firebaseapphosting.googleapis.com
 api_version: v1
 api_resource_type_kind: Domain
 autogen_status: true
+autogen_version: 1
 fields:
     - field: backend
       provider_only: true
