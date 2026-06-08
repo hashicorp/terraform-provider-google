@@ -1,0 +1,3 @@
+```release-note:bug
+google_compute_security_policy: fixed rules being unnecessarily recreated due to TypeSet hash instability
+```

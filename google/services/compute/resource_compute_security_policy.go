@@ -17,6 +17,7 @@
 package compute
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
@@ -119,6 +120,7 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true, // If no rules are set, a default rule is added
+				Set:      resourceComputeSecurityPolicyRuleHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"action": {
@@ -735,6 +737,21 @@ func resourceComputeSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams
 		},
 		Description: description,
 	}
+}
+
+// resourceComputeSecurityPolicyRuleHash hashes security policy rules by priority and action.
+// Using only priority causes hash collisions when two rules share the same priority (which
+// the API rejects, but which users may write transiently), causing schema.Set to silently
+// drop one rule and bypass the duplicate-priority validation in rulesCustomizeDiff.
+// Including action ensures distinct rules always produce distinct hashes while still
+// excluding volatile optional fields (description, preview, match sub-fields) that the
+// API may return as empty strings instead of nil, preventing unnecessary rule recreation.
+func resourceComputeSecurityPolicyRuleHash(v interface{}) int {
+	raw := v.(map[string]interface{})
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("%d-", raw["priority"].(int)))
+	buf.WriteString(fmt.Sprintf("%s-", raw["action"].(string)))
+	return tpgresource.Hashcode(buf.String())
 }
 
 func rulesCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {
