@@ -25,6 +25,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gemini"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 func TestAccGeminiReleaseChannelSettingBinding_update(t *testing.T) {

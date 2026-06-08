@@ -22,10 +22,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-
-	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 )
 
 // Regression test for the import failure that surfaced as
@@ -310,8 +310,8 @@ resource "google_vertex_ai_index_endpoint_deployed_index" "automatic_resources_u
   deployed_index_id = "tf_test_deployed_index_id%{random_suffix}"
   display_name = "tf-test-vertex-deployed-index%{random_suffix}"
   automatic_resources {
-	min_replica_count = 3
-	max_replica_count = 4
+  min_replica_count = 3
+  max_replica_count = 4
   }
 }
 
@@ -381,8 +381,8 @@ resource "google_vertex_ai_index_endpoint_deployed_index" "automatic_resources_u
   deployed_index_id = "tf_test_deployed_index_id%{random_suffix}"
   display_name = "tf-test-vertex-deployed-index%{random_suffix}"
   automatic_resources {
-	min_replica_count = 5
-	max_replica_count = 6
+  min_replica_count = 5
+  max_replica_count = 6
   }
 }
 

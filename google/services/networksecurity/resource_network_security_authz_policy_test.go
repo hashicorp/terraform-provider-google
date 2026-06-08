@@ -26,6 +26,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkservices"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 func TestAccNetworkSecurityAuthzPolicy_networkServicesAuthzPolicyHttpRules(t *testing.T) {

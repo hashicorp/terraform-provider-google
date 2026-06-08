@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/discoveryengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 func TestAccDiscoveryEngineCmekConfig_discoveryengineCmekconfigDefaultExample_update(t *testing.T) {

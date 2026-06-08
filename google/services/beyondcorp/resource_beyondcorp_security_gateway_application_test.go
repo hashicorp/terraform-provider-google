@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/beyondcorp"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 )
 
 func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationBasicExample_update(t *testing.T) {

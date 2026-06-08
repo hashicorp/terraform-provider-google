@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/alloydb"
 )
 
 func TestAccDataSourceAlloydbSupportedDatabaseFlags_basic(t *testing.T) {

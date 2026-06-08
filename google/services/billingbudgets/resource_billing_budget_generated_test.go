@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/billingbudgets"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/monitoring"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/pubsub"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 

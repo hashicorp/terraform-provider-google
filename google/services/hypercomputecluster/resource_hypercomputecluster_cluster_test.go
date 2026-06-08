@@ -27,6 +27,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/filestore"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/hypercomputecluster"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/lustre"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 )
