@@ -46,6 +46,7 @@ type Metadata struct {
 	CaiAssetNameFormats []string        `yaml:"cai_asset_name_formats"`
 	ApiVariantPatterns  []string        `yaml:"api_variant_patterns"`
 	AutogenStatus       bool            `yaml:"autogen_status,omitempty"`
+	AutogenVersion      int             `yaml:"autogen_version,omitempty"`
 	Fields              []MetadataField `yaml:"fields"`
 
 	// These keys store information about the metadata file itself.

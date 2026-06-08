@@ -9,6 +9,7 @@ api_resource_type_kind: HostProjectRegistration
 api_variant_patterns:
     - projects/{project}/locations/{location}/hostProjectRegistrations/{hostproject}
 autogen_status: true
+autogen_version: 1
 fields:
     - api_field: createTime
     - api_field: gcpProject

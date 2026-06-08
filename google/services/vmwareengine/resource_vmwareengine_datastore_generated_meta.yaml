@@ -7,6 +7,7 @@ api_service_name: vmwareengine.googleapis.com
 api_version: v1
 api_resource_type_kind: Datastore
 autogen_status: true
+autogen_version: 1
 fields:
     - api_field: clusters
     - api_field: createTime

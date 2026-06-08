@@ -7,6 +7,7 @@ api_service_name: cloudsecuritycompliance.googleapis.com
 api_version: v1
 api_resource_type_kind: FrameworkDeployment
 autogen_status: true
+autogen_version: 1
 fields:
     - api_field: cloudControlDeploymentReferences.cloudControlDeployment
     - api_field: cloudControlMetadata.cloudControlDetails.majorRevisionId

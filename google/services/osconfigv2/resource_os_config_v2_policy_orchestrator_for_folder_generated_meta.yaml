@@ -9,6 +9,7 @@ api_resource_type_kind: PolicyOrchestrator
 api_variant_patterns:
     - folders/{folder}/locations/{location}/policyOrchestrators/{policyOrchestrator}
 autogen_status: true
+autogen_version: 1
 fields:
     - api_field: action
     - api_field: createTime

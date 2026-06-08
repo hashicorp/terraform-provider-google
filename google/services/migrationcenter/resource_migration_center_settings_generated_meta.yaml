@@ -7,6 +7,7 @@ api_service_name: migrationcenter.googleapis.com
 api_version: v1
 api_resource_type_kind: Settings
 autogen_status: true
+autogen_version: 2
 fields:
     - api_field: disableCloudLogging
     - field: location

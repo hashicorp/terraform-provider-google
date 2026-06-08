@@ -9,6 +9,7 @@ api_resource_type_kind: SettingBinding
 api_variant_patterns:
     - projects/{project}/locations/{location}/geminiGcpEnablementSettings/{geminiGcpEnablementSetting}/settingBindings/{settingBinding}
 autogen_status: true
+autogen_version: 1
 fields:
     - api_field: createTime
     - field: effective_labels
