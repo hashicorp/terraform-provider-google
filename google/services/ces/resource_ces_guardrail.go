@@ -1665,9 +1665,6 @@ func flattenCESGuardrailLlmPromptSecurityDefaultSettings(v interface{}, d *schem
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["default_prompt_template"] =
 		flattenCESGuardrailLlmPromptSecurityDefaultSettingsDefaultPromptTemplate(original["defaultPromptTemplate"], d, config)
@@ -2338,7 +2335,7 @@ func expandCESGuardrailLlmPromptSecurity(v interface{}, d tpgresource.TerraformR
 	transformedDefaultSettings, err := expandCESGuardrailLlmPromptSecurityDefaultSettings(original["default_settings"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDefaultSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["defaultSettings"] = transformedDefaultSettings
 	}
 
@@ -2468,8 +2465,13 @@ func expandCESGuardrailLlmPromptSecurityDefaultSettings(v interface{}, d tpgreso
 		return nil, nil
 	}
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})
