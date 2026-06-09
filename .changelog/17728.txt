@@ -1,0 +1,6 @@
+```release-note:new-datasource
+`google_storage_control_project_intelligence_findings`
+```
+```release-note:new-datasource
+`google_storage_control_project_intelligence_finding`
+```
