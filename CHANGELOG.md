@@ -1,14 +1,10 @@
 ## 7.36.0 (Unreleased)
 
 FEATURES:
-* **New Data Source:** `google_oracle_database_goldengate_deployment_types` ([#27634](https://github.com/hashicorp/terraform-provider-google/pull/27634))
 * **New Data Source:** `google_apigee_instance` ([#27683](https://github.com/hashicorp/terraform-provider-google/pull/27683))
+* **New Data Source:** `google_oracle_database_goldengate_deployment_types` ([#27634](https://github.com/hashicorp/terraform-provider-google/pull/27634))
 * **New Resource:** `google_apigee_datastore` ([#27607](https://github.com/hashicorp/terraform-provider-google/pull/27607))
-* **New Resource:** `google_chronicle_customlist` ([#27659](https://github.com/hashicorp/terraform-provider-google/pull/27659))
-* **New Resource:** `google_chronicle_environment` ([#27674](https://github.com/hashicorp/terraform-provider-google/pull/27674))
-* **New Resource:** `google_chronicle_findings_refinement` ([#27591](https://github.com/hashicorp/terraform-provider-google/pull/27591))
 * **New Resource:** `google_discovery_engine_search_engine_iam_binding` ([#27703](https://github.com/hashicorp/terraform-provider-google/pull/27703))
-* **New Resource:** `google_iam_organization_access_policy` ([#27691](https://github.com/hashicorp/terraform-provider-google/pull/27691))
 * **New Resource:** `google_license_manager_configuration` ([#27707](https://github.com/hashicorp/terraform-provider-google/pull/27707))
 * **New Resource:** `google_migration_center_import_job` ([#27599](https://github.com/hashicorp/terraform-provider-google/pull/27599))
 * **New List Resource:** `google_compute_disk` ([#27608](https://github.com/hashicorp/terraform-provider-google/pull/27608))
@@ -27,10 +23,10 @@ IMPROVEMENTS:
 * container: added `node_creation_config` field to `google_container_cluster` resource ([#27702](https://github.com/hashicorp/terraform-provider-google/pull/27702))
 * container: added `node_drain_config.pdb_timeout_duration`  and `node_drain_config.grace_termination_duration` fields to `google_container_node_pool` and `google_container_cluster` resources ([#27694](https://github.com/hashicorp/terraform-provider-google/pull/27694))
 * data_catalog: added `RICHTEXT` to allowed values of `primitive_type` on `google_data_catalog_tag_template` fields. ([#27672](https://github.com/hashicorp/terraform-provider-google/pull/27672))
-* dataplex: added IAM support for `google_dataplex_data_product` resource (iam_policy, iam_binding, iam_member) ([#27652](https://github.com/hashicorp/terraform-provider-google/pull/27652))
+* dataplex: added IAM support for `google_dataplex_data_product` resource (`iam_policy`, `iam_binding`, `iam_member`) ([#27652](https://github.com/hashicorp/terraform-provider-google/pull/27652))
 * dataplex: added `access_approval_config` field to `google_dataplex_data_product` resource ([#27652](https://github.com/hashicorp/terraform-provider-google/pull/27652))
 * hypercomputecluster: marked `network_resources` field as required in `google_hypercomputecluster_cluster` resource to align with API validation ([#27655](https://github.com/hashicorp/terraform-provider-google/pull/27655))
-* networksecurity: `google_network_security_ull_mirroring_engine`, `google_network_security_ull_mirroring_collector`, and `google_network_security_ull_mirroring_collector_rule ` resources promoted to GA ([#27710](https://github.com/hashicorp/terraform-provider-google/pull/27710))
+* networksecurity: `google_network_security_ull_mirroring_engine`, `google_network_security_ull_mirroring_collector`, and `google_network_security_ull_mirroring_collector_rule` resources promoted to GA ([#27710](https://github.com/hashicorp/terraform-provider-google/pull/27710))
 * securesourcemanager: added `psc_allowed_projects` field to `google_secure_source_manager_instance` resource ([#27695](https://github.com/hashicorp/terraform-provider-google/pull/27695))
 * workbench: added `NVIDIA_RTX6000` to the supported `gce_setup.accelerator_configs.type` values on `google_workbench_instance` resource([#27709](https://github.com/hashicorp/terraform-provider-google/pull/27709))
 
@@ -40,8 +36,7 @@ BUG FIXES:
 * compute: fixed an issue where updating `connection_limit` in the `consumer_accept_lists` block of `google_compute_service_attachment` would not trigger a resource update. ([#27688](https://github.com/hashicorp/terraform-provider-google/pull/27688))
 * compute: fixed regional backend reference in  `google_compute_regional_url_map` resource ([#27705](https://github.com/hashicorp/terraform-provider-google/pull/27705))
 * dlp: fixed error when reading `google_data_loss_prevention_discovery_config` caused by nested error details ([#27669](https://github.com/hashicorp/terraform-provider-google/pull/27669))
-* firebaseailogic: fixed perma-diff in `google_firebase_ai_logic_config` template_only field on `google_firebase_ai_logic_config` resource ([#27656](https://github.com/hashicorp/terraform-provider-google/pull/27656))
-* google_sql_database_instance: fixed permadiff on `connection_pool_config` when `connection_pooling_enabled` is set to `false` ([#27711](https://github.com/hashicorp/terraform-provider-google/pull/27711))
+* sql: fixed permadiff on `connection_pool_config` when `connection_pooling_enabled` is set to `false` ([#27711](https://github.com/hashicorp/terraform-provider-google/pull/27711))
 * tags: fixed `google_tags_location_tag_binding` failing with `Operation location does not match service location 'global'` during creation ([#27668](https://github.com/hashicorp/terraform-provider-google/pull/27668))
 * vertexai: fixed `terraform import` of `google_vertex_ai_index_endpoint_deployed_index` failing with "Cannot determine region" when provider-level `region`/`zone` is unset ([#27692](https://github.com/hashicorp/terraform-provider-google/pull/27692))
 
