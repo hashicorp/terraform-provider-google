@@ -577,6 +577,11 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
 
 * `pod_snapshot_config` - (Optional) The status of the Pod Snapshot addon. It is disabled by default. Set `enabled = true` to enable.
 
+* `slurm_operator_config` - (Optional) The status of the Slurm Operator addon,
+    which creates slurm related CRDs and KCP pods to manage them.
+    Defaults to disabled for Standard clusters; set `enabled = true` to enable.
+    It can not be enabled for Autopilot clusters.
+
 This example `addons_config` disables two addons:
 
 ```hcl
