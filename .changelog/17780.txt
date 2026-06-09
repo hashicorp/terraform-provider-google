@@ -1,0 +1,3 @@
+```release-note:bug
+ces: fixed persistent diff in `google_ces_guardrail` when `llm_prompt_security` is configured with `default_settings`
+```

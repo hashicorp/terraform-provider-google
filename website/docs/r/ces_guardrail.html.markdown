@@ -218,6 +218,49 @@ resource "google_ces_guardrail" "ces_guardrail_llm_prompt_security_fail_open" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_guardrail_llm_prompt_security_default_settings&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ces Guardrail Llm Prompt Security Default Settings
+
+
+```hcl
+resource "google_ces_app" "ces_app_for_guardrail" {
+  app_id = "app-id"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "my-app"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_guardrail" "ces_guardrail_llm_prompt_security_default_settings" {
+  guardrail_id = "guardrail-id"
+  location     = google_ces_app.ces_app_for_guardrail.location
+  app          = google_ces_app.ces_app_for_guardrail.app_id
+  display_name = "my-guardrail"
+  description  = "Guardrail description"
+  action {
+    generative_answer {
+        prompt = "example_prompt"
+    }
+  }
+  enabled = true
+  llm_prompt_security {
+    default_settings {}
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_guardrail_code_callback&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
