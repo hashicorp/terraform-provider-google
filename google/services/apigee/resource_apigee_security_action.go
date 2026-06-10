@@ -55,6 +55,42 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// securityActionEnableDisable changes the state of a SecurityAction using the
+// dedicated :enable / :disable endpoints. The Apigee API does not allow `state`
+// to be modified through the PATCH updateMask, so state transitions must go
+// through these action endpoints instead.
+func securityActionEnableDisable(config *transport_tpg.Config, d *schema.ResourceData, billingProject, userAgent, desiredState string) error {
+	var action string
+	switch desiredState {
+	case "ENABLED":
+		action = "enable"
+	case "DISABLED":
+		action = "disable"
+	default:
+		return fmt.Errorf("unsupported security action state %q (must be ENABLED or DISABLED)", desiredState)
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{env_id}}/securityActions/{{security_action_id}}:"+action)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Setting SecurityAction %q state via :%s", d.Id(), action)
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      map[string]interface{}{},
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+	})
+	if err != nil {
+		return fmt.Errorf("Error setting SecurityAction %q state to %s: %s", d.Id(), desiredState, err)
+	}
+	return nil
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -109,6 +145,7 @@ func ResourceApigeeSecurityAction() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -139,7 +176,6 @@ func ResourceApigeeSecurityAction() *schema.Resource {
 			"condition_config": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: `A valid SecurityAction must contain at least one condition.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -147,7 +183,6 @@ func ResourceApigeeSecurityAction() *schema.Resource {
 						"access_tokens": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `A list of accessTokens. Limit 1000 per action.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -156,7 +191,6 @@ func ResourceApigeeSecurityAction() *schema.Resource {
 						"api_keys": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `A list of API keys. Limit 1000 per action.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -165,7 +199,6 @@ func ResourceApigeeSecurityAction() *schema.Resource {
 						"api_products": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `A list of API Products. Limit 1000 per action.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -174,7 +207,6 @@ func ResourceApigeeSecurityAction() *schema.Resource {
 						"asns": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Description: `A list of ASN numbers to act on, e.g. 23. https://en.wikipedia.org/wiki/Autonomous_system_(Internet)
 This uses int64 instead of uint32 because of https://linter.aip.dev/141/forbidden-types.`,
 							Elem: &schema.Schema{
@@ -184,7 +216,6 @@ This uses int64 instead of uint32 because of https://linter.aip.dev/141/forbidde
 						"bot_reasons": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Description: `A list of Bot Reasons. Current options: Flooder, Brute Guessor, Static Content Scraper,
 OAuth Abuser, Robot Abuser, TorListRule, Advanced Anomaly Detection, Advanced API Scraper,
 Search Engine Crawlers, Public Clouds, Public Cloud AWS, Public Cloud Azure, and Public Cloud Google.`,
@@ -195,7 +226,6 @@ Search Engine Crawlers, Public Clouds, Public Cloud AWS, Public Cloud Azure, and
 						"developer_apps": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `A list of developer apps. Limit 1000 per action.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -204,7 +234,6 @@ Search Engine Crawlers, Public Clouds, Public Cloud AWS, Public Cloud Azure, and
 						"developers": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `A list of developers. Limit 1000 per action.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -213,7 +242,6 @@ Search Engine Crawlers, Public Clouds, Public Cloud AWS, Public Cloud Azure, and
 						"http_methods": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Description: `Act only on particular HTTP methods. E.g. A read-only API can block POST/PUT/DELETE methods.
 Accepted values are: GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE and PATCH.`,
 							Elem: &schema.Schema{
@@ -223,7 +251,6 @@ Accepted values are: GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE and P
 						"ip_address_ranges": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `A list of IP addresses. This could be either IPv4 or IPv6. Limited to 100 per action.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -232,7 +259,6 @@ Accepted values are: GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE and P
 						"region_codes": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `A list of countries/region codes to act on, e.g. US. This follows https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -241,7 +267,6 @@ Accepted values are: GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE and P
 						"user_agents": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `A list of user agents to deny. We look for exact matches. Limit 50 per action.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -272,14 +297,12 @@ This value should be 0-61 characters, and valid format is (^a-z?$).`,
 			"state": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"ENABLED", "DISABLED"}),
 				Description:  `Only an ENABLED SecurityAction is enforced. An ENABLED SecurityAction past its expiration time will not be enforced. Possible values: ["ENABLED", "DISABLED"]`,
 			},
 			"allow": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Allow a request through if it matches this SecurityAction.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -290,7 +313,6 @@ This value should be 0-61 characters, and valid format is (^a-z?$).`,
 			"api_proxies": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `If unset, this would apply to all proxies in the environment.
 If set, this action is enforced only if at least one proxy in the repeated
 list is deployed at the time of enforcement. If set, several restrictions are enforced on SecurityActions.
@@ -303,7 +325,6 @@ Several other restrictions apply on conditions and are detailed later.`,
 			"deny": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Deny a request through if it matches this SecurityAction.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -311,7 +332,6 @@ Several other restrictions apply on conditions and are detailed later.`,
 						"response_code": {
 							Type:        schema.TypeInt,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The HTTP response code if the Action = DENY.`,
 						},
 					},
@@ -321,7 +341,6 @@ Several other restrictions apply on conditions and are detailed later.`,
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `An optional user provided description of the SecurityAction.`,
 			},
 			"expire_time": {
@@ -337,7 +356,6 @@ Examples: "2014-10-02T15:01:23Z", "2014-10-02T15:01:23.045123456Z" or "2014-10-0
 			"flag": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Flag a request through if it matches this SecurityAction.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -345,7 +363,6 @@ Examples: "2014-10-02T15:01:23Z", "2014-10-02T15:01:23.045123456Z" or "2014-10-0
 						"headers": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Description: `A list of HTTP headers to be sent to the target in case of a FLAG SecurityAction.
 Limit 5 headers per SecurityAction.
 At least one is mandatory.`,
@@ -354,13 +371,11 @@ At least one is mandatory.`,
 									"name": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `The header name to be sent to the target.`,
 									},
 									"value": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `The header value to be sent to the target.`,
 									},
 								},
@@ -615,7 +630,120 @@ func resourceApigeeSecurityActionRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceApigeeSecurityActionUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceApigeeSecurityAction().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceApigeeSecurityActionRead(d, meta)
+	}
+
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// Build the PATCH body and updateMask from changed fields, EXCLUDING `state`.
+	// `state` is not accepted by the PATCH updateMask and must be changed through
+	// the dedicated :enable / :disable endpoints (handled below).
+	obj := make(map[string]interface{})
+	updateMask := []string{}
+
+	if d.HasChange("description") {
+		descriptionProp, err := expandApigeeSecurityActionDescription(d.Get("description"), d, config)
+		if err != nil {
+			return err
+		}
+		obj["description"] = descriptionProp
+		updateMask = append(updateMask, "description")
+	}
+	if d.HasChange("api_proxies") {
+		apiProxiesProp, err := expandApigeeSecurityActionApiProxies(d.Get("api_proxies"), d, config)
+		if err != nil {
+			return err
+		}
+		obj["apiProxies"] = apiProxiesProp
+		updateMask = append(updateMask, "apiProxies")
+	}
+	if d.HasChange("condition_config") {
+		conditionConfigProp, err := expandApigeeSecurityActionConditionConfig(d.Get("condition_config"), d, config)
+		if err != nil {
+			return err
+		}
+		obj["conditionConfig"] = conditionConfigProp
+		updateMask = append(updateMask, "conditionConfig")
+	}
+	if d.HasChange("allow") {
+		allowProp, err := expandApigeeSecurityActionAllow(d.Get("allow"), d, config)
+		if err != nil {
+			return err
+		}
+		obj["allow"] = allowProp
+		updateMask = append(updateMask, "allow")
+	}
+	if d.HasChange("deny") {
+		denyProp, err := expandApigeeSecurityActionDeny(d.Get("deny"), d, config)
+		if err != nil {
+			return err
+		}
+		obj["deny"] = denyProp
+		updateMask = append(updateMask, "deny")
+	}
+	if d.HasChange("flag") {
+		flagProp, err := expandApigeeSecurityActionFlag(d.Get("flag"), d, config)
+		if err != nil {
+			return err
+		}
+		obj["flag"] = flagProp
+		updateMask = append(updateMask, "flag")
+	}
+
+	if len(updateMask) > 0 {
+		url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{env_id}}/securityActions/{{security_action_id}}")
+		if err != nil {
+			return err
+		}
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+		log.Printf("[DEBUG] Updating SecurityAction %q: %#v", d.Id(), obj)
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating SecurityAction %q: %s", d.Id(), err)
+		}
+		log.Printf("[DEBUG] Finished updating SecurityAction %q", d.Id())
+	}
+
+	// Handle state transitions through the dedicated :enable / :disable endpoints.
+	if d.HasChange("state") {
+		if err := securityActionEnableDisable(config, d, billingProject, userAgent, d.Get("state").(string)); err != nil {
+			return err
+		}
+	}
+
 	return resourceApigeeSecurityActionRead(d, meta)
 }
 

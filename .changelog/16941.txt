@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: fixed `google_apigee_security_action` update failure by enabling PATCH-based updates now that the Apigee Security Actions API supports mutations
+```
