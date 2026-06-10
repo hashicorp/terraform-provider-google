@@ -1284,6 +1284,9 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	// is it scheduled to be plumbed to individual providers.
 	wp := workerpool.New(runtime.NumCPU() - 1)
 
+	// Create a bounded semaphore channel allowing up to 2000 uncompleted deletion tasks in the queue
+	sem := make(chan struct{}, 2000)
+
 	// delete anywhere caches
 	cacheList, _ := getAnywhereCacheListResult(d, config) // intentionally ignore errors on list- this requires extra permissions (storage.anywhereCaches.list) and we fall through if not permissioned
 	if len(cacheList) != 0 {
@@ -1353,7 +1356,12 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 
 		for _, object := range listResponse.Items {
 			object := object // ensure that local variable is maintained over loop iterations.
+
+			// Enforce backpressure: blocks when 2000 uncompleted tasks are queued/in-flight
+			sem <- struct{}{}
+
 			wp.Submit(func() {
+				defer func() { <-sem }()
 				err := NewClient(config, userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do()
 				if err != nil {
 					errMu.Lock()
@@ -1367,7 +1375,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	// Wait for all force-destroyed children (objects, anywhere caches) to finish getting destroyed
+	// Wait for all force-destroyed children (objects, anywhereCaches) to finish getting destroyed
 	wp.StopWait()
 
 	// destroy bucket
