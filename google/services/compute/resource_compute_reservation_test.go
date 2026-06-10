@@ -24,7 +24,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccComputeReservation_update(t *testing.T) {
@@ -190,4 +192,55 @@ resource "google_compute_reservation" "reservation" {
   }
 }
 `, reservationName, time, duration)
+}
+
+// Validates that params.resource_manager_tags is accepted at creation (input-only, ForceNew).
+func TestAccComputeReservation_resourceManagerTags(t *testing.T) {
+	t.Parallel()
+
+	org := envvar.GetTestOrgFromEnv(t)
+	suffixName := acctest.RandString(t, 10)
+	tagKeyResult := tags.BootstrapSharedTestTagKeyDetails(t, "crm-reservations-tagkey", "organizations/"+org, make(map[string]interface{}))
+	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
+	tagValueResult := tags.BootstrapSharedTestTagValueDetails(t, "crm-reservations-tagvalue", sharedTagkey, org)
+
+	context := map[string]interface{}{
+		"reservation_name": fmt.Sprintf("tf-test-reservation-rmt-%s", suffixName),
+		"tag_key_id":       tagKeyResult["name"],
+		"tag_value_id":     tagValueResult["name"],
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeReservationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeReservation_resourceManagerTags(context),
+			},
+		},
+	})
+}
+
+func testAccComputeReservation_resourceManagerTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_reservation" "reservation" {
+  name = "%{reservation_name}"
+  zone = "us-central1-a"
+
+  specific_reservation {
+    count = 1
+    instance_properties {
+      min_cpu_platform = "Intel Cascade Lake"
+      machine_type     = "n2-standard-2"
+    }
+  }
+
+  params {
+    resource_manager_tags = {
+      "%{tag_key_id}" = "%{tag_value_id}"
+    }
+  }
+}
+`, context)
 }
