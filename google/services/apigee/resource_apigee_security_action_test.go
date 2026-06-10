@@ -73,6 +73,122 @@ func testAccCheckApigeeSecurityActionDestroyProducer(t *testing.T) func(s *terra
 	}
 }
 
+// TestAccApigeeSecurityAction_update verifies that mutable fields can be updated
+// in place (via PATCH) without destroying and recreating the resource, now that
+// the Apigee Security Actions API supports mutations.
+func TestAccApigeeSecurityAction_update(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	resourceName := "google_apigee_security_action.default"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckApigeeSecurityActionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccApigeeSecurityAction_updateBefore(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "description", "Apigee Security Action"),
+					resource.TestCheckResourceAttr(resourceName, "state", "ENABLED"),
+					resource.TestCheckResourceAttr(resourceName, "api_proxies.#", "1"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Modify mutable fields: description and the deny response code
+				// are updated via PATCH; state (ENABLED -> DISABLED) is updated
+				// via the dedicated :disable endpoint. The resource must be
+				// updated in place (not recreated).
+				Config: testAccApigeeSecurityAction_updateAfter(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "description", "Apigee Security Action updated"),
+					resource.TestCheckResourceAttr(resourceName, "state", "DISABLED"),
+					resource.TestCheckResourceAttr(resourceName, "deny.0.response_code", "429"),
+					resource.TestCheckResourceAttr(resourceName, "api_proxies.#", "1"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccApigeeSecurityAction_updateBefore(context map[string]interface{}) string {
+	return testAccApigeeSecurityAction_apigeeBase(context) + acctest.Nprintf(`
+resource "google_apigee_security_action" "default" {
+    security_action_id = "tf-test-%{random_suffix}"
+    org_id             = google_apigee_organization.apigee_org.name
+    env_id             = google_apigee_environment.env.name
+    description        = "Apigee Security Action"
+    state              = "ENABLED"
+    api_proxies        = [google_apigee_api.proxy.name]
+
+    condition_config {
+        ip_address_ranges = [
+            "100.0.220.1",
+            "200.0.0.1",
+        ]
+    }
+
+    deny {
+        response_code = 403
+    }
+
+    expire_time = "2032-12-31T23:59:59Z"
+    depends_on  = [
+        google_apigee_addons_config.apigee_org_security_addons_config
+    ]
+}
+`, context)
+}
+
+func testAccApigeeSecurityAction_updateAfter(context map[string]interface{}) string {
+	return testAccApigeeSecurityAction_apigeeBase(context) + acctest.Nprintf(`
+resource "google_apigee_security_action" "default" {
+    security_action_id = "tf-test-%{random_suffix}"
+    org_id             = google_apigee_organization.apigee_org.name
+    env_id             = google_apigee_environment.env.name
+    description        = "Apigee Security Action updated"
+    state              = "DISABLED"
+    api_proxies        = [google_apigee_api.proxy.name]
+
+    condition_config {
+        ip_address_ranges = [
+            "100.0.220.1",
+            "200.0.0.1",
+        ]
+    }
+
+    deny {
+        response_code = 429
+    }
+
+    expire_time = "2032-12-31T23:59:59Z"
+    depends_on  = [
+        google_apigee_addons_config.apigee_org_security_addons_config
+    ]
+}
+`, context)
+}
+
 func TestAccApigeeSecurityAction_apigeeSecurityActionFull(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
@@ -276,6 +392,12 @@ resource "google_apigee_addons_config" "apigee_org_security_addons_config" {
             enabled = true
         }
     }
+}
+
+resource "google_apigee_api" "proxy" {
+    name          = "tf-test-proxy-%{random_suffix}"
+    org_id        = google_apigee_organization.apigee_org.name
+    config_bundle = "./test-fixtures/apigee_api_bundle.zip"
 }
 `, context)
 }
