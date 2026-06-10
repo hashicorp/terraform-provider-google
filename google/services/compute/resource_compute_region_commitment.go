@@ -186,7 +186,6 @@ Note that only MACHINE commitments should have a Type specified. Possible values
 			},
 			"existing_reservations": {
 				Type:        schema.TypeString,
-				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Specifies the already existing reservations to attach to the Commitment.`,
@@ -718,10 +717,6 @@ func flattenComputeRegionCommitmentAutoRenew(v interface{}, d *schema.ResourceDa
 	return v
 }
 
-func flattenComputeRegionCommitmentExistingReservations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenComputeRegionCommitmentRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -940,9 +935,6 @@ func ResourceComputeRegionCommitmentFlatten(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading RegionCommitment: %s", err)
 	}
 	if err = d.Set("auto_renew", flattenComputeRegionCommitmentAutoRenew(res["autoRenew"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionCommitment: %s", err)
-	}
-	if err = d.Set("existing_reservations", flattenComputeRegionCommitmentExistingReservations(res["existingReservations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionCommitment: %s", err)
 	}
 	if err = d.Set("region", flattenComputeRegionCommitmentRegion(res["region"], d, config)); err != nil {

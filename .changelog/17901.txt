@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fix diff when using `existing_reservations` field in `google_region_commitment`
+```
