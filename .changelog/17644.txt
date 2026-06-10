@@ -1,0 +1,7 @@
+```release-note:enhancement
+cloudsecuritycompliance: added support for project parent to `google_cloud_security_compliance_cloud_control`, `google_cloud_security_compliance_framework`, and `google_cloud_security_compliance_framework_deployment` via the new `parent` field. The `organization` field has been deprecated.
+```
+
+```release-note:deprecation
+cloudsecuritycompliance: deprecated the `organization` field  on `google_cloud_security_compliance_cloud_control`, `google_cloud_security_compliance_framework`, and `google_cloud_security_compliance_framework_deployment`. Use `parent` instead
+```

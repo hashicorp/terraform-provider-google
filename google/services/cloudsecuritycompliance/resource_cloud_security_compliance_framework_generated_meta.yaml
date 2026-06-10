@@ -32,6 +32,8 @@ fields:
     - api_field: name
     - field: organization
       provider_only: true
+    - field: parent
+      provider_only: true
     - api_field: supportedCloudProviders
     - api_field: supportedEnforcementModes
     - api_field: supportedTargetResourceTypes

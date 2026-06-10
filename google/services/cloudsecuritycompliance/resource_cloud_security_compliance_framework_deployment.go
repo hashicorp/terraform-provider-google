@@ -37,6 +37,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
@@ -46,7 +47,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -113,22 +113,33 @@ func ResourceCloudSecurityComplianceFrameworkDeployment() *schema.Resource {
 		},
 
 		Identity: &schema.ResourceIdentity{
-			Version: 1,
+			Version: 2,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
 					"organization": {
 						Type:              schema.TypeString,
-						RequiredForImport: true,
+						OptionalForImport: true,
 					},
 					"location": {
 						Type:              schema.TypeString,
-						RequiredForImport: true,
+						OptionalForImport: true,
 					},
 					"framework_deployment_id": {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 					},
+					"parent": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
 				}
+			},
+			IdentityUpgraders: []schema.IdentityUpgrader{
+				{
+					Type:    identityCloudSecurityComplianceFrameworkDeploymentResourceV1(),
+					Upgrade: IdentityCloudSecurityComplianceFrameworkDeploymentUpgradeV1,
+					Version: 1,
+				},
 			},
 		},
 		ResourceBehavior: schema.ResourceBehavior{
@@ -164,8 +175,7 @@ CloudControlMetadata.`,
 										Required: true,
 										ForceNew: true,
 										Description: `The name of the CloudControl in the format:
-“organizations/{organization}/locations/{location}/
-cloudControls/{cloud-control}”`,
+"{parent}/locations/{location}/cloudControls/{cloud-control}"`,
 									},
 									"parameters": {
 										Type:     schema.TypeList,
@@ -329,7 +339,7 @@ AUDIT`,
 							Required: true,
 							ForceNew: true,
 							Description: `In the format:
-organizations/{org}/locations/{location}/frameworks/{framework}`,
+{parent}/locations/{location}/frameworks/{framework}`,
 						},
 						"major_revision_id": {
 							Type:        schema.TypeString,
@@ -346,18 +356,6 @@ organizations/{org}/locations/{location}/frameworks/{framework}`,
 				ForceNew: true,
 				Description: `User provided identifier. It should be unique in scope of a parent.
 This is optional and if not provided, a random UUID will be generated.`,
-			},
-			"location": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
-			},
-			"organization": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
 			},
 			"target_resource_config": {
 				Type:     schema.TypeList,
@@ -455,6 +453,32 @@ as the target_resource of a deployment.`,
 				ForceNew:    true,
 				Description: `User provided description of the Framework deployment`,
 			},
+			"location": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
+			},
+			"organization": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				Deprecated:   "Use `parent` instead.",
+				ForceNew:     true,
+				Description:  `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
+				ExactlyOneOf: []string{},
+			},
+			"parent": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The parent resource in which to create the resource.
+Must be in one of the following formats:
+* 'projects/{{project}}'
+* 'organizations/{{organization}}'`,
+				ExactlyOneOf: []string{},
+			},
 			"cloud_control_deployment_references": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -479,7 +503,7 @@ cloud_control_deployment:
 							Type:     schema.TypeString,
 							Computed: true,
 							Description: `The name of the CloudControlDeployment. The format is:
-organizations/{org}/locations/{location}/cloudControlDeployments/{cloud_control_deployment_id}`,
+{parent}/locations/{location}/cloudControlDeployments/{cloud_control_deployment_id}`,
 						},
 					},
 				},
@@ -522,7 +546,7 @@ FrameworkDeployment.`,
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `Identifier. FrameworkDeployment name in the following format:
-organizations/{organization}/locations/{location}/frameworkDeployments/{framework_deployment_id}`,
+{parent}/locations/{location}/frameworkDeployments/{framework_deployment_id}`,
 			},
 			"target_resource_display_name": {
 				Type:        schema.TypeString,
@@ -585,7 +609,7 @@ func resourceCloudSecurityComplianceFrameworkDeploymentCreate(d *schema.Resource
 		obj["targetResourceConfig"] = targetResourceConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworkDeployments?frameworkDeploymentId={{framework_deployment_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworkDeployments?frameworkDeploymentId={{framework_deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -599,6 +623,15 @@ func resourceCloudSecurityComplianceFrameworkDeploymentCreate(d *schema.Resource
 	}
 
 	headers := make(http.Header)
+	if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
+		if err := d.Set("parent", "organizations/"+d.Get("organization").(string)); err != nil {
+			return err
+		}
+	}
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworkDeployments?frameworkDeploymentId={{framework_deployment_id}}")
+	if err != nil {
+		return err
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -614,7 +647,7 @@ func resourceCloudSecurityComplianceFrameworkDeploymentCreate(d *schema.Resource
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -649,6 +682,11 @@ func resourceCloudSecurityComplianceFrameworkDeploymentCreate(d *schema.Resource
 				return fmt.Errorf("Error setting framework_deployment_id: %s", err)
 			}
 		}
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
@@ -663,7 +701,7 @@ func resourceCloudSecurityComplianceFrameworkDeploymentRead(d *schema.ResourceDa
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -676,6 +714,15 @@ func resourceCloudSecurityComplianceFrameworkDeploymentRead(d *schema.ResourceDa
 	}
 
 	headers := make(http.Header)
+	if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
+		if err := d.Set("parent", "organizations/"+d.Get("organization").(string)); err != nil {
+			return err
+		}
+	}
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
+	if err != nil {
+		return err
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -729,6 +776,12 @@ func resourceCloudSecurityComplianceFrameworkDeploymentRead(d *schema.ResourceDa
 				return fmt.Errorf("Error setting framework_deployment_id: %s", err)
 			}
 		}
+		if v, ok := identity.GetOk("parent"); !ok && v == "" {
+			err = identity.Set("parent", d.Get("parent").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
@@ -757,7 +810,7 @@ func resourceCloudSecurityComplianceFrameworkDeploymentDelete(d *schema.Resource
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -770,6 +823,15 @@ func resourceCloudSecurityComplianceFrameworkDeploymentDelete(d *schema.Resource
 	}
 
 	headers := make(http.Header)
+	if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
+		if err := d.Set("parent", "organizations/"+d.Get("organization").(string)); err != nil {
+			return err
+		}
+	}
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
+	if err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] Deleting FrameworkDeployment %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -801,17 +863,21 @@ func resourceCloudSecurityComplianceFrameworkDeploymentDelete(d *schema.Resource
 func resourceCloudSecurityComplianceFrameworkDeploymentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
+		"^(?P<parent>.*)/locations/(?P<location>[^/]+)/frameworkDeployments/(?P<framework_deployment_id>[^/]+)$",
 		"^organizations/(?P<organization>[^/]+)/locations/(?P<location>[^/]+)/frameworkDeployments/(?P<framework_deployment_id>[^/]+)$",
-		"^(?P<organization>[^/]+)/(?P<location>[^/]+)/(?P<framework_deployment_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
-	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+	if d.Get("organization").(string) == "" && d.Get("parent").(string) != "" {
+		if strings.HasPrefix(d.Get("parent").(string), "organizations/") {
+			d.Set("organization", strings.TrimPrefix(d.Get("parent").(string), "organizations/"))
+		}
+	} else if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
+		d.Set("parent", "organizations/"+d.Get("organization").(string))
 	}
+
+	id := fmt.Sprintf("%s/locations/%s/frameworkDeployments/%s", d.Get("parent").(string), d.Get("location").(string), d.Get("framework_deployment_id").(string))
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
@@ -1672,6 +1738,24 @@ func expandCloudSecurityComplianceFrameworkDeploymentTargetResourceConfigTargetR
 
 func expandCloudSecurityComplianceFrameworkDeploymentTargetResourceConfigTargetResourceCreationConfigProjectCreationConfigProjectDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func identityCloudSecurityComplianceFrameworkDeploymentResourceV1() tftypes.Type {
+	return tftypes.Object{
+		AttributeTypes: map[string]tftypes.Type{
+			"organization":            tftypes.String,
+			"location":                tftypes.String,
+			"framework_deployment_id": tftypes.String,
+		},
+	}
+}
+
+func IdentityCloudSecurityComplianceFrameworkDeploymentUpgradeV1(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	if org, ok := rawState["organization"].(string); ok && org != "" {
+		rawState["parent"] = "organizations/" + org
+		delete(rawState, "organization")
+	}
+	return rawState, nil
 }
 
 func ResourceCloudSecurityComplianceFrameworkDeploymentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {

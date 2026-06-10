@@ -28,12 +28,12 @@ To get more information about Framework, see:
 
 * [API documentation](https://docs.cloud.google.com/security-command-center/docs/reference/cloudsecuritycompliance/rest/v1/organizations.locations.frameworks)
 
-## Example Usage - Cloudsecuritycompliance Framework Basic
+## Example Usage - Cloudsecuritycompliance Framework Org Basic
 
 
 ```hcl
 resource "google_cloud_security_compliance_framework" "example" {
-  organization = "123456789"
+  parent       = "organizations/123456789"
   location     = "global"
   framework_id = "example-framework"
   
@@ -42,7 +42,7 @@ resource "google_cloud_security_compliance_framework" "example" {
   
   cloud_control_details {
 		name              = "organizations/123456789/locations/global/cloudControls/builtin-assess-resource-availability"
-		major_revision_id = "1"
+		major_revision_id = "2"
     
     parameters {
       name = "location"
@@ -68,7 +68,7 @@ resource "google_cloud_security_compliance_framework" "example" {
 
   cloud_control_details {
 		name              = "organizations/123456789/locations/global/cloudControls/builtin-enable-automatic-backups-cloud-sql"
-		major_revision_id = "1"
+		major_revision_id = "3"
     
     parameters {
       name = "location"
@@ -80,7 +80,138 @@ resource "google_cloud_security_compliance_framework" "example" {
 
   cloud_control_details {
 		name              = "organizations/123456789/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        number_value = 1
+      }
+    }
+  }
+
+  
+}
+```
+## Example Usage - Cloudsecuritycompliance Framework Project Basic
+
+
+```hcl
+data "google_project" "project" {}
+resource "google_cloud_security_compliance_framework" "example" {
+  parent       = "projects/${data.google_project.project.number}"
+  location     = "global"
+  framework_id = "example-framework"
+  
+  display_name = "Terraform Framework Name"
+  description  = "An Terraform description for the framework"
+  
+  cloud_control_details {
+		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-assess-resource-availability"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_value = "us-central1"
+      }
+    }
+  }
+
+    cloud_control_details {
+		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-cmek-key-in-use-for-bigquery-table"
 		major_revision_id = "1"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_list_value {
+          values = ["us-central1", "us-west1"]
+        }
+      }
+    }
+  }
+
+  cloud_control_details {
+		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-enable-automatic-backups-cloud-sql"
+		major_revision_id = "3"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        bool_value = true
+      }
+    }
+  }
+
+  cloud_control_details {
+		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        number_value = 1
+      }
+    }
+  }
+
+  
+}
+```
+## Example Usage - Cloudsecuritycompliance Framework Org Basic Backward
+
+
+```hcl
+resource "google_cloud_security_compliance_framework" "example" {
+  organization = "123456789"
+  location     = "global"
+  framework_id = "example-framework"
+  
+  display_name = "Terraform Framework Name"
+  description  = "An Terraform description for the framework"
+  
+  cloud_control_details {
+		name              = "organizations/123456789/locations/global/cloudControls/builtin-assess-resource-availability"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_value = "us-central1"
+      }
+    }
+  }
+
+    cloud_control_details {
+		name              = "organizations/123456789/locations/global/cloudControls/builtin-cmek-key-in-use-for-bigquery-table"
+		major_revision_id = "1"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_list_value {
+          values = ["us-central1", "us-west1"]
+        }
+      }
+    }
+  }
+
+  cloud_control_details {
+		name              = "organizations/123456789/locations/global/cloudControls/builtin-enable-automatic-backups-cloud-sql"
+		major_revision_id = "3"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        bool_value = true
+      }
+    }
+  }
+
+  cloud_control_details {
+		name              = "organizations/123456789/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+		major_revision_id = "2"
     
     parameters {
       name = "location"
@@ -98,10 +229,6 @@ resource "google_cloud_security_compliance_framework" "example" {
 
 The following arguments are supported:
 
-
-* `organization` -
-  (Required)
-  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
 
 * `location` -
   (Required)
@@ -128,6 +255,19 @@ The following arguments are supported:
   (Optional)
   Display name of the framework. The maximum length is 200 characters.
 
+* `parent` -
+  (Optional)
+  The parent resource in which to create the resource.
+  Must be in one of the following formats:
+  * `projects/{{project}}`
+  * `organizations/{{organization}}`
+
+* `organization` -
+  (Optional, Deprecated)
+  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
+
+  ~> **Warning:** Use `parent` instead.
+
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
 	the command will fail if this field is set to "PREVENT" in Terraform state.
@@ -145,7 +285,7 @@ The following arguments are supported:
 * `name` -
   (Required)
   The name of the CloudControl in the format:
-  “organizations/{organization}/locations/{location}/cloudControls/{cloud-control}”
+  "{parent}/locations/{location}/cloudControls/{cloud-control}"
 
 * `parameters` -
   (Optional)
@@ -240,7 +380,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `organizations/{{organization}}/locations/{{location}}/frameworks/{{framework_id}}`
+* `id` - an identifier for the resource with format `{{parent}}/locations/{{location}}/frameworks/{{framework_id}}`
 
 * `category` -
   The category of the framework.
@@ -251,7 +391,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `name` -
   Identifier. The name of the framework.
   Format:
-  organizations/{organization}/locations/{{location}}/frameworks/{framework_id}
+  {parent}/locations/{location}/frameworks/{framework_id}
 
 * `supported_cloud_providers` -
   cloud providers supported
@@ -284,16 +424,17 @@ This resource provides the following
 Framework can be imported using any of these accepted formats:
 
 * `organizations/{{organization}}/locations/{{location}}/frameworks/{{framework_id}}`
-* `{{organization}}/{{location}}/{{framework_id}}`
+* `{{parent}}/locations/{{location}}/frameworks/{{framework_id}}`
 
 In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import Framework using identity values. For example:
 
 ```tf
 import {
   identity = {
-    organization = "<-required value->"
+    organization = "<-optional value->"
     location = "<-required value->"
     frameworkId = "<-required value->"
+    parent = "<-required value->"
   }
   to = google_cloud_security_compliance_framework.default
 }
@@ -312,5 +453,5 @@ When using the [`terraform import` command](https://developer.hashicorp.com/terr
 
 ```
 $ terraform import google_cloud_security_compliance_framework.default organizations/{{organization}}/locations/{{location}}/frameworks/{{framework_id}}
-$ terraform import google_cloud_security_compliance_framework.default {{organization}}/{{location}}/{{framework_id}}
+$ terraform import google_cloud_security_compliance_framework.default {{parent}}/locations/{{location}}/frameworks/{{framework_id}}
 ```

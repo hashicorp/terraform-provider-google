@@ -28,7 +28,323 @@ To get more information about CloudControl, see:
 
 * [API documentation](https://docs.cloud.google.com/security-command-center/docs/reference/cloudsecuritycompliance/rest/v1/organizations.locations.cloudControls)
 
-## Example Usage - Cloudsecuritycompliance Cloudcontrol Basic
+## Example Usage - Cloudsecuritycompliance Cloudcontrol Org Basic
+
+
+```hcl
+resource "google_cloud_security_compliance_cloud_control" "example" {
+  parent              = "organizations/123456789"
+  location            = "global"
+  cloud_control_id    = "example-cloudcontrol"
+
+  display_name      = "TF test CloudControl Name"
+  description       = "A test cloud control for security compliance"
+  categories        = ["CC_CATEGORY_INFRASTRUCTURE"]
+  severity          = "HIGH"
+  finding_category  = "SECURITY_POLICY"
+  remediation_steps = "Review and update the security configuration according to best practices."
+  
+  supported_cloud_providers        = ["GCP"]
+  
+  rules {
+    description         = "Ensure compute instances have secure boot enabled"
+    rule_action_types   = ["RULE_ACTION_TYPE_DETECTIVE"]
+    
+    cel_expression {
+      expression = "resource.data.shieldedInstanceConfig.enableSecureBoot == true"
+      resource_types_values {
+        values = ["compute.googleapis.com/Instance"]
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "location"
+    display_name = "Resource Location"
+    description  = "The location where the resource should be deployed"
+    value_type   = "STRING"
+    is_required  = true
+    
+    default_value {
+      string_value = "us-central1"
+    }
+    
+    validation {
+      regexp_pattern {
+        pattern = "^[a-z]+-[a-z]+[0-9]$"
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "enable_secure_boot"
+    display_name = "Enable Secure Boot"
+    description  = "Whether to enable secure boot for instances"
+    value_type   = "BOOLEAN"
+    is_required  = true
+    
+    default_value {
+      bool_value = true
+    }
+    
+    substitution_rules {
+      attribute_substitution_rule {
+        attribute = "rules[0].cel_expression.expression"
+      }
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          bool_value = true
+        }
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "max_instances"
+    display_name = "Maximum Instances"
+    description  = "Maximum number of instances allowed"
+    value_type   = "NUMBER"
+    is_required  = false
+    
+    default_value {
+      number_value = 10
+    }
+    
+    substitution_rules {
+      placeholder_substitution_rule {
+        attribute = "rules[0].description"
+      }
+    }
+    
+    validation {
+      int_range {
+        min = "1"
+        max = "100"
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "allowed_regions"
+    display_name = "Allowed Regions"
+    description  = "List of regions where resources can be deployed"
+    value_type   = "STRINGLIST"
+    is_required  = true
+    
+    default_value {
+      string_list_value {
+        values = ["us-central1", "us-east1", "us-west1"]
+      }
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          string_list_value {
+            values = ["us-central1", "us-east1"]
+          }
+        }
+        values {
+          string_list_value {
+            values = ["us-west1", "us-west2"]
+          }
+        }
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "environment_type"
+    display_name = "Environment Type"
+    description  = "The type of environment"
+    value_type   = "STRING"
+    is_required  = true
+    
+    default_value {
+      string_value = "production"
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          string_value = "production"
+        }
+        values {
+          string_value = "staging"
+        }
+        values {
+          number_value = 1
+        }
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudsecuritycompliance_cloudcontrol_project_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudsecuritycompliance Cloudcontrol Project Basic
+
+
+```hcl
+data "google_project" "project" {}
+resource "google_cloud_security_compliance_cloud_control" "example" {
+  parent              = "projects/${data.google_project.project.number}"
+  location            = "global"
+  cloud_control_id    = "example-cloudcontrol"
+
+  display_name      = "TF test CloudControl Name"
+  description       = "A test cloud control for security compliance"
+  categories        = ["CC_CATEGORY_INFRASTRUCTURE"]
+  severity          = "HIGH"
+  finding_category  = "SECURITY_POLICY"
+  remediation_steps = "Review and update the security configuration according to best practices."
+  
+  supported_cloud_providers        = ["GCP"]
+  
+  rules {
+    description         = "Ensure compute instances have secure boot enabled"
+    rule_action_types   = ["RULE_ACTION_TYPE_DETECTIVE"]
+    
+    cel_expression {
+      expression = "resource.data.shieldedInstanceConfig.enableSecureBoot == true"
+      resource_types_values {
+        values = ["compute.googleapis.com/Instance"]
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "location"
+    display_name = "Resource Location"
+    description  = "The location where the resource should be deployed"
+    value_type   = "STRING"
+    is_required  = true
+    
+    default_value {
+      string_value = "us-central1"
+    }
+    
+    validation {
+      regexp_pattern {
+        pattern = "^[a-z]+-[a-z]+[0-9]$"
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "enable_secure_boot"
+    display_name = "Enable Secure Boot"
+    description  = "Whether to enable secure boot for instances"
+    value_type   = "BOOLEAN"
+    is_required  = true
+    
+    default_value {
+      bool_value = true
+    }
+    
+    substitution_rules {
+      attribute_substitution_rule {
+        attribute = "rules[0].cel_expression.expression"
+      }
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          bool_value = true
+        }
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "max_instances"
+    display_name = "Maximum Instances"
+    description  = "Maximum number of instances allowed"
+    value_type   = "NUMBER"
+    is_required  = false
+    
+    default_value {
+      number_value = 10
+    }
+    
+    substitution_rules {
+      placeholder_substitution_rule {
+        attribute = "rules[0].description"
+      }
+    }
+    
+    validation {
+      int_range {
+        min = "1"
+        max = "100"
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "allowed_regions"
+    display_name = "Allowed Regions"
+    description  = "List of regions where resources can be deployed"
+    value_type   = "STRINGLIST"
+    is_required  = true
+    
+    default_value {
+      string_list_value {
+        values = ["us-central1", "us-east1", "us-west1"]
+      }
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          string_list_value {
+            values = ["us-central1", "us-east1"]
+          }
+        }
+        values {
+          string_list_value {
+            values = ["us-west1", "us-west2"]
+          }
+        }
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "environment_type"
+    display_name = "Environment Type"
+    description  = "The type of environment"
+    value_type   = "STRING"
+    is_required  = true
+    
+    default_value {
+      string_value = "production"
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          string_value = "production"
+        }
+        values {
+          string_value = "staging"
+        }
+        values {
+          number_value = 1
+        }
+      }
+    }
+  }
+}
+```
+## Example Usage - Cloudsecuritycompliance Cloudcontrol Org Basic Backward
 
 
 ```hcl
@@ -189,10 +505,6 @@ resource "google_cloud_security_compliance_cloud_control" "example" {
 The following arguments are supported:
 
 
-* `organization` -
-  (Required)
-  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
-
 * `location` -
   (Required)
   Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122. Currently, only "global" is supported as a location.
@@ -248,6 +560,19 @@ The following arguments are supported:
 * `supported_cloud_providers` -
   (Optional)
   cloud providers supported
+
+* `parent` -
+  (Optional)
+  The parent resource in which to create the resource.
+  Must be in one of the following formats:
+  * `projects/{{project}}`
+  * `organizations/{{organization}}`
+
+* `organization` -
+  (Optional, Deprecated)
+  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
+
+  ~> **Warning:** Use `parent` instead.
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
@@ -802,7 +1127,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}`
+* `id` - an identifier for the resource with format `{{parent}}/locations/{{location}}/cloudControls/{{cloud_control_id}}`
 
 * `create_time` -
   The last updated time of the cloud control.
@@ -842,16 +1167,17 @@ This resource provides the following
 CloudControl can be imported using any of these accepted formats:
 
 * `organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}`
-* `{{organization}}/{{location}}/{{cloud_control_id}}`
+* `{{parent}}/locations/{{location}}/cloudControls/{{cloud_control_id}}`
 
 In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import CloudControl using identity values. For example:
 
 ```tf
 import {
   identity = {
-    organization = "<-required value->"
+    organization = "<-optional value->"
     location = "<-required value->"
     cloudControlId = "<-required value->"
+    parent = "<-required value->"
   }
   to = google_cloud_security_compliance_cloud_control.default
 }
@@ -870,5 +1196,5 @@ When using the [`terraform import` command](https://developer.hashicorp.com/terr
 
 ```
 $ terraform import google_cloud_security_compliance_cloud_control.default organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}
-$ terraform import google_cloud_security_compliance_cloud_control.default {{organization}}/{{location}}/{{cloud_control_id}}
+$ terraform import google_cloud_security_compliance_cloud_control.default {{parent}}/locations/{{location}}/cloudControls/{{cloud_control_id}}
 ```

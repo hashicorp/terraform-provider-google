@@ -37,6 +37,8 @@ fields:
     - api_field: name
     - field: organization
       provider_only: true
+    - field: parent
+      provider_only: true
     - api_field: targetResourceConfig.existingTargetResource
     - api_field: targetResourceConfig.targetResourceCreationConfig.folderCreationConfig.folderDisplayName
     - api_field: targetResourceConfig.targetResourceCreationConfig.folderCreationConfig.parent
