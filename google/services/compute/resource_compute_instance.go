@@ -1780,7 +1780,6 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		Hostname:                 d.Get("hostname").(string),
 		ForceSendFields:          []string{"CanIpForward", "DeletionProtection"},
 		AdvancedMachineFeatures:  expandAdvancedMachineFeatures(d),
-		DisplayDevice:            expandDisplayDevice(d),
 		ResourcePolicies:         tpgresource.ConvertStringArr(d.Get("resource_policies").([]interface{})),
 		ReservationAffinity:      reservationAffinity,
 		KeyRevocationActionType:  d.Get("key_revocation_action_type").(string),
@@ -1798,6 +1797,13 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 			EnableVtpm:                sicMap["enableVtpm"].(bool),
 			EnableIntegrityMonitoring: sicMap["enableIntegrityMonitoring"].(bool),
 			ForceSendFields:           []string{"EnableSecureBoot", "EnableVtpm", "EnableIntegrityMonitoring"},
+		}
+	}
+	if dd := expandDisplayDevice(d); dd != nil {
+		enabled, _ := dd["enableDisplay"].(bool)
+		instance.DisplayDevice = &compute.DisplayDevice{
+			EnableDisplay:   enabled,
+			ForceSendFields: []string{"EnableDisplay"},
 		}
 	}
 	return instance, nil
@@ -2215,7 +2221,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("shielded_instance_config", flattenShieldedVmConfig(shieldedVmConfigMap)); err != nil {
 		return fmt.Errorf("Error setting shielded_instance_config: %s", err)
 	}
-	if err := d.Set("enable_display", flattenEnableDisplay(instance.DisplayDevice)); err != nil {
+	var displayDeviceMap map[string]interface{}
+	if instance.DisplayDevice != nil {
+		displayDeviceMap = map[string]interface{}{"enableDisplay": instance.DisplayDevice.EnableDisplay}
+	}
+	if err := d.Set("enable_display", flattenEnableDisplay(displayDeviceMap)); err != nil {
 		return fmt.Errorf("Error setting enable_display: %s", err)
 	}
 	if err := d.Set("cpu_platform", instance.CpuPlatform); err != nil {

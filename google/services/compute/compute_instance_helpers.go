@@ -698,22 +698,21 @@ func flattenShieldedVmConfig(shieldedVmConfig map[string]interface{}) []map[stri
 	}}
 }
 
-func expandDisplayDevice(d tpgresource.TerraformResourceData) *compute.DisplayDevice {
+func expandDisplayDevice(d tpgresource.TerraformResourceData) map[string]interface{} {
 	if _, ok := d.GetOk("enable_display"); !ok {
 		return nil
 	}
-	return &compute.DisplayDevice{
-		EnableDisplay:   d.Get("enable_display").(bool),
-		ForceSendFields: []string{"EnableDisplay"},
+	return map[string]interface{}{
+		"enableDisplay": d.Get("enable_display").(bool),
 	}
 }
 
-func flattenEnableDisplay(displayDevice *compute.DisplayDevice) interface{} {
+func flattenEnableDisplay(displayDevice map[string]interface{}) interface{} {
 	if displayDevice == nil {
 		return nil
 	}
 
-	return displayDevice.EnableDisplay
+	return displayDevice["enableDisplay"]
 }
 
 // Node affinity updates require a reboot
