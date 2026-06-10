@@ -31,6 +31,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudsecuritycompliance"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -52,7 +53,7 @@ var (
 	_ = cloudsecuritycompliance.Product
 )
 
-func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkBasicExample(t *testing.T) {
+func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkOrgBasicExample(t *testing.T) {
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -69,13 +70,13 @@ func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkBas
 		CheckDestroy:             testAccCheckCloudSecurityComplianceFrameworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkBasicExample(context),
+				Config: testAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkOrgBasicExample(context),
 			},
 			{
 				ResourceName:            "google_cloud_security_compliance_framework.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_id", "location", "organization"},
+				ImportStateVerifyIgnore: []string{"framework_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework.example",
@@ -87,10 +88,10 @@ func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkBas
 	})
 }
 
-func testAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkBasicExample(context map[string]interface{}) string {
+func testAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkOrgBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_security_compliance_framework" "example" {
-  organization = "%{org_id}"
+  parent       = "organizations/%{org_id}"
   location     = "global"
   framework_id = "%{framework_name}"
   
@@ -99,7 +100,7 @@ resource "google_cloud_security_compliance_framework" "example" {
   
   cloud_control_details {
 		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-assess-resource-availability"
-		major_revision_id = "1"
+		major_revision_id = "2"
     
     parameters {
       name = "location"
@@ -125,7 +126,7 @@ resource "google_cloud_security_compliance_framework" "example" {
 
   cloud_control_details {
 		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-enable-automatic-backups-cloud-sql"
-		major_revision_id = "1"
+		major_revision_id = "3"
     
     parameters {
       name = "location"
@@ -137,7 +138,208 @@ resource "google_cloud_security_compliance_framework" "example" {
 
   cloud_control_details {
 		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        number_value = 1
+      }
+    }
+  }
+
+  
+}
+`, context)
+}
+
+func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkProjectBasicExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"framework_name": "tf-test-example-framework" + randomSuffix,
+		"random_suffix":  randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudSecurityComplianceFrameworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkProjectBasicExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_framework.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"framework_id", "location", "organization", "parent"},
+			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkProjectBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+resource "google_cloud_security_compliance_framework" "example" {
+  parent       = "projects/${data.google_project.project.number}"
+  location     = "global"
+  framework_id = "%{framework_name}"
+  
+  display_name = "Terraform Framework Name"
+  description  = "An Terraform description for the framework"
+  
+  cloud_control_details {
+		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-assess-resource-availability"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_value = "us-central1"
+      }
+    }
+  }
+
+    cloud_control_details {
+		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-cmek-key-in-use-for-bigquery-table"
 		major_revision_id = "1"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_list_value {
+          values = ["us-central1", "us-west1"]
+        }
+      }
+    }
+  }
+
+  cloud_control_details {
+		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-enable-automatic-backups-cloud-sql"
+		major_revision_id = "3"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        bool_value = true
+      }
+    }
+  }
+
+  cloud_control_details {
+		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        number_value = 1
+      }
+    }
+  }
+
+  
+}
+`, context)
+}
+
+func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkOrgBasicBackwardExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"org_id":         envvar.GetTestOrgFromEnv(t),
+		"framework_name": "tf-test-example-framework" + randomSuffix,
+		"random_suffix":  randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudSecurityComplianceFrameworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkOrgBasicBackwardExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_framework.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"framework_id", "location", "organization", "parent"},
+			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkOrgBasicBackwardExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_security_compliance_framework" "example" {
+  organization = "%{org_id}"
+  location     = "global"
+  framework_id = "%{framework_name}"
+  
+  display_name = "Terraform Framework Name"
+  description  = "An Terraform description for the framework"
+  
+  cloud_control_details {
+		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-assess-resource-availability"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_value = "us-central1"
+      }
+    }
+  }
+
+    cloud_control_details {
+		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-cmek-key-in-use-for-bigquery-table"
+		major_revision_id = "1"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_list_value {
+          values = ["us-central1", "us-west1"]
+        }
+      }
+    }
+  }
+
+  cloud_control_details {
+		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-enable-automatic-backups-cloud-sql"
+		major_revision_id = "3"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        bool_value = true
+      }
+    }
+  }
+
+  cloud_control_details {
+		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+		major_revision_id = "2"
     
     parameters {
       name = "location"
@@ -163,7 +365,7 @@ func testAccCheckCloudSecurityComplianceFrameworkDestroyProducer(t *testing.T) f
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(cloudsecuritycompliance.Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworks/{{framework_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(cloudsecuritycompliance.Product, config)+"{{parent}}/locations/{{location}}/frameworks/{{framework_id}}")
 			if err != nil {
 				return err
 			}

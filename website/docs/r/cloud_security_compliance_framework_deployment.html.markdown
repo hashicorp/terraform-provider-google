@@ -28,12 +28,12 @@ To get more information about FrameworkDeployment, see:
 
 * [API documentation](https://docs.cloud.google.com/security-command-center/docs/reference/cloudsecuritycompliance/rest/v1/organizations.locations.frameworkDeployments)
 
-## Example Usage - Cloudsecuritycompliance Framework Deployment Basic
+## Example Usage - Cloudsecuritycompliance Framework Deployment Org Basic
 
 
 ```hcl
 resource "google_cloud_security_compliance_framework" "example" {
-  organization = "123456789"
+  parent       = "organizations/123456789"
   location     = "global"
   framework_id = "example-framework"
   
@@ -41,8 +41,8 @@ resource "google_cloud_security_compliance_framework" "example" {
   description  = "An Terraform description for the framework"
   
   cloud_control_details {
-		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-		major_revision_id = "1"
+		name              = "organizations/123456789/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
+		major_revision_id = "2"
     
     parameters {
       name = "location"
@@ -100,7 +100,7 @@ resource "google_cloud_security_compliance_framework" "example" {
 }
 
 resource "google_cloud_security_compliance_framework_deployment" "example" {
-  organization            = "123456789"
+  parent            = "organizations/123456789"
   location                = "global"
   framework_deployment_id = "example-deployment"
   description             = "A framework deployment for cloud security compliance"
@@ -119,7 +119,175 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
     
     cloud_control_details {
       name                  = "organizations/123456789/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-      major_revision_id     = "1"
+      major_revision_id     = "2"
+      
+      parameters {
+        name = "enabled"
+        parameter_value {
+          bool_value = true
+        }
+      }
+      
+      parameters {
+        name = "regions"
+        parameter_value {
+          string_list_value {
+            values = ["us-central1", "us-west1", "us-east1"]
+          }
+        }
+      }
+      
+      parameters {
+        name = "location"
+        parameter_value {
+          string_value = "us-central1"
+        }
+      }
+      parameters {
+        name = "oneof-parameter"
+        parameter_value {
+          oneof_value {
+            name = "test-oneof"
+            parameter_value {
+              string_value = "test-value"
+            }
+          }
+        }
+      }
+      parameters {
+        name = "bool-parameter"
+        parameter_value {
+          oneof_value {
+            name = "bool-oneof"
+            parameter_value {
+              bool_value = true
+            }
+          }
+        }
+      }
+      parameters {
+        name = "number-parameter"
+        parameter_value {
+          oneof_value {
+            name = "number-oneof"
+            parameter_value {
+              number_value = 123.45
+            }
+          }
+        }
+      }
+      parameters {
+        name = "string-list-parameter"
+        parameter_value {
+          oneof_value {
+            name = "string-list-oneof"
+            parameter_value {
+              string_list_value {
+                values = ["value1", "value2"]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+}
+```
+## Example Usage - Cloudsecuritycompliance Framework Deployment Project Basic
+
+
+```hcl
+data "google_project" "project" {}
+resource "google_cloud_security_compliance_framework" "example" {
+  parent       = "projects/${data.google_project.project.number}"
+  location     = "global"
+  framework_id = "example-framework"
+  
+  display_name = "Terraform Framework Name"
+  description  = "An Terraform description for the framework"
+  
+  cloud_control_details {
+		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_value = "us-central1"
+      }
+    }
+    parameters {
+      name = "oneof-parameter"
+      parameter_value {
+        oneof_value {
+          name = "test-oneof"
+          parameter_value {
+            string_value = "test-value"
+          }
+        }
+      }
+    }
+    parameters {
+      name = "bool-parameter"
+      parameter_value {
+        oneof_value {
+          name = "bool-oneof"
+          parameter_value {
+            bool_value = true
+          }
+        }
+      }
+    }
+    parameters {
+      name = "number-parameter"
+      parameter_value {
+        oneof_value {
+          name = "number-oneof"
+          parameter_value {
+            number_value = 123.45
+          }
+        }
+      }
+    }
+    parameters {
+      name = "string-list-parameter"
+      parameter_value {
+        oneof_value {
+          name = "string-list-oneof"
+          parameter_value {
+            string_list_value {
+              values = ["value1", "value2"]
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework_deployment" "example" {
+  parent                  = "projects/${data.google_project.project.number}"
+  location                = "global"
+  framework_deployment_id = "example-deployment"
+  description             = "A framework deployment for cloud security compliance"
+  
+  framework {
+    framework         = google_cloud_security_compliance_framework.example.name
+    major_revision_id = "1"
+  }
+  
+  target_resource_config {
+    existing_target_resource = "projects/${data.google_project.project.project_id}"
+  }
+  
+  cloud_control_metadata {
+    enforcement_mode = "DETECTIVE"
+    
+    cloud_control_details {
+      name                  = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
+      major_revision_id     = "2"
       
       parameters {
         name = "enabled"
@@ -200,7 +368,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
 
 ```hcl
 resource "google_cloud_security_compliance_framework" "example" {
-  organization = "123456789"
+  parent       = "organizations/123456789"
   location     = "global"
   framework_id = "example-framework-folder"
   
@@ -209,7 +377,7 @@ resource "google_cloud_security_compliance_framework" "example" {
   
   cloud_control_details {
 		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-		major_revision_id = "1"
+		major_revision_id = "2"
     
     parameters {
       name = "location"
@@ -221,7 +389,7 @@ resource "google_cloud_security_compliance_framework" "example" {
 }
 
 resource "google_cloud_security_compliance_framework_deployment" "example" {
-  organization            = "123456789"
+  parent            = "organizations/123456789"
   location                = "global"
   framework_deployment_id = "example-deployment-folder"
   description             = "A framework deployment with folder creation config"
@@ -245,7 +413,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
     
     cloud_control_details {
       name              = google_cloud_security_compliance_framework.example.cloud_control_details[0].name
-      major_revision_id = "1"
+      major_revision_id = "2"
       
       parameters {
         name = "location"
@@ -262,7 +430,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
 
 ```hcl
 resource "google_cloud_security_compliance_framework" "example" {
-  organization = "123456789"
+  parent       = "organizations/123456789"
   location     = "global"
   framework_id = "example-framework-project"
   
@@ -271,7 +439,7 @@ resource "google_cloud_security_compliance_framework" "example" {
   
   cloud_control_details {
 		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-		major_revision_id = "1"
+		major_revision_id = "2"
     
     parameters {
       name = "location"
@@ -283,7 +451,7 @@ resource "google_cloud_security_compliance_framework" "example" {
 }
 
 resource "google_cloud_security_compliance_framework_deployment" "example" {
-  organization            = "123456789"
+  parent                  = "organizations/123456789"
   location                = "global"
   framework_deployment_id = "example-deployment-project"
   description             = "A framework deployment with project creation config"
@@ -307,8 +475,8 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
     enforcement_mode = "DETECTIVE"
     
     cloud_control_details {
-  name              = "organizations/123456789/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-      major_revision_id = "1"
+      name              = "organizations/123456789/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
+      major_revision_id = "2"
       
       parameters {
         name = "location"
@@ -318,6 +486,200 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
       }
     }
   }
+}
+```
+## Example Usage - Cloudsecuritycompliance Framework Deployment Org Project Basic
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_cloud_security_compliance_framework" "example" {
+  parent       = "organizations/123456789"
+  location     = "global"
+  framework_id = "example-framework"
+  
+  display_name = "Terraform Framework Name"
+  description  = "A Terraform description for the framework"
+  
+  cloud_control_details {
+    name              = "organizations/123456789/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+    major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        number_value = 1
+      }
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework_deployment" "example" {
+  parent                  = "organizations/123456789"
+  location                = "global"
+  framework_deployment_id = "example-deployment"
+  description             = "A framework deployment with org parent targeting a project"
+  
+  framework {
+    framework             = google_cloud_security_compliance_framework.example.name
+    major_revision_id     = "1" # A brand new custom framework starts at revision 1
+  }
+  
+  target_resource_config {
+    # Using project_id ensures the API's response matches Terraform's state
+    existing_target_resource = "projects/${data.google_project.project.project_id}"
+  }
+  
+  cloud_control_metadata {
+    enforcement_mode = "DETECTIVE"
+    
+    cloud_control_details {
+      name              = "organizations/123456789/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+      major_revision_id = "2"
+      
+      parameters {
+        name = "location"
+        parameter_value {
+          number_value = 1
+        }
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudsecuritycompliance_framework_deployment_project_application_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudsecuritycompliance Framework Deployment Project Application Basic
+
+
+```hcl
+data "google_project" "project" {}
+
+# App Hub Application resource to act as the target
+resource "google_apphub_application" "application" {
+  location       = "us-central1"
+  application_id = "example-app"
+  scope {
+    type = "REGIONAL"
+  }
+}
+
+resource "google_cloud_security_compliance_framework" "example" {
+  parent       = "projects/${data.google_project.project.number}"
+  location     = "global"
+  framework_id = "example-framework"
+  
+  display_name = "Terraform Framework Name"
+  description  = "A Terraform description for the framework"
+  
+  cloud_control_details {
+    name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+    major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        number_value = 1
+      }
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework_deployment" "example" {
+  parent                  = "projects/${data.google_project.project.number}"
+  location                = "global"
+  framework_deployment_id = "example-deployment"
+  description             = "A framework deployment with project parent targeting an application"
+  
+  framework {
+    framework             = google_cloud_security_compliance_framework.example.name
+    major_revision_id     = "1"
+  }
+  
+  target_resource_config {
+    # Target the App Hub Application's fully qualified ID 
+    # e.g., projects/abc/locations/us-central1/applications/app-name
+    existing_target_resource = "projects/${data.google_project.project.number}/locations/us-central1/applications/${google_apphub_application.application.application_id}"
+  }
+  
+  cloud_control_metadata {
+    enforcement_mode = "DETECTIVE"
+    
+    cloud_control_details {
+      name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+      major_revision_id = "2"
+      
+      parameters {
+        name = "location"
+        parameter_value {
+          number_value = 1
+        }
+      }
+    }
+  }
+}
+```
+## Example Usage - Cloudsecuritycompliance Framework Deployment Org Basic Backward
+
+
+```hcl
+resource "google_cloud_security_compliance_framework" "example" {
+  organization = "123456789"
+  location     = "global"
+  framework_id = "example-framework"
+  
+  display_name = "Terraform Framework Name"
+  description  = "An Terraform description for the framework"
+  
+  cloud_control_details {
+		name              = "organizations/123456789/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_value = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework_deployment" "example" {
+  organization            = "123456789"
+  location                = "global"
+  framework_deployment_id = "example-deployment"
+  description             = "A framework deployment for cloud security compliance"
+  
+  framework {
+    framework         = google_cloud_security_compliance_framework.example.name
+    major_revision_id = "1"
+  }
+  
+  target_resource_config {
+    existing_target_resource = "organizations/123456789"
+  }
+  
+  cloud_control_metadata {
+    enforcement_mode = "DETECTIVE"
+    
+    cloud_control_details {
+      name                  = "organizations/123456789/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
+      major_revision_id     = "2"
+      
+      parameters {
+        name = "enabled"
+        parameter_value {
+          bool_value = true
+        }
+      }
+    }
+  }
+
+
 }
 ```
 
@@ -344,14 +706,6 @@ The following arguments are supported:
   contains the config to create a new target_resource.
   Structure is [documented below](#nested_target_resource_config).
 
-* `organization` -
-  (Required)
-  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
-
-* `location` -
-  (Required)
-  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
-
 * `framework_deployment_id` -
   (Required)
   User provided identifier. It should be unique in scope of a parent.
@@ -361,6 +715,23 @@ The following arguments are supported:
 * `description` -
   (Optional)
   User provided description of the Framework deployment
+
+* `parent` -
+  (Optional)
+  The parent resource in which to create the resource.
+  Must be in one of the following formats:
+  * `projects/{{project}}`
+  * `organizations/{{organization}}`
+
+* `organization` -
+  (Optional, Deprecated)
+  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
+
+  ~> **Warning:** Use `parent` instead.
+
+* `location` -
+  (Optional)
+  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
@@ -395,8 +766,7 @@ The following arguments are supported:
 * `name` -
   (Required)
   The name of the CloudControl in the format:
-  “organizations/{organization}/locations/{location}/
-  cloudControls/{cloud-control}”
+  "{parent}/locations/{location}/cloudControls/{cloud-control}"
 
 * `parameters` -
   (Optional)
@@ -492,7 +862,7 @@ The following arguments are supported:
 * `framework` -
   (Required)
   In the format:
-  organizations/{org}/locations/{location}/frameworks/{framework}
+  {parent}/locations/{location}/frameworks/{framework}
 
 * `major_revision_id` -
   (Required)
@@ -556,7 +926,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}`
+* `id` - an identifier for the resource with format `{{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}`
 
 * `cloud_control_deployment_references` -
   The references to the cloud control deployments. It has all the
@@ -604,7 +974,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   Identifier. FrameworkDeployment name in the following format:
-  organizations/{organization}/locations/{location}/frameworkDeployments/{framework_deployment_id}
+  {parent}/locations/{location}/frameworkDeployments/{framework_deployment_id}
 
 * `target_resource_display_name` -
   The display name of the target resource.
@@ -618,7 +988,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `cloud_control_deployment` -
   (Output)
   The name of the CloudControlDeployment. The format is:
-  organizations/{org}/locations/{location}/cloudControlDeployments/{cloud_control_deployment_id}
+  {parent}/locations/{location}/cloudControlDeployments/{cloud_control_deployment_id}
 
 ## Timeouts
 
@@ -634,16 +1004,17 @@ This resource provides the following
 FrameworkDeployment can be imported using any of these accepted formats:
 
 * `organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}`
-* `{{organization}}/{{location}}/{{framework_deployment_id}}`
+* `{{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}`
 
 In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import FrameworkDeployment using identity values. For example:
 
 ```tf
 import {
   identity = {
-    organization = "<-required value->"
-    location = "<-required value->"
+    organization = "<-optional value->"
+    location = "<-optional value->"
     frameworkDeploymentId = "<-required value->"
+    parent = "<-required value->"
   }
   to = google_cloud_security_compliance_framework_deployment.default
 }
@@ -662,5 +1033,5 @@ When using the [`terraform import` command](https://developer.hashicorp.com/terr
 
 ```
 $ terraform import google_cloud_security_compliance_framework_deployment.default organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}
-$ terraform import google_cloud_security_compliance_framework_deployment.default {{organization}}/{{location}}/{{framework_deployment_id}}
+$ terraform import google_cloud_security_compliance_framework_deployment.default {{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}
 ```

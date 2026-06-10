@@ -30,7 +30,7 @@ import (
 func testAccCloudSecurityComplianceFramework_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_security_compliance_framework" "example" {
-  organization = "%{org_id}"
+  parent       = "organizations/%{org_id}"
   location     = "global"
   framework_id = "tf-test-example-framework%{random_suffix}"
   
@@ -39,7 +39,7 @@ resource "google_cloud_security_compliance_framework" "example" {
   
   cloud_control_details {
 		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-assess-resource-availability"
-		major_revision_id = "1"
+		major_revision_id = "2"
     
     parameters {
       name = "location"
@@ -117,7 +117,7 @@ func TestAccCloudSecurityComplianceFramework_update(t *testing.T) {
 				ResourceName:            "google_cloud_security_compliance_framework.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_id", "location", "organization"},
+				ImportStateVerifyIgnore: []string{"framework_id", "location", "parent", "organization"},
 			},
 			{
 				Config: testAccCloudSecurityComplianceFramework_update(context),
@@ -131,7 +131,7 @@ func TestAccCloudSecurityComplianceFramework_update(t *testing.T) {
 				ResourceName:            "google_cloud_security_compliance_framework.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_id", "location", "organization"},
+				ImportStateVerifyIgnore: []string{"framework_id", "location", "parent", "organization"},
 			},
 		},
 	})
@@ -140,7 +140,7 @@ func TestAccCloudSecurityComplianceFramework_update(t *testing.T) {
 func testAccCloudSecurityComplianceFramework_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_security_compliance_framework" "example" {
-  organization = "%{org_id}"
+  parent       = "organizations/%{org_id}"
   location     = "global"
   framework_id = "tf-test-example-framework%{random_suffix}"
   
@@ -201,6 +201,56 @@ resource "google_cloud_security_compliance_framework" "example" {
             }
           }
         }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCloudSecurityComplianceFramework_backwardCompatibility(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSecurityComplianceFramework_backwardCompatibility(context),
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_framework.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"framework_id", "location", "parent", "organization"},
+			},
+		},
+	})
+}
+
+func testAccCloudSecurityComplianceFramework_backwardCompatibility(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_security_compliance_framework" "example" {
+  organization = "%{org_id}"
+  location     = "global"
+  framework_id = "tf-test-example-framework%{random_suffix}"
+  
+  display_name = "Terraform Framework Name Org Compat"
+  description  = "A Terraform description for the framework using organization for backward compatibility"
+  
+  cloud_control_details {
+		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-assess-resource-availability"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_value = "us-central1"
       }
     }
   }

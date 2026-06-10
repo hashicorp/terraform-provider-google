@@ -30,7 +30,7 @@ import (
 func testAccCloudSecurityComplianceCloudControl_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_security_compliance_cloud_control" "example" {
-	organization      = "%{org_id}"
+	parent            = "organizations/%{org_id}"
 	location          = "global"
 	cloud_control_id  = "tf-test-%{random_suffix}"
 	display_name      = "TF Test CloudControl"
@@ -410,7 +410,7 @@ func TestAccCloudSecurityComplianceCloudControl_update(t *testing.T) {
 				ResourceName:            "google_cloud_security_compliance_cloud_control.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_control_id", "location", "organization"},
+				ImportStateVerifyIgnore: []string{"cloud_control_id", "location", "parent", "organization"},
 			},
 			{
 				Config: testAccCloudSecurityComplianceCloudControl_update(context),
@@ -424,7 +424,7 @@ func TestAccCloudSecurityComplianceCloudControl_update(t *testing.T) {
 				ResourceName:            "google_cloud_security_compliance_cloud_control.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_control_id", "location", "organization"},
+				ImportStateVerifyIgnore: []string{"cloud_control_id", "location", "parent", "organization"},
 			},
 		},
 	})
@@ -433,7 +433,7 @@ func TestAccCloudSecurityComplianceCloudControl_update(t *testing.T) {
 func testAccCloudSecurityComplianceCloudControl_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_security_compliance_cloud_control" "example" {
-  organization      = "%{org_id}"
+  parent            = "organizations/%{org_id}"
   location          = "global"
   cloud_control_id  = "tf-test-%{random_suffix}"
 
@@ -757,6 +757,90 @@ resource "google_cloud_security_compliance_cloud_control" "example" {
       }
     }
   }
+}
+`, context)
+}
+
+func TestAccCloudSecurityComplianceCloudControl_backwardCompatibility(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSecurityComplianceCloudControl_backwardCompatibility(context),
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_cloud_control.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_control_id", "location", "parent", "organization"},
+			},
+		},
+	})
+}
+
+func testAccCloudSecurityComplianceCloudControl_backwardCompatibility(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_security_compliance_cloud_control" "example" {
+	organization      = "%{org_id}"
+	location          = "global"
+	cloud_control_id  = "tf-test-%{random_suffix}"
+	display_name      = "TF Test CloudControl Org Compat"
+	description       = "A test cloud control for security compliance using organization for backward compatibility"
+	categories        = ["CC_CATEGORY_INFRASTRUCTURE"]
+	severity          = "HIGH"
+	finding_category  = "SECURITY_POLICY"
+	remediation_steps = "Review and update the security configuration according to best practices."
+	
+	supported_cloud_providers        = ["GCP"]
+	
+	rules {
+		description         = "Ensure compute instances have secure boot enabled"
+		rule_action_types   = ["RULE_ACTION_TYPE_DETECTIVE"]
+		
+		cel_expression {
+			expression = "resource.data.shieldedInstanceConfig.enableSecureBoot == true"
+			resource_types_values {
+				values = ["compute.googleapis.com/Instance"]
+			}
+		}
+	}
+	
+	parameter_spec {
+		name         = "location"
+		display_name = "Resource Location"
+		description  = "The location where the resource should be deployed"
+		value_type   = "STRING"
+		is_required  = true
+		
+		default_value {
+			string_value = "us-central1"
+		}
+		
+		validation {
+			regexp_pattern {
+				pattern = "^[a-z]+-[a-z]+[0-9]$"
+			}
+		}
+
+		sub_parameters {
+			name         = "sub-location"
+			display_name = "Sub Location"
+			description  = "A sub-parameter for location"
+			value_type   = "STRING"
+			is_required  = true
+			default_value {
+				string_value = "us-central1-a"
+			}
+		}
+	}
 }
 `, context)
 }

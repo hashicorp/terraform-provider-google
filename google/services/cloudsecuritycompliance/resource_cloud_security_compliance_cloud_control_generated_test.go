@@ -31,6 +31,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudsecuritycompliance"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -52,7 +53,7 @@ var (
 	_ = cloudsecuritycompliance.Product
 )
 
-func TestAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolBasicExample(t *testing.T) {
+func TestAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolOrgBasicExample(t *testing.T) {
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -69,13 +70,13 @@ func TestAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcont
 		CheckDestroy:             testAccCheckCloudSecurityComplianceCloudControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolBasicExample(context),
+				Config: testAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolOrgBasicExample(context),
 			},
 			{
 				ResourceName:            "google_cloud_security_compliance_cloud_control.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_control_id", "location", "organization"},
+				ImportStateVerifyIgnore: []string{"cloud_control_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_cloud_control.example",
@@ -87,7 +88,387 @@ func TestAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcont
 	})
 }
 
-func testAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolBasicExample(context map[string]interface{}) string {
+func testAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolOrgBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_security_compliance_cloud_control" "example" {
+  parent              = "organizations/%{org_id}"
+  location            = "global"
+  cloud_control_id    = "%{cloudcontrol_name}"
+
+  display_name      = "TF test CloudControl Name"
+  description       = "A test cloud control for security compliance"
+  categories        = ["CC_CATEGORY_INFRASTRUCTURE"]
+  severity          = "HIGH"
+  finding_category  = "SECURITY_POLICY"
+  remediation_steps = "Review and update the security configuration according to best practices."
+  
+  supported_cloud_providers        = ["GCP"]
+  
+  rules {
+    description         = "Ensure compute instances have secure boot enabled"
+    rule_action_types   = ["RULE_ACTION_TYPE_DETECTIVE"]
+    
+    cel_expression {
+      expression = "resource.data.shieldedInstanceConfig.enableSecureBoot == true"
+      resource_types_values {
+        values = ["compute.googleapis.com/Instance"]
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "location"
+    display_name = "Resource Location"
+    description  = "The location where the resource should be deployed"
+    value_type   = "STRING"
+    is_required  = true
+    
+    default_value {
+      string_value = "us-central1"
+    }
+    
+    validation {
+      regexp_pattern {
+        pattern = "^[a-z]+-[a-z]+[0-9]$"
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "enable_secure_boot"
+    display_name = "Enable Secure Boot"
+    description  = "Whether to enable secure boot for instances"
+    value_type   = "BOOLEAN"
+    is_required  = true
+    
+    default_value {
+      bool_value = true
+    }
+    
+    substitution_rules {
+      attribute_substitution_rule {
+        attribute = "rules[0].cel_expression.expression"
+      }
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          bool_value = true
+        }
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "max_instances"
+    display_name = "Maximum Instances"
+    description  = "Maximum number of instances allowed"
+    value_type   = "NUMBER"
+    is_required  = false
+    
+    default_value {
+      number_value = 10
+    }
+    
+    substitution_rules {
+      placeholder_substitution_rule {
+        attribute = "rules[0].description"
+      }
+    }
+    
+    validation {
+      int_range {
+        min = "1"
+        max = "100"
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "allowed_regions"
+    display_name = "Allowed Regions"
+    description  = "List of regions where resources can be deployed"
+    value_type   = "STRINGLIST"
+    is_required  = true
+    
+    default_value {
+      string_list_value {
+        values = ["us-central1", "us-east1", "us-west1"]
+      }
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          string_list_value {
+            values = ["us-central1", "us-east1"]
+          }
+        }
+        values {
+          string_list_value {
+            values = ["us-west1", "us-west2"]
+          }
+        }
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "environment_type"
+    display_name = "Environment Type"
+    description  = "The type of environment"
+    value_type   = "STRING"
+    is_required  = true
+    
+    default_value {
+      string_value = "production"
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          string_value = "production"
+        }
+        values {
+          string_value = "staging"
+        }
+        values {
+          number_value = 1
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolProjectBasicExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"cloudcontrol_name": "tf-test-example-cloudcontrol" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudSecurityComplianceCloudControlDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolProjectBasicExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_cloud_control.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_control_id", "location", "organization", "parent"},
+			},
+			{
+				ResourceName:       "google_cloud_security_compliance_cloud_control.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolProjectBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+resource "google_cloud_security_compliance_cloud_control" "example" {
+  parent              = "projects/${data.google_project.project.number}"
+  location            = "global"
+  cloud_control_id    = "%{cloudcontrol_name}"
+
+  display_name      = "TF test CloudControl Name"
+  description       = "A test cloud control for security compliance"
+  categories        = ["CC_CATEGORY_INFRASTRUCTURE"]
+  severity          = "HIGH"
+  finding_category  = "SECURITY_POLICY"
+  remediation_steps = "Review and update the security configuration according to best practices."
+  
+  supported_cloud_providers        = ["GCP"]
+  
+  rules {
+    description         = "Ensure compute instances have secure boot enabled"
+    rule_action_types   = ["RULE_ACTION_TYPE_DETECTIVE"]
+    
+    cel_expression {
+      expression = "resource.data.shieldedInstanceConfig.enableSecureBoot == true"
+      resource_types_values {
+        values = ["compute.googleapis.com/Instance"]
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "location"
+    display_name = "Resource Location"
+    description  = "The location where the resource should be deployed"
+    value_type   = "STRING"
+    is_required  = true
+    
+    default_value {
+      string_value = "us-central1"
+    }
+    
+    validation {
+      regexp_pattern {
+        pattern = "^[a-z]+-[a-z]+[0-9]$"
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "enable_secure_boot"
+    display_name = "Enable Secure Boot"
+    description  = "Whether to enable secure boot for instances"
+    value_type   = "BOOLEAN"
+    is_required  = true
+    
+    default_value {
+      bool_value = true
+    }
+    
+    substitution_rules {
+      attribute_substitution_rule {
+        attribute = "rules[0].cel_expression.expression"
+      }
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          bool_value = true
+        }
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "max_instances"
+    display_name = "Maximum Instances"
+    description  = "Maximum number of instances allowed"
+    value_type   = "NUMBER"
+    is_required  = false
+    
+    default_value {
+      number_value = 10
+    }
+    
+    substitution_rules {
+      placeholder_substitution_rule {
+        attribute = "rules[0].description"
+      }
+    }
+    
+    validation {
+      int_range {
+        min = "1"
+        max = "100"
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "allowed_regions"
+    display_name = "Allowed Regions"
+    description  = "List of regions where resources can be deployed"
+    value_type   = "STRINGLIST"
+    is_required  = true
+    
+    default_value {
+      string_list_value {
+        values = ["us-central1", "us-east1", "us-west1"]
+      }
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          string_list_value {
+            values = ["us-central1", "us-east1"]
+          }
+        }
+        values {
+          string_list_value {
+            values = ["us-west1", "us-west2"]
+          }
+        }
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "environment_type"
+    display_name = "Environment Type"
+    description  = "The type of environment"
+    value_type   = "STRING"
+    is_required  = true
+    
+    default_value {
+      string_value = "production"
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          string_value = "production"
+        }
+        values {
+          string_value = "staging"
+        }
+        values {
+          number_value = 1
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolOrgBasicBackwardExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"cloudcontrol_name": "tf-test-example-cloudcontrol" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudSecurityComplianceCloudControlDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolOrgBasicBackwardExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_cloud_control.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_control_id", "location", "organization", "parent"},
+			},
+			{
+				ResourceName:       "google_cloud_security_compliance_cloud_control.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolOrgBasicBackwardExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_security_compliance_cloud_control" "example" {
   organization        = "%{org_id}"
@@ -253,7 +634,7 @@ func testAccCheckCloudSecurityComplianceCloudControlDestroyProducer(t *testing.T
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(cloudsecuritycompliance.Product, config)+"organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(cloudsecuritycompliance.Product, config)+"{{parent}}/locations/{{location}}/cloudControls/{{cloud_control_id}}")
 			if err != nil {
 				return err
 			}

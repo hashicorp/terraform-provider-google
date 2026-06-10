@@ -37,6 +37,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
@@ -46,7 +47,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -114,12 +114,12 @@ func ResourceCloudSecurityComplianceFramework() *schema.Resource {
 		},
 
 		Identity: &schema.ResourceIdentity{
-			Version: 1,
+			Version: 2,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
 					"organization": {
 						Type:              schema.TypeString,
-						RequiredForImport: true,
+						OptionalForImport: true,
 					},
 					"location": {
 						Type:              schema.TypeString,
@@ -129,7 +129,18 @@ func ResourceCloudSecurityComplianceFramework() *schema.Resource {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 					},
+					"parent": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
 				}
+			},
+			IdentityUpgraders: []schema.IdentityUpgrader{
+				{
+					Type:    identityCloudSecurityComplianceFrameworkResourceV1(),
+					Upgrade: IdentityCloudSecurityComplianceFrameworkUpgradeV1,
+					Version: 1,
+				},
 			},
 		},
 		ResourceBehavior: schema.ResourceBehavior{
@@ -151,12 +162,6 @@ This is the last part of the full name of the framework.`,
 				ForceNew:    true,
 				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
 			},
-			"organization": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
-			},
 			"cloud_control_details": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -173,7 +178,7 @@ the framework.`,
 							Type:     schema.TypeString,
 							Required: true,
 							Description: `The name of the CloudControl in the format:
-“organizations/{organization}/locations/{location}/cloudControls/{cloud-control}”`,
+"{parent}/locations/{location}/cloudControls/{cloud-control}"`,
 						},
 						"parameters": {
 							Type:     schema.TypeList,
@@ -305,6 +310,26 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 				Optional:    true,
 				Description: `Display name of the framework. The maximum length is 200 characters.`,
 			},
+			"organization": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				Deprecated:   "Use `parent` instead.",
+				ForceNew:     true,
+				Description:  `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
+				ExactlyOneOf: []string{},
+			},
+			"parent": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The parent resource in which to create the resource.
+Must be in one of the following formats:
+* 'projects/{{project}}'
+* 'organizations/{{organization}}'`,
+				ExactlyOneOf: []string{},
+			},
 			"category": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -323,7 +348,7 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 				Computed: true,
 				Description: `Identifier. The name of the framework.
 Format:
-organizations/{organization}/locations/{{location}}/frameworks/{framework_id}`,
+{parent}/locations/{location}/frameworks/{framework_id}`,
 			},
 			"supported_cloud_providers": {
 				Type:        schema.TypeList,
@@ -407,7 +432,7 @@ func resourceCloudSecurityComplianceFrameworkCreate(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworks?frameworkId={{framework_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworks?frameworkId={{framework_id}}")
 	if err != nil {
 		return err
 	}
@@ -421,6 +446,15 @@ func resourceCloudSecurityComplianceFrameworkCreate(d *schema.ResourceData, meta
 	}
 
 	headers := make(http.Header)
+	if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
+		if err := d.Set("parent", "organizations/"+d.Get("organization").(string)); err != nil {
+			return err
+		}
+	}
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworks?frameworkId={{framework_id}}")
+	if err != nil {
+		return err
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -436,7 +470,7 @@ func resourceCloudSecurityComplianceFrameworkCreate(d *schema.ResourceData, meta
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "organizations/{{organization}}/locations/{{location}}/frameworks/{{framework_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{parent}}/locations/{{location}}/frameworks/{{framework_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -461,6 +495,11 @@ func resourceCloudSecurityComplianceFrameworkCreate(d *schema.ResourceData, meta
 				return fmt.Errorf("Error setting framework_id: %s", err)
 			}
 		}
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
 	} else {
 		log.Printf("[DEBUG] (Create) identity not set: %s", err)
 	}
@@ -475,7 +514,7 @@ func resourceCloudSecurityComplianceFrameworkRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworks/{{framework_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworks/{{framework_id}}")
 	if err != nil {
 		return err
 	}
@@ -488,6 +527,15 @@ func resourceCloudSecurityComplianceFrameworkRead(d *schema.ResourceData, meta i
 	}
 
 	headers := make(http.Header)
+	if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
+		if err := d.Set("parent", "organizations/"+d.Get("organization").(string)); err != nil {
+			return err
+		}
+	}
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworks/{{framework_id}}")
+	if err != nil {
+		return err
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -541,6 +589,12 @@ func resourceCloudSecurityComplianceFrameworkRead(d *schema.ResourceData, meta i
 				return fmt.Errorf("Error setting framework_id: %s", err)
 			}
 		}
+		if v, ok := identity.GetOk("parent"); !ok && v == "" {
+			err = identity.Set("parent", d.Get("parent").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
@@ -584,6 +638,11 @@ func resourceCloudSecurityComplianceFrameworkUpdate(d *schema.ResourceData, meta
 				return fmt.Errorf("Error setting framework_id: %s", err)
 			}
 		}
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
 	} else {
 		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
@@ -615,7 +674,7 @@ func resourceCloudSecurityComplianceFrameworkUpdate(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworks/{{framework_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworks/{{framework_id}}")
 	if err != nil {
 		return err
 	}
@@ -638,6 +697,15 @@ func resourceCloudSecurityComplianceFrameworkUpdate(d *schema.ResourceData, meta
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+	if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
+		if err := d.Set("parent", "organizations/"+d.Get("organization").(string)); err != nil {
+			return err
+		}
+	}
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworks/{{framework_id}}")
 	if err != nil {
 		return err
 	}
@@ -687,7 +755,7 @@ func resourceCloudSecurityComplianceFrameworkDelete(d *schema.ResourceData, meta
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworks/{{framework_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworks/{{framework_id}}")
 	if err != nil {
 		return err
 	}
@@ -700,6 +768,15 @@ func resourceCloudSecurityComplianceFrameworkDelete(d *schema.ResourceData, meta
 	}
 
 	headers := make(http.Header)
+	if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
+		if err := d.Set("parent", "organizations/"+d.Get("organization").(string)); err != nil {
+			return err
+		}
+	}
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworks/{{framework_id}}")
+	if err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] Deleting Framework %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -723,17 +800,21 @@ func resourceCloudSecurityComplianceFrameworkDelete(d *schema.ResourceData, meta
 func resourceCloudSecurityComplianceFrameworkImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
+		"^(?P<parent>.*)/locations/(?P<location>[^/]+)/frameworks/(?P<framework_id>[^/]+)$",
 		"^organizations/(?P<organization>[^/]+)/locations/(?P<location>[^/]+)/frameworks/(?P<framework_id>[^/]+)$",
-		"^(?P<organization>[^/]+)/(?P<location>[^/]+)/(?P<framework_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
-	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "organizations/{{organization}}/locations/{{location}}/frameworks/{{framework_id}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+	if d.Get("organization").(string) == "" && d.Get("parent").(string) != "" {
+		if strings.HasPrefix(d.Get("parent").(string), "organizations/") {
+			d.Set("organization", strings.TrimPrefix(d.Get("parent").(string), "organizations/"))
+		}
+	} else if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
+		d.Set("parent", "organizations/"+d.Get("organization").(string))
 	}
+
+	id := fmt.Sprintf("%s/locations/%s/frameworks/%s", d.Get("parent").(string), d.Get("location").(string), d.Get("framework_id").(string))
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
@@ -1238,11 +1319,16 @@ func expandCloudSecurityComplianceFrameworkDisplayName(v interface{}, d tpgresou
 
 func resourceCloudSecurityComplianceFrameworkEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// Build the fullname for the Framework resource from the provided
-	// organization, location and frameworkId fields and set it on the
+	// parent, location and framework_id fields and set it on the
 	// API object that will be sent in the request.
-	org, ok := d.Get("organization").(string)
-	if !ok || org == "" {
-		return nil, fmt.Errorf("organization is required and must be a non-empty string")
+	// Extract the parent scope, falling back to organization for backward compatibility
+	var parentStr string
+	if parent, ok := d.GetOk("parent"); ok && parent.(string) != "" {
+		parentStr = parent.(string)
+	} else if org, ok := d.GetOk("organization"); ok && org.(string) != "" {
+		parentStr = fmt.Sprintf("organizations/%s", org.(string))
+	} else {
+		return nil, fmt.Errorf("either parent or organization must be provided")
 	}
 	loc, ok := d.Get("location").(string)
 	if !ok || loc == "" {
@@ -1253,9 +1339,27 @@ func resourceCloudSecurityComplianceFrameworkEncoder(d *schema.ResourceData, met
 		return nil, fmt.Errorf("framework_id is required and must be a non-empty string")
 	}
 	// Compose the resource name in the expected API format.
-	name := fmt.Sprintf("organizations/%s/locations/%s/frameworks/%s", org, loc, fw)
+	name := fmt.Sprintf("%s/locations/%s/frameworks/%s", parentStr, loc, fw)
 	obj["name"] = name
 	return obj, nil
+}
+
+func identityCloudSecurityComplianceFrameworkResourceV1() tftypes.Type {
+	return tftypes.Object{
+		AttributeTypes: map[string]tftypes.Type{
+			"organization": tftypes.String,
+			"location":     tftypes.String,
+			"framework_id": tftypes.String,
+		},
+	}
+}
+
+func IdentityCloudSecurityComplianceFrameworkUpgradeV1(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	if org, ok := rawState["organization"].(string); ok && org != "" {
+		rawState["parent"] = "organizations/" + org
+		delete(rawState, "organization")
+	}
+	return rawState, nil
 }
 
 func ResourceCloudSecurityComplianceFrameworkFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {

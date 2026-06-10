@@ -30,7 +30,9 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/apphub"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudsecuritycompliance"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -52,7 +54,7 @@ var (
 	_ = cloudsecuritycompliance.Product
 )
 
-func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentBasicExample(t *testing.T) {
+func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgBasicExample(t *testing.T) {
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -70,13 +72,13 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 		CheckDestroy:             testAccCheckCloudSecurityComplianceFrameworkDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentBasicExample(context),
+				Config: testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgBasicExample(context),
 			},
 			{
 				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization"},
+				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
@@ -88,10 +90,10 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 	})
 }
 
-func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentBasicExample(context map[string]interface{}) string {
+func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_security_compliance_framework" "example" {
-  organization = "%{org_id}"
+  parent       = "organizations/%{org_id}"
   location     = "global"
   framework_id = "%{framework_name}"
   
@@ -100,7 +102,7 @@ resource "google_cloud_security_compliance_framework" "example" {
   
   cloud_control_details {
 		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-		major_revision_id = "1"
+		major_revision_id = "2"
     
     parameters {
       name = "location"
@@ -158,7 +160,7 @@ resource "google_cloud_security_compliance_framework" "example" {
 }
 
 resource "google_cloud_security_compliance_framework_deployment" "example" {
-  organization            = "%{org_id}"
+  parent            = "organizations/%{org_id}"
   location                = "global"
   framework_deployment_id = "%{deployment_name}"
   description             = "A framework deployment for cloud security compliance"
@@ -177,7 +179,211 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
     
     cloud_control_details {
       name                  = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-      major_revision_id     = "1"
+      major_revision_id     = "2"
+      
+      parameters {
+        name = "enabled"
+        parameter_value {
+          bool_value = true
+        }
+      }
+      
+      parameters {
+        name = "regions"
+        parameter_value {
+          string_list_value {
+            values = ["us-central1", "us-west1", "us-east1"]
+          }
+        }
+      }
+      
+      parameters {
+        name = "location"
+        parameter_value {
+          string_value = "us-central1"
+        }
+      }
+      parameters {
+        name = "oneof-parameter"
+        parameter_value {
+          oneof_value {
+            name = "test-oneof"
+            parameter_value {
+              string_value = "test-value"
+            }
+          }
+        }
+      }
+      parameters {
+        name = "bool-parameter"
+        parameter_value {
+          oneof_value {
+            name = "bool-oneof"
+            parameter_value {
+              bool_value = true
+            }
+          }
+        }
+      }
+      parameters {
+        name = "number-parameter"
+        parameter_value {
+          oneof_value {
+            name = "number-oneof"
+            parameter_value {
+              number_value = 123.45
+            }
+          }
+        }
+      }
+      parameters {
+        name = "string-list-parameter"
+        parameter_value {
+          oneof_value {
+            name = "string-list-oneof"
+            parameter_value {
+              string_list_value {
+                values = ["value1", "value2"]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+}
+`, context)
+}
+
+func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentProjectBasicExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"deployment_name": "tf-test-example-deployment" + randomSuffix,
+		"framework_name":  "tf-test-example-framework" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudSecurityComplianceFrameworkDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentProjectBasicExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
+			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentProjectBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+resource "google_cloud_security_compliance_framework" "example" {
+  parent       = "projects/${data.google_project.project.number}"
+  location     = "global"
+  framework_id = "%{framework_name}"
+  
+  display_name = "Terraform Framework Name"
+  description  = "An Terraform description for the framework"
+  
+  cloud_control_details {
+		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_value = "us-central1"
+      }
+    }
+    parameters {
+      name = "oneof-parameter"
+      parameter_value {
+        oneof_value {
+          name = "test-oneof"
+          parameter_value {
+            string_value = "test-value"
+          }
+        }
+      }
+    }
+    parameters {
+      name = "bool-parameter"
+      parameter_value {
+        oneof_value {
+          name = "bool-oneof"
+          parameter_value {
+            bool_value = true
+          }
+        }
+      }
+    }
+    parameters {
+      name = "number-parameter"
+      parameter_value {
+        oneof_value {
+          name = "number-oneof"
+          parameter_value {
+            number_value = 123.45
+          }
+        }
+      }
+    }
+    parameters {
+      name = "string-list-parameter"
+      parameter_value {
+        oneof_value {
+          name = "string-list-oneof"
+          parameter_value {
+            string_list_value {
+              values = ["value1", "value2"]
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework_deployment" "example" {
+  parent                  = "projects/${data.google_project.project.number}"
+  location                = "global"
+  framework_deployment_id = "%{deployment_name}"
+  description             = "A framework deployment for cloud security compliance"
+  
+  framework {
+    framework         = google_cloud_security_compliance_framework.example.name
+    major_revision_id = "1"
+  }
+  
+  target_resource_config {
+    existing_target_resource = "projects/${data.google_project.project.project_id}"
+  }
+  
+  cloud_control_metadata {
+    enforcement_mode = "DETECTIVE"
+    
+    cloud_control_details {
+      name                  = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
+      major_revision_id     = "2"
       
       parameters {
         name = "enabled"
@@ -280,7 +486,7 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization"},
+				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
@@ -295,7 +501,7 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentFolderCreationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_security_compliance_framework" "example" {
-  organization = "%{org_id}"
+  parent       = "organizations/%{org_id}"
   location     = "global"
   framework_id = "%{framework_name}"
   
@@ -304,7 +510,7 @@ resource "google_cloud_security_compliance_framework" "example" {
   
   cloud_control_details {
 		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-		major_revision_id = "1"
+		major_revision_id = "2"
     
     parameters {
       name = "location"
@@ -316,7 +522,7 @@ resource "google_cloud_security_compliance_framework" "example" {
 }
 
 resource "google_cloud_security_compliance_framework_deployment" "example" {
-  organization            = "%{org_id}"
+  parent            = "organizations/%{org_id}"
   location                = "global"
   framework_deployment_id = "%{deployment_name}"
   description             = "A framework deployment with folder creation config"
@@ -340,7 +546,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
     
     cloud_control_details {
       name              = google_cloud_security_compliance_framework.example.cloud_control_details[0].name
-      major_revision_id = "1"
+      major_revision_id = "2"
       
       parameters {
         name = "location"
@@ -380,7 +586,7 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization"},
+				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
@@ -395,7 +601,7 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentProjectCreationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_security_compliance_framework" "example" {
-  organization = "%{org_id}"
+  parent       = "organizations/%{org_id}"
   location     = "global"
   framework_id = "%{framework_name}"
   
@@ -404,7 +610,7 @@ resource "google_cloud_security_compliance_framework" "example" {
   
   cloud_control_details {
 		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-		major_revision_id = "1"
+		major_revision_id = "2"
     
     parameters {
       name = "location"
@@ -416,7 +622,7 @@ resource "google_cloud_security_compliance_framework" "example" {
 }
 
 resource "google_cloud_security_compliance_framework_deployment" "example" {
-  organization            = "%{org_id}"
+  parent                  = "organizations/%{org_id}"
   location                = "global"
   framework_deployment_id = "%{deployment_name}"
   description             = "A framework deployment with project creation config"
@@ -440,8 +646,8 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
     enforcement_mode = "DETECTIVE"
     
     cloud_control_details {
-  name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-      major_revision_id = "1"
+      name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
+      major_revision_id = "2"
       
       parameters {
         name = "location"
@@ -451,6 +657,303 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
       }
     }
   }
+}
+`, context)
+}
+
+func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgProjectBasicExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"deployment_name": "tf-test-example-deployment" + randomSuffix,
+		"framework_name":  "tf-test-example-framework" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudSecurityComplianceFrameworkDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgProjectBasicExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
+			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgProjectBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_cloud_security_compliance_framework" "example" {
+  parent       = "organizations/%{org_id}"
+  location     = "global"
+  framework_id = "%{framework_name}"
+  
+  display_name = "Terraform Framework Name"
+  description  = "A Terraform description for the framework"
+  
+  cloud_control_details {
+    name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+    major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        number_value = 1
+      }
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework_deployment" "example" {
+  parent                  = "organizations/%{org_id}"
+  location                = "global"
+  framework_deployment_id = "%{deployment_name}"
+  description             = "A framework deployment with org parent targeting a project"
+  
+  framework {
+    framework             = google_cloud_security_compliance_framework.example.name
+    major_revision_id     = "1" # A brand new custom framework starts at revision 1
+  }
+  
+  target_resource_config {
+    # Using project_id ensures the API's response matches Terraform's state
+    existing_target_resource = "projects/${data.google_project.project.project_id}"
+  }
+  
+  cloud_control_metadata {
+    enforcement_mode = "DETECTIVE"
+    
+    cloud_control_details {
+      name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+      major_revision_id = "2"
+      
+      parameters {
+        name = "location"
+        parameter_value {
+          number_value = 1
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentProjectApplicationBasicExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"app_name":        "tf-test-example-app" + randomSuffix,
+		"deployment_name": "tf-test-example-deployment" + randomSuffix,
+		"framework_name":  "tf-test-example-framework" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudSecurityComplianceFrameworkDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentProjectApplicationBasicExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
+			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentProjectApplicationBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+# App Hub Application resource to act as the target
+resource "google_apphub_application" "application" {
+  location       = "us-central1"
+  application_id = "%{app_name}"
+  scope {
+    type = "REGIONAL"
+  }
+}
+
+resource "google_cloud_security_compliance_framework" "example" {
+  parent       = "projects/${data.google_project.project.number}"
+  location     = "global"
+  framework_id = "%{framework_name}"
+  
+  display_name = "Terraform Framework Name"
+  description  = "A Terraform description for the framework"
+  
+  cloud_control_details {
+    name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+    major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        number_value = 1
+      }
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework_deployment" "example" {
+  parent                  = "projects/${data.google_project.project.number}"
+  location                = "global"
+  framework_deployment_id = "%{deployment_name}"
+  description             = "A framework deployment with project parent targeting an application"
+  
+  framework {
+    framework             = google_cloud_security_compliance_framework.example.name
+    major_revision_id     = "1"
+  }
+  
+  target_resource_config {
+    # Target the App Hub Application's fully qualified ID 
+    # e.g., projects/abc/locations/us-central1/applications/app-name
+    existing_target_resource = "projects/${data.google_project.project.number}/locations/us-central1/applications/${google_apphub_application.application.application_id}"
+  }
+  
+  cloud_control_metadata {
+    enforcement_mode = "DETECTIVE"
+    
+    cloud_control_details {
+      name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-require-cmek-on-bigquery-datasets"
+      major_revision_id = "2"
+      
+      parameters {
+        name = "location"
+        parameter_value {
+          number_value = 1
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgBasicBackwardExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"deployment_name": "tf-test-example-deployment" + randomSuffix,
+		"framework_name":  "tf-test-example-framework" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudSecurityComplianceFrameworkDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgBasicBackwardExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
+			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgBasicBackwardExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_security_compliance_framework" "example" {
+  organization = "%{org_id}"
+  location     = "global"
+  framework_id = "%{framework_name}"
+  
+  display_name = "Terraform Framework Name"
+  description  = "An Terraform description for the framework"
+  
+  cloud_control_details {
+		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
+		major_revision_id = "2"
+    
+    parameters {
+      name = "location"
+      parameter_value {
+        string_value = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework_deployment" "example" {
+  organization            = "%{org_id}"
+  location                = "global"
+  framework_deployment_id = "%{deployment_name}"
+  description             = "A framework deployment for cloud security compliance"
+  
+  framework {
+    framework         = google_cloud_security_compliance_framework.example.name
+    major_revision_id = "1"
+  }
+  
+  target_resource_config {
+    existing_target_resource = "organizations/%{org_id}"
+  }
+  
+  cloud_control_metadata {
+    enforcement_mode = "DETECTIVE"
+    
+    cloud_control_details {
+      name                  = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
+      major_revision_id     = "2"
+      
+      parameters {
+        name = "enabled"
+        parameter_value {
+          bool_value = true
+        }
+      }
+    }
+  }
+
+
 }
 `, context)
 }
@@ -466,7 +969,7 @@ func testAccCheckCloudSecurityComplianceFrameworkDeploymentDestroyProducer(t *te
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(cloudsecuritycompliance.Product, config)+"organizations/{{organization}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(cloudsecuritycompliance.Product, config)+"{{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
 			if err != nil {
 				return err
 			}

@@ -6,6 +6,9 @@ source_file: products/cloudsecuritycompliance/CloudControl.yaml
 api_service_name: cloudsecuritycompliance.googleapis.com
 api_version: v1
 api_resource_type_kind: CloudControl
+api_variant_patterns:
+    - organizations/{organization}/locations/{location}/cloudControls/{cloudControl}
+    - projects/{project}/locations/{location}/cloudControls/{cloudControl}
 autogen_status: true
 autogen_version: 1
 fields:
@@ -78,6 +81,8 @@ fields:
     - api_field: parameterSpec.validation.intRange.min
     - api_field: parameterSpec.validation.regexpPattern.pattern
     - api_field: parameterSpec.valueType
+    - field: parent
+      provider_only: true
     - api_field: relatedFrameworks
     - api_field: remediationSteps
     - api_field: rules.celExpression.expression
