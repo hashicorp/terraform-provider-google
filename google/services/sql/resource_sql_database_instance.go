@@ -645,6 +645,18 @@ API (for read pools, effective_availability_type may differ from availability_ty
 													Optional:    true,
 													Description: `Whether PSC connectivity is enabled for this instance.`,
 												},
+												"psc_auto_dns_enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Computed:    true,
+													Description: `Whether PSC auto DNS is enabled for this instance.`,
+												},
+												"psc_write_endpoint_dns_enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Computed:    true,
+													Description: `Whether PSC write endpoint DNS is enabled for this instance.`,
+												},
 												"allowed_consumer_projects": {
 													Type:     schema.TypeSet,
 													Optional: true,
@@ -2024,10 +2036,12 @@ func expandPscConfig(configured []interface{}) *sqladmin.PscConfig {
 	for _, _pscConfig := range configured {
 		_entry := _pscConfig.(map[string]interface{})
 		return &sqladmin.PscConfig{
-			PscEnabled:              _entry["psc_enabled"].(bool),
-			AllowedConsumerProjects: tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
-			NetworkAttachmentUri:    _entry["network_attachment_uri"].(string),
-			PscAutoConnections:      expandPscAutoConnectionConfig(_entry["psc_auto_connections"].([]interface{})),
+			PscEnabled:                 _entry["psc_enabled"].(bool),
+			PscAutoDnsEnabled:          _entry["psc_auto_dns_enabled"].(bool),
+			PscWriteEndpointDnsEnabled: _entry["psc_write_endpoint_dns_enabled"].(bool),
+			AllowedConsumerProjects:    tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
+			NetworkAttachmentUri:       _entry["network_attachment_uri"].(string),
+			PscAutoConnections:         expandPscAutoConnectionConfig(_entry["psc_auto_connections"].([]interface{})),
 		}
 	}
 
@@ -3386,10 +3400,12 @@ func flattenPscAutoConnections(pscAutoConnections []*sqladmin.PscAutoConnectionC
 
 func flattenPscConfigs(pscConfig *sqladmin.PscConfig) interface{} {
 	data := map[string]interface{}{
-		"psc_enabled":               pscConfig.PscEnabled,
-		"allowed_consumer_projects": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(pscConfig.AllowedConsumerProjects)),
-		"network_attachment_uri":    pscConfig.NetworkAttachmentUri,
-		"psc_auto_connections":      flattenPscAutoConnections(pscConfig.PscAutoConnections),
+		"psc_enabled":                    pscConfig.PscEnabled,
+		"psc_auto_dns_enabled":           pscConfig.PscAutoDnsEnabled,
+		"psc_write_endpoint_dns_enabled": pscConfig.PscWriteEndpointDnsEnabled,
+		"allowed_consumer_projects":      schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(pscConfig.AllowedConsumerProjects)),
+		"network_attachment_uri":         pscConfig.NetworkAttachmentUri,
+		"psc_auto_connections":           flattenPscAutoConnections(pscConfig.PscAutoConnections),
 	}
 
 	return []map[string]interface{}{data}

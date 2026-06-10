@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `settings.ip_configuration.psc_config.psc_auto_dns_enabled` and `settings.ip_configuration.psc_config.psc_write_endpoint_dns_enabled` fields to `google_sql_database_instance` resource
+```
