@@ -19,6 +19,7 @@ package compute
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -1408,7 +1409,10 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 	default:
 		numericId = fmt.Sprintf("%v", v)
 	}
-	selfLink, _ := res["selfLink"].(string)
+	selfLink, ok := res["selfLink"].(string)
+	if !ok && res["selfLink"] != nil {
+		log.Printf("[WARN] resourceComputeRegionInstanceTemplateRead: unexpected type for selfLink: %T", res["selfLink"])
+	}
 	delete(res, "id")
 
 	resBytes, err := json.Marshal(res)
@@ -1522,7 +1526,11 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 		return err
 	}
 	if instanceTemplate.Properties.NetworkInterfaces != nil {
-		networkInterfaces, region, _, _, err := flattenNetworkInterfaces(d, config, instanceTemplate.Properties.NetworkInterfaces)
+		networkInterfacesRaw, err := networkInterfacesToInterface(instanceTemplate.Properties.NetworkInterfaces)
+		if err != nil {
+			return err
+		}
+		networkInterfaces, region, _, _, err := flattenNetworkInterfaces(d, config, networkInterfacesRaw)
 		if err != nil {
 			return err
 		}

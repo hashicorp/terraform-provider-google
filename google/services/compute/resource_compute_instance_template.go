@@ -2040,7 +2040,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 	if instanceTemplate.Properties.NetworkInterfaces != nil {
-		networkInterfaces, region, _, _, err := flattenNetworkInterfaces(d, config, instanceTemplate.Properties.NetworkInterfaces)
+		networkInterfacesRaw, err := networkInterfacesToInterface(instanceTemplate.Properties.NetworkInterfaces)
+		if err != nil {
+			return err
+		}
+		networkInterfaces, region, _, _, err := flattenNetworkInterfaces(d, config, networkInterfacesRaw)
 		if err != nil {
 			return err
 		}

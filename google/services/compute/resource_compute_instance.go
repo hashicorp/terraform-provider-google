@@ -2033,7 +2033,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	// Set the networks
 	// Use the first external IP found for the default connection info.
-	networkInterfaces, _, internalIP, externalIP, err := flattenNetworkInterfaces(d, config, instance.NetworkInterfaces)
+	networkInterfacesRaw, err := networkInterfacesToInterface(instance.NetworkInterfaces)
+	if err != nil {
+		return err
+	}
+	networkInterfaces, _, internalIP, externalIP, err := flattenNetworkInterfaces(d, config, networkInterfacesRaw)
 	if err != nil {
 		return err
 	}
@@ -4018,7 +4022,10 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		opErr := ComputeOperationWaitTime(config, res, project, "instance to delete", userAgent, d.Timeout(schema.TimeoutDelete))
 		if opErr != nil {
 			// Refresh operation status via its selfLink
-			selfLink, _ := res["selfLink"].(string)
+			selfLink, ok := res["selfLink"].(string)
+			if !ok && res["selfLink"] != nil {
+				log.Printf("[WARN] resourceComputeInstanceDelete: unexpected type for selfLink: %T", res["selfLink"])
+			}
 			if selfLink == "" {
 				return opErr
 			}
@@ -4030,7 +4037,10 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 				UserAgent: userAgent,
 			})
 			// Do not return an error if the operation actually completed
-			opStatus, _ := opCheck["status"].(string)
+			opStatus, ok := opCheck["status"].(string)
+			if !ok && opCheck["status"] != nil {
+				log.Printf("[WARN] resourceComputeInstanceDelete: unexpected type for operation status: %T", opCheck["status"])
+			}
 			if opCheck == nil || opStatus != "DONE" {
 				return opErr
 			}
