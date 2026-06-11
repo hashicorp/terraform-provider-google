@@ -761,10 +761,6 @@ func flattenApigeeDeveloperAppCallbackUrl(v interface{}, d *schema.ResourceData,
 	return v
 }
 
-func flattenApigeeDeveloperAppKeyExpiresIn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenApigeeDeveloperAppApiProducts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1043,9 +1039,6 @@ func ResourceApigeeDeveloperAppFlatten(d *schema.ResourceData, meta interface{},
 		return fmt.Errorf("Error reading DeveloperApp: %s", err)
 	}
 	if err = d.Set("callback_url", flattenApigeeDeveloperAppCallbackUrl(res["callbackUrl"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeveloperApp: %s", err)
-	}
-	if err = d.Set("key_expires_in", flattenApigeeDeveloperAppKeyExpiresIn(res["keyExpiresIn"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DeveloperApp: %s", err)
 	}
 	if err = d.Set("api_products", flattenApigeeDeveloperAppApiProducts(res["apiProducts"], d, config)); err != nil {
