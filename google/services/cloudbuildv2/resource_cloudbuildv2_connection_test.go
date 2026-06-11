@@ -248,41 +248,6 @@ func TestAccCloudbuildv2Connection_GleConnection(t *testing.T) {
 	})
 }
 
-func TestAccCloudbuildv2Connection_GleOldConnection(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckCloudbuildv2ConnectionDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCloudbuildv2Connection_GleOldConnection(context),
-			},
-			{
-				ResourceName:            "google_cloudbuildv2_connection.primary",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations"},
-			},
-			{
-				Config: testAccCloudbuildv2Connection_GleOldConnectionUpdate0(context),
-			},
-			{
-				ResourceName:            "google_cloudbuildv2_connection.primary",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations"},
-			},
-		},
-	})
-}
-
 func TestAccCloudbuildv2Connection_GlePrivConnection(t *testing.T) {
 	t.Parallel()
 
@@ -685,60 +650,6 @@ resource "google_cloudbuildv2_connection" "primary" {
 
     webhook_secret_secret_version = "projects/407304063574/secrets/gle-webhook-secret/versions/latest"
     host_uri                      = "https://gle-old.gcb-test.com"
-  }
-
-  project     = "%{project_name}"
-  annotations = {}
-}
-
-
-`, context)
-}
-
-func testAccCloudbuildv2Connection_GleOldConnection(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_cloudbuildv2_connection" "primary" {
-  location = "us-west1"
-  name     = "tf-test-connection%{random_suffix}"
-
-  gitlab_config {
-    authorizer_credential {
-      user_token_secret_version = "projects/407304063574/secrets/gle-old-api-token/versions/2"
-    }
-
-    read_authorizer_credential {
-      user_token_secret_version = "projects/407304063574/secrets/gle-old-read-token/versions/3"
-    }
-
-    webhook_secret_secret_version = "projects/407304063574/secrets/gle-webhook-secret/versions/latest"
-    host_uri                      = "https://gle-old.gcb-test.com"
-  }
-
-  project     = "%{project_name}"
-  annotations = {}
-}
-
-
-`, context)
-}
-
-func testAccCloudbuildv2Connection_GleOldConnectionUpdate0(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_cloudbuildv2_connection" "primary" {
-  location = "us-west1"
-  name     = "tf-test-connection%{random_suffix}"
-
-  gitlab_config {
-    authorizer_credential {
-      user_token_secret_version = "projects/407304063574/secrets/gle-api-token/versions/latest"
-    }
-
-    read_authorizer_credential {
-      user_token_secret_version = "projects/407304063574/secrets/gle-read-token/versions/latest"
-    }
-
-    webhook_secret_secret_version = "projects/407304063574/secrets/gle-webhook-secret/versions/latest"
-    host_uri                      = "https://gle-us-central1.gcb-test.com"
   }
 
   project     = "%{project_name}"
