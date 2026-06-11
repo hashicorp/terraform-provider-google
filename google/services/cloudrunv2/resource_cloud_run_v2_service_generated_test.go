@@ -600,7 +600,6 @@ resource "google_cloud_run_v2_service" "default" {
   name     = "%{cloud_run_service_name}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
 
   template {
     containers {

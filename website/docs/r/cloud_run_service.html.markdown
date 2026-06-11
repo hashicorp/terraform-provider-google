@@ -225,12 +225,6 @@ resource "google_cloud_run_service" "default" {
   name     = "cloudrun-srv-rp"
   location = "us-central1"
 
-  metadata {
-    annotations = {
-      "run.googleapis.com/launch-stage" = "BETA"
-    }
-  }
-
   template {
     spec {
       containers {
