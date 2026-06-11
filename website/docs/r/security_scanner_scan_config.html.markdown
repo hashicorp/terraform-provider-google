@@ -71,12 +71,18 @@ resource "google_compute_address" "scanner_static_ip" {
   name     = "scan-ignore-http-ip"
 }
 
+resource "time_sleep" "wait_15_seconds" {
+  create_duration = "15s"
+  depends_on      = [google_compute_address.scanner_static_ip]
+}
+
 resource "google_security_scanner_scan_config" "scan-config" {
   provider                  = google-beta
   display_name              = "terraform-scan-config"
   starting_urls             = ["http://${google_compute_address.scanner_static_ip.address}"]
   target_platforms          = ["COMPUTE"]
   ignore_http_status_errors = true
+  depends_on                = [time_sleep.wait_15_seconds]
 }
 ```
 
