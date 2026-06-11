@@ -17,7 +17,9 @@
 package compute
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 
@@ -65,7 +67,7 @@ func expandAliasIpRanges(ranges []interface{}) []*compute.AliasIpRange {
 	return ipRanges
 }
 
-func flattenAliasIpRange(d *schema.ResourceData, ranges []*compute.AliasIpRange, i int) []map[string]interface{} {
+func flattenAliasIpRange(d *schema.ResourceData, ranges []interface{}, i int) []map[string]interface{} {
 	prefix := fmt.Sprintf("network_interface.%d", i)
 
 	configData := []map[string]interface{}{}
@@ -74,10 +76,22 @@ func flattenAliasIpRange(d *schema.ResourceData, ranges []*compute.AliasIpRange,
 	}
 
 	apiData := make([]map[string]interface{}, 0, len(ranges))
-	for _, ipRange := range ranges {
+	for _, raw := range ranges {
+		ipRange, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		ipCidrRange, ok := ipRange["ipCidrRange"].(string)
+		if !ok && ipRange["ipCidrRange"] != nil {
+			log.Printf("[WARN] flattenAliasIpRange: unexpected type for ipCidrRange: %T", ipRange["ipCidrRange"])
+		}
+		subnetworkRangeName, ok := ipRange["subnetworkRangeName"].(string)
+		if !ok && ipRange["subnetworkRangeName"] != nil {
+			log.Printf("[WARN] flattenAliasIpRange: unexpected type for subnetworkRangeName: %T", ipRange["subnetworkRangeName"])
+		}
 		apiData = append(apiData, map[string]interface{}{
-			"ip_cidr_range":         ipRange.IpCidrRange,
-			"subnetwork_range_name": ipRange.SubnetworkRangeName,
+			"ip_cidr_range":         ipCidrRange,
+			"subnetwork_range_name": subnetworkRangeName,
 		})
 	}
 
@@ -346,91 +360,234 @@ func flattenComputeLocalSsdRecoveryTimeout(v *compute.Duration) []interface{} {
 	return []interface{}{transformed}
 }
 
-func flattenAccessConfigs(accessConfigs []*compute.AccessConfig) ([]map[string]interface{}, string) {
-	flattened := make([]map[string]interface{}, len(accessConfigs))
+func flattenAccessConfigs(accessConfigs []interface{}) ([]map[string]interface{}, string) {
+	flattened := make([]map[string]interface{}, 0, len(accessConfigs))
 	natIP := ""
-	for i, ac := range accessConfigs {
-		flattened[i] = map[string]interface{}{
-			"nat_ip":       ac.NatIP,
-			"network_tier": ac.NetworkTier,
+	for _, raw := range accessConfigs {
+		ac, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
 		}
-		if ac.SetPublicPtr {
-			flattened[i]["public_ptr_domain_name"] = ac.PublicPtrDomainName
+		natIPVal, ok := ac["natIP"].(string)
+		if !ok && ac["natIP"] != nil {
+			log.Printf("[WARN] flattenAccessConfigs: unexpected type for natIP: %T", ac["natIP"])
+		}
+		networkTier, ok := ac["networkTier"].(string)
+		if !ok && ac["networkTier"] != nil {
+			log.Printf("[WARN] flattenAccessConfigs: unexpected type for networkTier: %T", ac["networkTier"])
+		}
+		entry := map[string]interface{}{
+			"nat_ip":       natIPVal,
+			"network_tier": networkTier,
+		}
+		if setPublicPtr, ok := ac["setPublicPtr"].(bool); ok && setPublicPtr {
+			entry["public_ptr_domain_name"] = ac["publicPtrDomainName"]
+		} else if !ok && ac["setPublicPtr"] != nil {
+			log.Printf("[WARN] flattenAccessConfigs: unexpected type for setPublicPtr: %T", ac["setPublicPtr"])
 		}
 		if natIP == "" {
-			natIP = ac.NatIP
+			natIP = natIPVal
 		}
+		flattened = append(flattened, entry)
 	}
 	return flattened, natIP
 }
 
-func flattenIpv6AccessConfigs(ipv6AccessConfigs []*compute.AccessConfig) []map[string]interface{} {
-	flattened := make([]map[string]interface{}, len(ipv6AccessConfigs))
-	for i, ac := range ipv6AccessConfigs {
-		flattened[i] = map[string]interface{}{
-			"network_tier": ac.NetworkTier,
+func flattenIpv6AccessConfigs(ipv6AccessConfigs []interface{}) []map[string]interface{} {
+	flattened := make([]map[string]interface{}, 0, len(ipv6AccessConfigs))
+	for _, raw := range ipv6AccessConfigs {
+		ac, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
 		}
-		flattened[i]["public_ptr_domain_name"] = ac.PublicPtrDomainName
-		flattened[i]["external_ipv6"] = ac.ExternalIpv6
-		flattened[i]["external_ipv6_prefix_length"] = strconv.FormatInt(ac.ExternalIpv6PrefixLength, 10)
-		flattened[i]["name"] = ac.Name
+		networkTier, ok := ac["networkTier"].(string)
+		if !ok && ac["networkTier"] != nil {
+			log.Printf("[WARN] flattenIpv6AccessConfigs: unexpected type for networkTier: %T", ac["networkTier"])
+		}
+		publicPtrDomainName, ok := ac["publicPtrDomainName"].(string)
+		if !ok && ac["publicPtrDomainName"] != nil {
+			log.Printf("[WARN] flattenIpv6AccessConfigs: unexpected type for publicPtrDomainName: %T", ac["publicPtrDomainName"])
+		}
+		externalIpv6, ok := ac["externalIpv6"].(string)
+		if !ok && ac["externalIpv6"] != nil {
+			log.Printf("[WARN] flattenIpv6AccessConfigs: unexpected type for externalIpv6: %T", ac["externalIpv6"])
+		}
+		name, ok := ac["name"].(string)
+		if !ok && ac["name"] != nil {
+			log.Printf("[WARN] flattenIpv6AccessConfigs: unexpected type for name: %T", ac["name"])
+		}
+		entry := map[string]interface{}{
+			"network_tier": networkTier,
+		}
+		entry["public_ptr_domain_name"] = publicPtrDomainName
+		entry["external_ipv6"] = externalIpv6
+		entry["external_ipv6_prefix_length"] = strconv.FormatInt(flattenNetworkInterfaceInt64(ac["externalIpv6PrefixLength"]), 10)
+		entry["name"] = name
+		flattened = append(flattened, entry)
 	}
 	return flattened
 }
 
-func flattenNetworkInterfaces(d *schema.ResourceData, config *transport_tpg.Config, networkInterfaces []*compute.NetworkInterface) ([]map[string]interface{}, string, string, string, error) {
+// flattenNetworkInterfaceInt64 coerces a numeric value decoded from a JSON
+// response (typically float64) into an int64. It tolerates the int variants in
+// case the value originated from a typed struct converted via ConvertToMap.
+func flattenNetworkInterfaceInt64(v interface{}) int64 {
+	switch t := v.(type) {
+	case float64:
+		return int64(t)
+	case int64:
+		return t
+	case int:
+		return int64(t)
+	}
+	return 0
+}
+
+func flattenNetworkInterfaces(d *schema.ResourceData, config *transport_tpg.Config, networkInterfaces []interface{}) ([]map[string]interface{}, string, string, string, error) {
 	flattened := make([]map[string]interface{}, len(networkInterfaces))
 	var region, internalIP, externalIP string
 
-	for i, iface := range networkInterfaces {
-		var ac []map[string]interface{}
-		ac, externalIP = flattenAccessConfigs(iface.AccessConfigs)
+	for i, raw := range networkInterfaces {
+		iface, ok := raw.(map[string]interface{})
+		if !ok {
+			return nil, "", "", "", fmt.Errorf("expected map[string]interface{} for network interface element at index %d, got %T", i, raw)
+		}
 
-		subnet, err := tpgresource.ParseSubnetworkFieldValue(iface.Subnetwork, d, config)
+		accessConfigs, ok := iface["accessConfigs"].([]interface{})
+		if !ok && iface["accessConfigs"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for accessConfigs at index %d: %T", i, iface["accessConfigs"])
+		}
+		if accessConfigs == nil {
+			accessConfigs = []interface{}{}
+		}
+		ipv6AccessConfigs, ok := iface["ipv6AccessConfigs"].([]interface{})
+		if !ok && iface["ipv6AccessConfigs"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for ipv6AccessConfigs at index %d: %T", i, iface["ipv6AccessConfigs"])
+		}
+		if ipv6AccessConfigs == nil {
+			ipv6AccessConfigs = []interface{}{}
+		}
+		aliasIpRanges, ok := iface["aliasIpRanges"].([]interface{})
+		if !ok && iface["aliasIpRanges"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for aliasIpRanges at index %d: %T", i, iface["aliasIpRanges"])
+		}
+		if aliasIpRanges == nil {
+			aliasIpRanges = []interface{}{}
+		}
+
+		var ac []map[string]interface{}
+		ac, externalIP = flattenAccessConfigs(accessConfigs)
+
+		networkIP, ok := iface["networkIP"].(string)
+		if !ok && iface["networkIP"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for networkIP at index %d: %T", i, iface["networkIP"])
+		}
+		network, ok := iface["network"].(string)
+		if !ok && iface["network"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for network at index %d: %T", i, iface["network"])
+		}
+		subnetwork, ok := iface["subnetwork"].(string)
+		if !ok && iface["subnetwork"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for subnetwork at index %d: %T", i, iface["subnetwork"])
+		}
+		parentNicName, ok := iface["parentNicName"].(string)
+		if !ok && iface["parentNicName"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for parentNicName at index %d: %T", i, iface["parentNicName"])
+		}
+		nicType, ok := iface["nicType"].(string)
+		if !ok && iface["nicType"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for nicType at index %d: %T", i, iface["nicType"])
+		}
+		stackType, ok := iface["stackType"].(string)
+		if !ok && iface["stackType"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for stackType at index %d: %T", i, iface["stackType"])
+		}
+		ipv6Address, ok := iface["ipv6Address"].(string)
+		if !ok && iface["ipv6Address"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for ipv6Address at index %d: %T", i, iface["ipv6Address"])
+		}
+		igmpQuery, ok := iface["igmpQuery"].(string)
+		if !ok && iface["igmpQuery"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for igmpQuery at index %d: %T", i, iface["igmpQuery"])
+		}
+
+		subnet, err := tpgresource.ParseSubnetworkFieldValue(subnetwork, d, config)
 		if err != nil {
 			return nil, "", "", "", err
 		}
 		region = subnet.Region
 
 		flattened[i] = map[string]interface{}{
-			"network_ip":         iface.NetworkIP,
-			"network":            tpgresource.ConvertSelfLinkToV1(iface.Network),
-			"parent_nic_name":    iface.ParentNicName,
-			"vlan":               iface.Vlan,
-			"subnetwork":         tpgresource.ConvertSelfLinkToV1(iface.Subnetwork),
+			"network_ip":         networkIP,
+			"network":            tpgresource.ConvertSelfLinkToV1(network),
+			"parent_nic_name":    parentNicName,
+			"vlan":               flattenNetworkInterfaceInt64(iface["vlan"]),
+			"subnetwork":         tpgresource.ConvertSelfLinkToV1(subnetwork),
 			"subnetwork_project": subnet.Project,
 			"access_config":      ac,
-			"alias_ip_range":     flattenAliasIpRange(d, iface.AliasIpRanges, i),
+			"alias_ip_range":     flattenAliasIpRange(d, aliasIpRanges, i),
 
-			"nic_type":                    iface.NicType,
-			"stack_type":                  iface.StackType,
-			"ipv6_access_config":          flattenIpv6AccessConfigs(iface.Ipv6AccessConfigs),
-			"ipv6_address":                iface.Ipv6Address,
-			"queue_count":                 iface.QueueCount,
-			"internal_ipv6_prefix_length": iface.InternalIpv6PrefixLength,
-			"igmp_query":                  iface.IgmpQuery,
+			"nic_type":                    nicType,
+			"stack_type":                  stackType,
+			"ipv6_access_config":          flattenIpv6AccessConfigs(ipv6AccessConfigs),
+			"ipv6_address":                ipv6Address,
+			"queue_count":                 flattenNetworkInterfaceInt64(iface["queueCount"]),
+			"internal_ipv6_prefix_length": flattenNetworkInterfaceInt64(iface["internalIpv6PrefixLength"]),
+			"igmp_query":                  igmpQuery,
 		}
 		// Instance template interfaces never have names, so they're absent
 		// in the instance template network_interface schema. We want to use the
 		// same flattening code for both resource types, so we avoid trying to
 		// set the name field when it's not set at the GCE end.
-		if iface.Name != "" {
-			flattened[i]["name"] = iface.Name
+		if name, ok := iface["name"].(string); ok && name != "" {
+			flattened[i]["name"] = name
+		} else if !ok && iface["name"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for name at index %d: %T", i, iface["name"])
 		}
 		if internalIP == "" {
-			internalIP = iface.NetworkIP
+			internalIP = networkIP
 		}
 
-		if iface.NetworkAttachment != "" {
-			networkAttachment, err := tpgresource.GetRelativePath(iface.NetworkAttachment)
+		if networkAttachment, ok := iface["networkAttachment"].(string); ok && networkAttachment != "" {
+			relativeNetworkAttachment, err := tpgresource.GetRelativePath(networkAttachment)
 			if err != nil {
 				return nil, "", "", "", err
 			}
-			flattened[i]["network_attachment"] = networkAttachment
+			flattened[i]["network_attachment"] = relativeNetworkAttachment
+		} else if !ok && iface["networkAttachment"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for networkAttachment at index %d: %T", i, iface["networkAttachment"])
 		}
 
 	}
 	return flattened, region, internalIP, externalIP, nil
+}
+
+// getInterfaceSlice safely extracts a []interface{} from a value decoded from a
+// JSON response, returning nil when the value is absent or of another type.
+func getInterfaceSlice(v interface{}) []interface{} {
+	s, _ := v.([]interface{})
+	return s
+}
+
+// networkInterfacesToInterface converts a slice of typed Apiary network
+// interface structs into the []interface{} of JSON-shaped maps expected by
+// flattenNetworkInterfaces. This bridges callers that still read the instance
+// via the typed compute client; once those reads migrate to SendRequest the
+// response is already in this shape and the adapter can be dropped.
+func networkInterfacesToInterface(networkInterfaces []*compute.NetworkInterface) ([]interface{}, error) {
+	result := make([]interface{}, 0, len(networkInterfaces))
+	for _, ni := range networkInterfaces {
+		b, err := json.Marshal(ni)
+		if err != nil {
+			return nil, err
+		}
+		var m map[string]interface{}
+		if err := json.Unmarshal(b, &m); err != nil {
+			return nil, err
+		}
+		result = append(result, m)
+	}
+	return result, nil
 }
 
 func expandAccessConfigs(configs []interface{}) []*compute.AccessConfig {
@@ -871,13 +1028,19 @@ func flattenReservationAffinity(affinity map[string]interface{}) []map[string]in
 		return nil
 	}
 
-	consumeType, _ := affinity["consumeReservationType"].(string)
+	consumeType, ok := affinity["consumeReservationType"].(string)
+	if !ok && affinity["consumeReservationType"] != nil {
+		log.Printf("[WARN] flattenReservationAffinity: unexpected type for consumeReservationType: %T", affinity["consumeReservationType"])
+	}
 	flattened := map[string]interface{}{
 		"type": consumeType,
 	}
 
 	if consumeType == "SPECIFIC_RESERVATION" {
-		key, _ := affinity["key"].(string)
+		key, ok := affinity["key"].(string)
+		if !ok && affinity["key"] != nil {
+			log.Printf("[WARN] flattenReservationAffinity: unexpected type for key: %T", affinity["key"])
+		}
 		flattened["specific_reservation"] = []map[string]interface{}{{
 			"key":    key,
 			"values": affinity["values"],
