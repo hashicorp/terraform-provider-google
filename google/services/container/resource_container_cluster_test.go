@@ -2804,6 +2804,26 @@ func TestAccContainerCluster_withNodeConfigReservationAffinitySpecific(t *testin
 	})
 }
 
+func TestAccContainerCluster_withNodeConfigNodeImageConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccContainerCluster_withNodeConfigNodeImageConfig(clusterName, networkName, subnetworkName, "test-cos-image", "test-image-project"),
+				ExpectError: regexp.MustCompile(`image 'test-cos-image' is not available in project 'test-image-project'`),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withWorkloadMetadataConfig(t *testing.T) {
 	t.Parallel()
 
@@ -9515,6 +9535,33 @@ resource "google_container_cluster" "with_node_config" {
   depends_on          = [google_project_service.container]
 }
 `, reservation, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodeConfigNodeImageConfig(clusterName, networkName, subnetworkName, imageName, imageProject string) string {
+	return fmt.Sprintf(`
+
+resource "google_container_cluster" "with_node_image_config" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+    node_image_config {
+      image = "%s"
+      image_project = "%s"
+    }
+    image_type = "CUSTOM_CONTAINERD"
+  }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, clusterName, imageName, imageProject, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withWorkloadMetadataConfig(clusterName, workloadMetadataConfigMode, networkName, subnetworkName string) string {
