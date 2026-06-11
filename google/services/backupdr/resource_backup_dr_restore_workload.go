@@ -1085,7 +1085,7 @@ func ResourceBackupDRRestoreWorkload() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `Optional. The destination environment for GCE VM restoration.`,
+				Description: `The destination environment for GCE VM restoration.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1100,6 +1100,12 @@ func ResourceBackupDRRestoreWorkload() *schema.Resource {
 							Required:    true,
 							ForceNew:    true,
 							Description: `Required. The zone of the Compute Engine instance.`,
+						},
+						"use_project_service_account": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `If true, use the BackupDR P4SA credentials for same-project restores. Default is false.`,
 						},
 					},
 				},
@@ -1309,7 +1315,7 @@ If false, only the restore record is removed from the state, leaving the resourc
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `Optional. The destination environment for zonal disk restoration.`,
+				Description: `The destination environment for zonal disk restoration.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1325,6 +1331,12 @@ If false, only the restore record is removed from the state, leaving the resourc
 							ForceNew:    true,
 							Description: `Required. Target zone for the disk.`,
 						},
+						"use_project_service_account": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `If true, use the BackupDR P4SA credentials for same-project restores. Default is false.`,
+						},
 					},
 				},
 			},
@@ -1339,7 +1351,7 @@ If false, only the restore record is removed from the state, leaving the resourc
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `Optional. The destination environment for regional disk restoration.`,
+				Description: `The destination environment for regional disk restoration.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1363,6 +1375,12 @@ If false, only the restore record is removed from the state, leaving the resourc
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+						},
+						"use_project_service_account": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `If true, use the BackupDR P4SA credentials for same-project restores. Default is false.`,
 						},
 					},
 				},
@@ -1526,6 +1544,9 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 			if val, ok := m["zone"]; ok {
 				env["zone"] = val.(string)
 			}
+			if val, ok := m["use_project_service_account"]; ok {
+				env["useProjectServiceAccount"] = val.(bool)
+			}
 			if len(env) > 0 {
 				obj["computeInstanceTargetEnvironment"] = env
 			}
@@ -1543,6 +1564,9 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 			}
 			if val, ok := m["zone"]; ok {
 				env["zone"] = val.(string)
+			}
+			if val, ok := m["use_project_service_account"]; ok {
+				env["useProjectServiceAccount"] = val.(bool)
 			}
 			if len(env) > 0 {
 				obj["diskTargetEnvironment"] = env
@@ -1564,6 +1588,9 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 			}
 			if zones, ok := m["replica_zones"]; ok {
 				env["replicaZones"] = zones
+			}
+			if val, ok := m["use_project_service_account"]; ok {
+				env["useProjectServiceAccount"] = val.(bool)
 			}
 			if len(env) > 0 {
 				obj["regionDiskTargetEnvironment"] = env
@@ -2661,6 +2688,8 @@ func flattenBackupDRRestoreWorkloadComputeInstanceTargetEnvironment(v interface{
 		flattenBackupDRRestoreWorkloadComputeInstanceTargetEnvironmentProject(original["project"], d, config)
 	transformed["zone"] =
 		flattenBackupDRRestoreWorkloadComputeInstanceTargetEnvironmentZone(original["zone"], d, config)
+	transformed["use_project_service_account"] =
+		flattenBackupDRRestoreWorkloadComputeInstanceTargetEnvironmentUseProjectServiceAccount(original["useProjectServiceAccount"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBackupDRRestoreWorkloadComputeInstanceTargetEnvironmentProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2668,6 +2697,10 @@ func flattenBackupDRRestoreWorkloadComputeInstanceTargetEnvironmentProject(v int
 }
 
 func flattenBackupDRRestoreWorkloadComputeInstanceTargetEnvironmentZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBackupDRRestoreWorkloadComputeInstanceTargetEnvironmentUseProjectServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2684,6 +2717,8 @@ func flattenBackupDRRestoreWorkloadDiskTargetEnvironment(v interface{}, d *schem
 		flattenBackupDRRestoreWorkloadDiskTargetEnvironmentProject(original["project"], d, config)
 	transformed["zone"] =
 		flattenBackupDRRestoreWorkloadDiskTargetEnvironmentZone(original["zone"], d, config)
+	transformed["use_project_service_account"] =
+		flattenBackupDRRestoreWorkloadDiskTargetEnvironmentUseProjectServiceAccount(original["useProjectServiceAccount"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBackupDRRestoreWorkloadDiskTargetEnvironmentProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2691,6 +2726,10 @@ func flattenBackupDRRestoreWorkloadDiskTargetEnvironmentProject(v interface{}, d
 }
 
 func flattenBackupDRRestoreWorkloadDiskTargetEnvironmentZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBackupDRRestoreWorkloadDiskTargetEnvironmentUseProjectServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2709,6 +2748,8 @@ func flattenBackupDRRestoreWorkloadRegionDiskTargetEnvironment(v interface{}, d 
 		flattenBackupDRRestoreWorkloadRegionDiskTargetEnvironmentRegion(original["region"], d, config)
 	transformed["replica_zones"] =
 		flattenBackupDRRestoreWorkloadRegionDiskTargetEnvironmentReplicaZones(original["replicaZones"], d, config)
+	transformed["use_project_service_account"] =
+		flattenBackupDRRestoreWorkloadRegionDiskTargetEnvironmentUseProjectServiceAccount(original["useProjectServiceAccount"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBackupDRRestoreWorkloadRegionDiskTargetEnvironmentProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2720,6 +2761,10 @@ func flattenBackupDRRestoreWorkloadRegionDiskTargetEnvironmentRegion(v interface
 }
 
 func flattenBackupDRRestoreWorkloadRegionDiskTargetEnvironmentReplicaZones(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBackupDRRestoreWorkloadRegionDiskTargetEnvironmentUseProjectServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4190,6 +4235,13 @@ func expandBackupDRRestoreWorkloadComputeInstanceTargetEnvironment(v interface{}
 		transformed["zone"] = transformedZone
 	}
 
+	transformedUseProjectServiceAccount, err := expandBackupDRRestoreWorkloadComputeInstanceTargetEnvironmentUseProjectServiceAccount(original["use_project_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseProjectServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useProjectServiceAccount"] = transformedUseProjectServiceAccount
+	}
+
 	return transformed, nil
 }
 
@@ -4198,6 +4250,10 @@ func expandBackupDRRestoreWorkloadComputeInstanceTargetEnvironmentProject(v inte
 }
 
 func expandBackupDRRestoreWorkloadComputeInstanceTargetEnvironmentZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBackupDRRestoreWorkloadComputeInstanceTargetEnvironmentUseProjectServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -4227,6 +4283,13 @@ func expandBackupDRRestoreWorkloadDiskTargetEnvironment(v interface{}, d tpgreso
 		transformed["zone"] = transformedZone
 	}
 
+	transformedUseProjectServiceAccount, err := expandBackupDRRestoreWorkloadDiskTargetEnvironmentUseProjectServiceAccount(original["use_project_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseProjectServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useProjectServiceAccount"] = transformedUseProjectServiceAccount
+	}
+
 	return transformed, nil
 }
 
@@ -4235,6 +4298,10 @@ func expandBackupDRRestoreWorkloadDiskTargetEnvironmentProject(v interface{}, d 
 }
 
 func expandBackupDRRestoreWorkloadDiskTargetEnvironmentZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBackupDRRestoreWorkloadDiskTargetEnvironmentUseProjectServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -4271,6 +4338,13 @@ func expandBackupDRRestoreWorkloadRegionDiskTargetEnvironment(v interface{}, d t
 		transformed["replicaZones"] = transformedReplicaZones
 	}
 
+	transformedUseProjectServiceAccount, err := expandBackupDRRestoreWorkloadRegionDiskTargetEnvironmentUseProjectServiceAccount(original["use_project_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseProjectServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useProjectServiceAccount"] = transformedUseProjectServiceAccount
+	}
+
 	return transformed, nil
 }
 
@@ -4283,6 +4357,10 @@ func expandBackupDRRestoreWorkloadRegionDiskTargetEnvironmentRegion(v interface{
 }
 
 func expandBackupDRRestoreWorkloadRegionDiskTargetEnvironmentReplicaZones(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBackupDRRestoreWorkloadRegionDiskTargetEnvironmentUseProjectServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

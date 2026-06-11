@@ -121,6 +121,7 @@ fields:
     - api_field: computeInstanceRestoreProperties.shieldedInstanceConfig.enableVtpm
     - api_field: computeInstanceRestoreProperties.tags.items
     - api_field: computeInstanceTargetEnvironment.project
+    - api_field: computeInstanceTargetEnvironment.useProjectServiceAccount
     - api_field: computeInstanceTargetEnvironment.zone
     - field: data_source_id
       provider_only: true
@@ -150,6 +151,7 @@ fields:
     - api_field: diskRestoreProperties.storagePool
     - api_field: diskRestoreProperties.type
     - api_field: diskTargetEnvironment.project
+    - api_field: diskTargetEnvironment.useProjectServiceAccount
     - api_field: diskTargetEnvironment.zone
     - field: location
       provider_only: true
@@ -157,6 +159,7 @@ fields:
     - api_field: regionDiskTargetEnvironment.project
     - api_field: regionDiskTargetEnvironment.region
     - api_field: regionDiskTargetEnvironment.replicaZones
+    - api_field: regionDiskTargetEnvironment.useProjectServiceAccount
     - api_field: requestId
     - api_field: targetResource.gcpResource.gcpResourcename
     - api_field: targetResource.gcpResource.location
