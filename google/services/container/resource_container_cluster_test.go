@@ -12409,8 +12409,11 @@ resource "google_container_cluster" "primary" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
+  // TODO(b/479239870): Re-add "KCP_VPA" 
+  // to enable_components once the GKE API feature is fully rolled out to production and
+  // no longer behind an internal visibility label.
   logging_config {
-    enable_components = [ "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "KCP_CONNECTION", "KCP_SSHD", "KCP_HPA", "KCP_VPA" ]
+    enable_components = [ "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "KCP_CONNECTION", "KCP_SSHD", "KCP_HPA" ]
   }
   monitoring_config {
     enable_components = [ "SYSTEM_COMPONENTS" ]
