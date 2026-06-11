@@ -153,17 +153,16 @@ resource "google_cloud_run_service" "default" {
   name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
-  metadata {
-    annotations = {
-      "run.googleapis.com/launch-stage" = "BETA"
-    }
-  }
 
   template {
     metadata {
       annotations = {
         "autoscaling.knative.dev/maxScale": "1"
         "run.googleapis.com/cpu-throttling": "false"
+        # Explicitly disable zonal redundancy to bypass quota limits in the HashiCorp test project.
+        # Alternatively, if quota is granted to the test project, this annotation can be removed 
+        # to properly test the DiffSuppressFunc.
+        "run.googleapis.com/gpu-zonal-redundancy-disabled": "true"
       }
     }
     spec {

@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: fixed a permadiff for the `run.googleapis.com/gpu-zonal-redundancy-disabled` annotation in `google_cloud_run_service`
+```
