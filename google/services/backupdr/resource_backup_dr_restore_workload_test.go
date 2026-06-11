@@ -225,6 +225,7 @@ resource "google_backup_dr_restore_workload" "restore" {
   compute_instance_target_environment {
     project = "%{project}"
     zone    = "us-central1-a"
+    use_project_service_account = true
   }
 
   compute_instance_restore_properties {
@@ -337,6 +338,7 @@ resource "google_backup_dr_restore_workload" "restore" {
   disk_target_environment {
     project = "%{project}"
     zone    = "us-central1-a"
+    use_project_service_account = true
   }
 
   disk_restore_properties {
@@ -361,6 +363,7 @@ resource "google_backup_dr_restore_workload" "restore" {
   region_disk_target_environment {
     project = "%{project}"
     region  = "us-central1"
+    use_project_service_account = true
     replica_zones = [
       "projects/%{project}/zones/us-central1-a",
       "projects/%{project}/zones/us-central1-b"

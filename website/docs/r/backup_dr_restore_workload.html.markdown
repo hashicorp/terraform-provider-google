@@ -270,17 +270,17 @@ The following arguments are supported:
 
 * `compute_instance_target_environment` -
   (Optional)
-  Optional. The destination environment for GCE VM restoration.
+  The destination environment for GCE VM restoration.
   Structure is [documented below](#nested_compute_instance_target_environment).
 
 * `disk_target_environment` -
   (Optional)
-  Optional. The destination environment for zonal disk restoration.
+  The destination environment for zonal disk restoration.
   Structure is [documented below](#nested_disk_target_environment).
 
 * `region_disk_target_environment` -
   (Optional)
-  Optional. The destination environment for regional disk restoration.
+  The destination environment for regional disk restoration.
   Structure is [documented below](#nested_region_disk_target_environment).
 
 * `compute_instance_restore_properties` -
@@ -320,6 +320,10 @@ The following arguments are supported:
   (Required)
   Required. The zone of the Compute Engine instance.
 
+* `use_project_service_account` -
+  (Optional)
+  If true, use the BackupDR P4SA credentials for same-project restores. Default is false.
+
 <a name="nested_disk_target_environment"></a>The `disk_target_environment` block supports:
 
 * `project` -
@@ -329,6 +333,10 @@ The following arguments are supported:
 * `zone` -
   (Required)
   Required. Target zone for the disk.
+
+* `use_project_service_account` -
+  (Optional)
+  If true, use the BackupDR P4SA credentials for same-project restores. Default is false.
 
 <a name="nested_region_disk_target_environment"></a>The `region_disk_target_environment` block supports:
 
@@ -343,6 +351,10 @@ The following arguments are supported:
 * `replica_zones` -
   (Required)
   Required. Target URLs of the replica zones for the disk.
+
+* `use_project_service_account` -
+  (Optional)
+  If true, use the BackupDR P4SA credentials for same-project restores. Default is false.
 
 <a name="nested_compute_instance_restore_properties"></a>The `compute_instance_restore_properties` block supports:
 
