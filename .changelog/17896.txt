@@ -1,0 +1,3 @@
+```release-note:bug
+backupdr: updated the Beta provider to point to the `v1beta` API endpoint (beta)
+```
