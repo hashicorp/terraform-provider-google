@@ -67,8 +67,6 @@ resource "google_network_services_agent_gateway" "default" {
   name     = "my-client-to-agent-gateway"
   location = "us-central1"
 
-  protocols = ["MCP"]
-
   google_managed {
     governed_access_path = "CLIENT_TO_AGENT"
   }
@@ -86,8 +84,6 @@ resource "google_network_services_agent_gateway" "default" {
   name = "my-self-managed-agent-gateway"
   location = "us-central1"
 
-  protocols = ["MCP"]
-
   self_managed {
     resource_uri = "projects/my-project-name/locations/us-central1/gateways/my-gateway"
   }
@@ -102,11 +98,6 @@ resource "google_network_services_agent_gateway" "default" {
 
 The following arguments are supported:
 
-
-* `protocols` -
-  (Required)
-  List of protocols supported by an Agent Gateway.
-  Each value may be one of: `MCP`.
 
 * `name` -
   (Required)
@@ -127,6 +118,13 @@ The following arguments are supported:
 * `description` -
   (Optional)
   A free-text description of the resource. Max length 1024 characters.
+
+* `protocols` -
+  (Optional, Deprecated)
+  List of protocols supported by an Agent Gateway.
+  Each value may be one of: `MCP`.
+
+  ~> **Warning:** `protocols` is deprecated and will be removed in a future major release.
 
 * `google_managed` -
   (Optional)
