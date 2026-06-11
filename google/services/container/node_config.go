@@ -374,6 +374,29 @@ func schemaNodeConfig() *schema.Schema {
 					Description:      `The image type to use for this node. Note that for a given image type, the latest version of it will be used.`,
 				},
 
+				"node_image_config": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Computed:    true,
+					Description: `The node image configuration to use for this node pool.`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"image": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								Computed:    true,
+								Description: `The name of the image to use for this node.`,
+							},
+							"image_project": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								Computed:    true,
+								Description: `The project containing the image to use for this node.`,
+							},
+						},
+					},
+				},
+
 				"labels": {
 					Type:     schema.TypeMap,
 					Optional: true,
@@ -1802,6 +1825,10 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 		nc.NodeGroup = v.(string)
 	}
 
+	if v, ok := nodeConfig["node_image_config"]; ok {
+		nc.NodeImageConfig = expandNodeImageConfig(v)
+	}
+
 	if v, ok := nodeConfig["advanced_machine_features"]; ok && len(v.([]interface{})) > 0 {
 		advanced_machine_features := v.([]interface{})[0].(map[string]interface{})
 		nc.AdvancedMachineFeatures = &container.AdvancedMachineFeatures{
@@ -2183,6 +2210,28 @@ func expandWindowsNodeConfig(v interface{}) *container.WindowsNodeConfig {
 	return &container.WindowsNodeConfig{
 		OsVersion: osversionRaw.(string),
 	}
+}
+
+func expandNodeImageConfig(v interface{}) *container.CustomImageConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	nodeImageConfig := &container.CustomImageConfig{}
+
+	if v, ok := cfg["image_project"]; ok {
+		nodeImageConfig.ImageProject = v.(string)
+	}
+
+	if v, ok := cfg["image"]; ok {
+		nodeImageConfig.Image = v.(string)
+	}
+	return nodeImageConfig
 }
 
 func expandSysctls(cfg map[string]interface{}) map[string]string {
@@ -2755,6 +2804,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"linux_node_config":                  flattenLinuxNodeConfig(c.LinuxNodeConfig),
 		"windows_node_config":                flattenWindowsNodeConfig(c.WindowsNodeConfig),
 		"node_group":                         c.NodeGroup,
+		"node_image_config":                  flattenNodeImageConfig(c.NodeImageConfig),
 		"advanced_machine_features":          flattenAdvancedMachineFeaturesConfig(c.AdvancedMachineFeatures),
 		"max_run_duration":                   c.MaxRunDuration,
 		"flex_start":                         c.FlexStart,
@@ -3276,6 +3326,17 @@ func flattenWindowsNodeConfig(c *container.WindowsNodeConfig) []map[string]inter
 	if c != nil {
 		result = append(result, map[string]interface{}{
 			"osversion": c.OsVersion,
+		})
+	}
+	return result
+}
+
+func flattenNodeImageConfig(c *container.CustomImageConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"image":         c.Image,
+			"image_project": c.ImageProject,
 		})
 	}
 	return result
@@ -4162,6 +4223,38 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 			}
 
 			log.Printf("[INFO] Updated windows_node_config for node pool %s", name)
+		}
+		if d.HasChange(prefix + "node_config.0.node_image_config") {
+			imageConfig := expandNodeImageConfig(d.Get(prefix + "node_config.0.node_image_config"))
+			req := &container.UpdateNodePoolRequest{
+				Name:         name,
+				Image:        imageConfig.Image,
+				ImageProject: imageConfig.ImageProject,
+			}
+
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := NewClient(config, userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return ContainerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool custom image config", userAgent,
+					timeout)
+			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated custom image config for node pool %s", name)
 		}
 		if d.HasChange(prefix + "node_config.0.fast_socket") {
 			req := &container.UpdateNodePoolRequest{
