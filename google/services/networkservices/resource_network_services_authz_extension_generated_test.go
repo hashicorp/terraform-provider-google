@@ -118,7 +118,6 @@ resource "google_network_services_authz_extension" "default" {
 }
 
 func TestAccNetworkServicesAuthzExtension_networkServicesAuthzExtensionIapExample(t *testing.T) {
-	t.Skip("true")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -160,6 +159,9 @@ resource "google_network_services_authz_extension" "default" {
 
   service               = "iap.googleapis.com"
   timeout               = "0.1s"
+  metadata = {
+    "iapPolicyVersion" = "V1"
+  }
 }
 `, context)
 }
