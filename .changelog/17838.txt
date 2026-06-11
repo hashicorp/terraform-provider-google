@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: fixed a perma-diff for `api_products` and `scopes` fields in `google_apigee_developer_app` resource when updating them with multiple items
+```
