@@ -1,0 +1,56 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_chronicle_parser
+generation_type: mmv1
+source_file: products/chronicle/Parser.yaml
+api_service_name: chronicle.googleapis.com
+api_version: v1
+api_resource_type_kind: Parser
+autogen_status: true
+autogen_version: 1
+fields:
+    - api_field: cbn
+    - api_field: changelogs.entries.changeMessage
+    - api_field: changelogs.entries.createTime
+    - api_field: changelogs.entries.deleted
+    - api_field: changelogs.entries.parserVersion
+    - api_field: createTime
+    - api_field: creator.author
+    - api_field: creator.customer
+    - api_field: creator.source
+    - api_field: dynamicParsingConfig
+    - field: instance
+      provider_only: true
+    - field: location
+      provider_only: true
+    - field: logtype
+      provider_only: true
+    - api_field: lowCode.fieldExtractors.appendRepeatedFields
+    - api_field: lowCode.fieldExtractors.extractors.destinationPath
+    - api_field: lowCode.fieldExtractors.extractors.fieldPath
+    - api_field: lowCode.fieldExtractors.extractors.preconditionOp
+    - api_field: lowCode.fieldExtractors.extractors.preconditionPath
+    - api_field: lowCode.fieldExtractors.extractors.preconditionValue
+    - api_field: lowCode.fieldExtractors.extractors.value
+    - api_field: lowCode.fieldExtractors.logFormat
+    - api_field: lowCode.fieldExtractors.preprocessConfig.grokRegex
+    - api_field: lowCode.fieldExtractors.preprocessConfig.target
+    - api_field: lowCode.fieldExtractors.transformedCbnSnippet
+    - api_field: lowCode.log
+    - api_field: name
+    - api_field: parser
+    - api_field: parserExtension
+    - api_field: releaseStage
+    - api_field: state
+    - api_field: type
+    - api_field: validatedOnEmptyLogs
+    - api_field: validationReport
+    - api_field: validationSkipped
+    - api_field: validationStage
+    - api_field: versionInfo.autoUpgradeDisabled
+    - api_field: versionInfo.latestParser
+    - api_field: versionInfo.latestParserVersion
+    - api_field: versionInfo.rollbackAvailable
+    - api_field: versionInfo.version
+    - field: deletion_policy
+      provider_only: true
