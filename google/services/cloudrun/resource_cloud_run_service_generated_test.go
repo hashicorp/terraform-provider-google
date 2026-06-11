@@ -738,12 +738,6 @@ resource "google_cloud_run_service" "default" {
   name     = "%{cloud_run_service_name}"
   location = "us-central1"
 
-  metadata {
-    annotations = {
-      "run.googleapis.com/launch-stage" = "BETA"
-    }
-  }
-
   template {
     spec {
       containers {
