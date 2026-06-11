@@ -42,6 +42,22 @@ func diffSuppressIamUserName(_, old, new string, d *schema.ResourceData) bool {
 		return true
 	}
 
+	// MySQL casts all hostnames to lowercase. For MySQL Cloud IAM Groups
+	// make sure comparison checks lowercase everything after the "@" symbol.
+	// Only MySQL has "%" populated for empty hostnames so we can use
+	// that to identify MySQL Cloud IAM Groups.
+	if strings.Contains(userType, "CLOUD_IAM_GROUP") && d.Get("host") == "%" {
+		splitName := strings.SplitN(new, "@", 2)
+		if len(splitName) == 2 {
+			groupUsername := splitName[0]
+			groupHostname := splitName[1]
+			groupName := groupUsername + "@" + strings.ToLower(groupHostname)
+			if old == groupName {
+				return true
+			}
+		}
+	}
+
 	return false
 }
 
@@ -408,6 +424,13 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 		var username string
 		if !(strings.Contains(databaseInstance.DatabaseVersion, "POSTGRES") || currentUser.Type == "CLOUD_IAM_GROUP") {
 			username = strings.Split(name, "@")[0]
+		} else if strings.Contains(databaseInstance.DatabaseVersion, "MYSQL") && currentUser.Type == "CLOUD_IAM_GROUP" {
+			splitName := strings.SplitN(name, "@", 2)
+			if len(splitName) == 2 {
+				groupUsername := splitName[0]
+				groupHostname := splitName[1]
+				username = groupUsername + "@" + strings.ToLower(groupHostname)
+			}
 		} else {
 			username = name
 		}
