@@ -152,7 +152,66 @@ func TestAccSqlUser_iamGroupUser(t *testing.T) {
 		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleSqlUser_iamGroupUser(instance),
+				Config: testGoogleSqlUser_iamGroupUser("iam-group-auth-test-group@google.com", instance),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_user.user",
+				ImportStateId:           fmt.Sprintf("%s/%s/iam-group-auth-test-group@google.com", envvar.GetTestProjectFromEnv(), instance),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
+func TestAccSqlUser_iamGroupUser_capitalizedHostName(t *testing.T) {
+	// Multiple fine-grained resources
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlUser_iamGroupUser("iam-group-auth-test-group@GOOGLE.com", instance),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_user.user",
+				ImportStateId:           fmt.Sprintf("%s/%s/iam-group-auth-test-group@google.com", envvar.GetTestProjectFromEnv(), instance),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
+func TestAccSqlUser_postgres_iamGroupUser(t *testing.T) {
+	// Multiple fine-grained resources
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlUser_postgres_iamGroupUser("iam-group-auth-test-group@google.com", instance),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user"),
 				),
@@ -276,6 +335,10 @@ func testAccCheckGoogleSqlUserExists(t *testing.T, n string) resource.TestCheckF
 		name := rs.Primary.Attributes["name"]
 		instance := rs.Primary.Attributes["instance"]
 		host := rs.Primary.Attributes["host"]
+		databaseInstance, err := sql.NewClient(config, config.UserAgent).Instances.Get(config.Project, instance).Do()
+		if err != nil {
+			return err
+		}
 		users, err := sql.NewClient(config, config.UserAgent).Users.List(config.Project,
 			instance).Do()
 
@@ -284,7 +347,16 @@ func testAccCheckGoogleSqlUserExists(t *testing.T, n string) resource.TestCheckF
 		}
 
 		for _, user := range users.Items {
-			if user.Name == name && user.Host == host {
+			username := name
+			if user.Type == "CLOUD_IAM_GROUP" && strings.Contains(databaseInstance.DatabaseVersion, "MYSQL") {
+				splitName := strings.SplitN(name, "@", 2)
+				if len(splitName) == 2 {
+					groupUsername := splitName[0]
+					groupHostname := splitName[1]
+					username = groupUsername + "@" + strings.ToLower(groupHostname)
+				}
+			}
+			if user.Name == username && user.Host == host {
 				return nil
 			}
 		}
@@ -1108,7 +1180,7 @@ resource "google_project_iam_member" "sa_user" {
 `, instance, instance, instance, instance)
 }
 
-func testGoogleSqlUser_iamGroupUser(instance string) string {
+func testGoogleSqlUser_iamGroupUser(username, instance string) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
   name                = "%s"
@@ -1125,9 +1197,41 @@ resource "google_sql_database_instance" "instance" {
 }
 
 resource "google_sql_user" "user" {
-  name     = "iam-group-auth-test-group@google.com"
+  name     = "%s"
   instance = google_sql_database_instance.instance.name
   type     = "CLOUD_IAM_GROUP"
 }
-`, instance)
+`, instance, username)
+}
+
+func testGoogleSqlUser_postgres_iamGroupUser(username, instance string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "POSTGRES_9_6"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    database_flags {
+      name  = "cloudsql.iam_authentication"
+      value = "on"
+    }
+  }
+}
+
+# TODO: Remove with resolution of https://github.com/hashicorp/terraform-provider-google/issues/14233
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_sql_database_instance.instance]
+
+  create_duration = "60s"
+}
+
+resource "google_sql_user" "user" {
+  depends_on = [time_sleep.wait_60_seconds]
+  name     = "%s"
+  instance = google_sql_database_instance.instance.name
+  type     = "CLOUD_IAM_GROUP"
+}
+`, instance, username)
 }

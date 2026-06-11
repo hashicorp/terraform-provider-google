@@ -1,0 +1,3 @@
+```release-note:bug
+cloudsql: fixed inconsistent result after apply error when adding `users` of type `CLOUD_IAM_GROUP` with capitalized domain names for MySQL
+```
