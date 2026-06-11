@@ -129,8 +129,15 @@ func ResourceApigeeApi() *schema.Resource {
 				Description: `Base 64 MD5 hash of the uploaded config bundle.`,
 			},
 			"detect_md5hash": {
-				Type:        schema.TypeString,
-				Optional:    true,
+				Type:     schema.TypeString,
+				Optional: true,
+				// Computed (not Default) so that when the user does not set this
+				// field, the provider-managed value from the previous apply (the
+				// uploaded bundle hash) is retained in state instead of reverting
+				// to the empty string. That keeps an unchanged bundle diff-free
+				// while still triggering an update when the bundle changes -- and,
+				// unlike adding a schema Default, it is not a breaking change.
+				Computed:    true,
 				Description: `A hash of local config bundle in string, user needs to use a Terraform Hash function of their choice. A change in hash will trigger an update.`,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					localMd5Hash := ""

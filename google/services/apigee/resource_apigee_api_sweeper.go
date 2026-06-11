@@ -63,7 +63,7 @@ func testSweepApigeeApi(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://apigee.googleapis.com/v1/organizations/{{org_id}}/apis/{{name}}", "?")[0]
+	listTemplate := strings.Split("https://apigee.googleapis.com/v1/organizations/{{org_id}}/apis", "?")[0]
 	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
