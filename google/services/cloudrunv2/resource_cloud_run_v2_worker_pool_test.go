@@ -165,6 +165,25 @@ resource "google_cloud_run_v2_worker_pool" "default" {
           memory = "8Gi"
         }
       }
+      startup_probe {
+        initial_delay_seconds = 0
+        timeout_seconds       = 1
+        period_seconds        = 3
+        failure_threshold     = 3
+
+        http_get {
+          path = "/"
+          port = 8080
+          http_headers {
+            name = "TEST-HEADER-1"
+            value = "test-value-1"
+          }
+          http_headers {
+            name = "TEST-HEADER-2"
+            value = "test-value-2"
+          }
+        }
+      }
       working_dir = "/home"
     }
   }

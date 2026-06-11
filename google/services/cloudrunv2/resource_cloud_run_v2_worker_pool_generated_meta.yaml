@@ -69,6 +69,7 @@ fields:
     - api_field: template.containers.livenessProbe.failureThreshold
     - api_field: template.containers.livenessProbe.grpc.port
     - api_field: template.containers.livenessProbe.grpc.service
+    - api_field: template.containers.livenessProbe.httpGet.httpHeaders.name
     - api_field: template.containers.livenessProbe.httpGet.httpHeaders.port
     - api_field: template.containers.livenessProbe.httpGet.httpHeaders.value
     - api_field: template.containers.livenessProbe.httpGet.path
@@ -82,6 +83,7 @@ fields:
     - api_field: template.containers.startupProbe.failureThreshold
     - api_field: template.containers.startupProbe.grpc.port
     - api_field: template.containers.startupProbe.grpc.service
+    - api_field: template.containers.startupProbe.httpGet.httpHeaders.name
     - api_field: template.containers.startupProbe.httpGet.httpHeaders.port
     - api_field: template.containers.startupProbe.httpGet.httpHeaders.value
     - api_field: template.containers.startupProbe.httpGet.path

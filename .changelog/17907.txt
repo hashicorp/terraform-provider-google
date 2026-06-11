@@ -1,0 +1,11 @@
+```release-note:enhancement
+cloudrunv2: added `http_get.http_headers.name` field to container startup probe and liveness probe in `google_cloud_run_v2_worker_pool` resource
+```
+
+```release-note:deprecation
+cloudrunv2: deprecated `http_get.http_headers.port` field in container startup probe and liveness probe in `google_cloud_run_v2_worker_pool` resource because it is not supported in Cloud Run API. This field will be removed in a future major release.
+```
+
+```release-note:bug
+cloudrunv2: fixed bug where only one `http_get.http_headers` block could be specified in container startup probe and liveness probe in `google_cloud_run_v2_worker_pool` resource
+```

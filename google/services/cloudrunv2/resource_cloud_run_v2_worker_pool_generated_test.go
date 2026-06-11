@@ -932,6 +932,10 @@ resource "google_cloud_run_v2_worker_pool" "default" {
         http_get {
           path = "/"
           port = 8080
+          http_headers {
+            name = "TEST-HEADER"
+            value = "test-value"
+          }
         }
       }
     }
