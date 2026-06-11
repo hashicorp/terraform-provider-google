@@ -144,6 +144,7 @@ resource "google_apigee_api" "test_apigee_api" {
   name            = "tf-test-apigee-api"
   org_id          = google_project.project.project_id
   config_bundle   = "./test-fixtures/apigee_api_bundle.zip"
+  detect_md5hash  = filemd5("./test-fixtures/apigee_api_bundle.zip")
   depends_on      = [google_apigee_organization.apigee_org]
 }
 `, context)
@@ -256,6 +257,7 @@ resource "google_apigee_api" "test_apigee_api" {
   name            = "tf-test-apigee-api"
   org_id          = google_project.project.project_id
   config_bundle   = "./test-fixtures/apigee_api_bundle2.zip"
+  detect_md5hash  = filemd5("./test-fixtures/apigee_api_bundle2.zip")
   depends_on      = [google_apigee_organization.apigee_org]
 }
 `, context)
