@@ -1,0 +1,3 @@
+```release-note:new-resource
+  chronicle: Added `google_chronicle_parser` resource
+```
