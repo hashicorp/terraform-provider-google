@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -607,6 +608,40 @@ func testAccCheckDnsRecordSetSetRrdataOutOfBand(t *testing.T, zoneName, rrsetNam
 			t.Errorf("Error waiting for out of band Google DNS change: %s", err)
 		}
 	}
+}
+
+func TestAccDNSRecordSet_importBlockWithResourceIdentity(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	project := envvar.GetTestProjectFromEnv()
+	recordName := fmt.Sprintf("test-record.%s.hashicorptest.com.", zoneName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_12_0),
+		},
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_dns_record_set.foobar", "project", project),
+					resource.TestCheckResourceAttr("google_dns_record_set.foobar", "managed_zone", zoneName),
+					resource.TestCheckResourceAttr("google_dns_record_set.foobar", "name", recordName),
+					resource.TestCheckResourceAttr("google_dns_record_set.foobar", "type", "A"),
+				),
+			},
+			{
+				ResourceName:       "google_dns_record_set.foobar",
+				ImportState:        true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
 }
 
 func testAccCheckDnsRecordSetDestroyProducer(t *testing.T) func(s *terraform.State) error {
