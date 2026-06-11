@@ -997,34 +997,67 @@ func expandApigeeDeveloperAppAttributesValue(v interface{}, d tpgresource.Terraf
 
 func resourceApigeeDeveloperAppDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	if obj, ok := res["credentials"]; ok {
-		if credList, ok := obj.([]interface{}); ok && len(credList) > 0 {
-			if cred, ok := credList[0].(map[string]interface{}); ok {
-				// Decode expiresAt
-				res["keyExpiresIn"] = cred["expiresAt"]
+		credList, ok := obj.([]interface{})
+		if !ok {
+			return nil, fmt.Errorf("Unable to decode credentials block from API response: unexpected type %T.", obj)
+		}
+		if len(credList) == 0 {
+			// Apigee may return an empty credentials array immediately after resource
+			// creation before the auto-generated key has fully propagated (eventual
+			// consistency). Return without setting derived fields so the caller can
+			// retry if needed.
+			log.Printf("[DEBUG] DeveloperApp credentials array is empty; skipping credential-derived field population.")
+			return res, nil
+		}
 
-				// Decode scopes
-				res["scopes"] = cred["scopes"]
+		// Use the first credential for keyExpiresIn (expiry is set at creation and shared)
+		if cred, ok := credList[0].(map[string]interface{}); ok {
+			res["keyExpiresIn"] = cred["expiresAt"]
+		} else {
+			return nil, fmt.Errorf("Unable to decode the first element of the credentials array.")
+		}
 
-				// Decode api_products
-				if apiProductsObj, productsOk := cred["apiProducts"]; productsOk {
-					if apiProductList, listOk := apiProductsObj.([]interface{}); listOk {
-						var flattenedProducts []interface{}
+		// Aggregate api_products and scopes across ALL credentials.
+		// When an app is updated to add API products, Apigee may create additional
+		// credentials (one per API product or one per update operation). Reading only
+		// the first credential would miss products stored in subsequent credentials,
+		// causing a perpetual diff between config and state.
+		productSeen := make(map[string]bool)
+		scopeSeen := make(map[string]bool)
+		var allProducts []interface{}
+		var allScopes []interface{}
+
+		for _, credRaw := range credList {
+			if cred, ok := credRaw.(map[string]interface{}); ok {
+				// Collect scopes from this credential
+				if scopesObj, ok := cred["scopes"]; ok {
+					if scopesList, ok := scopesObj.([]interface{}); ok {
+						for _, scope := range scopesList {
+							if s, ok := scope.(string); ok && !scopeSeen[s] {
+								scopeSeen[s] = true
+								allScopes = append(allScopes, s)
+							}
+						}
+					}
+				}
+				// Collect api_products from this credential
+				if apiProductsObj, ok := cred["apiProducts"]; ok {
+					if apiProductList, ok := apiProductsObj.([]interface{}); ok {
 						for _, productObj := range apiProductList {
-							if productMap, mapOk := productObj.(map[string]interface{}); mapOk {
-								if productName, nameOk := productMap["apiproduct"].(string); nameOk {
-									flattenedProducts = append(flattenedProducts, productName)
+							if productMap, ok := productObj.(map[string]interface{}); ok {
+								if productName, ok := productMap["apiproduct"].(string); ok && !productSeen[productName] {
+									productSeen[productName] = true
+									allProducts = append(allProducts, productName)
 								}
 							}
 						}
-						res["apiProducts"] = flattenedProducts
 					}
 				}
-			} else {
-				return nil, fmt.Errorf("Unable to decode the first element of the credentials array.")
 			}
-		} else {
-			return nil, fmt.Errorf("Unable to decode credentials block from API response, expected a non-empty array.")
 		}
+
+		res["apiProducts"] = allProducts
+		res["scopes"] = allScopes
 	}
 	return res, nil
 }
