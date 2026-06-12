@@ -15,7 +15,6 @@ FEATURES:
 * **New Data Source:** `google_oracle_database_goldengate_deployment_versions` ([#27771](https://github.com/hashicorp/terraform-provider-google/pull/27771))
 * **New Data Source:** `google_storage_control_project_intelligence_finding` ([#27764](https://github.com/hashicorp/terraform-provider-google/pull/27764))
 * **New Data Source:** `google_storage_control_project_intelligence_findings` ([#27764](https://github.com/hashicorp/terraform-provider-google/pull/27764))
-* **New Resource:** `google_chronicle_soarnetwork` ([#27756](https://github.com/hashicorp/terraform-provider-google/pull/27756))
 * **New Resource:** `google_chronicle_parser` ([#27801](https://github.com/hashicorp/terraform-provider-google/pull/27801))
 * **New Resource:** `google_migration_center_import_data_file` ([#27721](https://github.com/hashicorp/terraform-provider-google/pull/27721))
 * **New Resource:** `google_network_services_agent_gateway` ([#27803](https://github.com/hashicorp/terraform-provider-google/pull/27803))
@@ -49,12 +48,12 @@ BUG FIXES:
 * ces: fixed persistent diff in `google_ces_guardrail` when `llm_prompt_security` is configured with `default_settings` ([#27766](https://github.com/hashicorp/terraform-provider-google/pull/27766))
 * cloudrun: fixed a permadiff for the `run.googleapis.com/gpu-zonal-redundancy-disabled` annotation in `google_cloud_run_service` ([#27787](https://github.com/hashicorp/terraform-provider-google/pull/27787))
 * cloudrunv2: fixed bug where only one `http_get.http_headers` block could be specified in container startup probe and liveness probe in `google_cloud_run_v2_worker_pool` resource ([#27800](https://github.com/hashicorp/terraform-provider-google/pull/27800))
-* cloudsql: fixed inconsistent result after apply error when adding `users` of type `CLOUD_IAM_GROUP` with capitalized domain names for MySQL ([#27784](https://github.com/hashicorp/terraform-provider-google/pull/27784))
-* compute: fixed diff when using `existing_reservations` field in `google_region_commitment` ([#27775](https://github.com/hashicorp/terraform-provider-google/pull/27775))
 * compute: fixed an issue in `google_compute_subnetwork` where `secondary_ip_range` entries linked to an `internal_range` could not be removed and adding new ranges would sometimes fail due to positional shifts ([#27175](https://github.com/hashicorp/terraform-provider-google/issues/27175)) ([#27720](https://github.com/hashicorp/terraform-provider-google/pull/27720))
+* compute: fixed diff when using `existing_reservations` field in `google_region_commitment` ([#27775](https://github.com/hashicorp/terraform-provider-google/pull/27775))
 * compute: fixed rules in `google_compute_security_policy` being unnecessarily recreated due to TypeSet hash instability ([#27754](https://github.com/hashicorp/terraform-provider-google/pull/27754))
-* sql: fixed permadiff on `connection_pool_config` in `google_sql_database_instance` when `connection_pooling_enabled` is set to `false` ([#27711](https://github.com/hashicorp/terraform-provider-google/pull/27711))
+* sql: fixed inconsistent result after apply error when adding `users` of type `CLOUD_IAM_GROUP` with capitalized domain names for MySQL ([#27784](https://github.com/hashicorp/terraform-provider-google/pull/27784))
 * storage: fixed OOM issue for `google_storage_bucket` `force_destroy` by limiting the number of outstanding tasks to 2000 ([#27777](https://github.com/hashicorp/terraform-provider-google/pull/27777))
+
 
 ## 7.36.0 (June 09, 2026)
 
