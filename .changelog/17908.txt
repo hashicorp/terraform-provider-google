@@ -1,0 +1,1 @@
+unknown: fix: BigLake IcebergNamespace - don't ignore location

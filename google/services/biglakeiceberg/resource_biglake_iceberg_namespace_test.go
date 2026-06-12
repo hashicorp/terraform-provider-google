@@ -17,10 +17,13 @@
 package biglakeiceberg_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
+	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/biglakeiceberg"
@@ -64,6 +67,93 @@ func TestAccBiglakeIcebergIcebergNamespace_update(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccBiglakeIcebergIcebergNamespace_location(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"bucket_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBiglakeIcebergIcebergNamespaceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Set location explicitly on create. Verify it shows up in the plan
+			// (i.e. it is not suppressed/dropped when the user sets it) and that
+			// it is persisted after apply.
+			{
+				Config: testAccBiglakeIcebergIcebergNamespace_location(context, "initial"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectKnownValue(
+							"google_biglake_iceberg_namespace.my_iceberg_namespace",
+							tfjsonpath.New("properties").AtMapKey("location"),
+							knownvalue.StringExact(fmt.Sprintf("gs://my-bucket-%s/custom-location", context["bucket_suffix"])),
+						),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_biglake_iceberg_namespace.my_iceberg_namespace", "properties.location", fmt.Sprintf("gs://my-bucket-%s/custom-location", context["bucket_suffix"])),
+				),
+			},
+			{
+				ResourceName:            "google_biglake_iceberg_namespace.my_iceberg_namespace",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"catalog"},
+			},
+			// Update a different property. location is immutable (the API
+			// rejects updating or removing it), so it must be left untouched in
+			// the update request while still remaining set on the resource.
+			{
+				Config: testAccBiglakeIcebergIcebergNamespace_location(context, "updated"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_biglake_iceberg_namespace.my_iceberg_namespace", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_biglake_iceberg_namespace.my_iceberg_namespace", "properties.location", fmt.Sprintf("gs://my-bucket-%s/custom-location", context["bucket_suffix"])),
+					resource.TestCheckResourceAttr("google_biglake_iceberg_namespace.my_iceberg_namespace", "properties.key", "updated"),
+				),
+			},
+			{
+				ResourceName:            "google_biglake_iceberg_namespace.my_iceberg_namespace",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"catalog"},
+			},
+		},
+	})
+}
+
+func testAccBiglakeIcebergIcebergNamespace_location(context map[string]interface{}, key string) string {
+	context["key_value"] = key
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "my-bucket-%{bucket_suffix}"
+  location      = "us-central1"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_biglake_iceberg_catalog" "catalog" {
+  name = google_storage_bucket.bucket.name
+  catalog_type = "CATALOG_TYPE_GCS_BUCKET"
+}
+
+resource "google_biglake_iceberg_namespace" "my_iceberg_namespace" {
+  catalog = google_biglake_iceberg_catalog.catalog.name
+  namespace_id = "my-namespace-%{bucket_suffix}"
+  properties = {
+    location = "gs://${google_storage_bucket.bucket.name}/custom-location"
+    key      = "%{key_value}"
+  }
+}
+`, context)
 }
 
 func testAccBiglakeIcebergIcebergNamespace_updateInitial(context map[string]interface{}) string {
