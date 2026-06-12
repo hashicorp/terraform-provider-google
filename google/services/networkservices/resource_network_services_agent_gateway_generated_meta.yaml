@@ -1,0 +1,32 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_network_services_agent_gateway
+generation_type: mmv1
+source_file: products/networkservices/AgentGateway.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: AgentGateway
+fields:
+    - api_field: agentGatewayCard.mtlsEndpoint
+    - api_field: agentGatewayCard.rootCertificates
+    - api_field: agentGatewayCard.serviceExtensionsServiceAccount
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: googleManaged.governedAccessPath
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: networkConfig.egress.networkAttachment
+    - api_field: protocols
+    - api_field: registries
+    - api_field: selfManaged.resourceUri
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
