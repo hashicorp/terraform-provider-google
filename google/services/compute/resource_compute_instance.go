@@ -1718,7 +1718,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		return nil, fmt.Errorf("Error creating metadata: %s", err)
 	}
 
-	networkInterfaces, err := expandNetworkInterfaces(d, config)
+	networkInterfaces, err := expandNetworkInterfacesTyped(d, config)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating network interfaces: %s", err)
 	}
@@ -2667,7 +2667,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	networkInterfaces, err := expandNetworkInterfaces(d, config)
+	networkInterfaces, err := expandNetworkInterfacesTyped(d, config)
 	if err != nil {
 		return fmt.Errorf("Error getting network interface from config: %s", err)
 	}
