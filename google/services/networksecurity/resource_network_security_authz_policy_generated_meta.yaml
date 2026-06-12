@@ -98,6 +98,15 @@ fields:
     - field: location
       provider_only: true
     - api_field: name
+    - api_field: networkRules.from.notSources.ipBlocks.length
+    - api_field: networkRules.from.notSources.ipBlocks.prefix
+    - api_field: networkRules.from.notSources.principals.principal.exact
+    - api_field: networkRules.from.notSources.principals.principalSelector
+    - api_field: networkRules.from.sources.ipBlocks.length
+    - api_field: networkRules.from.sources.ipBlocks.prefix
+    - api_field: networkRules.from.sources.principals.principal.exact
+    - api_field: networkRules.from.sources.principals.principalSelector
+    - api_field: networkRules.to.operations.snis.exact
     - api_field: policyProfile
     - api_field: target.loadBalancingScheme
     - api_field: target.resources
