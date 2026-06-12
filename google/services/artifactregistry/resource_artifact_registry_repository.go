@@ -745,7 +745,6 @@ not be validated.`,
 						"upstream_credentials": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The credentials used to access the remote repository.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -753,7 +752,6 @@ not be validated.`,
 									"username_password_credentials": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Use username and password to access the remote repository.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -761,7 +759,6 @@ not be validated.`,
 												"password_secret_version": {
 													Type:     schema.TypeString,
 													Optional: true,
-													ForceNew: true,
 													Description: `The Secret Manager key version that holds the password to access the
 remote repository. Must be in the format of
 'projects/{project}/secrets/{secret}/versions/{version}'.`,
@@ -769,7 +766,6 @@ remote repository. Must be in the format of
 												"username": {
 													Type:        schema.TypeString,
 													Optional:    true,
-													ForceNew:    true,
 													Description: `The username to access the remote repository.`,
 												},
 											},
@@ -1348,6 +1344,26 @@ func resourceArtifactRegistryRepositoryUpdate(d *schema.ResourceData, meta inter
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	remoteRepositoryConfigProp, err := expandArtifactRegistryRepositoryRemoteRepositoryConfig(d.Get("remote_repository_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("remote_repository_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(remoteRepositoryConfigProp)) && (ok || !reflect.DeepEqual(v, remoteRepositoryConfigProp)) {
+		obj["remoteRepositoryConfig"] = remoteRepositoryConfigProp
+	}
+
+	if d.HasChange("remote_repository_config.0.upstream_credentials.0.username_password_credentials.0.username") {
+		updateMask = append(updateMask, "remoteRepositoryConfig.upstreamCredentials.usernamePasswordCredentials.username")
+	}
+
+	if d.HasChange("remote_repository_config.0.upstream_credentials.0.username_password_credentials.0.password_secret_version") {
+		updateMask = append(updateMask, "remoteRepositoryConfig.upstreamCredentials.usernamePasswordCredentials.passwordSecretVersion")
+	}
+
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
