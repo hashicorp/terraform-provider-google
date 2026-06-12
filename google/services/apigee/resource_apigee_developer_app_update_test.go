@@ -17,6 +17,7 @@
 package apigee_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -210,6 +211,140 @@ resource "google_apigee_api_product" "another_api_product" {
   scopes = [
     "write:files",
     "read:weather"
+  ]
+
+  depends_on = [
+    google_apigee_instance.apigee_instance
+  ]
+}
+
+resource "google_apigee_developer" "developer" {
+  email      = "john.doe@acme.com%{random_suffix}"
+  first_name = "John"
+  last_name  = "Doe"
+  user_name  = "john.doe"
+  org_id     = google_apigee_organization.apigee_org.id
+
+  depends_on = [
+    google_apigee_instance.apigee_instance
+  ]
+}
+
+resource "google_apigee_instance" "apigee_instance" {
+  name     = "tf-test-instance%{random_suffix}"
+  location = "us-central1"
+  org_id   = google_apigee_organization.apigee_org.id
+}
+
+resource "google_apigee_organization" "apigee_org" {
+  analytics_region    = "us-central1"
+  project_id          = google_project.project.project_id
+  disable_vpc_peering = true
+
+  depends_on = [
+    google_project_service.apigee
+  ]
+}
+
+resource "google_project_service" "apigee" {
+  project = google_project.project.project_id
+  service = "apigee.googleapis.com"
+
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+
+  depends_on = [google_project.project]
+}
+
+resource "google_project" "project" {
+  project_id      = "tf-test-prj%{random_suffix}"
+  name            = "tf-test-prj%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
+}
+`, context)
+}
+
+// TestAccApigeeDeveloperApp_apigeeDeveloperAppStaticCredentialsTest verifies that
+// a user-supplied static consumer_key/consumer_secret is used for the app's
+// credential (the auto-generated one is replaced), per
+// hashicorp/terraform-provider-google#25525.
+func TestAccApigeeDeveloperApp_apigeeDeveloperAppStaticCredentialsTest(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	resourceName := "google_apigee_developer_app.apigee_developer_app"
+
+	context := map[string]interface{}{
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckApigeeDeveloperAppDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccApigeeDeveloperApp_apigeeDeveloperAppStaticCredentialsTest(context),
+				Check: resource.ComposeTestCheckFunc(
+					// The static key should be the (only) credential on the app:
+					// the auto-generated credential must have been deleted.
+					resource.TestCheckResourceAttr(resourceName, "credentials.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "credentials.0.consumer_key", fmt.Sprintf("static-key-%s", context["random_suffix"])),
+					resource.TestCheckResourceAttr(resourceName, "credentials.0.consumer_secret", fmt.Sprintf("static-secret-%s", context["random_suffix"])),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				// consumer_key and consumer_secret are write-only inputs; they are
+				// not returned by the API read so must be ignored on import verify.
+				ImportStateVerifyIgnore: []string{"org_id", "consumer_key", "consumer_secret", "key_expires_in"},
+			},
+		},
+	})
+}
+
+func testAccApigeeDeveloperApp_apigeeDeveloperAppStaticCredentialsTest(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_apigee_developer_app" "apigee_developer_app" {
+  name            = "tf-test-sample-app%{random_suffix}"
+  app_family      = "default"
+  org_id          = google_apigee_organization.apigee_org.id
+  developer_email = google_apigee_developer.developer.email
+  callback_url    = "https://example-call.url"
+  key_expires_in  = "-1"
+  status          = "approved"
+
+  consumer_key    = "static-key-%{random_suffix}"
+  consumer_secret = "static-secret-%{random_suffix}"
+
+  api_products = [
+    google_apigee_api_product.api_product.name
+  ]
+
+  scopes = google_apigee_api_product.api_product.scopes
+}
+
+resource "google_apigee_api_product" "api_product" {
+  name          = "tf-test-sample-api%{random_suffix}"
+  org_id        = google_apigee_organization.apigee_org.id
+  display_name  = "A sample API Product"
+  approval_type = "auto"
+
+  scopes = [
+    "read:weather",
+    "write:reports"
   ]
 
   depends_on = [

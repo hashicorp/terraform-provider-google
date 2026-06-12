@@ -197,6 +197,32 @@ in the format 'organizations/{{org_name}}'.`,
 					},
 				},
 			},
+			"consumer_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Optionally specify a static consumer key for the developer app's credential.
+If not set, the API auto-generates a key. The consumer key must be unique
+across all developer apps in an organization. Changing this field forces the
+resource to be recreated.
+
+This is a write-only input used at create time: the provider creates the
+credential with this key via the keys API and removes the auto-generated
+one. The effective key is exposed in the 'credentials' output.`,
+			},
+			"consumer_secret": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Optionally specify a static consumer secret for the developer app's
+credential. Required if 'consumer_key' is specified. If not set, the API
+auto-generates a secret. Changing this field forces the resource to be
+recreated.
+
+This is a write-only input used at create time; the effective secret is
+exposed in the 'credentials' output.`,
+				Sensitive: true,
+			},
 			"key_expires_in": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -438,6 +464,109 @@ func resourceApigeeDeveloperAppCreate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// If a static consumer_key was specified, replace the auto-generated credential
+	// with the user-supplied key/secret.
+	//
+	// consumer_key/consumer_secret are url_param_only inputs (they are NOT part of
+	// the DeveloperApp create body -- the create API has no such fields), so the
+	// app is first created with an auto-generated credential and then, here, we swap
+	// in the user-supplied credential via the keys API.
+	if consumerKey, ok := d.GetOk("consumer_key"); ok {
+		consumerSecret := d.Get("consumer_secret").(string)
+
+		// First, obtain the auto-generated consumer key(s) to delete them later.
+		readURL, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/developers/{{developer_email}}/apps/{{name}}")
+		if err != nil {
+			return fmt.Errorf("Error constructing URL for DeveloperApp read: %s", err)
+		}
+		appRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    readURL,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return fmt.Errorf("Error reading DeveloperApp for credential replacement: %s", err)
+		}
+
+		// Collect auto-generated consumer keys to delete after creating the static key.
+		var autoKeys []string
+		if creds, ok := appRes["credentials"].([]interface{}); ok {
+			for _, cred := range creds {
+				if cm, ok := cred.(map[string]interface{}); ok {
+					if k, ok := cm["consumerKey"].(string); ok {
+						autoKeys = append(autoKeys, k)
+					}
+				}
+			}
+		}
+
+		// Create the static credential via the keys API.
+		keysURL, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/developers/{{developer_email}}/apps/{{name}}/keys")
+		if err != nil {
+			return fmt.Errorf("Error constructing keys URL for DeveloperApp: %s", err)
+		}
+		keyBody := map[string]interface{}{
+			"consumerKey":    consumerKey.(string),
+			"consumerSecret": consumerSecret,
+		}
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    keysURL,
+			UserAgent: userAgent,
+			Body:      keyBody,
+			Timeout:   d.Timeout(schema.TimeoutCreate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error creating static credential for DeveloperApp: %s", err)
+		}
+
+		// Associate api_products and scopes with the new key if specified.
+		if apiProducts, ok := d.GetOk("api_products"); ok {
+			products := apiProducts.(*schema.Set).List()
+			if len(products) > 0 {
+				keyUpdateURL := keysURL + "/" + consumerKey.(string)
+				keyUpdateBody := map[string]interface{}{
+					"apiProducts": products,
+				}
+				if scopes, ok := d.GetOk("scopes"); ok {
+					keyUpdateBody["scopes"] = scopes.(*schema.Set).List()
+				}
+				_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "POST",
+					Project:   billingProject,
+					RawURL:    keyUpdateURL,
+					UserAgent: userAgent,
+					Body:      keyUpdateBody,
+					Timeout:   d.Timeout(schema.TimeoutCreate),
+				})
+				if err != nil {
+					return fmt.Errorf("Error associating API products with static credential for DeveloperApp: %s", err)
+				}
+			}
+		}
+
+		// Delete the auto-generated key(s).
+		for _, autoKey := range autoKeys {
+			deleteKeyURL := keysURL + "/" + autoKey
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "DELETE",
+				Project:   billingProject,
+				RawURL:    deleteKeyURL,
+				UserAgent: userAgent,
+				Timeout:   d.Timeout(schema.TimeoutCreate),
+			})
+			if err != nil && !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+				return fmt.Errorf("Error deleting auto-generated credential for DeveloperApp: %s", err)
+			}
+		}
+	}
 
 	log.Printf("[DEBUG] Finished creating DeveloperApp %q: %#v", d.Id(), res)
 

@@ -13,6 +13,10 @@ fields:
     - api_field: attributes.name
     - api_field: attributes.value
     - api_field: callbackUrl
+    - field: consumer_key
+      provider_only: true
+    - field: consumer_secret
+      provider_only: true
     - api_field: createdAt
     - api_field: credentials.apiProducts.apiproduct
     - api_field: credentials.apiProducts.status
