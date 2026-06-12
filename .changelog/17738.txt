@@ -1,0 +1,3 @@
+```release-note:note
+compute: migrated parts of `google_compute_instance` and shared instance functions to use direct HTTP
+```

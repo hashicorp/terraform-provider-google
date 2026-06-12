@@ -55,14 +55,21 @@ func instanceSchedulingNodeAffinitiesElemSchema() *schema.Resource {
 	}
 }
 
-func expandAliasIpRanges(ranges []interface{}) []*compute.AliasIpRange {
-	ipRanges := make([]*compute.AliasIpRange, 0, len(ranges))
+func expandAliasIpRanges(ranges []interface{}) []interface{} {
+	ipRanges := make([]interface{}, 0, len(ranges))
 	for _, raw := range ranges {
 		data := raw.(map[string]interface{})
-		ipRanges = append(ipRanges, &compute.AliasIpRange{
-			IpCidrRange:         data["ip_cidr_range"].(string),
-			SubnetworkRangeName: data["subnetwork_range_name"].(string),
-		})
+		// Build the map with the API JSON field names, omitting empty values to
+		// mirror the omitempty semantics of the compute.AliasIpRange struct so the
+		// serialized request body is byte-identical.
+		ipRange := map[string]interface{}{}
+		if v := data["ip_cidr_range"].(string); v != "" {
+			ipRange["ipCidrRange"] = v
+		}
+		if v := data["subnetwork_range_name"].(string); v != "" {
+			ipRange["subnetworkRangeName"] = v
+		}
+		ipRanges = append(ipRanges, ipRange)
 	}
 	return ipRanges
 }
@@ -590,56 +597,69 @@ func networkInterfacesToInterface(networkInterfaces []*compute.NetworkInterface)
 	return result, nil
 }
 
-func expandAccessConfigs(configs []interface{}) []*compute.AccessConfig {
-	acs := make([]*compute.AccessConfig, len(configs))
+func expandAccessConfigs(configs []interface{}) []interface{} {
+	acs := make([]interface{}, len(configs))
 	for i, raw := range configs {
-		acs[i] = &compute.AccessConfig{}
-		acs[i].Type = "ONE_TO_ONE_NAT"
+		// Build a map keyed by the API JSON field names, omitting empty/zero values
+		// to mirror the omitempty semantics of the compute.AccessConfig struct.
+		ac := map[string]interface{}{
+			"type": "ONE_TO_ONE_NAT",
+		}
 		if raw != nil {
 			data := raw.(map[string]interface{})
-			acs[i].NatIP = data["nat_ip"].(string)
-			acs[i].NetworkTier = data["network_tier"].(string)
+			if v := data["nat_ip"].(string); v != "" {
+				ac["natIP"] = v
+			}
+			if v := data["network_tier"].(string); v != "" {
+				ac["networkTier"] = v
+			}
 			if ptr, ok := data["public_ptr_domain_name"]; ok && ptr != "" {
-				acs[i].SetPublicPtr = true
-				acs[i].PublicPtrDomainName = ptr.(string)
+				ac["setPublicPtr"] = true
+				ac["publicPtrDomainName"] = ptr.(string)
 			}
 		}
+		acs[i] = ac
 	}
 	return acs
 }
 
-func expandIpv6AccessConfigs(configs []interface{}) []*compute.AccessConfig {
-	iacs := make([]*compute.AccessConfig, len(configs))
+func expandIpv6AccessConfigs(configs []interface{}) []interface{} {
+	iacs := make([]interface{}, len(configs))
 	for i, raw := range configs {
-		iacs[i] = &compute.AccessConfig{}
+		// Build a map keyed by the API JSON field names, omitting empty/zero values
+		// to mirror the omitempty semantics of the compute.AccessConfig struct.
+		iac := map[string]interface{}{}
 		if raw != nil {
 			data := raw.(map[string]interface{})
-			iacs[i].NetworkTier = data["network_tier"].(string)
+			if v := data["network_tier"].(string); v != "" {
+				iac["networkTier"] = v
+			}
 			if ptr, ok := data["public_ptr_domain_name"]; ok && ptr != "" {
-				iacs[i].PublicPtrDomainName = ptr.(string)
+				iac["publicPtrDomainName"] = ptr.(string)
 			}
 			if eip, ok := data["external_ipv6"]; ok && eip != "" {
-				iacs[i].ExternalIpv6 = eip.(string)
+				iac["externalIpv6"] = eip.(string)
 			}
 			if eipl, ok := data["external_ipv6_prefix_length"]; ok && eipl != "" {
 				if strVal, ok := eipl.(string); ok {
-					if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-						iacs[i].ExternalIpv6PrefixLength = intVal
+					if intVal, err := tpgresource.StringToFixed64(strVal); err == nil && intVal != 0 {
+						iac["externalIpv6PrefixLength"] = intVal
 					}
 				}
 			}
 			if name, ok := data["name"]; ok && name != "" {
-				iacs[i].Name = name.(string)
+				iac["name"] = name.(string)
 			}
-			iacs[i].Type = "DIRECT_IPV6" // Currently only type supported
+			iac["type"] = "DIRECT_IPV6" // Currently only type supported
 		}
+		iacs[i] = iac
 	}
 	return iacs
 }
 
-func expandNetworkInterfaces(d tpgresource.TerraformResourceData, config *transport_tpg.Config) ([]*compute.NetworkInterface, error) {
+func expandNetworkInterfaces(d tpgresource.TerraformResourceData, config *transport_tpg.Config) ([]interface{}, error) {
 	configs := d.Get("network_interface").([]interface{})
-	ifaces := make([]*compute.NetworkInterface, len(configs))
+	ifaces := make([]interface{}, len(configs))
 	for i, raw := range configs {
 		data := raw.(map[string]interface{})
 
@@ -665,25 +685,110 @@ func expandNetworkInterfaces(d tpgresource.TerraformResourceData, config *transp
 			return nil, fmt.Errorf("cannot determine self_link for subnetwork %q: %s", subnetwork, err)
 		}
 
-		ifaces[i] = &compute.NetworkInterface{
-			NetworkIP:         data["network_ip"].(string),
-			Network:           nf.RelativeLink(),
-			NetworkAttachment: networkAttachment,
-			Vlan:              int64(data["vlan"].(int)),
-			Subnetwork:        sf.RelativeLink(),
-			AccessConfigs:     expandAccessConfigs(data["access_config"].([]interface{})),
-			AliasIpRanges:     expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
-
-			NicType:                  data["nic_type"].(string),
-			StackType:                data["stack_type"].(string),
-			QueueCount:               int64(data["queue_count"].(int)),
-			Ipv6AccessConfigs:        expandIpv6AccessConfigs(data["ipv6_access_config"].([]interface{})),
-			Ipv6Address:              data["ipv6_address"].(string),
-			InternalIpv6PrefixLength: int64(data["internal_ipv6_prefix_length"].(int)),
-			IgmpQuery:                data["igmp_query"].(string),
+		// Build a map keyed by the API JSON field names, omitting empty/zero values
+		// to mirror the omitempty semantics of the compute.NetworkInterface struct.
+		iface := map[string]interface{}{}
+		if v := data["network_ip"].(string); v != "" {
+			iface["networkIP"] = v
 		}
+		if v := nf.RelativeLink(); v != "" {
+			iface["network"] = v
+		}
+		if networkAttachment != "" {
+			iface["networkAttachment"] = networkAttachment
+		}
+		if v := int64(data["vlan"].(int)); v != 0 {
+			iface["vlan"] = v
+		}
+		if v := sf.RelativeLink(); v != "" {
+			iface["subnetwork"] = v
+		}
+		if acs := expandAccessConfigs(data["access_config"].([]interface{})); len(acs) > 0 {
+			iface["accessConfigs"] = acs
+		}
+		if air := expandAliasIpRanges(data["alias_ip_range"].([]interface{})); len(air) > 0 {
+			iface["aliasIpRanges"] = air
+		}
+
+		if v := data["nic_type"].(string); v != "" {
+			iface["nicType"] = v
+		}
+		if v := data["stack_type"].(string); v != "" {
+			iface["stackType"] = v
+		}
+		if v := int64(data["queue_count"].(int)); v != 0 {
+			iface["queueCount"] = v
+		}
+		if iacs := expandIpv6AccessConfigs(data["ipv6_access_config"].([]interface{})); len(iacs) > 0 {
+			iface["ipv6AccessConfigs"] = iacs
+		}
+		if v := data["ipv6_address"].(string); v != "" {
+			iface["ipv6Address"] = v
+		}
+		if v := int64(data["internal_ipv6_prefix_length"].(int)); v != 0 {
+			iface["internalIpv6PrefixLength"] = v
+		}
+		if v := data["igmp_query"].(string); v != "" {
+			iface["igmpQuery"] = v
+		}
+		ifaces[i] = iface
 	}
 	return ifaces, nil
+}
+
+// convertViaJSON marshals a map-based representation and unmarshals it into the
+// typed Apiary struct (slice). Used by the typed adapters below so the shared
+// helpers file does not depend on tpgresource.Convert, which is not available in
+// the tgc/tgc_next tpgresource packages.
+func convertViaJSON(in, out interface{}) error {
+	bytes, err := json.Marshal(in)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(bytes, out)
+}
+
+// expandNetworkInterfacesTyped adapts the map-based expandNetworkInterfaces
+// output to the typed []*compute.NetworkInterface still required by callers that
+// build Apiary request structs directly or read typed fields.
+func expandNetworkInterfacesTyped(d tpgresource.TerraformResourceData, config *transport_tpg.Config) ([]*compute.NetworkInterface, error) {
+	expanded, err := expandNetworkInterfaces(d, config)
+	if err != nil {
+		return nil, err
+	}
+	ifaces := make([]*compute.NetworkInterface, 0, len(expanded))
+	if err := convertViaJSON(expanded, &ifaces); err != nil {
+		return nil, fmt.Errorf("Error converting network interfaces: %s", err)
+	}
+	return ifaces, nil
+}
+
+// expandAccessConfigsTyped / expandIpv6AccessConfigsTyped / expandAliasIpRangesTyped
+// adapt the map-based expanders back to the typed Apiary slices still required by
+// callers that build compute structs field-by-field.
+func expandAccessConfigsTyped(configs []interface{}) ([]*compute.AccessConfig, error) {
+	return accessConfigsToTyped(expandAccessConfigs(configs))
+}
+
+func expandIpv6AccessConfigsTyped(configs []interface{}) ([]*compute.AccessConfig, error) {
+	return accessConfigsToTyped(expandIpv6AccessConfigs(configs))
+}
+
+func accessConfigsToTyped(expanded []interface{}) ([]*compute.AccessConfig, error) {
+	acs := make([]*compute.AccessConfig, 0, len(expanded))
+	if err := convertViaJSON(expanded, &acs); err != nil {
+		return nil, fmt.Errorf("Error converting access configs: %s", err)
+	}
+	return acs, nil
+}
+
+func expandAliasIpRangesTyped(ranges []interface{}) ([]*compute.AliasIpRange, error) {
+	expanded := expandAliasIpRanges(ranges)
+	out := make([]*compute.AliasIpRange, 0, len(expanded))
+	if err := convertViaJSON(expanded, &out); err != nil {
+		return nil, fmt.Errorf("Error converting alias ip ranges: %s", err)
+	}
+	return out, nil
 }
 
 func flattenServiceAccounts(serviceAccounts []interface{}) []map[string]interface{} {

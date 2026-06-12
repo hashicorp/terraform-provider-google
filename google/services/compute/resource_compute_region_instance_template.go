@@ -1232,23 +1232,14 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 	}
 	resourcePolicies := expandInstanceTemplateResourcePolicies(d, "resource_policies")
 
-	// Convert network interfaces (still typed) via JSON roundtrip
-	networksJSON, err := json.Marshal(networks)
-	if err != nil {
-		return fmt.Errorf("Error marshaling network interfaces: %s", err)
-	}
-	var networksIface interface{}
-	if err := json.Unmarshal(networksJSON, &networksIface); err != nil {
-		return fmt.Errorf("Error unmarshaling network interfaces: %s", err)
-	}
-
+	// network interfaces are already expanded to the map-based representation.
 	// Service accounts are already expanded to the map-based representation.
 	serviceAccountsIface := expandServiceAccounts(d.Get("service_account").([]interface{}))
 
 	instanceProperties := map[string]interface{}{
 		"machineType":       d.Get("machine_type").(string),
 		"disks":             disks,
-		"networkInterfaces": networksIface,
+		"networkInterfaces": networks,
 		"scheduling":        scheduling,
 	}
 	if d.Get("can_ip_forward").(bool) {
