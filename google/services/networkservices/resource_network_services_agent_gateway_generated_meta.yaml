@@ -21,6 +21,9 @@ fields:
       provider_only: true
     - field: name
       provider_only: true
+    - api_field: networkConfig.dnsPeeringConfig.domains
+    - api_field: networkConfig.dnsPeeringConfig.targetNetwork
+    - api_field: networkConfig.dnsPeeringConfig.targetProject
     - api_field: networkConfig.egress.networkAttachment
     - api_field: protocols
     - api_field: registries
