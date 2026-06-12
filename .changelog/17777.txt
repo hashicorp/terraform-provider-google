@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: added `network_rules` field on `google_network_security_authz_policy` resource
+```
