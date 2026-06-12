@@ -78,7 +78,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderScimToken_iamWorkforcePoolProvi
 				ResourceName:            "google_iam_workforce_pool_provider_scim_token.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "provider_id", "scim_tenant_id", "scim_token_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"location", "provider_id", "scim_tenant_id", "scim_token_id", "security_token", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider_scim_token.example",

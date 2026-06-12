@@ -31,6 +31,10 @@ To get more information about WorkforcePoolProviderScimToken, see:
 * How-to Guides
     * [Create a SCIM Token for the SCIM Tenant](https://cloud.google.com/iam/docs/workforce-sign-in-microsoft-entra-id-scalable-groups?group_type=extended#extended-attributes)
 
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `security_token`.
+[Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
+
 ## Example Usage - Iam Workforce Pool Provider Scim Token Basic
 
 
@@ -145,6 +149,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `security_token` -
   The token string provided to the IdP for authentication and will be set only during creation.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `state` -
   The current state of the scim token.

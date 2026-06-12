@@ -43,12 +43,15 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderScimToken_update(t *testing.T) 
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIAMWorkforcePoolWorkforcePoolProviderScimToken_full(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_iam_workforce_pool_provider_scim_token.scim_token", "security_token"),
+				),
 			},
 			{
 				ResourceName:            "google_iam_workforce_pool_provider_scim_token.scim_token",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"state"},
+				ImportStateVerifyIgnore: []string{"state", "security_token"},
 			},
 			{
 				Config: testAccIAMWorkforcePoolWorkforcePoolProviderScimToken_update(context),
@@ -57,12 +60,15 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderScimToken_update(t *testing.T) 
 						plancheck.ExpectResourceAction("google_iam_workforce_pool_provider_scim_token.scim_token", plancheck.ResourceActionUpdate),
 					},
 				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_iam_workforce_pool_provider_scim_token.scim_token", "security_token"),
+				),
 			},
 			{
 				ResourceName:            "google_iam_workforce_pool_provider_scim_token.scim_token",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"state"},
+				ImportStateVerifyIgnore: []string{"state", "security_token"},
 			},
 		},
 	})
