@@ -1097,6 +1097,185 @@ Examples:
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"network_rules": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A list of authorization HTTP rules to match against the incoming request.A policy match occurs when at least one HTTP rule matches the request or when no HTTP rules are specified in the policy. At least one HTTP Rule is required for Allow or Deny Action.
+Limited to 5 rules.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"from": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Describes properties of one or more sources of a request.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"not_sources": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Describes the negated properties of request sources. Matches requests from sources that do not match the criteria specified in this field. At least one of sources or notSources must be specified. Limited to 1 not_source.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"ip_blocks": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `A list of IP addresses or IP address ranges to match against the source IP address of the request. Limited to 10 ipBlocks per Authorization Policy`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"length": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: `The length of the address range.`,
+															},
+															"prefix": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The address prefix.`,
+															},
+														},
+													},
+												},
+												"principals": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of identities derived from the client's certificate. This field will not match on a request unless mutual TLS is enabled for the Forwarding rule or Gateway. Each identity is a string whose value is matched against the URI SAN, or DNS SAN or the subject field in the client's certificate. The match can be exact, prefix, suffix or a substring match. One of exact, prefix, suffix or contains must be specified.
+Limited to 5 principals.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"principal": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `Required. A non-empty string whose value is matched against the principal value based on the principalSelector.
+Only exact match can be applied for CLIENT_CERT_URI_SAN, CLIENT_CERT_DNS_NAME_SAN, CLIENT_CERT_COMMON_NAME selectors.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"exact": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must match exactly the string specified here.
+Examples:
+* abc only matches the value abc.`,
+																		},
+																	},
+																},
+															},
+															"principal_selector": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME", ""}),
+																Description:  `An enum to decide what principal value the principal rule will match against. If not specified, the PrincipalSelector is CLIENT_CERT_URI_SAN. Default value: "CLIENT_CERT_URI_SAN" Possible values: ["PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME"]`,
+																Default:      "CLIENT_CERT_URI_SAN",
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"sources": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Describes the properties of a request's sources. At least one of sources or notSources must be specified. Limited to 1 source. A match occurs when ANY source (in sources or notSources) matches the request. Within a single source, the match follows AND semantics across fields and OR semantics within a single field, i.e. a match occurs when ANY principal matches AND ANY ipBlocks match.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"ip_blocks": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `A list of IP addresses or IP address ranges to match against the source IP address of the request. Limited to 10 ipBlocks per Authorization Policy`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"length": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: `The length of the address range.`,
+															},
+															"prefix": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The address prefix.`,
+															},
+														},
+													},
+												},
+												"principals": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of identities derived from the client's certificate. This field will not match on a request unless mutual TLS is enabled for the Forwarding rule or Gateway. Each identity is a string whose value is matched against the URI SAN, or DNS SAN or the subject field in the client's certificate. The match can be exact, prefix, suffix or a substring match. One of exact, prefix, suffix or contains must be specified.
+Limited to 5 principals.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"principal": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `Required. A non-empty string whose value is matched against the principal value based on the principalSelector.
+Only exact match can be applied for CLIENT_CERT_URI_SAN, CLIENT_CERT_DNS_NAME_SAN, CLIENT_CERT_COMMON_NAME selectors.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"exact": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must match exactly the string specified here.
+Examples:
+* abc only matches the value abc.`,
+																		},
+																	},
+																},
+															},
+															"principal_selector": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME", ""}),
+																Description:  `An enum to decide what principal value the principal rule will match against. If not specified, the PrincipalSelector is CLIENT_CERT_URI_SAN. Default value: "CLIENT_CERT_URI_SAN" Possible values: ["PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME"]`,
+																Default:      "CLIENT_CERT_URI_SAN",
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"to": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Describes properties of one or more targets of a request`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"operations": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Describes properties of one or more targets of a request. At least one of operations or notOperations must be specified. Limited to 1 operation.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"snis": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: ``,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"exact": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: ``,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"policy_profile": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -1187,6 +1366,12 @@ func resourceNetworkSecurityAuthzPolicyCreate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("http_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(httpRulesProp)) && (ok || !reflect.DeepEqual(v, httpRulesProp)) {
 		obj["httpRules"] = httpRulesProp
+	}
+	networkRulesProp, err := expandNetworkSecurityAuthzPolicyNetworkRules(d.Get("network_rules"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("network_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkRulesProp)) && (ok || !reflect.DeepEqual(v, networkRulesProp)) {
+		obj["networkRules"] = networkRulesProp
 	}
 	actionProp, err := expandNetworkSecurityAuthzPolicyAction(d.Get("action"), d, config)
 	if err != nil {
@@ -1446,6 +1631,12 @@ func resourceNetworkSecurityAuthzPolicyUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("http_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, httpRulesProp)) {
 		obj["httpRules"] = httpRulesProp
 	}
+	networkRulesProp, err := expandNetworkSecurityAuthzPolicyNetworkRules(d.Get("network_rules"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("network_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkRulesProp)) {
+		obj["networkRules"] = networkRulesProp
+	}
 	actionProp, err := expandNetworkSecurityAuthzPolicyAction(d.Get("action"), d, config)
 	if err != nil {
 		return err
@@ -1490,6 +1681,10 @@ func resourceNetworkSecurityAuthzPolicyUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("http_rules") {
 		updateMask = append(updateMask, "httpRules")
+	}
+
+	if d.HasChange("network_rules") {
+		updateMask = append(updateMask, "networkRules")
 	}
 
 	if d.HasChange("action") {
@@ -2660,6 +2855,291 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToNotOperationsMethods(v interfac
 }
 
 func flattenNetworkSecurityAuthzPolicyHttpRulesWhen(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"from": flattenNetworkSecurityAuthzPolicyNetworkRulesFrom(original["from"], d, config),
+			"to":   flattenNetworkSecurityAuthzPolicyNetworkRulesTo(original["to"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFrom(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["sources"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromSources(original["sources"], d, config)
+	transformed["not_sources"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSources(original["notSources"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"ip_blocks":  flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocks(original["ipBlocks"], d, config),
+			"principals": flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipals(original["principals"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"prefix": flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocksPrefix(original["prefix"], d, config),
+			"length": flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocksLength(original["length"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocksPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocksLength(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipals(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"principal_selector": flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalSelector(original["principalSelector"], d, config),
+			"principal":          flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipal(original["principal"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalSelector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["exact"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalExact(original["exact"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"ip_blocks":  flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocks(original["ipBlocks"], d, config),
+			"principals": flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipals(original["principals"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"prefix": flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocksPrefix(original["prefix"], d, config),
+			"length": flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocksLength(original["length"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocksPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocksLength(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipals(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"principal_selector": flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalSelector(original["principalSelector"], d, config),
+			"principal":          flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipal(original["principal"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalSelector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["exact"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalExact(original["exact"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesTo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["operations"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesToOperations(original["operations"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"snis": flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnis(original["snis"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnis(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"exact": flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisExact(original["exact"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4413,6 +4893,411 @@ func expandNetworkSecurityAuthzPolicyHttpRulesWhen(v interface{}, d tpgresource.
 	return v, nil
 }
 
+func expandNetworkSecurityAuthzPolicyNetworkRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedFrom, err := expandNetworkSecurityAuthzPolicyNetworkRulesFrom(original["from"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFrom); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["from"] = transformedFrom
+		}
+
+		transformedTo, err := expandNetworkSecurityAuthzPolicyNetworkRulesTo(original["to"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["to"] = transformedTo
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSources, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSources(original["sources"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSources); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sources"] = transformedSources
+	}
+
+	transformedNotSources, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSources(original["not_sources"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNotSources); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["notSources"] = transformedNotSources
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedIpBlocks, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocks(original["ip_blocks"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpBlocks); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ipBlocks"] = transformedIpBlocks
+		}
+
+		transformedPrincipals, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipals(original["principals"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrincipals); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["principals"] = transformedPrincipals
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPrefix, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocksPrefix(original["prefix"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["prefix"] = transformedPrefix
+		}
+
+		transformedLength, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocksLength(original["length"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLength); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["length"] = transformedLength
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocksPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocksLength(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipals(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPrincipalSelector, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalSelector(original["principal_selector"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrincipalSelector); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["principalSelector"] = transformedPrincipalSelector
+		}
+
+		transformedPrincipal, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipal(original["principal"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrincipal); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["principal"] = transformedPrincipal
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalSelector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipal(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExact, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalExact(original["exact"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exact"] = transformedExact
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedIpBlocks, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocks(original["ip_blocks"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpBlocks); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ipBlocks"] = transformedIpBlocks
+		}
+
+		transformedPrincipals, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipals(original["principals"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrincipals); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["principals"] = transformedPrincipals
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPrefix, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocksPrefix(original["prefix"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["prefix"] = transformedPrefix
+		}
+
+		transformedLength, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocksLength(original["length"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLength); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["length"] = transformedLength
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocksPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocksLength(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipals(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPrincipalSelector, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalSelector(original["principal_selector"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrincipalSelector); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["principalSelector"] = transformedPrincipalSelector
+		}
+
+		transformedPrincipal, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipal(original["principal"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrincipal); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["principal"] = transformedPrincipal
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalSelector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipal(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExact, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalExact(original["exact"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exact"] = transformedExact
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesTo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedOperations, err := expandNetworkSecurityAuthzPolicyNetworkRulesToOperations(original["operations"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOperations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["operations"] = transformedOperations
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedSnis, err := expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnis(original["snis"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSnis); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["snis"] = transformedSnis
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnis(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedExact, err := expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisExact(original["exact"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["exact"] = transformedExact
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkSecurityAuthzPolicyAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -4526,6 +5411,9 @@ func ResourceNetworkSecurityAuthzPolicyFlatten(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading AuthzPolicy: %s", err)
 	}
 	if err = d.Set("http_rules", flattenNetworkSecurityAuthzPolicyHttpRules(res["httpRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzPolicy: %s", err)
+	}
+	if err = d.Set("network_rules", flattenNetworkSecurityAuthzPolicyNetworkRules(res["networkRules"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AuthzPolicy: %s", err)
 	}
 	if err = d.Set("action", flattenNetworkSecurityAuthzPolicyAction(res["action"], d, config)); err != nil {

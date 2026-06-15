@@ -309,6 +309,141 @@ resource "google_network_security_authz_policy" "default" {
   }
 }
 ```
+## Example Usage - Network Security Authz Policy With Network Rules
+
+
+```hcl
+resource "google_compute_network" "default" {
+  name                    = "lb-network"
+  project                 = "my-project-name"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "backend-subnet"
+  project       = "my-project-name"
+  region        = "us-east4"
+  ip_cidr_range = "10.1.2.0/24"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_subnetwork" "proxy_only" {
+  name          = "proxy-only-subnet"
+  project       = "my-project-name"
+  region        = "us-east4"
+  ip_cidr_range = "10.129.0.0/23"
+
+  purpose = "REGIONAL_MANAGED_PROXY"
+  role    = "ACTIVE"
+
+  network = google_compute_network.default.id
+}
+
+resource "google_network_security_gateway_security_policy" "default" {
+  name     = "swp-policy"
+  project  = "my-project-name"
+  location = "us-east4"
+}
+
+resource "google_compute_address" "swp_ip" {
+  name         = "swp-gateway" # Alterado para amarrar com a regra de nomenclatura do GCP
+  project      = "my-project-name"
+  region       = "us-east4"
+
+  subnetwork   = google_compute_subnetwork.default.id
+  address_type = "INTERNAL"
+}
+
+resource "google_network_services_gateway" "swp_gateway" {
+  name     = "swp-gateway"
+  project  = "my-project-name"
+  location = "us-east4"
+
+  type = "SECURE_WEB_GATEWAY"
+
+  addresses = [google_compute_address.swp_ip.address]
+  ports     = [443]
+  delete_swg_autogen_router_on_destroy = true
+  scope      = "swp-scope"
+  network    = google_compute_network.default.id
+  subnetwork = google_compute_subnetwork.default.id
+
+  gateway_security_policy = google_network_security_gateway_security_policy.default.id
+
+  depends_on = [
+    google_compute_subnetwork.proxy_only
+  ]
+}
+
+resource "google_network_security_authz_policy" "default" {
+  name           = "authz-policy"
+  project        = "my-project-name"
+  location       = "us-east4"
+
+  description    = "SWP authorization policy"
+  policy_profile = "REQUEST_AUTHZ"
+
+  target {
+    load_balancing_scheme = "INTERNAL_MANAGED"
+
+    resources = [
+      google_network_services_gateway.swp_gateway.id
+    ]
+  }
+
+  action = "ALLOW"
+
+  network_rules {
+    from {
+      not_sources {
+        ip_blocks {
+          prefix = "10.1.5.0"
+          length = 24
+        }
+
+        principals {
+          principal_selector = "CLIENT_CERT_URI_SAN"
+
+          principal {
+            exact = "spiffe://example/ns/default/sa/example"
+          }
+        }
+      }
+      sources {
+        ip_blocks {
+          length = 24
+          prefix = "10.2.0.0"
+        }
+        
+        principals {
+          principal_selector = "CLIENT_CERT_URI_SAN"
+          
+          principal {
+            exact = "spiffe://example.com/ns/prod/sa/app-valid"
+          }
+        }
+      }
+    }
+
+    to {
+      operations {
+        snis {
+          exact = "example.com"
+        }
+      }
+    }
+  }
+
+  labels = {
+    environment = "test"
+    managed_by  = "terraform"
+  }
+
+  lifecycle {
+    create_before_destroy = false
+  }
+}
+```
 
 ## Argument Reference
 
@@ -367,6 +502,12 @@ The following arguments are supported:
   A list of authorization HTTP rules to match against the incoming request.A policy match occurs when at least one HTTP rule matches the request or when no HTTP rules are specified in the policy. At least one HTTP Rule is required for Allow or Deny Action.
   Limited to 5 rules.
   Structure is [documented below](#nested_http_rules).
+
+* `network_rules` -
+  (Optional)
+  A list of authorization HTTP rules to match against the incoming request.A policy match occurs when at least one HTTP rule matches the request or when no HTTP rules are specified in the policy. At least one HTTP Rule is required for Allow or Deny Action.
+  Limited to 5 rules.
+  Structure is [documented below](#nested_network_rules).
 
 * `custom_provider` -
   (Optional)
@@ -1093,6 +1234,146 @@ The following arguments are supported:
   The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
   Examples:
   * abc matches the value xyz.abc.def
+
+<a name="nested_network_rules"></a>The `network_rules` block supports:
+
+* `from` -
+  (Optional)
+  Describes properties of one or more sources of a request.
+  Structure is [documented below](#nested_network_rules_from).
+
+* `to` -
+  (Optional)
+  Describes properties of one or more targets of a request
+  Structure is [documented below](#nested_network_rules_to).
+
+
+<a name="nested_network_rules_from"></a>The `from` block supports:
+
+* `sources` -
+  (Optional)
+  Describes the properties of a request's sources. At least one of sources or notSources must be specified. Limited to 1 source. A match occurs when ANY source (in sources or notSources) matches the request. Within a single source, the match follows AND semantics across fields and OR semantics within a single field, i.e. a match occurs when ANY principal matches AND ANY ipBlocks match.
+  Structure is [documented below](#nested_network_rules_from_sources).
+
+* `not_sources` -
+  (Optional)
+  Describes the negated properties of request sources. Matches requests from sources that do not match the criteria specified in this field. At least one of sources or notSources must be specified. Limited to 1 not_source.
+  Structure is [documented below](#nested_network_rules_from_not_sources).
+
+
+<a name="nested_network_rules_from_sources"></a>The `sources` block supports:
+
+* `ip_blocks` -
+  (Optional)
+  A list of IP addresses or IP address ranges to match against the source IP address of the request. Limited to 10 ipBlocks per Authorization Policy
+  Structure is [documented below](#nested_network_rules_from_sources_ip_blocks).
+
+* `principals` -
+  (Optional)
+  A list of identities derived from the client's certificate. This field will not match on a request unless mutual TLS is enabled for the Forwarding rule or Gateway. Each identity is a string whose value is matched against the URI SAN, or DNS SAN or the subject field in the client's certificate. The match can be exact, prefix, suffix or a substring match. One of exact, prefix, suffix or contains must be specified.
+  Limited to 5 principals.
+  Structure is [documented below](#nested_network_rules_from_sources_principals).
+
+
+<a name="nested_network_rules_from_sources_ip_blocks"></a>The `ip_blocks` block supports:
+
+* `prefix` -
+  (Required)
+  The address prefix.
+
+* `length` -
+  (Required)
+  The length of the address range.
+
+<a name="nested_network_rules_from_sources_principals"></a>The `principals` block supports:
+
+* `principal_selector` -
+  (Optional)
+  An enum to decide what principal value the principal rule will match against. If not specified, the PrincipalSelector is CLIENT_CERT_URI_SAN.
+  Default value is `CLIENT_CERT_URI_SAN`.
+  Possible values are: `PRINCIPAL_SELECTOR_UNSPECIFIED`, `CLIENT_CERT_URI_SAN`, `CLIENT_CERT_DNS_NAME_SAN`, `CLIENT_CERT_COMMON_NAME`.
+
+* `principal` -
+  (Optional)
+  Required. A non-empty string whose value is matched against the principal value based on the principalSelector.
+  Only exact match can be applied for CLIENT_CERT_URI_SAN, CLIENT_CERT_DNS_NAME_SAN, CLIENT_CERT_COMMON_NAME selectors.
+  Structure is [documented below](#nested_network_rules_from_sources_principals_principal).
+
+
+<a name="nested_network_rules_from_sources_principals_principal"></a>The `principal` block supports:
+
+* `exact` -
+  (Optional)
+  The input string must match exactly the string specified here.
+  Examples:
+  * abc only matches the value abc.
+
+<a name="nested_network_rules_from_not_sources"></a>The `not_sources` block supports:
+
+* `ip_blocks` -
+  (Optional)
+  A list of IP addresses or IP address ranges to match against the source IP address of the request. Limited to 10 ipBlocks per Authorization Policy
+  Structure is [documented below](#nested_network_rules_from_not_sources_ip_blocks).
+
+* `principals` -
+  (Optional)
+  A list of identities derived from the client's certificate. This field will not match on a request unless mutual TLS is enabled for the Forwarding rule or Gateway. Each identity is a string whose value is matched against the URI SAN, or DNS SAN or the subject field in the client's certificate. The match can be exact, prefix, suffix or a substring match. One of exact, prefix, suffix or contains must be specified.
+  Limited to 5 principals.
+  Structure is [documented below](#nested_network_rules_from_not_sources_principals).
+
+
+<a name="nested_network_rules_from_not_sources_ip_blocks"></a>The `ip_blocks` block supports:
+
+* `prefix` -
+  (Required)
+  The address prefix.
+
+* `length` -
+  (Required)
+  The length of the address range.
+
+<a name="nested_network_rules_from_not_sources_principals"></a>The `principals` block supports:
+
+* `principal_selector` -
+  (Optional)
+  An enum to decide what principal value the principal rule will match against. If not specified, the PrincipalSelector is CLIENT_CERT_URI_SAN.
+  Default value is `CLIENT_CERT_URI_SAN`.
+  Possible values are: `PRINCIPAL_SELECTOR_UNSPECIFIED`, `CLIENT_CERT_URI_SAN`, `CLIENT_CERT_DNS_NAME_SAN`, `CLIENT_CERT_COMMON_NAME`.
+
+* `principal` -
+  (Optional)
+  Required. A non-empty string whose value is matched against the principal value based on the principalSelector.
+  Only exact match can be applied for CLIENT_CERT_URI_SAN, CLIENT_CERT_DNS_NAME_SAN, CLIENT_CERT_COMMON_NAME selectors.
+  Structure is [documented below](#nested_network_rules_from_not_sources_principals_principal).
+
+
+<a name="nested_network_rules_from_not_sources_principals_principal"></a>The `principal` block supports:
+
+* `exact` -
+  (Optional)
+  The input string must match exactly the string specified here.
+  Examples:
+  * abc only matches the value abc.
+
+<a name="nested_network_rules_to"></a>The `to` block supports:
+
+* `operations` -
+  (Optional)
+  Describes properties of one or more targets of a request. At least one of operations or notOperations must be specified. Limited to 1 operation.
+  Structure is [documented below](#nested_network_rules_to_operations).
+
+
+<a name="nested_network_rules_to_operations"></a>The `operations` block supports:
+
+* `snis` -
+  (Optional)
+  Structure is [documented below](#nested_network_rules_to_operations_snis).
+
+
+<a name="nested_network_rules_to_operations_snis"></a>The `snis` block supports:
+
+* `exact` -
+  (Optional)
 
 <a name="nested_custom_provider"></a>The `custom_provider` block supports:
 
