@@ -70,6 +70,44 @@ func icebergTablePropertiesDiffSuppress(k, old, new string, d *schema.ResourceDa
 	return false
 }
 
+// expandIcebergTableSortOrderForCommit converts the Terraform "sort_order" block
+// into the SortOrder body of an "add-sort-order" commit update. The "order-id" is
+// assigned by the server, so only the fields are sent. Returns nil when no sort
+// order is configured.
+func expandIcebergTableSortOrderForCommit(v interface{}) map[string]interface{} {
+	l, ok := v.([]interface{})
+	if !ok || len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	raw, ok := l[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	rawFields, ok := raw["fields"].([]interface{})
+	if !ok || len(rawFields) == 0 {
+		return nil
+	}
+	fields := make([]interface{}, 0, len(rawFields))
+	for _, f := range rawFields {
+		fm, ok := f.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		fields = append(fields, map[string]interface{}{
+			"source-id":  fm["source_id"],
+			"transform":  fm["transform"],
+			"direction":  fm["direction"],
+			"null-order": fm["null_order"],
+		})
+	}
+	return map[string]interface{}{
+		// order-id is required on the SortOrder body; the server reassigns it,
+		// and "set-default-sort-order: -1" then selects this last-added order.
+		"order-id": 1,
+		"fields":   fields,
+	}
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -303,6 +341,51 @@ func ResourceBiglakeIcebergIcebergTable() *schema.Resource {
 				Description:      `User-defined properties for the table.`,
 				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
+			"sort_order": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `The sort order of the table.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"fields": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: ``,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"direction": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The sort direction for the sort field. Possible values: "asc", "desc".`,
+									},
+									"null_order": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The null ordering for the sort field. Possible values: "nulls-first", "nulls-last".`,
+									},
+									"source_id": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: `The source field ID for the sort field.`,
+									},
+									"transform": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The transform to apply to the source field.`,
+									},
+								},
+							},
+						},
+						"order_id": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The unique identifier of the sort order.`,
+						},
+					},
+				},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -358,11 +441,22 @@ func resourceBiglakeIcebergIcebergTableCreate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("partition_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(partitionSpecProp)) && (ok || !reflect.DeepEqual(v, partitionSpecProp)) {
 		obj["partition-spec"] = partitionSpecProp
 	}
+	sortOrderProp, err := expandBiglakeIcebergIcebergTableSortOrder(d.Get("sort_order"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("sort_order"); !tpgresource.IsEmptyValue(reflect.ValueOf(sortOrderProp)) && (ok || !reflect.DeepEqual(v, sortOrderProp)) {
+		obj["write-order"] = sortOrderProp
+	}
 	propertiesProp, err := expandBiglakeIcebergIcebergTableProperties(d.Get("properties"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("properties"); !tpgresource.IsEmptyValue(reflect.ValueOf(propertiesProp)) && (ok || !reflect.DeepEqual(v, propertiesProp)) {
 		obj["properties"] = propertiesProp
+	}
+
+	obj, err = resourceBiglakeIcebergIcebergTableEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"iceberg/v1/restcatalog/v1/projects/{{project}}/catalogs/{{catalog}}/namespaces/{{namespace}}/tables")
@@ -564,6 +658,48 @@ func resourceBiglakeIcebergIcebergTableRead(d *schema.ResourceData, meta interfa
 			}
 		}
 
+		// Same for sort order. The create request sends "write-order", but the
+		// table metadata returns the list of "sort-orders" plus the id of the
+		// current one in "default-sort-order-id".
+		if sortOrders, ok := metadata["sort-orders"].([]interface{}); ok {
+			defaultSortOrderId := -1
+			if id, ok := metadata["default-sort-order-id"]; ok {
+				switch v := id.(type) {
+				case json.Number:
+					id64, _ := v.Int64()
+					defaultSortOrderId = int(id64)
+				case float64:
+					defaultSortOrderId = int(v)
+				case int:
+					defaultSortOrderId = v
+				}
+			}
+
+			for _, s := range sortOrders {
+				if sm, ok := s.(map[string]interface{}); ok {
+					sid := -1
+					if id, ok := sm["order-id"]; ok {
+						switch v := id.(type) {
+						case json.Number:
+							id64, _ := v.Int64()
+							sid = int(id64)
+						case float64:
+							sid = int(v)
+						case int:
+							sid = v
+						}
+					}
+					if sid == defaultSortOrderId {
+						res["write-order"] = sm
+						break
+					}
+				}
+			}
+			if _, ok := res["write-order"]; !ok && len(sortOrders) > 0 {
+				res["write-order"] = sortOrders[0]
+			}
+		}
+
 		res["location"] = metadata["location"]
 		res["properties"] = metadata["properties"]
 	}
@@ -708,6 +844,12 @@ func resourceBiglakeIcebergIcebergTableUpdate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("partition_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, partitionSpecProp)) {
 		obj["partition-spec"] = partitionSpecProp
+	}
+	sortOrderProp, err := expandBiglakeIcebergIcebergTableSortOrder(d.Get("sort_order"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("sort_order"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sortOrderProp)) {
+		obj["write-order"] = sortOrderProp
 	}
 	propertiesProp, err := expandBiglakeIcebergIcebergTableProperties(d.Get("properties"), d, config)
 	if err != nil {
@@ -1036,6 +1178,88 @@ func flattenBiglakeIcebergIcebergTablePartitionSpecFieldsTransform(v interface{}
 	return v
 }
 
+func flattenBiglakeIcebergIcebergTableSortOrder(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["order_id"] =
+		flattenBiglakeIcebergIcebergTableSortOrderOrderId(original["order-id"], d, config)
+	transformed["fields"] =
+		flattenBiglakeIcebergIcebergTableSortOrderFields(original["fields"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBiglakeIcebergIcebergTableSortOrderOrderId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenBiglakeIcebergIcebergTableSortOrderFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"source_id":  flattenBiglakeIcebergIcebergTableSortOrderFieldsSourceId(original["source-id"], d, config),
+			"transform":  flattenBiglakeIcebergIcebergTableSortOrderFieldsTransform(original["transform"], d, config),
+			"direction":  flattenBiglakeIcebergIcebergTableSortOrderFieldsDirection(original["direction"], d, config),
+			"null_order": flattenBiglakeIcebergIcebergTableSortOrderFieldsNullOrder(original["null-order"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenBiglakeIcebergIcebergTableSortOrderFieldsSourceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenBiglakeIcebergIcebergTableSortOrderFieldsTransform(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergTableSortOrderFieldsDirection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergTableSortOrderFieldsNullOrder(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenBiglakeIcebergIcebergTableProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1271,6 +1495,101 @@ func expandBiglakeIcebergIcebergTablePartitionSpecFieldsTransform(v interface{},
 	return v, nil
 }
 
+func expandBiglakeIcebergIcebergTableSortOrder(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedOrderId, err := expandBiglakeIcebergIcebergTableSortOrderOrderId(original["order_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOrderId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["order-id"] = transformedOrderId
+	}
+
+	transformedFields, err := expandBiglakeIcebergIcebergTableSortOrderFields(original["fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fields"] = transformedFields
+	}
+
+	return transformed, nil
+}
+
+func expandBiglakeIcebergIcebergTableSortOrderOrderId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergTableSortOrderFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedSourceId, err := expandBiglakeIcebergIcebergTableSortOrderFieldsSourceId(original["source_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSourceId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["source-id"] = transformedSourceId
+		}
+
+		transformedTransform, err := expandBiglakeIcebergIcebergTableSortOrderFieldsTransform(original["transform"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTransform); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["transform"] = transformedTransform
+		}
+
+		transformedDirection, err := expandBiglakeIcebergIcebergTableSortOrderFieldsDirection(original["direction"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDirection); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["direction"] = transformedDirection
+		}
+
+		transformedNullOrder, err := expandBiglakeIcebergIcebergTableSortOrderFieldsNullOrder(original["null_order"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNullOrder); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["null-order"] = transformedNullOrder
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandBiglakeIcebergIcebergTableSortOrderFieldsSourceId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergTableSortOrderFieldsTransform(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergTableSortOrderFieldsDirection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergTableSortOrderFieldsNullOrder(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandBiglakeIcebergIcebergTableProperties(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1282,7 +1601,24 @@ func expandBiglakeIcebergIcebergTableProperties(v interface{}, d tpgresource.Ter
 	return m, nil
 }
 
+func resourceBiglakeIcebergIcebergTableEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// The Iceberg SortOrder sent as "write-order" requires an "order-id", and the
+	// create request is rejected without it. order_id is not user-settable (it is
+	// output-only in the schema): a table created with a sort order always gets
+	// id 1, since id 0 is reserved for the unsorted order. So we inject 1 here
+	// rather than asking the user for it.
+	if wo, ok := obj["write-order"].(map[string]interface{}); ok {
+		if _, hasId := wo["order-id"]; !hasId {
+			wo["order-id"] = 1
+		}
+	}
+	return obj, nil
+}
+
 func resourceBiglakeIcebergIcebergTableUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Accumulate the metadata update actions of a CommitTableRequest.
+	updateActions := []interface{}{}
+
 	if d.HasChange("properties") {
 		oldProp, newProp := d.GetChange("properties")
 		oldMap := oldProp.(map[string]interface{})
@@ -1306,19 +1642,40 @@ func resourceBiglakeIcebergIcebergTableUpdateEncoder(d *schema.ResourceData, met
 			updates[k] = v.(string)
 		}
 
+		updateActions = append(updateActions,
+			map[string]interface{}{
+				"action":  "set-properties",
+				"updates": updates,
+			},
+			map[string]interface{}{
+				"action":   "remove-properties",
+				"removals": removals,
+			},
+		)
+	}
+
+	if d.HasChange("sort_order") {
+		if sortOrder := expandIcebergTableSortOrderForCommit(d.Get("sort_order")); sortOrder != nil {
+			// Add the new sort order, then make it the table's default. The
+			// server assigns the new order id, so "-1" selects the last added.
+			updateActions = append(updateActions,
+				map[string]interface{}{
+					"action":     "add-sort-order",
+					"sort-order": sortOrder,
+				},
+				map[string]interface{}{
+					"action":        "set-default-sort-order",
+					"sort-order-id": -1,
+				},
+			)
+		}
+	}
+
+	if len(updateActions) > 0 {
 		// Wrap in 'updates' and 'requirements' as per CommitTableRequest
 		return map[string]interface{}{
 			"requirements": []interface{}{},
-			"updates": []interface{}{
-				map[string]interface{}{
-					"action":  "set-properties",
-					"updates": updates,
-				},
-				map[string]interface{}{
-					"action":   "remove-properties",
-					"removals": removals,
-				},
-			},
+			"updates":      updateActions,
 		}, nil
 	}
 	return nil, nil
@@ -1337,6 +1694,9 @@ func ResourceBiglakeIcebergIcebergTableFlatten(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading IcebergTable: %s", err)
 	}
 	if err = d.Set("partition_spec", flattenBiglakeIcebergIcebergTablePartitionSpec(res["partition-spec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergTable: %s", err)
+	}
+	if err = d.Set("sort_order", flattenBiglakeIcebergIcebergTableSortOrder(res["write-order"], d, config)); err != nil {
 		return fmt.Errorf("Error reading IcebergTable: %s", err)
 	}
 	if err = d.Set("properties", flattenBiglakeIcebergIcebergTableProperties(res["properties"], d, config)); err != nil {

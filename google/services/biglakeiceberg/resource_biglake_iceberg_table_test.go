@@ -97,6 +97,20 @@ resource "google_biglake_iceberg_table" "my_iceberg_table" {
       type     = "long"
       required = true
     }
+    fields {
+      id       = 2
+      name     = "data"
+      type     = "long"
+      required = true
+    }
+  }
+  sort_order {
+    fields {
+      source_id  = 1
+      transform  = "identity"
+      direction  = "asc"
+      null_order = "nulls-first"
+    }
   }
 
   properties = {
@@ -136,6 +150,20 @@ resource "google_biglake_iceberg_table" "my_iceberg_table" {
       name     = "id"
       type     = "long"
       required = true
+    }
+    fields {
+      id       = 2
+      name     = "data"
+      type     = "long"
+      required = true
+    }
+  }
+  sort_order {
+    fields {
+      source_id  = 2
+      transform  = "bucket[4]"
+      direction  = "desc"
+      null_order = "nulls-last"
     }
   }
 
