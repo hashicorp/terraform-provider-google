@@ -314,14 +314,12 @@ resource "google_network_security_authz_policy" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "lb-network"
   project                 = "my-project-name"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider                = google-beta
   name          = "backend-subnet"
   project       = "my-project-name"
   region        = "us-east4"
@@ -330,7 +328,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_subnetwork" "proxy_only" {
-  provider                = google-beta
   name          = "proxy-only-subnet"
   project       = "my-project-name"
   region        = "us-east4"
@@ -343,14 +340,12 @@ resource "google_compute_subnetwork" "proxy_only" {
 }
 
 resource "google_network_security_gateway_security_policy" "default" {
-  provider                = google-beta
   name     = "swp-policy"
   project  = "my-project-name"
   location = "us-east4"
 }
 
 resource "google_compute_address" "swp_ip" {
-  provider     = google-beta
   name         = "swp-gateway" # Alterado para amarrar com a regra de nomenclatura do GCP
   project      = "my-project-name"
   region       = "us-east4"
@@ -360,7 +355,6 @@ resource "google_compute_address" "swp_ip" {
 }
 
 resource "google_network_services_gateway" "swp_gateway" {
-  provider                = google-beta
   name     = "swp-gateway"
   project  = "my-project-name"
   location = "us-east4"
@@ -382,7 +376,6 @@ resource "google_network_services_gateway" "swp_gateway" {
 }
 
 resource "google_network_security_authz_policy" "default" {
-  provider = google-beta
   name           = "authz-policy"
   project        = "my-project-name"
   location       = "us-east4"
