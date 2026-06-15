@@ -19,6 +19,7 @@ package sql_test
 import (
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -2712,6 +2713,47 @@ func TestAccSqlDatabaseInstance_ActiveDirectory(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance-with-ad",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_SelfManagedActiveDirectory(t *testing.T) {
+	adDomainName := os.Getenv("TF_SQL_CMAD_DOMAIN")
+	secretName := os.Getenv("TF_SQL_CMAD_SECRET_NAME")
+	dnsServersEnv := os.Getenv("TF_SQL_CMAD_DNS_SERVERS")
+	ou := os.Getenv("TF_SQL_CMAD_OU")
+	if adDomainName == "" || secretName == "" || dnsServersEnv == "" || ou == "" {
+		t.Skip("TF_SQL_CMAD_DOMAIN, TF_SQL_CMAD_SECRET_NAME, TF_SQL_CMAD_DNS_SERVERS, and TF_SQL_CMAD_OU must be set for self-managed Active Directory acceptance tests")
+	}
+
+	var dnsServersList []string
+	for _, ip := range strings.Split(dnsServersEnv, ",") {
+		dnsServersList = append(dnsServersList, fmt.Sprintf("%q", strings.TrimSpace(ip)))
+	}
+	dnsServersHCL := fmt.Sprintf("[%s]", strings.Join(dnsServersList, ", "))
+
+	t.Parallel()
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+	networkName := os.Getenv("TF_SQL_CMAD_NETWORK")
+	if networkName == "" {
+		networkName = servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "sql-instance-cmad-1")
+	}
+	rootPassword := acctest.RandString(t, 15) + "A1!"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_SelfManagedActiveDirectoryConfig(databaseName, networkName, rootPassword, adDomainName, secretName, dnsServersHCL, ou),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance-with-self-managed-ad",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
@@ -5515,6 +5557,36 @@ resource "google_sql_database_instance" "instance-with-ad" {
     }
   }
 }`, networkName, databaseName, rootPassword, adDomainName)
+}
+
+func testGoogleSqlDatabaseInstance_SelfManagedActiveDirectoryConfig(databaseName, networkName, rootPassword, adDomainName, secretName, dnsServersHCL, ou string) string {
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_sql_database_instance" "instance-with-self-managed-ad" {
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "SQLSERVER_2022_STANDARD"
+  root_password    = "%s"
+  deletion_protection = false
+  settings {
+    tier = "db-custom-2-7680"
+    ip_configuration {
+      ipv4_enabled       = "false"
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+
+    active_directory_config {
+      domain                       = "%s"
+      mode                         = "CUSTOMER_MANAGED_ACTIVE_DIRECTORY"
+      dns_servers                  = %s
+      admin_credential_secret_name = "%s"
+      organizational_unit          = "%s"
+    }
+  }
+}`, networkName, databaseName, rootPassword, adDomainName, dnsServersHCL, secretName, ou)
 }
 
 func testGoogleSqlDatabaseInstance_DenyMaintenancePeriodConfig(databaseName, endDate, startDate, time string) string {

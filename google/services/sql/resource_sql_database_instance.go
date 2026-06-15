@@ -249,6 +249,7 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 			pitrSupportDbCustomizeDiff,
 			nodeCountCustomDiff,
 			autoUpgradeEnabledCustomizeDiff,
+			activeDirectoryCustomizeDiff,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
@@ -343,6 +344,28 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 										Type:        schema.TypeString,
 										Required:    true,
 										Description: `Domain name of the Active Directory for SQL Server (e.g., mydomain.com).`,
+									},
+									"mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"MANAGED_ACTIVE_DIRECTORY", "CUSTOMER_MANAGED_ACTIVE_DIRECTORY"}, false),
+										Description:  `The mode of the Active Directory configuration. Can be MANAGED_ACTIVE_DIRECTORY or CUSTOMER_MANAGED_ACTIVE_DIRECTORY.`,
+									},
+									"dns_servers": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: `Domain controller IPv4 addresses used to bootstrap Active Directory.`,
+									},
+									"admin_credential_secret_name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The secret manager key storing the administrator credential. (e.g., projects/{project}/secrets/{secret}).`,
+									},
+									"organizational_unit": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The organizational unit distinguished name. This is the full hierarchical path to the organizational unit.`,
 									},
 								},
 							},
@@ -1557,6 +1580,25 @@ func autoUpgradeEnabledCustomizeDiff(_ context.Context, d *schema.ResourceDiff, 
 	return nil
 }
 
+func activeDirectoryCustomizeDiff(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
+	if v, ok := d.GetOk("settings.0.active_directory_config"); ok {
+		l := v.([]interface{})
+		if len(l) > 0 && l[0] != nil {
+			config := l[0].(map[string]interface{})
+			if mode, ok := config["mode"].(string); ok && mode == "CUSTOMER_MANAGED_ACTIVE_DIRECTORY" {
+				dnsServers, _ := config["dns_servers"].([]interface{})
+				secretName, _ := config["admin_credential_secret_name"].(string)
+				ou, _ := config["organizational_unit"].(string)
+
+				if len(dnsServers) == 0 || secretName == "" || ou == "" {
+					return fmt.Errorf("dns_servers, admin_credential_secret_name, and organizational_unit must all be provided when mode is CUSTOMER_MANAGED_ACTIVE_DIRECTORY")
+				}
+			}
+		}
+	}
+	return nil
+}
+
 // helper function to see if string within list contains a particular substring
 func stringContainsSlice(arr []string, str string) bool {
 	for _, i := range arr {
@@ -2164,14 +2206,29 @@ func expandBackupRetentionSettings(configured interface{}) *sqladmin.BackupReten
 
 func expandActiveDirectoryConfig(configured interface{}) *sqladmin.SqlActiveDirectoryConfig {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
 
 	config := l[0].(map[string]interface{})
-	return &sqladmin.SqlActiveDirectoryConfig{
+	adConfig := &sqladmin.SqlActiveDirectoryConfig{
 		Domain: config["domain"].(string),
 	}
+
+	if v, ok := config["mode"].(string); ok && v != "" {
+		adConfig.Mode = v
+	}
+	if v, ok := config["dns_servers"].([]interface{}); ok && len(v) > 0 {
+		adConfig.DnsServers = tpgresource.ConvertStringArr(v)
+	}
+	if v, ok := config["admin_credential_secret_name"].(string); ok && v != "" {
+		adConfig.AdminCredentialSecretName = v
+	}
+	if v, ok := config["organizational_unit"].(string); ok && v != "" {
+		adConfig.OrganizationalUnit = v
+	}
+
+	return adConfig
 }
 
 func expandDenyMaintenancePeriod(configured []interface{}) []*sqladmin.DenyMaintenancePeriod {
@@ -3232,7 +3289,11 @@ func flattenActiveDirectoryConfig(sqlActiveDirectoryConfig *sqladmin.SqlActiveDi
 	}
 	return []map[string]interface{}{
 		{
-			"domain": sqlActiveDirectoryConfig.Domain,
+			"domain":                       sqlActiveDirectoryConfig.Domain,
+			"mode":                         sqlActiveDirectoryConfig.Mode,
+			"dns_servers":                  sqlActiveDirectoryConfig.DnsServers,
+			"admin_credential_secret_name": sqlActiveDirectoryConfig.AdminCredentialSecretName,
+			"organizational_unit":          sqlActiveDirectoryConfig.OrganizationalUnit,
 		},
 	}
 }
