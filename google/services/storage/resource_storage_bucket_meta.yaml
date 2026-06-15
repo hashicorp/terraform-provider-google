@@ -70,6 +70,10 @@ fields:
     provider_only: true
   - api_field: 'lifecycle.rule.condition.isLive'
     field: 'lifecycle_rule.condition.with_state'
+  - api_field: 'lifecycle.rule.condition.sizeAboveBytes'
+    field: 'lifecycle_rule.condition.size_above_bytes'
+  - api_field: 'lifecycle.rule.condition.sizeBelowBytes'
+    field: 'lifecycle_rule.condition.size_below_bytes'
   - api_field: 'location'
   - api_field: 'logging.logBucket'
   - api_field: 'logging.logObjectPrefix'

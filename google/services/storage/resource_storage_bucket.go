@@ -351,6 +351,16 @@ func ResourceStorageBucket() *schema.Resource {
 										Optional:    true,
 										Description: `While set true, num_newer_versions value will be sent in the request even for zero value of the field. This field is only useful for setting 0 value to the num_newer_versions field. It can be used alone or together with num_newer_versions.`,
 									},
+									"size_above_bytes": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Objects having a size greater than this value in bytes will be matched.`,
+									},
+									"size_below_bytes": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Objects having a size less than this value in bytes will be matched.`,
+									},
 								},
 							},
 							Description: `The Lifecycle Rule's condition configuration.`,
@@ -1961,6 +1971,8 @@ func flattenBucketLifecycleRuleCondition(index int, d *schema.ResourceData, cond
 		"noncurrent_time_before":     condition.NoncurrentTimeBefore,
 		"matches_prefix":             tpgresource.ConvertStringArrToInterface(condition.MatchesPrefix),
 		"matches_suffix":             tpgresource.ConvertStringArrToInterface(condition.MatchesSuffix),
+		"size_above_bytes":           int(condition.SizeAboveBytes),
+		"size_below_bytes":           int(condition.SizeBelowBytes),
 	}
 	if condition.Age != nil {
 		ruleCondition["age"] = int(*condition.Age)
@@ -2221,6 +2233,13 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 		}
 		transformed.MatchesSuffix = transformedSuffixes
 	}
+	if v, ok := condition["size_above_bytes"]; ok {
+		transformed.SizeAboveBytes = int64(v.(int))
+	}
+
+	if v, ok := condition["size_below_bytes"]; ok {
+		transformed.SizeBelowBytes = int64(v.(int))
+	}
 
 	return transformed, nil
 }
@@ -2322,6 +2341,13 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 		for _, matches_suffix := range matches_suffixes {
 			buf.WriteString(fmt.Sprintf("%s-", matches_suffix))
 		}
+	}
+	if v, ok := m["size_above_bytes"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+	}
+
+	if v, ok := m["size_below_bytes"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
 	}
 
 	return tpgresource.Hashcode(buf.String())
