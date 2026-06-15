@@ -27,5 +27,15 @@ fields:
     - api_field: schema.identifier-field-ids
     - api_field: schema.schema-id
     - api_field: schema.type
+    - api_field: write-order.fields.direction
+      field: sort_order.fields.direction
+    - api_field: write-order.fields.null-order
+      field: sort_order.fields.null_order
+    - api_field: write-order.fields.source-id
+      field: sort_order.fields.source_id
+    - api_field: write-order.fields.transform
+      field: sort_order.fields.transform
+    - api_field: write-order.order-id
+      field: sort_order.order_id
     - field: deletion_policy
       provider_only: true

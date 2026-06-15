@@ -83,6 +83,55 @@ resource "google_biglake_iceberg_table" "my_iceberg_table" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=biglake_iceberg_table_sort_order&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Biglake Iceberg Table Sort Order
+
+
+```hcl
+resource "google_storage_bucket" "bucket" {
+  name          = "my-bucket"
+  location      = "us-central1"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_biglake_iceberg_catalog" "catalog" {
+  name = google_storage_bucket.bucket.name
+  catalog_type = "CATALOG_TYPE_GCS_BUCKET"
+}
+
+resource "google_biglake_iceberg_namespace" "namespace" {
+  catalog = google_biglake_iceberg_catalog.catalog.name
+  namespace_id = "my_namespace"
+}
+
+resource "google_biglake_iceberg_table" "my_iceberg_table" {
+  catalog   = google_biglake_iceberg_catalog.catalog.name
+  namespace = google_biglake_iceberg_namespace.namespace.namespace_id
+  name      = "my_table"
+  schema {
+    type = "struct"
+    fields {
+      id       = 1
+      name     = "id"
+      type     = "long"
+      required = true
+    }
+  }
+  sort_order {
+    fields {
+      source_id  = 1
+      transform  = "identity"
+      direction  = "asc"
+      null_order = "nulls-first"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=biglake_iceberg_table_update&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -159,6 +208,11 @@ The following arguments are supported:
   (Optional)
   The partition spec of the table.
   Structure is [documented below](#nested_partition_spec).
+
+* `sort_order` -
+  (Optional)
+  The sort order of the table.
+  Structure is [documented below](#nested_sort_order).
 
 * `properties` -
   (Optional)
@@ -244,6 +298,35 @@ The following arguments are supported:
 * `transform` -
   (Required)
   The transform to apply to the source field.
+
+<a name="nested_sort_order"></a>The `sort_order` block supports:
+
+* `order_id` -
+  (Output)
+  The unique identifier of the sort order.
+
+* `fields` -
+  (Required)
+  Structure is [documented below](#nested_sort_order_fields).
+
+
+<a name="nested_sort_order_fields"></a>The `fields` block supports:
+
+* `source_id` -
+  (Required)
+  The source field ID for the sort field.
+
+* `transform` -
+  (Required)
+  The transform to apply to the source field.
+
+* `direction` -
+  (Required)
+  The sort direction for the sort field. Possible values: "asc", "desc".
+
+* `null_order` -
+  (Required)
+  The null ordering for the sort field. Possible values: "nulls-first", "nulls-last".
 
 ## Attributes Reference
 
