@@ -76,7 +76,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBa
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",
@@ -134,7 +134,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlFu
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "location", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",
@@ -209,7 +209,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBa
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "oidc.0.client_secret.0.value.0.plain_text", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",
@@ -277,7 +277,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcFu
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "location", "oidc.0.client_secret.0.value.0.plain_text", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",
@@ -363,7 +363,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcUp
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "oidc.0.client_secret.0.value.0.plain_text", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",
@@ -432,7 +432,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraA
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "location", "oidc.0.client_secret.0.value.0.plain_text", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",
@@ -510,7 +510,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraA
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "location", "oidc.0.client_secret.0.value.0.plain_text", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",
@@ -592,7 +592,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraA
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "location", "oidc.0.client_secret.0.value.0.plain_text", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",
@@ -671,7 +671,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraA
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "location", "oidc.0.client_secret.0.value.0.plain_text", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",
@@ -752,7 +752,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtend
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "location", "oidc.0.client_secret.0.value.0.plain_text", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",
@@ -830,7 +830,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtend
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "location", "oidc.0.client_secret.0.value.0.plain_text", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",
@@ -911,7 +911,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDe
 				ResourceName:            "google_iam_workforce_pool_provider.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "oidc.0.client_secret.0.value.0.plain_text", "provider_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version", "location", "oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo", "oidc.0.client_secret.0.value.0.plain_text_wo_version", "provider_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider.example",

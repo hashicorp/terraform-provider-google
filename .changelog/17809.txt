@@ -1,0 +1,89 @@
+```release-note:enhancement
+iamworkforcepool: write-only support for `oidc.client_secret` in `google_iam_workforce_pool_provider`
+```
+
+### Local test
+
+```console
+╰─❮ make testacc TEST=./google/services/iamworkforcepool TESTARGS='-run=TestAccIAMWorkforcePoolWorkforcePoolProvider_oidcWo'
+sh -c "'/Users/ramon/go/src/github.com/hashicorp/terraform-provider-google/scripts/gofmtcheck.sh'"
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC_REFRESH_AFTER_APPLY=1 TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/iamworkforcepool -v -run=TestAccIAMWorkforcePoolWorkforcePoolProvider_oidcWo -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_oidcWo
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_oidcWo
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_oidcWo
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_oidcWo (142.24s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/iamworkforcepool (cached)
+```
+
+```console
+╰─❯ make testacc TEST=./google/services/iamworkforcepool TESTARGS='-run=TestAccIAMWorkforcePoolWorkforcePoolProvider_'
+sh -c "'/Users/ramon/go/src/github.com/hashicorp/terraform-provider-google/scripts/gofmtcheck.sh'"
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC_REFRESH_AFTER_APPLY=1 TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/iamworkforcepool -v -run=TestAccIAMWorkforcePoolWorkforcePoolProvider_ -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBasicExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBasicExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlFullExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlFullExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBasicExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBasicExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcFullExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcFullExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcUploadKeyExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcUploadKeyExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientBasicExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientBasicExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientFullExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientFullExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientBasicExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientBasicExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientFullExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientFullExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientBasicExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientBasicExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientFullExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientFullExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDetailedAuditLoggingExample
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDetailedAuditLoggingExample
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_oidc
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_oidc
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_saml
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_saml
+=== RUN   TestAccIAMWorkforcePoolWorkforcePoolProvider_oidcWo
+=== PAUSE TestAccIAMWorkforcePoolWorkforcePoolProvider_oidcWo
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBasicExample
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientFullExample
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_oidc
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDetailedAuditLoggingExample
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_oidcWo
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientFullExample
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientBasicExample
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientFullExample
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientBasicExample
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientBasicExample
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcUploadKeyExample
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcFullExample
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBasicExample
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlFullExample
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBasicExample (121.13s)
+=== CONT  TestAccIAMWorkforcePoolWorkforcePoolProvider_saml
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBasicExample (131.43s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcUploadKeyExample (131.86s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientFullExample (132.78s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientBasicExample (132.96s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientBasicExample (133.02s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientFullExample (133.57s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlFullExample (133.99s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDetailedAuditLoggingExample (135.90s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientBasicExample (137.40s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcFullExample (143.96s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientFullExample (144.19s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_oidcWo (147.66s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_oidc (189.63s)
+--- PASS: TestAccIAMWorkforcePoolWorkforcePoolProvider_saml (165.37s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/iamworkforcepool 287.279s
+```

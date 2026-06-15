@@ -332,9 +332,25 @@ attribute mapping. Possible values: ["AZURE_AD_GROUPS_ID"]`,
 											Schema: map[string]*schema.Schema{
 												"plain_text": {
 													Type:         schema.TypeString,
-													Required:     true,
+													Optional:     true,
 													ValidateFunc: validation.StringIsNotEmpty,
 													Description:  `The plain text of the client secret value.`,
+													Sensitive:    true,
+													ExactlyOneOf: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo"},
+												},
+												"plain_text_wo": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `The plain text of the client secret value.`,
+													WriteOnly:    true,
+													ExactlyOneOf: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo"},
+													RequiredWith: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version"},
+												},
+												"plain_text_wo_version": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `Triggers update of 'plain_text_wo' write-only. Increment this value when an update to 'plain_text_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+													RequiredWith: []string{"extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo"},
 												},
 												"thumbprint": {
 													Type:        schema.TypeString,
@@ -429,9 +445,25 @@ attribute mapping. Possible values: ["AZURE_AD_GROUPS_MAIL", "AZURE_AD_GROUPS_ID
 											Schema: map[string]*schema.Schema{
 												"plain_text": {
 													Type:         schema.TypeString,
-													Required:     true,
+													Optional:     true,
 													ValidateFunc: validation.StringIsNotEmpty,
 													Description:  `The plain text of the client secret value.`,
+													Sensitive:    true,
+													ExactlyOneOf: []string{"extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo"},
+												},
+												"plain_text_wo": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `The plain text of the client secret value.`,
+													WriteOnly:    true,
+													ExactlyOneOf: []string{"extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo"},
+													RequiredWith: []string{"extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version"},
+												},
+												"plain_text_wo_version": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `Triggers update of 'plain_text_wo' write-only. Increment this value when an update to 'plain_text_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+													RequiredWith: []string{"extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo"},
 												},
 												"thumbprint": {
 													Type:        schema.TypeString,
@@ -505,10 +537,25 @@ details.`,
 											Schema: map[string]*schema.Schema{
 												"plain_text": {
 													Type:         schema.TypeString,
-													Required:     true,
+													Optional:     true,
 													ValidateFunc: validation.StringIsNotEmpty,
 													Description:  `The plain text of the client secret value.`,
 													Sensitive:    true,
+													ExactlyOneOf: []string{"oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo"},
+												},
+												"plain_text_wo": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `The plain text of the client secret value.`,
+													WriteOnly:    true,
+													ExactlyOneOf: []string{"oidc.0.client_secret.0.value.0.plain_text", "oidc.0.client_secret.0.value.0.plain_text_wo"},
+													RequiredWith: []string{"oidc.0.client_secret.0.value.0.plain_text_wo_version"},
+												},
+												"plain_text_wo_version": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `Triggers update of 'plain_text_wo' write-only. Increment this value when an update to 'plain_text_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+													RequiredWith: []string{"oidc.0.client_secret.0.value.0.plain_text_wo"},
 												},
 												"thumbprint": {
 													Type:        schema.TypeString,
@@ -1375,6 +1422,7 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValue(v interfa
 	}
 	transformed := make(map[string]interface{})
 	transformed["thumbprint"] = original["thumbprint"]
+	transformed["plain_text_wo_version"] = d.Get("oidc.0.client_secret.0.value.0.plain_text_wo_version")
 	// Trigger a diff based on the plain_text if there is no change in the thumbprint,
 	// otherwise leave plain_text empty to always trigger a diff.
 	if original["thumbprint"].(string) == d.Get("oidc.0.client_secret.0.value.0.thumbprint").(string) {
@@ -1468,6 +1516,7 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderExtraAttributesOauth2ClientClie
 	}
 	transformed := make(map[string]interface{})
 	transformed["thumbprint"] = original["thumbprint"]
+	transformed["plain_text_wo_version"] = d.Get("extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version")
 	// Trigger a diff based on the plain_text if there is no change in the thumbprint,
 	// otherwise leave plain_text empty to always trigger a diff.
 	if original["thumbprint"].(string) == d.Get("extra_attributes_oauth2_client.0.client_secret.0.value.0.thumbprint").(string) {
@@ -1549,6 +1598,7 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderExtendedAttributesOauth2ClientC
 	}
 	transformed := make(map[string]interface{})
 	transformed["thumbprint"] = original["thumbprint"]
+	transformed["plain_text_wo_version"] = d.Get("extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo_version")
 	// Trigger a diff based on the plain_text if there is no change in the thumbprint,
 	// otherwise leave plain_text empty to always trigger a diff.
 	if original["thumbprint"].(string) == d.Get("extended_attributes_oauth2_client.0.client_secret.0.value.0.thumbprint").(string) {
@@ -1745,6 +1795,13 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValue(v interfac
 		transformed["thumbprint"] = transformedThumbprint
 	}
 
+	transformedPlainTextWo, err := expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValuePlainTextWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "oidc.0.client_secret.0.value.0.plain_text_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPlainTextWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["plainText"] = transformedPlainTextWo
+	}
+
 	return transformed, nil
 }
 
@@ -1753,6 +1810,14 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValuePlainText(v
 }
 
 func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValueThumbprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValuePlainTextWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValuePlainTextWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1914,6 +1979,13 @@ func expandIAMWorkforcePoolWorkforcePoolProviderExtraAttributesOauth2ClientClien
 		transformed["thumbprint"] = transformedThumbprint
 	}
 
+	transformedPlainTextWo, err := expandIAMWorkforcePoolWorkforcePoolProviderExtraAttributesOauth2ClientClientSecretValuePlainTextWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPlainTextWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["plainText"] = transformedPlainTextWo
+	}
+
 	return transformed, nil
 }
 
@@ -1922,6 +1994,14 @@ func expandIAMWorkforcePoolWorkforcePoolProviderExtraAttributesOauth2ClientClien
 }
 
 func expandIAMWorkforcePoolWorkforcePoolProviderExtraAttributesOauth2ClientClientSecretValueThumbprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderExtraAttributesOauth2ClientClientSecretValuePlainTextWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderExtraAttributesOauth2ClientClientSecretValuePlainTextWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2061,6 +2141,13 @@ func expandIAMWorkforcePoolWorkforcePoolProviderExtendedAttributesOauth2ClientCl
 		transformed["thumbprint"] = transformedThumbprint
 	}
 
+	transformedPlainTextWo, err := expandIAMWorkforcePoolWorkforcePoolProviderExtendedAttributesOauth2ClientClientSecretValuePlainTextWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "extended_attributes_oauth2_client.0.client_secret.0.value.0.plain_text_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPlainTextWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["plainText"] = transformedPlainTextWo
+	}
+
 	return transformed, nil
 }
 
@@ -2069,6 +2156,14 @@ func expandIAMWorkforcePoolWorkforcePoolProviderExtendedAttributesOauth2ClientCl
 }
 
 func expandIAMWorkforcePoolWorkforcePoolProviderExtendedAttributesOauth2ClientClientSecretValueThumbprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderExtendedAttributesOauth2ClientClientSecretValuePlainTextWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderExtendedAttributesOauth2ClientClientSecretValuePlainTextWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
