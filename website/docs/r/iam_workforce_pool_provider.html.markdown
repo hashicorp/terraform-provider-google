@@ -34,8 +34,11 @@ To get more information about WorkforcePoolProvider, see:
 billing/quota project. The account team notifies you when the project is granted access.
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `oidc.client_secret.value.plain_text`.
+values will be stored in the raw state as plain text: `oidc.client_secret.value.plain_text`, `extra_attributes_oauth2_client.client_secret.value.plain_text`, `extended_attributes_oauth2_client.client_secret.value.plain_text`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
+
+~> **Note:**  All arguments marked as write-only values will not be stored in the state: `oidc.client_secret.value.plain_text_wo`, `extra_attributes_oauth2_client.client_secret.value.plain_text_wo`, `extended_attributes_oauth2_client.client_secret.value.plain_text_wo`.
+[Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
 
 ## Example Usage - Iam Workforce Pool Provider Saml Basic
 
@@ -709,13 +712,24 @@ The following arguments are supported:
 <a name="nested_oidc_client_secret_value"></a>The `value` block supports:
 
 * `plain_text` -
-  (Required)
+  (Optional)
   The plain text of the client secret value.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `thumbprint` -
   (Output)
   A thumbprint to represent the current client secret value.
+
+* `plain_text_wo` -
+  (Optional, Write-Only)
+  The plain text of the client secret value.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `plain_text` or `plain_text_wo` can only be set.
+
+* `plain_text_wo_version` -
+  (Optional)
+  Triggers update of `plain_text_wo` write-only. Increment this value when an update to `plain_text_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 <a name="nested_oidc_web_sso_config"></a>The `web_sso_config` block supports:
 
@@ -796,12 +810,24 @@ The following arguments are supported:
 <a name="nested_extra_attributes_oauth2_client_client_secret_value"></a>The `value` block supports:
 
 * `plain_text` -
-  (Required)
+  (Optional)
   The plain text of the client secret value.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `thumbprint` -
   (Output)
   A thumbprint to represent the current client secret value.
+
+* `plain_text_wo` -
+  (Optional, Write-Only)
+  The plain text of the client secret value.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `plain_text` or `plain_text_wo` can only be set.
+
+* `plain_text_wo_version` -
+  (Optional)
+  Triggers update of `plain_text_wo` write-only. Increment this value when an update to `plain_text_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 <a name="nested_extra_attributes_oauth2_client_query_parameters"></a>The `query_parameters` block supports:
 
@@ -858,12 +884,24 @@ The following arguments are supported:
 <a name="nested_extended_attributes_oauth2_client_client_secret_value"></a>The `value` block supports:
 
 * `plain_text` -
-  (Required)
+  (Optional)
   The plain text of the client secret value.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `thumbprint` -
   (Output)
   A thumbprint to represent the current client secret value.
+
+* `plain_text_wo` -
+  (Optional, Write-Only)
+  The plain text of the client secret value.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `plain_text` or `plain_text_wo` can only be set.
+
+* `plain_text_wo_version` -
+  (Optional)
+  Triggers update of `plain_text_wo` write-only. Increment this value when an update to `plain_text_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 <a name="nested_extended_attributes_oauth2_client_query_parameters"></a>The `query_parameters` block supports:
 

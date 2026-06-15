@@ -16,12 +16,20 @@ fields:
     - api_field: extendedAttributesOauth2Client.attributesType
     - api_field: extendedAttributesOauth2Client.clientId
     - api_field: extendedAttributesOauth2Client.clientSecret.value.plainText
+    - api_field: extendedAttributesOauth2Client.clientSecret.value.plainText
+      field: extended_attributes_oauth2_client.client_secret.value.plain_text_wo
+    - field: extended_attributes_oauth2_client.client_secret.value.plain_text_wo_version
+      provider_only: true
     - api_field: extendedAttributesOauth2Client.clientSecret.value.thumbprint
     - api_field: extendedAttributesOauth2Client.issuerUri
     - api_field: extendedAttributesOauth2Client.queryParameters.filter
     - api_field: extraAttributesOauth2Client.attributesType
     - api_field: extraAttributesOauth2Client.clientId
     - api_field: extraAttributesOauth2Client.clientSecret.value.plainText
+    - api_field: extraAttributesOauth2Client.clientSecret.value.plainText
+      field: extra_attributes_oauth2_client.client_secret.value.plain_text_wo
+    - field: extra_attributes_oauth2_client.client_secret.value.plain_text_wo_version
+      provider_only: true
     - api_field: extraAttributesOauth2Client.clientSecret.value.thumbprint
     - api_field: extraAttributesOauth2Client.issuerUri
     - api_field: extraAttributesOauth2Client.queryParameters.filter
@@ -30,6 +38,10 @@ fields:
     - api_field: name
     - api_field: oidc.clientId
     - api_field: oidc.clientSecret.value.plainText
+    - api_field: oidc.clientSecret.value.plainText
+      field: oidc.client_secret.value.plain_text_wo
+    - field: oidc.client_secret.value.plain_text_wo_version
+      provider_only: true
     - api_field: oidc.clientSecret.value.thumbprint
     - api_field: oidc.issuerUri
     - api_field: oidc.jwksJson
